@@ -31,30 +31,33 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
     required this.modifiedDate,
   });
 
-  factory ProposedOfferSecurityDepositDetailsWithPaymentStageData.fromJson(Map<String, dynamic> json) =>
-      ProposedOfferSecurityDepositDetailsWithPaymentStageData(
-        proposedOfferSecurityDepositDetailsWithPaymentStageId: parseValue<int>(
-          json,
-          "ProposedOfferSecurityDepositDetailsWithPaymentStageId",
-        ),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        buildingId: parseValue<int>(json, "BuildingId"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        type: parseValue<String>(json, "Type"),
-        stage: parseValue<String>(json, "Stage"),
-        amount: parseValue<double>(json, "Amount"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: json["ModifiedDate"] == null
+  factory ProposedOfferSecurityDepositDetailsWithPaymentStageData.fromJson(
+    Map<String, dynamic> json,
+  ) => ProposedOfferSecurityDepositDetailsWithPaymentStageData(
+    proposedOfferSecurityDepositDetailsWithPaymentStageId: parseValue<int>(
+      json,
+      "ProposedOfferSecurityDepositDetailsWithPaymentStageId",
+    ),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    buildingId: parseValue<int>(json, "BuildingId"),
+    projectId: parseValue<int>(json, "ProjectId"),
+    type: parseValue<String>(json, "Type"),
+    stage: parseValue<String>(json, "Stage"),
+    amount: parseValue<double>(json, "Amount"),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
-      );
+  );
 
   Map<String, dynamic> toJson() => {
-    "ProposedOfferSecurityDepositDetailsWithPaymentStageId": proposedOfferSecurityDepositDetailsWithPaymentStageId,
+    "ProposedOfferSecurityDepositDetailsWithPaymentStageId":
+        proposedOfferSecurityDepositDetailsWithPaymentStageId,
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
@@ -70,20 +73,22 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
   };
 }
 
-
 class SecurityDepositModel {
   int proposedOfferSecurityDepositDetailsId;
   String uniquekey;
   int buildingId;
   int projectId;
   double securityDepositToSocietyAmount;
-  List<ProposedOfferSecurityDepositDetailsWithPaymentStageData> proposedOfferSecurityDepositDetailsWithPaymentStageData;
+  List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
+  proposedOfferSecurityDepositDetailsWithPaymentStageData;
   int createdById;
   String createdBy;
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  double interestAmount;
+  String remark;
 
   SecurityDepositModel({
     required this.proposedOfferSecurityDepositDetailsId,
@@ -98,43 +103,65 @@ class SecurityDepositModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.interestAmount,
+    required this.remark,
   });
 
-  factory SecurityDepositModel.fromJson(Map<String, dynamic> json) =>
-      SecurityDepositModel(
-        proposedOfferSecurityDepositDetailsId: parseValue<int>(
-          json,
-          "ProposedOfferSecurityDepositDetailsId",
-        ),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        buildingId: parseValue<int>(json, "BuildingId"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        securityDepositToSocietyAmount: parseValue<double>(json, "SecurityDepositToSocietyAmount"),
-        proposedOfferSecurityDepositDetailsWithPaymentStageData: (json["ProposedOfferSecurityDepositDetailsWithPaymentStageData"] as List<dynamic>)
-            .map((item) => ProposedOfferSecurityDepositDetailsWithPaymentStageData.fromJson(item as Map<String, dynamic>))
+  factory SecurityDepositModel.fromJson(
+    Map<String, dynamic> json,
+  ) => SecurityDepositModel(
+    proposedOfferSecurityDepositDetailsId: parseValue<int>(
+      json,
+      "ProposedOfferSecurityDepositDetailsId",
+    ),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    buildingId: parseValue<int>(json, "BuildingId"),
+    projectId: parseValue<int>(json, "ProjectId"),
+    securityDepositToSocietyAmount: parseValue<double>(
+      json,
+      "SecurityDepositToSocietyAmount",
+    ),
+    proposedOfferSecurityDepositDetailsWithPaymentStageData:
+        (json["ProposedOfferSecurityDepositDetailsWithPaymentStageData"]
+                as List<dynamic>)
+            .map(
+              (item) =>
+                  ProposedOfferSecurityDepositDetailsWithPaymentStageData.fromJson(
+                    item as Map<String, dynamic>,
+                  ),
+            )
             .toList(),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: json["ModifiedDate"] == null
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
-      );
+    interestAmount: parseValue<double>(json, "InterestAmount"),
+    remark: parseValue<String>(json, "Remark"),
+  );
 
   Map<String, dynamic> toJson() => {
-    "ProposedOfferSecurityDepositDetailsId": proposedOfferSecurityDepositDetailsId,
+    "ProposedOfferSecurityDepositDetailsId":
+        proposedOfferSecurityDepositDetailsId,
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
     "SecurityDepositToSocietyAmount": securityDepositToSocietyAmount,
-    "ProposedOfferSecurityDepositDetailsWithPaymentStageData": proposedOfferSecurityDepositDetailsWithPaymentStageData.map((item) => item.toJson()).toList(),
+    "ProposedOfferSecurityDepositDetailsWithPaymentStageData":
+        proposedOfferSecurityDepositDetailsWithPaymentStageData
+            .map((item) => item.toJson())
+            .toList(),
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "InterestAmount": interestAmount,
+    "Remark": remark,
   };
 }

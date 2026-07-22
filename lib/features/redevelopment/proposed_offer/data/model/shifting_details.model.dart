@@ -33,31 +33,34 @@ class ProposedOfferShiftingDetailsWithPaymentStageData {
     required this.modifiedDate,
   });
 
-  factory ProposedOfferShiftingDetailsWithPaymentStageData.fromJson(Map<String, dynamic> json) =>
-      ProposedOfferShiftingDetailsWithPaymentStageData(
-        proposedOfferShiftingDetailsWithPaymentStageId: parseValue<int>(
-          json,
-          "ProposedOfferShiftingDetailsWithPaymentStageId",
-        ),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        buildingId: parseValue<int>(json, "BuildingId"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        type: parseValue<String>(json, "Type"),
-        stage: parseValue<String>(json, "Stage"),
-        stagePercentage: parseValue<double>(json, "StagePercentage"),
-        amount: parseValue<double>(json, "Amount"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: json["ModifiedDate"] == null
+  factory ProposedOfferShiftingDetailsWithPaymentStageData.fromJson(
+    Map<String, dynamic> json,
+  ) => ProposedOfferShiftingDetailsWithPaymentStageData(
+    proposedOfferShiftingDetailsWithPaymentStageId: parseValue<int>(
+      json,
+      "ProposedOfferShiftingDetailsWithPaymentStageId",
+    ),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    buildingId: parseValue<int>(json, "BuildingId"),
+    projectId: parseValue<int>(json, "ProjectId"),
+    type: parseValue<String>(json, "Type"),
+    stage: parseValue<String>(json, "Stage"),
+    stagePercentage: parseValue<double>(json, "StagePercentage"),
+    amount: parseValue<double>(json, "Amount"),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
-      );
+  );
 
   Map<String, dynamic> toJson() => {
-    "ProposedOfferShiftingDetailsWithPaymentStageId": proposedOfferShiftingDetailsWithPaymentStageId,
+    "ProposedOfferShiftingDetailsWithPaymentStageId":
+        proposedOfferShiftingDetailsWithPaymentStageId,
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
@@ -81,13 +84,15 @@ class ShiftingDetailsModel {
   int projectId;
   double shiftingOfferedToResidentialAmount;
   double shiftingOfferedToCommercialAmount;
-  List<ProposedOfferShiftingDetailsWithPaymentStageData> proposedOfferShiftingDetailsWithPaymentStageData;
+  List<ProposedOfferShiftingDetailsWithPaymentStageData>
+  proposedOfferShiftingDetailsWithPaymentStageData;
   int createdById;
   String createdBy;
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String remark;
 
   ShiftingDetailsModel({
     required this.proposedOfferShiftingDetailsId,
@@ -103,6 +108,7 @@ class ShiftingDetailsModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.remark,
   });
 
   factory ShiftingDetailsModel.fromJson(Map<String, dynamic> json) =>
@@ -122,17 +128,27 @@ class ShiftingDetailsModel {
           json,
           "ShiftingOfferedToCommercialAmount",
         ),
-        proposedOfferShiftingDetailsWithPaymentStageData: (json["ProposedOfferShiftingDetailsWithPaymentStageData"] as List<dynamic>?)
-            ?.map((item) => ProposedOfferShiftingDetailsWithPaymentStageData.fromJson(item as Map<String, dynamic>))
-            .toList() ?? [],
+        proposedOfferShiftingDetailsWithPaymentStageData:
+            (json["ProposedOfferShiftingDetailsWithPaymentStageData"]
+                    as List<dynamic>?)
+                ?.map(
+                  (item) =>
+                      ProposedOfferShiftingDetailsWithPaymentStageData.fromJson(
+                        item as Map<String, dynamic>,
+                      ),
+                )
+                .toList() ??
+            [],
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
+        remark: parseValue<String>(json, "Remark"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -142,12 +158,16 @@ class ShiftingDetailsModel {
     "ProjectId": projectId,
     "ShiftingOfferedToResidentialAmount": shiftingOfferedToResidentialAmount,
     "ShiftingOfferedToCommercialAmount": shiftingOfferedToCommercialAmount,
-    "ProposedOfferShiftingDetailsWithPaymentStageData": proposedOfferShiftingDetailsWithPaymentStageData.map((item) => item.toJson()).toList(),
+    "ProposedOfferShiftingDetailsWithPaymentStageData":
+        proposedOfferShiftingDetailsWithPaymentStageData
+            .map((item) => item.toJson())
+            .toList(),
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Remark": remark,
   };
 }

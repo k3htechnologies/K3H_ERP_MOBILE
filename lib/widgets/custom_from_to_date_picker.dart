@@ -11,6 +11,10 @@ class CustomFromToDatePicker extends StatefulWidget {
 
   final Function(DateTime? fromDate, DateTime? toDate) onToDateChanged;
 
+  /// Validators
+  final String? Function(DateTime?)? fromDateValidator;
+  final String? Function(DateTime?)? toDateValidator;
+
   const CustomFromToDatePicker({
     super.key,
     this.initialFromDate,
@@ -20,6 +24,8 @@ class CustomFromToDatePicker extends StatefulWidget {
     this.removeBottomMargin = true,
     this.fromDateTitle = 'From',
     this.toDateTitle = 'To',
+    this.fromDateValidator,
+    this.toDateValidator,
   });
 
   @override
@@ -49,18 +55,17 @@ class _CustomFromToDatePickerState extends State<CustomFromToDatePicker> {
             isRequired: widget.isRequired,
             endDate: toDate,
             removeBottomMargin: widget.removeBottomMargin,
+            validator: widget.fromDateValidator,
             setValue: (value) {
               setState(() {
                 fromDate = value;
                 toDate = null;
-                widget.onToDateChanged(fromDate, toDate);
               });
+              widget.onToDateChanged(fromDate, toDate);
             },
           ),
         ),
-
         const SizedBox(width: 16),
-
         Expanded(
           child: CustomDatePicker(
             title: widget.toDateTitle,
@@ -69,6 +74,7 @@ class _CustomFromToDatePickerState extends State<CustomFromToDatePicker> {
             startDate: fromDate,
             readOnly: fromDate == null,
             removeBottomMargin: widget.removeBottomMargin,
+            validator: widget.toDateValidator,
             setValue: (value) {
               setState(() {
                 toDate = value;

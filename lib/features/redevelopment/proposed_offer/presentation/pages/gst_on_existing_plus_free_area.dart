@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class GstOnExistingPlusFreeArea extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final ValueChanged<VoidCallback> onSave;
+
   const GstOnExistingPlusFreeArea({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
@@ -30,8 +33,10 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _gstOnAreaByMemberPercentController;
-  late TextEditingController _gstOnAreaByDeveloperPercentController;
+  late TextEditingController _gstOnAreaByMemberPercentC,
+      _gstOnAreaByDeveloperPercentC,
+      _totalGstC,
+      _remarkC;
 
   @override
   void initState() {
@@ -42,28 +47,35 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
       projectId: widget.projectId,
       buildingId: widget.buildingId,
     );
+    widget.onSave(_onSave);
   }
 
   @override
   void dispose() {
-    _gstOnAreaByMemberPercentController.dispose();
-    _gstOnAreaByDeveloperPercentController.dispose();
+    _gstOnAreaByMemberPercentC.dispose();
+    _gstOnAreaByDeveloperPercentC.dispose();
+    _totalGstC.dispose();
+    _remarkC.dispose();
     super.dispose();
   }
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _gstOnAreaByMemberPercentController = TextEditingController();
-    _gstOnAreaByDeveloperPercentController = TextEditingController();
+    _gstOnAreaByMemberPercentC = TextEditingController();
+    _gstOnAreaByDeveloperPercentC = TextEditingController();
+    _totalGstC = TextEditingController(text: '0');
+    _remarkC = TextEditingController();
   }
 
   // FILL DATA
   void fillData() {
     var gstModel = _cubit.state.gstOnExistingPlusFreeArea!;
-    _gstOnAreaByMemberPercentController.text =
+    _gstOnAreaByMemberPercentC.text =
         gstModel.gstOnAreaByMemberPercent.toString();
-    _gstOnAreaByDeveloperPercentController.text =
+    _gstOnAreaByDeveloperPercentC.text =
         gstModel.gstOnAreaByDeveloperPercent.toString();
+    _remarkC.text = gstModel.remark;
+    updateTotal();
   }
 
   // SAVE
@@ -73,14 +85,21 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
-        gstOnAreaByMemberPercent: double.parse(
-          _gstOnAreaByMemberPercentController.text,
-        ),
+        gstOnAreaByMemberPercent: double.parse(_gstOnAreaByMemberPercentC.text),
         gstOnAreaByDeveloperPercent: double.parse(
-          _gstOnAreaByDeveloperPercentController.text,
+          _gstOnAreaByDeveloperPercentC.text,
         ),
+        remark: _remarkC.text.trim(),
       );
     }
+  }
+
+  void updateTotal() {
+    final total =
+        (double.tryParse(_gstOnAreaByMemberPercentC.text) ?? 0) +
+        (double.tryParse(_gstOnAreaByDeveloperPercentC.text) ?? 0);
+
+    _totalGstC.text = total.toStringAsFixed(2);
   }
 
   @override
@@ -91,8 +110,8 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
           if (state.gstOnExistingPlusFreeArea != null) {
             fillData();
           } else {
-            _gstOnAreaByMemberPercentController.clear();
-            _gstOnAreaByDeveloperPercentController.clear();
+            _gstOnAreaByMemberPercentC.clear();
+            _gstOnAreaByDeveloperPercentC.clear();
           }
         },
         builder: (context, state) {
@@ -102,130 +121,77 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
           return SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
-                child: Builder(
-                  builder: (context) {
-                    bool isMemberEditing = false;
-                    bool isDeveloperEditing = false;
-
-                    adjustValues({required bool fromMember}) {
-                      if (fromMember) {
-                        final member =
-                            double.tryParse(
-                              _gstOnAreaByMemberPercentController.text,
-                            ) ??
-                            0;
-                        final developer = (100 - member).clamp(0, 100);
-
-                        if (!isDeveloperEditing) {
-                          _gstOnAreaByDeveloperPercentController
-                              .text = developer.toStringAsFixed(2);
+                child: Column(    
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ProposedOfferTile(
+                      icon: AppAssets.gstDetailsIcon,
+                      title: "GST on Existing + Free Area",
+                    ),
+                    verticalSpacing(height: 15),
+                    CustomTextField(
+                      title: 'GST on Area by Member Percent (%)',
+                      isRequired: true,
+                      hint: "Enter GST on Area by Member Percent (%)",
+                      textController: _gstOnAreaByMemberPercentC,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      inputFormatterList: InputValidator.percentage(),
+                      onChangeFunction: (p0) => updateTotal(),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "GST on area by member percent is required";
                         }
-                      } else {
-                        final developer =
-                            double.tryParse(
-                              _gstOnAreaByDeveloperPercentController.text,
-                            ) ??
-                            0;
-                        final member = (100 - developer).clamp(0, 100);
 
-                        if (!isMemberEditing) {
-                          _gstOnAreaByMemberPercentController.text = member
-                              .toStringAsFixed(2);
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: 'GST on Area by Developer Percent (%)',
+                      isRequired: true,
+                      hint: "Enter GST on Area by Developer Percent (%)",
+                      textController: _gstOnAreaByDeveloperPercentC,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      onChangeFunction: (p0) => updateTotal(),
+                      inputFormatterList: InputValidator.percentage(),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "GST on area by developer percent is required";
                         }
-                      }
-                    }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "GST on Existing + Free Area",
-                          style: AppTextStyle.ts16M(),
-                        ),
-                        verticalSpacing(height: 15),
-                        Focus(
-                          onFocusChange: (hasFocus) {
-                            isMemberEditing = hasFocus;
-                          },
-                          child: CustomTextField(
-                            title: 'GST on Area by Member Percent (%)',
-                            isRequired: true,
-                            hint: "Enter GST on Area by Member Percent (%)",
-                            textController: _gstOnAreaByMemberPercentController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatterList: [
-                              // allow decimals up to 2 digits
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
-                              ),
-                            ],
-                            onChangeFunction:
-                                (_) => adjustValues(fromMember: true),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return "GST on area by member percent is required";
-                              }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: 'Total GST (%)',
+                      isRequired: true,
+                      textController: _totalGstC,
+                      readOnly: true,
+                      inputFormatterList: InputValidator.percentage(),
+                      validator: (value) {
+                        if (value != null &&
+                            ((double.tryParse(value) ?? 0) > 100)) {
+                          return "Total GST percentage cannot be more than 100%";
+                        }
 
-                              final numValue = double.tryParse(value);
-                              if (numValue == null) return "Invalid number";
-
-                              if (numValue < 0 || numValue > 100) {
-                                return "Value must be between 0 and 100";
-                              }
-
-                              return null;
-                            },
-                          ),
-                        ),
-                        Focus(
-                          onFocusChange: (hasFocus) {
-                            isDeveloperEditing = hasFocus;
-                          },
-                          child: CustomTextField(
-                            title: 'GST on Area by Developer Percent (%)',
-                            isRequired: true,
-                            hint: "Enter GST on Area by Developer Percent (%)",
-                            textController:
-                                _gstOnAreaByDeveloperPercentController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            inputFormatterList: [
-                              // allow decimals up to 2 digits
-                              FilteringTextInputFormatter.allow(
-                                RegExp(r'^\d{0,3}(\.\d{0,2})?$'),
-                              ),
-                            ],
-                            onChangeFunction:
-                                (_) => adjustValues(fromMember: false),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return "GST on area by developer percent is required";
-                              }
-
-                              final numValue = double.tryParse(value);
-                              if (numValue == null) return "Invalid number";
-
-                              if (numValue < 0 || numValue > 100) {
-                                return "Value must be between 0 and 100";
-                              }
-
-                              return null;
-                            },
-                          ),
-                        ),
-                        verticalSpacing(height: 30),
-                        CustomButton(text: "Save", onPressed: _onSave),
-                        verticalSpacing(),
-                      ],
-                    );
-                  },
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: 'Remark',
+                      hint: 'Enter Remark',
+                      textController: _remarkC,
+                      minLines: 3,
+                      maxLines: 3,
+                    ),
+                  ],
                 ),
               ),
             ),

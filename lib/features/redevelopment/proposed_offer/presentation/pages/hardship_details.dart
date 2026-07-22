@@ -232,7 +232,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
           return SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
@@ -386,6 +386,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                         is List<
                                           ProposedOfferHardshipDetailsWithPaymentStageData
                                         >) {
+                                  _corpusListNotifier.value = [];
                                   _corpusListNotifier.value = result;
                                 }
                               },

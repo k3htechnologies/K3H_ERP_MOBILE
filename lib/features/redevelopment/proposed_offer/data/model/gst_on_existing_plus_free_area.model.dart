@@ -13,6 +13,7 @@ class GstOnExistingPlusFreeAreaModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String remark;
 
   GstOnExistingPlusFreeAreaModel({
     required this.proposedOfferGSTonExistingPlusFreeAreaId,
@@ -27,6 +28,7 @@ class GstOnExistingPlusFreeAreaModel {
     required this.modifiedById,
     required this.modifiedBy,
     this.modifiedDate,
+    required this.remark,
   });
 
   factory GstOnExistingPlusFreeAreaModel.fromJson(Map<String, dynamic> json) =>
@@ -55,6 +57,7 @@ class GstOnExistingPlusFreeAreaModel {
             json["ModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        remark: parseValue<String>(json, "Remark"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -71,5 +74,6 @@ class GstOnExistingPlusFreeAreaModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Remark": remark,
   };
 }

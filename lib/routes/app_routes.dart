@@ -354,6 +354,11 @@ class AppRoutes {
   static String proposedOffer = "/proposedOffer";
   static String proposedOfferSecondaryScreen = "/proposedOfferSecondaryScreen";
   static String addUpdateHardshipDetails = "/addUpdateHardshipDetails";
+  static String addUpdateTemporaryAccommodationAlternativeDetails =
+      "/addUpdateTemporaryAccommodationAlternativeDetails";
+      static String addUpdateReadyReckonerDetails =
+      "/addUpdateReadyReckonerDetails";
+
 
   // PROPOSED PLANS
   static String proposedPlans = "/proposedPlan";

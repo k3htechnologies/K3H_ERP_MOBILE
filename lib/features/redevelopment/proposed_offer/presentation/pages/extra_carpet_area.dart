@@ -128,7 +128,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
           return SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
@@ -176,16 +176,15 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: "Residential Extra Carpet Percent (%)",
+                      title: "Residential Extra Carpet (%)",
                       isRequired: true,
-                      hint: "Enter Residential Extra Carpet Percent (%)",
+                      hint: "Enter Residential Extra Carpet (%)",
                       textController: _residentialPercentC,
                       keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(3),
+                      inputFormatterList: InputValidator.percentage(),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Residential percentage is required";
+                          return "Residential Extra Carpet is required";
                         }
                         if (double.parse(value) > 100) {
                           return "Percentage should be less than 100";
@@ -194,16 +193,15 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                       },
                     ),
                     CustomTextField(
-                      title: "Commercial Extra Carpet Percent (%)",
+                      title: "Commercial Extra Carpet (%)",
                       isRequired: true,
-                      hint: "Enter Commercial Extra Carpet Percent (%)",
+                      hint: "Enter Commercial Extra Carpet (%)",
                       keyboardType: TextInputType.number,
                       textController: _commercialPercentC,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(3),
+                      inputFormatterList: InputValidator.percentage(),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Commercial percentage is required";
+                          return "Commercial Extra Carpet is required";
                         }
                         if (double.parse(value) > 100) {
                           return "Percentage should be less than 100";
@@ -213,7 +211,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                     ),
                     CustomTextField(
                       title: "Remark",
-                      hint: "Enter Remarks",
+                      hint: "Enter Remark",
                       textController: _remarkC,
                       maxLines: 3,
                       minLines: 3,

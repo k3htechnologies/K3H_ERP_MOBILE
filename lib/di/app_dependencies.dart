@@ -170,12 +170,12 @@ void initDependencies() {
   registerTenantMasterDependencies(serviceLocator);
   // PROPOSED PLAN DEPENDENCIES
   registerProposedPlansDependencies(serviceLocator);
+  // INVENTORY DEPENDENCIES (must be before PROPOSED OFFER MASTER as ProposedOfferCubit depends on it)
+  registerInventoryDependencies(serviceLocator);
   // PROPOSED OFFER DEPENDENCIES
   registerProposedOfferDependencies(serviceLocator);
   // RENT DEPENDENCIES
   registerRentDependencies(serviceLocator);
-  // INVENTORY DEPENDENCIES
-  registerInventoryDependencies(serviceLocator);
   registerInventoryReportReportDependencies(serviceLocator);
   // PARKING DEPENDENCIES
   registerParkingDependencies(serviceLocator);

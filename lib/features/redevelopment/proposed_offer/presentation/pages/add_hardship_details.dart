@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -39,7 +37,6 @@ class AddHardshipDetails extends StatefulWidget {
 }
 
 class _AddHardshipDetailsState extends State<AddHardshipDetails> {
-  late ProposedOfferCubit _cubit;
   final ValueNotifier<Map<String, dynamic>?> _selectedHardshipType =
       ValueNotifier<Map<String, dynamic>?>(null);
   final GlobalKey<FormState> _corpusFormKey = GlobalKey<FormState>();
@@ -62,15 +59,10 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
   @override
   void initState() {
     super.initState();
-    _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
     _corpusListNotifier
         .value = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
-      _cubit
-              .state
-              .corpusDetails
-              ?.proposedOfferHardshipDetailsWithPaymentStageData ??
-          [],
+      widget.hardshipList,
     );
     _prefillData(hardship: widget.hardship);
   }

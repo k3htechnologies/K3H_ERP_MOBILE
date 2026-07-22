@@ -4,21 +4,28 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/inventory/data/repository/inventory.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/additional_information_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/bank_guarantee_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/extra_carpet_area.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/gst_on_existing_plus_free_area.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/lien_to_society_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/parking_allotment.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/project_completion.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/ready_reckover_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/security_deposite.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/shifting_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/repository/proposed_offer.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 part 'proposed_offer_state.dart';
 
@@ -32,6 +39,9 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   // BUILDING REPOSITORY
   final ProposedOfferRepository _proposedOfferRepository =
       serviceLocator<ProposedOfferRepository>();
+
+  final InventoryRepository _inventoryRepository =
+      serviceLocator<InventoryRepository>();
 
   // GET BUILDING LIST
   Future<List<RedevelopmentBuildingModel>> getBuildingList(
@@ -353,6 +363,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required double shiftingOfferedToCommercialAmount,
     required List<ProposedOfferShiftingDetailsWithPaymentStageData>
     paymentStageList,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -378,6 +389,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "ShiftingOfferedToResidentialAmount": shiftingOfferedToResidentialAmount,
       "ShiftingOfferedToCommercialAmount": shiftingOfferedToCommercialAmount,
       "ShiftingDetailsWithPaymentStageJSON": jsonEncode(paymentStageListJson),
+      "Remark": remark,
     };
 
     final result = await _proposedOfferRepository.addUpdateShiftingDetails(
@@ -428,8 +440,31 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  // PULL LIEN TO SOCIETY DETAILS
+  Future<List<Map<String, dynamic>>> fetchUnitsByProjectId() async {
+    emit(state.copyWith(isLoading: true));
+    final result = await _inventoryRepository.getPaginatedFlats(
+      pageNumber: 1,
+      pageSize: 1000,
+      projectId: getProject().projectId,
+    );
 
+    return result.fold((failure) => <Map<String, dynamic>>[], (response) {
+      emit(state.copyWith(isLoading: false));
+      final flats = response['data'] as List<FlatModel>;
+
+      return flats
+          .map(
+            (flat) => {
+              "zAttributesId": flat.inventoryFlatId,
+              "DisplayName":
+                  "${flat.buildingNumber} - ${flat.wing} - ${flat.floor} - ${flat.flat}",
+            },
+          )
+          .toList();
+    });
+  }
+
+  // PULL LIEN TO SOCIETY DETAILS
   Future pullLienToSocietyDetails({
     required int projectId,
     required int buildingId,
@@ -474,6 +509,9 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int numberOfCommercialLienUnits,
     required List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>
     paymentStageList,
+    required String commercialInventoryFlatId,
+    required String residentialInventoryFlatId,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -501,6 +539,9 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "NumberOfResidentialLienUnits": numberOfResidentialLienUnits,
       "NumberOfCommercialLienUnits": numberOfCommercialLienUnits,
       "LienToSocietyWithPaymentStageJSON": jsonEncode(paymentStageListJson),
+      "ResidentialInventoryFlatId": residentialInventoryFlatId,
+      "CommercialInventoryFlatId": commercialInventoryFlatId,
+      "Remark": remark,
     };
 
     final result = await _proposedOfferRepository.addUpdateLienToSocietyDetails(
@@ -570,8 +611,10 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int buildingId,
     required int projectId,
     required double securityDepositToSocietyAmount,
+    required double interestAmount,
     required List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
     paymentStageList,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -598,6 +641,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "SecurityDepositToSocietyWithPaymentStageJSON": jsonEncode(
         paymentStageListJson,
       ),
+      "InterestAmount": interestAmount,
+      "Remark": remark,
     };
 
     final result = await _proposedOfferRepository
@@ -689,6 +734,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int projectId,
     required int numberOfParkingAllottedToMembers,
     required double totalParkingPercentageAllottedToSociety,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
@@ -701,6 +747,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "NumberOfParkingAllottedToMembers": numberOfParkingAllottedToMembers,
       "TotalParkingPercentageAllottedToSociety":
           totalParkingPercentageAllottedToSociety,
+      "Remark": remark,
     };
 
     final result = await _proposedOfferRepository.addUpdateParkingAllotment(
@@ -769,6 +816,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int projectId,
     required double gstOnAreaByMemberPercent,
     required double gstOnAreaByDeveloperPercent,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
@@ -783,6 +831,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "ProjectId": projectId,
       "GSTOnAreaByMemberPercent": gstOnAreaByMemberPercent,
       "GSTOnAreaByDeveloperPercent": gstOnAreaByDeveloperPercent,
+      "Remark": remark,
     };
 
     final result = await _proposedOfferRepository
@@ -853,6 +902,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int projectId,
     required int completionTimelineMonths,
     required int gracePeriodMonths,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
@@ -864,6 +914,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "ProjectId": projectId,
       "CompletionTimelineMonths": completionTimelineMonths,
       "GracePeriodMonths": gracePeriodMonths,
+      "Remark": remark,
     };
 
     final result = await _proposedOfferRepository.addUpdateProjectCompletion(
@@ -892,15 +943,262 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   // < ---------------------------------------------------------------------------------------------------------- >
 
   // PULL RENT DETAILS
-  Future pullRentDetails({
+  Future pullTemporaryAccommodationAlternativeDetails({
     required BuildContext context,
-    required int pageNumber,
     required int projectId,
     required int buildingId,
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    final result = await _proposedOfferRepository.pullRentDetails(
+    final result = await _proposedOfferRepository
+        .pullTemporaryAccommodationAlternativeDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            temporaryAccommodationAlternativeDetails:
+                response['data']
+                    as List<TemporaryAccommodationAlternativeDetailsModel>,
+            totalNumberOfRecordTemporaryAccommodationAlternative:
+                response['totalNumberOfRecord'],
+          ),
+        );
+      },
+    );
+  }
+
+  // ADD RENT DETAILS
+  Future<void> addTemporaryAccommodationAlternativeDetails(
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+    required bool isAdditionalTemporaryAccommodationAlternative,
+    required String type,
+    required String tenure,
+    required double amount,
+    required String unitSqFtLumsum,
+    required double carpetAreaSqFt,
+    required DateTime temporaryAccommodationAlternativeStartDate,
+    required DateTime temporaryAccommodationAlternativeEndDate,
+    required bool isPayBrokerage,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final Map<String, dynamic> body = {
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "IsAdditionalTemporaryAccommodationAlternative":
+          isAdditionalTemporaryAccommodationAlternative,
+      "Type": type,
+      "Tenure": tenure,
+      "Amount": amount,
+      "UnitSqFtLumsum": unitSqFtLumsum,
+      "CarpetAreaSqFt": carpetAreaSqFt,
+      "TemporaryAccommodationAlternativeStartDate":
+          temporaryAccommodationAlternativeStartDate.toIso8601String(),
+      "TemporaryAccommodationAlternativeEndDate":
+          temporaryAccommodationAlternativeEndDate.toIso8601String(),
+      "IsPayBrokerage": isPayBrokerage,
+    };
+
+    final result = await _proposedOfferRepository
+        .addUpdateTemporaryAccommodationAlternativeDetails(body: body);
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final list = [
+          response['data'][0] as TemporaryAccommodationAlternativeDetailsModel,
+          ...state.temporaryAccommodationAlternativeDetails,
+        ];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            temporaryAccommodationAlternativeDetails: list,
+            totalNumberOfRecordTemporaryAccommodationAlternative:
+                state.totalNumberOfRecordTemporaryAccommodationAlternative == -1
+                    ? 1
+                    : state.totalNumberOfRecordTemporaryAccommodationAlternative +
+                        1,
+          ),
+        );
+
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  // UPDATE RENT DETAILS
+  Future<void> updateTemporaryAccommodationAlternativeDetails(
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required bool isAdditionalTemporaryAccommodationAlternative,
+    required String uniqueKey,
+    required String type,
+    required String tenure,
+    required double amount,
+    required String unitSqFtLumsum,
+    required double carpetAreaSqFt,
+    required DateTime temporaryAccommodationAlternativeStartDate,
+    required DateTime temporaryAccommodationAlternativeEndDate,
+    required bool isPayBrokerage,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    final Map<String, dynamic> body = {
+      "ProposedOfferTemporaryAccommodationAlternativeDetailsId":
+          proposedOfferTemporaryAccommodationAlternativeDetailsId,
+      "Uniquekey": uniqueKey,
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "IsAdditionalTemporaryAccommodationAlternative":
+          isAdditionalTemporaryAccommodationAlternative,
+      "Type": type,
+      "Tenure": tenure,
+      "Amount": amount,
+      "UnitSqFtLumsum": unitSqFtLumsum,
+      "CarpetAreaSqFt": carpetAreaSqFt,
+      "TemporaryAccommodationAlternativeStartDate":
+          temporaryAccommodationAlternativeStartDate.toIso8601String(),
+      "TemporaryAccommodationAlternativeEndDate":
+          temporaryAccommodationAlternativeEndDate.toIso8601String(),
+      "IsPayBrokerage": isPayBrokerage,
+    };
+
+    final result = await _proposedOfferRepository
+        .addUpdateTemporaryAccommodationAlternativeDetails(body: body);
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final updatedList =
+            List<TemporaryAccommodationAlternativeDetailsModel>.from(
+              state.temporaryAccommodationAlternativeDetails,
+            );
+
+        updatedList[index] =
+            response['data'][0]
+                as TemporaryAccommodationAlternativeDetailsModel;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            temporaryAccommodationAlternativeDetails: updatedList,
+          ),
+        );
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  // DELETE RENT DETAILS
+  Future deleteRentDetails({
+    required BuildContext context,
+    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required int projectId,
+    required int buildingId,
+    required String uniqueKey,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _proposedOfferRepository.deleteRentDetails(
+      projectId: projectId,
+      buildingId: buildingId,
+      proposedOfferTemporaryAccommodationAlternativeDetailsId:
+          proposedOfferTemporaryAccommodationAlternativeDetailsId,
+      uniquekey: uniqueKey,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        final updatedList =
+            List<TemporaryAccommodationAlternativeDetailsModel>.from(
+              state.temporaryAccommodationAlternativeDetails,
+            );
+        updatedList.removeAt(index!);
+
+        emit(
+          state.copyWith(temporaryAccommodationAlternativeDetails: updatedList),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  Future<void> generateProposedOffer(
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+    required bool isAdditionalTemporaryAccommodationAlternative,
+    required String chargeType,
+    required String tenure,
+    required bool isPayBrokerage,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> body = {
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "IsAdditionalTemporaryAccommodationAlternative":
+          isAdditionalTemporaryAccommodationAlternative,
+      "IsPayBrokerage": isPayBrokerage,
+      "ChargeType": chargeType,
+      "Tenure": tenure,
+    };
+
+    final result = await _proposedOfferRepository
+        .addUpdateGenerateProposedOffer(body: body);
+
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(state.copyWith(isLoading: false));
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  // < ---------------------------------------------------------------------------------------------------------- >
+
+  // PULL READY RECKONER RATE DETAILS DETAILS
+  Future pullReadyReckonerRateDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _proposedOfferRepository.pullReadyReckonerRateDetails(
       projectId: projectId,
       buildingId: buildingId,
     );
@@ -913,144 +1211,155 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         emit(
           state.copyWith(
             isLoading: false,
-            rentDetails: response['data'] as List<RentDetailsModel>,
-            totalNumberOfRecordRent: response['totalNumberOfRecord'],
+            readyReckonerRateDetails:
+                response['data'] as List<ReadyReckonerRateDetailsModel>,
           ),
         );
       },
     );
   }
 
-  // ADD RENT DETAILS
-  Future<void> addUpdateRentDetails(
+  Future<void> addReadyReckonerRateDetails(
     BuildContext context, {
     required int buildingId,
     required int projectId,
-    required bool isAdditionalRent,
-    required String type,
-    required String tenure,
-    required double amount,
-    required String unitSqFtLumsum,
-    required double carpetAreaSqFt,
-    required DateTime rentStartDate,
-    required DateTime rentEndDate,
-    required bool isPayBrokerage,
+    required String financialYear,
+    required String residentialRate,
+    required String commercialRate,
+    required String industrialRate,
+    required String shopRate,
+    required String landRate,
+    required DateTime effectiveStartDate,
+    required DateTime effectiveEndDate,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> body = {
+
+    final Map<String, dynamic> body = {
+      "ProposedOfferReadyReckonerRateDetailsId": 0,
       "BuildingId": buildingId,
       "ProjectId": projectId,
-      "IsAdditionalRent": isAdditionalRent,
-      "Type": type,
-      "Tenure": tenure,
-      "Amount": amount,
-      "UnitSqFtLumsum": unitSqFtLumsum,
-      "CarpetAreaSqFt": carpetAreaSqFt,
-      "RentStartDate": rentStartDate.toIso8601String(),
-      "RentEndDate": rentEndDate.toIso8601String(),
-      "IsPayBrokerage": isPayBrokerage,
+      "FinancialYear": financialYear,
+      "ResidentialRate": residentialRate,
+      "CommercialRate": commercialRate,
+      "IndustrialRate": industrialRate,
+      "ShopRate": shopRate,
+      "LandRate": landRate,
+      "EffectiveStartDate":
+          effectiveStartDate.toIso8601String().split('T').first,
+      "EffectiveEndDate": effectiveEndDate.toIso8601String().split('T').first,
+      "Remark": remark,
     };
 
-    final result = await _proposedOfferRepository.addUpdateRentDetails(
-      body: body,
-    );
+    final result = await _proposedOfferRepository
+        .addUpdateReadyReckonerRateDetails(body: body);
 
     goRouter.pop();
+
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        var list = [
-          response['data'][0] as RentDetailsModel,
-          ...state.rentDetails,
+        final list = [
+          (response['data'] as List<ReadyReckonerRateDetailsModel>)[0],
+          ...state.readyReckonerRateDetails,
         ];
-        emit(
-          state.copyWith(
-            isLoading: false,
-            rentDetails: list,
-            totalNumberOfRecordRent:
-                state.totalNumberOfRecordRent == -1
-                    ? 1
-                    : state.totalNumberOfRecordRent + 1,
-          ),
-        );
-        showSuccessMessage(context, subTitle: "Rent Details Added");
+
+        emit(state.copyWith(isLoading: false, readyReckonerRateDetails: list));
+
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
 
-  // UPDATE RENT DETAILS
-  Future<void> updateRentDetails(
+  Future<void> updateReadyReckonerRateDetails(
     BuildContext context, {
     required int buildingId,
     required int projectId,
-    required int proposedOfferRentDetailsId,
-    required bool isAdditionalRent,
+    required int proposedOfferReadyReckonerRateDetailsId,
     required String uniqueKey,
-    required String type,
-    required String tenure,
-    required double amount,
-    required String unitSqFtLumsum,
-    required double carpetAreaSqFt,
-    required DateTime rentStartDate,
-    required DateTime rentEndDate,
-    required bool isPayBrokerage,
+    required String financialYear,
+    required String residentialRate,
+    required String commercialRate,
+    required String industrialRate,
+    required String shopRate,
+    required String landRate,
+    required DateTime effectiveStartDate,
+    required DateTime effectiveEndDate,
+    required String remark,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    Map<String, dynamic> body = {
-      "ProposedOfferRentDetailsId": proposedOfferRentDetailsId,
+
+    final Map<String, dynamic> body = {
+      "ProposedOfferReadyReckonerRateDetailsId":
+          proposedOfferReadyReckonerRateDetailsId,
       "Uniquekey": uniqueKey,
       "BuildingId": buildingId,
       "ProjectId": projectId,
-      "IsAdditionalRent": isAdditionalRent,
-      "Type": type,
-      "Tenure": tenure,
-      "Amount": amount,
-      "UnitSqFtLumsum": unitSqFtLumsum,
-      "CarpetAreaSqFt": carpetAreaSqFt,
-      "RentStartDate": rentStartDate.toIso8601String(),
-      "RentEndDate": rentEndDate.toIso8601String(),
-      "IsPayBrokerage": isPayBrokerage,
+      "FinancialYear": financialYear,
+      "ResidentialRate": residentialRate,
+      "CommercialRate": commercialRate,
+      "IndustrialRate": industrialRate,
+      "ShopRate": shopRate,
+      "LandRate": landRate,
+      "EffectiveStartDate":
+          effectiveStartDate.toIso8601String().split('T').first,
+      "EffectiveEndDate": effectiveEndDate.toIso8601String().split('T').first,
+      "Remark": remark,
     };
 
-    final result = await _proposedOfferRepository.addUpdateRentDetails(
-      body: body,
-    );
+    final result = await _proposedOfferRepository
+        .addUpdateReadyReckonerRateDetails(body: body);
 
     goRouter.pop();
+
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final updatedList = List<RentDetailsModel>.from(state.rentDetails);
-        updatedList[index] = (response['data'][0] as RentDetailsModel);
-        emit(state.copyWith(rentDetails: updatedList));
-        showSuccessMessage(context, subTitle: "Rent Details Updated");
+        final updatedList = List<ReadyReckonerRateDetailsModel>.from(
+          state.readyReckonerRateDetails,
+        );
+
+        updatedList[index] =
+            (response['data'] as List<ReadyReckonerRateDetailsModel>)[0];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            readyReckonerRateDetails: updatedList,
+          ),
+        );
+
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
 
-  // DELETE RENT DETAILS
-  Future deleteRentDetails({
+  Future deleteReadyReckonerRateDetails({
     required BuildContext context,
-    required int proposedOfferRentDetailsId,
+    required int proposedOfferReadyReckonerRateDetailsId,
     required int projectId,
     required int buildingId,
     required String uniqueKey,
     int? index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    var deleteResult = await _proposedOfferRepository.deleteRentDetails(
-      projectId: projectId,
-      buildingId: buildingId,
-      proposedOfferRentDetailsId: proposedOfferRentDetailsId,
-      uniquekey: uniqueKey,
-    );
+    var deleteResult = await _proposedOfferRepository
+        .deleteReadyReckonerRateDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          proposedOfferReadyReckonerRateDetailsId:
+              proposedOfferReadyReckonerRateDetailsId,
+          uniquekey: uniqueKey,
+        );
     goRouter.pop();
     deleteResult.fold(
       (failure) {
@@ -1058,11 +1367,124 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         return;
       },
       (response) {
-        showSuccessMessage(context);
-        final updatedList = List<RentDetailsModel>.from(state.rentDetails);
+        final updatedList = List<ReadyReckonerRateDetailsModel>.from(
+          state.readyReckonerRateDetails,
+        );
         updatedList.removeAt(index!);
 
-        emit(state.copyWith(rentDetails: updatedList));
+        emit(state.copyWith(readyReckonerRateDetails: updatedList));
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  // < ---------------------------------------------------------------------------------------------------------- >
+
+  // PULL CARPET PLOT DETAILS
+  Future pullCarpetPlotDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _buildingRepository.pullBuildingDetails(
+      projectId: projectId,
+      buildingId: buildingId,
+    );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            carpetPlotDetails: response['data'][0] as BuildingDetailsModel,
+          ),
+        );
+      },
+    );
+  }
+
+  // < ---------------------------------------------------------------------------------------------------------- >
+
+  // PULL ADDITIONAL INFORMARION DETAILS
+  Future pullAdditionalInformationDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final result = await _proposedOfferRepository
+        .pullAdditionalInformationDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            additionalInformationDetails:
+                response['data'][0] as AdditionalInformationDetailsModel,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> addUpdateAdditionalInformation(
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+    required int proposedOfferAdditionalInformationId,
+    required String uniqueKey,
+    required String additionalRemark,
+    required String purchaseOfAdditionalAreaRemark,
+    required String taxAndDutiesDetails,
+    required String taxRemark,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final Map<String, dynamic> body = {
+      "ProposedOfferAdditionalInformationId":
+          proposedOfferAdditionalInformationId,
+      "Uniquekey": uniqueKey,
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "AdditionalRemark": additionalRemark,
+      "PurchaseOfAdditonalAreaRemark": purchaseOfAdditionalAreaRemark,
+      "TaxAndDutiesDetails": taxAndDutiesDetails,
+      "TaxRemark": taxRemark,
+    };
+
+    final result = await _proposedOfferRepository
+        .addUpdateAdditionalInformationDetails(body: body);
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            additionalInformationDetails:
+                (response['data']
+                    as List<AdditionalInformationDetailsModel>)[0],
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

@@ -89,7 +89,7 @@ class ProposedOfferTile extends StatelessWidget {
 }
 
 class CommonInfoCard extends StatelessWidget {
-  final String title;
+  final String? title;
   final String? tag;
   final Widget? leading;
   final Widget? trailing;
@@ -100,7 +100,7 @@ class CommonInfoCard extends StatelessWidget {
 
   const CommonInfoCard({
     super.key,
-    required this.title,
+    this.title,
     required this.child,
     this.tag,
     this.leading,
@@ -141,10 +141,11 @@ class CommonInfoCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      title,
-                      style: AppTextStyle.ts14M(color: AppColor.darkBlue900),
-                    ),
+                    if (title != null)
+                      Text(
+                        title!,
+                        style: AppTextStyle.ts14M(color: AppColor.darkBlue900),
+                      ),
 
                     if (tag != null) ...[
                       const SizedBox(height: 6),

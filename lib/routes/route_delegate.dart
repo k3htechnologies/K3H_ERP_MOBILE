@@ -37,7 +37,10 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/reve
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_update_document_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/ready_reckover_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_hardship_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
@@ -362,7 +365,7 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
@@ -496,7 +499,9 @@ RentModel? _rentModelFromQuery(String? encoded) {
   }
 }
 
-List<RentDetailsModel> _rentDetailsFromQuery(String? encoded) {
+List<TemporaryAccommodationAlternativeDetailsModel> _rentDetailsFromQuery(
+  String? encoded,
+) {
   if (encoded == null || encoded.isEmpty) return [];
   try {
     final list =
@@ -505,7 +510,11 @@ List<RentDetailsModel> _rentDetailsFromQuery(String? encoded) {
             )
             as List<dynamic>;
     return list
-        .map((e) => RentDetailsModel.fromJson(e as Map<String, dynamic>))
+        .map(
+          (e) => TemporaryAccommodationAlternativeDetailsModel.fromJson(
+            e as Map<String, dynamic>,
+          ),
+        )
         .toList();
   } catch (_) {
     return [];
@@ -2603,8 +2612,13 @@ final GoRouter goRouter = GoRouter(
                     extra['buildingId'] as int? ??
                     int.tryParse(query['buildingId'] ?? '') ??
                     0;
-                List<RentDetailsModel> rentDetails =
-                    (extra['rentDetails'] as List<RentDetailsModel>?) ?? [];
+                List<TemporaryAccommodationAlternativeDetailsModel>
+                rentDetails =
+                    (extra['rentDetails']
+                        as List<
+                          TemporaryAccommodationAlternativeDetailsModel
+                        >?) ??
+                    [];
                 if (rentDetails.isEmpty) {
                   rentDetails = _rentDetailsFromQuery(query['rentDetails']);
                 }
@@ -2723,7 +2737,7 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
-      GoRoute(
+            GoRoute(
               name: AppRoutes.addUpdateHardshipDetails,
               path: AppRoutes.addUpdateHardshipDetails,
               builder: (context, state) {
@@ -2802,7 +2816,105 @@ final GoRouter goRouter = GoRouter(
                   commercialAmount: commercialAmount,
                 );
               },
-            ),    ],
+            ),
+            GoRoute(
+              name: AppRoutes.addUpdateTemporaryAccommodationAlternativeDetails,
+              path: AppRoutes.addUpdateTemporaryAccommodationAlternativeDetails,
+              builder: (context, state) {
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final queryParameterRent = state.uri.queryParameters['rent'];
+
+                final TemporaryAccommodationAlternativeDetailsModel? rent =
+                    queryParameterRent != null
+                        ? TemporaryAccommodationAlternativeDetailsModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterRent),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final projectId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final buildingId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['buildingId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                return AddTemporaryAccommodationAlternativeDetails(
+                  index: rent == null ? null : index,
+                  rentDetailsModel: rent,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addUpdateReadyReckonerDetails,
+              path: AppRoutes.addUpdateReadyReckonerDetails,
+              builder: (context, state) {
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final queryParameterReadyReckoner =
+                    state.uri.queryParameters['readyReckoner'];
+
+                final ReadyReckonerRateDetailsModel? readyReckoner =
+                    queryParameterReadyReckoner != null
+                        ? ReadyReckonerRateDetailsModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterReadyReckoner),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final projectId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final buildingId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['buildingId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                return AddReadyReckonerDetails(
+                  index: readyReckoner == null ? null : index,
+                  readyReckonerRateDetails: readyReckoner,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                );
+              },
+            ),
+          ],
         ),
         // CALENDAR
         ShellRoute(

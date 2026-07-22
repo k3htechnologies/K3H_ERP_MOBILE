@@ -11,8 +11,13 @@ class ProposedOfferState extends BaseState {
   final ParkingAllotmentModel? parkingAllotment;
   final GstOnExistingPlusFreeAreaModel? gstOnExistingPlusFreeArea;
   final ProjectCompletionModel? projectCompletion;
-  final List<RentDetailsModel> rentDetails;
-  final int totalNumberOfRecordRent;
+  final List<TemporaryAccommodationAlternativeDetailsModel>
+  temporaryAccommodationAlternativeDetails;
+  final int totalNumberOfRecordTemporaryAccommodationAlternative;
+  final List<ReadyReckonerRateDetailsModel> readyReckonerRateDetails;
+  final BuildingDetailsModel? carpetPlotDetails;
+  final AdditionalInformationDetailsModel? additionalInformationDetails;
+  final BankGuaranteeDetailsModel? bankGuaranteeDetails;
 
   const ProposedOfferState({
     super.isLoading,
@@ -26,8 +31,12 @@ class ProposedOfferState extends BaseState {
     required this.parkingAllotment,
     required this.gstOnExistingPlusFreeArea,
     required this.projectCompletion,
-    required this.rentDetails,
-    required this.totalNumberOfRecordRent,
+    required this.temporaryAccommodationAlternativeDetails,
+    required this.totalNumberOfRecordTemporaryAccommodationAlternative,
+    required this.readyReckonerRateDetails,
+    required this.carpetPlotDetails,
+    required this.additionalInformationDetails,
+    required this.bankGuaranteeDetails,
   });
 
   factory ProposedOfferState.initial() => ProposedOfferState(
@@ -42,8 +51,12 @@ class ProposedOfferState extends BaseState {
     parkingAllotment: null,
     gstOnExistingPlusFreeArea: null,
     projectCompletion: null,
-    rentDetails: [],
-    totalNumberOfRecordRent: 0,
+    temporaryAccommodationAlternativeDetails: [],
+    totalNumberOfRecordTemporaryAccommodationAlternative: 0,
+    readyReckonerRateDetails: [],
+    carpetPlotDetails: null,
+    additionalInformationDetails: null,
+    bankGuaranteeDetails: null,
   );
 
   ProposedOfferState copyWith({
@@ -66,8 +79,18 @@ class ProposedOfferState extends BaseState {
     bool clearGST = false,
     ProjectCompletionModel? projectCompletion,
     bool clearProjectCompletion = false,
-    List<RentDetailsModel>? rentDetails,
-    int? totalNumberOfRecordRent,
+    List<TemporaryAccommodationAlternativeDetailsModel>?
+    temporaryAccommodationAlternativeDetails,
+    int? totalNumberOfRecordTemporaryAccommodationAlternative,
+    List<ReadyReckonerRateDetailsModel>? readyReckonerRateDetails,
+
+    BuildingDetailsModel? carpetPlotDetails,
+    bool clearCarpetPlotDetails = false,
+
+    AdditionalInformationDetailsModel? additionalInformationDetails,
+    bool clearAdditionalInformationDetails = false,
+    BankGuaranteeDetailsModel? bankGuaranteeDetails,
+    bool clearBankGuaranteeDetails = false,
   }) {
     return ProposedOfferState(
       isLoading: isLoading ?? this.isLoading,
@@ -98,9 +121,29 @@ class ProposedOfferState extends BaseState {
           clearProjectCompletion
               ? null
               : projectCompletion ?? this.projectCompletion,
-      rentDetails: rentDetails ?? this.rentDetails,
-      totalNumberOfRecordRent:
-          totalNumberOfRecordRent ?? this.totalNumberOfRecordRent,
+      temporaryAccommodationAlternativeDetails:
+          temporaryAccommodationAlternativeDetails ??
+          this.temporaryAccommodationAlternativeDetails,
+      totalNumberOfRecordTemporaryAccommodationAlternative:
+          totalNumberOfRecordTemporaryAccommodationAlternative ??
+          this.totalNumberOfRecordTemporaryAccommodationAlternative,
+      readyReckonerRateDetails:
+          readyReckonerRateDetails ?? this.readyReckonerRateDetails,
+
+      carpetPlotDetails:
+          clearCarpetPlotDetails
+              ? null
+              : carpetPlotDetails ?? this.carpetPlotDetails,
+
+      additionalInformationDetails:
+          clearAdditionalInformationDetails
+              ? null
+              : additionalInformationDetails ??
+                  this.additionalInformationDetails,
+      bankGuaranteeDetails:
+          clearBankGuaranteeDetails
+              ? null
+              : bankGuaranteeDetails ?? this.bankGuaranteeDetails,
     );
   }
 
@@ -117,7 +160,11 @@ class ProposedOfferState extends BaseState {
     parkingAllotment,
     gstOnExistingPlusFreeArea,
     projectCompletion,
-    rentDetails,
-    totalNumberOfRecordRent,
+    temporaryAccommodationAlternativeDetails,
+    totalNumberOfRecordTemporaryAccommodationAlternative,
+    readyReckonerRateDetails,
+    carpetPlotDetails,
+    additionalInformationDetails,
+    bankGuaranteeDetails,
   ];
 }

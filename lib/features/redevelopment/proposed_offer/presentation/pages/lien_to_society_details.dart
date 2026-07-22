@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -43,10 +44,13 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _residentialAreaController;
-  late TextEditingController _commercialAreaController;
-  late TextEditingController _residentialUnitsController;
-  late TextEditingController _commercialUnitsController;
+  late TextEditingController _residentialAreaC,
+      _commercialAreaC,
+      _residentialUnitsC,
+      _commercialUnitsC,
+      _remarkC,
+      _stageController,
+      _carpetAreaController;
 
   final ValueNotifier<
     List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>
@@ -61,45 +65,84 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
   // LIEN FORM CONTROLLERS
   final ValueNotifier<Map<String, dynamic>?> _selectedLienType =
       ValueNotifier<Map<String, dynamic>?>(null);
-  late TextEditingController _stageController;
-  late TextEditingController _carpetAreaController;
   final ValueNotifier<bool> _isRelease = ValueNotifier<bool>(false);
   final GlobalKey<FormState> _lienFormKey = GlobalKey<FormState>();
+  final ValueNotifier<List<Map<String, dynamic>>> _flatLits = ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> _selectResidentialLienUnits =
+      ValueNotifier([]);
+  final ValueNotifier<List<Map<String, dynamic>>> _selectCommercialLienUnits =
+      ValueNotifier([]);
 
   @override
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
-    _cubit.pullLienToSocietyDetails(
-      projectId: widget.projectId,
-      buildingId: widget.buildingId,
-    );
+
+    _loadData();
     widget.onSave(_onSave);
   }
 
   @override
   void dispose() {
-    _residentialAreaController.dispose();
-    _commercialAreaController.dispose();
-    _residentialUnitsController.dispose();
-    _commercialUnitsController.dispose();
+    _residentialAreaC.dispose();
+    _commercialAreaC.dispose();
+    _residentialUnitsC.dispose();
+    _commercialUnitsC.dispose();
     _stageController.dispose();
     _carpetAreaController.dispose();
     _lienListNotifier.dispose();
     _selectedLienType.dispose();
     _isRelease.dispose();
+    _remarkC.dispose();
     super.dispose();
+  }
+
+  void _loadData() async {
+    await _cubit.pullLienToSocietyDetails(
+      projectId: widget.projectId,
+      buildingId: widget.buildingId,
+    );
+    var lienDetailsModel = _cubit.state.lienToSocietyDetails!;
+    _flatLits.value = await _cubit.fetchUnitsByProjectId();
+    if (lienDetailsModel.commercialInventoryFlatId.isNotEmpty) {
+      final commercialIds =
+          lienDetailsModel.commercialInventoryFlatId
+              .split(',')
+              .map((e) => int.tryParse(e.trim()))
+              .whereType<int>()
+              .toSet();
+
+      _selectCommercialLienUnits.value =
+          _flatLits.value
+              .where((e) => commercialIds.contains(e['zAttributesId']))
+              .toList();
+    }
+
+    if (lienDetailsModel.residentialInventoryFlatId.isNotEmpty) {
+      final residentialIds =
+          lienDetailsModel.residentialInventoryFlatId
+              .split(',')
+              .map((e) => int.tryParse(e.trim()))
+              .whereType<int>()
+              .toSet();
+
+      _selectResidentialLienUnits.value =
+          _flatLits.value
+              .where((e) => residentialIds.contains(e['zAttributesId']))
+              .toList();
+    }
   }
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _residentialAreaController = TextEditingController();
-    _commercialAreaController = TextEditingController();
-    _residentialUnitsController = TextEditingController(text: "0");
-    _commercialUnitsController = TextEditingController(text: "0");
+    _residentialAreaC = TextEditingController();
+    _commercialAreaC = TextEditingController();
+    _residentialUnitsC = TextEditingController();
+    _commercialUnitsC = TextEditingController();
     _stageController = TextEditingController();
     _carpetAreaController = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // UPDATE LIEN UNIT COUNTS
@@ -114,25 +157,27 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
             .where((item) => item.type.toLowerCase() == 'commercial')
             .length;
 
-    _residentialUnitsController.text = residentialCount.toString();
-    _commercialUnitsController.text = commercialCount.toString();
+    _residentialUnitsC.text = residentialCount.toString();
+    _commercialUnitsC.text = commercialCount.toString();
   }
 
   // FILL DATA
-  void fillData() {
+  void fillData() async {
     var lienDetailsModel = _cubit.state.lienToSocietyDetails!;
-    _residentialAreaController.text =
-        lienDetailsModel.residentialAreaSqFt.toString();
-    _commercialAreaController.text =
-        lienDetailsModel.commercialAreaSqFt.toString();
-    _residentialUnitsController.text =
-        lienDetailsModel.numberOfResidentialLienUnits.toString();
-    _commercialUnitsController.text =
-        lienDetailsModel.numberOfCommercialLienUnits.toString();
-
+    _residentialAreaC.text = lienDetailsModel.residentialAreaSqFt.toString();
+    _commercialAreaC.text = lienDetailsModel.commercialAreaSqFt.toString();
+    if (lienDetailsModel.numberOfResidentialLienUnits > 0) {
+      _residentialUnitsC.text =
+          lienDetailsModel.numberOfResidentialLienUnits.toString();
+    }
+    if (lienDetailsModel.numberOfCommercialLienUnits > 0) {
+      _commercialUnitsC.text =
+          lienDetailsModel.numberOfCommercialLienUnits.toString();
+    }
     _lienListNotifier.value = List.from(
       lienDetailsModel.proposedOfferLienToSocietyDetailsWithPaymentStageData,
     );
+    _remarkC.text = lienDetailsModel.remark;
   }
 
   // SAVE
@@ -150,17 +195,27 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
-        residentialAreaSqFt: double.parse(_residentialAreaController.text),
-        commercialAreaSqFt: double.parse(_commercialAreaController.text),
-        numberOfResidentialLienUnits: int.parse(
-          _residentialUnitsController.text,
-        ),
-        numberOfCommercialLienUnits: int.parse(_commercialUnitsController.text),
+        residentialAreaSqFt: double.parse(_residentialAreaC.text),
+        commercialAreaSqFt: double.parse(_commercialAreaC.text),
+        numberOfResidentialLienUnits: int.parse(_residentialUnitsC.text),
+        numberOfCommercialLienUnits: int.parse(_commercialUnitsC.text),
         paymentStageList: _lienList,
+        commercialInventoryFlatId: selectedCommercialLienUnits,
+        residentialInventoryFlatId: selectedResidentialLienUnits,
+        remark: _remarkC.text.trim(),
       );
     }
   }
 
+  String get selectedResidentialLienUnits => _selectResidentialLienUnits.value
+      .map((v) => v["zAttributesId"].toString())
+      .toSet()
+      .join(",");
+
+  String get selectedCommercialLienUnits => _selectCommercialLienUnits.value
+      .map((v) => v["zAttributesId"].toString())
+      .toSet()
+      .join(",");
   // LIEN BOTTOM SHEET
   Future<void> _showLienBottomSheet({
     ProposedOfferLienToSocietyDetailsWithPaymentStageData? lien,
@@ -263,14 +318,10 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                         double allowedArea = 0;
                         if (selectedType.toLowerCase() == 'residential') {
                           allowedArea =
-                              double.tryParse(
-                                _residentialAreaController.text,
-                              ) ??
-                              0;
+                              double.tryParse(_residentialAreaC.text) ?? 0;
                         } else if (selectedType.toLowerCase() == 'commercial') {
                           allowedArea =
-                              double.tryParse(_commercialAreaController.text) ??
-                              0;
+                              double.tryParse(_commercialAreaC.text) ?? 0;
                         }
 
                         if (existingTotal + newArea > allowedArea) {
@@ -436,15 +487,18 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
           if (state.lienToSocietyDetails != null) {
             fillData();
           } else {
-            _residentialAreaController.clear();
-            _commercialAreaController.clear();
-            _residentialUnitsController.clear();
-            _commercialUnitsController.clear();
+            _residentialAreaC.clear();
+            _commercialAreaC.clear();
+            _residentialUnitsC.clear();
+            _commercialUnitsC.clear();
             _selectedLienType.value = null;
             _lienListNotifier.value = [];
             _stageController.clear();
             _carpetAreaController.clear();
             _isRelease.value = false;
+            _selectResidentialLienUnits.value = [];
+            _selectCommercialLienUnits.value = [];
+            _remarkC.clear();
             _updateLienUnitCounts();
           }
         },
@@ -455,7 +509,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
           return SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
@@ -469,19 +523,17 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
 
                     verticalSpacing(height: 15),
                     CustomTextField(
-                      title: "Residential Area (Sq Ft)",
+                      title: "Residential Area (SqFt)",
                       isRequired: true,
-                      hint: "Enter Residential Area (Sq Ft)",
-                      textController: _residentialAreaController,
+                      hint: "Enter Residential Area (SqFt)",
+                      textController: _residentialAreaC,
                       keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 16,
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Residential area is required";
-                        }
-                        if (double.parse(value) < 0) {
-                          return "Area should be positive";
                         }
                         return null;
                       },
@@ -492,20 +544,57 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       },
                     ),
                     CustomTextField(
-                      title: "Commercial Area (Sq Ft)",
+                      title: "Number of Residential Lien Units",
+                      hint: "Enter Number of Residential Lien Units",
                       isRequired: true,
-                      hint: "Enter Commercial Area (Sq Ft)",
-                      textController: _commercialAreaController,
+                      textController: _residentialUnitsC,
                       keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
+                      inputFormatterList: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Number of Residential Lien Units is required";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _selectResidentialLienUnits,
+                      builder: (context, selectResidentialLienUnits, child) {
+                        return CustomMultipleSelectPopup(
+                          title: "Residential Lien Units",
+                          isMultiSelect: true,
+                          initialValue: selectResidentialLienUnits,
+                          dataList: _flatLits.value,
+                          onSelected: (value) {
+                            _selectResidentialLienUnits.value = value;
+                          },
+                          dataFetchCallBack:
+                              (pageNumber, {value}) => filterDropdownList(
+                                pageNumber,
+                                value: value,
+                                list: _flatLits.value,
+                              ),
+                          hintText: "Select Residential Lien Units",
+                        );
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Commercial Area (SqFt)",
+                      hint: "Enter Commercial Area (SqFt)",
+                      isRequired: true,
+                      textController: _commercialAreaC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 16,
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Commercial area is required";
                         }
-                        if (double.parse(value) < 0) {
-                          return "Area should be positive";
-                        }
+
                         return null;
                       },
                       onChangeFunction: (value) {
@@ -515,40 +604,49 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       },
                     ),
                     CustomTextField(
-                      title: "Number of Residential Lien Units",
-                      readOnly: true,
-                      textController: _residentialUnitsController,
+                      title: "Number of Commercial Lien Units",
+                      hint: "Enter of Commercial Lien Units",
+                      isRequired: true,
+                      textController: _commercialUnitsC,
                       keyboardType: TextInputType.number,
                       inputFormatterList: [
                         FilteringTextInputFormatter.digitsOnly,
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Number of residential units is required";
+                          return "Number of Commercial Lien Units is required";
                         }
-                        if (int.parse(value) < 0) {
-                          return "Units should be positive";
-                        }
+
                         return null;
                       },
                     ),
-                    CustomTextField(
-                      title: "Number of Commercial Lien Units",
-                      readOnly: true,
-                      textController: _commercialUnitsController,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Number of commercial units is required";
-                        }
-                        if (int.parse(value) < 0) {
-                          return "Units should be positive";
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: _selectCommercialLienUnits,
+                      builder: (context, selectCommercialLienUnits, child) {
+                        return CustomMultipleSelectPopup(
+                          title: "Commercial Lien Units",
+                          hintText: "Select Commercial Lien Units",
+                          initialValue: selectCommercialLienUnits,
+                          isMultiSelect: true,
+                          dataList: _flatLits.value,
+                          onSelected: (value) {
+                            _selectCommercialLienUnits.value = value;
+                          },
+                          dataFetchCallBack:
+                              (pageNumber, {value}) => filterDropdownList(
+                                pageNumber,
+                                value: value,
+                                list: _flatLits.value,
+                              ),
+                        );
                       },
+                    ),
+                    CustomTextField(
+                      title: 'Remark',
+                      hint: 'Enter Remark',
+                      textController: _remarkC,
+                      minLines: 3,
+                      maxLines: 3,
                     ),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -629,9 +727,9 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           return Container(
                             padding: const EdgeInsets.all(40),
                             child: Center(
-                              child: Text(
-                                'No details added',
-                                style: AppTextStyle.ts16R(color: AppColor.grey),
+                              child: noDataWidget(
+                                iconSize: 100,
+                                message: 'No Lien to Society Details Found',
                               ),
                             ),
                           );

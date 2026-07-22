@@ -472,3 +472,24 @@ String formatToKLCr(num value) {
   }
   return "₹$value";
 }
+
+// FOR SEARCH INSIDE STATIC MULTISELECT DROPDOWN
+Future<Map<String, dynamic>> filterDropdownList(
+  int pageNumber, {
+  String? value,
+  required List<Map<String, dynamic>> list,
+}) async {
+  final filtered =
+      value == null || value.trim().isEmpty
+          ? list
+          : list
+              .where(
+                (e) => (e['DisplayName'] ?? '')
+                    .toString()
+                    .toLowerCase()
+                    .contains(value.toLowerCase().trim()),
+              )
+              .toList();
+
+  return {"itemList": filtered, "totalNumberOfRecord": filtered.length};
+}

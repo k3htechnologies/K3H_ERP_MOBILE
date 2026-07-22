@@ -88,21 +88,51 @@ abstract interface class ProposedOfferRepository {
     required Map<String, dynamic> body,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> pullRentDetails({
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullTemporaryAccommodationAlternativeDetails({
     required int projectId,
     required int buildingId,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateRentDetails({
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateTemporaryAccommodationAlternativeDetails({
     required Map<String, dynamic> body,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> deleteRentDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferRentDetailsId,
+    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
     required String uniquekey,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateGenerateProposedOffer({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> pullReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateReadyReckonerRateDetails({required Map<String, dynamic> body});
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+    required int proposedOfferReadyReckonerRateDetailsId,
+    required String uniquekey,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullAdditionalInformationDetails({
+    required int projectId,
+    required int buildingId,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateAdditionalInformationDetails({required Map<String, dynamic> body});
 }
 
 class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
@@ -395,15 +425,17 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> pullRentDetails({
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullTemporaryAccommodationAlternativeDetails({
     required int projectId,
     required int buildingId,
   }) async {
     try {
-      var result = await proposedOfferDatasource.apicallPullRentDetails(
-        projectId: projectId,
-        buildingId: buildingId,
-      );
+      var result = await proposedOfferDatasource
+          .apicallPullTemporaryAccommodationAlternativeDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -411,13 +443,13 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> addUpdateRentDetails({
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateTemporaryAccommodationAlternativeDetails({
     required Map<String, dynamic> body,
   }) async {
     try {
-      var result = await proposedOfferDatasource.apicallAddUpdateRentDetails(
-        body: body,
-      );
+      var result = await proposedOfferDatasource
+          .apicallAddUpdateTemporaryAccommodationAlternativeDetails(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -428,16 +460,116 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   Future<Either<Failure, Map<String, dynamic>>> deleteRentDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferRentDetailsId,
+    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
     required String uniquekey,
   }) async {
     try {
-      var result = await proposedOfferDatasource.apicallDeleteRentDetails(
-        projectId: projectId,
-        buildingId: buildingId,
-        proposedOfferRentDetailsId: proposedOfferRentDetailsId,
-        uniquekey: uniquekey,
-      );
+      var result = await proposedOfferDatasource
+          .apicallDeleteTemporaryAccommodationAlternativeDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+            proposedOfferTemporaryAccommodationAlternativeDetailsId:
+                proposedOfferTemporaryAccommodationAlternativeDetailsId,
+            uniquekey: uniquekey,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateGenerateProposedOffer({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallAddUpdateGenerateProposedOffer(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> pullReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallPullReadyReckonerRateDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateReadyReckonerRateDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallAddUpdateReadyReckonerRateDetails(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+    required int proposedOfferReadyReckonerRateDetailsId,
+    required String uniquekey,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallDeleteReadyReckonerRateDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+            proposedOfferReadyReckonerRateDetailsId:
+                proposedOfferReadyReckonerRateDetailsId,
+            uniquekey: uniquekey,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullAdditionalInformationDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallPullAdditionalInformationDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  addUpdateAdditionalInformationDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallAddUpdateAdditionalInformationDetails(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -2,21 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ParkingAllotment extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final ValueChanged<VoidCallback> onSave;
 
   const ParkingAllotment({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
@@ -31,14 +33,16 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _numberOfParkingController;
-  late TextEditingController _totalParkingPercentageController;
+  late TextEditingController _numberOfParkingC,
+      _totalParkingPercentageC,
+      _remarkC;
 
   @override
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
+    widget.onSave(_onSave);
     _cubit.pullParkingAllotment(
       projectId: widget.projectId,
       buildingId: widget.buildingId,
@@ -47,25 +51,28 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
 
   @override
   void dispose() {
-    _numberOfParkingController.dispose();
-    _totalParkingPercentageController.dispose();
+    _numberOfParkingC.dispose();
+    _totalParkingPercentageC.dispose();
+    _remarkC.dispose();
     super.dispose();
   }
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _numberOfParkingController = TextEditingController();
-    _totalParkingPercentageController = TextEditingController();
+    _numberOfParkingC = TextEditingController();
+    _totalParkingPercentageC = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // FILL DATA
   void fillData() {
     var parkingAllotmentModel = _cubit.state.parkingAllotment!;
-    _numberOfParkingController.text =
+    _numberOfParkingC.text =
         parkingAllotmentModel.numberOfParkingAllottedToMembers.toString();
-    _totalParkingPercentageController.text =
+    _totalParkingPercentageC.text =
         parkingAllotmentModel.totalParkingPercentageAllottedToSociety
             .toString();
+    _remarkC.text = parkingAllotmentModel.remark;
   }
 
   // SAVE
@@ -75,12 +82,11 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
-        numberOfParkingAllottedToMembers: int.parse(
-          _numberOfParkingController.text,
-        ),
+        numberOfParkingAllottedToMembers: int.parse(_numberOfParkingC.text),
         totalParkingPercentageAllottedToSociety: double.parse(
-          _totalParkingPercentageController.text,
+          _totalParkingPercentageC.text,
         ),
+        remark: _remarkC.text.trim(),
       );
     }
   }
@@ -93,8 +99,9 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
           if (state.parkingAllotment != null) {
             fillData();
           } else {
-            _numberOfParkingController.clear();
-            _totalParkingPercentageController.clear();
+            _numberOfParkingC.clear();
+            _totalParkingPercentageC.clear();
+            _remarkC.clear();
           }
         },
         builder: (context, state) {
@@ -104,20 +111,23 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
           return SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Parking Allotment", style: AppTextStyle.ts16M()),
+                    ProposedOfferTile(
+                      icon: AppAssets.parkingIcon,
+                      title: "Parking Allotment",
+                    ),
                     verticalSpacing(height: 15),
                     CustomTextField(
                       title: 'Number of Parking Allotted to Members',
                       isRequired: true,
                       hint: 'Enter Number of Parking Allotted to Members',
-                      textController: _numberOfParkingController,
+                      textController: _numberOfParkingC,
                       keyboardType: TextInputType.number,
                       inputFormatterList: [
                         FilteringTextInputFormatter.digitsOnly,
@@ -134,12 +144,11 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                       },
                     ),
                     CustomTextField(
-                      title:
-                          "Total Parking Percentage Allotted to Society (%)",
+                      title: "Total Parking Percentage Allotted to Society (%)",
                       isRequired: true,
                       hint:
                           "Enter Total Parking Percentage Allotted to Society (%)",
-                      textController: _totalParkingPercentageController,
+                      textController: _totalParkingPercentageC,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(3),
@@ -157,9 +166,13 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                         return null;
                       },
                     ),
-                    verticalSpacing(height: 30),
-                    CustomButton(text: "Save", onPressed: _onSave),
-                    verticalSpacing(),
+                    CustomTextField(
+                      title: 'Remark',
+                      hint: 'Enter Remark',
+                      textController: _remarkC,
+                      minLines: 3,
+                      maxLines: 3,
+                    ),
                   ],
                 ),
               ),

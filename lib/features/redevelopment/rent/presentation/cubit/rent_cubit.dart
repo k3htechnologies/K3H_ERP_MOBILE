@@ -9,7 +9,7 @@ import 'package:k3h_erp_app/features/masters/employee_master/data/repository/emp
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/repository/proposed_offer.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
@@ -184,22 +184,26 @@ class RentCubit extends Cubit<RentState> {
   }
 
   // PULL RENT DETAILS (For Tenure List)
-  Future pullRentDetails({
+  Future pullTemporaryAccommodationAlternativeDetails({
     required BuildContext context,
     required int projectId,
     required int buildingId,
   }) async {
-    final result = await _proposedOfferRepository.pullRentDetails(
-      projectId: projectId,
-      buildingId: buildingId,
-    );
+    final result = await _proposedOfferRepository
+        .pullTemporaryAccommodationAlternativeDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
     return result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final List<RentDetailsModel> rentDetailsList =
-            List<RentDetailsModel>.from(response['data'] ?? []);
+        final List<TemporaryAccommodationAlternativeDetailsModel>
+        rentDetailsList =
+            List<TemporaryAccommodationAlternativeDetailsModel>.from(
+              response['data'] ?? [],
+            );
 
         emit(state.copyWith(rentDetails: rentDetailsList));
       },
@@ -208,7 +212,8 @@ class RentCubit extends Cubit<RentState> {
 
   // EXTRACT TENURE LIST FROM RENT DETAILS
   void extractTenureList(String chargeType) {
-    final List<RentDetailsModel> rentDetailsList = state.rentDetails;
+    final List<TemporaryAccommodationAlternativeDetailsModel> rentDetailsList =
+        state.rentDetails;
 
     final Set<String> tenureSet = {};
     for (var item in rentDetailsList) {

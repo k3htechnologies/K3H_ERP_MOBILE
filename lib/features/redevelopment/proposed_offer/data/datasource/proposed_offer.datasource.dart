@@ -1,10 +1,12 @@
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/additional_information_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/extra_carpet_area.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/gst_on_existing_plus_free_area.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/lien_to_society_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/parking_allotment.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/project_completion.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/ready_reckover_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/security_deposite.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/shifting_details.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
@@ -99,20 +101,49 @@ abstract interface class ProposedOfferDatasource {
     required Map<String, dynamic> body,
   });
 
-  Future<Map<String, dynamic>> apicallPullRentDetails({
+  Future<Map<String, dynamic>>
+  apicallPullTemporaryAccommodationAlternativeDetails({
     required int projectId,
     required int buildingId,
   });
 
-  Future<Map<String, dynamic>> apicallAddUpdateRentDetails({
+  Future<Map<String, dynamic>>
+  apicallAddUpdateTemporaryAccommodationAlternativeDetails({
     required Map<String, dynamic> body,
   });
 
-  Future<Map<String, dynamic>> apicallDeleteRentDetails({
+  Future<Map<String, dynamic>>
+  apicallDeleteTemporaryAccommodationAlternativeDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferRentDetailsId,
+    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
     required String uniquekey,
+  });
+  Future<Map<String, dynamic>> apicallAddUpdateGenerateProposedOffer({
+    required Map<String, dynamic> body,
+  });
+
+  Future<Map<String, dynamic>> apicallPullReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallAddUpdateReadyReckonerRateDetails({
+    required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apicallDeleteReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+    required int proposedOfferReadyReckonerRateDetailsId,
+    required String uniquekey,
+  });
+  Future<Map<String, dynamic>> apicallPullAdditionalInformationDetails({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallAddUpdateAdditionalInformationDetails({
+    required Map<String, dynamic> body,
   });
 }
 
@@ -359,6 +390,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       rethrow;
     }
   }
+
   @override
   Future<Map<String, dynamic>> apicallDeleteShiftingDetails({
     required int projectId,
@@ -391,7 +423,6 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       rethrow;
     }
   }
-
 
   @override
   Future<Map<String, dynamic>> apicallPullSecurityDepositDetails({
@@ -787,35 +818,41 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallPullRentDetails({
+  Future<Map<String, dynamic>>
+  apicallPullTemporaryAccommodationAlternativeDetails({
     required int projectId,
     required int buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullRentDetailsUrl({
+    String pullTemporaryAccommodationAlternativeDetailsUrl({
       required int projectId,
       required int buildingId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "ProposedOffer/PullRentDetails?ProjectId=$projectId&BuildingId=$buildingId";
+          "ProposedOffer/PullTemporaryAccommodationAlternativeDetails?ProjectId=$projectId&BuildingId=$buildingId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullRentDetailsUrl(projectId: projectId, buildingId: buildingId),
+        pullTemporaryAccommodationAlternativeDetailsUrl(
+          projectId: projectId,
+          buildingId: buildingId,
+        ),
       );
       return {
-        'data': List<RentDetailsModel>.from(
-          networkResponse['data'].map((x) => RentDetailsModel.fromJson(x)),
+        'data': List<TemporaryAccommodationAlternativeDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => TemporaryAccommodationAlternativeDetailsModel.fromJson(x),
+          ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallPullRentDetails(
+        apicallPullTemporaryAccommodationAlternativeDetails(
           projectId: projectId,
           buildingId: buildingId,
           queryParams: queryParams,
@@ -826,50 +863,57 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallAddUpdateRentDetails({
+  Future<Map<String, dynamic>>
+  apicallAddUpdateTemporaryAccommodationAlternativeDetails({
     required Map<String, dynamic> body,
   }) async {
-    String addUpdateRentDetailsUrl = "ProposedOffer/AddUpdateRentDetails";
+    String addUpdateTemporaryAccommodationAlternativeDetailsUrl =
+        "ProposedOffer/AddUpdateTemporaryAccommodationAlternativeDetails";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateRentDetailsUrl,
+        addUpdateTemporaryAccommodationAlternativeDetailsUrl,
         body,
       );
       return {
-        'data': List<RentDetailsModel>.from(
-          networkResponse['data'].map((x) => RentDetailsModel.fromJson(x)),
+        'data': List<TemporaryAccommodationAlternativeDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => TemporaryAccommodationAlternativeDetailsModel.fromJson(x),
+          ),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallAddUpdateRentDetails(body: body);
+        apicallAddUpdateTemporaryAccommodationAlternativeDetails(body: body);
       }
       rethrow;
     }
   }
 
   @override
-  Future<Map<String, dynamic>> apicallDeleteRentDetails({
+  Future<Map<String, dynamic>>
+  apicallDeleteTemporaryAccommodationAlternativeDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferRentDetailsId,
+    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
     required String uniquekey,
   }) async {
     String deleteRentDetailsUrl({
-      required int proposedOfferRentDetailsId,
+      required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
       required int buildingId,
       required int projectId,
       required String uniqueKey,
     }) {
-      return "ProposedOffer/DeleteRentDetails?ProposedOfferRentDetailsId=$proposedOfferRentDetailsId&Uniquekey=$uniqueKey&BuildingId=$buildingId&ProjectId=$projectId";
+      return "ProposedOffer/DeleteTemporaryAccommodationAlternativeDetails?ProposedOfferTemporaryAccommodationAlternativeDetailsId=$proposedOfferTemporaryAccommodationAlternativeDetailsId&Uniquekey=$uniqueKey&BuildingId=$buildingId&ProjectId=$projectId";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteRentDetailsUrl(
-          proposedOfferRentDetailsId: proposedOfferRentDetailsId,
+          proposedOfferTemporaryAccommodationAlternativeDetailsId:
+              proposedOfferTemporaryAccommodationAlternativeDetailsId,
           buildingId: buildingId,
           projectId: projectId,
           uniqueKey: uniquekey,
@@ -877,16 +921,233 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallDeleteRentDetails(
+        apicallDeleteTemporaryAccommodationAlternativeDetails(
           projectId: projectId,
           buildingId: buildingId,
-          proposedOfferRentDetailsId: proposedOfferRentDetailsId,
+          proposedOfferTemporaryAccommodationAlternativeDetailsId:
+              proposedOfferTemporaryAccommodationAlternativeDetailsId,
           uniquekey: uniquekey,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateGenerateProposedOffer({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateGenerateProposedOfferUrl =
+        "ProposedOffer/AddUpdateGenerateProposedOffer";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateGenerateProposedOfferUrl,
+        body,
+      );
+      return {
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateGenerateProposedOffer(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullReadyReckonerRateDetailsUrl({
+      required int projectId,
+      required int buildingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ProposedOffer/PullReadyReckonerRateDetails?ProjectId=$projectId&BuildingId=$buildingId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullReadyReckonerRateDetailsUrl(
+          projectId: projectId,
+          buildingId: buildingId,
+        ),
+      );
+      return {
+        'data': List<ReadyReckonerRateDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => ReadyReckonerRateDetailsModel.fromJson(x),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullReadyReckonerRateDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateReadyReckonerRateDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateReadyReckonerRateDetailsUrl =
+        "ProposedOffer/AddUpdateReadyReckonerRateDetails";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateReadyReckonerRateDetailsUrl,
+        body,
+      );
+      return {
+        'data': List<ReadyReckonerRateDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => ReadyReckonerRateDetailsModel.fromJson(x),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateReadyReckonerRateDetails(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteReadyReckonerRateDetails({
+    required int projectId,
+    required int buildingId,
+    required int proposedOfferReadyReckonerRateDetailsId,
+    required String uniquekey,
+  }) async {
+    String deleteReckonerRateDetailsUrl({
+      required int proposedOfferReadyReckonerRateDetailsId,
+      required int buildingId,
+      required int projectId,
+      required String uniqueKey,
+    }) {
+      return "ProposedOffer/DeleteReadyReckonerRateDetails?ProposedOfferReadyReckonerRateDetailsId=$proposedOfferReadyReckonerRateDetailsId&Uniquekey=$uniqueKey&BuildingId=$buildingId&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteReckonerRateDetailsUrl(
+          proposedOfferReadyReckonerRateDetailsId:
+              proposedOfferReadyReckonerRateDetailsId,
+          buildingId: buildingId,
+          projectId: projectId,
+          uniqueKey: uniquekey,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteReadyReckonerRateDetails(
+          proposedOfferReadyReckonerRateDetailsId:
+              proposedOfferReadyReckonerRateDetailsId,
+          projectId: projectId,
+          buildingId: buildingId,
+          uniquekey: uniquekey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullAdditionalInformationDetails({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullReadyReckonerRateDetailsUrl({
+      required int projectId,
+      required int buildingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ProposedOffer/PullAdditionalInformation?ProjectId=$projectId&BuildingId=$buildingId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullReadyReckonerRateDetailsUrl(
+          projectId: projectId,
+          buildingId: buildingId,
+        ),
+      );
+      return {
+        'data': List<AdditionalInformationDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => AdditionalInformationDetailsModel.fromJson(x),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullAdditionalInformationDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateAdditionalInformationDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateAdditionalInformationUrl =
+        "ProposedOffer/AddUpdateAdditionalInformation";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateAdditionalInformationUrl,
+        body,
+      );
+      return {
+        'data': List<AdditionalInformationDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => AdditionalInformationDetailsModel.fromJson(x),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateAdditionalInformationDetails(body: body);
       }
       rethrow;
     }

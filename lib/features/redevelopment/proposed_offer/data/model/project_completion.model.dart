@@ -13,6 +13,7 @@ class ProjectCompletionModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String remark;
 
   ProjectCompletionModel({
     required this.proposedOfferProjectCompletionId,
@@ -27,6 +28,7 @@ class ProjectCompletionModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.remark,
   });
 
   factory ProjectCompletionModel.fromJson(Map<String, dynamic> json) =>
@@ -52,6 +54,7 @@ class ProjectCompletionModel {
             json["ModifiedDate"] == null || json["ModifiedDate"] == ""
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
+        remark: parseValue<String>(json, "Remark"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -67,5 +70,6 @@ class ProjectCompletionModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Remark": remark,
   };
 }

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/corpus_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/additional_information_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/bank_guarantee.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/carpet_plot_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/hardship_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/extra_carpet_area.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/gst_on_existing_plus_free_area.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/lien_to_society_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/parking_allotment.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/project_completion.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/rent_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/ready_reckoner_rate_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/temporary_accomodation_alternative_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/security_deposit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/shifting_details.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -15,6 +19,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ProposedOfferSecondaryScreen extends StatefulWidget {
   final int projectId;
@@ -51,32 +56,37 @@ class _ProposedOfferSecondaryScreenState
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
-              spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 showSiteSelectedWidget(projectName: widget.projectName),
+                verticalSpacing(),
                 Text(
                   toTitleCase(widget.buildingName),
                   style: AppTextStyle.ts14M(color: AppColor.grey),
                 ),
+                verticalSpacing(),
               ],
             ),
           ),
           _buildTypeWidget(widget.type, widget.projectId, widget.buildingId),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: 70,
-          padding: EdgeInsets.all(16),
-          child: CustomButton(
-            text: "Save",
-            onPressed: () {
-              _onSave?.call();
-            },
-          ),
-        ),
-      ),
+      bottomNavigationBar:
+          (widget.type == "Carpet / Plot Area" ||
+                  widget.type == "Ready Reckoner Rate")
+              ? null
+              : SafeArea(
+                child: Container(
+                  height: 70,
+                  padding: EdgeInsets.all(16),
+                  child: CustomButton(
+                    text: "Save",
+                    onPressed: () {
+                      _onSave?.call();
+                    },
+                  ),
+                ),
+              ),
     );
   }
 
@@ -115,17 +125,47 @@ class _ProposedOfferSecondaryScreenState
           onSave: (callback) => _onSave = callback,
         );
       case "Parking Allotment":
-        return ParkingAllotment(projectId: projectId, buildingId: buildingId);
+        return ParkingAllotment(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
       case "GST on Existing + Free Area":
         return GstOnExistingPlusFreeArea(
           projectId: projectId,
           buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
         );
       case "Project Completion":
-        return ProjectCompletion(projectId: projectId, buildingId: buildingId);
-      case "Rent Details":
-        return RentDetails(projectId: projectId, buildingId: buildingId);
-
+        return ProjectCompletion(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
+      case "Temp Accom Alternative":
+        return TemporaryAccommodationAlternativeDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+      case "Ready Reckoner Rate":
+        return ReadyReckonerRateDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+      case "Carpet / Plot Area":
+        return CarpetPlotDetails(projectId: projectId, buildingId: buildingId);
+      case "Additional Information":
+        return AdditionalInformationDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
+      case "Bank Guarantee":
+        return BankGuaranteeDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          onSave: (callback) => _onSave = callback,
+        );
       default:
         return const Text("Invalid Type", style: TextStyle(color: Colors.red));
     }

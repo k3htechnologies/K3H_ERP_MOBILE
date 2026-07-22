@@ -44,7 +44,6 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     AppAssets.readyReckonerIcon,
     AppAssets.carpetAreaIcon,
     AppAssets.additionalInfoIcon,
-    AppAssets.plotAreaIcon,
     AppAssets.bankGuaranteeIcon,
   ];
   final List<String> _proposedOfferTypeList = [
@@ -56,11 +55,10 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     "Parking Allotment",
     "GST on Existing + Free Area",
     "Project Completion",
-    "Rent Details",
-    "Ready Reckoner",
-    "Carpet Area",
+    "Temp Accom Alternative",
+    "Ready Reckoner Rate",
+    "Carpet / Plot Area",
     "Additional Information",
-    "Plot Area",
     "Bank Guarantee",
   ];
 
@@ -198,6 +196,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                       isRequired: true,
                       isMultiSelect: false,
                       initialValue: selectedBuilding,
+                      hintText: "Select Building",
                       dataList: const [],
                       onSelected: (value) async {
                         _selectedBuildingNotifier.value = value;

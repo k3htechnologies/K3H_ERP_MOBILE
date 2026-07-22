@@ -13,6 +13,7 @@ class ParkingAllotmentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String remark;
 
   ParkingAllotmentModel({
     required this.proposedOfferParkingAllotmentId,
@@ -27,8 +28,8 @@ class ParkingAllotmentModel {
     required this.modifiedById,
     required this.modifiedBy,
     this.modifiedDate,
+    required this.remark,
   });
-
 
   factory ParkingAllotmentModel.fromJson(Map<String, dynamic> json) =>
       ParkingAllotmentModel(
@@ -53,9 +54,10 @@ class ParkingAllotmentModel {
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
+        remark: parseValue<String>(json, "Remark"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -65,12 +67,13 @@ class ParkingAllotmentModel {
     "ProjectId": projectId,
     "NumberOfParkingAllottedToMembers": numberOfParkingAllottedToMembers,
     "TotalParkingPercentageAllottedToSociety":
-    totalParkingPercentageAllottedToSociety,
+        totalParkingPercentageAllottedToSociety,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Remark": remark,
   };
 }

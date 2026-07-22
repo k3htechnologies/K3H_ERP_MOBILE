@@ -40,7 +40,9 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _securityDepositAmountController;
+  late TextEditingController _securityDepositAmountC,
+      _interestAmountC,
+      _remarkC;
 
   final ValueNotifier<
     List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
@@ -73,9 +75,11 @@ class _SecurityDepositState extends State<SecurityDeposit> {
 
   @override
   void dispose() {
-    _securityDepositAmountController.dispose();
+    _securityDepositAmountC.dispose();
     _stageController.dispose();
+    _interestAmountC.dispose();
     _amountController.dispose();
+    _remarkC.dispose();
     _securityDepositListNotifier.dispose();
     _selectedSecurityDepositType.dispose();
     super.dispose();
@@ -83,20 +87,25 @@ class _SecurityDepositState extends State<SecurityDeposit> {
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _securityDepositAmountController = TextEditingController();
+    _securityDepositAmountC = TextEditingController();
     _stageController = TextEditingController();
+    _interestAmountC = TextEditingController();
     _amountController = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // FILL DATA
   void fillData() {
     var securityDepositDetailsModel = _cubit.state.securityDepositDetails!;
-    _securityDepositAmountController.text =
+    _securityDepositAmountC.text =
         securityDepositDetailsModel.securityDepositToSocietyAmount.toString();
     _securityDepositListNotifier.value = List.from(
       securityDepositDetailsModel
           .proposedOfferSecurityDepositDetailsWithPaymentStageData,
     );
+    _interestAmountC.text =
+        securityDepositDetailsModel.interestAmount.toString();
+    _remarkC.text = securityDepositDetailsModel.remark;
   }
 
   // SAVE
@@ -115,9 +124,11 @@ class _SecurityDepositState extends State<SecurityDeposit> {
         buildingId: widget.buildingId,
         projectId: widget.projectId,
         securityDepositToSocietyAmount: double.parse(
-          _securityDepositAmountController.text,
+          _securityDepositAmountC.text,
         ),
         paymentStageList: _securityDepositList,
+        interestAmount: double.tryParse(_interestAmountC.text) ?? 0,
+        remark: _remarkC.text.trim(),
       );
     }
   }
@@ -191,7 +202,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
 
                     if (_isSecurityAmountExceeding(index)) {
                       return "Total amount cannot exceed "
-                          "${_securityDepositAmountController.text}";
+                          "${_securityDepositAmountC.text}";
                     }
 
                     return null;
@@ -267,7 +278,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
 
   // CHECK IF SECURITY AMOUNT EXCEEDS
   bool _isSecurityAmountExceeding(int? editIndex) {
-    double limit = double.tryParse(_securityDepositAmountController.text) ?? 0;
+    double limit = double.tryParse(_securityDepositAmountC.text) ?? 0;
 
     double current = double.tryParse(_amountController.text) ?? 0;
 
@@ -346,11 +357,13 @@ class _SecurityDepositState extends State<SecurityDeposit> {
           if (state.securityDepositDetails != null) {
             fillData();
           } else {
-            _securityDepositAmountController.clear();
+            _securityDepositAmountC.clear();
             _selectedSecurityDepositType.value = null;
             _securityDepositListNotifier.value = [];
             _stageController.clear();
             _amountController.clear();
+            _remarkC.clear();
+            _interestAmountC.clear();
           }
         },
         builder: (context, state) {
@@ -360,7 +373,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
           return SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
@@ -388,7 +401,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       title: 'Security Deposit Amount',
                       isRequired: true,
                       hint: 'Enter Security Deposit Amount',
-                      textController: _securityDepositAmountController,
+                      textController: _securityDepositAmountC,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(10),
@@ -398,6 +411,22 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                         }
                         return null;
                       },
+                    ),
+                    CustomTextField(
+                      title: 'Interest Amount (₹)',
+                      hint: 'Enter Interest Amount (₹)',
+                      textController: _interestAmountC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 8,
+                      ),
+                    ),
+                    CustomTextField(
+                      title: 'Remark',
+                      hint: 'Enter Remark',
+                      textController: _remarkC,
+                      minLines: 3,
+                      maxLines: 3,
                     ),
                     // SECURITY DEPOSIT DETAILS SECTION
                     Column(

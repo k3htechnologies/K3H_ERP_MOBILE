@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
@@ -22,7 +22,7 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddPaymentScreen extends StatefulWidget {
   final int buildingId;
-  final List<RentDetailsModel> rentDetails;
+  final List<TemporaryAccommodationAlternativeDetailsModel> rentDetails;
   final RentModel rentModel;
 
   /// Total charge amount for this tenant (for remaining-amount validation).

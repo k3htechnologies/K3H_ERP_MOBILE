@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/shifting_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/bank_guarantee_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -14,16 +14,15 @@ import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class ShiftingDetails extends StatefulWidget {
+class BankGuaranteeDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
 
-  const ShiftingDetails({
+  const BankGuaranteeDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
@@ -31,10 +30,10 @@ class ShiftingDetails extends StatefulWidget {
   });
 
   @override
-  State<ShiftingDetails> createState() => _ShiftingDetailsState();
+  State<BankGuaranteeDetails> createState() => _BankGuaranteeDetailsState();
 }
 
-class _ShiftingDetailsState extends State<ShiftingDetails> {
+class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
   // CUBIT
   late ProposedOfferCubit _cubit;
 
@@ -42,17 +41,20 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _residentialAmountC, _commercialAmountC, _remarkC;
+  late TextEditingController _residentialAmountC, _accountHolderNameC, _remarkC;
 
-  final ValueNotifier<List<ProposedOfferShiftingDetailsWithPaymentStageData>>
-  _shiftingListNotifier =
-      ValueNotifier<List<ProposedOfferShiftingDetailsWithPaymentStageData>>([]);
+  final ValueNotifier<
+    List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
+  >
+  _shiftingListNotifier = ValueNotifier<
+    List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
+  >([]);
 
-  List<ProposedOfferShiftingDetailsWithPaymentStageData> get _shiftingList =>
-      _shiftingListNotifier.value;
+  List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
+  get _shiftingList => _shiftingListNotifier.value;
 
   // LITIGATION FORM CONTROLLERS
-  final ValueNotifier<Map<String, dynamic>?> _selectedShiftingType =
+  final ValueNotifier<Map<String, dynamic>?> _selectedBankGuaranteeType =
       ValueNotifier(null);
   late TextEditingController _stageController;
   late TextEditingController _stagePercentageController;
@@ -65,21 +67,21 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
     widget.onSave(_onSave);
-    _cubit.pullShiftingDetails(
-      projectId: widget.projectId,
-      buildingId: widget.buildingId,
-    );
+    // _cubit.pullBankGuaranteeDetails(
+    //   projectId: widget.projectId,
+    //   buildingId: widget.buildingId,
+    // );
   }
 
   @override
   void dispose() {
     _residentialAmountC.dispose();
-    _commercialAmountC.dispose();
+    _accountHolderNameC.dispose();
     _stageController.dispose();
     _stagePercentageController.dispose();
     _amountController.dispose();
     _shiftingListNotifier.dispose();
-    _selectedShiftingType.dispose();
+    _selectedBankGuaranteeType.dispose();
     _remarkC.dispose();
     super.dispose();
   }
@@ -87,7 +89,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAmountC = TextEditingController();
-    _commercialAmountC = TextEditingController();
+    _accountHolderNameC = TextEditingController();
     _stageController = TextEditingController();
     _stagePercentageController = TextEditingController();
     _amountController = TextEditingController();
@@ -96,7 +98,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
   // CHECK IF AMOUNT EXCEEDS ALLOCATED LIMIT
   bool _isAmountExceedingForSelectedType(int? editIndex) {
-    final selectedType = _selectedShiftingType.value;
+    final selectedType = _selectedBankGuaranteeType.value;
     if (selectedType == null) return false;
 
     double limit = 0;
@@ -105,7 +107,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     if (typeId == 1) {
       limit = double.tryParse(_residentialAmountC.text) ?? 0;
     } else if (typeId == 2) {
-      limit = double.tryParse(_commercialAmountC.text) ?? 0;
+      limit = double.tryParse(_accountHolderNameC.text) ?? 0;
     }
 
     double currentAmount = double.tryParse(_amountController.text) ?? 0;
@@ -126,14 +128,15 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
   // FILL DATA
   void fillData() {
-    var shiftingDetailsModel = _cubit.state.shiftingDetails!;
+    var shiftingDetailsModel = _cubit.state.bankGuaranteeDetails!;
     _residentialAmountC.text =
-        shiftingDetailsModel.shiftingOfferedToResidentialAmount.toString();
-    _commercialAmountC.text =
-        shiftingDetailsModel.shiftingOfferedToCommercialAmount.toString();
+        shiftingDetailsModel.bankGuaranteeOfferedToResidentialAmount.toString();
+    _accountHolderNameC.text =
+        shiftingDetailsModel.bankGuaranteeOfferedToCommercialAmount.toString();
 
     _shiftingListNotifier.value = List.from(
-      shiftingDetailsModel.proposedOfferShiftingDetailsWithPaymentStageData,
+      shiftingDetailsModel
+          .proposedOfferBankGuaranteeDetailsWithPaymentStageData,
     );
     _remarkC.text = shiftingDetailsModel.remark;
   }
@@ -149,27 +152,27 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
         );
         return;
       }
-      _cubit.addUpdateShiftingDetails(
-        context,
-        buildingId: widget.buildingId,
-        projectId: widget.projectId,
-        shiftingOfferedToResidentialAmount: double.parse(
-          _residentialAmountC.text,
-        ),
-        shiftingOfferedToCommercialAmount: double.parse(
-          _commercialAmountC.text,
-        ),
-        paymentStageList: _shiftingList,
-        remark: _remarkC.text.trim(),
-      );
+      // _cubit.addUpdateBankGuaranteeDetails(
+      //   context,
+      //   buildingId: widget.buildingId,
+      //   projectId: widget.projectId,
+      //   shiftingOfferedToResidentialAmount: double.parse(
+      //     _residentialAmountC.text,
+      //   ),
+      //   shiftingOfferedToCommercialAmount: double.parse(
+      //     _accountHolderNameC.text,
+      //   ),
+      //   paymentStageList: _shiftingList,
+      //   remark: _remarkC.text.trim(),
+      // );
     }
   }
 
   // PREFILL DIALOG
   void _prefillDialog(
-    ProposedOfferShiftingDetailsWithPaymentStageData shifting,
+    ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel shifting,
   ) {
-    _selectedShiftingType.value = propertyTypeList.firstWhere(
+    _selectedBankGuaranteeType.value = propertyTypeList.firstWhere(
       (e) => e['DisplayName'] == shifting.type,
       orElse: () => propertyTypeList.first,
     );
@@ -180,15 +183,15 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
   // CLEAR DIALOG
   void _clearDialog() {
-    _selectedShiftingType.value = null;
+    _selectedBankGuaranteeType.value = null;
     _stageController.clear();
     _stagePercentageController.clear();
     _amountController.clear();
   }
 
   // SHOW SHIFTING BOTTOM SHEET
-  Future<void> _showShiftingBottomSheet({
-    ProposedOfferShiftingDetailsWithPaymentStageData? shifting,
+  Future<void> _showBankGuaranteeBottomSheet({
+    ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel? shifting,
     int? index,
   }) async {
     if (shifting != null) {
@@ -197,38 +200,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
     await DialogHelper.showCustomBottomSheet(
       context,
-      "Shifting Details",
+      "Bank Guarantee Details",
       contentWidget: Form(
         key: _shiftingFormKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            /// TYPE
-            ValueListenableBuilder(
-              valueListenable: _selectedShiftingType,
-              builder: (context, value, child) {
-                return CustomDropDownWidget(
-                  isRequired: true,
-                  initialValue: _selectedShiftingType.value,
-                  dataList: propertyTypeList,
-                  onSelected: (value) {
-                    _selectedShiftingType.value = value;
-                    _amountController.text = '0.0';
-                    _stagePercentageController.text = '0.0';
-                  },
-                  title: "Type",
-                  hintText: "Select Type",
-                  validator: (value) {
-                    if (value == null || value['zAttributesId'] == -1) {
-                      return "Type is required";
-                    }
-                    return null;
-                  },
-                  onValueClear: () => _selectedShiftingType.value = null,
-                );
-              },
-            ),
-
             /// STAGE
             CustomTextField(
               title: "Stage",
@@ -265,26 +242,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                 return null;
               },
               onChangeFunction: (value) {
-                if (_selectedShiftingType.value == null ||
-                    _selectedShiftingType.value?['zAttributesId'] == -1) {
-                  return;
-                }
-
                 double percentage = double.tryParse(value) ?? 0;
 
-                if (_selectedShiftingType.value?['zAttributesId'] == 1) {
-                  _amountController.text =
-                      ((double.tryParse(_residentialAmountC.text) ?? 0) *
-                              percentage /
-                              100)
-                          .toString();
-                } else if (_selectedShiftingType.value?['zAttributesId'] == 2) {
-                  _amountController.text =
-                      ((double.tryParse(_commercialAmountC.text) ?? 0) *
-                              percentage /
-                              100)
-                          .toString();
-                }
+                _amountController.text =
+                    ((double.tryParse(_residentialAmountC.text) ?? 0) *
+                            percentage /
+                            100)
+                        .toString();
               },
             ),
 
@@ -303,18 +267,18 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
                 double amount = double.tryParse(value) ?? 0;
 
-                if (_selectedShiftingType.value == null ||
-                    _selectedShiftingType.value?['zAttributesId'] == -1) {
+                if (_selectedBankGuaranteeType.value == null ||
+                    _selectedBankGuaranteeType.value?['zAttributesId'] == -1) {
                   return "Type must be selected first";
                 }
 
-                if (_selectedShiftingType.value?['zAttributesId'] == 1 &&
+                if (_selectedBankGuaranteeType.value?['zAttributesId'] == 1 &&
                     (double.tryParse(_residentialAmountC.text) ?? 0) == 0) {
                   return "Residential amount is required";
                 }
 
-                if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
-                    (double.tryParse(_commercialAmountC.text) ?? 0) == 0) {
+                if (_selectedBankGuaranteeType.value?['zAttributesId'] == 2 &&
+                    (double.tryParse(_accountHolderNameC.text) ?? 0) == 0) {
                   return "Commercial amount is required";
                 }
 
@@ -334,7 +298,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
         text: "Save",
         onPressed: () {
           if (_shiftingFormKey.currentState!.validate()) {
-            if (_selectedShiftingType.value!['zAttributesId'] == 1 &&
+            if (_selectedBankGuaranteeType.value!['zAttributesId'] == 1 &&
                 (double.tryParse(_residentialAmountC.text) ?? 0) == 0) {
               showErrorMessage(
                 context,
@@ -344,8 +308,8 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               return;
             }
 
-            if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
-                (double.tryParse(_commercialAmountC.text) ?? 0) == 0) {
+            if (_selectedBankGuaranteeType.value?['zAttributesId'] == 2 &&
+                (double.tryParse(_accountHolderNameC.text) ?? 0) == 0) {
               showErrorMessage(
                 context,
                 'Error',
@@ -354,55 +318,55 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               return;
             }
 
-            final newList =
-                List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
-                  _shiftingList,
-                );
+            // final newList = List<
+            //   ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel
+            // >.from(_shiftingList);
             if (shifting == null) {
-              newList.add(
-                ProposedOfferShiftingDetailsWithPaymentStageData(
-                  proposedOfferShiftingDetailsWithPaymentStageId: 0,
-                  uniquekey: '',
-                  buildingId: widget.buildingId,
-                  projectId: widget.projectId,
-                  type: _selectedShiftingType.value?['DisplayName'],
-                  stage: _stageController.text,
-                  stagePercentage: double.parse(
-                    _stagePercentageController.text,
-                  ),
-                  amount: double.parse(_amountController.text),
-                  createdById: 1,
-                  createdBy: 'Current User',
-                  createdDate: DateTime.now(),
-                  modifiedById: 0,
-                  modifiedBy: '',
-                  modifiedDate: null,
-                ),
-              );
+              // newList.add(
+              //   ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
+              //     proposedOfferBankGuaranteeDetailsWithPaymentStageId: 0,
+              //     uniquekey: '',
+              //     buildingId: widget.buildingId,
+              //     projectId: widget.projectId,
+              //     type: _selectedBankGuaranteeType.value?['DisplayName'],
+              //     stage: _stageController.text,
+              //     stagePercentage: double.parse(
+              //       _stagePercentageController.text,
+              //     ),
+              //     amount: double.parse(_amountController.text),
+              //     createdById: 1,
+              //     createdBy: 'Current User',
+              //     createdDate: DateTime.now(),
+              //     modifiedById: 0,
+              //     modifiedBy: '',
+              //     modifiedDate: null,
+              //   ),
+              // );
             } else {
-              newList[index!] =
-                  ProposedOfferShiftingDetailsWithPaymentStageData(
-                    proposedOfferShiftingDetailsWithPaymentStageId:
-                        shifting.proposedOfferShiftingDetailsWithPaymentStageId,
-                    uniquekey: shifting.uniquekey,
-                    buildingId: shifting.buildingId,
-                    projectId: shifting.projectId,
-                    type: _selectedShiftingType.value?['DisplayName'],
-                    stage: _stageController.text,
-                    stagePercentage: double.parse(
-                      _stagePercentageController.text,
-                    ),
-                    amount: double.parse(_amountController.text),
-                    createdById: shifting.createdById,
-                    createdBy: shifting.createdBy,
-                    createdDate: shifting.createdDate,
-                    modifiedById: shifting.modifiedById,
-                    modifiedBy: shifting.modifiedBy,
-                    modifiedDate: shifting.modifiedDate,
-                  );
+              // newList[index!] =
+              //     ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
+              //       proposedOfferBankGuaranteeDetailsWithPaymentStageId:
+              //           shifting
+              //               .proposedOfferBankGuaranteeDetailsWithPaymentStageId,
+              //       uniquekey: shifting.uniquekey,
+              //       buildingId: shifting.buildingId,
+              //       projectId: shifting.projectId,
+              //       type: _selectedBankGuaranteeType.value?['DisplayName'],
+              //       stage: _stageController.text,
+              //       stagePercentage: double.parse(
+              //         _stagePercentageController.text,
+              //       ),
+              //       amount: double.parse(_amountController.text),
+              //       createdById: shifting.createdById,
+              //       createdBy: shifting.createdBy,
+              //       createdDate: shifting.createdDate,
+              //       modifiedById: shifting.modifiedById,
+              //       modifiedBy: shifting.modifiedBy,
+              //       modifiedDate: shifting.modifiedDate,
+              //     );
             }
 
-            _shiftingListNotifier.value = newList;
+            // _shiftingListNotifier.value = newList;
             Navigator.pop(context);
           }
         },
@@ -414,94 +378,64 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
   // HANDLE AMOUNT CHANGE
   void _handleResidentialAmountChange(double value) {
-    final newList = List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
-      _shiftingList,
-    );
-    for (int i = 0; i < newList.length; i++) {
-      if (newList[i].type == 'Residential') {
-        newList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
-          proposedOfferShiftingDetailsWithPaymentStageId:
-              newList[i].proposedOfferShiftingDetailsWithPaymentStageId,
-          uniquekey: newList[i].uniquekey,
-          buildingId: newList[i].buildingId,
-          projectId: newList[i].projectId,
-          type: newList[i].type,
-          stage: newList[i].stage,
-          stagePercentage: newList[i].stagePercentage,
-          amount: value * (newList[i].stagePercentage / 100),
-          createdById: newList[i].createdById,
-          createdBy: newList[i].createdBy,
-          createdDate: newList[i].createdDate,
-          modifiedById: newList[i].modifiedById,
-          modifiedBy: newList[i].modifiedBy,
-          modifiedDate: newList[i].modifiedDate,
-        );
-      }
-    }
-    _shiftingListNotifier.value = newList;
+    // final newList =
+    //     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>.from(
+    //       _shiftingList,
+    //     );
+    // for (int i = 0; i < newList.length; i++) {
+    //   if (newList[i].type == 'Residential') {
+    //     newList[i] = ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
+    //       proposedOfferBankGuaranteeDetailsWithPaymentStageId:
+    //           newList[i].proposedOfferBankGuaranteeDetailsWithPaymentStageId,
+    //       uniquekey: newList[i].uniquekey,
+    //       buildingId: newList[i].buildingId,
+    //       projectId: newList[i].projectId,
+    //       type: newList[i].type,
+    //       stage: newList[i].stage,
+    //       stagePercentage: newList[i].stagePercentage,
+    //       amount: value * (newList[i].stagePercentage / 100),
+    //       createdById: newList[i].createdById,
+    //       createdBy: newList[i].createdBy,
+    //       createdDate: newList[i].createdDate,
+    //       modifiedById: newList[i].modifiedById,
+    //       modifiedBy: newList[i].modifiedBy,
+    //       modifiedDate: newList[i].modifiedDate,
+    //     );
+    //   }
+    // }
+    // _shiftingListNotifier.value = newList;
   }
 
-  // HANDLE AMOUNT CHANGE
-  void _handleCommercialAmountChange(double value) {
-    final newList = List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
-      _shiftingList,
-    );
-    for (int i = 0; i < newList.length; i++) {
-      if (newList[i].type == 'Commercial') {
-        newList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
-          proposedOfferShiftingDetailsWithPaymentStageId:
-              newList[i].proposedOfferShiftingDetailsWithPaymentStageId,
-          uniquekey: newList[i].uniquekey,
-          buildingId: newList[i].buildingId,
-          projectId: newList[i].projectId,
-          type: newList[i].type,
-          stage: newList[i].stage,
-          stagePercentage: newList[i].stagePercentage,
-          amount: value * (newList[i].stagePercentage / 100),
-          createdById: newList[i].createdById,
-          createdBy: newList[i].createdBy,
-          createdDate: newList[i].createdDate,
-          modifiedById: newList[i].modifiedById,
-          modifiedBy: newList[i].modifiedBy,
-          modifiedDate: newList[i].modifiedDate,
-        );
-      }
-    }
-    _shiftingListNotifier.value = newList;
-  }
-
-  Future<void> _showPopupToDeleteShiftingData() async {
+  Future<void> _showPopupToDeleteBankGuaranteeData() async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'Are sure you want delete Shifting Amount?',
+      'Are sure you want delete BankGuarantee Amount?',
       'Deleting this shifting will permanently remove all associated data.',
       deleteButtonTxt: 'Delete All',
     );
-    if (result && context.mounted) {
-      _cubit.deleteShiftingDetails(
-        // ignore: use_build_context_synchronously
-        context: context,
-        projectId: widget.projectId,
-        buildingId: widget.buildingId,
-      );
-    }
+    if (result && context.mounted) {}
   }
 
-  Future<void> _showPopupToDeleteShifting(int index) async {
+  Future<void> _showPopupToDeleteBankGuarantee(int index) async {
     var result = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a shifting payment stage ?',
       'Deleting this shifting payment stage will permanently remove all associated data.',
     );
     if (result && context.mounted) {
+      // final newList =
+      //     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>.from(
+      //       _shiftingList,
+      //     );
       final newList =
-          List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
-            _shiftingList,
-          );
+          <ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>[];
       newList.removeAt(index);
       _shiftingListNotifier.value = newList;
-      // ignore: use_build_context_synchronously
-      showSuccessMessage(context, subTitle: 'Shifting Payment Stage Removed');
+      showSuccessMessage(
+        // ignore: use_build_context_synchronously
+        context,
+        subTitle: 'Bank Guarantee Payment Stage Removed',
+      );
     }
   }
 
@@ -514,8 +448,8 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
             fillData();
           } else {
             _residentialAmountC.clear();
-            _commercialAmountC.clear();
-            _selectedShiftingType.value = null;
+            _accountHolderNameC.clear();
+            _selectedBankGuaranteeType.value = null;
             _shiftingListNotifier.value = [];
             _stageController.clear();
             _stagePercentageController.clear();
@@ -542,36 +476,47 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                       children: [
                         Expanded(
                           child: ProposedOfferTile(
-                            icon: AppAssets.shiftingDetailsIcon,
-                            title: "Shifting Amount Details",
+                            icon: AppAssets.bankGuaranteeIcon,
+                            title: "Bank Guarantee Amount Details",
                           ),
                         ),
                         CustomIconButton.delete(
                           isDisabled: state.shiftingDetails == null,
-                          onPressed: _showPopupToDeleteShiftingData,
+                          onPressed: _showPopupToDeleteBankGuaranteeData,
                         ),
                       ],
                     ),
 
                     verticalSpacing(),
                     CustomTextField(
-                      title: "Residential Shifting Amount (₹)",
-                      hint: "Enter Residential Shifting Amount",
+                      title: "Account Holder Name",
+                      hint: "Enter Account Holder Name",
+                      isRequired: true,
+                      textController: _accountHolderNameC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Account Holder Name is required";
+                        }
+
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Bank Guarantee Amount (₹)",
+                      hint: "Enter Bank Guarantee Amount",
                       isRequired: true,
                       textController: _residentialAmountC,
                       keyboardType: TextInputType.number,
-                      readOnly: _shiftingListNotifier.value.any(
-                        (item) => item.type.toLowerCase() == 'residential',
-                      ),
+                      // readOnly: _shiftingListNotifier.value.any(
+                      //   (item) => item.type.toLowerCase() == 'residential',
+                      // ),
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(10),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Residential amount is required";
+                          return "Bank Guarantee Amount is required";
                         }
-                        if (double.parse(value) < 0) {
-                          return "Amount should be positive";
-                        }
+
                         return null;
                       },
                       onChangeFunction: (value) {
@@ -580,32 +525,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                         );
                       },
                     ),
-                    CustomTextField(
-                      title: "Commercial Shifting Amount (₹)",
-                      hint: "Enter Commercial Shifting Amount",
-                      isRequired: true,
-                      textController: _commercialAmountC,
-                      keyboardType: TextInputType.number,
-                      readOnly: _shiftingListNotifier.value.any(
-                        (item) => item.type.toLowerCase() == 'commercial',
-                      ),
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Commercial amount is required";
-                        }
-                        if (double.parse(value) < 0) {
-                          return "Amount should be positive";
-                        }
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleCommercialAmountChange(
-                          double.tryParse(value) ?? 0,
-                        );
-                      },
-                    ),
+
                     CustomTextField(
                       title: 'Remark',
                       hint: 'Enter Remark',
@@ -617,7 +537,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Shifting List',
+                          'Bank Guarantee List',
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
                         CustomIconButton.add(
@@ -625,14 +545,16 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             if (!_formKey.currentState!.validate()) {
                               return;
                             }
-                            _showShiftingBottomSheet();
+                            _showBankGuaranteeBottomSheet();
                           },
                         ),
                       ],
                     ),
                     verticalSpacing(height: 16),
                     ValueListenableBuilder<
-                      List<ProposedOfferShiftingDetailsWithPaymentStageData>
+                      List<
+                        ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel
+                      >
                     >(
                       valueListenable: _shiftingListNotifier,
                       builder: (context, shiftingList, _) {
@@ -650,13 +572,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                   if (!_formKey.currentState!.validate()) {
                                     return;
                                   }
-                                  _showShiftingBottomSheet(
+                                  _showBankGuaranteeBottomSheet(
                                     shifting: shifting,
                                     index: index,
                                   );
                                 },
                                 onDelete: () {
-                                  _showPopupToDeleteShifting(index);
+                                  _showPopupToDeleteBankGuarantee(index);
                                 },
                                 child: Column(
                                   spacing: 10,
@@ -690,7 +612,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             child: Center(
                               child: noDataWidget(
                                 iconSize: 100,
-                                message: 'No Shifting Details Found',
+                                message: 'No Bank Guarantee Details Found',
                               ),
                             ),
                           );

@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ProjectCompletion extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final ValueChanged<VoidCallback> onSave;
 
   const ProjectCompletion({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.onSave,
   });
 
   @override
@@ -30,8 +32,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _completionTimelineController;
-  late TextEditingController _gracePeriodController;
+  late TextEditingController _completionTimelineC, _gracePeriodC, _remarkC;
 
   @override
   initState() {
@@ -42,29 +43,32 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
       projectId: widget.projectId,
       buildingId: widget.buildingId,
     );
+    widget.onSave(_onSave);
   }
 
   @override
   void dispose() {
-    _completionTimelineController.dispose();
-    _gracePeriodController.dispose();
+    _completionTimelineC.dispose();
+    _gracePeriodC.dispose();
+    _remarkC.dispose();
     super.dispose();
   }
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _completionTimelineController = TextEditingController();
-    _gracePeriodController = TextEditingController();
+    _completionTimelineC = TextEditingController();
+    _gracePeriodC = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // FILL DATA
   void fillData() {
     if (_cubit.state.projectCompletion != null) {
       var projectCompletionModel = _cubit.state.projectCompletion!;
-      _completionTimelineController.text =
+      _completionTimelineC.text =
           projectCompletionModel.completionTimelineMonths.toString();
-      _gracePeriodController.text =
-          projectCompletionModel.gracePeriodMonths.toString();
+      _gracePeriodC.text = projectCompletionModel.gracePeriodMonths.toString();
+      _remarkC.text = projectCompletionModel.remark;
     }
   }
 
@@ -75,8 +79,9 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
-        completionTimelineMonths: int.parse(_completionTimelineController.text),
-        gracePeriodMonths: int.parse(_gracePeriodController.text),
+        completionTimelineMonths: int.parse(_completionTimelineC.text),
+        gracePeriodMonths: int.parse(_gracePeriodC.text),
+        remark: _remarkC.text.trim(),
       );
     }
   }
@@ -89,8 +94,8 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
           if (state.projectCompletion != null) {
             fillData();
           } else {
-            _completionTimelineController.clear();
-            _gracePeriodController.clear();
+            _completionTimelineC.clear();
+            _gracePeriodC.clear();
           }
         },
         builder: (context, state) {
@@ -100,20 +105,23 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
           return SingleChildScrollView(
             child: Container(
               padding: EdgeInsets.all(16),
-              margin: EdgeInsets.all(16),
+              margin: EdgeInsets.symmetric(horizontal: 16),
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Project Completion", style: AppTextStyle.ts16M()),
+                    ProposedOfferTile(
+                      icon: AppAssets.projectCompletionIcon,
+                      title: "Project Completion",
+                    ),
                     verticalSpacing(height: 15),
                     CustomTextField(
                       title: "Completion Timeline (Months)",
                       isRequired: true,
                       hint: "Enter Completion Timeline (Months)",
-                      textController: _completionTimelineController,
+                      textController: _completionTimelineC,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(2),
                       validator: (value) {
@@ -130,7 +138,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                       title: "Grace Period (Months)",
                       isRequired: true,
                       hint: "Enter Grace Period (Months)",
-                      textController: _gracePeriodController,
+                      textController: _gracePeriodC,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(2),
                       validator: (value) {
@@ -143,9 +151,13 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                         return null;
                       },
                     ),
-                    verticalSpacing(height: 30),
-                    CustomButton(text: "Save", onPressed: _onSave),
-                    verticalSpacing(),
+                    CustomTextField(
+                      title: 'Remark',
+                      hint: 'Enter Remark',
+                      textController: _remarkC,
+                      minLines: 3,
+                      maxLines: 3,
+                    ),
                   ],
                 ),
               ),

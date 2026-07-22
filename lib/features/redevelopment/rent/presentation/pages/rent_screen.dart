@@ -323,11 +323,12 @@ class _RentScreenState extends State<RentScreen> with TickerProviderStateMixin {
                         mounted) {
                       final int buildingId = value.first['zAttributesId'];
                       final int projectId = _project.projectId;
-                      await _rentCubit.pullRentDetails(
-                        context: context,
-                        projectId: projectId,
-                        buildingId: buildingId,
-                      );
+                      await _rentCubit
+                          .pullTemporaryAccommodationAlternativeDetails(
+                            context: context,
+                            projectId: projectId,
+                            buildingId: buildingId,
+                          );
 
                       final int tabIndex = _tabController.index;
                       final String tabName = tabTitles[tabIndex];
