@@ -50,20 +50,27 @@ Widget buildingViewSectionCard({
 }
 
 class ProposedOfferTile extends StatelessWidget {
-  final String icon;
+  final String? svgIcon;
+  final IconData? icon;
   final String title;
   final Color backgroundColor;
   final double iconSize;
   final double containerSize;
+  final Color? iconColor;
 
   const ProposedOfferTile({
     super.key,
-    required this.icon,
+    this.svgIcon,
+    this.icon,
     required this.title,
     this.backgroundColor = const Color(0xffF5F6F8),
     this.iconSize = 18,
     this.containerSize = 34,
-  });
+    this.iconColor,
+  }) : assert(
+         svgIcon != null || icon != null,
+         'Either svgIcon or icon must be provided.',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +84,14 @@ class ProposedOfferTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           alignment: Alignment.center,
-          child: SvgPicture.asset(icon, height: iconSize, width: iconSize),
+          child:
+              svgIcon != null
+                  ? SvgPicture.asset(
+                    svgIcon!,
+                    height: iconSize,
+                    width: iconSize,
+                  )
+                  : Icon(icon, size: 22, color: iconColor ?? AppColor.darkBlue),
         ),
         const SizedBox(width: 12),
         Expanded(

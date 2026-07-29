@@ -193,7 +193,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
             child: Column(
               children: [
                 ProposedOfferTile(
-                  icon: AppAssets.rentDetailsIcon,
+                  svgIcon: AppAssets.tempAccomAlternativeIcon,
                   title: "TAA Details",
                 ),
                 verticalSpacing(height: 15),

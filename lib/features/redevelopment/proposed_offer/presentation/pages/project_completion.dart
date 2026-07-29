@@ -113,7 +113,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProposedOfferTile(
-                      icon: AppAssets.projectCompletionIcon,
+                      svgIcon: AppAssets.projectCompletionIcon,
                       title: "Project Completion",
                     ),
                     verticalSpacing(height: 15),

@@ -273,7 +273,7 @@ class AppAssets {
   // REDEVELOPMENT
   static const String extraCarpetAreaIcon =
       "$redevelopmentSvgPath/extra_carpet_area.svg";
-  static const String corpusDetailsIcon =
+  static const String hardshipDetailsIcon =
       "$redevelopmentSvgPath/corpus_details.svg";
   static const String additionalInfoIcon =
       "$redevelopmentSvgPath/additional_info.svg";
@@ -298,7 +298,7 @@ class AppAssets {
   static const String readyReckonerIcon =
       "$redevelopmentSvgPath/ready_reckoner.svg";
 
-  static const String rentDetailsIcon =
+  static const String tempAccomAlternativeIcon =
       "$redevelopmentSvgPath/rent_details.svg";
 
   static const String securityDepositIcon =

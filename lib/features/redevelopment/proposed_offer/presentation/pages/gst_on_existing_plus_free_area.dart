@@ -125,11 +125,11 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
               decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
-                child: Column(    
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProposedOfferTile(
-                      icon: AppAssets.gstDetailsIcon,
+                      svgIcon: AppAssets.gstDetailsIcon,
                       title: "GST on Existing + Free Area",
                     ),
                     verticalSpacing(height: 15),

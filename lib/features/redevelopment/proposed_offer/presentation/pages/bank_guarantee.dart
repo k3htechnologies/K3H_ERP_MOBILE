@@ -476,7 +476,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                       children: [
                         Expanded(
                           child: ProposedOfferTile(
-                            icon: AppAssets.bankGuaranteeIcon,
+                            svgIcon: AppAssets.bankGuaranteeIcon,
                             title: "Bank Guarantee Amount Details",
                           ),
                         ),

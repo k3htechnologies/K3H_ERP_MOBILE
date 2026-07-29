@@ -136,7 +136,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProposedOfferTile(
-                      icon: AppAssets.extraCarpetAreaIcon,
+                      svgIcon: AppAssets.extraCarpetAreaIcon,
                       title: "Extra Carpet Area",
                     ),
                     verticalSpacing(),

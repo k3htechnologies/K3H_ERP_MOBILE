@@ -1433,7 +1433,9 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
           state.copyWith(
             isLoading: false,
             additionalInformationDetails:
-                response['data'][0] as AdditionalInformationDetailsModel,
+                response['data'].isEmpty
+                    ? null
+                    : response['data'][0] as AdditionalInformationDetailsModel,
           ),
         );
       },

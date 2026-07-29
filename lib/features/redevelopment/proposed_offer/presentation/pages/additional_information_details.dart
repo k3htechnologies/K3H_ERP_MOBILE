@@ -133,7 +133,7 @@ class _AdditionalInformationDetailsState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProposedOfferTile(
-                      icon: AppAssets.additionalInfoIcon,
+                      svgIcon: AppAssets.additionalInfoIcon,
                       title: "Additional Information",
                     ),
 

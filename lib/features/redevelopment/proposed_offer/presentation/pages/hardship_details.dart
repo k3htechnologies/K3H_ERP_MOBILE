@@ -244,7 +244,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                       children: [
                         Expanded(
                           child: ProposedOfferTile(
-                            icon: AppAssets.corpusDetailsIcon,
+                            svgIcon: AppAssets.hardshipDetailsIcon,
                             title: "Hardship Details",
                           ),
                         ),

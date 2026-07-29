@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ProposedOfferScreen extends StatefulWidget {
   const ProposedOfferScreen({super.key});
@@ -31,35 +32,37 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
 
   // PROPOSED OFFER TYPE LIST
   // Add this list
-  final List<String> _proposedOfferIcons = [
-    AppAssets.extraCarpetAreaIcon,
-    AppAssets.corpusDetailsIcon,
-    AppAssets.securityDepositIcon,
-    AppAssets.shiftingDetailsIcon,
-    AppAssets.lienToSocietyIcon,
-    AppAssets.parkingIcon,
-    AppAssets.gstDetailsIcon,
-    AppAssets.projectCompletionIcon,
-    AppAssets.rentDetailsIcon,
+  final List<dynamic> _proposedOfferIcons = [
+    LucideIcons.building,
     AppAssets.readyReckonerIcon,
     AppAssets.carpetAreaIcon,
-    AppAssets.additionalInfoIcon,
+    AppAssets.extraCarpetAreaIcon,
+    AppAssets.hardshipDetailsIcon,
+    AppAssets.tempAccomAlternativeIcon,
+    AppAssets.shiftingDetailsIcon,
+    AppAssets.gstDetailsIcon,
+    AppAssets.parkingIcon,
+    AppAssets.securityDepositIcon,
     AppAssets.bankGuaranteeIcon,
+    AppAssets.lienToSocietyIcon,
+    AppAssets.projectCompletionIcon,
+    AppAssets.additionalInfoIcon,
   ];
   final List<String> _proposedOfferTypeList = [
-    "Extra Carpet Area",
-    "Hardship Details",
-    "Security Deposit",
-    "Shifting Details",
-    "Lien to Society Details",
-    "Parking Allotment",
-    "GST on Existing + Free Area",
-    "Project Completion",
-    "Temp Accom Alternative",
+    "Building Overview",
     "Ready Reckoner Rate",
     "Carpet / Plot Area",
-    "Additional Information",
+    "Extra Carpet Area",
+    "Hardship Details",
+    "Temp Accom Alternative",
+    "Shifting Details",
+    "GST on Existing + Free Area",
+    "Parking Allotment",
+    "Security Deposit",
     "Bank Guarantee",
+    "Lien to Society Details",
+    "Project Completion",
+    "Additional Information",
   ];
 
   // BUILDING SELECTION
@@ -271,10 +274,16 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: ProposedOfferTile(
-                        icon: _proposedOfferIcons[index],
-                        title: _proposedOfferTypeList[index],
-                      ),
+                      child:
+                          index == 0
+                              ? ProposedOfferTile(
+                                icon: _proposedOfferIcons[index],
+                                title: _proposedOfferTypeList[index],
+                              )
+                              : ProposedOfferTile(
+                                svgIcon: _proposedOfferIcons[index],
+                                title: _proposedOfferTypeList[index],
+                              ),
                     ),
                     Icon(
                       Icons.chevron_right,

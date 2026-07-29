@@ -375,6 +375,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     _amenitiesPrefilledForCurrentBuilding = false;
 
     final plan = state.proposedPlansList.first;
+    if (plan.buildingProposedPlanData.isEmpty) return;
     final building = plan.buildingProposedPlanData[state.currentBuildingIndex];
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -517,7 +517,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProposedOfferTile(
-                      icon: AppAssets.lienToSocietyIcon,
+                      svgIcon: AppAssets.lienToSocietyIcon,
                       title: "Lien To Society Area Details",
                     ),
 

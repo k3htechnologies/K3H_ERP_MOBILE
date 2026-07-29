@@ -542,7 +542,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                       children: [
                         Expanded(
                           child: ProposedOfferTile(
-                            icon: AppAssets.shiftingDetailsIcon,
+                            svgIcon: AppAssets.shiftingDetailsIcon,
                             title: "Shifting Amount Details",
                           ),
                         ),

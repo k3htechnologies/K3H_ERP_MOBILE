@@ -385,7 +385,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       children: [
                         Expanded(
                           child: ProposedOfferTile(
-                            icon: AppAssets.securityDepositIcon,
+                            svgIcon: AppAssets.securityDepositIcon,
                             title: "Security Deposit Amount Details",
                           ),
                         ),

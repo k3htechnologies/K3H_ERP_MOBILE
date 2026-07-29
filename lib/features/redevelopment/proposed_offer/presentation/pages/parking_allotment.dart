@@ -119,7 +119,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ProposedOfferTile(
-                      icon: AppAssets.parkingIcon,
+                      svgIcon: AppAssets.parkingIcon,
                       title: "Parking Allotment",
                     ),
                     verticalSpacing(height: 15),
