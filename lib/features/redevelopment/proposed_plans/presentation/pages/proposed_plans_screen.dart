@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -6,16 +8,14 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/pro
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/amenity_category.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_state.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/form/building_form_model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_amenities_view.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_details_view.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_documents_view.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_parking_details_view.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/form/wing_form_detail_model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/form/wing_detail_form_model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -60,7 +60,8 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   bool _amenitiesPrefilledForCurrentBuilding = false;
 
   final ValueNotifier<bool> _hasSearchResults = ValueNotifier(true);
-
+  Timer? _buildingDebounce;
+  String _previousBuildingCount = "";
   @override
   void initState() {
     super.initState();
@@ -68,13 +69,14 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     _project = getProject();
     _proposedPlansCubit = context.read<ProposedPlansCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.proposedPlan]!;
+        Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
+        AuthorizationModel();
 
     _totalBuildingC = TextEditingController();
 
     _buildingTabController = TabController(length: 0, vsync: this);
     _buildingTabController.addListener(_handleBuildingTabChange);
-
+    _proposedPlansCubit.getProposedPlanList(context, _project.projectId);
     _buildingDetailsTabController = TabController(
       length: _tabTitles.length,
       vsync: this,
@@ -83,11 +85,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
     _amenitiesList.value = _buildDefaultAmenities();
 
-    _proposedPlansCubit.onTabChanged(
-      _buildingDetailsTabController.index,
-      context,
-      _project.projectId,
-    );
+    _proposedPlansCubit.onTabChanged(_buildingDetailsTabController.index);
   }
 
   @override
@@ -109,11 +107,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
   void _handleDetailsTabChange() {
     if (!_buildingDetailsTabController.indexIsChanging) {
-      _proposedPlansCubit.onTabChanged(
-        _buildingDetailsTabController.index,
-        context,
-        _project.projectId,
-      );
+      _proposedPlansCubit.onTabChanged(_buildingDetailsTabController.index);
     }
   }
 
@@ -295,36 +289,48 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     return DialogHelper.showConfirmationDialog(
       confirmText: 'Yes',
       context: context,
-      title: 'Add / Update Building ?',
-      message: 'Are you sure you want to generate $buildingCount buildings',
+      title: 'Update Building Count',
+      message:
+          'This will update the building count to $buildingCount. Do you want to continue?',
+      cancelText: 'No',
     );
   }
 
   Future<void> _handleTotalBuildingChanged(String value) async {
-    final count = int.tryParse(value);
-    if (count == null || count <= 0) return;
+    _buildingDebounce?.cancel();
 
-    final confirmed = await _confirmBuildingCountChange(context, value);
-    if (!confirmed || !mounted) return;
+    _buildingDebounce = Timer(const Duration(milliseconds: 600), () async {
+      final count = int.tryParse(value);
+      if (count == null || count < 0) return;
 
-    final plans = _proposedPlansCubit.state.proposedPlansList;
-    final buildingIndex = _buildingTabController.index;
-    final proposedOfferProposedPlanId =
-        plans.isNotEmpty && buildingIndex < plans.length
-            ? plans[buildingIndex].proposedOfferProposedPlanId
-            : 0;
-    final uniquekey =
-        plans.isNotEmpty && buildingIndex < plans.length
-            ? plans[buildingIndex].uniquekey
-            : "";
+      final confirmed = await _confirmBuildingCountChange(context, value);
 
-    _proposedPlansCubit.addUpdateBuildingProposedPlan(
-      context: context,
-      proposedOfferProposedPlanId: proposedOfferProposedPlanId,
-      projectId: _project.projectId,
-      totalNumberOfBuilding: count,
-      uniquekey: uniquekey,
-    );
+      if (!confirmed || !mounted) {
+        _totalBuildingC.text = _previousBuildingCount;
+        _totalBuildingC.selection = TextSelection.collapsed(
+          offset: _previousBuildingCount.length,
+        );
+        return;
+      }
+      final plans = _proposedPlansCubit.state.proposedPlansList;
+      final buildingIndex = _buildingTabController.index;
+      final proposedOfferProposedPlanId =
+          plans.isNotEmpty && buildingIndex < plans.length
+              ? plans[buildingIndex].proposedOfferProposedPlanId
+              : 0;
+      final uniquekey =
+          plans.isNotEmpty && buildingIndex < plans.length
+              ? plans[buildingIndex].uniquekey
+              : "";
+
+      _proposedPlansCubit.addUpdateBuildingProposedPlan(
+        context: context,
+        proposedOfferProposedPlanId: proposedOfferProposedPlanId,
+        projectId: _project.projectId,
+        totalNumberOfBuilding: count,
+        uniquekey: uniquekey,
+      );
+    });
   }
 
   void _handleAddOrUpdateProposedPlan(ProposedPlansState state) {
@@ -341,13 +347,26 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       uniquekey: plan.uniquekey,
       projectId: _project.projectId,
       totalUnits: form.totalUnits,
-      totalParking: form.totalPodium,
+      totalParking: form.totalParking,
       amenities: _selectedAmenitiesCsv(),
       planFile: form.planFile,
+      threeDViewFile: form.threeDViewFile,
+      salesPlanFile: form.salesPlanFile,
+      walkthroughViewFile: form.walkthroughViewFile,
       buildingProposedPlanId: selectedBuilding.buildingProposedPlanId,
       totalNumberOfWing: form.wings.length,
       totalPodium: form.totalPodium,
-      wingProposedPlanJSON: form.wings.map((e) => e.toApiModel()).toList(),
+      wingProposedPlanJSON:
+          form.wings
+              .map(
+                (e) => e.toApiModel(
+                  buildingProposedPlanId:
+                      selectedBuilding.buildingProposedPlanId,
+                  proposedOfferProposedPlanId: plan.proposedOfferProposedPlanId,
+                  buildingName: selectedBuilding.buildingName,
+                ),
+              )
+              .toList(),
       salesResidentialParking: form.salesResidential,
       salesCommercialParking: form.salesCommercial,
       salesVisitorsParking: form.salesVisitor,
@@ -381,6 +400,8 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _totalBuildingC.text = plan.totalNumberOfBuilding.toString();
+      _totalBuildingC.text = plan.totalNumberOfBuilding.toString();
+      _previousBuildingCount = _totalBuildingC.text;
       _applyAmenitiesSelection(building.amenities);
       _amenitiesPrefilledForCurrentBuilding = true;
     });
@@ -429,11 +450,10 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       authorization: _routeAuthorizationModel,
       onProjectChangeCallback: (project) {
         _project = project;
-        _proposedPlansCubit.onTabChanged(
-          _buildingDetailsTabController.index,
-          context,
-          _project.projectId,
-        );
+        _proposedPlansCubit.getProposedPlanList(context, project.projectId);
+        _buildingTabController.animateTo(0);
+        _buildingDetailsTabController.animateTo(0);
+        _totalBuildingC.clear();
       },
     );
   }
@@ -444,12 +464,11 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Plan Details", style: AppTextStyle.ts14M(color: AppColor.grey)),
-          verticalSpacing(),
           CustomTextField(
             textController: _totalBuildingC,
             title: "Total Building",
             hint: "Enter Total Building",
+            keyboardType: TextInputType.number,
             onChangeFunction: _handleTotalBuildingChanged,
           ),
         ],
@@ -477,13 +496,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
         state.currentBuildingIndex < buildingList.length
             ? buildingList[state.currentBuildingIndex]
             : buildingList.first;
-
-    if (state.buildingForm.wings.isEmpty) {
-      // Defer to avoid calling setState/emit during build.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _proposedPlansCubit.updateBuildingForm(BuildingFormDataModel());
-      });
-    }
 
     // Only prefill amenities once per building load — repeated rebuilds
     // (tab switches, unrelated state emissions) must not overwrite the
@@ -520,7 +532,9 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              isDisable: !_routeAuthorizationModel.isAction,
+              isDisable:
+                  !_routeAuthorizationModel.isAction ||
+                  buildingList.length == 1,
               onPressed: () {
                 goRouter.pushNamed(
                   AppRoutes.duplicateBuildingProposedPlan,
@@ -548,21 +562,27 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
             physics: const NeverScrollableScrollPhysics(),
             children: [
               ProposedPlanDetailsView(
-                key: ValueKey(state.currentBuildingIndex),
+                key: ValueKey(
+                  "${state.currentBuildingIndex}_${selectedBuilding.modifiedDate}",
+                ),
                 details:
                     selectedBuilding.wingProposedPlanData
-                        .map<WingFormDetailModel>(WingFormDetailModel.fromApi)
+                        .map<WingDetailFormModel>(WingDetailFormModel.fromApi)
                         .toList(),
                 totalPodiumCount: selectedBuilding.totalPodium,
                 totalUnitC: selectedBuilding.totalUnits,
                 buildingName: selectedBuilding.buildingName,
               ),
               ProposedPlanDocumentsView(
-                key: ValueKey(state.currentBuildingIndex),
+                key: ValueKey(
+                  "${state.currentBuildingIndex}_${selectedBuilding.modifiedDate}",
+                ),
                 building: selectedBuilding,
               ),
               ProposedPlanParkingDetailsView(
-                key: ValueKey(state.currentBuildingIndex),
+                key: ValueKey(
+                  "${state.currentBuildingIndex}_${selectedBuilding.modifiedDate}",
+                ),
                 building: selectedBuilding,
               ),
               ValueListenableBuilder<List<AmenityCategory>>(

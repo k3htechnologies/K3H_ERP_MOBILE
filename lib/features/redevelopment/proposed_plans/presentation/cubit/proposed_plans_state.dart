@@ -4,17 +4,14 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/for
 
 class ProposedPlansState extends BaseState {
   final List<ProposedPlanBuilding> proposedPlansList;
-
-  final int currentProjectId;
-  final int currentTabIndex;
+  final int currentBuildingDetailTabIndex;
   final int currentBuildingIndex;
   final BuildingFormDataModel buildingForm;
 
   const ProposedPlansState({
     super.isLoading,
     required this.proposedPlansList,
-    required this.currentProjectId,
-    required this.currentTabIndex,
+    required this.currentBuildingDetailTabIndex,
     required this.currentBuildingIndex,
     required this.buildingForm,
   });
@@ -22,15 +19,14 @@ class ProposedPlansState extends BaseState {
   factory ProposedPlansState.initial() => ProposedPlansState(
     proposedPlansList: [],
     isLoading: true,
-    currentTabIndex: 0,
-    currentProjectId: 0,
+    currentBuildingDetailTabIndex: 0,
     currentBuildingIndex: 0,
     buildingForm: BuildingFormDataModel(),
   );
 
   ProposedPlansState copyWith({
     bool? isLoading,
-    int? currentTabIndex,
+    int? currentBuildingDetailTabIndex,
     int? currentProjectId,
     int? currentBuildingIndex,
     List<ProposedPlanBuilding>? proposedPlansList,
@@ -38,8 +34,8 @@ class ProposedPlansState extends BaseState {
   }) {
     return ProposedPlansState(
       isLoading: isLoading ?? this.isLoading,
-      currentProjectId: currentProjectId ?? this.currentProjectId,
-      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      currentBuildingDetailTabIndex:
+          currentBuildingDetailTabIndex ?? this.currentBuildingDetailTabIndex,
       currentBuildingIndex: currentBuildingIndex ?? this.currentBuildingIndex,
       proposedPlansList: proposedPlansList ?? this.proposedPlansList,
       buildingForm: buildingForm ?? this.buildingForm,
@@ -49,8 +45,7 @@ class ProposedPlansState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
-    currentTabIndex,
-    currentProjectId,
+    currentBuildingDetailTabIndex,
     currentBuildingIndex,
     proposedPlansList,
     buildingForm,

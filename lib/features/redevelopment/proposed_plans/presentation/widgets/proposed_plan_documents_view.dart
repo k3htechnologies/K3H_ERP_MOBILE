@@ -1,14 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/proposed_plans.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 
 class ProposedPlanDocumentsView extends StatefulWidget {
-  final dynamic building;
+  final BuildingProposedPlanDataModel? building;
 
   const ProposedPlanDocumentsView({super.key, this.building});
 
@@ -18,6 +21,8 @@ class ProposedPlanDocumentsView extends StatefulWidget {
 }
 
 class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
+  late final AuthorizationModel _routeAuthorizationModel;
+
   MultiFilePickerModel planFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -35,9 +40,17 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
     fileNameList: [],
     deletedFileList: "",
   );
+  MultiFilePickerModel walkthroughViewFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
   @override
   void initState() {
     super.initState();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
+        AuthorizationModel();
     _prefillDocuments();
   }
 
@@ -47,24 +60,27 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
     if (building == null) return;
 
     // Plan Document
-    if (building.planDocumentURL != null &&
-        building.planDocumentURL.toString().isNotEmpty) {
+    if (building.planDocumentURL.toString().isNotEmpty) {
       planFile.fileNameList = [building.planDocumentURL.toString()];
 
       planFile.fileBytesList = [];
     }
 
     // 3D View
-    if (building.threeDViewURL != null &&
-        building.threeDViewURL.toString().isNotEmpty) {
+    if (building.threeDViewURL.toString().isNotEmpty) {
       threeDViewFile.fileNameList = [building.threeDViewURL.toString()];
 
       threeDViewFile.fileBytesList = [];
     }
+    if (building.walkthroughViewURL.toString().isNotEmpty) {
+      walkthroughViewFile.fileNameList = [
+        building.walkthroughViewURL.toString(),
+      ];
 
-    // Sales Plan
-    if (building.salesPlanURL != null &&
-        building.salesPlanURL.toString().isNotEmpty) {
+      walkthroughViewFile.fileBytesList = [];
+    }
+    // Sales Planx
+    if (building.salesPlanURL.toString().isNotEmpty) {
       salesPlanFile.fileNameList = [building.salesPlanURL.toString()];
 
       salesPlanFile.fileBytesList = [];
@@ -80,6 +96,7 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
 
     formData.threeDViewFile = threeDViewFile;
     formData.salesPlanFile = salesPlanFile;
+    formData.walkthroughViewFile = walkthroughViewFile;
 
     cubit.updateBuildingForm(formData);
   }
@@ -104,6 +121,8 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                 CustomMultiFilePicker(
                   initialFileList: planFile.fileNameList,
                   title: "Plan",
+                  filePickType: FilePickType.kycDocument,
+                  readOnly: !_routeAuthorizationModel.isAction,
                   onFilePickedCallback: (fileByteList, fileNameList) {
                     planFile.fileBytesList = fileByteList;
                     planFile.fileNameList = fileNameList;
@@ -119,16 +138,12 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                     planFile.deletedFileList = deletedUrl;
                     _updateDocumentsState();
                   },
-                  validator: (file) {
-                    if (file == null || file.isEmpty) {
-                      return "Plan File required";
-                    }
-                    return null;
-                  },
                 ),
                 CustomMultiFilePicker(
                   initialFileList: threeDViewFile.fileNameList,
                   title: "3D View",
+                  filePickType: FilePickType.kycDocument,
+                  readOnly: !_routeAuthorizationModel.isAction,
                   onFilePickedCallback: (fileByteList, fileNameList) {
                     threeDViewFile.fileBytesList = fileByteList;
                     threeDViewFile.fileNameList = fileNameList;
@@ -144,16 +159,32 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                     threeDViewFile.deletedFileList = deletedUrl;
                     _updateDocumentsState();
                   },
-                  validator: (file) {
-                    if (file == null || file.isEmpty) {
-                      return "Plan File required";
-                    }
-                    return null;
+                ),
+                CustomMultiFilePicker(
+                  readOnly: !_routeAuthorizationModel.isAction,
+                  initialFileList: walkthroughViewFile.fileNameList,
+                  title: "Walkthrough View",
+                  filePickType: FilePickType.kycDocument,
+                  onFilePickedCallback: (fileByteList, fileNameList) {
+                    walkthroughViewFile.fileBytesList = fileByteList;
+                    walkthroughViewFile.fileNameList = fileNameList;
+                    _updateDocumentsState();
+                  },
+                  onFileDeleteCallback: (
+                    fileBytesList,
+                    fileNameList,
+                    deletedUrl,
+                  ) {
+                    walkthroughViewFile.fileBytesList = fileBytesList;
+                    walkthroughViewFile.fileNameList = fileNameList;
+                    walkthroughViewFile.deletedFileList = deletedUrl;
+                    _updateDocumentsState();
                   },
                 ),
                 CustomMultiFilePicker(
                   initialFileList: salesPlanFile.fileNameList,
-                  title: "Sales Plan Document",
+                  title: "Sales Plan",
+                  filePickType: FilePickType.kycDocument,
                   onFilePickedCallback: (fileByteList, fileNameList) {
                     salesPlanFile.fileBytesList = fileByteList;
                     salesPlanFile.fileNameList = fileNameList;
@@ -168,12 +199,6 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                     salesPlanFile.fileNameList = fileNameList;
                     salesPlanFile.deletedFileList = deletedUrl;
                     _updateDocumentsState();
-                  },
-                  validator: (file) {
-                    if (file == null || file.isEmpty) {
-                      return "Plan File required";
-                    }
-                    return null;
                   },
                 ),
               ],

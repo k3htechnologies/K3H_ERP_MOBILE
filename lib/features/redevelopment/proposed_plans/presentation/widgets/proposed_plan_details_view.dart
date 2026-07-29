@@ -3,8 +3,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/form/wing_form_detail_model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/form/wing_detail_form_model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -13,7 +14,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class ProposedPlanDetailsView extends StatefulWidget {
-  final List<WingFormDetailModel>? details;
+  final List<WingDetailFormModel>? details;
   final int totalPodiumCount;
   final int totalUnitC;
   final String buildingName;
@@ -38,21 +39,26 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  final ValueNotifier<List<WingFormDetailModel>> wingsNotifier =
-      ValueNotifier<List<WingFormDetailModel>>([]);
-
+  final ValueNotifier<List<WingDetailFormModel>> wingsNotifier =
+      ValueNotifier<List<WingDetailFormModel>>([]);
+  List<WingDetailFormModel> _cachedWings = [];
   Timer? _wingTimer;
+  late final AuthorizationModel _routeAuthorizationModel;
 
   @override
   void initState() {
     super.initState();
 
     _initializeTextEditingControllers();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
+        AuthorizationModel();
 
     if (widget.details != null) {
-      wingsNotifier.value = List.from(widget.details!);
+      _cachedWings = List.from(widget.details!);
+      wingsNotifier.value = List.from(_cachedWings);
 
-      for (final wing in wingsNotifier.value) {
+      for (final wing in _cachedWings) {
         _attachWingListeners(wing);
       }
 
@@ -65,6 +71,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   }
 
   @override
+  @override
   void dispose() {
     _wingTimer?.cancel();
 
@@ -72,7 +79,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
     _totalPodiumC.dispose();
     _totalUnitsC.dispose();
 
-    for (final wing in wingsNotifier.value) {
+    for (final wing in _cachedWings) {
       _detachWingListeners(wing);
       wing.dispose();
     }
@@ -89,12 +96,12 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   }
 
   /// Attach listener to every wing
-  void _attachWingListeners(WingFormDetailModel wing) {
+  void _attachWingListeners(WingDetailFormModel wing) {
     wing.totalUnits.addListener(_updateTotalUnits);
   }
 
   /// Remove listener
-  void _detachWingListeners(WingFormDetailModel wing) {
+  void _detachWingListeners(WingDetailFormModel wing) {
     wing.totalUnits.removeListener(_updateTotalUnits);
   }
 
@@ -117,44 +124,31 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   }
 
   void generateWingControllers(int count) {
-    final currentList = wingsNotifier.value;
+    // Create new wings only if cache doesn't have enough.
+    while (_cachedWings.length < count) {
+      final wing = WingDetailFormModel(buildingName: widget.buildingName);
 
-    if (count > currentList.length) {
-      final newWings = List.generate(
-        count - currentList.length,
-        (_) => WingFormDetailModel(buildingName: widget.buildingName),
-      );
-
-      for (final wing in newWings) {
-        _attachWingListeners(wing);
-      }
-
-      currentList.addAll(newWings);
-    } else if (count < currentList.length) {
-      final removed = currentList.sublist(count);
-
-      for (final wing in removed) {
-        _detachWingListeners(wing);
-        wing.dispose();
-      }
-
-      currentList.removeRange(count, currentList.length);
-      final cubit = context.read<ProposedPlansCubit>();
-
-      final formData = cubit.state.buildingForm;
-
-      formData.totalWings = count;
-
-      cubit.updateBuildingForm(formData);
+      _attachWingListeners(wing);
+      _cachedWings.add(wing);
     }
 
-    wingsNotifier.value = List.from(currentList);
+    // Show only the requested number of wings.
+    final visibleWings = _cachedWings.take(count).toList();
+
+    wingsNotifier.value = visibleWings;
+
+    final cubit = context.read<ProposedPlansCubit>();
+    final form = cubit.state.buildingForm;
+
+    form.totalWings = count;
+    form.wings = visibleWings;
+
+    cubit.updateBuildingForm(form);
 
     _updateTotalUnits();
-    _updateWingsState(currentList);
   }
 
-  void _updateWingsState(List<WingFormDetailModel> wings) {
+  void _updateWingsState(List<WingDetailFormModel> wings) {
     final cubit = context.read<ProposedPlansCubit>();
 
     final formData = cubit.state.buildingForm;
@@ -187,19 +181,25 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                     hint: "Enter Total Wings",
                     keyboardType: TextInputType.number,
                     textController: _totalWingsC,
+                    readOnly: !_routeAuthorizationModel.isAction,
                     onChangeFunction: (value) {
                       _wingTimer?.cancel();
 
                       _wingTimer = Timer(const Duration(milliseconds: 600), () {
                         final count = int.tryParse(value) ?? 0;
-
                         if (count <= 0) {
                           for (final wing in wingsNotifier.value) {
                             _detachWingListeners(wing);
-                            wing.dispose();
                           }
 
                           wingsNotifier.value = [];
+
+                          final cubit = context.read<ProposedPlansCubit>();
+                          final form = cubit.state.buildingForm;
+                          form.totalWings = 0;
+                          form.wings = [];
+                          cubit.updateBuildingForm(form);
+
                           _updateTotalUnits();
                           return;
                         }
@@ -214,6 +214,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                   CustomTextField(
                     title: "Number Of Podium",
                     hint: "Enter Number Of Podium",
+                    readOnly: !_routeAuthorizationModel.isAction,
                     keyboardType: TextInputType.number,
                     textController: _totalPodiumC,
                     onChangeFunction: (v) {
@@ -244,7 +245,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
               data: Theme.of(
                 context,
               ).copyWith(dividerColor: Colors.transparent),
-              child: ValueListenableBuilder<List<WingFormDetailModel>>(
+              child: ValueListenableBuilder<List<WingDetailFormModel>>(
                 valueListenable: wingsNotifier,
                 builder: (context, wings, child) {
                   return ListView.builder(
@@ -264,8 +265,8 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                           );
 
                           if (updatedWing != null &&
-                              updatedWing is WingFormDetailModel) {
-                            final updatedList = List<WingFormDetailModel>.from(
+                              updatedWing is WingDetailFormModel) {
+                            final updatedList = List<WingDetailFormModel>.from(
                               wingsNotifier.value,
                             );
 
@@ -297,7 +298,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
 
 class WingCard extends StatelessWidget {
   final int index;
-  final WingFormDetailModel wing;
+  final WingDetailFormModel wing;
   final VoidCallback onTap;
 
   const WingCard({
@@ -328,9 +329,11 @@ class WingCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
             children: [
-              Text(
-                "Wing ${index + 1} Details ${wing.wingName.text.isEmpty ? '' : '- ${wing.wingName.text.trim()}'}",
-                style: AppTextStyle.ts14M(),
+              Expanded(
+                child: Text(
+                  "Wing ${index + 1} Details ${wing.wingName.text.isEmpty ? '' : '- ${wing.wingName.text.trim()}'}",
+                  style: AppTextStyle.ts14M(),
+                ),
               ),
 
               const Icon(Icons.arrow_forward_ios, size: 16),

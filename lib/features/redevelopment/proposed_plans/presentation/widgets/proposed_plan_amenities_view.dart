@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/amenity_category.model.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
@@ -31,10 +33,14 @@ class _AmenitiesTabState extends State<AmenitiesTab>
 
   final ValueNotifier<List<MapEntry<int, AmenityCategory>>> _filteredAmenities =
       ValueNotifier([]);
+  late final AuthorizationModel _routeAuthorizationModel;
 
   @override
   void initState() {
     super.initState();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
+        AuthorizationModel();
 
     _searchController = TextEditingController();
     _searchController.addListener(_filterAmenities);
@@ -46,7 +52,6 @@ class _AmenitiesTabState extends State<AmenitiesTab>
   void didUpdateWidget(covariant AmenitiesTab oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Refresh whenever parent provides updated amenities
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _filterAmenities();
     });
@@ -82,6 +87,14 @@ class _AmenitiesTabState extends State<AmenitiesTab>
     super.dispose();
   }
 
+  int get _selectedAmenitiesCount {
+    return widget.amenitiesList.fold(
+      0,
+      (count, category) =>
+          count + category.subCategories.where((sub) => sub.isSelected).length,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -91,9 +104,19 @@ class _AmenitiesTabState extends State<AmenitiesTab>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Amenities Category",
-            style: AppTextStyle.ts14M(color: AppColor.grey),
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: "Amenities Category",
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                TextSpan(
+                  text: " ($_selectedAmenitiesCount)",
+                  style: AppTextStyle.ts14M(color: AppColor.black),
+                ),
+              ],
+            ),
           ),
           verticalSpacing(height: 15),
 
@@ -124,6 +147,8 @@ class _AmenitiesTabState extends State<AmenitiesTab>
                     return ExpandableCategoryTile(
                       key: ValueKey('${entry.key}-${entry.value.hashCode}'),
                       category: entry.value,
+
+                      canAction: _routeAuthorizationModel.isAction,
                       onCategoryChanged: (updatedCategory) {
                         widget.onUpdate(entry.key, updatedCategory);
                       },

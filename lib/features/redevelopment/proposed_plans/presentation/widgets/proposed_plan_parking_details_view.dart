@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/proposed_plans.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -32,10 +35,14 @@ class _ProposedPlanParkingDetailsViewState
   late TextEditingController _memberCommercialC;
   late TextEditingController _memberVisitorC;
   late TextEditingController _totalMemberParkingC;
+  late final AuthorizationModel _routeAuthorizationModel;
 
   @override
   void initState() {
     super.initState();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
+        AuthorizationModel();
 
     _initControllers();
 
@@ -83,19 +90,16 @@ class _ProposedPlanParkingDetailsViewState
         _value(_memberCommercialC) +
         _value(_memberVisitorC);
 
-    final overall = salesTotal + memberTotal;
-
     _totalSalesParkingC.text = salesTotal.toString();
 
     _totalMemberParkingC.text = memberTotal.toString();
 
-    _overallParkingC.text = overall.toString();
     _updateParkingToState();
   }
 
   void _prefillFromBuilding() {
     final data = widget.building;
-
+    _overallParkingC.text = data.totalParking.toString();
     _salesResidentialC.text = data.salesResidentialParking.toString();
 
     _salesCommercialC.text = data.salesCommercialParking.toString();
@@ -132,7 +136,6 @@ class _ProposedPlanParkingDetailsViewState
     final cubit = context.read<ProposedPlansCubit>();
 
     final form = cubit.state.buildingForm;
-
     form.salesResidential = _value(_salesResidentialC);
     form.salesCommercial = _value(_salesCommercialC);
     form.salesVisitor = _value(_salesVisitorC);
@@ -141,6 +144,13 @@ class _ProposedPlanParkingDetailsViewState
     form.memberCommercial = _value(_memberCommercialC);
     form.memberVisitor = _value(_memberVisitorC);
 
+    form.totalParking =
+        _value(_salesResidentialC) +
+        _value(_salesCommercialC) +
+        _value(_salesVisitorC) +
+        _value(_memberResidentialC) +
+        _value(_memberCommercialC) +
+        _value(_memberVisitorC);
     cubit.updateBuildingForm(form);
   }
 
@@ -188,19 +198,25 @@ class _ProposedPlanParkingDetailsViewState
 
                     CustomTextField(
                       title: "Residential",
+                      readOnly: !_routeAuthorizationModel.isAction,
                       keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(3),
                       textController: _salesResidentialC,
                     ),
 
                     CustomTextField(
                       title: "Commercial",
+                      readOnly: !_routeAuthorizationModel.isAction,
                       keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(3),
                       textController: _salesCommercialC,
                     ),
 
                     CustomTextField(
                       title: "Visitor",
                       keyboardType: TextInputType.number,
+                      readOnly: !_routeAuthorizationModel.isAction,
+                      inputFormatterList: InputValidator.digit(3),
                       textController: _salesVisitorC,
                     ),
 
@@ -228,18 +244,24 @@ class _ProposedPlanParkingDetailsViewState
 
                     CustomTextField(
                       title: "Residential",
+                      readOnly: !_routeAuthorizationModel.isAction,
                       keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(3),
                       textController: _memberResidentialC,
                     ),
 
                     CustomTextField(
                       title: "Commercial",
+                      readOnly: !_routeAuthorizationModel.isAction,
                       keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(3),
                       textController: _memberCommercialC,
                     ),
 
                     CustomTextField(
                       title: "Visitor",
+                      readOnly: !_routeAuthorizationModel.isAction,
+                      inputFormatterList: InputValidator.digit(3),
                       keyboardType: TextInputType.number,
                       textController: _memberVisitorC,
                     ),

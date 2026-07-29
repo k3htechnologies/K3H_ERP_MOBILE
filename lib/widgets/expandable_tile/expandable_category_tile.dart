@@ -8,15 +8,22 @@ import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 class ExpandableCategoryTile extends StatelessWidget {
   final AmenityCategory category;
   final Function(AmenityCategory) onCategoryChanged;
+  final bool canAction;
 
   const ExpandableCategoryTile({
     super.key,
     required this.category,
     required this.onCategoryChanged,
+    this.canAction = true,
   });
 
   @override
   Widget build(BuildContext context) {
+    final selectedSubCategoryCount =
+        category.subCategories
+            .where((e) => e.isSelected == true)
+            .toList()
+            .length;
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -42,7 +49,20 @@ class ExpandableCategoryTile extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(category.title, style: AppTextStyle.ts14M()),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: category.title,
+                          style: AppTextStyle.ts14M(),
+                        ),
+                        TextSpan(
+                          text: " ($selectedSubCategoryCount)",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+                      ],
+                    ),
+                  ),
                   Icon(
                     category.isExpanded
                         ? Icons.keyboard_arrow_up
@@ -69,6 +89,7 @@ class ExpandableCategoryTile extends StatelessWidget {
 
                   return InkWell(
                     onTap: () {
+                      if (!canAction) return;
                       final updatedSubCategories =
                           List<AmenitySubCategory>.from(category.subCategories);
                       updatedSubCategories[index] = AmenitySubCategory(
@@ -100,16 +121,18 @@ class ExpandableCategoryTile extends StatelessWidget {
                       ),
                       child: Row(
                         children: [
-                          CustomCheckbox(
-                            value: subCategory.isSelected,
+                          CustomCheckBox(
+                            isSelected: subCategory.isSelected,
+                            isDisabled: !canAction,
                             onChanged: (value) {
+                              if (!canAction) return;
                               final updatedSubCategories =
                                   List<AmenitySubCategory>.from(
                                     category.subCategories,
                                   );
                               updatedSubCategories[index] = AmenitySubCategory(
                                 name: subCategory.name,
-                                isSelected: value ?? false,
+                                isSelected: value,
                               );
                               final updatedCategory = AmenityCategory(
                                 title: category.title,

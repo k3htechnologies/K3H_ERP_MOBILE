@@ -209,18 +209,21 @@ class CustomButton extends StatelessWidget {
   // ---------------- OUTLINE BUTTONS ----------------
 
   // CANCEL (OUTLINE)
-  CustomButton.cancelOutline({Key? key, required VoidCallback onPressed})
-    : this(
-        key: key,
-        onPressed: onPressed,
-        text: 'Cancel',
-        backgroundColor: Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        textColor: AppColor.grey,
-        borderColor: AppColor.grey,
-        elevation: 0,
-        boxShadow: [],
-      );
+  CustomButton.cancelOutline({
+    Key? key,
+    required VoidCallback onPressed,
+    String cancelText = 'Cancel',
+  }) : this(
+         key: key,
+         onPressed: onPressed,
+         text: cancelText,
+         backgroundColor: Colors.transparent,
+         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+         textColor: AppColor.grey,
+         borderColor: AppColor.grey,
+         elevation: 0,
+         boxShadow: [],
+       );
 
   // RESET (OUTLINE)
   CustomButton.clearOutline({Key? key, required VoidCallback onPressed})

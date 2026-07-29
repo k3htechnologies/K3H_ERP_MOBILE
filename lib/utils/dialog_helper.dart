@@ -357,6 +357,7 @@ class DialogHelper {
                     children: [
                       Expanded(
                         child: CustomButton.cancelOutline(
+                          cancelText: cancelText,
                           onPressed: () => Navigator.pop(context, false),
                         ),
                       ),

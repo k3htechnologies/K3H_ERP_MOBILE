@@ -1,41 +1,84 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 
-class CustomCheckbox extends StatelessWidget {
-  final bool value;
-  final ValueChanged<bool?>? onChanged;
-  final double? size;
-
-  const CustomCheckbox({
+class CustomCheckBox extends StatefulWidget {
+  final bool isSelected;
+  final String? title;
+  final Function(bool)? onChanged;
+  final bool isDisabled;
+  const CustomCheckBox({
     super.key,
-    required this.value,
+    required this.isSelected,
+    this.title,
     this.onChanged,
-    this.size = 20.0,
+    this.isDisabled = false,
   });
 
   @override
+  State<CustomCheckBox> createState() => _CustomCheckBoxState();
+}
+
+class _CustomCheckBoxState extends State<CustomCheckBox> {
+  @override
+  void didUpdateWidget(CustomCheckBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Update state when widget's isSelected changes
+    if (oldWidget.isSelected != widget.isSelected) {
+      setState(() {});
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => onChanged?.call(!value),
-      child: Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: value ? AppColor.lightBlue : Colors.transparent,
-          border: Border.all(
-            color: value ? AppColor.primary : AppColor.grey30,
-            width: 1.0,
+    return Row(
+      spacing: 6.0,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            if (widget.isDisabled) {
+              return;
+            }
+            if (widget.onChanged != null) {
+              widget.onChanged!(!widget.isSelected);
+            }
+          },
+          child: Container(
+            width: 22,
+            height: 22,
+            margin: EdgeInsets.all(2),
+            decoration: BoxDecoration(
+              color:
+                  widget.isSelected
+                      ? widget.isDisabled
+                          ? AppColor.grey2.withValues(alpha: 0.2)
+                          : AppColor.lightBlue
+                      : AppColor.white,
+              border:
+                  widget.isDisabled
+                      ? Border.all(color: AppColor.grey2, width: 1.0)
+                      : widget.isSelected
+                      ? Border.all(color: AppColor.primary, width: 1.0)
+                      : Border.all(color: AppColor.grey, width: 1.0),
+              borderRadius: BorderRadius.circular(2),
+            ),
+            child:
+                widget.isSelected
+                    ? Icon(
+                      Icons.check,
+                      size: 18,
+                      color:
+                          widget.isDisabled ? AppColor.grey2 : AppColor.primary,
+                    )
+                    : null,
           ),
-          borderRadius: BorderRadius.circular(4.0),
         ),
-        child: value
-            ? Icon(
-                Icons.check,
-                size: size! * 0.7,
-                color: AppColor.primary,
-              )
-            : null,
-      ),
+
+        if (widget.title != null)
+          Flexible(child: Text(widget.title!, style: AppTextStyle.ts14M())),
+      ],
     );
   }
 }

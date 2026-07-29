@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/proposed_plans.model.dart';
 
-class WingFormDetailModel {
+class WingDetailFormModel {
   // IDs for Add / Update
   int wingProposedPlanId;
   int proposedOfferProposedPlanId;
@@ -21,7 +21,7 @@ class WingFormDetailModel {
   final TextEditingController totalArea = TextEditingController();
 
   // CONSTRUCTOR
-  WingFormDetailModel({
+  WingDetailFormModel({
     this.wingProposedPlanId = 0,
     this.proposedOfferProposedPlanId = 0,
     this.buildingProposedPlanId = 0,
@@ -29,8 +29,8 @@ class WingFormDetailModel {
   });
 
   // API MODEL -> UI MODEL
-  factory WingFormDetailModel.fromApi(WingProposedPlanDataModel data) {
-    final model = WingFormDetailModel(
+  factory WingDetailFormModel.fromApi(WingProposedPlanDataModel data) {
+    final model = WingDetailFormModel(
       wingProposedPlanId: data.wingProposedPlanId,
       proposedOfferProposedPlanId: data.proposedOfferProposedPlanId,
       buildingProposedPlanId: data.buildingProposedPlanId,
@@ -62,7 +62,11 @@ class WingFormDetailModel {
   }
 
   // UI MODEL -> API MODEL
-  WingProposedPlanDataModel toApiModel() {
+  WingProposedPlanDataModel toApiModel({
+    required int proposedOfferProposedPlanId,
+    required int buildingProposedPlanId,
+    required String buildingName,
+  }) {
     return WingProposedPlanDataModel(
       wingProposedPlanId: wingProposedPlanId,
 

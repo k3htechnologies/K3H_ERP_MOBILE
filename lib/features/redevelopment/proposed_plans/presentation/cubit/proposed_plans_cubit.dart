@@ -29,6 +29,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       emit(state.copyWith(isLoading: false));
       return;
     }
+
     var result = await _proposedPlansRepository.getProposedPlanList(
       projectId: projectId,
     );
@@ -43,26 +44,29 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
           response['data'] ?? [],
         );
 
-        emit(state.copyWith(proposedPlansList: list, isLoading: false));
+        emit(
+          state.copyWith(
+            proposedPlansList: list,
+            isLoading: false,
+            buildingForm:
+                list.isEmpty
+                    ? null
+                    : list.first.buildingProposedPlanData.isEmpty
+                    ? null
+                    : BuildingFormDataModel.fromModel(
+                      list.first.buildingProposedPlanData.first,
+                    ),
+            currentBuildingDetailTabIndex: 0,
+            currentBuildingIndex: 0,
+          ),
+        );
       },
     );
   }
 
   // ON TAB CHANGE
-  void onTabChanged(int index, BuildContext context, projectId) {
-    // PROJECT CHANGED
-    if (state.currentProjectId != projectId) {
-      emit(state.copyWith(currentProjectId: projectId, proposedPlansList: []));
-
-      getProposedPlanList(context, projectId);
-      return;
-    }
-
-    emit(state.copyWith(currentTabIndex: index));
-    // IF TAB IS DETAILS
-    if (index == 0) {
-      getProposedPlanList(context, projectId);
-    }
+  void onTabChanged(int index) {
+    emit(state.copyWith(currentBuildingDetailTabIndex: index));
   }
 
   Future<void> addUpdateBuildingProposedPlan({
@@ -122,6 +126,9 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     required List<WingProposedPlanDataModel> wingProposedPlanJSON,
     required String amenities,
     required MultiFilePickerModel planFile,
+    required MultiFilePickerModel threeDViewFile,
+    required MultiFilePickerModel salesPlanFile,
+    required MultiFilePickerModel walkthroughViewFile,
     required int salesResidentialParking,
     required int salesCommercialParking,
     required int salesVisitorsParking,
@@ -152,6 +159,9 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       "Amenities": amenities,
 
       "RemovePlanDocumentURL": planFile.deletedFileList,
+      "RemoveThreeDViewURL": threeDViewFile.deletedFileList,
+      "RemoveSalesPlanURL": salesPlanFile.deletedFileList,
+      "RemoveWalkthroughViewURL": salesPlanFile.deletedFileList,
       "SalesResidentialParking": salesResidentialParking.toString(),
       "SalesCommercialParking": salesCommercialParking.toString(),
       "SalesVisitorsParking": salesVisitorsParking.toString(),
@@ -174,6 +184,40 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       });
     }
 
+    for (int i = 0; i < threeDViewFile.fileNameList.length; i++) {
+      if (threeDViewFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "ThreeDViewURL",
+        "value": threeDViewFile.fileBytesList[i],
+        "fileName": threeDViewFile.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < salesPlanFile.fileNameList.length; i++) {
+      if (salesPlanFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "SalesPlanURL",
+        "value": salesPlanFile.fileBytesList[i],
+        "fileName": salesPlanFile.fileNameList[i],
+      });
+    }
+
+    for (int i = 0; i < walkthroughViewFile.fileNameList.length; i++) {
+      if (walkthroughViewFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "WalkthroughViewURL",
+        "value": walkthroughViewFile.fileBytesList[i],
+        "fileName": walkthroughViewFile.fileNameList[i],
+      });
+    }
     final result = await _proposedPlansRepository.addUpdateBuildingProposedPlan(
       body: body,
       fileList: fileList,

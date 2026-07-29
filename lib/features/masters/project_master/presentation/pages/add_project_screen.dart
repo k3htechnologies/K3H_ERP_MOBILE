@@ -561,8 +561,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CustomCheckbox(
-                                  value: isRedevelopment,
+                                CustomCheckBox(
+                                  isSelected: isRedevelopment,
                                   onChanged: (check) {
                                     isRedevelopmentNotifier.value = check!;
 
