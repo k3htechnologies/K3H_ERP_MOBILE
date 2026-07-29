@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/proposed_plans.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/amenity_category.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_state.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/form/building_form_model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_amenities_view.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_details_view.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_documents_view.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_parking_details_view.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/form/wing_form_detail_model.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
-import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
-import 'package:k3h_erp_app/widgets/expandable_tile/expandable_category_tile.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -25,55 +33,58 @@ class ProposedPlansScreen extends StatefulWidget {
 }
 
 class _ProposedPlansScreenState extends State<ProposedPlansScreen>
-    with SingleTickerProviderStateMixin {
-  // CUBIT
-  late ProposedPlansCubit _proposedPlansCubit;
+    with TickerProviderStateMixin {
+  static const _tabTitles = [
+    "Basic Details",
+    "Documents",
+    "Parking Details",
+    "Amenities",
+  ];
 
-  // AUTHORIZATION
-  late AuthorizationModel _routeAuthorizationModel;
+  late final ProposedPlansCubit _proposedPlansCubit;
+  late final AuthorizationModel _routeAuthorizationModel;
 
-  // TAB CONTROLLER
-  late TabController _tabController;
+  late TabController _buildingTabController;
+  late final TabController _buildingDetailsTabController;
 
-  // PROJECT
   late ProjectModel _project;
 
-  // FORM KEY
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final TextEditingController _totalBuildingC;
 
-  // TEXT EDITING CONTROLLER
-  late TextEditingController _totalNumberOfFloorsC,
-      _totalNumberOfUnitsC,
-      _totalParkingC;
-
-  // FILE VARIABLES
-  MultiFilePickerModel planFile = MultiFilePickerModel(
-    fileBytesList: [],
-    fileNameList: [],
-    deletedFileList: "",
-  );
-  final ValueNotifier<List<String>> _planFileListNotifier =
-      ValueNotifier<List<String>>([]);
-
-  // AMENITIES DATA
-  final ValueNotifier<List<AmenityCategory>> amenitiesList =
+  final ValueNotifier<List<AmenityCategory>> _amenitiesList =
       ValueNotifier<List<AmenityCategory>>([]);
 
-  // FLAG TO TRACK IF AMENITIES HAVE BEEN PREFILLED
-  final ValueNotifier<bool> _amenitiesPrefilled = ValueNotifier<bool>(false);
+  /// Tracks whether the currently-selected building's amenities have
+  /// already been pushed into [_amenitiesList], so we don't clobber the
+  /// user's in-progress selection on every rebuild.
+  bool _amenitiesPrefilledForCurrentBuilding = false;
+
+  final ValueNotifier<bool> _hasSearchResults = ValueNotifier(true);
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+
     _project = getProject();
     _proposedPlansCubit = context.read<ProposedPlansCubit>();
-    _tabController.addListener(_handleTabChange);
-    _routeAuthorizationModel = AuthorizationModel();
-    _initializeTextEditingControllers();
-    _initializeAmenitiesData();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.proposedPlan]!;
+
+    _totalBuildingC = TextEditingController();
+
+    _buildingTabController = TabController(length: 0, vsync: this);
+    _buildingTabController.addListener(_handleBuildingTabChange);
+
+    _buildingDetailsTabController = TabController(
+      length: _tabTitles.length,
+      vsync: this,
+    );
+    _buildingDetailsTabController.addListener(_handleDetailsTabChange);
+
+    _amenitiesList.value = _buildDefaultAmenities();
+
     _proposedPlansCubit.onTabChanged(
-      _tabController.index,
+      _buildingDetailsTabController.index,
       context,
       _project.projectId,
     );
@@ -81,260 +92,297 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
   @override
   void dispose() {
-    amenitiesList.dispose();
-    _amenitiesPrefilled.dispose();
-    _planFileListNotifier.dispose();
-    _tabController.dispose();
-    _disposeTextEditingControllers();
+    _hasSearchResults.dispose();
+    _amenitiesList.dispose();
+    _buildingTabController.dispose();
+    _buildingDetailsTabController.dispose();
+    _totalBuildingC.dispose();
     super.dispose();
   }
 
-  // INITIALISING TEXT CONTROLLERS
-  void _initializeTextEditingControllers() {
-    _totalNumberOfFloorsC = TextEditingController();
-    _totalNumberOfUnitsC = TextEditingController();
-    _totalParkingC = TextEditingController();
+  // Tab handling
+  void _handleBuildingTabChange() {
+    if (!_buildingTabController.indexIsChanging) {
+      _proposedPlansCubit.changeBuildingTab(_buildingTabController.index);
+    }
   }
 
-  // DISPOSE METHOD TO DISPOSE ALL TEXT CONTROLLERS
-  void _disposeTextEditingControllers() {
-    _totalNumberOfFloorsC.dispose();
-    _totalNumberOfUnitsC.dispose();
-    _totalParkingC.dispose();
-  }
-
-  // HANDLE TAB CHANGE
-  void _handleTabChange() {
-    if (!_tabController.indexIsChanging) {
+  void _handleDetailsTabChange() {
+    if (!_buildingDetailsTabController.indexIsChanging) {
       _proposedPlansCubit.onTabChanged(
-        _tabController.index,
+        _buildingDetailsTabController.index,
         context,
         _project.projectId,
       );
     }
   }
 
-  // PREFILL FROM STATE
-  void _prefillFromModel(ProposedPlansModel proposedPlan) {
-    if (_totalNumberOfFloorsC.text.isEmpty) {
-      _totalNumberOfFloorsC.text = proposedPlan.totalNumberOfFloors.toString();
-    }
-    if (_totalNumberOfUnitsC.text.isEmpty) {
-      _totalNumberOfUnitsC.text = proposedPlan.totalUnits.toString();
-    }
-    if (_totalParkingC.text.isEmpty) {
-      _totalParkingC.text = proposedPlan.totalParking.toString();
-    }
-    if (proposedPlan.planDocumentUrl.isNotEmpty) {
-      final fileList = proposedPlan.planDocumentUrl.split(",");
-      planFile.fileNameList = fileList;
-      _planFileListNotifier.value = fileList;
-    } else {
-      planFile.fileNameList = [];
-      _planFileListNotifier.value = [];
-    }
-    if (!_amenitiesPrefilled.value && proposedPlan.amenities.isNotEmpty) {
-      _prefillAmenities(proposedPlan.amenities);
-      _amenitiesPrefilled.value = true;
-    }
+  void _syncBuildingTabController(int length, int index) {
+    if (_buildingTabController.length == length) return;
+
+    _buildingTabController.dispose();
+    _buildingTabController = TabController(
+      length: length,
+      vsync: this,
+      initialIndex: index < length ? index : 0,
+    )..addListener(_handleBuildingTabChange);
   }
 
-  // PREFILL AMENITIES FROM API RESPONSE
-  void _prefillAmenities(String amenitiesString) {
-    if (amenitiesString.isEmpty) return;
-
-    final List<String> selectedAmenities =
+  // Amenities
+  void _applyAmenitiesSelection(String amenitiesString) {
+    final selected =
         amenitiesString
-            .split(",")
-            .map((e) => e.trim())
+            .split(',')
+            .map((e) => e.trim().toLowerCase())
             .where((e) => e.isNotEmpty)
+            .toSet();
+
+    _amenitiesList.value =
+        _amenitiesList.value
+            .map(
+              (category) => category.copyWith(
+                subCategories:
+                    category.subCategories
+                        .map(
+                          (sub) => sub.copyWith(
+                            isSelected: selected.contains(
+                              sub.name.trim().toLowerCase(),
+                            ),
+                          ),
+                        )
+                        .toList(),
+              ),
+            )
             .toList();
-
-    final currentList = amenitiesList.value;
-    final updatedAmenitiesList =
-        currentList.map((category) {
-          final updatedSubCategories =
-              category.subCategories.map((subCategory) {
-                return AmenitySubCategory(
-                  name: subCategory.name,
-                  isSelected: selectedAmenities.contains(subCategory.name),
-                );
-              }).toList();
-          return AmenityCategory(
-            title: category.title,
-            subCategories: updatedSubCategories,
-            isExpanded: category.isExpanded,
-          );
-        }).toList();
-
-    amenitiesList.value = updatedAmenitiesList;
   }
 
-  // CLEAR FORM WHEN NO DATA FOR PROJECT
-  void _clearForm() {
-    _totalNumberOfFloorsC.clear();
-    _totalNumberOfUnitsC.clear();
-    _totalParkingC.clear();
-    planFile.fileNameList = [];
-    planFile.fileBytesList = [];
-    planFile.deletedFileList = "";
-    _planFileListNotifier.value = [];
-    _clearAmenities();
-    _amenitiesPrefilled.value = false;
+  void _clearAmenitiesSelection() {
+    _amenitiesList.value =
+        _amenitiesList.value
+            .map(
+              (category) => category.copyWith(
+                subCategories:
+                    category.subCategories
+                        .map((sub) => sub.copyWith(isSelected: false))
+                        .toList(),
+              ),
+            )
+            .toList();
   }
 
-  // CLEAR ALL SELECTED AMENITIES
-  void _clearAmenities() {
-    final currentList = amenitiesList.value;
-    final updatedList =
-        currentList.map((category) {
-          final updatedSubCategories =
-              category.subCategories.map((subCategory) {
-                return AmenitySubCategory(
-                  name: subCategory.name,
-                  isSelected: false,
-                );
-              }).toList();
-          return AmenityCategory(
-            title: category.title,
-            subCategories: updatedSubCategories,
-            isExpanded: category.isExpanded,
-          );
-        }).toList();
-    amenitiesList.value = updatedList;
+  void _updateAmenityCategory(int index, AmenityCategory updated) {
+    final updatedList = List<AmenityCategory>.from(_amenitiesList.value);
+    updatedList[index] = updated;
+    _amenitiesList.value = updatedList;
   }
 
-  // INITIALIZE STATIC AMENITIES DATA
-  void _initializeAmenitiesData() {
-    amenitiesList.value = [
-      AmenityCategory(
-        title: "Safety & Security",
-        subCategories: [
-          AmenitySubCategory(name: "24* 7 Security"),
-          AmenitySubCategory(name: "CCTV Surveillance"),
-          AmenitySubCategory(name: "Intercom Facility"),
-          AmenitySubCategory(name: "Fire Fighting System"),
-          AmenitySubCategory(name: "First Aid Room"),
-          AmenitySubCategory(name: "Security Cabin"),
-          AmenitySubCategory(name: "Earthquake Resistant Structure"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Sports & Fitness",
-        subCategories: [
-          AmenitySubCategory(name: "Swimming Pool"),
-          AmenitySubCategory(name: "Gym"),
-          AmenitySubCategory(name: "Yoga Room"),
-          AmenitySubCategory(name: "Jogging Track"),
-          AmenitySubCategory(name: "Badminton Court"),
-          AmenitySubCategory(name: "BasketBall Court"),
-          AmenitySubCategory(name: "Tennis Court"),
-          AmenitySubCategory(name: "Squash Court"),
-          AmenitySubCategory(name: "Table Tennis"),
-          AmenitySubCategory(name: "Kids Pool"),
-          AmenitySubCategory(name: "Indoor Games"),
-          AmenitySubCategory(name: "Cycling Track"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Community & Social Spaces",
-        subCategories: [
-          AmenitySubCategory(name: "Club House"),
-          AmenitySubCategory(name: "Banquet Hall"),
-          AmenitySubCategory(name: "Amphitheatre"),
-          AmenitySubCategory(name: "Library"),
-          AmenitySubCategory(name: "Reading Room"),
-          AmenitySubCategory(name: "Society Office"),
-          AmenitySubCategory(name: "Conference Room"),
-          AmenitySubCategory(name: "Temple/Prayer Hall"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Kids & Family",
-        subCategories: [
-          AmenitySubCategory(name: "Children Play Area"),
-          AmenitySubCategory(name: "Creche"),
-          AmenitySubCategory(name: "Day Care Center"),
-          AmenitySubCategory(name: "School Bus Bay"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Pets - Friendly Facilities",
-        subCategories: [
-          AmenitySubCategory(name: "Pet Park"),
-          AmenitySubCategory(name: "Pet Care Area"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Work & Business",
-        subCategories: [
-          AmenitySubCategory(name: "Co-Working Space"),
-          AmenitySubCategory(name: "Society Office"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Convenience & Utilities",
-        subCategories: [
-          AmenitySubCategory(name: "Lift"),
-          AmenitySubCategory(name: "Power Backup"),
-          AmenitySubCategory(name: "Water Supply"),
-          AmenitySubCategory(name: "Parking"),
-          AmenitySubCategory(name: "Visitor Parking"),
-          AmenitySubCategory(name: "Covered Parking"),
-          AmenitySubCategory(name: "EV Charging Points"),
-          AmenitySubCategory(name: "Laundry Service"),
-          AmenitySubCategory(name: "Garbage Disposal System"),
-          AmenitySubCategory(name: "Sewage Treatment Plant"),
-          AmenitySubCategory(name: "Rainwater Harvesting"),
-          AmenitySubCategory(name: "Service Lift"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Health & Wellness",
-        subCategories: [
-          AmenitySubCategory(name: "Spa"),
-          AmenitySubCategory(name: "Steam Room"),
-          AmenitySubCategory(name: "Meditation Area"),
-          AmenitySubCategory(name: "Jacuzzi"),
-        ],
-      ),
-      AmenityCategory(
-        title: "Commercial & Services",
-        subCategories: [
-          AmenitySubCategory(name: "ATM"),
-          AmenitySubCategory(name: "Pharmacy"),
-          AmenitySubCategory(name: "Convenience Store"),
-          AmenitySubCategory(name: "Co-working Space"),
-          AmenitySubCategory(name: "Cafeteria"),
-        ],
-      ),
-    ];
+  List<String> _selectedAmenityNames() => [
+    for (final category in _amenitiesList.value)
+      for (final sub in category.subCategories)
+        if (sub.isSelected) sub.name,
+  ];
+
+  String _selectedAmenitiesCsv() => _selectedAmenityNames().join(',');
+
+  List<AmenityCategory> _buildDefaultAmenities() => [
+    AmenityCategory(
+      title: "Safety & Security",
+      subCategories: [
+        AmenitySubCategory(name: "24* 7 Security"),
+        AmenitySubCategory(name: "CCTV Surveillance"),
+        AmenitySubCategory(name: "Fire Fighting System"),
+        AmenitySubCategory(name: "First Aid Room"),
+        AmenitySubCategory(name: "Intercom Facility"),
+        AmenitySubCategory(name: "Security Cabin"),
+        AmenitySubCategory(name: "Earthquake Resistant Structure"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Sports & Fitness",
+      subCategories: [
+        AmenitySubCategory(name: "Swimming Pool"),
+        AmenitySubCategory(name: "Gym"),
+        AmenitySubCategory(name: "Yoga Room"),
+        AmenitySubCategory(name: "Jogging Track"),
+        AmenitySubCategory(name: "Badminton Court"),
+        AmenitySubCategory(name: "BasketBall Court"),
+        AmenitySubCategory(name: "Tennis Court"),
+        AmenitySubCategory(name: "Squash Court"),
+        AmenitySubCategory(name: "Table Tennis"),
+        AmenitySubCategory(name: "Kids Pool"),
+        AmenitySubCategory(name: "Indoor Games"),
+        AmenitySubCategory(name: "Cycling Track"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Community & Social Spaces",
+      subCategories: [
+        AmenitySubCategory(name: "Club House"),
+        AmenitySubCategory(name: "Banquet Hall"),
+        AmenitySubCategory(name: "Amphitheatre"),
+        AmenitySubCategory(name: "Library"),
+        AmenitySubCategory(name: "Reading Room"),
+        AmenitySubCategory(name: "Society Office"),
+        AmenitySubCategory(name: "Temple/Prayer Hall"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Kids & Family",
+      subCategories: [
+        AmenitySubCategory(name: "Children Play Area"),
+        AmenitySubCategory(name: "Creche"),
+        AmenitySubCategory(name: "Day Care Center"),
+        AmenitySubCategory(name: "School Bus Bay"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Pets - Friendly Facilities",
+      subCategories: [
+        AmenitySubCategory(name: "Pet Park"),
+        AmenitySubCategory(name: "Pet Care Area"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Work & Business",
+      subCategories: [
+        AmenitySubCategory(name: "Co-Working Space"),
+        AmenitySubCategory(name: "Conference Room"),
+        AmenitySubCategory(name: "Society Office"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Convenience & Utilities",
+      subCategories: [
+        AmenitySubCategory(name: "Lift"),
+        AmenitySubCategory(name: "Power Backup"),
+        AmenitySubCategory(name: "Water Supply"),
+        AmenitySubCategory(name: "Parking"),
+        AmenitySubCategory(name: "Visitor Parking"),
+        AmenitySubCategory(name: "Covered Parking"),
+        AmenitySubCategory(name: "EV Charging Points"),
+        AmenitySubCategory(name: "Laundry Service"),
+        AmenitySubCategory(name: "Garbage Disposal System"),
+        AmenitySubCategory(name: "Sewage Treatment Plant"),
+        AmenitySubCategory(name: "Rainwater Harvesting"),
+        AmenitySubCategory(name: "Service Lift"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Health & Wellness",
+      subCategories: [
+        AmenitySubCategory(name: "Spa"),
+        AmenitySubCategory(name: "Steam Room"),
+        AmenitySubCategory(name: "Meditation Area"),
+        AmenitySubCategory(name: "Jacuzzi"),
+      ],
+    ),
+    AmenityCategory(
+      title: "Commercial & Services",
+      subCategories: [
+        AmenitySubCategory(name: "ATM"),
+        AmenitySubCategory(name: "Pharmacy"),
+        AmenitySubCategory(name: "Convenience Store"),
+        AmenitySubCategory(name: "Co-working Space"),
+        AmenitySubCategory(name: "Cafeteria"),
+      ],
+    ),
+  ];
+
+  Future<bool> _confirmBuildingCountChange(
+    BuildContext context,
+    String buildingCount,
+  ) {
+    return DialogHelper.showConfirmationDialog(
+      confirmText: 'Yes',
+      context: context,
+      title: 'Add / Update Building ?',
+      message: 'Are you sure you want to generate $buildingCount buildings',
+    );
   }
 
-  // UPDATE AMENITY CATEGORY
-  void _updateAmenityCategory(int index, AmenityCategory updatedCategory) {
-    final currentList = List<AmenityCategory>.from(amenitiesList.value);
-    currentList[index] = updatedCategory;
-    amenitiesList.value = currentList;
+  Future<void> _handleTotalBuildingChanged(String value) async {
+    final count = int.tryParse(value);
+    if (count == null || count <= 0) return;
+
+    final confirmed = await _confirmBuildingCountChange(context, value);
+    if (!confirmed || !mounted) return;
+
+    final plans = _proposedPlansCubit.state.proposedPlansList;
+    final buildingIndex = _buildingTabController.index;
+    final proposedOfferProposedPlanId =
+        plans.isNotEmpty && buildingIndex < plans.length
+            ? plans[buildingIndex].proposedOfferProposedPlanId
+            : 0;
+    final uniquekey =
+        plans.isNotEmpty && buildingIndex < plans.length
+            ? plans[buildingIndex].uniquekey
+            : "";
+
+    _proposedPlansCubit.addUpdateBuildingProposedPlan(
+      context: context,
+      proposedOfferProposedPlanId: proposedOfferProposedPlanId,
+      projectId: _project.projectId,
+      totalNumberOfBuilding: count,
+      uniquekey: uniquekey,
+    );
   }
 
-  // GET SELECTED AMENITIES AS LIST
-  List<String> _getSelectedAmenities() {
-    final List<String> selectedAmenities = [];
-    for (var category in amenitiesList.value) {
-      for (var subCategory in category.subCategories) {
-        if (subCategory.isSelected) {
-          selectedAmenities.add(subCategory.name);
-        }
-      }
+  void _handleAddOrUpdateProposedPlan(ProposedPlansState state) {
+    if (state.proposedPlansList.isEmpty) return;
+
+    final plan = state.proposedPlansList.first;
+    final selectedBuilding =
+        plan.buildingProposedPlanData[state.currentBuildingIndex];
+    final form = state.buildingForm;
+
+    _proposedPlansCubit.addUpdateProposedPlans(
+      context: context,
+      proposedOfferProposedPlanId: plan.proposedOfferProposedPlanId,
+      uniquekey: plan.uniquekey,
+      projectId: _project.projectId,
+      totalUnits: form.totalUnits,
+      totalParking: form.totalPodium,
+      amenities: _selectedAmenitiesCsv(),
+      planFile: form.planFile,
+      buildingProposedPlanId: selectedBuilding.buildingProposedPlanId,
+      totalNumberOfWing: form.wings.length,
+      totalPodium: form.totalPodium,
+      wingProposedPlanJSON: form.wings.map((e) => e.toApiModel()).toList(),
+      salesResidentialParking: form.salesResidential,
+      salesCommercialParking: form.salesCommercial,
+      salesVisitorsParking: form.salesVisitor,
+      memberResidentialParking: form.memberResidential,
+      memberCommercialParking: form.memberCommercial,
+      memberVisitorsParking: form.memberVisitor,
+    );
+  }
+
+  // Bloc listener
+  void _onProposedPlansStateChanged(
+    BuildContext context,
+    ProposedPlansState state,
+  ) {
+    if (state.proposedPlansList.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        _clearAmenitiesSelection();
+        _amenitiesPrefilledForCurrentBuilding = false;
+      });
+      _totalBuildingC.clear();
+      return;
     }
-    return selectedAmenities;
-  }
 
-  // GET SELECTED AMENITIES AS COMMA-SEPARATED STRING
-  String _getSelectedAmenitiesString() {
-    final selectedAmenities = _getSelectedAmenities();
-    return selectedAmenities.join(",");
+    _amenitiesPrefilledForCurrentBuilding = false;
+
+    final plan = state.proposedPlansList.first;
+    final building = plan.buildingProposedPlanData[state.currentBuildingIndex];
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _totalBuildingC.text = plan.totalNumberOfBuilding.toString();
+      _applyAmenitiesSelection(building.amenities);
+      _amenitiesPrefilledForCurrentBuilding = true;
+    });
   }
 
   @override
@@ -342,166 +390,189 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     return BlocListener<ProposedPlansCubit, ProposedPlansState>(
       listenWhen:
           (previous, current) =>
-              previous.proposedPlansList != current.proposedPlansList,
-      listener: (context, state) {
-        if (state.proposedPlansList.isNotEmpty) {
-          final proposedPlan = state.proposedPlansList.first;
-
-          // Prefill ONLY ONCE
-          if (!_amenitiesPrefilled.value) {
-            _prefillFromModel(proposedPlan);
-          }
-        } else {
-          _clearForm();
-        }
-      },
+              previous.proposedPlansList != current.proposedPlansList ||
+              previous.currentBuildingIndex != current.currentBuildingIndex,
+      listener: _onProposedPlansStateChanged,
       child: Scaffold(
-        appBar: CustomAppBarWithBackButton(
-          screenTitle: "Proposed Plan",
-          isMenuButton: true,
-          authorization: _routeAuthorizationModel,
-          onProjectChangeCallback: (project) {
-            _project = project;
-            _proposedPlansCubit.onTabChanged(
-              _tabController.index,
-              context,
-              _project.projectId,
-            );
-          },
-        ),
+        appBar: _buildAppBar(),
         body: SafeArea(
-          child: Column(
-            children: [
-              ChipStyleTabBar(controller: _tabController, tabs: ["Details","Amenities"]),
-              Expanded(
-                child: TabBarView(
-                  physics: NeverScrollableScrollPhysics(),
-                  controller: _tabController,
-                  children: [
-                    _detailsSectionTabView(),
-                    ValueListenableBuilder<List<AmenityCategory>>(
-                      valueListenable: amenitiesList,
-                      builder: (context, currentAmenitiesList, child) {
-                        return AmenitiesTab(
-                          amenitiesList: currentAmenitiesList,
-                          onUpdate: _updateAmenityCategory,
-                        );
-                      },
+          child: BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
+            builder: (context, state) {
+              if (state.isLoading ?? false) {
+                return Center(child: loader());
+              }
+              return Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: showSiteSelectedWidget(
+                      projectName: _project.projectName,
                     ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                  _buildPlanDetailsSection(),
+                  Expanded(child: _buildBuildingSection(state)),
+                ],
+              );
+            },
           ),
         ),
-        bottomNavigationBar:
-            BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
-              builder: (context, state) {
-                return state.currentTabIndex == 0
-                    ? SafeArea(
-                      child: Container(
-                        height: 70,
-                        padding: EdgeInsets.all(16),
-                        child: CustomButton(
-                          text:
-                              state.proposedPlansList.isEmpty
-                                  ? "Add Proposed Plan"
-                                  : "Update Proposed Plan",
-                          onPressed: () {
-                            _handleAddOrUpdateProposedPlan(state);
-                          },
-                        ),
-                      ),
-                    )
-                    : SizedBox();
-              },
-            ),
+        bottomNavigationBar: _buildBottomBar(),
       ),
     );
   }
 
-  // DETAILS SECTION TAB VIEW
-  Widget _detailsSectionTabView() {
-    return SingleChildScrollView(
-      child: Form(
-        key: _formKey,
-        child: Container(
-          margin: EdgeInsets.all(16),
-          decoration: commonCardDecoration(),
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+  PreferredSizeWidget _buildAppBar() {
+    return CustomAppBarWithBackButton(
+      screenTitle: "Proposed Plan",
+      isMenuButton: true,
+      authorization: _routeAuthorizationModel,
+      onProjectChangeCallback: (project) {
+        _project = project;
+        _proposedPlansCubit.onTabChanged(
+          _buildingDetailsTabController.index,
+          context,
+          _project.projectId,
+        );
+      },
+    );
+  }
+
+  Widget _buildPlanDetailsSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text("Plan Details", style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          CustomTextField(
+            textController: _totalBuildingC,
+            title: "Total Building",
+            hint: "Enter Total Building",
+            onChangeFunction: _handleTotalBuildingChanged,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBuildingSection(ProposedPlansState state) {
+    final buildingList =
+        state.proposedPlansList.isNotEmpty
+            ? state.proposedPlansList.first.buildingProposedPlanData
+            : const <BuildingProposedPlanDataModel>[];
+
+    _syncBuildingTabController(buildingList.length, state.currentBuildingIndex);
+
+    if (state.isLoading ?? false) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (buildingList.isEmpty) {
+      return Center(child: noDataWidget(message: "No Proposed Plan Found"));
+    }
+
+    final selectedBuilding =
+        state.currentBuildingIndex < buildingList.length
+            ? buildingList[state.currentBuildingIndex]
+            : buildingList.first;
+
+    if (state.buildingForm.wings.isEmpty) {
+      // Defer to avoid calling setState/emit during build.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _proposedPlansCubit.updateBuildingForm(BuildingFormDataModel());
+      });
+    }
+
+    // Only prefill amenities once per building load — repeated rebuilds
+    // (tab switches, unrelated state emissions) must not overwrite the
+    // user's in-progress selection.
+    if (!_amenitiesPrefilledForCurrentBuilding) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _applyAmenitiesSelection(selectedBuilding.amenities);
+        _amenitiesPrefilledForCurrentBuilding = true;
+      });
+    }
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: ChipStyleTabBar(
+                controller: _buildingTabController,
+                tabs: List.generate(
+                  buildingList.length,
+                  (index) => buildingList[index].buildingName,
+                ),
+              ),
+            ),
+            horizontalSpacing(),
+            CustomButton(
+              text: "Duplicate",
+              padding: const EdgeInsets.symmetric(
+                vertical: 12.0,
+                horizontal: 12.0,
+              ),
+              gradient: LinearGradient(
+                colors: [AppColor.primary, AppColor.darkBlue],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              isDisable: !_routeAuthorizationModel.isAction,
+              onPressed: () {
+                goRouter.pushNamed(
+                  AppRoutes.duplicateBuildingProposedPlan,
+                  extra: {
+                    "projectId": _project.projectId,
+                    "selectedBuildingIndex": _buildingTabController.index,
+                    "buildingName":
+                        buildingList[_buildingTabController.index].buildingName,
+                  },
+                );
+              },
+            ),
+            horizontalSpacing(),
+          ],
+        ),
+        verticalSpacing(),
+        ChipStyleTabBar(
+          controller: _buildingDetailsTabController,
+          tabs: _tabTitles,
+          style: ChipTabBarStyle.underline,
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _buildingDetailsTabController,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
-              Text("Proposed Plan Details", style: AppTextStyle.ts14M()),
-              verticalSpacing(height: 15),
-              CustomTextField(
-                title: "Total Number Of Floors",
-                isRequired: true,
-                hint: "Enter Total Number Of Floors",
-                keyboardType: TextInputType.number,
-                textController: _totalNumberOfFloorsC,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Please enter total number of floors";
-                  }
-                  return null;
-                },
+              ProposedPlanDetailsView(
+                key: ValueKey(state.currentBuildingIndex),
+                details:
+                    selectedBuilding.wingProposedPlanData
+                        .map<WingFormDetailModel>(WingFormDetailModel.fromApi)
+                        .toList(),
+                totalPodiumCount: selectedBuilding.totalPodium,
+                totalUnitC: selectedBuilding.totalUnits,
+                buildingName: selectedBuilding.buildingName,
               ),
-              CustomTextField(
-                title: "Total Number Of Units",
-                isRequired: true,
-                hint: "Enter Total Number Of Units",
-                keyboardType: TextInputType.number,
-                textController: _totalNumberOfUnitsC,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Please enter total number of units";
-                  }
-                  return null;
-                },
+              ProposedPlanDocumentsView(
+                key: ValueKey(state.currentBuildingIndex),
+                building: selectedBuilding,
               ),
-              CustomTextField(
-                title: "Total Parking",
-                isRequired: true,
-                hint: "Enter Total Parking",
-                keyboardType: TextInputType.number,
-                textController: _totalParkingC,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Please enter total parking";
-                  }
-                  return null;
-                },
+              ProposedPlanParkingDetailsView(
+                key: ValueKey(state.currentBuildingIndex),
+                building: selectedBuilding,
               ),
-              ValueListenableBuilder<List<String>>(
-                valueListenable: _planFileListNotifier,
-                builder: (context, fileList, child) {
-                  return CustomMultiFilePicker(
-                    key: ValueKey(fileList.join(",")),
-                    initialFileList: fileList,
-                    title: "Plan",
-                    isRequired: true,
-                    onFilePickedCallback: (fileByteList, fileNameList) {
-                      planFile.fileBytesList = fileByteList;
-                      planFile.fileNameList = fileNameList;
-                      _planFileListNotifier.value = fileNameList;
-                    },
-                    onFileDeleteCallback: (
-                      fileBytesList,
-                      fileNameList,
-                      deletedUrl,
-                    ) {
-                      planFile.fileBytesList = fileBytesList;
-                      planFile.fileNameList = fileNameList;
-                      planFile.deletedFileList = deletedUrl;
-                      _planFileListNotifier.value = fileNameList;
-                    },
-                    validator: (file) {
-                      if (file == null || file.isEmpty) {
-                        return "Plan File required";
-                      }
-                      return null;
+              ValueListenableBuilder<List<AmenityCategory>>(
+                valueListenable: _amenitiesList,
+                builder: (context, list, child) {
+                  return AmenitiesTab(
+                    key: ValueKey(state.currentBuildingIndex),
+                    amenitiesList: list,
+                    onUpdate: _updateAmenityCategory,
+                    onSearchResultChanged: (hasData) {
+                      _hasSearchResults.value = hasData;
                     },
                   );
                 },
@@ -509,92 +580,34 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
             ],
           ),
         ),
-      ),
+      ],
     );
   }
 
-  // HANDLE ADD OR UPDATE PROPOSED PLAN
-  void _handleAddOrUpdateProposedPlan(ProposedPlansState state) {
-    // Validate form
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
-
-    final amenitiesString = _getSelectedAmenitiesString();
-
-    if (state.proposedPlansList.isEmpty) {
-      // ADD NEW PROPOSED PLAN
-      _proposedPlansCubit.addProposedPlans(
-        context: context,
-        projectId: _project.projectId.toString(),
-        totalNumberOfFloors: _totalNumberOfFloorsC.text,
-        totalUnits: _totalNumberOfUnitsC.text,
-        totalParking: _totalParkingC.text,
-        amenities: amenitiesString,
-        planFile: planFile,
-      );
-    } else {
-      // UPDATE EXISTING PROPOSED PLAN
-      final existingPlan = state.proposedPlansList.first;
-      _proposedPlansCubit.updateProposedPlans(
-        context: context,
-        proposedOfferProposedPlanId:
-            existingPlan.proposedOfferProposedPlanId.toString(),
-        uniquekey: existingPlan.uniquekey,
-        projectId: _project.projectId.toString(),
-        totalNumberOfFloors: _totalNumberOfFloorsC.text,
-        totalUnits: _totalNumberOfUnitsC.text,
-        totalParking: _totalParkingC.text,
-        amenities: amenitiesString,
-        planFile: planFile,
-      );
-    }
-  }
-}
-
-class AmenitiesTab extends StatefulWidget {
-  final List<AmenityCategory> amenitiesList;
-  final Function(int, AmenityCategory) onUpdate;
-
-  const AmenitiesTab({
-    super.key,
-    required this.amenitiesList,
-    required this.onUpdate,
-  });
-
-  @override
-  State<AmenitiesTab> createState() => _AmenitiesTabState();
-}
-
-class _AmenitiesTabState extends State<AmenitiesTab>
-    with AutomaticKeepAliveClientMixin {
-  @override
-  bool get wantKeepAlive => true;
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Amenities Category", style: AppTextStyle.ts14M()),
-          verticalSpacing(height: 15),
-          ...widget.amenitiesList.asMap().entries.map((entry) {
-            final index = entry.key;
-            final category = entry.value;
-
-            return ExpandableCategoryTile(
-              category: category,
-              onCategoryChanged: (updatedCategory) {
-                widget.onUpdate(index, updatedCategory);
-              },
+  Widget _buildBottomBar() {
+    return ValueListenableBuilder<bool>(
+      valueListenable: _hasSearchResults,
+      builder: (context, hasSearchResults, child) {
+        return BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
+          builder: (context, state) {
+            return SafeArea(
+              child: Container(
+                height: 70,
+                padding: const EdgeInsets.all(16),
+                child: CustomButton(
+                  isDisable:
+                      !hasSearchResults || !_routeAuthorizationModel.isAction,
+                  text:
+                      state.proposedPlansList.isEmpty
+                          ? "Add Proposed Plan"
+                          : "Update Proposed Plan",
+                  onPressed: () => _handleAddOrUpdateProposedPlan(state),
+                ),
+              ),
             );
-          }),
-        ],
-      ),
+          },
+        );
+      },
     );
   }
 }

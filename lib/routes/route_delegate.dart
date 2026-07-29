@@ -41,6 +41,8 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rea
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_hardship_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/add_wing_details_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
@@ -2685,10 +2687,35 @@ final GoRouter goRouter = GoRouter(
           },
           routes: [
             GoRoute(
-              name: AppRoutes.proposedPlans,
-              path: AppRoutes.proposedPlans,
+              name: AppRoutes.proposedPlan,
+              path: AppRoutes.proposedPlan,
               builder: (context, state) {
                 return const ProposedPlansScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.wingDetails,
+              path: AppRoutes.wingDetails,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return AddWingDetailsScreen(
+                  wingIndex: data["index"],
+                  wing: data["wing"],
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.duplicateBuildingProposedPlan,
+              path: AppRoutes.duplicateBuildingProposedPlan,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return DuplicateBuildingProposedPlanScreen(
+                  projectId: data["projectId"],
+                  selectedBuildingIndex: data["selectedBuildingIndex"],
+                  buildingName: data["buildingName"],
+                );
               },
             ),
           ],

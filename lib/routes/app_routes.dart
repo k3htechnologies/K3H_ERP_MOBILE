@@ -356,13 +356,14 @@ class AppRoutes {
   static String addUpdateHardshipDetails = "/addUpdateHardshipDetails";
   static String addUpdateTemporaryAccommodationAlternativeDetails =
       "/addUpdateTemporaryAccommodationAlternativeDetails";
-      static String addUpdateReadyReckonerDetails =
+  static String addUpdateReadyReckonerDetails =
       "/addUpdateReadyReckonerDetails";
 
-
   // PROPOSED PLANS
-  static String proposedPlans = "/proposedPlan";
-
+  static String proposedPlan = "/proposedPlan";
+  static const String wingDetails = "/wingDetails";
+  static const String duplicateBuildingProposedPlan =
+      "/duplicateBuildingProposedPlan";
   // RENT
   static String rent = "/rent";
   static String addPayment = "/addPayment";

@@ -62,7 +62,17 @@ class CustomButton extends StatelessWidget {
       child: Ink(
         decoration: BoxDecoration(
           // FOR GRADIENT BUTTONS
-          gradient: gradient,
+          gradient:
+              isDisable
+                  ? LinearGradient(
+                    colors: [
+                      AppColor.grey2.withValues(alpha: 0.2),
+                      AppColor.grey2.withValues(alpha: 0.2),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                  : gradient,
 
           // FOR NORMAL BUTTONS (NOT GRADIENT)
           color:
