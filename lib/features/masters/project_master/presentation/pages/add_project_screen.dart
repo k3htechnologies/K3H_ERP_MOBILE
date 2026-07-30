@@ -564,7 +564,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 CustomCheckBox(
                                   isSelected: isRedevelopment,
                                   onChanged: (check) {
-                                    isRedevelopmentNotifier.value = check!;
+                                    isRedevelopmentNotifier.value = check;
 
                                     if (check) {
                                       _ctsNumberC.clear();
