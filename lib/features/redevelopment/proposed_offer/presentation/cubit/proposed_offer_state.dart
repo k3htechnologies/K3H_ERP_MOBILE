@@ -1,8 +1,7 @@
 part of 'proposed_offer_cubit.dart';
 
 class ProposedOfferState extends BaseState {
-  final List<RedevelopmentBuildingModel> buildingList;
-  final int buildingTotalCount;
+  final RedevelopmentBuildingModel? buildingDetails;
   final ExtraCarpetAreaModel? extraCarpetArea;
   final CorpusDetailsModel? corpusDetails;
   final SecurityDepositModel? securityDepositDetails;
@@ -21,8 +20,7 @@ class ProposedOfferState extends BaseState {
 
   const ProposedOfferState({
     super.isLoading,
-    required this.buildingList,
-    required this.buildingTotalCount,
+    required this.buildingDetails,
     required this.extraCarpetArea,
     required this.corpusDetails,
     required this.securityDepositDetails,
@@ -40,8 +38,7 @@ class ProposedOfferState extends BaseState {
   });
 
   factory ProposedOfferState.initial() => ProposedOfferState(
-    buildingList: [],
-    buildingTotalCount: 0,
+    buildingDetails: null,
     isLoading: true,
     extraCarpetArea: null,
     corpusDetails: null,
@@ -61,8 +58,8 @@ class ProposedOfferState extends BaseState {
 
   ProposedOfferState copyWith({
     bool? isLoading,
-    List<RedevelopmentBuildingModel>? buildingList,
-    int? buildingTotalCount,
+    bool clearbuildingDetails = false,
+    RedevelopmentBuildingModel? buildingDetails,
     ExtraCarpetAreaModel? extraCarpetArea,
     bool clearExtraCarpet = false,
     CorpusDetailsModel? corpusDetails,
@@ -94,8 +91,8 @@ class ProposedOfferState extends BaseState {
   }) {
     return ProposedOfferState(
       isLoading: isLoading ?? this.isLoading,
-      buildingList: buildingList ?? this.buildingList,
-      buildingTotalCount: buildingTotalCount ?? this.buildingTotalCount,
+      buildingDetails:
+          clearbuildingDetails ? null : buildingDetails ?? this.buildingDetails,
       extraCarpetArea:
           clearExtraCarpet ? null : extraCarpetArea ?? this.extraCarpetArea,
       corpusDetails: clearCorpus ? null : corpusDetails ?? this.corpusDetails,
@@ -150,8 +147,7 @@ class ProposedOfferState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
-    buildingList,
-    buildingTotalCount,
+    buildingDetails,
     extraCarpetArea,
     corpusDetails,
     securityDepositDetails,

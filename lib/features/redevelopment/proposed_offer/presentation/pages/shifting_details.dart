@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/shifting_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
@@ -22,12 +23,14 @@ class ShiftingDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
 
   const ShiftingDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -51,13 +54,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   List<ProposedOfferShiftingDetailsWithPaymentStageData> get _shiftingList =>
       _shiftingListNotifier.value;
 
-  // LITIGATION FORM CONTROLLERS
   final ValueNotifier<Map<String, dynamic>?> _selectedShiftingType =
       ValueNotifier(null);
   late TextEditingController _stageController;
   late TextEditingController _stagePercentageController;
   late TextEditingController _amountController;
   final GlobalKey<FormState> _shiftingFormKey = GlobalKey<FormState>();
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   @override
   void initState() {
@@ -528,178 +531,201 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: ProposedOfferTile(
-                            svgIcon: AppAssets.shiftingDetailsIcon,
-                            title: "Shifting Amount Details",
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ProposedOfferTile(
+                                svgIcon: AppAssets.shiftingDetailsIcon,
+                                title: "Shifting Amount Details",
+                              ),
+                            ),
+                            CustomIconButton.delete(
+                              isDisabled:
+                                  (state.shiftingDetails == null ||
+                                      disableAction),
+                              onPressed: _showPopupToDeleteShiftingData,
+                            ),
+                          ],
                         ),
-                        CustomIconButton.delete(
-                          isDisabled: state.shiftingDetails == null,
-                          onPressed: _showPopupToDeleteShiftingData,
-                        ),
-                      ],
-                    ),
 
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: "Residential Shifting Amount (₹)",
-                      hint: "Enter Residential Shifting Amount",
-                      isRequired: true,
-                      textController: _residentialAmountC,
-                      keyboardType: TextInputType.number,
-                      readOnly: _shiftingListNotifier.value.any(
-                        (item) => item.type.toLowerCase() == 'residential',
-                      ),
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Residential amount is required";
-                        }
-                        if (double.parse(value) < 0) {
-                          return "Amount should be positive";
-                        }
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleResidentialAmountChange(
-                          double.tryParse(value) ?? 0,
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Commercial Shifting Amount (₹)",
-                      hint: "Enter Commercial Shifting Amount",
-                      isRequired: true,
-                      textController: _commercialAmountC,
-                      keyboardType: TextInputType.number,
-                      readOnly: _shiftingListNotifier.value.any(
-                        (item) => item.type.toLowerCase() == 'commercial',
-                      ),
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Commercial amount is required";
-                        }
-                        if (double.parse(value) < 0) {
-                          return "Amount should be positive";
-                        }
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleCommercialAmountChange(
-                          double.tryParse(value) ?? 0,
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Shifting List',
-                          style: AppTextStyle.ts14M(color: AppColor.grey),
-                        ),
-                        CustomIconButton.add(
-                          onPressed: () {
-                            if (!_formKey.currentState!.validate()) {
-                              return;
+                        verticalSpacing(),
+                        CustomTextField(
+                          title: "Residential Shifting Amount (₹)",
+                          hint: "Enter Residential Shifting Amount",
+                          isRequired: true,
+                          textController: _residentialAmountC,
+                          keyboardType: TextInputType.number,
+                          readOnly:
+                              (_shiftingListNotifier.value.any(
+                                    (item) =>
+                                        item.type.toLowerCase() ==
+                                        'residential',
+                                  ) ||
+                                  disableAction),
+                          inputFormatterList:
+                              inputFormatterListForDecimalValuesFixedToTwo(10),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Residential amount is required";
                             }
-                            _showShiftingBottomSheet();
+                            if (double.parse(value) < 0) {
+                              return "Amount should be positive";
+                            }
+                            return null;
+                          },
+                          onChangeFunction: (value) {
+                            _handleResidentialAmountChange(
+                              double.tryParse(value) ?? 0,
+                            );
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Commercial Shifting Amount (₹)",
+                          hint: "Enter Commercial Shifting Amount",
+                          isRequired: true,
+                          textController: _commercialAmountC,
+                          keyboardType: TextInputType.number,
+                          readOnly:
+                              (_shiftingListNotifier.value.any(
+                                    (item) =>
+                                        item.type.toLowerCase() == 'commercial',
+                                  ) ||
+                                  disableAction),
+                          inputFormatterList:
+                              inputFormatterListForDecimalValuesFixedToTwo(10),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Commercial amount is required";
+                            }
+                            if (double.parse(value) < 0) {
+                              return "Amount should be positive";
+                            }
+                            return null;
+                          },
+                          onChangeFunction: (value) {
+                            _handleCommercialAmountChange(
+                              double.tryParse(value) ?? 0,
+                            );
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'Remark',
+                          hint: 'Enter Remark',
+                          readOnly: disableAction,
+                          textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 3,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Shifting List',
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            CustomIconButton.add(
+                              isDisabled: disableAction,
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                _showShiftingBottomSheet();
+                              },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 16),
+                        ValueListenableBuilder<
+                          List<ProposedOfferShiftingDetailsWithPaymentStageData>
+                        >(
+                          valueListenable: _shiftingListNotifier,
+                          builder: (context, shiftingList, _) {
+                            if (shiftingList.isNotEmpty) {
+                              return Column(
+                                children: List.generate(shiftingList.length, (
+                                  index,
+                                ) {
+                                  final shifting = shiftingList[index];
+
+                                  return ProposedOfferInfoCard(
+                                    title: shifting.stage,
+                                    tag: shifting.type,
+                                    disable: disableAction,
+                                    onEdit: () async {
+                                      if (!_formKey.currentState!.validate()) {
+                                        return;
+                                      }
+                                      _showShiftingBottomSheet(
+                                        shifting: shifting,
+                                        index: index,
+                                      );
+                                    },
+                                    onDelete: () {
+                                      _showPopupToDeleteShifting(index);
+                                    },
+                                    child: Column(
+                                      spacing: 10,
+                                      children: [
+                                        Row(
+                                          spacing: 10,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Percentage",
+                                              value:
+                                                  "${shifting.stagePercentage.toStringAsFixed(2)}%",
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Amount",
+                                              value:
+                                                  (shifting.amount)
+                                                      .toIndianCurrency(),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              );
+                            } else {
+                              return Container(
+                                padding: const EdgeInsets.all(40),
+                                child: Center(
+                                  child: noDataWidget(
+                                    iconSize: 100,
+                                    message: 'No Shifting Details Found',
+                                  ),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ],
                     ),
-                    verticalSpacing(height: 16),
-                    ValueListenableBuilder<
-                      List<ProposedOfferShiftingDetailsWithPaymentStageData>
-                    >(
-                      valueListenable: _shiftingListNotifier,
-                      builder: (context, shiftingList, _) {
-                        if (shiftingList.isNotEmpty) {
-                          return Column(
-                            children: List.generate(shiftingList.length, (
-                              index,
-                            ) {
-                              final shifting = shiftingList[index];
-
-                              return CommonInfoCard(
-                                title: shifting.stage,
-                                tag: shifting.type,
-                                onEdit: () async {
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
-                                  _showShiftingBottomSheet(
-                                    shifting: shifting,
-                                    index: index,
-                                  );
-                                },
-                                onDelete: () {
-                                  _showPopupToDeleteShifting(index);
-                                },
-                                child: Column(
-                                  spacing: 10,
-                                  children: [
-                                    Row(
-                                      spacing: 10,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Percentage",
-                                          value:
-                                              "${shifting.stagePercentage.toStringAsFixed(2)}%",
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Amount",
-                                          value:
-                                              (shifting.amount)
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          );
-                        } else {
-                          return Container(
-                            padding: const EdgeInsets.all(40),
-                            child: Center(
-                              child: noDataWidget(
-                                iconSize: 100,
-                                message: 'No Shifting Details Found',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.shiftingDetails?.createdBy ?? "-",
+                  createdDate: state.shiftingDetails?.createdDate,
+                  modifiedBy: state.shiftingDetails?.modifiedBy,
+                  modifiedDate: state.shiftingDetails?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

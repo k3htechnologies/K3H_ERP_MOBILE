@@ -462,7 +462,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
                               verticalSpacing(height: 8),
                               buildRowTitleValue(
                                 title: "CTS Number",
-                                value: building.ctsNumber,
+                                value: building.cTSNumber,
                               ),
                               buildRowTitleValue(
                                 title: "Total Plot Area(Sq. ft)",

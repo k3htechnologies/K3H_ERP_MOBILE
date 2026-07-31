@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BuildingOverview extends StatelessWidget {
   final RedevelopmentBuildingModel building;
@@ -14,13 +12,11 @@ class BuildingOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          verticalSpacing(),
-          // BUILDING DETAILS
-          buildingViewSectionCard(
+          sectionCard(
             title: 'Building Details',
             textColor: AppColor.primary,
             bgColor: AppColor.lightBlue,
@@ -35,7 +31,7 @@ class BuildingOverview extends StatelessWidget {
                   ),
                   buildColumnTitleValue(
                     title: "CTS Number",
-                    value: building.ctsNumber,
+                    value: building.cTSNumber,
                   ),
                 ],
               ),
@@ -68,7 +64,7 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // PROPERTY INFORMATION
-          buildingViewSectionCard(
+          sectionCard(
             title: 'Property Information',
             textColor: AppColor.orange,
             bgColor: AppColor.lightOrangeBg.withValues(alpha: 0.5),
@@ -78,12 +74,12 @@ class BuildingOverview extends StatelessWidget {
                 spacing: 10,
                 children: [
                   buildColumnTitleValue(
-                    title: "Total Plot Area(Sq. ft)",
-                    value: building.totalPlotAreaSqFt.toString(),
+                    title: "Total Plot Area (SqMt)",
+                    value: building.totalPlotAreaSqMt.addCommas(),
                   ),
                   buildColumnTitleValue(
-                    title: "Total Floors",
-                    value: building.numberOfFloors.toString(),
+                    title: "Total Plot Area (SqFt)",
+                    value: building.totalPlotAreaSqFt.addCommas(),
                   ),
                 ],
               ),
@@ -92,20 +88,26 @@ class BuildingOverview extends StatelessWidget {
                 spacing: 10,
                 children: [
                   buildColumnTitleValue(
-                    title: "Utilized Unit Area(Sq. ft)",
-                    value: building.totalUnitsAreaUtilizedSqFt.toString(),
+                    title: "Total Floors",
+                    value: building.numberOfFloors.addCommas(),
                   ),
                   buildColumnTitleValue(
-                    title: "Total Units",
-                    value: building.totalNumberOfUnits.toString(),
+                    title: "Utilized Unit Area (SqFt)",
+                    value: building.totalUnitsAreaUtilizedSqFt.addCommas(),
                   ),
                 ],
+              ),
+              buildRowWrapper(
+                child: buildColumnTitleValue(
+                  title: "Total Units",
+                  value: building.totalNumberOfUnits.addCommas(),
+                ),
               ),
             ],
           ),
 
           // LOCATION DETAILS
-          buildingViewSectionCard(
+          sectionCard(
             title: 'Location Details',
             textColor: AppColor.darkBlue29,
             bgColor: AppColor.darkBlue29.withValues(alpha: 0.1),
@@ -149,12 +151,16 @@ class BuildingOverview extends StatelessWidget {
                             ? "-"
                             : building.villageName,
                   ),
+                  buildColumnTitleValue(
+                    title: "Ward",
+                    value: building.wardName,
+                  ),
                 ],
               ),
             ],
           ),
           // GARDEN INFORMATION
-          buildingViewSectionCard(
+          sectionCard(
             title: 'Garden Information',
             textColor: AppColor.purple700,
             bgColor: AppColor.lightPurpleBg2,
@@ -168,15 +174,15 @@ class BuildingOverview extends StatelessWidget {
                     value: building.isGarden ? "Yes" : "No",
                   ),
                   buildColumnTitleValue(
-                    title: "Garden Area(Sq. ft)",
-                    value: building.totalGardenAreaSqFt.toString(),
+                    title: "Garden Area (SqFt)",
+                    value: building.totalGardenAreaSqFt.addCommas(),
                   ),
                 ],
               ),
             ],
           ),
           // RELIGIOUS INFORMATION
-          buildingViewSectionCard(
+          sectionCard(
             title: 'Religious Information',
             textColor: Colors.blue,
             bgColor: Colors.blue.shade100.withValues(alpha: 0.5),
@@ -190,15 +196,15 @@ class BuildingOverview extends StatelessWidget {
                     value: building.isReligiousStructure ? "Yes" : "No",
                   ),
                   buildColumnTitleValue(
-                    title: "Structure Area(Sq. ft)",
-                    value: building.totalReligiousStructureAreaSqFt.toString(),
+                    title: "Structure Area (SqFt)",
+                    value: building.totalReligiousStructureAreaSqFt.addCommas(),
                   ),
                 ],
               ),
             ],
           ),
           // FSI/TDR INFORMATION
-          buildingViewSectionCard(
+          sectionCard(
             title: 'FSI/TDR Information',
             textColor: AppColor.brown,
             bgColor: AppColor.lightYellow,
@@ -208,19 +214,19 @@ class BuildingOverview extends StatelessWidget {
                 spacing: 10,
                 children: [
                   buildColumnTitleValue(
-                    title: "FSI/TDR Utilization(Sq. ft)",
-                    value: building.fsiTdrUtilizationSqFt.toString(),
+                    title: "FSI/TDR Utilization (SqFt)",
+                    value: building.fSITDRUtilizationSqFt.addCommas(),
                   ),
                   buildColumnTitleValue(
                     title: "Property Age (Years)",
-                    value: building.propertyAgeYears.toString(),
+                    value: building.propertyAgeYears.addCommas(),
                   ),
                 ],
               ),
             ],
           ),
           // LITIGATION INFORMATION
-          buildingViewSectionCard(
+          sectionCard(
             title: 'Litigation Information',
             textColor: AppColor.darkGreen10,
             bgColor: AppColor.darkGreen10.withValues(alpha: 0.1),
@@ -242,44 +248,11 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // ACTION DETAILS
-          buildingViewSectionCard(
-            title: 'Action Details',
-            textColor: AppColor.black,
-            bgColor: AppColor.grey20,
-            children: [
-              Row(
-                children: [
-                  buildColumnTitleValue(
-                    title: "Created By",
-                    value: building.createdBy,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Created Date",
-                    value: formatDate(building.createdDate),
-                  ),
-                ],
-              ),
-
-              Row(
-                children: [
-                  buildColumnTitleValue(
-                    title: "Modified By",
-                    value:
-                        (building.modifiedBy.isNotEmpty)
-                            ? building.modifiedBy
-                            : "-",
-                  ),
-                  buildColumnTitleValue(
-                    title: "Modified Date",
-                    value:
-                        (building.modifiedDate == null ||
-                                building.modifiedDate.toString().trim().isEmpty)
-                            ? "-"
-                            : formatDate(building.modifiedDate),
-                  ),
-                ],
-              ),
-            ],
+          actionCardWidget(
+            createdBy: building.createdBy,
+            createdDate: building.createdDate,
+            modifiedBy: building.modifiedBy,
+            modifiedDate: building.modifiedDate,
           ),
         ],
       ),

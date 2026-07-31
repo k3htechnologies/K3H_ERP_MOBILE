@@ -137,54 +137,38 @@ Widget buildColumnTitleValueNormal({
 // BUILD COMMON ACTION CARD
 Widget actionCardWidget({
   required String createdBy,
-  required DateTime createdDate,
+  required DateTime? createdDate,
   String? modifiedBy,
   DateTime? modifiedDate,
 }) {
-  return Container(
-    padding: EdgeInsets.all(16),
-    decoration: commonCardDecoration(),
-    child: Column(
-      spacing: 10,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text("Action Details", style: AppTextStyle.ts16SB()),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildColumnTitleValue(title: "Created By", value: createdBy),
-            horizontalSpacing(width: 20.0),
-            buildColumnTitleValue(
-              title: "Created Date",
-              value: formatDate(createdDate),
-            ),
-          ],
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildColumnTitleValue(
-              title: "Modified By",
-              value:
-                  (modifiedBy != null || modifiedBy!.isNotEmpty)
-                      ? modifiedBy
-                      : "-",
-            ),
-            horizontalSpacing(width: 20.0),
-            buildColumnTitleValue(
-              title: "Modified Date",
-              value:
-                  (modifiedDate == null ||
-                          modifiedDate.toString().trim().isEmpty ||
-                          modifiedDate.toString().contains('1970-01-01') ||
-                          modifiedDate.toString().contains('01 Jan 1970'))
-                      ? "-"
-                      : formatDate(modifiedDate),
-            ),
-          ],
-        ),
-      ],
-    ),
+  return sectionCard(
+    title: 'Action Details',
+    textColor: AppColor.black,
+    bgColor: AppColor.grey20,
+    children: [
+      Row(
+        children: [
+          buildColumnTitleValue(title: "Created By", value: createdBy),
+          buildColumnTitleValue(
+            title: "Created Date",
+            value: formatDate(createdDate),
+          ),
+        ],
+      ),
+
+      Row(
+        children: [
+          buildColumnTitleValue(title: "Modified By", value: modifiedBy),
+          buildColumnTitleValue(
+            title: "Modified Date",
+            value:
+                (modifiedDate == null || modifiedDate.toString().trim().isEmpty)
+                    ? "-"
+                    : formatDate(modifiedDate),
+          ),
+        ],
+      ),
+    ],
   );
 }
 
@@ -370,6 +354,47 @@ Widget followUpStatusTextWidget(String? enquiryFollowUpDays) {
 
 Widget buildRowWrapper({required Widget child}) {
   return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [child]);
+}
+
+Widget sectionCard({
+  required String title,
+  required Color? textColor,
+  required Color? bgColor,
+  required List<Widget> children,
+}) {
+  return Container(
+    decoration: commonCardDecoration(),
+    margin: EdgeInsets.only(bottom: 16.h),
+    clipBehavior: Clip.antiAlias,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          color: bgColor ?? const Color(0xFFDCE8F6),
+          child: Text(
+            title,
+            style: AppTextStyle.ts14SB(
+              color: textColor ?? const Color(0xFF1F5CC4),
+            ),
+          ),
+        ),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: children.length,
+            separatorBuilder:
+                (_, __) => Divider(height: 20.h, color: AppColor.lightBlue),
+            itemBuilder: (context, index) => children[index],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class DottedDivider extends StatelessWidget {

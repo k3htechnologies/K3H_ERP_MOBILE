@@ -8,6 +8,7 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
   String type;
   String stage;
   double amount;
+  bool isRelease;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -23,6 +24,7 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
     required this.type,
     required this.stage,
     required this.amount,
+    required this.isRelease,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -44,6 +46,7 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
     type: parseValue<String>(json, "Type"),
     stage: parseValue<String>(json, "Stage"),
     amount: parseValue<double>(json, "Amount"),
+    isRelease: parseValue<bool>(json, "IsRelease"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -64,6 +67,7 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
     "Type": type,
     "Stage": stage,
     "Amount": amount,
+    "IsRelease": isRelease,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

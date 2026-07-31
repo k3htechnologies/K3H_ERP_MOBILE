@@ -160,7 +160,7 @@ class CustomButton extends StatelessWidget {
         text: 'Add',
         leading: Icon(Icons.add, color: AppColor.white),
         gradient: LinearGradient(
-          colors: [AppColor.green, AppColor.darkGreen],
+          colors: [AppColor.primary, AppColor.primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

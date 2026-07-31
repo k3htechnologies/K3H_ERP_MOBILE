@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -49,7 +48,7 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
             return Column(
               children: [
                 // BUILDING PLOT AREA
-                buildingViewSectionCard(
+                sectionCard(
                   title: 'Building Plot Area',
                   textColor: AppColor.primary,
                   bgColor: AppColor.lightBlue,
@@ -102,7 +101,7 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                   ],
                 ),
                 // BUILDING CONSTRUCTION DETAILS
-                buildingViewSectionCard(
+                sectionCard(
                   title: 'Building Construction Details',
                   textColor: AppColor.primary,
                   bgColor: AppColor.lightBlue,
@@ -156,7 +155,7 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                   ],
                 ),
                 // BUILDING KEY CONTACT DETAILS
-                buildingViewSectionCard(
+                sectionCard(
                   title: 'Building Key Contact Details',
                   textColor: AppColor.primary,
                   bgColor: AppColor.lightBlue,

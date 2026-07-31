@@ -43,75 +43,16 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   final InventoryRepository _inventoryRepository =
       serviceLocator<InventoryRepository>();
 
-  // GET BUILDING LIST
-  Future<List<RedevelopmentBuildingModel>> getBuildingList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-    int projectId,
-  ) async {
-    emit(state.copyWith(isLoading: true));
-    if (projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-      });
-      emit(state.copyWith(isLoading: false));
-      return [];
-    }
-    final result = await _buildingRepository.pullBuilding(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-      projectId: projectId,
+  void updateBuildingDetails(
+    RedevelopmentBuildingModel? buildingModel, {
+    bool clearBuildingDetails = false,
+  }) {
+    emit(
+      state.copyWith(
+        buildingDetails: buildingModel,
+        clearbuildingDetails: clearBuildingDetails,
+      ),
     );
-
-    final buildingList = result.fold<List<RedevelopmentBuildingModel>>(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error", failure.message);
-        return state.buildingList;
-      },
-
-      (response) {
-        final newData = List<RedevelopmentBuildingModel>.from(response['data']);
-
-        List<RedevelopmentBuildingModel> updatedList;
-
-        if (pageNumber == 1) {
-          updatedList =
-              state.buildingList
-                  .where((b) => b.projectId != projectId)
-                  .toList();
-        } else {
-          updatedList = List.from(state.buildingList);
-        }
-
-        final Map<int, RedevelopmentBuildingModel> uniqueMap = {
-          for (var b in updatedList) b.buildingId: b,
-        };
-
-        for (final b in newData) {
-          if (b.projectId == projectId) {
-            uniqueMap[b.buildingId] = b;
-          }
-        }
-
-        updatedList = uniqueMap.values.toList();
-
-        final totalCount = response['totalNumberOfRecord'] ?? 0;
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            buildingList: updatedList,
-            buildingTotalCount: totalCount,
-          ),
-        );
-
-        return updatedList;
-      },
-    );
-
-    return buildingList;
   }
 
   // < ---------------------------------------------------------------------------------------------------------- >
@@ -625,6 +566,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
                 "Type": item.type,
                 "Stage": item.stage,
                 "Amount": item.amount,
+                "IsRelease": item.isRelease,
               },
             )
             .toList();
@@ -1232,6 +1174,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required DateTime effectiveStartDate,
     required DateTime effectiveEndDate,
     required String remark,
+    required String zone,
+    required String subZone,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -1249,6 +1193,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
           effectiveStartDate.toIso8601String().split('T').first,
       "EffectiveEndDate": effectiveEndDate.toIso8601String().split('T').first,
       "Remark": remark,
+      "Zone": zone,
+      "SubZone": subZone,
     };
 
     final result = await _proposedOfferRepository
@@ -1290,6 +1236,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required DateTime effectiveStartDate,
     required DateTime effectiveEndDate,
     required String remark,
+    required String zone,
+    required String subZone,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -1310,6 +1258,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
           effectiveStartDate.toIso8601String().split('T').first,
       "EffectiveEndDate": effectiveEndDate.toIso8601String().split('T').first,
       "Remark": remark,
+      "Zone": zone,
+      "SubZone": subZone,
     };
 
     final result = await _proposedOfferRepository
@@ -1487,6 +1437,155 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
           ),
         );
         showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  // < ---------------------------------------------------------------------------------------------------------- >
+
+  // PULL BANK GUARANTEE DETAILS
+  Future pullBankGuaranteeDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    emit(state.copyWith(isLoading: true, clearBankGuaranteeDetails: true));
+
+    final result = await _proposedOfferRepository.pullBankGuaranteeDetails(
+      projectId: projectId,
+      buildingId: buildingId,
+    );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bankGuaranteeDetails:
+                response['data'].isEmpty
+                    ? null
+                    : response['data'][0] as BankGuaranteeDetailsModel,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> addUpdateBankGuarantee(
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+    required int proposedOfferBankGuaranteeDetailsId,
+    required String uniqueKey,
+    required double bankGuaranteeAmount,
+    required List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
+    proposedOfferBankGuaranteeDetailsWithPaymentStageData,
+    required String accountHolderName,
+    required String remark,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final Map<String, dynamic> body = {
+      "ProposedOfferBankGuaranteeDetailsId":
+          proposedOfferBankGuaranteeDetailsId,
+      if (uniqueKey.isNotEmpty) "Uniquekey": uniqueKey,
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "BankGuaranteeAmount": bankGuaranteeAmount,
+      "AccountHolderName": accountHolderName,
+      "Remark": remark,
+      "BankGuaranteePaymentStageJSON": jsonEncode(
+        proposedOfferBankGuaranteeDetailsWithPaymentStageData
+            .map((p) => p.bankGuaranteePaymentStageJSONPayload())
+            .toList(),
+      ),
+    };
+
+    final result = await _proposedOfferRepository.addUpdateBankGuaranteeDetails(
+      body: body,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bankGuaranteeDetails:
+                (response['data'] as List<BankGuaranteeDetailsModel>)[0],
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  Future deleteBankGuaranteeDetails({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    int? index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _proposedOfferRepository
+        .deleteBankGuaranteeDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            bankGuaranteeDetails: null,
+            clearBankGuaranteeDetails: true,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  // EXPORT EXCEL PDF
+  Future exportExcelPdf(
+    BuildContext context, {
+    required int buildingId,
+    required int projectId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _proposedOfferRepository.pullProposedOfferPDF(
+      projectId: projectId,
+      buildingId: buildingId,
+      queryParams: {"ExportType": 'PDF'},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(
+          context,
+          'Error',
+          failure.message,
+          isMenuChanged: failure.isMenuChanged,
+        );
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: 'Successfully Exported as PDF');
+        exportExcelOrPdfMobile(
+          response["data"],
+          "Proposed Offer ${DateTime.now()}.pdf",
+        );
       },
     );
   }

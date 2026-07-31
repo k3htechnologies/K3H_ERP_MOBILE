@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -57,7 +56,7 @@ class BuildingDetailsView extends StatelessWidget {
               ),
               verticalSpacing(),
               // BUILDING PLOT AREA
-              buildingViewSectionCard(
+              sectionCard(
                 title: 'Building Plot Area',
                 textColor: AppColor.primary,
                 bgColor: AppColor.lightBlue,
@@ -112,7 +111,7 @@ class BuildingDetailsView extends StatelessWidget {
                 ],
               ),
               // BUILDING CONSTRUCTION DETAILS
-              buildingViewSectionCard(
+              sectionCard(
                 title: 'Building Construction Details',
                 textColor: AppColor.primary,
                 bgColor: AppColor.lightBlue,
@@ -170,7 +169,7 @@ class BuildingDetailsView extends StatelessWidget {
                 ],
               ),
               // BUILDING KEY CONTACT DETAILS
-              buildingViewSectionCard(
+              sectionCard(
                 title: 'Building Key Contact Details',
                 textColor: AppColor.primary,
                 bgColor: AppColor.lightBlue,

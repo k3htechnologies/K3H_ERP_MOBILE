@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/additional_information_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/bank_guarantee.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/building_overview.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/carpet_plot_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/hardship_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/extra_carpet_area.dart';
@@ -13,6 +14,7 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/temporary_accomodation_alternative_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/security_deposit.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/shifting_details.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -44,6 +46,14 @@ class ProposedOfferSecondaryScreen extends StatefulWidget {
 class _ProposedOfferSecondaryScreenState
     extends State<ProposedOfferSecondaryScreen> {
   VoidCallback? _onSave;
+  late AuthorizationModel _routeAuthorizationModel;
+  @override
+  void initState() {
+    super.initState();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.proposedOffer]!;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -72,7 +82,8 @@ class _ProposedOfferSecondaryScreenState
         ],
       ),
       bottomNavigationBar:
-          (widget.type == "Carpet / Plot Area" ||
+          (widget.type == "Building Overview" ||
+                  widget.type == "Carpet / Plot Area" ||
                   widget.type == "Ready Reckoner Rate")
               ? null
               : SafeArea(
@@ -81,6 +92,7 @@ class _ProposedOfferSecondaryScreenState
                   padding: EdgeInsets.all(16),
                   child: CustomButton(
                     text: "Save",
+                    isDisable: !_routeAuthorizationModel.isAction,
                     onPressed: () {
                       _onSave?.call();
                     },
@@ -93,10 +105,14 @@ class _ProposedOfferSecondaryScreenState
   // BUILD TYPE WIDGET
   Widget _buildTypeWidget(String type, int projectId, int buildingId) {
     switch (type) {
+      case "Building Overview":
+        return ProposedOfferBuildingOverview();
+
       case "Extra Carpet Area":
         return ExtraCarpetArea(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
 
@@ -104,18 +120,21 @@ class _ProposedOfferSecondaryScreenState
         return HardshipDetails(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
       case "Security Deposit":
         return SecurityDeposit(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
       case "Shifting Details":
         return ShiftingDetails(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
       case "Lien to Society Details":
@@ -123,17 +142,20 @@ class _ProposedOfferSecondaryScreenState
           projectId: projectId,
           buildingId: buildingId,
           onSave: (callback) => _onSave = callback,
+          routeAuthorizationModel: _routeAuthorizationModel,
         );
       case "Parking Allotment":
         return ParkingAllotment(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
       case "GST on Existing + Free Area":
         return GstOnExistingPlusFreeArea(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
       case "Project Completion":
@@ -141,16 +163,19 @@ class _ProposedOfferSecondaryScreenState
           projectId: projectId,
           buildingId: buildingId,
           onSave: (callback) => _onSave = callback,
+          routeAuthorizationModel: _routeAuthorizationModel,
         );
       case "Temp Accom Alternative":
         return TemporaryAccommodationAlternativeDetails(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
         );
       case "Ready Reckoner Rate":
         return ReadyReckonerRateDetails(
           projectId: projectId,
           buildingId: buildingId,
+          routeAuthorizationModel: _routeAuthorizationModel,
         );
       case "Carpet / Plot Area":
         return CarpetPlotDetails(projectId: projectId, buildingId: buildingId);
@@ -159,12 +184,14 @@ class _ProposedOfferSecondaryScreenState
           projectId: projectId,
           buildingId: buildingId,
           onSave: (callback) => _onSave = callback,
+          routeAuthorizationModel: _routeAuthorizationModel,
         );
       case "Bank Guarantee":
         return BankGuaranteeDetails(
           projectId: projectId,
           buildingId: buildingId,
           onSave: (callback) => _onSave = callback,
+          routeAuthorizationModel: _routeAuthorizationModel,
         );
       default:
         return const Text("Invalid Type", style: TextStyle(color: Colors.red));

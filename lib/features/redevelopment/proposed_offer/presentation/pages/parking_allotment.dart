@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -13,12 +15,14 @@ class ParkingAllotment extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
 
   const ParkingAllotment({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -36,6 +40,8 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
   late TextEditingController _numberOfParkingC,
       _totalParkingPercentageC,
       _remarkC;
+
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   @override
   void initState() {
@@ -109,73 +115,87 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProposedOfferTile(
-                      svgIcon: AppAssets.parkingIcon,
-                      title: "Parking Allotment",
-                    ),
-                    verticalSpacing(height: 15),
-                    CustomTextField(
-                      title: 'Number of Parking Allotted to Members',
-                      isRequired: true,
-                      hint: 'Enter Number of Parking Allotted to Members',
-                      textController: _numberOfParkingC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(4),
-                      ],
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Number of parking is required";
-                        }
-                        if (int.parse(value) < 0) {
-                          return "Number of parking should be greater than or equal to 0";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Total Parking Percentage Allotted to Society (%)",
-                      isRequired: true,
-                      hint:
-                          "Enter Total Parking Percentage Allotted to Society (%)",
-                      textController: _totalParkingPercentageC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(3),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Total parking percentage is required";
-                        }
-                        if (double.parse(value) <= 0) {
-                          return "Please enter valid Percentage";
-                        }
-                        if (double.parse(value) > 100) {
-                          return "Percentage should be less than or equal to 100";
-                        }
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ProposedOfferTile(
+                          svgIcon: AppAssets.parkingIcon,
+                          title: "Parking Allotment",
+                        ),
+                        verticalSpacing(height: 15),
+                        CustomTextField(
+                          title: 'Number of Parking Allotted to Members',
+                          hint: 'Enter Number of Parking Allotted to Members',
+                          isRequired: true,
+                          readOnly: disableAction,
+                          textController: _numberOfParkingC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(4),
+                          ],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Number of parking is required";
+                            }
+                            if (int.parse(value) < 0) {
+                              return "Number of parking should be greater than or equal to 0";
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title:
+                              "Total Parking Percentage Allotted to Society (%)",
+                          isRequired: true,
+                          readOnly: disableAction,
+                          hint:
+                              "Enter Total Parking Percentage Allotted to Society (%)",
+                          textController: _totalParkingPercentageC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList:
+                              inputFormatterListForDecimalValuesFixedToTwo(3),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Total parking percentage is required";
+                            }
+                            if (double.parse(value) <= 0) {
+                              return "Please enter valid Percentage";
+                            }
+                            if (double.parse(value) > 100) {
+                              return "Percentage should be less than or equal to 100";
+                            }
 
-                        return null;
-                      },
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'Remark',
+                          hint: 'Enter Remark',
+                          textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 3,
+                        ),
+                      ],
                     ),
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.parkingAllotment?.createdBy ?? "-",
+                  createdDate: state.parkingAllotment?.createdDate,
+                  modifiedBy: state.parkingAllotment?.modifiedBy,
+                  modifiedDate: state.parkingAllotment?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

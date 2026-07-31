@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class ProposedPlanDetailsView extends StatefulWidget {
@@ -67,10 +68,9 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
 
     _totalPodiumC.text = widget.totalPodiumCount.toString();
 
-    _updateTotalUnits();
+    _totalUnitsC.text = widget.totalUnitC.toString();
   }
 
-  @override
   @override
   void dispose() {
     _wingTimer?.cancel();
@@ -180,6 +180,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                     title: "Total Wings",
                     hint: "Enter Total Wings",
                     keyboardType: TextInputType.number,
+                    inputFormatterList: InputValidator.digit(2),
                     textController: _totalWingsC,
                     readOnly: !_routeAuthorizationModel.isAction,
                     onChangeFunction: (value) {
@@ -216,6 +217,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                     hint: "Enter Number Of Podium",
                     readOnly: !_routeAuthorizationModel.isAction,
                     keyboardType: TextInputType.number,
+                    inputFormatterList: InputValidator.digit(2),
                     textController: _totalPodiumC,
                     onChangeFunction: (v) {
                       final cubit = context.read<ProposedPlansCubit>();

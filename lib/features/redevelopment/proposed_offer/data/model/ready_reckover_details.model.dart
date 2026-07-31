@@ -14,6 +14,8 @@ class ReadyReckonerRateDetailsModel {
   DateTime effectiveEndDate;
   String financialYear;
   String remark;
+  String zone;
+  String subZone;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -41,6 +43,8 @@ class ReadyReckonerRateDetailsModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.zone,
+    required this.subZone,
   });
 
   factory ReadyReckonerRateDetailsModel.fromJson(Map<String, dynamic> json) =>
@@ -61,6 +65,8 @@ class ReadyReckonerRateDetailsModel {
         effectiveEndDate: parseValue<DateTime>(json, "EffectiveEndDate"),
         financialYear: parseValue<String>(json, "FinancialYear"),
         remark: parseValue<String>(json, "Remark"),
+        zone: parseValue<String>(json, "Zone"),
+        subZone: parseValue<String>(json, "SubZone"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -93,5 +99,7 @@ class ReadyReckonerRateDetailsModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "Zone": zone,
+    "SubZone": subZone,
   };
 }

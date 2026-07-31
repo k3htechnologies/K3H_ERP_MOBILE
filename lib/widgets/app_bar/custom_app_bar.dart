@@ -371,7 +371,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         horizontalSpacing(),
                         CustomIconButton(
                           onPressed: () {
-                            if (widget.textController != null) {
+                            if (widget.textController != null &&
+                                widget.textController!.text.isNotEmpty) {
                               widget.textController!.clear();
                               widget.onSearchSubmit!("");
                             }

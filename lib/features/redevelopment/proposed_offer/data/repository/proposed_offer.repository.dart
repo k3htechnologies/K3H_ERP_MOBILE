@@ -4,6 +4,11 @@ import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/datasource/proposed_offer.datasource.dart';
 
 abstract interface class ProposedOfferRepository {
+  Future<Either<Failure, Map<String, dynamic>>> pullProposedOfferPDF({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
   Future<Either<Failure, Map<String, dynamic>>> pullExtraCarpetArea({
     required int projectId,
     required int buildingId,
@@ -133,12 +138,41 @@ abstract interface class ProposedOfferRepository {
 
   Future<Either<Failure, Map<String, dynamic>>>
   addUpdateAdditionalInformationDetails({required Map<String, dynamic> body});
+  Future<Either<Failure, Map<String, dynamic>>> pullBankGuaranteeDetails({
+    required int projectId,
+    required int buildingId,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateBankGuaranteeDetails({
+    required Map<String, dynamic> body,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> deleteBankGuaranteeDetails({
+    required int projectId,
+    required int buildingId,
+  });
 }
 
 class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   final ProposedOfferDatasource proposedOfferDatasource;
 
   ProposedOfferRepositoryImpl({required this.proposedOfferDatasource});
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> pullProposedOfferPDF({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource.apicallPullProposedOfferPDF(
+        projectId: projectId,
+        buildingId: buildingId,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullExtraCarpetArea({
@@ -432,7 +466,7 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   }) async {
     try {
       var result = await proposedOfferDatasource
-          .apicallPullTemporaryAccommodationAlternativeDetails(
+          .apicallPullTemporaryAlternateAccommodationDetails(
             projectId: projectId,
             buildingId: buildingId,
           );
@@ -570,6 +604,53 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
     try {
       var result = await proposedOfferDatasource
           .apicallAddUpdateAdditionalInformationDetails(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> pullBankGuaranteeDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallPullBankGuaranteeDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateBankGuaranteeDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallAddUpdateBankGuaranteeDetails(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteBankGuaranteeDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    try {
+      var result = await proposedOfferDatasource
+          .apicallDeleteBankGuranteeDetails(
+            projectId: projectId,
+            buildingId: buildingId,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

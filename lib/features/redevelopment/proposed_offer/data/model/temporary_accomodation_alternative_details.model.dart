@@ -11,8 +11,8 @@ class TemporaryAccommodationAlternativeDetailsModel {
   double amount;
   String unitSqFtLumsum;
   double carpetAreaSqFt;
-  DateTime temporaryAccommodationAlternativeStartDate;
-  DateTime temporaryAccommodationAlternativeEndDate;
+  DateTime? temporaryAccommodationAlternativeStartDate;
+  DateTime? temporaryAccommodationAlternativeEndDate;
   bool isPayBrokerage;
   int createdById;
   String createdBy;
@@ -62,14 +62,20 @@ class TemporaryAccommodationAlternativeDetailsModel {
     amount: parseValue<double>(json, "Amount"),
     unitSqFtLumsum: parseValue<String>(json, "UnitSqFtLumsum"),
     carpetAreaSqFt: parseValue<double>(json, "CarpetAreaSqFt"),
-    temporaryAccommodationAlternativeStartDate: parseValue<DateTime>(
-      json,
-      "TemporaryAccommodationAlternativeStartDate",
-    ),
-    temporaryAccommodationAlternativeEndDate: parseValue<DateTime>(
-      json,
-      "TemporaryAccommodationAlternativeEndDate",
-    ),
+    temporaryAccommodationAlternativeStartDate:
+        json["TemporaryAccommodationAlternativeStartDate"] == null
+            ? null
+            : parseValue<DateTime>(
+              json,
+              "TemporaryAccommodationAlternativeStartDate",
+            ),
+    temporaryAccommodationAlternativeEndDate:
+        json["TemporaryAccommodationAlternativeEndDate"] == null
+            ? null
+            : parseValue<DateTime>(
+              json,
+              "TemporaryAccommodationAlternativeEndDate",
+            ),
     isPayBrokerage: parseValue<bool>(json, "IsPayBrokerage"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
@@ -96,9 +102,9 @@ class TemporaryAccommodationAlternativeDetailsModel {
     "UnitSqFtLumsum": unitSqFtLumsum,
     "CarpetAreaSqFt": carpetAreaSqFt,
     "TemporaryAccommodationAlternativeStartDate":
-        temporaryAccommodationAlternativeStartDate.toIso8601String(),
+        temporaryAccommodationAlternativeStartDate?.toIso8601String(),
     "TemporaryAccommodationAlternativeEndDate":
-        temporaryAccommodationAlternativeEndDate.toIso8601String(),
+        temporaryAccommodationAlternativeEndDate?.toIso8601String(),
     "IsPayBrokerage": isPayBrokerage,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

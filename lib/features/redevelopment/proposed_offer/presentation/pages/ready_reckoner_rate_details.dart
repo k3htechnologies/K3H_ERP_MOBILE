@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/ready_reckover_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
@@ -21,10 +22,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ReadyReckonerRateDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final AuthorizationModel routeAuthorizationModel;
   const ReadyReckonerRateDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -35,6 +38,7 @@ class ReadyReckonerRateDetails extends StatefulWidget {
 class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
   // CUBIT
   late ProposedOfferCubit _cubit;
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   @override
   void initState() {
@@ -96,6 +100,7 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                   ),
                 ),
                 CustomIconButton.add(
+                  isDisabled: disableAction,
                   onPressed: () async {
                     goRouter.pushNamed(
                       AppRoutes.addUpdateReadyReckonerDetails,
@@ -138,11 +143,12 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                         (index) {
                           final rent = state.readyReckonerRateDetails[index];
 
-                          return CommonInfoCard(
+                          return ProposedOfferInfoCard(
                             leading: buildColumnTitleValue(
                               title: "Financial Year",
                               value: rent.financialYear,
                             ),
+                            disable: disableAction,
                             onEdit: () {
                               goRouter.pushNamed(
                                 AppRoutes.addUpdateReadyReckonerDetails,
@@ -176,6 +182,20 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                             child: Column(
                               spacing: 10,
                               children: [
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Zone",
+                                      value: rent.zone,
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Sub Zone",
+                                      value: rent.subZone,
+                                    ),
+                                  ],
+                                ),
                                 Row(
                                   spacing: 10,
                                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -11,6 +11,8 @@ class CityModel {
   final String cityName;
   final int villageMasterId;
   final String villageName;
+  final int wardMasterId;
+  final String wardName;
 
   CityModel({
     required this.countryMasterId,
@@ -23,6 +25,8 @@ class CityModel {
     required this.cityName,
     required this.villageMasterId,
     required this.villageName,
+    required this.wardMasterId,
+    required this.wardName,
   });
 
   factory CityModel.fromJson(Map<String, dynamic> json) {
@@ -37,6 +41,8 @@ class CityModel {
       cityName: parseValue<String>(json, "CityName"),
       villageMasterId: parseValue<int>(json, "VillageMasterId"),
       villageName: parseValue<String>(json, "VillageName"),
+      wardMasterId: parseValue<int>(json, "WardMasterId"),
+      wardName: parseValue<String>(json, "WardName"),
     );
   }
 
@@ -52,6 +58,8 @@ class CityModel {
       'CityName': cityName,
       'VillageMasterId': villageMasterId,
       'VillageName': villageName,
+      'WardMasterId': wardMasterId,
+      'WardName': wardName,
     };
   }
 }

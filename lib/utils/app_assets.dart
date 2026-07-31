@@ -271,6 +271,7 @@ class AppAssets {
   static const String conversionIcon = "$svgPath/conversion.svg";
 
   // REDEVELOPMENT
+  static const String exportFileIcon = "$svgPath/common/export_file.svg";
   static const String extraCarpetAreaIcon =
       "$redevelopmentSvgPath/extra_carpet_area.svg";
   static const String hardshipDetailsIcon =

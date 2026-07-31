@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/lien_to_society_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
@@ -25,12 +25,14 @@ class LienToSocietyDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
 
   const LienToSocietyDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -52,6 +54,8 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       _remarkC,
       _stageController,
       _carpetAreaController;
+
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   final ValueNotifier<
     List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>
@@ -508,238 +512,264 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProposedOfferTile(
-                      svgIcon: AppAssets.lienToSocietyIcon,
-                      title: "Lien To Society Area Details",
-                    ),
-
-                    verticalSpacing(height: 15),
-                    CustomTextField(
-                      title: "Residential Area (SqFt)",
-                      isRequired: true,
-                      hint: "Enter Residential Area (SqFt)",
-                      textController: _residentialAreaC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Residential area is required";
-                        }
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleResidentialAreaChange(
-                          double.tryParse(value) ?? 0,
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Number of Residential Lien Units",
-                      hint: "Enter Number of Residential Lien Units",
-                      isRequired: true,
-                      textController: _residentialUnitsC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Number of Residential Lien Units is required";
-                        }
-
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _selectResidentialLienUnits,
-                      builder: (context, selectResidentialLienUnits, child) {
-                        return CustomMultipleSelectPopup(
-                          title: "Residential Lien Units",
-                          isMultiSelect: true,
-                          initialValue: selectResidentialLienUnits,
-                          dataList: _flatLits.value,
-                          onSelected: (value) {
-                            _selectResidentialLienUnits.value = value;
-                          },
-                          dataFetchCallBack:
-                              (pageNumber, {value}) => filterDropdownList(
-                                pageNumber,
-                                value: value,
-                                list: _flatLits.value,
-                              ),
-                          hintText: "Select Residential Lien Units",
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Commercial Area (SqFt)",
-                      hint: "Enter Commercial Area (SqFt)",
-                      isRequired: true,
-                      textController: _commercialAreaC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Commercial area is required";
-                        }
-
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleCommercialAreaChange(
-                          double.tryParse(value) ?? 0,
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Number of Commercial Lien Units",
-                      hint: "Enter of Commercial Lien Units",
-                      isRequired: true,
-                      textController: _commercialUnitsC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Number of Commercial Lien Units is required";
-                        }
-
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _selectCommercialLienUnits,
-                      builder: (context, selectCommercialLienUnits, child) {
-                        return CustomMultipleSelectPopup(
-                          title: "Commercial Lien Units",
-                          hintText: "Select Commercial Lien Units",
-                          initialValue: selectCommercialLienUnits,
-                          isMultiSelect: true,
-                          dataList: _flatLits.value,
-                          onSelected: (value) {
-                            _selectCommercialLienUnits.value = value;
-                          },
-                          dataFetchCallBack:
-                              (pageNumber, {value}) => filterDropdownList(
-                                pageNumber,
-                                value: value,
-                                list: _flatLits.value,
-                              ),
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Lien to Society List',
-                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ProposedOfferTile(
+                          svgIcon: AppAssets.lienToSocietyIcon,
+                          title: "Lien To Society Area Details",
                         ),
-                        CustomIconButton.add(
-                          onPressed: () {
-                            if (!_formKey.currentState!.validate()) {
-                              return;
+
+                        verticalSpacing(height: 15),
+                        CustomTextField(
+                          title: "Residential Area (SqFt)",
+                          isRequired: true,
+                          readOnly: disableAction,
+                          hint: "Enter Residential Area (SqFt)",
+                          textController: _residentialAreaC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            maxDigitsBeforeDecimal: 16,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Residential area is required";
                             }
-                            _showLienBottomSheet();
+                            return null;
+                          },
+                          onChangeFunction: (value) {
+                            _handleResidentialAreaChange(
+                              double.tryParse(value) ?? 0,
+                            );
                           },
                         ),
-                      ],
-                    ),
-                    verticalSpacing(height: 20),
-                    ValueListenableBuilder<
-                      List<
-                        ProposedOfferLienToSocietyDetailsWithPaymentStageData
-                      >
-                    >(
-                      valueListenable: _lienListNotifier,
-                      builder: (context, lienList, _) {
-                        if (lienList.isNotEmpty) {
-                          return Column(
-                            children: List.generate(lienList.length, (index) {
-                              final lien = lienList[index];
+                        CustomTextField(
+                          title: "Number of Residential Lien Units",
+                          hint: "Enter Number of Residential Lien Units",
+                          isRequired: true,
+                          readOnly: disableAction,
+                          textController: _residentialUnitsC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Number of Residential Lien Units is required";
+                            }
 
-                              return CommonInfoCard(
-                                title: lien.stage,
-                                tag: lien.type,
-                                onEdit: () async {
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
+                            return null;
+                          },
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: _selectResidentialLienUnits,
+                          builder: (
+                            context,
+                            selectResidentialLienUnits,
+                            child,
+                          ) {
+                            return CustomMultipleSelectPopup(
+                              title: "Residential Lien Units",
+                              isMultiSelect: true,
+                              isReadOnly: disableAction,
+                              initialValue: selectResidentialLienUnits,
+                              dataList: _flatLits.value,
+                              onSelected: (value) {
+                                _selectResidentialLienUnits.value = value;
+                              },
+                              dataFetchCallBack:
+                                  (pageNumber, {value}) => filterDropdownList(
+                                    pageNumber,
+                                    value: value,
+                                    list: _flatLits.value,
+                                  ),
+                              hintText: "Select Residential Lien Units",
+                            );
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Commercial Area (SqFt)",
+                          hint: "Enter Commercial Area (SqFt)",
+                          isRequired: true,
+                          readOnly: disableAction,
+                          textController: _commercialAreaC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            maxDigitsBeforeDecimal: 16,
+                          ),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Commercial area is required";
+                            }
 
-                                  _showLienBottomSheet(
-                                    lien: lien,
-                                    index: index,
-                                  );
-                                },
-                                onDelete: () {
-                                  _showPopupToDeleteLienToSocietyPaymentStage(
-                                    index,
-                                  );
-                                },
-                                child: Column(
-                                  spacing: 10,
-                                  children: [
-                                    Row(
+                            return null;
+                          },
+                          onChangeFunction: (value) {
+                            _handleCommercialAreaChange(
+                              double.tryParse(value) ?? 0,
+                            );
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Number of Commercial Lien Units",
+                          hint: "Enter of Commercial Lien Units",
+                          readOnly: disableAction,
+                          isRequired: true,
+                          textController: _commercialUnitsC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Number of Commercial Lien Units is required";
+                            }
+
+                            return null;
+                          },
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: _selectCommercialLienUnits,
+                          builder: (context, selectCommercialLienUnits, child) {
+                            return CustomMultipleSelectPopup(
+                              title: "Commercial Lien Units",
+                              hintText: "Select Commercial Lien Units",
+                              isReadOnly: disableAction,
+                              initialValue: selectCommercialLienUnits,
+                              isMultiSelect: true,
+                              dataList: _flatLits.value,
+                              onSelected: (value) {
+                                _selectCommercialLienUnits.value = value;
+                              },
+                              dataFetchCallBack:
+                                  (pageNumber, {value}) => filterDropdownList(
+                                    pageNumber,
+                                    value: value,
+                                    list: _flatLits.value,
+                                  ),
+                            );
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'Remark',
+                          hint: 'Enter Remark',
+                          textController: _remarkC,
+                          isRequired: disableAction,
+                          minLines: 3,
+                          maxLines: 3,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Lien to Society List',
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            CustomIconButton.add(
+                              isDisabled: disableAction,
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                _showLienBottomSheet();
+                              },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 20),
+                        ValueListenableBuilder<
+                          List<
+                            ProposedOfferLienToSocietyDetailsWithPaymentStageData
+                          >
+                        >(
+                          valueListenable: _lienListNotifier,
+                          builder: (context, lienList, _) {
+                            if (lienList.isNotEmpty) {
+                              return Column(
+                                children: List.generate(lienList.length, (
+                                  index,
+                                ) {
+                                  final lien = lienList[index];
+
+                                  return ProposedOfferInfoCard(
+                                    title: lien.stage,
+                                    tag: lien.type,
+                                    disable: disableAction,
+                                    onEdit: () async {
+                                      if (!_formKey.currentState!.validate()) {
+                                        return;
+                                      }
+
+                                      _showLienBottomSheet(
+                                        lien: lien,
+                                        index: index,
+                                      );
+                                    },
+                                    onDelete: () {
+                                      _showPopupToDeleteLienToSocietyPaymentStage(
+                                        index,
+                                      );
+                                    },
+                                    child: Column(
                                       spacing: 10,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
                                       children: [
-                                        buildColumnTitleValue(
-                                          title: "Carpet Area (Sq Ft)",
-                                          value: lien.carpetAreaSqFt
-                                              .toStringAsFixed(2),
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Is Release",
-                                          value:
-                                              lien.isRelease == true
-                                                  ? 'Yes'
-                                                  : 'No',
+                                        Row(
+                                          spacing: 10,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Carpet Area (Sq Ft)",
+                                              value: lien.carpetAreaSqFt
+                                                  .toStringAsFixed(2),
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Is Release",
+                                              value:
+                                                  lien.isRelease == true
+                                                      ? 'Yes'
+                                                      : 'No',
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
+                                  );
+                                }),
+                              );
+                            } else {
+                              return Container(
+                                padding: const EdgeInsets.all(40),
+                                child: Center(
+                                  child: noDataWidget(
+                                    iconSize: 100,
+                                    message: 'No Lien to Society Details Found',
+                                  ),
                                 ),
                               );
-                            }),
-                          );
-                        } else {
-                          return Container(
-                            padding: const EdgeInsets.all(40),
-                            child: Center(
-                              child: noDataWidget(
-                                iconSize: 100,
-                                message: 'No Lien to Society Details Found',
-                              ),
-                            ),
-                          );
-                        }
-                      },
+                            }
+                          },
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.lienToSocietyDetails?.createdBy ?? "-",
+                  createdDate: state.lienToSocietyDetails?.createdDate,
+                  modifiedBy: state.lienToSocietyDetails?.modifiedBy,
+                  modifiedDate: state.lienToSocietyDetails?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

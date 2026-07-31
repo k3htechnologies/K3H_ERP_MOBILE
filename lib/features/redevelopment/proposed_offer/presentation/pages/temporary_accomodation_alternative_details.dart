@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
@@ -22,10 +23,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final AuthorizationModel routeAuthorizationModel;
+
   const TemporaryAccommodationAlternativeDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -37,6 +41,7 @@ class _TemporaryAccommodationAlternativeDetailsState
     extends State<TemporaryAccommodationAlternativeDetails> {
   // CUBIT
   late ProposedOfferCubit _cubit;
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   @override
   void initState() {
@@ -98,6 +103,7 @@ class _TemporaryAccommodationAlternativeDetailsState
                   ),
                 ),
                 CustomIconButton.add(
+                  isDisabled: disableAction,
                   onPressed: () async {
                     goRouter.pushNamed(
                       AppRoutes
@@ -141,12 +147,13 @@ class _TemporaryAccommodationAlternativeDetailsState
                               state
                                   .temporaryAccommodationAlternativeDetails[index];
 
-                          return CommonInfoCard(
+                          return ProposedOfferInfoCard(
                             title:
                                 rent.tenure.isNotEmpty
                                     ? rent.tenure
                                     : 'Additional TAA',
                             tag: rent.type,
+                            disable: disableAction,
                             onEdit: () {
                               goRouter.pushNamed(
                                 AppRoutes
@@ -248,6 +255,12 @@ class _TemporaryAccommodationAlternativeDetailsState
                                           top: 12.0,
                                         ),
                                         child: CustomButton(
+                                          isDisable:
+                                              (disableAction ||
+                                                  rent.temporaryAccommodationAlternativeEndDate ==
+                                                      null ||
+                                                  rent.temporaryAccommodationAlternativeStartDate ==
+                                                      null),
                                           text: "Generate",
                                           onPressed: () {
                                             _cubit.generateProposedOffer(

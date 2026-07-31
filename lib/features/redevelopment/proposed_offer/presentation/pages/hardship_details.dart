@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
@@ -23,11 +24,13 @@ class HardshipDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
   const HardshipDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -45,11 +48,12 @@ class _HardshipDetailsState extends State<HardshipDetails> {
   late TextEditingController _residentialAmountC, _commercialAmountC, _remarkC;
 
   final ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>
-  _corpusListNotifier =
+  _hardshipListNotifier =
       ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>([]);
 
   List<ProposedOfferHardshipDetailsWithPaymentStageData> get _corpusList =>
-      _corpusListNotifier.value;
+      _hardshipListNotifier.value;
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   @override
   void initState() {
@@ -67,7 +71,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
   void dispose() {
     _residentialAmountC.dispose();
     _commercialAmountC.dispose();
-    _corpusListNotifier.dispose();
+    _hardshipListNotifier.dispose();
     _remarkC.dispose();
     super.dispose();
   }
@@ -87,7 +91,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
     _commercialAmountC.text =
         corpusDetailsModel.corpusOfferedToCommercialAmount.toString();
 
-    _corpusListNotifier.value = List.from(
+    _hardshipListNotifier.value = List.from(
       corpusDetailsModel.proposedOfferHardshipDetailsWithPaymentStageData,
     );
     _remarkC.text = corpusDetailsModel.remark;
@@ -142,7 +146,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
         );
       }
     }
-    _corpusListNotifier.value = newList;
+    _hardshipListNotifier.value = newList;
   }
 
   // HANDLE AMOUNT CHANGE
@@ -173,7 +177,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
         );
       }
     }
-    _corpusListNotifier.value = newList;
+    _hardshipListNotifier.value = newList;
   }
 
   Future<void> _showPopupToDeleteHardshipData() async {
@@ -205,7 +209,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
             _corpusList,
           );
       newList.removeAt(index);
-      _corpusListNotifier.value = newList;
+      _hardshipListNotifier.value = newList;
       // ignore: use_build_context_synchronously
       showSuccessMessage(context, subTitle: 'Hardship Payment Stage Removed');
     }
@@ -221,7 +225,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
           } else {
             _residentialAmountC.clear();
             _commercialAmountC.clear();
-            _corpusListNotifier.value = [];
+            _hardshipListNotifier.value = [];
             _remarkC.clear();
           }
         },
@@ -230,297 +234,326 @@ class _HardshipDetailsState extends State<HardshipDetails> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: ProposedOfferTile(
-                            svgIcon: AppAssets.hardshipDetailsIcon,
-                            title: "Hardship Details",
-                          ),
-                        ),
-                        CustomIconButton.delete(
-                          isDisabled: state.corpusDetails == null,
-                          onPressed: _showPopupToDeleteHardshipData,
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(height: 15),
-                    Text(
-                      "Hardship Amount Details",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    ValueListenableBuilder<
-                      List<ProposedOfferHardshipDetailsWithPaymentStageData>
-                    >(
-                      valueListenable: _corpusListNotifier,
-                      builder: (context, corpusList, _) {
-                        final isResidentialReadOnly = corpusList.any(
-                          (item) =>
-                              (item.type).toLowerCase().trim() == 'residential',
-                        );
-                        final isCommercialReadOnly = corpusList.any(
-                          (item) =>
-                              (item.type).toLowerCase().trim() == 'commercial',
-                        );
-                        return Column(
-                          children: [
-                            CustomTextField(
-                              title: "Residential Hardship Amount (₹)",
-                              isRequired: true,
-                              hint: "Enter Residential Hardship Amount (₹)",
-                              textController: _residentialAmountC,
-                              keyboardType: TextInputType.number,
-                              readOnly: isResidentialReadOnly,
-                              inputFormatterList:
-                                  inputFormatterListForDecimalValuesFixedToTwo(
-                                    10,
-                                  ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "Residential amount is required";
-                                }
-                                if (double.parse(value) < 0) {
-                                  return "Amount should be positive";
-                                }
-                                return null;
-                              },
-                              onChangeFunction: (value) {
-                                _handleResidentialAmountChange(
-                                  double.tryParse(value) ?? 0,
-                                );
-                              },
-                            ),
-                            CustomTextField(
-                              title: "Commercial Hardship Amount (₹)",
-                              isRequired: true,
-                              hint: "Enter Commercial Hardship Amount (₹)",
-                              textController: _commercialAmountC,
-                              keyboardType: TextInputType.number,
-                              readOnly: isCommercialReadOnly,
-                              inputFormatterList:
-                                  inputFormatterListForDecimalValuesFixedToTwo(
-                                    10,
-                                  ),
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "Commercial amount is required";
-                                }
-                                if (double.parse(value) < 0) {
-                                  return "Amount should be positive";
-                                }
-                                return null;
-                              },
-                              onChangeFunction: (value) {
-                                _handleCommercialAmountChange(
-                                  double.tryParse(value) ?? 0,
-                                );
-                              },
-                            ),
-                            CustomTextField(
-                              title: "Remark",
-                              hint: "Enter Remark",
-                              textController: _remarkC,
-                              maxLines: 3,
-                              minLines: 3,
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-
-                    // LITIGATION DETAILS SECTION
-                    Column(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Hardship List',
-                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            Expanded(
+                              child: ProposedOfferTile(
+                                svgIcon: AppAssets.hardshipDetailsIcon,
+                                title: "Hardship Details",
+                              ),
                             ),
-                            CustomIconButton.add(
-                              onPressed: () async {
-                                if (!_formKey.currentState!.validate()) {
-                                  return;
-                                }
-                                final result = await goRouter.pushNamed(
-                                  AppRoutes.addUpdateHardshipDetails,
-                                  extra: _corpusList,
-                                  queryParameters: {
-                                    'projectId': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        widget.projectId.toString(),
+                            CustomIconButton.delete(
+                              isDisabled:
+                                  (state.corpusDetails == null ||
+                                      disableAction),
+                              onPressed: _showPopupToDeleteHardshipData,
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 15),
+                        Text(
+                          "Hardship Amount Details",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+                        verticalSpacing(),
+                        ValueListenableBuilder<
+                          List<ProposedOfferHardshipDetailsWithPaymentStageData>
+                        >(
+                          valueListenable: _hardshipListNotifier,
+                          builder: (context, corpusList, _) {
+                            final isResidentialReadOnly = corpusList.any(
+                              (item) =>
+                                  (item.type).toLowerCase().trim() ==
+                                  'residential',
+                            );
+                            final isCommercialReadOnly = corpusList.any(
+                              (item) =>
+                                  (item.type).toLowerCase().trim() ==
+                                  'commercial',
+                            );
+                            return Column(
+                              children: [
+                                CustomTextField(
+                                  title: "Residential Hardship Amount (₹)",
+                                  isRequired: true,
+                                  hint: "Enter Residential Hardship Amount (₹)",
+                                  textController: _residentialAmountC,
+                                  keyboardType: TextInputType.number,
+                                  readOnly:
+                                      (isResidentialReadOnly || disableAction),
+                                  inputFormatterList:
+                                      inputFormatterListForDecimalValuesFixedToTwo(
+                                        10,
                                       ),
-                                    ),
-                                    'buildingId': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        widget.buildingId.toString(),
-                                      ),
-                                    ),
-                                    'residentialAmount': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        _residentialAmountC.text.toString(),
-                                      ),
-                                    ),
-                                    'commercialAmount': Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        _commercialAmountC.text.toString(),
-                                      ),
-                                    ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return "Residential amount is required";
+                                    }
+                                    if (double.parse(value) < 0) {
+                                      return "Amount should be positive";
+                                    }
+                                    return null;
                                   },
-                                );
-                                if (result != null &&
-                                    result
-                                        is List<
-                                          ProposedOfferHardshipDetailsWithPaymentStageData
-                                        >) {
-                                  _corpusListNotifier.value = [];
-                                  _corpusListNotifier.value = result;
+                                  onChangeFunction: (value) {
+                                    _handleResidentialAmountChange(
+                                      double.tryParse(value) ?? 0,
+                                    );
+                                  },
+                                ),
+                                CustomTextField(
+                                  title: "Commercial Hardship Amount (₹)",
+                                  isRequired: true,
+                                  hint: "Enter Commercial Hardship Amount (₹)",
+                                  textController: _commercialAmountC,
+                                  keyboardType: TextInputType.number,
+                                  readOnly:
+                                      (isCommercialReadOnly || disableAction),
+                                  inputFormatterList:
+                                      inputFormatterListForDecimalValuesFixedToTwo(
+                                        10,
+                                      ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return "Commercial amount is required";
+                                    }
+                                    if (double.parse(value) < 0) {
+                                      return "Amount should be positive";
+                                    }
+                                    return null;
+                                  },
+                                  onChangeFunction: (value) {
+                                    _handleCommercialAmountChange(
+                                      double.tryParse(value) ?? 0,
+                                    );
+                                  },
+                                ),
+                                CustomTextField(
+                                  title: "Remark",
+                                  readOnly: disableAction,
+                                  hint: "Enter Remark",
+                                  textController: _remarkC,
+                                  maxLines: 3,
+                                  minLines: 3,
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+
+                        // LITIGATION DETAILS SECTION
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Hardship List',
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                                CustomIconButton.add(
+                                  isDisabled: disableAction,
+                                  onPressed: () async {
+                                    if (!_formKey.currentState!.validate()) {
+                                      return;
+                                    }
+                                    final result = await goRouter.pushNamed(
+                                      AppRoutes.addUpdateHardshipDetails,
+                                      extra: _corpusList,
+                                      queryParameters: {
+                                        'projectId': Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            widget.projectId.toString(),
+                                          ),
+                                        ),
+                                        'buildingId': Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            widget.buildingId.toString(),
+                                          ),
+                                        ),
+                                        'residentialAmount':
+                                            Uri.encodeComponent(
+                                              EncryptionManager.encryptData(
+                                                _residentialAmountC.text
+                                                    .toString(),
+                                              ),
+                                            ),
+                                        'commercialAmount': Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            _commercialAmountC.text.toString(),
+                                          ),
+                                        ),
+                                      },
+                                    );
+                                    if (result != null &&
+                                        result
+                                            is List<
+                                              ProposedOfferHardshipDetailsWithPaymentStageData
+                                            >) {
+                                      _hardshipListNotifier.value = [];
+                                      _hardshipListNotifier.value = result;
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 20),
+                            ValueListenableBuilder<
+                              List<
+                                ProposedOfferHardshipDetailsWithPaymentStageData
+                              >
+                            >(
+                              valueListenable: _hardshipListNotifier,
+                              builder: (context, hardshipList, _) {
+                                if (hardshipList.isNotEmpty) {
+                                  return Column(
+                                    children: List.generate(hardshipList.length, (
+                                      index,
+                                    ) {
+                                      final corpus = hardshipList[index];
+
+                                      return ProposedOfferInfoCard(
+                                        title: corpus.stage,
+                                        tag: corpus.type,
+                                        disable: disableAction,
+                                        onEdit: () async {
+                                          if (!_formKey.currentState!
+                                              .validate()) {
+                                            return;
+                                          }
+                                          final result = await goRouter.pushNamed(
+                                            AppRoutes.addUpdateHardshipDetails,
+                                            extra: _corpusList,
+                                            queryParameters: {
+                                              'hardship': Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(corpus.toJson()),
+                                                ),
+                                              ),
+                                              'index': index.toString(),
+                                              'projectId': Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  widget.projectId.toString(),
+                                                ),
+                                              ),
+                                              'buildingId': Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  widget.buildingId.toString(),
+                                                ),
+                                              ),
+                                              'residentialAmount':
+                                                  Uri.encodeComponent(
+                                                    EncryptionManager.encryptData(
+                                                      _residentialAmountC.text
+                                                          .toString(),
+                                                    ),
+                                                  ),
+                                              'commercialAmount':
+                                                  Uri.encodeComponent(
+                                                    EncryptionManager.encryptData(
+                                                      _commercialAmountC.text
+                                                          .toString(),
+                                                    ),
+                                                  ),
+                                            },
+                                          );
+                                          if (result != null &&
+                                              result
+                                                  is List<
+                                                    ProposedOfferHardshipDetailsWithPaymentStageData
+                                                  >) {
+                                            _hardshipListNotifier.value =
+                                                result;
+                                          }
+                                        },
+                                        onDelete: () {
+                                          _showPopupToDeleteHardship(index);
+                                        },
+                                        child: Column(
+                                          spacing: 10,
+                                          children: [
+                                            Row(
+                                              spacing: 10,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                buildColumnTitleValue(
+                                                  title: "Percentage",
+                                                  value:
+                                                      "${corpus.stagePercentage.toStringAsFixed(2)}%",
+                                                ),
+                                                buildColumnTitleValue(
+                                                  title: "Amount",
+                                                  value:
+                                                      (corpus.amount)
+                                                          .toIndianCurrency(),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              spacing: 10,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                buildColumnTitleValue(
+                                                  title:
+                                                      "Unit / Sq Ft / Lumsum",
+                                                  value: corpus.unitSqFtLumsum,
+                                                ),
+                                                buildColumnTitleValue(
+                                                  title: "Carpet Area\n(Sq Ft)",
+                                                  value:
+                                                      corpus.carpetAreaSqFt
+                                                          .addCommas(),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                  );
+                                } else {
+                                  return Container(
+                                    padding: const EdgeInsets.all(40),
+                                    child: Center(
+                                      child: noDataWidget(
+                                        message: 'No Hardship Details Found',
+                                        iconSize: 100,
+                                      ),
+                                    ),
+                                  );
                                 }
                               },
                             ),
                           ],
                         ),
-                        verticalSpacing(height: 20),
-                        ValueListenableBuilder<
-                          List<ProposedOfferHardshipDetailsWithPaymentStageData>
-                        >(
-                          valueListenable: _corpusListNotifier,
-                          builder: (context, corpusList, _) {
-                            if (corpusList.isNotEmpty) {
-                              return Column(
-                                children: List.generate(corpusList.length, (
-                                  index,
-                                ) {
-                                  final corpus = corpusList[index];
-
-                                  return CommonInfoCard(
-                                    title: corpus.stage,
-                                    tag: corpus.type,
-                                    onEdit: () async {
-                                      if (!_formKey.currentState!.validate()) {
-                                        return;
-                                      }
-                                      final result = await goRouter.pushNamed(
-                                        AppRoutes.addUpdateHardshipDetails,
-                                        extra: _corpusList,
-                                        queryParameters: {
-                                          'hardship': Uri.encodeComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(corpus.toJson()),
-                                            ),
-                                          ),
-                                          'index': index.toString(),
-                                          'projectId': Uri.encodeComponent(
-                                            EncryptionManager.encryptData(
-                                              widget.projectId.toString(),
-                                            ),
-                                          ),
-                                          'buildingId': Uri.encodeComponent(
-                                            EncryptionManager.encryptData(
-                                              widget.buildingId.toString(),
-                                            ),
-                                          ),
-                                          'residentialAmount':
-                                              Uri.encodeComponent(
-                                                EncryptionManager.encryptData(
-                                                  _residentialAmountC.text
-                                                      .toString(),
-                                                ),
-                                              ),
-                                          'commercialAmount':
-                                              Uri.encodeComponent(
-                                                EncryptionManager.encryptData(
-                                                  _commercialAmountC.text
-                                                      .toString(),
-                                                ),
-                                              ),
-                                        },
-                                      );
-                                      if (result != null &&
-                                          result
-                                              is List<
-                                                ProposedOfferHardshipDetailsWithPaymentStageData
-                                              >) {
-                                        _corpusListNotifier.value = result;
-                                      }
-                                    },
-                                    onDelete: () {
-                                      _showPopupToDeleteHardship(index);
-                                    },
-                                    child: Column(
-                                      spacing: 10,
-                                      children: [
-                                        Row(
-                                          spacing: 10,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            buildColumnTitleValue(
-                                              title: "Percentage",
-                                              value:
-                                                  "${corpus.stagePercentage.toStringAsFixed(2)}%",
-                                            ),
-                                            buildColumnTitleValue(
-                                              title: "Amount",
-                                              value:
-                                                  (corpus.amount)
-                                                      .toIndianCurrency(),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          spacing: 10,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            buildColumnTitleValue(
-                                              title: "Unit / Sq Ft / Lumsum",
-                                              value: corpus.unitSqFtLumsum,
-                                            ),
-                                            buildColumnTitleValue(
-                                              title: "Carpet Area\n(Sq Ft)",
-                                              value:
-                                                  corpus.carpetAreaSqFt
-                                                      .addCommas(),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              );
-                            } else {
-                              return Container(
-                                padding: const EdgeInsets.all(40),
-                                child: Center(
-                                  child: noDataWidget(
-                                    message: 'No Hardship Details Found',
-                                    iconSize: 100,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.corpusDetails?.createdBy ?? "-",
+                  createdDate: state.corpusDetails?.createdDate,
+                  modifiedBy: state.corpusDetails?.modifiedBy,
+                  modifiedDate: state.corpusDetails?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

@@ -5,8 +5,8 @@ class BankGuaranteeDetailsModel {
   String uniquekey;
   int buildingId;
   int projectId;
-  double bankGuaranteeOfferedToResidentialAmount;
-  double bankGuaranteeOfferedToCommercialAmount;
+  double bankGuaranteeAmount;
+  String accountHolderName;
   String remark;
   List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
   proposedOfferBankGuaranteeDetailsWithPaymentStageData;
@@ -22,8 +22,8 @@ class BankGuaranteeDetailsModel {
     required this.uniquekey,
     required this.buildingId,
     required this.projectId,
-    required this.bankGuaranteeOfferedToResidentialAmount,
-    required this.bankGuaranteeOfferedToCommercialAmount,
+    required this.bankGuaranteeAmount,
+    required this.accountHolderName,
     required this.remark,
     required this.proposedOfferBankGuaranteeDetailsWithPaymentStageData,
     required this.createdById,
@@ -34,47 +34,48 @@ class BankGuaranteeDetailsModel {
     required this.modifiedDate,
   });
 
-  factory BankGuaranteeDetailsModel.fromJson(Map<String, dynamic> json) =>
-      BankGuaranteeDetailsModel(
-        proposedOfferBankGuaranteeDetailsId: parseValue<int>(
-          json,
-          "ProposedOfferBankGuaranteeDetailsId",
-        ),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        buildingId: parseValue<int>(json, "BuildingId"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        bankGuaranteeOfferedToResidentialAmount: parseValue<double>(
-          json,
-          "BankGuaranteeOfferedToResidentialAmount",
-        ),
-        bankGuaranteeOfferedToCommercialAmount: parseValue<double>(
-          json,
-          "BankGuaranteeOfferedToCommercialAmount",
-        ),
-        remark: parseValue<String>(json, "Remark"),
-        proposedOfferBankGuaranteeDetailsWithPaymentStageData: parseValue<
-          List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
-        >(json, "ProposedOfferBankGuaranteeDetailsWithPaymentStageData"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate:
-            json["ModifiedDate"] == null
-                ? null
-                : DateTime.parse(json["ModifiedDate"]),
-      );
+  factory BankGuaranteeDetailsModel.fromJson(
+    Map<String, dynamic> json,
+  ) => BankGuaranteeDetailsModel(
+    proposedOfferBankGuaranteeDetailsId: parseValue<int>(
+      json,
+      "ProposedOfferBankGuaranteeDetailsId",
+    ),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    buildingId: parseValue<int>(json, "BuildingId"),
+    projectId: parseValue<int>(json, "ProjectId"),
+    bankGuaranteeAmount: parseValue<double>(json, "BankGuaranteeAmount"),
+    accountHolderName: parseValue<String>(json, "AccountHolderName"),
+    remark: parseValue<String>(json, "Remark"),
+    proposedOfferBankGuaranteeDetailsWithPaymentStageData:
+        (json["ProposedOfferBankGuaranteeDetailsWithPaymentStageData"]
+                as List<dynamic>?)
+            ?.map(
+              (item) =>
+                  ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel.fromJson(
+                    item as Map<String, dynamic>,
+                  ),
+            )
+            .toList() ??
+        [],
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : DateTime.parse(json["ModifiedDate"]),
+  );
 
   Map<String, dynamic> toJson() => {
     "ProposedOfferBankGuaranteeDetailsId": proposedOfferBankGuaranteeDetailsId,
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
-    "BankGuaranteeOfferedToResidentialAmount":
-        bankGuaranteeOfferedToResidentialAmount,
-    "BankGuaranteeOfferedToCommercialAmount":
-        bankGuaranteeOfferedToCommercialAmount,
+    "BankGuaranteeAmount": bankGuaranteeAmount,
+    "AccountHolderName": accountHolderName,
     "Remark": remark,
     "ProposedOfferBankGuaranteeDetailsWithPaymentStageData":
         proposedOfferBankGuaranteeDetailsWithPaymentStageData,
@@ -92,10 +93,9 @@ class ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel {
   String uniquekey;
   int buildingId;
   int projectId;
-  String type;
   String stage;
-  double stagePercentage;
   double amount;
+  bool isRelease;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -108,10 +108,9 @@ class ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel {
     required this.uniquekey,
     required this.buildingId,
     required this.projectId,
-    required this.type,
     required this.stage,
-    required this.stagePercentage,
     required this.amount,
+    required this.isRelease,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -130,10 +129,9 @@ class ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel {
     uniquekey: parseValue<String>(json, "Uniquekey"),
     buildingId: parseValue<int>(json, "BuildingId"),
     projectId: parseValue<int>(json, "ProjectId"),
-    type: parseValue<String>(json, "Type"),
     stage: parseValue<String>(json, "Stage"),
-    stagePercentage: parseValue<double>(json, "StagePercentage"),
     amount: parseValue<double>(json, "Amount"),
+    isRelease: parseValue<bool>(json, "IsRelease"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -151,15 +149,24 @@ class ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel {
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
-    "Type": type,
     "Stage": stage,
-    "StagePercentage": stagePercentage,
     "Amount": amount,
+    "IsRelease": isRelease,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+  };
+  Map<String, dynamic> bankGuaranteePaymentStageJSONPayload() => {
+    "ProposedOfferBankGuaranteeDetailsWithPaymentStageId":
+        proposedOfferBankGuaranteeDetailsWithPaymentStageId,
+    "Uniquekey": uniquekey,
+    "BuildingId": buildingId,
+    "ProjectId": projectId,
+    "Stage": stage,
+    "Amount": amount,
+    "IsRelease": isRelease,
   };
 }

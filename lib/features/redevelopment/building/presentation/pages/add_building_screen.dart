@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -13,6 +12,7 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -46,7 +46,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   // TEXT EDITING CONTROLLERS
   late TextEditingController _buildingNameC,
       _ctsNumberC,
-      _totalPlotAreaC,
+      _totalPlotAreaSqMtC,
+      _totalPlotAreaSqFtC,
       _totalNumberOfUnitsC,
       _totalUnitsAreaUtilizedC,
       _totalGardenAreaC,
@@ -64,6 +65,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
   int? _districtMasterId;
   int? _cityMasterId;
   int? _villageMasterId;
+  int? _wardMasterId;
 
   // CHECKBOX VARIABLES
   bool _isGarden = false;
@@ -115,7 +117,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _buildingNameC.dispose();
     _ctsNumberC.dispose();
     _googleLocationC.dispose();
-    _totalPlotAreaC.dispose();
+    _totalPlotAreaSqFtC.dispose();
     _totalNumberOfUnitsC.dispose();
     _totalUnitsAreaUtilizedC.dispose();
     _totalGardenAreaC.dispose();
@@ -125,6 +127,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _fsiTdrUtilizationC.dispose();
     _litigationRemarksC.dispose();
     _searchC.dispose();
+    _totalPlotAreaSqMtC.dispose();
     super.dispose();
   }
 
@@ -133,7 +136,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _buildingNameC = TextEditingController();
     _ctsNumberC = TextEditingController();
     _googleLocationC = TextEditingController();
-    _totalPlotAreaC = TextEditingController();
+    _totalPlotAreaSqFtC = TextEditingController();
     _totalNumberOfUnitsC = TextEditingController();
     _totalUnitsAreaUtilizedC = TextEditingController();
     _totalGardenAreaC = TextEditingController();
@@ -143,14 +146,16 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _fsiTdrUtilizationC = TextEditingController();
     _litigationRemarksC = TextEditingController();
     _searchC = TextEditingController();
+    _totalPlotAreaSqMtC = TextEditingController();
   }
 
   // PREFILL BUILDING
   void _populateFormFields(RedevelopmentBuildingModel buildingModel) {
     _buildingNameC.text = buildingModel.buildingName;
-    _ctsNumberC.text = buildingModel.ctsNumber;
+    _ctsNumberC.text = buildingModel.cTSNumber;
     _googleLocationC.text = buildingModel.googleLocation;
-    _totalPlotAreaC.text = buildingModel.totalPlotAreaSqFt.toString();
+    _totalPlotAreaSqFtC.text = buildingModel.totalPlotAreaSqFt.toString();
+    _totalPlotAreaSqMtC.text = buildingModel.totalPlotAreaSqMt.toString();
     _totalNumberOfUnitsC.text = buildingModel.totalNumberOfUnits.toString();
     _totalUnitsAreaUtilizedC.text =
         buildingModel.totalUnitsAreaUtilizedSqFt.toString();
@@ -159,7 +164,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
         buildingModel.totalReligiousStructureAreaSqFt.toString();
     _propertyAgeYearsC.text = buildingModel.propertyAgeYears.toString();
     _numberOfFloorsC.text = buildingModel.numberOfFloors.toString();
-    _fsiTdrUtilizationC.text = buildingModel.fsiTdrUtilizationSqFt.toString();
+    _fsiTdrUtilizationC.text = buildingModel.fSITDRUtilizationSqFt.toString();
     _litigationRemarksC.text = buildingModel.litigationRemarks;
 
     // SET ADDRESS
@@ -168,7 +173,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _districtMasterId = buildingModel.districtMasterId;
     _cityMasterId = buildingModel.cityMasterId;
     _villageMasterId = buildingModel.villageMasterId;
-
+    _wardMasterId = buildingModel.wardMasterId;
     // SET CHECKBOX VALUES
     _isGarden = buildingModel.isGarden;
     _isReligiousStructure = buildingModel.isReligiousStructure;
@@ -207,13 +212,15 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
         'BuildingName': _buildingNameC.text.trim(),
         'CTSNumber': _ctsNumberC.text.trim(),
         "GoogleLocation": _googleLocationC.text.trim(),
-        'TotalPlotAreaSqFt': double.tryParse(_totalPlotAreaC.text) ?? 0.0,
+        'TotalPlotAreaSqFt': double.tryParse(_totalPlotAreaSqFtC.text) ?? 0.0,
+        'TotalPlotAreaSqMt': double.tryParse(_totalPlotAreaSqMtC.text) ?? 0.0,
         'RoadWidth': _selectedRoadWidth.value?['DisplayName'] ?? '',
         'CountryMasterId': _countryMasterId ?? 1,
-        'DistrictMasterId': _districtMasterId ?? 1,
-        'StateMasterId': _stateMasterId ?? 1,
-        'CityMasterId': _cityMasterId ?? 1,
-        'VillageMasterId': _villageMasterId ?? 1,
+        'DistrictMasterId': _districtMasterId,
+        'StateMasterId': _stateMasterId,
+        'CityMasterId': _cityMasterId,
+        'VillageMasterId': _villageMasterId,
+        'WardMasterId': _wardMasterId,
         'TotalNumberOfUnits': int.tryParse(_totalNumberOfUnitsC.text) ?? 0,
         'TotalUnitsAreaUtilizedSqFt':
             double.tryParse(_totalUnitsAreaUtilizedC.text) ?? 0.0,
@@ -332,17 +339,10 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                         return CustomDropDownWidget(
                           title: 'Land Ownership Type',
                           hintText: 'Select Land Ownership Type',
-                          isRequired: true,
                           dataList: _ownershipTypeList,
                           initialValue: selectedValue,
                           onSelected: (selected) {
                             _selectedLandOwnershipType.value = selected;
-                          },
-                          validator: (value) {
-                            if (value == null || value['zAttributesId'] == -1) {
-                              return 'Land ownership type is required';
-                            }
-                            return null;
                           },
                           onValueClear:
                               () => _selectedLandOwnershipType.value = null,
@@ -392,8 +392,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      textController: _totalPlotAreaC,
-                      title: 'Total Plot Area (Sq Ft)',
+                      textController: _totalPlotAreaSqMtC,
+                      title: 'Total Plot Area (SqMt)',
                       hint: 'Enter Total Plot Area',
                       isRequired: true,
                       keyboardType: TextInputType.number,
@@ -405,6 +405,14 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                         }
                         return null;
                       },
+                    ),
+                    CustomTextField(
+                      textController: _totalPlotAreaSqFtC,
+                      title: 'Total Plot Area (Sq Ft)',
+                      hint: 'Enter Total Plot Area',
+                      keyboardType: TextInputType.number,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(7),
                     ),
                     CustomTextField(
                       textController: _totalUnitsAreaUtilizedC,
@@ -598,9 +606,6 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                   if ((value == null || value.trim().isEmpty)) {
                                     return 'Litigation remark is required';
                                   }
-                                  if (value.trim().length < 10) {
-                                    return 'Litigation remarks must be at least 10 characters';
-                                  }
                                 }
                                 return null;
                               },
@@ -631,6 +636,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       incomingDistrictId: _districtMasterId,
                       incomingCityId: _cityMasterId,
                       incomingVillageId: _villageMasterId,
+                      incomingWardId: _wardMasterId,
                       countryChange: (selectedCountry) {
                         _countryMasterId = selectedCountry['zAttributesId'];
                       },
@@ -645,6 +651,9 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       },
                       villageChange: (selectedVillage) {
                         _villageMasterId = selectedVillage['zAttributesId'];
+                      },
+                      wardChange: (selectedWard) {
+                        _wardMasterId = selectedWard['zAttributesId'];
                       },
                     ),
                   ],

@@ -196,7 +196,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               ),
             ),
 
-            _sectionCard(
+            _channelPartnerSectionCard(
               title: "Compliance Status",
               bgColor: AppColor.lightPurple,
               iconColor: AppColor.purple,
@@ -283,7 +283,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _sectionCard(
+            _channelPartnerSectionCard(
               title: "Personal Information",
               bgColor: AppColor.lightBlue,
               iconColor: AppColor.primary,
@@ -365,7 +365,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _sectionCard(
+            _channelPartnerSectionCard(
               title: "Business Information",
               bgColor: AppColor.lightGreenBg.withValues(alpha: 0.2),
               iconColor: AppColor.darkGreen,
@@ -412,7 +412,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _sectionCard(
+            _channelPartnerSectionCard(
               title: "Address Details",
               bgColor: AppColor.lightOrange.withValues(alpha: 0.4),
               iconColor: AppColor.rustOrange,
@@ -453,7 +453,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _sectionCard(
+            _channelPartnerSectionCard(
               title: "Sales Matrix",
               bgColor: AppColor.lightGreyBackground,
               iconColor: AppColor.grey,
@@ -494,7 +494,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _sectionCard(
+            _channelPartnerSectionCard(
               title: "Assigned Project",
               bgColor: AppColor.lightBlue,
               iconColor: AppColor.primary,
@@ -509,7 +509,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _sectionCard(
+            _channelPartnerSectionCard(
               title: "Action Details",
               bgColor: AppColor.greyBackground,
               iconColor: AppColor.grey,
@@ -555,7 +555,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
   );
 }
 
-Widget _sectionCard({
+Widget _channelPartnerSectionCard({
   required String title,
   required IconData icon,
   required Color? iconColor,

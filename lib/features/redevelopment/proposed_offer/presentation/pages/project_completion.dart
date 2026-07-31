@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -12,12 +14,14 @@ class ProjectCompletion extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
 
   const ProjectCompletion({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -33,6 +37,8 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _completionTimelineC, _gracePeriodC, _remarkC;
+
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   @override
   initState() {
@@ -103,64 +109,78 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProposedOfferTile(
-                      svgIcon: AppAssets.projectCompletionIcon,
-                      title: "Project Completion",
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ProposedOfferTile(
+                          svgIcon: AppAssets.projectCompletionIcon,
+                          title: "Project Completion",
+                        ),
+                        verticalSpacing(height: 15),
+                        CustomTextField(
+                          title: "Completion Timeline (Months)",
+                          isRequired: true,
+                          readOnly: disableAction,
+                          hint: "Enter Completion Timeline (Months)",
+                          textController: _completionTimelineC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(2),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Completion timeline is required";
+                            }
+                            if (int.parse(value) <= 0) {
+                              return "Timeline should be greater than 0";
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Grace Period (Months)",
+                          isRequired: true,
+                          hint: "Enter Grace Period (Months)",
+                          readOnly: disableAction,
+                          textController: _gracePeriodC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(2),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Grace period is required";
+                            }
+                            if (int.parse(value) <= 0) {
+                              return "Grace period should be greater than 0";
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'Remark',
+                          readOnly: disableAction,
+                          hint: 'Enter Remark',
+                          textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 3,
+                        ),
+                      ],
                     ),
-                    verticalSpacing(height: 15),
-                    CustomTextField(
-                      title: "Completion Timeline (Months)",
-                      isRequired: true,
-                      hint: "Enter Completion Timeline (Months)",
-                      textController: _completionTimelineC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(2),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Completion timeline is required";
-                        }
-                        if (int.parse(value) <= 0) {
-                          return "Timeline should be greater than 0";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Grace Period (Months)",
-                      isRequired: true,
-                      hint: "Enter Grace Period (Months)",
-                      textController: _gracePeriodC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(2),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Grace period is required";
-                        }
-                        if (int.parse(value) <= 0) {
-                          return "Grace period should be greater than 0";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.projectCompletion?.createdBy ?? "-",
+                  createdDate: state.projectCompletion?.createdDate,
+                  modifiedBy: state.projectCompletion?.modifiedBy,
+                  modifiedDate: state.projectCompletion?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

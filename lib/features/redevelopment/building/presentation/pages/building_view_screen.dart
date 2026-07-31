@@ -101,7 +101,10 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                 physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
                 children: [
-                  BuildingOverview(building: widget.building),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 10.0),
+                    child: BuildingOverview(building: widget.building),
+                  ),
                   BuildingDetailsView(),
                   BuildingDocumentView(building: widget.building),
                   // _buildDocumentTab(),

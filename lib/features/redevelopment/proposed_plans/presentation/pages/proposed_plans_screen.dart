@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -60,8 +61,8 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   bool _amenitiesPrefilledForCurrentBuilding = false;
 
   final ValueNotifier<bool> _hasSearchResults = ValueNotifier(true);
-  Timer? _buildingDebounce;
-  String _previousBuildingCount = "";
+  final TextEditingController _buildingCountC = TextEditingController();
+  final GlobalKey<FormState> _buildingCountFormKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -282,57 +283,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     ),
   ];
 
-  Future<bool> _confirmBuildingCountChange(
-    BuildContext context,
-    String buildingCount,
-  ) {
-    return DialogHelper.showConfirmationDialog(
-      confirmText: 'Yes',
-      context: context,
-      title: 'Update Building Count',
-      message:
-          'This will update the building count to $buildingCount. Do you want to continue?',
-      cancelText: 'No',
-    );
-  }
-
-  Future<void> _handleTotalBuildingChanged(String value) async {
-    _buildingDebounce?.cancel();
-
-    _buildingDebounce = Timer(const Duration(milliseconds: 600), () async {
-      final count = int.tryParse(value);
-      if (count == null || count < 0) return;
-
-      final confirmed = await _confirmBuildingCountChange(context, value);
-
-      if (!confirmed || !mounted) {
-        _totalBuildingC.text = _previousBuildingCount;
-        _totalBuildingC.selection = TextSelection.collapsed(
-          offset: _previousBuildingCount.length,
-        );
-        return;
-      }
-      final plans = _proposedPlansCubit.state.proposedPlansList;
-      final buildingIndex = _buildingTabController.index;
-      final proposedOfferProposedPlanId =
-          plans.isNotEmpty && buildingIndex < plans.length
-              ? plans[buildingIndex].proposedOfferProposedPlanId
-              : 0;
-      final uniquekey =
-          plans.isNotEmpty && buildingIndex < plans.length
-              ? plans[buildingIndex].uniquekey
-              : "";
-
-      _proposedPlansCubit.addUpdateBuildingProposedPlan(
-        context: context,
-        proposedOfferProposedPlanId: proposedOfferProposedPlanId,
-        projectId: _project.projectId,
-        totalNumberOfBuilding: count,
-        uniquekey: uniquekey,
-      );
-    });
-  }
-
   void _handleAddOrUpdateProposedPlan(ProposedPlansState state) {
     if (state.proposedPlansList.isEmpty) return;
 
@@ -376,6 +326,100 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     );
   }
 
+  Future<void> _showBuildingCountBottomSheet() async {
+    _buildingCountC.text = _totalBuildingC.text;
+
+    await DialogHelper.showCustomBottomSheet(
+      context,
+      "Update Building Count",
+      contentWidget: Form(
+        key: _buildingCountFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            verticalSpacing(),
+            CustomTextField(
+              title: "Total Building",
+              hint: "Enter Total Building",
+              textController: _buildingCountC,
+              keyboardType: TextInputType.number,
+              isRequired: true,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Please enter building count";
+                }
+
+                final count = int.tryParse(value);
+
+                if (count == null) {
+                  return "Invalid building count";
+                }
+
+                return null;
+              },
+            ),
+          ],
+        ),
+      ),
+      bottomActions: Row(
+        children: [
+          Expanded(
+            child: CustomButton(
+              text: "Cancel",
+              backgroundColor: AppColor.white,
+              textColor: AppColor.black,
+              borderColor: AppColor.grey.withValues(alpha: 0.25),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+          horizontalSpacing(),
+          Expanded(
+            child: CustomButton(
+              text: "Save",
+              onPressed: () async {
+                if (!_buildingCountFormKey.currentState!.validate()) {
+                  return;
+                }
+
+                final count = int.parse(_buildingCountC.text);
+
+                final plans = _proposedPlansCubit.state.proposedPlansList;
+
+                final buildingIndex = _buildingTabController.index;
+
+                final proposedOfferProposedPlanId =
+                    plans.isNotEmpty && buildingIndex < plans.length
+                        ? plans[buildingIndex].proposedOfferProposedPlanId
+                        : 0;
+
+                final uniquekey =
+                    plans.isNotEmpty && buildingIndex < plans.length
+                        ? plans[buildingIndex].uniquekey
+                        : "";
+
+                _proposedPlansCubit.addUpdateBuildingProposedPlan(
+                  context: context,
+                  proposedOfferProposedPlanId: proposedOfferProposedPlanId,
+                  projectId: _project.projectId,
+                  totalNumberOfBuilding: count,
+                  uniquekey: uniquekey,
+                );
+
+                _totalBuildingC.text = count.toString();
+
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+    _buildingCountC.clear();
+  }
+
   // Bloc listener
   void _onProposedPlansStateChanged(
     BuildContext context,
@@ -401,7 +445,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       if (!mounted) return;
       _totalBuildingC.text = plan.totalNumberOfBuilding.toString();
       _totalBuildingC.text = plan.totalNumberOfBuilding.toString();
-      _previousBuildingCount = _totalBuildingC.text;
       _applyAmenitiesSelection(building.amenities);
       _amenitiesPrefilledForCurrentBuilding = true;
     });
@@ -464,12 +507,23 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CustomTextField(
-            textController: _totalBuildingC,
-            title: "Total Building",
-            hint: "Enter Total Building",
-            keyboardType: TextInputType.number,
-            onChangeFunction: _handleTotalBuildingChanged,
+          Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: CustomTextField(
+                  textController: _totalBuildingC,
+                  title: "Total Building",
+                  hint: "Enter Total Building",
+                  keyboardType: TextInputType.number,
+                  readOnly: true,
+                ),
+              ),
+              CustomIconButton.add(
+                isDisabled: !_routeAuthorizationModel.isAction,
+                onPressed: _showBuildingCountBottomSheet,
+              ),
+            ],
           ),
         ],
       ),
@@ -606,9 +660,9 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   }
 
   Widget _buildBottomBar() {
-    return ValueListenableBuilder<bool>(
-      valueListenable: _hasSearchResults,
-      builder: (context, hasSearchResults, child) {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_hasSearchResults, _totalBuildingC]),
+      builder: (context, _) {
         return BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
           builder: (context, state) {
             return SafeArea(
@@ -617,7 +671,9 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                 padding: const EdgeInsets.all(16),
                 child: CustomButton(
                   isDisable:
-                      !hasSearchResults || !_routeAuthorizationModel.isAction,
+                      _totalBuildingC.text.trim().isEmpty ||
+                      !_hasSearchResults.value ||
+                      !_routeAuthorizationModel.isAction,
                   text:
                       state.proposedPlansList.isEmpty
                           ? "Add Proposed Plan"

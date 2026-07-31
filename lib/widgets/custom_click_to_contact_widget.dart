@@ -153,11 +153,6 @@ class CustomClickToContactText extends StatelessWidget {
         break;
 
       case ContactType.url:
-        // icon = const Icon(
-        //   Icons.location_on_outlined,
-        //   size: 16,
-        //   color: AppColor.primary,
-        // );
         break;
     }
 
@@ -168,7 +163,7 @@ class CustomClickToContactText extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (icon != null) ...[icon, horizontalSpacing(width: 6.w)],
-          Flexible(
+          Expanded(
             child: Text(
               displayValue,
               style:

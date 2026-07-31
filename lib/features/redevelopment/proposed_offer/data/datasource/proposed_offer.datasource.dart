@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/additional_information_details.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/bank_guarantee_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/extra_carpet_area.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/gst_on_existing_plus_free_area.model.dart';
@@ -13,6 +14,11 @@ import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 
 abstract interface class ProposedOfferDatasource {
+  Future<Map<String, dynamic>> apicallPullProposedOfferPDF({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
   Future<Map<String, dynamic>> apicallPullExtraCarpetArea({
     required int projectId,
     required int buildingId,
@@ -102,7 +108,7 @@ abstract interface class ProposedOfferDatasource {
   });
 
   Future<Map<String, dynamic>>
-  apicallPullTemporaryAccommodationAlternativeDetails({
+  apicallPullTemporaryAlternateAccommodationDetails({
     required int projectId,
     required int buildingId,
   });
@@ -145,10 +151,63 @@ abstract interface class ProposedOfferDatasource {
   Future<Map<String, dynamic>> apicallAddUpdateAdditionalInformationDetails({
     required Map<String, dynamic> body,
   });
+  Future<Map<String, dynamic>> apicallPullBankGuaranteeDetails({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallAddUpdateBankGuaranteeDetails({
+    required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apicallDeleteBankGuranteeDetails({
+    required int projectId,
+    required int buildingId,
+  });
 }
 
 class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
   final BaseClient baseClient = BaseClient();
+
+  @override
+  Future<Map<String, dynamic>> apicallPullProposedOfferPDF({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullProposedOfferPDF({
+      required int projectId,
+      required int buildingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ProposedOffer/PullProposedOfferPDF?ProjectId=$projectId&BuildingId=$buildingId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullProposedOfferPDF(
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullExtraCarpetArea(
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
 
   @override
   Future<Map<String, dynamic>> apicallPullExtraCarpetArea({
@@ -819,7 +878,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
 
   @override
   Future<Map<String, dynamic>>
-  apicallPullTemporaryAccommodationAlternativeDetails({
+  apicallPullTemporaryAlternateAccommodationDetails({
     required int projectId,
     required int buildingId,
     Map<String, dynamic>? queryParams,
@@ -830,7 +889,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "ProposedOffer/PullTemporaryAccommodationAlternativeDetails?ProjectId=$projectId&BuildingId=$buildingId";
+          "ProposedOffer/PullTemporaryAlternateAccommodationDetails?ProjectId=$projectId&BuildingId=$buildingId";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }
@@ -852,7 +911,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallPullTemporaryAccommodationAlternativeDetails(
+        apicallPullTemporaryAlternateAccommodationDetails(
           projectId: projectId,
           buildingId: buildingId,
           queryParams: queryParams,
@@ -1148,6 +1207,114 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallAddUpdateAdditionalInformationDetails(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullBankGuaranteeDetails({
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullReadyReckonerRateDetailsUrl({
+      required int projectId,
+      required int buildingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ProposedOffer/PullBankGuaranteeDetails?ProjectId=$projectId&BuildingId=$buildingId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullReadyReckonerRateDetailsUrl(
+          projectId: projectId,
+          buildingId: buildingId,
+        ),
+      );
+      return {
+        'data': List<BankGuaranteeDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => BankGuaranteeDetailsModel.fromJson(x),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullBankGuaranteeDetails(
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateBankGuaranteeDetails({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateBankGuaranteeUrl =
+        "ProposedOffer/AddUpdateBankGuaranteeDetails";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateBankGuaranteeUrl,
+        body,
+      );
+      return {
+        'data': List<BankGuaranteeDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => BankGuaranteeDetailsModel.fromJson(x),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateBankGuaranteeDetails(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteBankGuranteeDetails({
+    required int projectId,
+    required int buildingId,
+  }) async {
+    String deleteBankGuaranteeDetailsUrl({
+      required int buildingId,
+      required int projectId,
+    }) {
+      return "ProposedOffer/DeleteBankGuaranteeDetails?BuildingId=$buildingId&ProjectId=$projectId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteBankGuaranteeDetailsUrl(
+          buildingId: buildingId,
+          projectId: projectId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        deleteBankGuaranteeDetailsUrl(
+          projectId: projectId,
+          buildingId: buildingId,
+        );
       }
       rethrow;
     }

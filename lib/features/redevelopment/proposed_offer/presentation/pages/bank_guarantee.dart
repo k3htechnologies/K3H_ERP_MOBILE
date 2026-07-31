@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/bank_guarantee_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -21,12 +23,14 @@ class BankGuaranteeDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
 
   const BankGuaranteeDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -41,46 +45,48 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
   final _formKey = GlobalKey<FormState>();
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _residentialAmountC, _accountHolderNameC, _remarkC;
+  late TextEditingController _accountHolderNameC,
+      _remarkC,
+      _stageController,
+      _bankGuaranteeAmountController,
+      _amountController;
+
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   final ValueNotifier<
     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
   >
-  _shiftingListNotifier = ValueNotifier<
+  _bankGuaranteeListNotifier = ValueNotifier<
     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
   >([]);
 
   List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
-  get _shiftingList => _shiftingListNotifier.value;
+  get _bankGuaranteeList => _bankGuaranteeListNotifier.value;
 
-  // LITIGATION FORM CONTROLLERS
   final ValueNotifier<Map<String, dynamic>?> _selectedBankGuaranteeType =
       ValueNotifier(null);
-  late TextEditingController _stageController;
-  late TextEditingController _stagePercentageController;
-  late TextEditingController _amountController;
   final GlobalKey<FormState> _shiftingFormKey = GlobalKey<FormState>();
-
+  final ValueNotifier<bool> _isRelease = ValueNotifier(false);
   @override
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
     widget.onSave(_onSave);
-    // _cubit.pullBankGuaranteeDetails(
-    //   projectId: widget.projectId,
-    //   buildingId: widget.buildingId,
-    // );
+    _cubit.pullBankGuaranteeDetails(
+      context: context,
+      projectId: widget.projectId,
+      buildingId: widget.buildingId,
+    );
   }
 
   @override
   void dispose() {
-    _residentialAmountC.dispose();
     _accountHolderNameC.dispose();
     _stageController.dispose();
-    _stagePercentageController.dispose();
+    _bankGuaranteeAmountController.dispose();
     _amountController.dispose();
-    _shiftingListNotifier.dispose();
+    _bankGuaranteeListNotifier.dispose();
     _selectedBankGuaranteeType.dispose();
     _remarkC.dispose();
     super.dispose();
@@ -88,104 +94,79 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
 
   // INITIALIZE CONTROLLERS
   void _initializeControllers() {
-    _residentialAmountC = TextEditingController();
     _accountHolderNameC = TextEditingController();
     _stageController = TextEditingController();
-    _stagePercentageController = TextEditingController();
+    _bankGuaranteeAmountController = TextEditingController();
     _amountController = TextEditingController();
     _remarkC = TextEditingController();
   }
 
-  // CHECK IF AMOUNT EXCEEDS ALLOCATED LIMIT
-  bool _isAmountExceedingForSelectedType(int? editIndex) {
-    final selectedType = _selectedBankGuaranteeType.value;
-    if (selectedType == null) return false;
-
-    double limit = 0;
-    final typeId = selectedType['zAttributesId'];
-
-    if (typeId == 1) {
-      limit = double.tryParse(_residentialAmountC.text) ?? 0;
-    } else if (typeId == 2) {
-      limit = double.tryParse(_accountHolderNameC.text) ?? 0;
-    }
-
-    double currentAmount = double.tryParse(_amountController.text) ?? 0;
-    double sum = currentAmount;
-
-    for (int i = 0; i < _shiftingList.length; i++) {
-      if (editIndex != null && i == editIndex) continue;
-
-      final item = _shiftingList[i];
-
-      if (item.type == selectedType['DisplayName']) {
-        sum += item.amount;
-      }
-    }
-
-    return sum > limit;
-  }
-
   // FILL DATA
   void fillData() {
-    var shiftingDetailsModel = _cubit.state.bankGuaranteeDetails!;
-    _residentialAmountC.text =
-        shiftingDetailsModel.bankGuaranteeOfferedToResidentialAmount.toString();
+    var bankGuaranteeDetailsModel = _cubit.state.bankGuaranteeDetails!;
+    _bankGuaranteeAmountController.text =
+        bankGuaranteeDetailsModel.bankGuaranteeAmount.toString();
     _accountHolderNameC.text =
-        shiftingDetailsModel.bankGuaranteeOfferedToCommercialAmount.toString();
+        bankGuaranteeDetailsModel.accountHolderName.toString();
 
-    _shiftingListNotifier.value = List.from(
-      shiftingDetailsModel
+    _bankGuaranteeListNotifier.value = List.from(
+      bankGuaranteeDetailsModel
           .proposedOfferBankGuaranteeDetailsWithPaymentStageData,
     );
-    _remarkC.text = shiftingDetailsModel.remark;
+    _remarkC.text = bankGuaranteeDetailsModel.remark;
   }
 
   // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
-      if (_shiftingList.isEmpty) {
+      if (_bankGuaranteeList.isEmpty) {
         showErrorMessage(
           context,
           'Error',
-          'Please add at least one shifting detail.',
+          'Please add atleast one Bank Guarantee List',
         );
         return;
       }
-      // _cubit.addUpdateBankGuaranteeDetails(
-      //   context,
-      //   buildingId: widget.buildingId,
-      //   projectId: widget.projectId,
-      //   shiftingOfferedToResidentialAmount: double.parse(
-      //     _residentialAmountC.text,
-      //   ),
-      //   shiftingOfferedToCommercialAmount: double.parse(
-      //     _accountHolderNameC.text,
-      //   ),
-      //   paymentStageList: _shiftingList,
-      //   remark: _remarkC.text.trim(),
-      // );
+      var invalidAmount = isInvalidBankGuaranteeEntry();
+      if (invalidAmount != null) {
+        showErrorMessage(context, "Error", invalidAmount);
+        return;
+      }
+      _cubit.addUpdateBankGuarantee(
+        context,
+        buildingId: widget.buildingId,
+        projectId: widget.projectId,
+        bankGuaranteeAmount:
+            double.tryParse(_bankGuaranteeAmountController.text) ?? 0,
+        accountHolderName: _accountHolderNameC.text.trim(),
+        remark: _remarkC.text.trim(),
+        proposedOfferBankGuaranteeDetailsId:
+            _cubit
+                .state
+                .bankGuaranteeDetails
+                ?.proposedOfferBankGuaranteeDetailsId ??
+            0,
+        uniqueKey: _cubit.state.bankGuaranteeDetails?.uniquekey ?? '',
+        proposedOfferBankGuaranteeDetailsWithPaymentStageData:
+            _bankGuaranteeList,
+      );
     }
   }
 
   // PREFILL DIALOG
   void _prefillDialog(
-    ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel shifting,
+    ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel bankGuarantee,
   ) {
-    _selectedBankGuaranteeType.value = propertyTypeList.firstWhere(
-      (e) => e['DisplayName'] == shifting.type,
-      orElse: () => propertyTypeList.first,
-    );
-    _stageController.text = shifting.stage;
-    _stagePercentageController.text = shifting.stagePercentage.toString();
-    _amountController.text = shifting.amount.toString();
+    _stageController.text = bankGuarantee.stage;
+    _amountController.text = bankGuarantee.amount.toString();
+    _isRelease.value = bankGuarantee.isRelease;
   }
 
   // CLEAR DIALOG
   void _clearDialog() {
     _selectedBankGuaranteeType.value = null;
+    _isRelease.value = false;
     _stageController.clear();
-    _stagePercentageController.clear();
     _amountController.clear();
   }
 
@@ -196,6 +177,8 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
   }) async {
     if (shifting != null) {
       _prefillDialog(shifting);
+    } else {
+      _clearDialog();
     }
 
     await DialogHelper.showCustomBottomSheet(
@@ -205,6 +188,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
         key: _shiftingFormKey,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// STAGE
             CustomTextField(
@@ -221,37 +205,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
               },
             ),
 
-            /// STAGE %
-            CustomTextField(
-              title: "Stage Percentage (%)",
-              isRequired: true,
-              hint: "Enter Stage Percentage",
-              textController: _stagePercentageController,
-              keyboardType: TextInputType.number,
-              inputFormatterList: inputFormatterListForDecimalValuesFixedToTwo(
-                3,
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Amount is required";
-                }
-
-                if (_isAmountExceedingForSelectedType(index)) {
-                  return "Amount exceeds allocated limit";
-                }
-                return null;
-              },
-              onChangeFunction: (value) {
-                double percentage = double.tryParse(value) ?? 0;
-
-                _amountController.text =
-                    ((double.tryParse(_residentialAmountC.text) ?? 0) *
-                            percentage /
-                            100)
-                        .toString();
-              },
-            ),
-
             /// AMOUNT
             CustomTextField(
               title: "Amount (₹)",
@@ -259,37 +212,26 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
               isRequired: true,
               textController: _amountController,
               keyboardType: TextInputType.number,
-              readOnly: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return "Amount is required";
                 }
 
-                double amount = double.tryParse(value) ?? 0;
-
-                if (_selectedBankGuaranteeType.value == null ||
-                    _selectedBankGuaranteeType.value?['zAttributesId'] == -1) {
-                  return "Type must be selected first";
-                }
-
-                if (_selectedBankGuaranteeType.value?['zAttributesId'] == 1 &&
-                    (double.tryParse(_residentialAmountC.text) ?? 0) == 0) {
-                  return "Residential amount is required";
-                }
-
-                if (_selectedBankGuaranteeType.value?['zAttributesId'] == 2 &&
-                    (double.tryParse(_accountHolderNameC.text) ?? 0) == 0) {
-                  return "Commercial amount is required";
-                }
-
-                if (amount == 0) {
-                  return "Amount cannot be zero";
-                }
-
                 return null;
               },
             ),
-
+            ValueListenableBuilder(
+              valueListenable: _isRelease,
+              builder: (context, isRelease, child) {
+                return CustomCheckBox(
+                  title: 'Is Release',
+                  isSelected: isRelease,
+                  onChanged: (check) {
+                    _isRelease.value = check;
+                  },
+                );
+              },
+            ),
             verticalSpacing(height: 25),
           ],
         ),
@@ -298,139 +240,86 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
         text: "Save",
         onPressed: () {
           if (_shiftingFormKey.currentState!.validate()) {
-            if (_selectedBankGuaranteeType.value!['zAttributesId'] == 1 &&
-                (double.tryParse(_residentialAmountC.text) ?? 0) == 0) {
-              showErrorMessage(
-                context,
-                'Error',
-                'Residential amount is required.',
-              );
-              return;
-            }
-
-            if (_selectedBankGuaranteeType.value?['zAttributesId'] == 2 &&
-                (double.tryParse(_accountHolderNameC.text) ?? 0) == 0) {
-              showErrorMessage(
-                context,
-                'Error',
-                'Commercial amount is required.',
-              );
-              return;
-            }
-
-            // final newList = List<
-            //   ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel
-            // >.from(_shiftingList);
+            final newList = List<
+              ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel
+            >.from(_bankGuaranteeList);
             if (shifting == null) {
-              // newList.add(
-              //   ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
-              //     proposedOfferBankGuaranteeDetailsWithPaymentStageId: 0,
-              //     uniquekey: '',
-              //     buildingId: widget.buildingId,
-              //     projectId: widget.projectId,
-              //     type: _selectedBankGuaranteeType.value?['DisplayName'],
-              //     stage: _stageController.text,
-              //     stagePercentage: double.parse(
-              //       _stagePercentageController.text,
-              //     ),
-              //     amount: double.parse(_amountController.text),
-              //     createdById: 1,
-              //     createdBy: 'Current User',
-              //     createdDate: DateTime.now(),
-              //     modifiedById: 0,
-              //     modifiedBy: '',
-              //     modifiedDate: null,
-              //   ),
-              // );
+              newList.add(
+                ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
+                  proposedOfferBankGuaranteeDetailsWithPaymentStageId: 0,
+                  uniquekey: '',
+                  buildingId: widget.buildingId,
+                  projectId: widget.projectId,
+                  stage: _stageController.text,
+                  amount: double.parse(_amountController.text),
+                  createdById: 1,
+                  createdBy: '',
+                  createdDate: DateTime.now(),
+                  modifiedById: 0,
+                  modifiedBy: '',
+                  modifiedDate: null,
+                  isRelease: _isRelease.value,
+                ),
+              );
             } else {
-              // newList[index!] =
-              //     ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
-              //       proposedOfferBankGuaranteeDetailsWithPaymentStageId:
-              //           shifting
-              //               .proposedOfferBankGuaranteeDetailsWithPaymentStageId,
-              //       uniquekey: shifting.uniquekey,
-              //       buildingId: shifting.buildingId,
-              //       projectId: shifting.projectId,
-              //       type: _selectedBankGuaranteeType.value?['DisplayName'],
-              //       stage: _stageController.text,
-              //       stagePercentage: double.parse(
-              //         _stagePercentageController.text,
-              //       ),
-              //       amount: double.parse(_amountController.text),
-              //       createdById: shifting.createdById,
-              //       createdBy: shifting.createdBy,
-              //       createdDate: shifting.createdDate,
-              //       modifiedById: shifting.modifiedById,
-              //       modifiedBy: shifting.modifiedBy,
-              //       modifiedDate: shifting.modifiedDate,
-              //     );
+              newList[index!] =
+                  ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
+                    proposedOfferBankGuaranteeDetailsWithPaymentStageId:
+                        shifting
+                            .proposedOfferBankGuaranteeDetailsWithPaymentStageId,
+                    uniquekey: shifting.uniquekey,
+                    buildingId: shifting.buildingId,
+                    projectId: shifting.projectId,
+                    stage: _stageController.text,
+                    amount: double.parse(_amountController.text),
+                    createdById: shifting.createdById,
+                    createdBy: shifting.createdBy,
+                    createdDate: shifting.createdDate,
+                    modifiedById: shifting.modifiedById,
+                    modifiedBy: shifting.modifiedBy,
+                    modifiedDate: shifting.modifiedDate,
+                    isRelease: _isRelease.value,
+                  );
             }
 
-            // _shiftingListNotifier.value = newList;
-            Navigator.pop(context);
+            _bankGuaranteeListNotifier.value = newList;
+            goRouter.pop();
           }
         },
       ),
     );
-
-    _clearDialog();
-  }
-
-  // HANDLE AMOUNT CHANGE
-  void _handleResidentialAmountChange(double value) {
-    // final newList =
-    //     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>.from(
-    //       _shiftingList,
-    //     );
-    // for (int i = 0; i < newList.length; i++) {
-    //   if (newList[i].type == 'Residential') {
-    //     newList[i] = ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel(
-    //       proposedOfferBankGuaranteeDetailsWithPaymentStageId:
-    //           newList[i].proposedOfferBankGuaranteeDetailsWithPaymentStageId,
-    //       uniquekey: newList[i].uniquekey,
-    //       buildingId: newList[i].buildingId,
-    //       projectId: newList[i].projectId,
-    //       type: newList[i].type,
-    //       stage: newList[i].stage,
-    //       stagePercentage: newList[i].stagePercentage,
-    //       amount: value * (newList[i].stagePercentage / 100),
-    //       createdById: newList[i].createdById,
-    //       createdBy: newList[i].createdBy,
-    //       createdDate: newList[i].createdDate,
-    //       modifiedById: newList[i].modifiedById,
-    //       modifiedBy: newList[i].modifiedBy,
-    //       modifiedDate: newList[i].modifiedDate,
-    //     );
-    //   }
-    // }
-    // _shiftingListNotifier.value = newList;
   }
 
   Future<void> _showPopupToDeleteBankGuaranteeData() async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'Are sure you want delete BankGuarantee Amount?',
-      'Deleting this shifting will permanently remove all associated data.',
+      'Are sure you want delete Bank Guarantee Amount?',
+      'Deleting this Bank Guarantee will permanently remove all associated data.',
       deleteButtonTxt: 'Delete All',
     );
-    if (result && context.mounted) {}
+    if (result && context.mounted) {
+      _cubit.deleteBankGuaranteeDetails(
+        // ignore: use_build_context_synchronously
+        context: context,
+        buildingId: widget.buildingId,
+        projectId: widget.projectId,
+      );
+    }
   }
 
   Future<void> _showPopupToDeleteBankGuarantee(int index) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a shifting payment stage ?',
-      'Deleting this shifting payment stage will permanently remove all associated data.',
+      'You are about to delete a Bank Guarantee payment stage ?',
+      'Deleting this Bank Guarantee payment stage will permanently remove all associated data.',
     );
     if (result && context.mounted) {
-      // final newList =
-      //     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>.from(
-      //       _shiftingList,
-      //     );
       final newList =
-          <ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>[];
+          List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>.from(
+            _bankGuaranteeList,
+          );
       newList.removeAt(index);
-      _shiftingListNotifier.value = newList;
+      _bankGuaranteeListNotifier.value = newList;
       showSuccessMessage(
         // ignore: use_build_context_synchronously
         context,
@@ -439,20 +328,39 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     }
   }
 
+  String? isInvalidBankGuaranteeEntry() {
+    final releaseAmount = _bankGuaranteeList
+        .where((b) => b.isRelease == true)
+        .fold<double>(0, (sum, item) => sum + item.amount);
+
+    final nonReleaseAmount = _bankGuaranteeList
+        .where((b) => b.isRelease == false)
+        .fold<double>(0, (sum, item) => sum + item.amount);
+
+    final actualAmount =
+        double.tryParse(_bankGuaranteeAmountController.text) ?? 0;
+    if (releaseAmount != actualAmount) {
+      return "Release Amount (${releaseAmount.toIndianCurrency()}) must match Bank Guarantee Amount (${actualAmount.toIndianCurrency()}).";
+    }
+    if (nonReleaseAmount != actualAmount) {
+      return "Non-Release Amount (${nonReleaseAmount.toIndianCurrency()}) must match Bank Guarantee Amount (${actualAmount.toIndianCurrency()}).";
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
-          if (state.shiftingDetails != null) {
+          if (state.bankGuaranteeDetails != null) {
             fillData();
           } else {
-            _residentialAmountC.clear();
             _accountHolderNameC.clear();
             _selectedBankGuaranteeType.value = null;
-            _shiftingListNotifier.value = [];
+            _bankGuaranteeListNotifier.value = [];
             _stageController.clear();
-            _stagePercentageController.clear();
+            _bankGuaranteeAmountController.clear();
             _amountController.clear();
             _remarkC.clear();
           }
@@ -462,166 +370,187 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: ProposedOfferTile(
-                            svgIcon: AppAssets.bankGuaranteeIcon,
-                            title: "Bank Guarantee Amount Details",
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: ProposedOfferTile(
+                                svgIcon: AppAssets.bankGuaranteeIcon,
+                                title: "Bank Guarantee Amount Details",
+                              ),
+                            ),
+                            CustomIconButton.delete(
+                              isDisabled:
+                                  (state.bankGuaranteeDetails == null ||
+                                      disableAction),
+                              onPressed: _showPopupToDeleteBankGuaranteeData,
+                            ),
+                          ],
                         ),
-                        CustomIconButton.delete(
-                          isDisabled: state.shiftingDetails == null,
-                          onPressed: _showPopupToDeleteBankGuaranteeData,
+
+                        verticalSpacing(),
+                        ValueListenableBuilder(
+                          valueListenable: _bankGuaranteeListNotifier,
+                          builder: (context, bankGuaranteeListNotifier, child) {
+                            return CustomTextField(
+                              title: "Bank Guarantee Amount (₹)",
+                              hint: "Enter Bank Guarantee Amount",
+                              isRequired: true,
+
+                              textController: _bankGuaranteeAmountController,
+                              keyboardType: TextInputType.number,
+                              readOnly:
+                                  (bankGuaranteeListNotifier.isNotEmpty ||
+                                      disableAction),
+                              inputFormatterList:
+                                  inputFormatterListForDecimalValuesFixedToTwo(
+                                    10,
+                                  ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Bank Guarantee Amount is required";
+                                }
+
+                                return null;
+                              },
+                            );
+                          },
                         ),
-                      ],
-                    ),
-
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: "Account Holder Name",
-                      hint: "Enter Account Holder Name",
-                      isRequired: true,
-                      textController: _accountHolderNameC,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Account Holder Name is required";
-                        }
-
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Bank Guarantee Amount (₹)",
-                      hint: "Enter Bank Guarantee Amount",
-                      isRequired: true,
-                      textController: _residentialAmountC,
-                      keyboardType: TextInputType.number,
-                      // readOnly: _shiftingListNotifier.value.any(
-                      //   (item) => item.type.toLowerCase() == 'residential',
-                      // ),
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Bank Guarantee Amount is required";
-                        }
-
-                        return null;
-                      },
-                      onChangeFunction: (value) {
-                        _handleResidentialAmountChange(
-                          double.tryParse(value) ?? 0,
-                        );
-                      },
-                    ),
-
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Bank Guarantee List',
-                          style: AppTextStyle.ts14M(color: AppColor.grey),
-                        ),
-                        CustomIconButton.add(
-                          onPressed: () {
-                            if (!_formKey.currentState!.validate()) {
-                              return;
+                        CustomTextField(
+                          title: "Account Holder Name",
+                          hint: "Enter Account Holder Name",
+                          isRequired: true,
+                          readOnly: disableAction,
+                          textController: _accountHolderNameC,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Account Holder Name is required";
                             }
-                            _showBankGuaranteeBottomSheet();
+
+                            return null;
+                          },
+                        ),
+
+                        CustomTextField(
+                          title: 'Remark',
+                          hint: 'Enter Remark',
+                          readOnly: disableAction,
+                          textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 3,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Bank Guarantee List',
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            CustomIconButton.add(
+                              isDisabled: disableAction,
+                              onPressed: () {
+                                if (!_formKey.currentState!.validate()) {
+                                  return;
+                                }
+                                _showBankGuaranteeBottomSheet();
+                              },
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 16),
+                        ValueListenableBuilder<
+                          List<
+                            ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel
+                          >
+                        >(
+                          valueListenable: _bankGuaranteeListNotifier,
+                          builder: (context, shiftingList, _) {
+                            if (shiftingList.isNotEmpty) {
+                              return Column(
+                                children: List.generate(shiftingList.length, (
+                                  index,
+                                ) {
+                                  final shifting = shiftingList[index];
+
+                                  return ProposedOfferInfoCard(
+                                    title: shifting.stage,
+                                    disable: disableAction,
+                                    onEdit: () async {
+                                      if (!_formKey.currentState!.validate()) {
+                                        return;
+                                      }
+                                      _showBankGuaranteeBottomSheet(
+                                        shifting: shifting,
+                                        index: index,
+                                      );
+                                    },
+                                    onDelete: () {
+                                      _showPopupToDeleteBankGuarantee(index);
+                                    },
+                                    child: Column(
+                                      spacing: 10,
+                                      children: [
+                                        Row(
+                                          spacing: 10,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            buildColumnTitleValue(
+                                              title: "Amount",
+                                              value:
+                                                  (shifting.amount)
+                                                      .toIndianCurrency(),
+                                            ),
+                                            buildColumnTitleValue(
+                                              title: "Is Release",
+                                              value:
+                                                  (shifting.isRelease == true)
+                                                      ? "Yes"
+                                                      : "No",
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              );
+                            } else {
+                              return Container(
+                                padding: const EdgeInsets.all(40),
+                                child: Center(
+                                  child: noDataWidget(
+                                    iconSize: 100,
+                                    message: 'No Bank Guarantee Details Found',
+                                  ),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ],
                     ),
-                    verticalSpacing(height: 16),
-                    ValueListenableBuilder<
-                      List<
-                        ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel
-                      >
-                    >(
-                      valueListenable: _shiftingListNotifier,
-                      builder: (context, shiftingList, _) {
-                        if (shiftingList.isNotEmpty) {
-                          return Column(
-                            children: List.generate(shiftingList.length, (
-                              index,
-                            ) {
-                              final shifting = shiftingList[index];
-
-                              return CommonInfoCard(
-                                title: shifting.stage,
-                                tag: shifting.type,
-                                onEdit: () async {
-                                  if (!_formKey.currentState!.validate()) {
-                                    return;
-                                  }
-                                  _showBankGuaranteeBottomSheet(
-                                    shifting: shifting,
-                                    index: index,
-                                  );
-                                },
-                                onDelete: () {
-                                  _showPopupToDeleteBankGuarantee(index);
-                                },
-                                child: Column(
-                                  spacing: 10,
-                                  children: [
-                                    Row(
-                                      spacing: 10,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Percentage",
-                                          value:
-                                              "${shifting.stagePercentage.toStringAsFixed(2)}%",
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Amount",
-                                          value:
-                                              (shifting.amount)
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                          );
-                        } else {
-                          return Container(
-                            padding: const EdgeInsets.all(40),
-                            child: Center(
-                              child: noDataWidget(
-                                iconSize: 100,
-                                message: 'No Bank Guarantee Details Found',
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.bankGuaranteeDetails?.createdBy ?? "-",
+                  createdDate: state.bankGuaranteeDetails?.createdDate,
+                  modifiedBy: state.bankGuaranteeDetails?.modifiedBy,
+                  modifiedDate: state.bankGuaranteeDetails?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

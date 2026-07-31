@@ -1,53 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
-Widget buildingViewSectionCard({
-  required String title,
-  required Color? textColor,
-  required Color? bgColor,
-  required List<Widget> children,
-}) {
-  return Container(
-    decoration: commonCardDecoration(),
-    margin: EdgeInsets.only(bottom: 16.h),
-    clipBehavior: Clip.antiAlias,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          color: bgColor ?? const Color(0xFFDCE8F6),
-          child: Text(
-            title,
-            style: AppTextStyle.ts14SB(
-              color: textColor ?? const Color(0xFF1F5CC4),
-            ),
-          ),
-        ),
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: children.length,
-            separatorBuilder:
-                (_, __) => Divider(height: 20.h, color: AppColor.lightBlue),
-            itemBuilder: (context, index) => children[index],
-          ),
-        ),
-      ],
-    ),
-  );
-}
 
 class ProposedOfferTile extends StatelessWidget {
   final String? svgIcon;
@@ -102,17 +59,18 @@ class ProposedOfferTile extends StatelessWidget {
   }
 }
 
-class CommonInfoCard extends StatelessWidget {
+class ProposedOfferInfoCard extends StatelessWidget {
   final String? title;
   final String? tag;
   final Widget? leading;
   final Widget? trailing;
   final Widget child;
   final EdgeInsetsGeometry? padding;
+  final bool disable;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
-  const CommonInfoCard({
+  const ProposedOfferInfoCard({
     super.key,
     this.title,
     required this.child,
@@ -122,6 +80,7 @@ class CommonInfoCard extends StatelessWidget {
     this.padding,
     this.onEdit,
     this.onDelete,
+    this.disable = false,
   });
 
   @override
@@ -189,10 +148,16 @@ class CommonInfoCard extends StatelessWidget {
                   spacing: 10,
                   children: [
                     if (onEdit != null)
-                      CustomIconButton.edit(onPressed: onEdit!),
+                      CustomIconButton.edit(
+                        isDisabled: disable,
+                        onPressed: onEdit!,
+                      ),
 
                     if (onDelete != null)
-                      CustomIconButton.delete(onPressed: onDelete!),
+                      CustomIconButton.delete(
+                        isDisabled: disable,
+                        onPressed: onDelete!,
+                      ),
                   ],
                 ),
             ],

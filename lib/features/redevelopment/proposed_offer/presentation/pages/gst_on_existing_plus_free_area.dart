@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -12,12 +14,14 @@ class GstOnExistingPlusFreeArea extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
 
   const GstOnExistingPlusFreeArea({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -37,6 +41,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
       _gstOnAreaByDeveloperPercentC,
       _totalGstC,
       _remarkC;
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
   @override
   void initState() {
@@ -119,81 +124,95 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProposedOfferTile(
-                      svgIcon: AppAssets.gstDetailsIcon,
-                      title: "GST on Existing + Free Area",
-                    ),
-                    verticalSpacing(height: 15),
-                    CustomTextField(
-                      title: 'GST on Area by Member Percent (%)',
-                      isRequired: true,
-                      hint: "Enter GST on Area by Member Percent (%)",
-                      textController: _gstOnAreaByMemberPercentC,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      inputFormatterList: InputValidator.percentage(),
-                      onChangeFunction: (p0) => updateTotal(),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "GST on area by member percent is required";
-                        }
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ProposedOfferTile(
+                          svgIcon: AppAssets.gstDetailsIcon,
+                          title: "GST on Existing + Free Area",
+                        ),
+                        verticalSpacing(height: 15),
+                        CustomTextField(
+                          title: 'GST on Area by Member Percent (%)',
+                          isRequired: true,
+                          readOnly: disableAction,
+                          hint: "Enter GST on Area by Member Percent (%)",
+                          textController: _gstOnAreaByMemberPercentC,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatterList: InputValidator.percentage(),
+                          onChangeFunction: (p0) => updateTotal(),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "GST on area by member percent is required";
+                            }
 
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'GST on Area by Developer Percent (%)',
-                      isRequired: true,
-                      hint: "Enter GST on Area by Developer Percent (%)",
-                      textController: _gstOnAreaByDeveloperPercentC,
-                      keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      onChangeFunction: (p0) => updateTotal(),
-                      inputFormatterList: InputValidator.percentage(),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "GST on area by developer percent is required";
-                        }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'GST on Area by Developer Percent (%)',
+                          isRequired: true,
+                          hint: "Enter GST on Area by Developer Percent (%)",
+                          readOnly: disableAction,
+                          textController: _gstOnAreaByDeveloperPercentC,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          onChangeFunction: (p0) => updateTotal(),
+                          inputFormatterList: InputValidator.percentage(),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "GST on area by developer percent is required";
+                            }
 
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Total GST (%)',
-                      isRequired: true,
-                      textController: _totalGstC,
-                      readOnly: true,
-                      inputFormatterList: InputValidator.percentage(),
-                      validator: (value) {
-                        if (value != null &&
-                            ((double.tryParse(value) ?? 0) > 100)) {
-                          return "Total GST percentage cannot be more than 100%";
-                        }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'Total GST (%)',
+                          isRequired: true,
+                          textController: _totalGstC,
+                          readOnly: true,
+                          inputFormatterList: InputValidator.percentage(),
+                          validator: (value) {
+                            if (value != null &&
+                                ((double.tryParse(value) ?? 0) > 100)) {
+                              return "Total GST percentage cannot be more than 100%";
+                            }
 
-                        return null;
-                      },
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'Remark',
+                          readOnly: disableAction,
+                          hint: 'Enter Remark',
+                          textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 3,
+                        ),
+                      ],
                     ),
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.gstOnExistingPlusFreeArea?.createdBy ?? "-",
+                  createdDate: state.gstOnExistingPlusFreeArea?.createdDate,
+                  modifiedBy: state.gstOnExistingPlusFreeArea?.modifiedBy,
+                  modifiedDate: state.gstOnExistingPlusFreeArea?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/security_deposite.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
@@ -12,6 +13,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -21,11 +23,14 @@ class SecurityDeposit extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
+  final AuthorizationModel routeAuthorizationModel;
+
   const SecurityDeposit({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.onSave,
+    required this.routeAuthorizationModel,
   });
 
   @override
@@ -60,6 +65,8 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   late TextEditingController _stageController;
   late TextEditingController _amountController;
   final GlobalKey<FormState> _securityDepositFormKey = GlobalKey<FormState>();
+  bool get disableAction => !widget.routeAuthorizationModel.isAction;
+  final ValueNotifier<bool> _isRelease = ValueNotifier(false);
 
   @override
   void initState() {
@@ -144,13 +151,14 @@ class _SecurityDepositState extends State<SecurityDeposit> {
 
     await DialogHelper.showCustomBottomSheet(
       context,
-      "Add Security Deposit Details",
+      "${securityDeposit != null ? 'Update' : 'Add'} Security Deposit Details",
       contentWidget: ValueListenableBuilder<Map<String, dynamic>?>(
         valueListenable: _selectedSecurityDepositType,
         builder: (context, selectedSecurityDepositType, _) {
           return Form(
             key: _securityDepositFormKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 /// TYPE
@@ -200,15 +208,26 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       return "Amount is required";
                     }
 
-                    if (_isSecurityAmountExceeding(index)) {
-                      return "Total amount cannot exceed "
-                          "${_securityDepositAmountC.text}";
-                    }
+                    // if (_isSecurityAmountExceeding(index)) {
+                    //   return "Total amount cannot exceed "
+                    //       "${_securityDepositAmountC.text}";
+                    // }
 
                     return null;
                   },
                 ),
-
+                ValueListenableBuilder(
+                  valueListenable: _isRelease,
+                  builder: (context, isRelease, child) {
+                    return CustomCheckBox(
+                      title: 'Is Release',
+                      isSelected: isRelease,
+                      onChanged: (check) {
+                        _isRelease.value = check;
+                      },
+                    );
+                  },
+                ),
                 verticalSpacing(height: 15),
               ],
             ),
@@ -241,6 +260,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       modifiedById: 0,
                       modifiedBy: '',
                       modifiedDate: null,
+                      isRelease: _isRelease.value,
                     ),
                   );
                 } else {
@@ -261,6 +281,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                         modifiedById: securityDeposit.modifiedById,
                         modifiedBy: securityDeposit.modifiedBy,
                         modifiedDate: securityDeposit.modifiedDate,
+                        isRelease: _isRelease.value,
                       );
                 }
 
@@ -276,22 +297,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _clearDialog();
   }
 
-  // CHECK IF SECURITY AMOUNT EXCEEDS
-  bool _isSecurityAmountExceeding(int? editIndex) {
-    double limit = double.tryParse(_securityDepositAmountC.text) ?? 0;
-
-    double current = double.tryParse(_amountController.text) ?? 0;
-
-    double sum = current;
-
-    for (int i = 0; i < _securityDepositList.length; i++) {
-      if (editIndex != null && i == editIndex) continue;
-
-      sum += _securityDepositList[i].amount;
-    }
-
-    return sum > limit;
-  }
 
   // PREFILL BOTTOM SHEET
   void _prefillBottomSheet(
@@ -303,10 +308,12 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     );
     _stageController.text = securityDeposit.stage;
     _amountController.text = securityDeposit.amount.toString();
+    _isRelease.value = securityDeposit.isRelease;
   }
 
   void _clearDialog() {
     _selectedSecurityDepositType.value = null;
+    _isRelease.value = false;
     _stageController.clear();
     _amountController.clear();
   }
@@ -371,157 +378,182 @@ class _SecurityDepositState extends State<SecurityDeposit> {
             return loader();
           }
           return SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(16),
-              margin: EdgeInsets.symmetric(horizontal: 16),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: ProposedOfferTile(
-                            svgIcon: AppAssets.securityDepositIcon,
-                            title: "Security Deposit Amount Details",
-                          ),
-                        ),
-                        CustomIconButton.delete(
-                          isDisabled: state.securityDepositDetails == null,
-                          onPressed: _showPopupToDeleteSecurityDepositData,
-                        ),
-                      ],
-                    ),
-
-                    verticalSpacing(height: 15),
-                    CustomTextField(
-                      title: 'Security Deposit Amount',
-                      isRequired: true,
-                      hint: 'Enter Security Deposit Amount',
-                      textController: _securityDepositAmountC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(10),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter security deposit amount';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Interest Amount (₹)',
-                      hint: 'Enter Interest Amount (₹)',
-                      textController: _interestAmountC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 8,
-                      ),
-                    ),
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 3,
-                    ),
-                    // SECURITY DEPOSIT DETAILS SECTION
-                    Column(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              spacing: 16,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Security Deposit List',
-                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            Expanded(
+                              child: ProposedOfferTile(
+                                svgIcon: AppAssets.securityDepositIcon,
+                                title: "Security Deposit Amount Details",
+                              ),
                             ),
-                            CustomIconButton.add(
-                              onPressed: () {
-                                if (!_formKey.currentState!.validate()) {
-                                  return;
+                            CustomIconButton.delete(
+                              isDisabled: state.securityDepositDetails == null,
+                              onPressed: _showPopupToDeleteSecurityDepositData,
+                            ),
+                          ],
+                        ),
+
+                        verticalSpacing(height: 15),
+                        CustomTextField(
+                          title: 'Security Deposit Amount',
+                          isRequired: true,
+                          readOnly: disableAction,
+                          hint: 'Enter Security Deposit Amount',
+                          textController: _securityDepositAmountC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList:
+                              inputFormatterListForDecimalValuesFixedToTwo(10),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter security deposit amount';
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: 'Interest Amount (₹)',
+                          hint: 'Enter Interest Amount (₹)',
+                          readOnly: disableAction,
+                          textController: _interestAmountC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            maxDigitsBeforeDecimal: 8,
+                          ),
+                        ),
+                        CustomTextField(
+                          title: 'Remark',
+                          readOnly: disableAction,
+                          hint: 'Enter Remark',
+                          textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 3,
+                        ),
+                        // SECURITY DEPOSIT DETAILS SECTION
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Security Deposit List',
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                                CustomIconButton.add(
+                                  isDisabled: disableAction,
+                                  onPressed: () {
+                                    if (!_formKey.currentState!.validate()) {
+                                      return;
+                                    }
+                                    _showSecurityDepositBottomSheet();
+                                  },
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 20),
+                            ValueListenableBuilder<
+                              List<
+                                ProposedOfferSecurityDepositDetailsWithPaymentStageData
+                              >
+                            >(
+                              valueListenable: _securityDepositListNotifier,
+                              builder: (context, securityDepositList, _) {
+                                if (securityDepositList.isNotEmpty) {
+                                  return Column(
+                                    children: List.generate(
+                                      securityDepositList.length,
+                                      (index) {
+                                        final securityDeposit =
+                                            securityDepositList[index];
+
+                                        return ProposedOfferInfoCard(
+                                          title: securityDeposit.stage,
+                                          disable: disableAction,
+                                          onEdit: () async {
+                                            if (!_formKey.currentState!
+                                                .validate()) {
+                                              return;
+                                            }
+                                            _showSecurityDepositBottomSheet(
+                                              securityDeposit: securityDeposit,
+                                              index: index,
+                                            );
+                                          },
+                                          onDelete: () {
+                                            _showPopupToDeleteShifting(index);
+                                          },
+                                          child: Column(
+                                            spacing: 10,
+                                            children: [
+                                              Row(
+                                                spacing: 10,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  buildColumnTitleValue(
+                                                    title: "Amount",
+                                                    value:
+                                                        (securityDeposit.amount)
+                                                            .toIndianCurrency(),
+                                                  ),
+                                                  buildColumnTitleValue(
+                                                    title: "Is Release",
+                                                    value:
+                                                        (securityDeposit
+                                                                .isRelease)
+                                                            ? "Yes"
+                                                            : "No",
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
+                                } else {
+                                  return Container(
+                                    padding: const EdgeInsets.all(40),
+                                    child: Center(
+                                      child: noDataWidget(
+                                        message:
+                                            'No Security Deposit Details Found',
+                                        iconSize: 100,
+                                      ),
+                                    ),
+                                  );
                                 }
-                                _showSecurityDepositBottomSheet();
                               },
                             ),
                           ],
                         ),
-                        verticalSpacing(height: 20),
-                        ValueListenableBuilder<
-                          List<
-                            ProposedOfferSecurityDepositDetailsWithPaymentStageData
-                          >
-                        >(
-                          valueListenable: _securityDepositListNotifier,
-                          builder: (context, securityDepositList, _) {
-                            if (securityDepositList.isNotEmpty) {
-                              return Column(
-                                children: List.generate(
-                                  securityDepositList.length,
-                                  (index) {
-                                    final securityDeposit =
-                                        securityDepositList[index];
-
-                                    return CommonInfoCard(
-                                      title: securityDeposit.stage,
-                                      tag: securityDeposit.type,
-                                      onEdit: () async {
-                                        if (!_formKey.currentState!
-                                            .validate()) {
-                                          return;
-                                        }
-                                        _showSecurityDepositBottomSheet(
-                                          securityDeposit: securityDeposit,
-                                          index: index,
-                                        );
-                                      },
-                                      onDelete: () {
-                                        _showPopupToDeleteShifting(index);
-                                      },
-                                      child: Column(
-                                        spacing: 10,
-                                        children: [
-                                          Row(
-                                            spacing: 10,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Amount",
-                                                value:
-                                                    (securityDeposit.amount)
-                                                        .toIndianCurrency(),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            } else {
-                              return Container(
-                                padding: const EdgeInsets.all(40),
-                                child: Center(
-                                  child: noDataWidget(
-                                    message:
-                                        'No Security Deposit Details Found',
-                                    iconSize: 100,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+                actionCardWidget(
+                  createdBy: state.securityDepositDetails?.createdBy ?? "-",
+                  createdDate: state.securityDepositDetails?.createdDate,
+                  modifiedBy: state.securityDepositDetails?.modifiedBy,
+                  modifiedDate: state.securityDepositDetails?.modifiedDate,
+                ),
+              ],
             ),
           );
         },

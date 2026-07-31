@@ -5,8 +5,9 @@ class RedevelopmentBuildingModel {
   String uniquekey;
   int projectId;
   String buildingName;
-  String ctsNumber;
+  String cTSNumber;
   String googleLocation;
+  double totalPlotAreaSqMt;
   double totalPlotAreaSqFt;
   String roadWidth;
   int countryMasterId;
@@ -19,15 +20,18 @@ class RedevelopmentBuildingModel {
   String cityName;
   int villageMasterId;
   String villageName;
+  int wardMasterId;
+  String wardName;
   int totalNumberOfUnits;
   double totalUnitsAreaUtilizedSqFt;
   bool isGarden;
   double totalGardenAreaSqFt;
   bool isReligiousStructure;
   double totalReligiousStructureAreaSqFt;
-  int propertyAgeYears;
+  double propertyAgeYears;
   int numberOfFloors;
-  double fsiTdrUtilizationSqFt;
+  int numberOfWings;
+  double fSITDRUtilizationSqFt;
   String landOwnershipType;
   bool isLitigation;
   String litigationRemarks;
@@ -43,8 +47,9 @@ class RedevelopmentBuildingModel {
     required this.uniquekey,
     required this.projectId,
     required this.buildingName,
-    required this.ctsNumber,
+    required this.cTSNumber,
     required this.googleLocation,
+    required this.totalPlotAreaSqMt,
     required this.totalPlotAreaSqFt,
     required this.roadWidth,
     required this.countryMasterId,
@@ -57,6 +62,8 @@ class RedevelopmentBuildingModel {
     required this.cityName,
     required this.villageMasterId,
     required this.villageName,
+    required this.wardMasterId,
+    required this.wardName,
     required this.totalNumberOfUnits,
     required this.totalUnitsAreaUtilizedSqFt,
     required this.isGarden,
@@ -65,7 +72,8 @@ class RedevelopmentBuildingModel {
     required this.totalReligiousStructureAreaSqFt,
     required this.propertyAgeYears,
     required this.numberOfFloors,
-    required this.fsiTdrUtilizationSqFt,
+    required this.numberOfWings,
+    required this.fSITDRUtilizationSqFt,
     required this.landOwnershipType,
     required this.isLitigation,
     required this.litigationRemarks,
@@ -77,61 +85,70 @@ class RedevelopmentBuildingModel {
     required this.modifiedDate,
   });
 
-  factory RedevelopmentBuildingModel.fromJson(Map<String, dynamic> json) => RedevelopmentBuildingModel(
-    buildingId: parseValue<int>(json, "BuildingId"),
-    uniquekey: parseValue<String>(json, "Uniquekey"),
-    projectId: parseValue<int>(json, "ProjectId"),
-    buildingName: parseValue<String>(json, "BuildingName"),
-    ctsNumber: parseValue<String>(json, "CTSNumber"),
-    googleLocation: parseValue<String>(json, "GoogleLocation"),
-    totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt"),
-    roadWidth: parseValue<String>(json, "RoadWidth"),
-    countryMasterId: parseValue<int>(json, "CountryMasterId"),
-    countryName: parseValue<String>(json, "CountryName"),
-    districtMasterId: parseValue<int>(json, "DistrictMasterId"),
-    districtName: parseValue<String>(json, "DistrictName"),
-    stateMasterId: parseValue<int>(json, "StateMasterId"),
-    stateName: parseValue<String>(json, "StateName"),
-    cityMasterId: parseValue<int>(json, "CityMasterId"),
-    cityName: parseValue<String>(json, "CityName"),
-    villageMasterId: parseValue<int>(json, "VillageMasterId"),
-    villageName: parseValue<String>(json, "VillageName"),
-    totalNumberOfUnits: parseValue<int>(json, "TotalNumberOfUnits"),
-    totalUnitsAreaUtilizedSqFt: parseValue<double>(
-      json,
-      "TotalUnitsAreaUtilizedSqFt",
-    ),
-    isGarden: parseValue<bool>(json, "IsGarden"),
-    totalGardenAreaSqFt: parseValue<double>(json, "TotalGardenAreaSqFt"),
-    isReligiousStructure: parseValue<bool>(json, "IsReligiousStructure"),
-    totalReligiousStructureAreaSqFt: parseValue<double>(
-      json,
-      "TotalReligiousStructureAreaSqFt",
-    ),
-    propertyAgeYears: parseValue<int>(json, "PropertyAgeYears"),
-    numberOfFloors: parseValue<int>(json, "NumberOfFloors"),
-    fsiTdrUtilizationSqFt: parseValue<double>(json, "FSI_TDR_UtilizationSqFt"),
-    landOwnershipType: parseValue<String>(json, "LandOwnershipType"),
-    isLitigation: parseValue<bool>(json, "IsLitigation"),
-    litigationRemarks: parseValue<String>(json, "LitigationRemarks"),
-    createdById: parseValue<int>(json, "CreatedById"),
-    createdBy: parseValue<String>(json, "CreatedBy"),
-    createdDate: parseValue<DateTime>(json, "CreatedDate"),
-    modifiedById: parseValue<int>(json, "ModifiedById"),
-    modifiedBy: parseValue<String>(json, "ModifiedBy"),
-    modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
-  );
+  factory RedevelopmentBuildingModel.fromJson(Map<String, dynamic> json) =>
+      RedevelopmentBuildingModel(
+        buildingId: parseValue<int>(json, "BuildingId"),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
+        projectId: parseValue<int>(json, "ProjectId"),
+        buildingName: parseValue<String>(json, "BuildingName"),
+        cTSNumber: parseValue<String>(json, "CTSNumber"),
+        googleLocation: parseValue<String>(json, "GoogleLocation"),
+        totalPlotAreaSqMt: parseValue<double>(json, "TotalPlotAreaSqMt"),
+        totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt"),
+        roadWidth: parseValue<String>(json, "RoadWidth"),
+        countryMasterId: parseValue<int>(json, "CountryMasterId"),
+        countryName: parseValue<String>(json, "CountryName"),
+        districtMasterId: parseValue<int>(json, "DistrictMasterId"),
+        districtName: parseValue<String>(json, "DistrictName"),
+        stateMasterId: parseValue<int>(json, "StateMasterId"),
+        stateName: parseValue<String>(json, "StateName"),
+        cityMasterId: parseValue<int>(json, "CityMasterId"),
+        cityName: parseValue<String>(json, "CityName"),
+        villageMasterId: parseValue<int>(json, "VillageMasterId"),
+        villageName: parseValue<String>(json, "VillageName"),
+        wardMasterId: parseValue<int>(json, "WardMasterId"),
+        wardName: parseValue<String>(json, "WardName"),
+        totalNumberOfUnits: parseValue<int>(json, "TotalNumberOfUnits"),
+        totalUnitsAreaUtilizedSqFt: parseValue<double>(
+          json,
+          "TotalUnitsAreaUtilizedSqFt",
+        ),
+        isGarden: parseValue<bool>(json, "IsGarden"),
+        totalGardenAreaSqFt: parseValue<double>(json, "TotalGardenAreaSqFt"),
+        isReligiousStructure: parseValue<bool>(json, "IsReligiousStructure"),
+        totalReligiousStructureAreaSqFt: parseValue<double>(
+          json,
+          "TotalReligiousStructureAreaSqFt",
+        ),
+        propertyAgeYears: parseValue<double>(json, "PropertyAgeYears"),
+        numberOfFloors: parseValue<int>(json, "NumberOfFloors"),
+        numberOfWings: parseValue<int>(json, "NumberOfWings"),
+        fSITDRUtilizationSqFt: parseValue<double>(
+          json,
+          "FSI_TDR_UtilizationSqFt",
+        ),
+        landOwnershipType: parseValue<String>(json, "LandOwnershipType"),
+        isLitigation: parseValue<bool>(json, "IsLitigation"),
+        litigationRemarks: parseValue<String>(json, "LitigationRemarks"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate: parseValue<DateTime>(json, "CreatedDate"),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
+      );
 
   Map<String, dynamic> toJson() => {
     "BuildingId": buildingId,
     "Uniquekey": uniquekey,
     "ProjectId": projectId,
     "BuildingName": buildingName,
-    "CTSNumber": ctsNumber,
+    "CTSNumber": cTSNumber,
     "GoogleLocation": googleLocation,
+    "TotalPlotAreaSqMt": totalPlotAreaSqMt,
     "TotalPlotAreaSqFt": totalPlotAreaSqFt,
     "RoadWidth": roadWidth,
     "CountryMasterId": countryMasterId,
@@ -144,6 +161,8 @@ class RedevelopmentBuildingModel {
     "CityName": cityName,
     "VillageMasterId": villageMasterId,
     "VillageName": villageName,
+    "WardMasterId": wardMasterId,
+    "WardName": wardName,
     "TotalNumberOfUnits": totalNumberOfUnits,
     "TotalUnitsAreaUtilizedSqFt": totalUnitsAreaUtilizedSqFt,
     "IsGarden": isGarden,
@@ -152,7 +171,8 @@ class RedevelopmentBuildingModel {
     "TotalReligiousStructureAreaSqFt": totalReligiousStructureAreaSqFt,
     "PropertyAgeYears": propertyAgeYears,
     "NumberOfFloors": numberOfFloors,
-    "FSI_TDR_UtilizationSqFt": fsiTdrUtilizationSqFt,
+    "NumberOfWings": numberOfWings,
+    "FSI_TDR_UtilizationSqFt": fSITDRUtilizationSqFt,
     "LandOwnershipType": landOwnershipType,
     "IsLitigation": isLitigation,
     "LitigationRemarks": litigationRemarks,

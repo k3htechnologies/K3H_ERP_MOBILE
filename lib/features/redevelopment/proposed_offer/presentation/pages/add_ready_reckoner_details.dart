@@ -38,20 +38,15 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
 
   bool get _isEditMode => widget.readyReckonerRateDetails != null;
 
-  final TextEditingController _residentialRateController =
-      TextEditingController();
+  late TextEditingController _zoneController,
+      _subZoneController,
+      _residentialRateController,
+      _commercialRateController,
+      _shopRateController,
+      _industrialRateController,
+      _landRateController,
+      _remarkController;
 
-  final TextEditingController _commercialRateController =
-      TextEditingController();
-
-  final TextEditingController _shopRateController = TextEditingController();
-
-  final TextEditingController _industrialRateController =
-      TextEditingController();
-
-  final TextEditingController _landRateController = TextEditingController();
-
-  final TextEditingController _remarkController = TextEditingController();
   final ValueNotifier<DateTime?> _effectiveStartDate = ValueNotifier(null);
 
   final ValueNotifier<DateTime?> _effectiveEndDate = ValueNotifier(null);
@@ -62,8 +57,20 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
   @override
   void initState() {
     _cubit = context.read<ProposedOfferCubit>();
+    _initializeControllers();
     _populateFormFields();
     super.initState();
+  }
+
+  void _initializeControllers() {
+    _zoneController = TextEditingController();
+    _subZoneController = TextEditingController();
+    _residentialRateController = TextEditingController();
+    _commercialRateController = TextEditingController();
+    _shopRateController = TextEditingController();
+    _industrialRateController = TextEditingController();
+    _landRateController = TextEditingController();
+    _remarkController = TextEditingController();
   }
 
   void _populateFormFields() {
@@ -79,6 +86,8 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
     _effectiveStartDate.value = model.effectiveStartDate;
     _effectiveEndDate.value = model.effectiveEndDate;
 
+    _zoneController.text = model.zone;
+    _subZoneController.text = model.subZone;
     _residentialRateController.text = model.residentialRate.toString();
 
     _commercialRateController.text = model.commercialRate.toString();
@@ -116,6 +125,8 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
         effectiveStartDate: _effectiveStartDate.value!,
         effectiveEndDate: _effectiveEndDate.value!,
         remark: _remarkController.text.trim(),
+        zone: _zoneController.text.trim(),
+        subZone: _subZoneController.text.trim(),
         index: index,
       );
     } else {
@@ -132,6 +143,8 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
         effectiveStartDate: _effectiveStartDate.value!,
         effectiveEndDate: _effectiveEndDate.value!,
         remark: _remarkController.text.trim(),
+        zone: _zoneController.text.trim(),
+        subZone: _subZoneController.text.trim(),
       );
     }
   }
@@ -150,6 +163,19 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
   }
 
   @override
+  void dispose() {
+    _subZoneController.dispose();
+    _subZoneController.dispose();
+    _residentialRateController.dispose();
+    _commercialRateController.dispose();
+    _shopRateController.dispose();
+    _industrialRateController.dispose();
+    _landRateController.dispose();
+    _remarkController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
@@ -165,6 +191,18 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
             key: _formKey,
             child: Column(
               children: [
+                CustomTextField(
+                  title: "Zone",
+                  textController: _zoneController,
+                  hint: "Enter Zone",
+                  maxLines: 4,
+                ),
+                CustomTextField(
+                  title: "Sub Zone",
+                  textController: _subZoneController,
+                  hint: "Enter Sub Zone",
+                  maxLines: 4,
+                ),
                 ValueListenableBuilder(
                   valueListenable: _selectedFinancialYear,
                   builder: (context, value, _) {

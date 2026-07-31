@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/proposed_plans.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/repository/proposed_plans.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -33,9 +30,6 @@ class DuplicateBuildingProposedPlanScreen extends StatefulWidget {
 
 class _DuplicateBuildingProposedPlanScreenState
     extends State<DuplicateBuildingProposedPlanScreen> {
-  final ProposedPlansRepository _proposedPlansRepository =
-      serviceLocator<ProposedPlansRepository>();
-
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBuildings =
       ValueNotifier([]);
 
@@ -45,48 +39,35 @@ class _DuplicateBuildingProposedPlanScreenState
     int pageNumber, {
     String? value,
   }) async {
-    final result = await _proposedPlansRepository.getProposedPlanList(
-      projectId: widget.projectId,
-      queryParams:
-          value != null && value.isNotEmpty
-              ? {"BuildingName": value, "isCheckPermission": false}
-              : {"isCheckPermission": false},
-    );
+    final state = context.read<ProposedPlansCubit>().state;
 
-    return result.fold(
-      (failure) => {
-        "itemList": <Map<String, dynamic>>[],
-        "totalNumberOfRecord": 0,
-      },
-      (response) {
-        final project = response['data'] as List<ProposedPlanBuilding>;
+    final selectedBuildingId =
+        state
+            .proposedPlansList
+            .first
+            .buildingProposedPlanData[widget.selectedBuildingIndex]
+            .buildingProposedPlanId;
 
-        final state = context.read<ProposedPlansCubit>().state;
+    final buildings =
+        state.proposedPlansList.first.buildingProposedPlanData
+            .where(
+              (building) =>
+                  building.buildingProposedPlanId != selectedBuildingId &&
+                  (value == null ||
+                      value.isEmpty ||
+                      building.buildingName.toLowerCase().contains(
+                        value.toLowerCase(),
+                      )),
+            )
+            .map(
+              (building) => {
+                "zAttributesId": building.buildingProposedPlanId,
+                "DisplayName": building.buildingName,
+              },
+            )
+            .toList();
 
-        final selectedBuildingId =
-            state
-                .proposedPlansList
-                .first
-                .buildingProposedPlanData[widget.selectedBuildingIndex]
-                .buildingProposedPlanId;
-
-        final buildings =
-            project.first.buildingProposedPlanData
-                .where(
-                  (building) =>
-                      building.buildingProposedPlanId != selectedBuildingId,
-                )
-                .map(
-                  (building) => {
-                    "zAttributesId": building.buildingProposedPlanId,
-                    "DisplayName": building.buildingName,
-                  },
-                )
-                .toList();
-
-        return {"itemList": buildings, "totalNumberOfRecord": buildings.length};
-      },
-    );
+    return {"itemList": buildings, "totalNumberOfRecord": buildings.length};
   }
 
   String get selectedBuilding => _selectedBuildings.value
