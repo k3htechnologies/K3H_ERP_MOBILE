@@ -30,6 +30,7 @@ class ParkingModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String remark;
 
   ParkingModel({
     required this.parkingId,
@@ -61,6 +62,7 @@ class ParkingModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.remark,
   });
 
   factory ParkingModel.fromJson(Map<String, dynamic> json) => ParkingModel(
@@ -96,18 +98,19 @@ class ParkingModel {
       "ParkingBookingCreatedBy",
     ),
     parkingBookingCreatedDate:
-    json["ParkingBookingCreatedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ParkingBookingCreatedDate"),
+        json["ParkingBookingCreatedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ParkingBookingCreatedDate"),
+    remark: parseValue<String>(json, "Remark"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -124,7 +127,7 @@ class ParkingModel {
     "InventoryBuildingId": inventoryBuildingId,
     "BuildingNumber": buildingNumber,
     "InventoryFlatFloorBasementPodiumWingId":
-    inventoryFlatFloorBasementPodiumWingId,
+        inventoryFlatFloorBasementPodiumWingId,
     "Wing": wing,
     "InventoryFloorId": inventoryFloorId,
     "Floor": floor,
@@ -135,6 +138,7 @@ class ParkingModel {
     "ParkingBookingCreatedById": parkingBookingCreatedById,
     "ParkingBookingCreatedBy": parkingBookingCreatedBy,
     "ParkingBookingCreatedDate": parkingBookingCreatedDate?.toIso8601String(),
+    "Remark": remark,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

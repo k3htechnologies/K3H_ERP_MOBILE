@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
@@ -1089,23 +1090,18 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           children: [
                             Row(
                               children: [
-                                SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: Checkbox(
-                                    value: hasRera,
-                                    onChanged:
-                                        isNewCompany
-                                            ? (value) {
-                                              hasReraNumber.value =
-                                                  value ?? false;
+                                CustomCheckBox(
+                                  isSelected: hasRera,
+                                  onChanged:
+                                      isNewCompany
+                                          ? (value) {
+                                            hasReraNumber.value = value;
 
-                                              if (!hasReraNumber.value) {
-                                                _reraNumberC.clear();
-                                              }
+                                            if (!hasReraNumber.value) {
+                                              _reraNumberC.clear();
                                             }
-                                            : null,
-                                  ),
+                                          }
+                                          : null,
                                 ),
                                 horizontalSpacing(width: 2),
                                 Text(

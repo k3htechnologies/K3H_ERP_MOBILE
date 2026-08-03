@@ -199,9 +199,9 @@ class RentCubit extends Cubit<RentState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final List<TemporaryAccommodationAlternativeDetailsModel>
+        final List<TemporaryAlternativeAccommodationDetailsModel>
         rentDetailsList =
-            List<TemporaryAccommodationAlternativeDetailsModel>.from(
+            List<TemporaryAlternativeAccommodationDetailsModel>.from(
               response['data'] ?? [],
             );
 
@@ -212,7 +212,7 @@ class RentCubit extends Cubit<RentState> {
 
   // EXTRACT TENURE LIST FROM RENT DETAILS
   void extractTenureList(String chargeType) {
-    final List<TemporaryAccommodationAlternativeDetailsModel> rentDetailsList =
+    final List<TemporaryAlternativeAccommodationDetailsModel> rentDetailsList =
         state.rentDetails;
 
     final Set<String> tenureSet = {};

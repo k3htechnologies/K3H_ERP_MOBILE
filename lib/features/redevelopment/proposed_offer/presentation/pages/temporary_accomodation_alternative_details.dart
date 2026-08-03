@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final String buildingName;
   final AuthorizationModel routeAuthorizationModel;
 
   const TemporaryAccommodationAlternativeDetails({
@@ -30,6 +31,7 @@ class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
     required this.projectId,
     required this.buildingId,
     required this.routeAuthorizationModel,
+    required this.buildingName,
   });
 
   @override
@@ -64,7 +66,7 @@ class _TemporaryAccommodationAlternativeDetailsState
   // DIALOGUE TO DELETE RENT DETAILS
   Future<void> _showPopupToDeleteTemporaryAccommodationAlternativeDetails(
     BuildContext context,
-    TemporaryAccommodationAlternativeDetailsModel obj,
+    TemporaryAlternativeAccommodationDetailsModel obj,
     int index,
   ) async {
     var result = await DialogHelper.deleteDialog(
@@ -78,11 +80,64 @@ class _TemporaryAccommodationAlternativeDetailsState
         buildingId: widget.buildingId,
         projectId: widget.projectId,
         proposedOfferTemporaryAccommodationAlternativeDetailsId:
-            obj.proposedOfferTemporaryAccommodationAlternativeDetailsId,
+            obj.proposedOfferTemporaryAlternateAccommodationDetailsId,
         uniqueKey: obj.uniquekey,
         index: index,
       );
     }
+  }
+
+  void _showGeneratePDFConfirmation({
+    required TemporaryAlternativeAccommodationDetailsModel rent,
+  }) async {
+    final generatePDf = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Are sure you want generate TAA?',
+      message:
+          'Once the Temporary Accommodation Alternative is generated, it cannot be deleted',
+      confirmText: "Generate",
+    );
+    if (generatePDf && mounted) {
+      _cubit.generateProposedOffer(
+        context,
+        buildingId: rent.buildingId,
+        projectId: rent.projectId,
+        isAdditionalTemporaryAlternateAccommodation:
+            rent.isAdditionalTemporaryAlternateAccommodation,
+        chargeType: 'TAA',
+        tenure: rent.tenure,
+        isPayBrokerage: rent.isPayBrokerage,
+      );
+    }
+  }
+
+  bool shouldShowGenerateButton(
+    TemporaryAlternativeAccommodationDetailsModel current,
+    List<TemporaryAlternativeAccommodationDetailsModel> list,
+  ) {
+    // First row of this tenure
+    final firstItem = list.firstWhere((e) => e.tenure == current.tenure);
+
+    // Show button only on first row
+    if (!identical(firstItem, current)) {
+      return false;
+    }
+
+    // Get all items of this tenure
+    final tenureItems = list.where((e) => e.tenure == current.tenure);
+
+    // If ANY item in this tenure has missing dates, hide Generate
+    final hasMissingDates = tenureItems.any(
+      (e) =>
+          e.temporaryAlternateAccommodationStartDate == null ||
+          e.temporaryAlternateAccommodationEndDate == null,
+    );
+
+    if (hasMissingDates) {
+      return false;
+    }
+
+    return true;
   }
 
   @override
@@ -118,6 +173,9 @@ class _TemporaryAccommodationAlternativeDetailsState
                           EncryptionManager.encryptData(
                             widget.buildingId.toString(),
                           ),
+                        ),
+                        'buildingName': Uri.encodeComponent(
+                          EncryptionManager.encryptData(widget.buildingName),
                         ),
                       },
                     );
@@ -175,6 +233,11 @@ class _TemporaryAccommodationAlternativeDetailsState
                                       widget.buildingId.toString(),
                                     ),
                                   ),
+                                  'buildingName': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.buildingName,
+                                    ),
+                                  ),
                                 },
                               );
                             },
@@ -197,7 +260,7 @@ class _TemporaryAccommodationAlternativeDetailsState
                                       value: (rent.amount).toIndianCurrency(),
                                     ),
                                     buildColumnTitleValue(
-                                      title: "Unit / Sq Ft / Lumsum",
+                                      title: "Unit / SqFt / Lumsum",
                                       value: rent.unitSqFtLumsum,
                                     ),
                                   ],
@@ -207,13 +270,13 @@ class _TemporaryAccommodationAlternativeDetailsState
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     buildColumnTitleValue(
-                                      title: "Carpet Area (Sq Ft)",
+                                      title: "Carpet Area (SqFt)",
                                       value: rent.carpetAreaSqFt.toString(),
                                     ),
                                     buildColumnTitleValue(
                                       title: "TAA Start Date",
                                       value: formatDateTimeAsDDMMMYYYY(
-                                        rent.temporaryAccommodationAlternativeStartDate,
+                                        rent.temporaryAlternateAccommodationStartDate,
                                       ),
                                     ),
                                   ],
@@ -225,14 +288,13 @@ class _TemporaryAccommodationAlternativeDetailsState
                                     buildColumnTitleValue(
                                       title: "TAA End Date",
                                       value: formatDateTimeAsDDMMMYYYY(
-                                        rent.temporaryAccommodationAlternativeEndDate,
+                                        rent.temporaryAlternateAccommodationEndDate,
                                       ),
                                     ),
                                     buildColumnTitleValue(
                                       title: "Additional TAA",
                                       value:
-                                          rent.isAdditionalTemporaryAccommodationAlternative ==
-                                                  true
+                                          rent.isAdditionalTemporaryAlternateAccommodation
                                               ? 'Yes'
                                               : 'No',
                                     ),
@@ -254,27 +316,21 @@ class _TemporaryAccommodationAlternativeDetailsState
                                         padding: const EdgeInsets.only(
                                           top: 12.0,
                                         ),
-                                        child: CustomButton(
-                                          isDisable:
-                                              (disableAction ||
-                                                  rent.temporaryAccommodationAlternativeEndDate ==
-                                                      null ||
-                                                  rent.temporaryAccommodationAlternativeStartDate ==
-                                                      null),
-                                          text: "Generate",
-                                          onPressed: () {
-                                            _cubit.generateProposedOffer(
-                                              context,
-                                              buildingId: rent.buildingId,
-                                              projectId: rent.projectId,
-                                              isAdditionalTemporaryAccommodationAlternative:
-                                                  rent.isAdditionalTemporaryAccommodationAlternative,
-                                              chargeType: rent.type,
-                                              tenure: rent.tenure,
-                                              isPayBrokerage:
-                                                  rent.isPayBrokerage,
-                                            );
-                                          },
+                                        child: Visibility(
+                                          visible: shouldShowGenerateButton(
+                                            rent,
+                                            state
+                                                .temporaryAccommodationAlternativeDetails,
+                                          ),
+                                          child: CustomButton(
+                                            text: "Generate",
+                                            isDisable: disableAction,
+                                            onPressed: () {
+                                              _showGeneratePDFConfirmation(
+                                                rent: rent,
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
                                     ),

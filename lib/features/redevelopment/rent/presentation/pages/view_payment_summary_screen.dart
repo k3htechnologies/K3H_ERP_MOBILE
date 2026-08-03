@@ -151,7 +151,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                           'rentModel': widget.rentModel,
                           'buildingId': widget.rentModel.buildingId,
                           'rentDetails':
-                              <TemporaryAccommodationAlternativeDetailsModel>[],
+                              <TemporaryAlternativeAccommodationDetailsModel>[],
                           'totalAmount': 0.0,
                           'paidAmount': 0.0,
                           'paymentLedger': item,

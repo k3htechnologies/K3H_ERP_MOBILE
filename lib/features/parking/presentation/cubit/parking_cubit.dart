@@ -395,6 +395,7 @@ class ParkingCubit extends Cubit<ParkingState> {
     required int inventoryBuildingId,
     required int inventoryFlatFloorBasementPodiumWingId,
     required int inventoryFloorId,
+    required String remark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -412,6 +413,7 @@ class ParkingCubit extends Cubit<ParkingState> {
       "InventoryFlatFloorBasementPodiumWingId":
           inventoryFlatFloorBasementPodiumWingId,
       "InventoryFloorId": inventoryFloorId,
+      "Remark": remark,
     };
     var updateResult = await _parkingRepository.addUpdateParking(
       body: requestBody,

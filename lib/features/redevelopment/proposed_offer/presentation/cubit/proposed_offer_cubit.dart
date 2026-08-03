@@ -143,7 +143,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int projectId,
     required int buildingId,
   }) async {
-    emit(state.copyWith(isLoading: true, clearCorpus: true));
+    emit(state.copyWith(isLoading: true, clearHardshipOffer: true));
 
     final result = await _proposedOfferRepository.pullHardshipDetails(
       projectId: projectId,
@@ -163,7 +163,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         emit(
           state.copyWith(
             isLoading: false,
-            corpusDetails: (response['data'] as List<CorpusDetailsModel>)[0],
+            hardshipOfferDetails:
+                (response['data'] as List<HardshipOfferDetailsModel>)[0],
           ),
         );
         return true;
@@ -202,9 +203,9 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
     Map<String, dynamic> body = {
       "ProposedOfferHardshipDetailsId":
-          state.corpusDetails?.proposedOfferHardshipDetailsId ?? 0,
-      if (state.corpusDetails != null)
-        "Uniquekey": state.corpusDetails!.uniquekey,
+          state.hardshipOfferDetails?.proposedOfferHardshipDetailsId ?? 0,
+      if (state.hardshipOfferDetails != null)
+        "Uniquekey": state.hardshipOfferDetails!.uniquekey,
       "BuildingId": buildingId,
       "ProjectId": projectId,
       "HardshipOfferedToResidentialAmount": corpusOfferedToResidentialAmount,
@@ -227,7 +228,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         emit(
           state.copyWith(
             isLoading: false,
-            corpusDetails: (response['data'] as List<CorpusDetailsModel>)[0],
+            hardshipOfferDetails:
+                (response['data'] as List<HardshipOfferDetailsModel>)[0],
           ),
         );
         showSuccessMessage(context, subTitle: response['message']);
@@ -254,7 +256,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       (response) {
         showSuccessMessage(context, subTitle: response['message']);
 
-        emit(state.copyWith(clearCorpus: true));
+        emit(state.copyWith(clearHardshipOffer: true));
       },
     );
   }
@@ -908,7 +910,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
             isLoading: false,
             temporaryAccommodationAlternativeDetails:
                 response['data']
-                    as List<TemporaryAccommodationAlternativeDetailsModel>,
+                    as List<TemporaryAlternativeAccommodationDetailsModel>,
             totalNumberOfRecordTemporaryAccommodationAlternative:
                 response['totalNumberOfRecord'],
           ),
@@ -922,33 +924,35 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     BuildContext context, {
     required int buildingId,
     required int projectId,
-    required bool isAdditionalTemporaryAccommodationAlternative,
+    required bool isAdditionalTemporaryAlternateAccommodation,
     required String type,
     required String tenure,
     required double amount,
     required String unitSqFtLumsum,
     required double carpetAreaSqFt,
-    required DateTime temporaryAccommodationAlternativeStartDate,
-    required DateTime temporaryAccommodationAlternativeEndDate,
+    required DateTime? temporaryAlternateAccommodationStartDate,
+    required DateTime? temporaryAlternateAccommodationEndDate,
     required bool isPayBrokerage,
+    required bool isPayTAA,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     final Map<String, dynamic> body = {
       "BuildingId": buildingId,
       "ProjectId": projectId,
-      "IsAdditionalTemporaryAccommodationAlternative":
-          isAdditionalTemporaryAccommodationAlternative,
+      "IsAdditionalTemporaryAlternateAccommodation":
+          isAdditionalTemporaryAlternateAccommodation,
       "Type": type,
       "Tenure": tenure,
       "Amount": amount,
       "UnitSqFtLumsum": unitSqFtLumsum,
       "CarpetAreaSqFt": carpetAreaSqFt,
-      "TemporaryAccommodationAlternativeStartDate":
-          temporaryAccommodationAlternativeStartDate.toIso8601String(),
-      "TemporaryAccommodationAlternativeEndDate":
-          temporaryAccommodationAlternativeEndDate.toIso8601String(),
+      "TemporaryAlternateAccommodationStartDate":
+          temporaryAlternateAccommodationStartDate?.toIso8601String(),
+      "TemporaryAlternateAccommodationEndDate":
+          temporaryAlternateAccommodationEndDate?.toIso8601String(),
       "IsPayBrokerage": isPayBrokerage,
+      "IsPayTAA": isPayTAA,
     };
 
     final result = await _proposedOfferRepository
@@ -963,7 +967,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       },
       (response) {
         final list = [
-          response['data'][0] as TemporaryAccommodationAlternativeDetailsModel,
+          response['data'][0] as TemporaryAlternativeAccommodationDetailsModel,
           ...state.temporaryAccommodationAlternativeDetails,
         ];
 
@@ -991,37 +995,39 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int buildingId,
     required int projectId,
     required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
-    required bool isAdditionalTemporaryAccommodationAlternative,
+    required bool isAdditionalTemporaryAlternateAccommodation,
     required String uniqueKey,
     required String type,
     required String tenure,
     required double amount,
     required String unitSqFtLumsum,
     required double carpetAreaSqFt,
-    required DateTime temporaryAccommodationAlternativeStartDate,
-    required DateTime temporaryAccommodationAlternativeEndDate,
+    required DateTime? temporaryAlternateAccommodationStartDate,
+    required DateTime? temporaryAlternateAccommodationEndDate,
     required bool isPayBrokerage,
     required int index,
+    required bool isPayTAA,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     final Map<String, dynamic> body = {
-      "ProposedOfferTemporaryAccommodationAlternativeDetailsId":
+      "ProposedOfferTemporaryAlternateAccommodationDetailsId":
           proposedOfferTemporaryAccommodationAlternativeDetailsId,
       "Uniquekey": uniqueKey,
       "BuildingId": buildingId,
       "ProjectId": projectId,
-      "IsAdditionalTemporaryAccommodationAlternative":
-          isAdditionalTemporaryAccommodationAlternative,
+      "IsAdditionalTemporaryAlternateAccommodation":
+          isAdditionalTemporaryAlternateAccommodation,
       "Type": type,
       "Tenure": tenure,
       "Amount": amount,
       "UnitSqFtLumsum": unitSqFtLumsum,
       "CarpetAreaSqFt": carpetAreaSqFt,
-      "TemporaryAccommodationAlternativeStartDate":
-          temporaryAccommodationAlternativeStartDate.toIso8601String(),
-      "TemporaryAccommodationAlternativeEndDate":
-          temporaryAccommodationAlternativeEndDate.toIso8601String(),
+      "TemporaryAlternateAccommodationStartDate":
+          temporaryAlternateAccommodationStartDate?.toIso8601String(),
+      "TemporaryAlternateAccommodationEndDate":
+          temporaryAlternateAccommodationEndDate?.toIso8601String(),
       "IsPayBrokerage": isPayBrokerage,
+      "IsPayTAA": isPayTAA,
     };
 
     final result = await _proposedOfferRepository
@@ -1036,13 +1042,13 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       },
       (response) {
         final updatedList =
-            List<TemporaryAccommodationAlternativeDetailsModel>.from(
+            List<TemporaryAlternativeAccommodationDetailsModel>.from(
               state.temporaryAccommodationAlternativeDetails,
             );
 
         updatedList[index] =
             response['data'][0]
-                as TemporaryAccommodationAlternativeDetailsModel;
+                as TemporaryAlternativeAccommodationDetailsModel;
 
         emit(
           state.copyWith(
@@ -1081,7 +1087,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       },
       (response) {
         final updatedList =
-            List<TemporaryAccommodationAlternativeDetailsModel>.from(
+            List<TemporaryAlternativeAccommodationDetailsModel>.from(
               state.temporaryAccommodationAlternativeDetails,
             );
         updatedList.removeAt(index!);
@@ -1098,20 +1104,21 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     BuildContext context, {
     required int buildingId,
     required int projectId,
-    required bool isAdditionalTemporaryAccommodationAlternative,
     required String chargeType,
-    required String tenure,
-    required bool isPayBrokerage,
+    bool? isAdditionalTemporaryAlternateAccommodation,
+    String? tenure,
+    bool? isPayBrokerage,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
       "BuildingId": buildingId,
       "ProjectId": projectId,
-      "IsAdditionalTemporaryAccommodationAlternative":
-          isAdditionalTemporaryAccommodationAlternative,
-      "IsPayBrokerage": isPayBrokerage,
+      if (isAdditionalTemporaryAlternateAccommodation != null)
+        "IsAdditionalTemporaryAccommodationAlternative":
+            isAdditionalTemporaryAlternateAccommodation,
+      if (isPayBrokerage != null) "IsPayBrokerage": isPayBrokerage,
       "ChargeType": chargeType,
-      "Tenure": tenure,
+      if (tenure != null) "Tenure": tenure,
     };
 
     final result = await _proposedOfferRepository

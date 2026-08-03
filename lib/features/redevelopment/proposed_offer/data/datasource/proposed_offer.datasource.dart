@@ -304,8 +304,10 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
         ),
       );
       return {
-        'data': List<CorpusDetailsModel>.from(
-          networkResponse['data'].map((x) => CorpusDetailsModel.fromJson(x)),
+        'data': List<HardshipOfferDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => HardshipOfferDetailsModel.fromJson(x),
+          ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
@@ -334,8 +336,10 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
         body,
       );
       return {
-        'data': List<CorpusDetailsModel>.from(
-          networkResponse['data'].map((x) => CorpusDetailsModel.fromJson(x)),
+        'data': List<HardshipOfferDetailsModel>.from(
+          networkResponse['data'].map(
+            (x) => HardshipOfferDetailsModel.fromJson(x),
+          ),
         ),
         'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
@@ -902,9 +906,9 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
         ),
       );
       return {
-        'data': List<TemporaryAccommodationAlternativeDetailsModel>.from(
+        'data': List<TemporaryAlternativeAccommodationDetailsModel>.from(
           networkResponse['data'].map(
-            (x) => TemporaryAccommodationAlternativeDetailsModel.fromJson(x),
+            (x) => TemporaryAlternativeAccommodationDetailsModel.fromJson(x),
           ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
@@ -927,7 +931,7 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
     required Map<String, dynamic> body,
   }) async {
     String addUpdateTemporaryAccommodationAlternativeDetailsUrl =
-        "ProposedOffer/AddUpdateTemporaryAccommodationAlternativeDetails";
+        "ProposedOffer/AddUpdateTemporaryAlternateAccommodationDetails";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
@@ -935,9 +939,9 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
         body,
       );
       return {
-        'data': List<TemporaryAccommodationAlternativeDetailsModel>.from(
+        'data': List<TemporaryAlternativeAccommodationDetailsModel>.from(
           networkResponse['data'].map(
-            (x) => TemporaryAccommodationAlternativeDetailsModel.fromJson(x),
+            (x) => TemporaryAlternativeAccommodationDetailsModel.fromJson(x),
           ),
         ),
         'message': networkResponse['message'],

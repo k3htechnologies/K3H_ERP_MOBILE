@@ -8,20 +8,24 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddTemporaryAccommodationAlternativeDetails extends StatefulWidget {
-  final TemporaryAccommodationAlternativeDetailsModel? rentDetailsModel;
+  final TemporaryAlternativeAccommodationDetailsModel? rentDetailsModel;
   final int? index;
   final int projectId;
   final int buildingId;
+  final String buildingName;
 
   const AddTemporaryAccommodationAlternativeDetails({
     super.key,
@@ -29,6 +33,7 @@ class AddTemporaryAccommodationAlternativeDetails extends StatefulWidget {
     this.index,
     required this.projectId,
     required this.buildingId,
+    required this.buildingName,
   });
 
   @override
@@ -62,6 +67,8 @@ class _AddTemporaryAccommodationAlternativeDetailsState
     null,
   );
 
+  final ValueNotifier<bool> _isPayTAA = ValueNotifier(false);
+
   final List<Map<String, dynamic>> _tenureList = [
     {"zAttributesId": 1, "DisplayName": "Tenure 1"},
     {"zAttributesId": 2, "DisplayName": "Tenure 2"},
@@ -83,12 +90,13 @@ class _AddTemporaryAccommodationAlternativeDetailsState
     _amountController.text = rentDetailsModel.amount.toString();
     _carpetAreaController.text = rentDetailsModel.carpetAreaSqFt.toString();
     _rentStartDate.value =
-        rentDetailsModel.temporaryAccommodationAlternativeStartDate;
+        rentDetailsModel.temporaryAlternateAccommodationStartDate;
     _rentEndDate.value =
-        rentDetailsModel.temporaryAccommodationAlternativeEndDate;
+        rentDetailsModel.temporaryAlternateAccommodationEndDate;
     _isAdditionalTemporaryAccommodationAlternative.value =
-        rentDetailsModel.isAdditionalTemporaryAccommodationAlternative;
+        rentDetailsModel.isAdditionalTemporaryAlternateAccommodation;
     _isPayBrokerage.value = rentDetailsModel.isPayBrokerage;
+    _isPayTAA.value = rentDetailsModel.isPayTAA;
 
     // Prefill dropdowns
     _selectedType.value = propertyTypeList.firstWhere(
@@ -109,13 +117,14 @@ class _AddTemporaryAccommodationAlternativeDetailsState
   // API CALLS TO ADD/UPDATE RENT DETAILS
   Future<void> _addUpdateTemporaryAccommodationAlternativeDetails(
     BuildContext context,
-    TemporaryAccommodationAlternativeDetailsModel? rentDetailsModel,
+    TemporaryAlternativeAccommodationDetailsModel? rentDetailsModel,
     ProposedOfferState state,
     int index,
   ) async {
     if (_formKey.currentState!.validate()) {
-      debugPrint(_carpetAreaController.text);
-      debugPrint((double.tryParse(_carpetAreaController.text) ?? 0).toString());
+      debugPrint(
+        "Adding/Updating Temporary Accommodation Alternative Details ${rentDetailsModel?.proposedOfferTemporaryAlternateAccommodationDetailsId ?? 0}",
+      );
       rentDetailsModel != null
           ? _cubit.updateTemporaryAccommodationAlternativeDetails(
             context,
@@ -123,9 +132,9 @@ class _AddTemporaryAccommodationAlternativeDetailsState
             projectId: widget.projectId,
             proposedOfferTemporaryAccommodationAlternativeDetailsId:
                 rentDetailsModel
-                    .proposedOfferTemporaryAccommodationAlternativeDetailsId,
+                    .proposedOfferTemporaryAlternateAccommodationDetailsId,
             uniqueKey: rentDetailsModel.uniquekey,
-            isAdditionalTemporaryAccommodationAlternative:
+            isAdditionalTemporaryAlternateAccommodation:
                 _isAdditionalTemporaryAccommodationAlternative.value,
             type: _selectedType.value!['DisplayName'],
             tenure:
@@ -133,18 +142,19 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                     ? (_selectedTenure.value?['DisplayName'] ?? "")
                     : "",
             amount: double.tryParse(_amountController.text) ?? 0,
-            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
+            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per SqFt' : 'Lumpsum',
             carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
-            temporaryAccommodationAlternativeStartDate: _rentStartDate.value!,
-            temporaryAccommodationAlternativeEndDate: _rentEndDate.value!,
+            temporaryAlternateAccommodationStartDate: _rentStartDate.value,
+            temporaryAlternateAccommodationEndDate: _rentEndDate.value,
             isPayBrokerage: _isPayBrokerage.value,
             index: index,
+            isPayTAA: _isPayTAA.value,
           )
           : _cubit.addTemporaryAccommodationAlternativeDetails(
             context,
             buildingId: widget.buildingId,
             projectId: widget.projectId,
-            isAdditionalTemporaryAccommodationAlternative:
+            isAdditionalTemporaryAlternateAccommodation:
                 _isAdditionalTemporaryAccommodationAlternative.value,
             type: _selectedType.value!['DisplayName'],
             tenure:
@@ -152,17 +162,18 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                     ? (_selectedTenure.value?['DisplayName'] ?? "")
                     : "",
             amount: double.tryParse(_amountController.text) ?? 0,
-            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
+            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per SqFt' : 'Lumpsum',
             carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
-            temporaryAccommodationAlternativeStartDate: _rentStartDate.value!,
-            temporaryAccommodationAlternativeEndDate: _rentEndDate.value!,
+            temporaryAlternateAccommodationStartDate: _rentStartDate.value,
+            temporaryAlternateAccommodationEndDate: _rentEndDate.value,
             isPayBrokerage: _isPayBrokerage.value,
+            isPayTAA: _isPayTAA.value,
           );
     }
   }
 
   void _onSave({
-    TemporaryAccommodationAlternativeDetailsModel? rentDetailsModel,
+    TemporaryAlternativeAccommodationDetailsModel? rentDetailsModel,
     int? index,
   }) {
     if (_formKey.currentState!.validate()) {
@@ -179,37 +190,56 @@ class _AddTemporaryAccommodationAlternativeDetailsState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "TAA Details",
+        screenTitle: "Proposed Offer",
         authorization: AuthorizationModel(),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: commonCardDecoration(),
-            child: Column(
-              children: [
-                ProposedOfferTile(
-                  svgIcon: AppAssets.tempAccomAlternativeIcon,
-                  title: "TAA Details",
-                ),
-                verticalSpacing(height: 15),
-                _buildBasicPreferenceCard(),
-                Divider(height: 30, color: AppColor.grey2),
-
-                _buildLeaseTermsCard(),
-                Divider(height: 30, color: AppColor.grey2),
-
-                _buildValuationCard(),
-                Divider(height: 30, color: AppColor.grey2),
-
-                _buildRentPeriodCard(),
-              ],
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            showSiteSelectedWidget(projectName: getProject().projectName),
+            Text(
+              toTitleCase(widget.buildingName),
+              style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-          ),
+
+            Expanded(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      children: [
+                        ProposedOfferTile(
+                          svgIcon: AppAssets.tempAccomAlternativeIcon,
+                          title:
+                              _isEditMode
+                                  ? "Update TAA Details"
+                                  : "Add TAA Details",
+                        ),
+                        verticalSpacing(height: 15),
+                        _buildBasicPreferenceCard(),
+                        Divider(height: 30, color: AppColor.grey2),
+
+                        _buildLeaseTermsCard(),
+                        Divider(height: 30, color: AppColor.grey2),
+
+                        _buildValuationCard(),
+                        Divider(height: 30, color: AppColor.grey2),
+
+                        _buildRentPeriodCard(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -232,15 +262,32 @@ class _AddTemporaryAccommodationAlternativeDetailsState
 
   Widget _buildBasicPreferenceCard() {
     return _buildCardSection("Basic Preference", [
+      ValueListenableBuilder(
+        valueListenable: _isPayTAA,
+        builder: (context, isPayTAA, child) {
+          return CustomCheckBox(
+            isSelected: isPayTAA,
+            onChanged: (val) {
+              _isPayTAA.value = val;
+            },
+            title: "Do You Want to Pay Temp Alternative Accom",
+          );
+        },
+      ),
+      verticalSpacing(height: 10),
       Row(
         children: [
           Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: _isAdditionalTemporaryAccommodationAlternative,
-              builder: (_, value, __) {
+            child: AnimatedBuilder(
+              animation: Listenable.merge([
+                _isPayTAA,
+                _isAdditionalTemporaryAccommodationAlternative,
+              ]),
+              builder: (context, _) {
                 return _buildYesNoRadio(
                   title: "Additional TAA",
-                  value: value,
+                  isEnabled: !_isPayTAA.value,
+                  value: _isAdditionalTemporaryAccommodationAlternative.value,
                   onChanged: (v) {
                     _isAdditionalTemporaryAccommodationAlternative.value = v;
                     if (v) {
@@ -444,19 +491,6 @@ class _AddTemporaryAccommodationAlternativeDetailsState
               _rentStartDate.value = start;
               _rentEndDate.value = end;
             },
-            isRequired: true,
-            fromDateValidator: (value) {
-              if (value == null) {
-                return 'TAA Start Date is required';
-              }
-              return null;
-            },
-            toDateValidator: (value) {
-              if (value == null) {
-                return 'TAA End Date is required';
-              }
-              return null;
-            },
           );
         },
       ),
@@ -467,6 +501,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
     required String title,
     required bool value,
     required ValueChanged<bool> onChanged,
+    bool isEnabled = true,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -481,10 +516,10 @@ class _AddTemporaryAccommodationAlternativeDetailsState
             }
           },
           child: Row(
-            children: const [
-              Radio<bool>(value: true),
+            children: [
+              Radio<bool>(enabled: isEnabled, value: true),
               Text("Yes"),
-              Radio<bool>(value: false),
+              Radio<bool>(enabled: isEnabled, value: false),
               Text("No"),
             ],
           ),

@@ -34,6 +34,7 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
     return Row(
       spacing: 6.0,
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GestureDetector(
           behavior: HitTestBehavior.opaque,
@@ -46,8 +47,8 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
             }
           },
           child: Container(
-            width: 22,
-            height: 22,
+            width: 20,
+            height: 20,
             margin: EdgeInsets.all(2),
             decoration: BoxDecoration(
               color:
@@ -77,7 +78,19 @@ class _CustomCheckBoxState extends State<CustomCheckBox> {
         ),
 
         if (widget.title != null)
-          Flexible(child: Text(widget.title!, style: AppTextStyle.ts14M())),
+          Flexible(
+            child: Text(
+              widget.title!,
+              style: AppTextStyle.ts14M(
+                color:
+                    widget.isDisabled
+                        ? AppColor.grey2
+                        : widget.isSelected
+                        ? AppColor.grey
+                        : AppColor.black,
+              ),
+            ),
+          ),
       ],
     );
   }

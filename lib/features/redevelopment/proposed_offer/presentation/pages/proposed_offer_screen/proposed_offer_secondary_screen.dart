@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/p
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/bank_guarantee.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/building_overview.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/carpet_plot_details.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/hardship_details.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/hardship_offer_details.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/extra_carpet_area.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/gst_on_existing_plus_free_area.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/lien_to_society_details.dart';
@@ -84,7 +84,8 @@ class _ProposedOfferSecondaryScreenState
       bottomNavigationBar:
           (widget.type == "Building Overview" ||
                   widget.type == "Carpet / Plot Area" ||
-                  widget.type == "Ready Reckoner Rate")
+                  widget.type == "Ready Reckoner Rate" ||
+                  widget.type == "Temp Accom Alternative")
               ? null
               : SafeArea(
                 child: Container(
@@ -116,10 +117,11 @@ class _ProposedOfferSecondaryScreenState
           onSave: (callback) => _onSave = callback,
         );
 
-      case "Hardship Details":
+      case "Hardship Offer Details":
         return HardshipDetails(
           projectId: projectId,
           buildingId: buildingId,
+          buildingName: widget.buildingName,
           routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
@@ -170,12 +172,14 @@ class _ProposedOfferSecondaryScreenState
           projectId: projectId,
           buildingId: buildingId,
           routeAuthorizationModel: _routeAuthorizationModel,
+          buildingName: widget.buildingName,
         );
       case "Ready Reckoner Rate":
         return ReadyReckonerRateDetails(
           projectId: projectId,
           buildingId: buildingId,
           routeAuthorizationModel: _routeAuthorizationModel,
+          buildingName: widget.buildingName,
         );
       case "Carpet / Plot Area":
         return CarpetPlotDetails(projectId: projectId, buildingId: buildingId);

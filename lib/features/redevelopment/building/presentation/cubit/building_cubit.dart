@@ -88,6 +88,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     required String filterRoadWidth,
     required String filterCity,
     required String filterVillage,
+    required String filterWard,
     String? sortColumn,
     String? sortDirection,
   }) async {
@@ -98,6 +99,7 @@ class BuildingCubit extends Cubit<BuildingState> {
         filterRoadWidth: filterRoadWidth,
         filterCity: filterCity,
         filterVillage: filterVillage,
+        filterWard: filterWard,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         buildingList: [],
@@ -129,6 +131,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       "RoadWidth": state.filterRoadWidth,
       "CityName": state.filterCity,
       "VillageName": state.filterVillage,
+      "WardName": state.filterWard,
     };
 
     final result = await _buildingRepository.pullBuilding(
@@ -666,6 +669,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       state.filterCity.isNotEmpty,
       state.filterRoadWidth.isNotEmpty,
       state.filterVillage.isNotEmpty,
+      state.filterWard.isNotEmpty,
       hasSort,
     ]);
   }

@@ -501,7 +501,7 @@ RentModel? _rentModelFromQuery(String? encoded) {
   }
 }
 
-List<TemporaryAccommodationAlternativeDetailsModel> _rentDetailsFromQuery(
+List<TemporaryAlternativeAccommodationDetailsModel> _rentDetailsFromQuery(
   String? encoded,
 ) {
   if (encoded == null || encoded.isEmpty) return [];
@@ -513,7 +513,7 @@ List<TemporaryAccommodationAlternativeDetailsModel> _rentDetailsFromQuery(
             as List<dynamic>;
     return list
         .map(
-          (e) => TemporaryAccommodationAlternativeDetailsModel.fromJson(
+          (e) => TemporaryAlternativeAccommodationDetailsModel.fromJson(
             e as Map<String, dynamic>,
           ),
         )
@@ -2614,11 +2614,11 @@ final GoRouter goRouter = GoRouter(
                     extra['buildingId'] as int? ??
                     int.tryParse(query['buildingId'] ?? '') ??
                     0;
-                List<TemporaryAccommodationAlternativeDetailsModel>
+                List<TemporaryAlternativeAccommodationDetailsModel>
                 rentDetails =
                     (extra['rentDetails']
                         as List<
-                          TemporaryAccommodationAlternativeDetailsModel
+                          TemporaryAlternativeAccommodationDetailsModel
                         >?) ??
                     [];
                 if (rentDetails.isEmpty) {
@@ -2832,7 +2832,11 @@ final GoRouter goRouter = GoRouter(
                       ),
                     ) ??
                     0.0;
-
+                final buildingName = EncryptionManager.decryptData(
+                  Uri.decodeComponent(
+                    state.uri.queryParameters['buildingName'] ?? "",
+                  ),
+                );
                 return AddHardshipDetails(
                   hardshipList: hardshipList,
                   index: hardship == null ? null : index,
@@ -2841,6 +2845,7 @@ final GoRouter goRouter = GoRouter(
                   buildingId: buildingId,
                   residentialAmount: residentialAmount,
                   commercialAmount: commercialAmount,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -2853,9 +2858,9 @@ final GoRouter goRouter = GoRouter(
 
                 final queryParameterRent = state.uri.queryParameters['rent'];
 
-                final TemporaryAccommodationAlternativeDetailsModel? rent =
+                final TemporaryAlternativeAccommodationDetailsModel? rent =
                     queryParameterRent != null
-                        ? TemporaryAccommodationAlternativeDetailsModel.fromJson(
+                        ? TemporaryAlternativeAccommodationDetailsModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(queryParameterRent),
@@ -2883,12 +2888,18 @@ final GoRouter goRouter = GoRouter(
                       ),
                     ) ??
                     0;
+                final buildingName = EncryptionManager.decryptData(
+                  Uri.decodeComponent(
+                    state.uri.queryParameters['buildingName'] ?? "",
+                  ),
+                );
 
                 return AddTemporaryAccommodationAlternativeDetails(
                   index: rent == null ? null : index,
                   rentDetailsModel: rent,
                   projectId: projectId,
                   buildingId: buildingId,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -2932,12 +2943,17 @@ final GoRouter goRouter = GoRouter(
                       ),
                     ) ??
                     0;
-
+                final buildingName = EncryptionManager.decryptData(
+                  Uri.decodeComponent(
+                    state.uri.queryParameters['buildingName'] ?? "",
+                  ),
+                );
                 return AddReadyReckonerDetails(
                   index: readyReckoner == null ? null : index,
                   readyReckonerRateDetails: readyReckoner,
                   projectId: projectId,
                   buildingId: buildingId,
+                  buildingName: buildingName,
                 );
               },
             ),

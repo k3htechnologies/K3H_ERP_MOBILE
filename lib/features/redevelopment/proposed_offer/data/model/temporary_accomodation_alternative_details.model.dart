@@ -1,19 +1,20 @@
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
-class TemporaryAccommodationAlternativeDetailsModel {
-  int proposedOfferTemporaryAccommodationAlternativeDetailsId;
+class TemporaryAlternativeAccommodationDetailsModel {
+  int proposedOfferTemporaryAlternateAccommodationDetailsId;
   String uniquekey;
   int buildingId;
   int projectId;
-  bool isAdditionalTemporaryAccommodationAlternative;
+  bool isAdditionalTemporaryAlternateAccommodation;
   String type;
   String tenure;
   double amount;
   String unitSqFtLumsum;
   double carpetAreaSqFt;
-  DateTime? temporaryAccommodationAlternativeStartDate;
-  DateTime? temporaryAccommodationAlternativeEndDate;
+  DateTime? temporaryAlternateAccommodationStartDate;
+  DateTime? temporaryAlternateAccommodationEndDate;
   bool isPayBrokerage;
+  bool isPayTAA;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -21,20 +22,21 @@ class TemporaryAccommodationAlternativeDetailsModel {
   String modifiedBy;
   DateTime? modifiedDate;
 
-  TemporaryAccommodationAlternativeDetailsModel({
-    required this.proposedOfferTemporaryAccommodationAlternativeDetailsId,
+  TemporaryAlternativeAccommodationDetailsModel({
+    required this.proposedOfferTemporaryAlternateAccommodationDetailsId,
     required this.uniquekey,
     required this.buildingId,
     required this.projectId,
-    required this.isAdditionalTemporaryAccommodationAlternative,
+    required this.isAdditionalTemporaryAlternateAccommodation,
     required this.type,
     required this.tenure,
     required this.amount,
     required this.unitSqFtLumsum,
     required this.carpetAreaSqFt,
-    required this.temporaryAccommodationAlternativeStartDate,
-    required this.temporaryAccommodationAlternativeEndDate,
+    required this.temporaryAlternateAccommodationStartDate,
+    required this.temporaryAlternateAccommodationEndDate,
     required this.isPayBrokerage,
+    required this.isPayTAA,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -43,40 +45,41 @@ class TemporaryAccommodationAlternativeDetailsModel {
     required this.modifiedDate,
   });
 
-  factory TemporaryAccommodationAlternativeDetailsModel.fromJson(
+  factory TemporaryAlternativeAccommodationDetailsModel.fromJson(
     Map<String, dynamic> json,
-  ) => TemporaryAccommodationAlternativeDetailsModel(
-    proposedOfferTemporaryAccommodationAlternativeDetailsId: parseValue<int>(
+  ) => TemporaryAlternativeAccommodationDetailsModel(
+    proposedOfferTemporaryAlternateAccommodationDetailsId: parseValue<int>(
       json,
-      "ProposedOfferTemporaryAccommodationAlternativeDetailsId",
+      "ProposedOfferTemporaryAlternateAccommodationDetailsId",
     ),
     uniquekey: parseValue<String>(json, "Uniquekey"),
     buildingId: parseValue<int>(json, "BuildingId"),
     projectId: parseValue<int>(json, "ProjectId"),
-    isAdditionalTemporaryAccommodationAlternative: parseValue<bool>(
+    isAdditionalTemporaryAlternateAccommodation: parseValue<bool>(
       json,
-      "IsAdditionalTemporaryAccommodationAlternative",
+      "IsAdditionalTemporaryAlternateAccommodation",
     ),
     type: parseValue<String>(json, "Type"),
     tenure: parseValue<String>(json, "Tenure"),
     amount: parseValue<double>(json, "Amount"),
     unitSqFtLumsum: parseValue<String>(json, "UnitSqFtLumsum"),
     carpetAreaSqFt: parseValue<double>(json, "CarpetAreaSqFt"),
-    temporaryAccommodationAlternativeStartDate:
-        json["TemporaryAccommodationAlternativeStartDate"] == null
+    temporaryAlternateAccommodationStartDate:
+        json["TemporaryAlternateAccommodationStartDate"] == null
             ? null
             : parseValue<DateTime>(
               json,
-              "TemporaryAccommodationAlternativeStartDate",
+              "TemporaryAlternateAccommodationStartDate",
             ),
-    temporaryAccommodationAlternativeEndDate:
-        json["TemporaryAccommodationAlternativeEndDate"] == null
+    temporaryAlternateAccommodationEndDate:
+        json["TemporaryAlternateAccommodationEndDate"] == null
             ? null
             : parseValue<DateTime>(
               json,
-              "TemporaryAccommodationAlternativeEndDate",
+              "TemporaryAlternateAccommodationEndDate",
             ),
     isPayBrokerage: parseValue<bool>(json, "IsPayBrokerage"),
+    isPayTAA: parseValue<bool>(json, "IsPayTAA"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -89,23 +92,24 @@ class TemporaryAccommodationAlternativeDetailsModel {
   );
 
   Map<String, dynamic> toJson() => {
-    "ProposedOfferTemporaryAccommodationAlternativeDetailsId":
-        proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    "ProposedOfferTemporaryAlternateAccommodationDetailsId":
+        proposedOfferTemporaryAlternateAccommodationDetailsId,
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
-    "IsAdditionalTemporaryAccommodationAlternative":
-        isAdditionalTemporaryAccommodationAlternative,
+    "IsAdditionalTemporaryAlternateAccommodation":
+        isAdditionalTemporaryAlternateAccommodation,
     "Type": type,
     "Tenure": tenure,
     "Amount": amount,
     "UnitSqFtLumsum": unitSqFtLumsum,
     "CarpetAreaSqFt": carpetAreaSqFt,
-    "TemporaryAccommodationAlternativeStartDate":
-        temporaryAccommodationAlternativeStartDate?.toIso8601String(),
-    "TemporaryAccommodationAlternativeEndDate":
-        temporaryAccommodationAlternativeEndDate?.toIso8601String(),
+    "TemporaryAlternateAccommodationStartDate":
+        temporaryAlternateAccommodationStartDate?.toIso8601String(),
+    "TemporaryAlternateAccommodationEndDate":
+        temporaryAlternateAccommodationEndDate?.toIso8601String(),
     "IsPayBrokerage": isPayBrokerage,
+    "IsPayTAA": isPayTAA,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

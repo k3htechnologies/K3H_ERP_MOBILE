@@ -14,7 +14,8 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BuildingDetailsView extends StatelessWidget {
-  const BuildingDetailsView({super.key});
+  final bool canAction;
+  const BuildingDetailsView({super.key, required this.canAction});
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +40,7 @@ class BuildingDetailsView extends StatelessWidget {
                   ),
                   CustomButton(
                     text: "Update",
+                    isDisable: !canAction,
                     onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.editBuildingDetails,

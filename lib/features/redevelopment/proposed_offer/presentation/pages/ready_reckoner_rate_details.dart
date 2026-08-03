@@ -23,11 +23,13 @@ class ReadyReckonerRateDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final AuthorizationModel routeAuthorizationModel;
+  final String buildingName;
   const ReadyReckonerRateDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
     required this.routeAuthorizationModel,
+    required this.buildingName,
   });
 
   @override
@@ -115,6 +117,9 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                             widget.buildingId.toString(),
                           ),
                         ),
+                        'buildingName': Uri.encodeComponent(
+                          EncryptionManager.encryptData(widget.buildingName),
+                        ),
                       },
                     );
                   },
@@ -167,6 +172,11 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                                   'buildingId': Uri.encodeComponent(
                                     EncryptionManager.encryptData(
                                       widget.buildingId.toString(),
+                                    ),
+                                  ),
+                                  'buildingName': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.buildingName,
                                     ),
                                   ),
                                 },

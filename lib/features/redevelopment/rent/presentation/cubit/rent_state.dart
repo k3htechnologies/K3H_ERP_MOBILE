@@ -6,7 +6,7 @@ class RentState extends BaseState {
   final int bankTotalCount;
   final List<BankListMasterModel> bankList;
   final int buildingTotalCount;
-  final List<TemporaryAccommodationAlternativeDetailsModel> rentDetails;
+  final List<TemporaryAlternativeAccommodationDetailsModel> rentDetails;
   final List<RentModel> rentList;
   final int totalNumberOfRecord;
   final int currentPage;
@@ -56,7 +56,7 @@ class RentState extends BaseState {
     int? bankTotalCount,
     List<RedevelopmentBuildingModel>? buildingList,
     int? buildingTotalCount,
-    List<TemporaryAccommodationAlternativeDetailsModel>? rentDetails,
+    List<TemporaryAlternativeAccommodationDetailsModel>? rentDetails,
     List<RentModel>? rentList,
     int? totalNumberOfRecord,
     int? currentPage,

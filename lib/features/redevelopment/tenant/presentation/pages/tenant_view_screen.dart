@@ -523,7 +523,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                               : widget.tenant.flatNumber,
                     ),
                     buildColumnTitleValue(
-                      title: "Carpet Area (Sq ft)",
+                      title: "Carpet Area (SqFt)",
                       value: widget.tenant.flatCarpetAreaSqFt.toString(),
                     ),
                   ],

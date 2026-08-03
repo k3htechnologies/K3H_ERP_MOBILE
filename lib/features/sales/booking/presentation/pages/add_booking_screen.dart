@@ -1684,6 +1684,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       if (value == null || value.trim().isEmpty) {
                         return "Permanent Address is required";
                       }
+                      if (value.trim().length < 25) {
+                        return "Permanent Address must be at least 25 characters";
+                      }
                       return null;
                     },
                   ),
@@ -1696,6 +1699,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Communication Address is required";
+                      }
+                      if (value.trim().length < 25) {
+                        return "Communication Address must be at least 25 characters";
                       }
                       return null;
                     },

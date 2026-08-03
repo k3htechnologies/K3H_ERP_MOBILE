@@ -316,7 +316,7 @@ class _UpdateBuildingDetailsScreenState
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'Gross Plot Area (Sq Ft)',
+                      title: 'Gross Plot Area (SqFt)',
                       hint: 'Enter Gross Plot Area',
                       textController: _grossPlotAreaController,
                       isRequired: true,
@@ -334,7 +334,7 @@ class _UpdateBuildingDetailsScreenState
                       },
                     ),
                     CustomTextField(
-                      title: 'Plot Area Physical Survey (Sq Ft)',
+                      title: 'Plot Area Physical Survey (SqFt)',
                       hint: 'Enter Plot Area Physical Survey',
                       textController: _plotAreaPhysicalSurveyController,
                       inputFormatterList:
@@ -350,7 +350,7 @@ class _UpdateBuildingDetailsScreenState
                       },
                     ),
                     CustomTextField(
-                      title: 'Plot Area Old Approved Plan (Sq Ft)',
+                      title: 'Plot Area Old Approved Plan (SqFt)',
                       hint: 'Enter Plot Area Old Approved Plan',
                       textController: _plotAreaOldApprovedPlanController,
                       inputFormatterList:
@@ -366,7 +366,7 @@ class _UpdateBuildingDetailsScreenState
                       },
                     ),
                     CustomTextField(
-                      title: 'Plot Area Conveyance (Sq Ft)',
+                      title: 'Plot Area Conveyance (SqFt)',
                       hint: 'Enter Plot Area Conveyance',
                       textController: _plotAreaConveyanceController,
                       inputFormatterList:
@@ -382,7 +382,7 @@ class _UpdateBuildingDetailsScreenState
                       },
                     ),
                     CustomTextField(
-                      title: 'Plot Area PR Card (Sq Ft)',
+                      title: 'Plot Area PR Card (SqFt)',
                       hint: 'Enter Plot Area PR Card',
                       textController: _plotAreaPRCardController,
                       inputFormatterList:
@@ -414,7 +414,7 @@ class _UpdateBuildingDetailsScreenState
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'Total Built Up Area (Sq Ft)',
+                      title: 'Total Built Up Area (SqFt)',
                       hint: 'Enter Total Built Up Area',
                       textController: _totalBuiltUpAreaController,
                       isRequired: true,
@@ -448,7 +448,7 @@ class _UpdateBuildingDetailsScreenState
                       },
                     ),
                     CustomTextField(
-                      title: 'Total Residential Carpet Area (Sq Ft)',
+                      title: 'Total Residential Carpet Area (SqFt)',
                       hint: 'Enter Total Residential Carpet Area',
                       textController: _totalResidentialCarpetAreaController,
                       inputFormatterList:
@@ -480,7 +480,7 @@ class _UpdateBuildingDetailsScreenState
                       },
                     ),
                     CustomTextField(
-                      title: 'Total Commercial Carpet Area (Sq Ft)',
+                      title: 'Total Commercial Carpet Area (SqFt)',
                       hint: 'Enter Total Commercial Carpet Area',
                       textController: _totalCommercialCarpetAreaController,
                       inputFormatterList:

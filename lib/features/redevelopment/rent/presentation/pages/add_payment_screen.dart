@@ -22,7 +22,7 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddPaymentScreen extends StatefulWidget {
   final int buildingId;
-  final List<TemporaryAccommodationAlternativeDetailsModel> rentDetails;
+  final List<TemporaryAlternativeAccommodationDetailsModel> rentDetails;
   final RentModel rentModel;
 
   /// Total charge amount for this tenant (for remaining-amount validation).

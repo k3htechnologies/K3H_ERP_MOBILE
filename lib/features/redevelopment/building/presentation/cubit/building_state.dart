@@ -17,6 +17,7 @@ class BuildingState extends BaseState {
   final String filterRoadWidth;
   final String filterCity;
   final String filterVillage;
+  final String filterWard;
   const BuildingState({
     super.isLoading,
     super.stateType,
@@ -36,6 +37,7 @@ class BuildingState extends BaseState {
     required this.filterRoadWidth,
     required this.filterCity,
     required this.filterVillage,
+    required this.filterWard,
   });
   factory BuildingState.initial() => BuildingState(
     buildingList: [],
@@ -55,6 +57,7 @@ class BuildingState extends BaseState {
     filterRoadWidth: "",
     filterCity: "",
     filterVillage: "",
+    filterWard: "",
   );
 
   BuildingState copyWith({
@@ -76,6 +79,7 @@ class BuildingState extends BaseState {
     String? filterRoadWidth,
     String? filterCity,
     String? filterVillage,
+    String? filterWard,
   }) {
     return BuildingState(
       isLoading: isLoading ?? this.isLoading,
@@ -97,6 +101,7 @@ class BuildingState extends BaseState {
       filterRoadWidth: filterRoadWidth ?? this.filterRoadWidth,
       filterCity: filterCity ?? this.filterCity,
       filterVillage: filterVillage ?? this.filterVillage,
+      filterWard: filterWard ?? this.filterWard,
     );
   }
 
@@ -118,6 +123,7 @@ class BuildingState extends BaseState {
     filterRoadWidth,
     filterCity,
     filterVillage,
+    filterWard,
     documentSearchText,
   ];
 }

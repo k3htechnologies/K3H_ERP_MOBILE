@@ -297,7 +297,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _clearDialog();
   }
 
-
   // PREFILL BOTTOM SHEET
   void _prefillBottomSheet(
     ProposedOfferSecurityDepositDetailsWithPaymentStageData securityDeposit,
@@ -400,7 +399,9 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                               ),
                             ),
                             CustomIconButton.delete(
-                              isDisabled: state.securityDepositDetails == null,
+                              isDisabled:
+                                  state.securityDepositDetails == null ||
+                                  disableAction,
                               onPressed: _showPopupToDeleteSecurityDepositData,
                             ),
                           ],

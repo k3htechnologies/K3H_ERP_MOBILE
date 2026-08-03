@@ -442,6 +442,6 @@ const paymentForValues = [
   "Other Charges GST",
 ];
 
-const unitSqFtLumsumValues = ["Per Sq Ft", "Lump Sum"];
+const unitSqFtLumsumValues = ["Per SqFt", "Lump Sum"];
 
 const propertyTypeValues = ['Residential', 'Commercial'];

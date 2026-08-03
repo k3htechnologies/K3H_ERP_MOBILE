@@ -105,9 +105,10 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                     padding: EdgeInsets.symmetric(vertical: 10.0),
                     child: BuildingOverview(building: widget.building),
                   ),
-                  BuildingDetailsView(),
+                  BuildingDetailsView(
+                    canAction: _routeAuthorizationModel.isAction,
+                  ),
                   BuildingDocumentView(building: widget.building),
-                  // _buildDocumentTab(),
                 ],
               ),
             ),

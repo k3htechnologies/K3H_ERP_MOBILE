@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -58,7 +59,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     "Ready Reckoner Rate",
     "Carpet / Plot Area",
     "Extra Carpet Area",
-    "Hardship Details",
+    "Hardship Offer Details",
     "Temp Accom Alternative",
     "Shifting Details",
     "GST on Existing + Free Area",
@@ -125,6 +126,30 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     );
   }
 
+  void _showGeneratePDFConfirmation() async {
+    if (_project.projectId == 0) {
+      showErrorMessage(context, "Error", "Please Select a Project");
+      return;
+    }
+    if (_selectedBuildingNotifier.value.isEmpty) {
+      showErrorMessage(context, "Error", "Please Select a building");
+      return;
+    }
+    final generatePDf = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Generate PDF',
+      message: 'Are you sure you want to generate the PDF?',
+      confirmText: "Generate",
+    );
+    if (generatePDf && mounted) {
+      _proposedOfferCubit.exportExcelPdf(
+        context,
+        buildingId: _selectedBuildingNotifier.value.first['zAttributesId'],
+        projectId: _project.projectId,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -188,44 +213,16 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                             padding: EdgeInsets.only(top: 24.h),
                             child: CustomIconButton(
                               size: 30,
-                              // icon: SvgPicture.asset(
-                              //   AppAssets.excel,
-                              //   height: 50,
-                              //   width: 50,
-                              // ),
                               icon: Icon(
                                 Icons.picture_as_pdf,
-                                color: AppColor.primary,
+                                color:
+                                    _routeAuthorizationModel.isAction
+                                        ? AppColor.primary
+                                        : AppColor.grey2,
                                 size: 24,
                               ),
                               isDisable: !_routeAuthorizationModel.isAction,
-                              onPressed: () {
-                                if (_project.projectId == 0) {
-                                  showErrorMessage(
-                                    context,
-                                    "Error",
-                                    "Please Select a Project",
-                                  );
-                                  return;
-                                }
-                                if (_selectedBuildingNotifier.value.isEmpty) {
-                                  showErrorMessage(
-                                    context,
-                                    "Error",
-                                    "Please Select a building",
-                                  );
-                                  return;
-                                }
-
-                                _proposedOfferCubit.exportExcelPdf(
-                                  context,
-                                  buildingId:
-                                      _selectedBuildingNotifier
-                                          .value
-                                          .first['zAttributesId'],
-                                  projectId: _project.projectId,
-                                );
-                              },
+                              onPressed: _showGeneratePDFConfirmation,
                             ),
                           ),
                         ],

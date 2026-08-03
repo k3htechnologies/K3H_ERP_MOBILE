@@ -200,7 +200,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
     await DialogHelper.showCustomBottomSheet(
       context,
-      "Shifting Details",
+      "${shifting != null ? 'Update' : 'Add'} Shifting Details",
       contentWidget: Form(
         key: _shiftingFormKey,
         child: Column(
@@ -508,6 +508,25 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     }
   }
 
+  void _showGeneratePDFConfirmation({
+    required ShiftingDetailsModel shiftingDetailsModel,
+  }) async {
+    final generatePDf = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Are sure you want generate shifting?',
+      message: 'Once the shifting is generated, it cannot be deleted',
+      confirmText: "Generate",
+    );
+    if (generatePDf && mounted) {
+      _cubit.generateProposedOffer(
+        context,
+        buildingId: shiftingDetailsModel.buildingId,
+        projectId: shiftingDetailsModel.projectId,
+        chargeType: 'Shifting',
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
@@ -636,14 +655,31 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                               'Shifting List',
                               style: AppTextStyle.ts14M(color: AppColor.grey),
                             ),
-                            CustomIconButton.add(
-                              isDisabled: disableAction,
-                              onPressed: () {
-                                if (!_formKey.currentState!.validate()) {
-                                  return;
-                                }
-                                _showShiftingBottomSheet();
-                              },
+                            Row(
+                              spacing: 16,
+                              children: [
+                                CustomIconButton.add(
+                                  isDisabled: disableAction,
+                                  onPressed: () {
+                                    if (!_formKey.currentState!.validate()) {
+                                      return;
+                                    }
+                                    _showShiftingBottomSheet();
+                                  },
+                                ),
+                                CustomButton(
+                                  text: "Generate",
+                                  isDisable:
+                                      disableAction ||
+                                      state.shiftingDetails == null,
+                                  onPressed: () {
+                                    _showGeneratePDFConfirmation(
+                                      shiftingDetailsModel:
+                                          state.shiftingDetails!,
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),

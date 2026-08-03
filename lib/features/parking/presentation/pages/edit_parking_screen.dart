@@ -43,7 +43,9 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   late ProjectModel project;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _parkingNumberC, _parkingDimensionsC;
+  late TextEditingController _parkingNumberC,
+      _parkingDimensionsC,
+      _parkingRemarkC;
 
   // PARKING CATEGORY LISTS
   final List<Map<String, dynamic>> _parkingCategoryList = [
@@ -124,6 +126,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
   void _initializeTextEditingControllers() {
     _parkingNumberC = TextEditingController();
     _parkingDimensionsC = TextEditingController();
+    _parkingRemarkC = TextEditingController();
   }
 
   // DISPOSE TEXT EDITING CONTROLLERS
@@ -137,7 +140,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
     _parkingNumberC.text = parking.parkingNumber;
     _parkingDimensionsC.text = parking.parkingDimensions;
     isEvChargingAvailable.value = parking.isEVChargingAvailable;
-
+    _parkingRemarkC.text = parking.remark;
     if (parking.parkingCategory.isNotEmpty) {
       selectedCategory.value = _parkingCategoryList.firstWhere(
         (element) => element['DisplayName'] == parking.parkingCategory,
@@ -196,13 +199,23 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
         return newTypeList;
       case 3:
         newTypeList.addAll([
-          {'zAttributesId': 1, 'DisplayName': 'PU 1'},
-          {'zAttributesId': 11, 'DisplayName': 'GROUND'},
+          {'zAttributesId': 1, 'DisplayName': 'LEVEL 1'},
+          {'zAttributesId': 2, 'DisplayName': 'LEVEL 2'},
+          {'zAttributesId': 3, 'DisplayName': 'LEVEL 3'},
+          {'zAttributesId': 4, 'DisplayName': 'LEVEL 4'},
+          {'zAttributesId': 5, 'DisplayName': 'LEVEL 5'},
+          {'zAttributesId': 6, 'DisplayName': 'LEVEL 6'},
+          {'zAttributesId': 7, 'DisplayName': 'LEVEL 7'},
+          {'zAttributesId': 8, 'DisplayName': 'LEVEL 8'},
+          {'zAttributesId': 9, 'DisplayName': 'LEVEL 9'},
+          {'zAttributesId': 10, 'DisplayName': 'LEVEL 10'},
+          {'zAttributesId': 11, 'DisplayName': 'GROUND LEVEL'},
         ]);
         return newTypeList;
       case 4: // Tower Parking
         newTypeList.addAll([
-          {'zAttributesId': 1, 'DisplayName': 'TO 1'},
+          {'zAttributesId': 1, 'DisplayName': 'ROTATING'},
+          {'zAttributesId': 2, 'DisplayName': 'TO 1'},
           {'zAttributesId': 11, 'DisplayName': 'GROUND'},
         ]);
         return newTypeList;
@@ -517,7 +530,16 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       ],
                     );
                   },
-                ), // Text('Is Ev Charging Available?', style: AppTextStyle.ts16R()),
+                ),
+                verticalSpacing(height: 10),
+                CustomTextField(
+                  title: 'Remark',
+                  hint: 'Enter Remark',
+                  minLines: 3,
+                  maxLines: 3,
+                  readOnly: !_routeAuthorizationModel.isAction,
+                  textController: _parkingRemarkC,
+                ),
               ],
             ),
           ),
@@ -607,6 +629,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       inventoryFlatFloorBasementPodiumWingId:
           widget.parking.inventoryFlatFloorBasementPodiumWingId,
       inventoryFloorId: widget.parking.inventoryFloorId,
+      remark: _parkingRemarkC.text.trim(),
     );
   }
 }

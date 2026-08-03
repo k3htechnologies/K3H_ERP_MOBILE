@@ -232,7 +232,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
 
     await DialogHelper.showCustomBottomSheet(
       context,
-      "Add Lien to Society Details",
+      "${lien != null ? 'Update' : 'Add'} Lien to Society Payment Stage",
       contentWidget: ValueListenableBuilder<Map<String, dynamic>?>(
         valueListenable: _selectedLienType,
         builder: (context, selectedLienType, _) {
@@ -281,7 +281,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
 
                     // CARPET AREA
                     CustomTextField(
-                      title: "Carpet Area (Sq Ft)",
+                      title: "Carpet Area (SqFt)",
                       isRequired: true,
                       hint: "Enter Carpet Area",
                       textController: _carpetAreaController,
@@ -331,7 +331,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
 
                         if (existingTotal + newArea > allowedArea) {
                           return "$selectedType carpet area exceeds allowed total of "
-                              "${allowedArea.toStringAsFixed(2)} Sq Ft.";
+                              "${allowedArea.toStringAsFixed(2)} SqFt.";
                         }
 
                         return null;
@@ -663,7 +663,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           title: 'Remark',
                           hint: 'Enter Remark',
                           textController: _remarkC,
-                          isRequired: disableAction,
+                          readOnly: disableAction,
                           minLines: 3,
                           maxLines: 3,
                         ),
@@ -728,7 +728,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             buildColumnTitleValue(
-                                              title: "Carpet Area (Sq Ft)",
+                                              title: "Carpet Area (SqFt)",
                                               value: lien.carpetAreaSqFt
                                                   .toStringAsFixed(2),
                                             ),

@@ -266,7 +266,7 @@ class BookingCubit extends Cubit<BookingState> {
         final calculatedList =
             rawList.map((oc) {
               final baseAmount =
-                  oc.calculatedOn == "Per Sq Ft"
+                  oc.calculatedOn == "Per SqFt"
                       ? oc.value * reraArea
                       : oc.value;
 

@@ -85,7 +85,7 @@ class ProposedOfferHardshipDetailsWithPaymentStageData {
   };
 }
 
-class CorpusDetailsModel {
+class HardshipOfferDetailsModel {
   int proposedOfferHardshipDetailsId;
   String uniquekey;
   int buildingId;
@@ -102,7 +102,7 @@ class CorpusDetailsModel {
   DateTime? modifiedDate;
   String remark;
 
-  CorpusDetailsModel({
+  HardshipOfferDetailsModel({
     required this.proposedOfferHardshipDetailsId,
     required this.uniquekey,
     required this.buildingId,
@@ -119,8 +119,8 @@ class CorpusDetailsModel {
     required this.remark,
   });
 
-  factory CorpusDetailsModel.fromJson(Map<String, dynamic> json) =>
-      CorpusDetailsModel(
+  factory HardshipOfferDetailsModel.fromJson(Map<String, dynamic> json) =>
+      HardshipOfferDetailsModel(
         proposedOfferHardshipDetailsId: parseValue<int>(
           json,
           "ProposedOfferHardshipDetailsId",

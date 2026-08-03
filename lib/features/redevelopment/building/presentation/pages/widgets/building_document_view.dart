@@ -183,6 +183,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               ),
               IntrinsicWidth(
                 child: CustomButton(
+                  isDisable: !_routeAuthorizationModel.isAction,
                   text: "Add",
                   onPressed: _showAddDocumentBottomSheet,
                 ),

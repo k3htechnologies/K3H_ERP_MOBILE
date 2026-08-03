@@ -3,14 +3,14 @@ part of 'proposed_offer_cubit.dart';
 class ProposedOfferState extends BaseState {
   final RedevelopmentBuildingModel? buildingDetails;
   final ExtraCarpetAreaModel? extraCarpetArea;
-  final CorpusDetailsModel? corpusDetails;
+  final HardshipOfferDetailsModel? hardshipOfferDetails;
   final SecurityDepositModel? securityDepositDetails;
   final ShiftingDetailsModel? shiftingDetails;
   final LienToSocietyDetailsModel? lienToSocietyDetails;
   final ParkingAllotmentModel? parkingAllotment;
   final GstOnExistingPlusFreeAreaModel? gstOnExistingPlusFreeArea;
   final ProjectCompletionModel? projectCompletion;
-  final List<TemporaryAccommodationAlternativeDetailsModel>
+  final List<TemporaryAlternativeAccommodationDetailsModel>
   temporaryAccommodationAlternativeDetails;
   final int totalNumberOfRecordTemporaryAccommodationAlternative;
   final List<ReadyReckonerRateDetailsModel> readyReckonerRateDetails;
@@ -22,7 +22,7 @@ class ProposedOfferState extends BaseState {
     super.isLoading,
     required this.buildingDetails,
     required this.extraCarpetArea,
-    required this.corpusDetails,
+    required this.hardshipOfferDetails,
     required this.securityDepositDetails,
     required this.shiftingDetails,
     required this.lienToSocietyDetails,
@@ -41,7 +41,7 @@ class ProposedOfferState extends BaseState {
     buildingDetails: null,
     isLoading: true,
     extraCarpetArea: null,
-    corpusDetails: null,
+    hardshipOfferDetails: null,
     securityDepositDetails: null,
     shiftingDetails: null,
     lienToSocietyDetails: null,
@@ -62,8 +62,8 @@ class ProposedOfferState extends BaseState {
     RedevelopmentBuildingModel? buildingDetails,
     ExtraCarpetAreaModel? extraCarpetArea,
     bool clearExtraCarpet = false,
-    CorpusDetailsModel? corpusDetails,
-    bool clearCorpus = false,
+    HardshipOfferDetailsModel? hardshipOfferDetails,
+    bool clearHardshipOffer = false,
     SecurityDepositModel? securityDepositDetails,
     bool clearSecurityDeposit = false,
     ShiftingDetailsModel? shiftingDetails,
@@ -76,7 +76,7 @@ class ProposedOfferState extends BaseState {
     bool clearGST = false,
     ProjectCompletionModel? projectCompletion,
     bool clearProjectCompletion = false,
-    List<TemporaryAccommodationAlternativeDetailsModel>?
+    List<TemporaryAlternativeAccommodationDetailsModel>?
     temporaryAccommodationAlternativeDetails,
     int? totalNumberOfRecordTemporaryAccommodationAlternative,
     List<ReadyReckonerRateDetailsModel>? readyReckonerRateDetails,
@@ -95,7 +95,10 @@ class ProposedOfferState extends BaseState {
           clearbuildingDetails ? null : buildingDetails ?? this.buildingDetails,
       extraCarpetArea:
           clearExtraCarpet ? null : extraCarpetArea ?? this.extraCarpetArea,
-      corpusDetails: clearCorpus ? null : corpusDetails ?? this.corpusDetails,
+      hardshipOfferDetails:
+          clearHardshipOffer
+              ? null
+              : hardshipOfferDetails ?? this.hardshipOfferDetails,
       securityDepositDetails:
           clearSecurityDeposit
               ? null
@@ -149,7 +152,7 @@ class ProposedOfferState extends BaseState {
     isLoading,
     buildingDetails,
     extraCarpetArea,
-    corpusDetails,
+    hardshipOfferDetails,
     securityDepositDetails,
     shiftingDetails,
     lienToSocietyDetails,

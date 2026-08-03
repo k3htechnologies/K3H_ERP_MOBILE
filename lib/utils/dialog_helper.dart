@@ -181,20 +181,33 @@ class DialogHelper {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(CupertinoIcons.delete, color: AppColor.error, size: 32),
-                  verticalSpacing(height: 15),
-                  Text(
-                    title,
-                    style: AppTextStyle.ts20R(color: AppColor.error),
-                    textAlign: TextAlign.center,
+                  Row(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        CupertinoIcons.delete,
+                        color: AppColor.error,
+                        size: 32,
+                      ),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTextStyle.ts16SB(color: AppColor.error),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                    ],
                   ),
                   verticalSpacing(height: 8),
+                  Divider(color: AppColor.grey2, height: 1),
+                  verticalSpacing(height: 16),
                   Text(
                     subTitle,
                     style: AppTextStyle.ts16R(color: AppColor.grey),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.start,
                   ),
-                  verticalSpacing(height: 24),
+                  verticalSpacing(height: 16),
                   Row(
                     spacing: 2,
                     children: [
@@ -254,24 +267,31 @@ class DialogHelper {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.logout, color: AppColor.error, size: 32),
-                  verticalSpacing(height: 15),
-
-                  Text(
-                    title,
-                    style: AppTextStyle.ts20R(color: AppColor.error),
-                    textAlign: TextAlign.center,
+                  Row(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.logout, color: AppColor.error, size: 32),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTextStyle.ts16SB(color: AppColor.error),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                    ],
                   ),
 
                   verticalSpacing(height: 8),
+                  Divider(color: AppColor.grey2, height: 1),
+                  verticalSpacing(height: 16),
 
                   Text(
                     subTitle,
-                    style: AppTextStyle.ts16R(color: AppColor.grey),
-                    textAlign: TextAlign.center,
+                    style: AppTextStyle.ts14SB(color: AppColor.grey),
+                    textAlign: TextAlign.start,
                   ),
-
-                  verticalSpacing(height: 24),
+                  verticalSpacing(height: 16),
 
                   Row(
                     spacing: 2,
@@ -327,7 +347,7 @@ class DialogHelper {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 border: Border.all(color: confirmColor, width: 0.5),
                 color: AppColor.white,
@@ -335,23 +355,31 @@ class DialogHelper {
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(icon, color: confirmColor, size: 32),
-                  verticalSpacing(height: 15),
-
-                  Text(
-                    title,
-                    style: AppTextStyle.ts20R(color: confirmColor),
-                    textAlign: TextAlign.center,
+                  Row(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(icon, color: confirmColor, size: 32),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTextStyle.ts16SB(color: confirmColor),
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                    ],
                   ),
                   verticalSpacing(height: 8),
-
+                  Divider(color: AppColor.grey2, height: 1),
+                  verticalSpacing(height: 16),
                   Text(
                     message,
-                    style: AppTextStyle.ts16R(color: AppColor.grey),
-                    textAlign: TextAlign.center,
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                    textAlign: TextAlign.start,
                   ),
-                  verticalSpacing(height: 24),
+                  verticalSpacing(height: 16),
 
                   Row(
                     children: [

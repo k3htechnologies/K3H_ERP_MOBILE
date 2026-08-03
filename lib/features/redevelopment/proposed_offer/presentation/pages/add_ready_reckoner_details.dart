@@ -3,11 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/ready_reckover_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -18,12 +24,14 @@ class AddReadyReckonerDetails extends StatefulWidget {
   final int? index;
   final int projectId;
   final int buildingId;
+  final String buildingName;
   const AddReadyReckonerDetails({
     super.key,
     required this.readyReckonerRateDetails,
     this.index,
     required this.projectId,
     required this.buildingId,
+    required this.buildingName,
   });
 
   @override
@@ -164,7 +172,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
 
   @override
   void dispose() {
-    _subZoneController.dispose();
+    _zoneController.dispose();
     _subZoneController.dispose();
     _residentialRateController.dispose();
     _commercialRateController.dispose();
@@ -179,82 +187,118 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: 'Add Ready Reckoner Details',
+        screenTitle: 'Proposed Offer',
         authorization: AuthorizationModel(),
       ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: commonCardDecoration(),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: [
-                CustomTextField(
-                  title: "Zone",
-                  textController: _zoneController,
-                  hint: "Enter Zone",
-                  maxLines: 4,
-                ),
-                CustomTextField(
-                  title: "Sub Zone",
-                  textController: _subZoneController,
-                  hint: "Enter Sub Zone",
-                  maxLines: 4,
-                ),
-                ValueListenableBuilder(
-                  valueListenable: _selectedFinancialYear,
-                  builder: (context, value, _) {
-                    return CustomDropDownWidget(
-                      title: "Financial Year",
-                      hintText: "Select Financial Year",
-                      isRequired: true,
-                      dataList: financialYearList,
-                      initialValue: value,
-                      onSelected: (v) => _selectedFinancialYear.value = v,
-                      validator:
-                          (v) =>
-                              v == null ? "Financial Year is required" : null,
-                      onValueClear: () => _selectedFinancialYear.value = null,
-                    );
-                  },
-                ),
-
-                AnimatedBuilder(
-                  animation: Listenable.merge([
-                    _effectiveStartDate,
-                    _effectiveEndDate,
-                  ]),
-                  builder: (context, _) {
-                    return CustomFromToDatePicker(
-                      fromDateTitle: "Effective Start Date",
-                      toDateTitle: "Effective End Date",
-                      initialFromDate: _effectiveStartDate.value,
-                      initialToDate: _effectiveEndDate.value,
-                      isRequired: true,
-                      onToDateChanged: (from, to) {
-                        _effectiveStartDate.value = from;
-                        _effectiveEndDate.value = to;
-                      },
-                    );
-                  },
-                ),
-                verticalSpacing(height: 12),
-                _rateField("Residential Rate (₹)", _residentialRateController),
-                _rateField("Commercial Rate (₹)", _commercialRateController),
-                _rateField("Shop Rate (₹)", _shopRateController),
-                _rateField("Industrial Rate (₹)", _industrialRateController),
-                _rateField("Land Rate (₹)", _landRateController),
-                CustomTextField(
-                  title: "Remark",
-                  textController: _remarkController,
-                  hint: "Enter Remark",
-                  maxLines: 4,
-                ),
-              ],
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 12,
+          children: [
+            showSiteSelectedWidget(projectName: getProject().projectName),
+            Text(
+              toTitleCase(widget.buildingName),
+              style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-          ),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        ProposedOfferTile(
+                          svgIcon: AppAssets.readyReckonerIcon,
+                          title:
+                              _isEditMode
+                                  ? "Update Ready Reckoner Details"
+                                  : "Add Ready Reckoner Details",
+                        ),
+                        verticalSpacing(height: 15),
+                        CustomTextField(
+                          title: "Zone",
+                          textController: _zoneController,
+                          hint: "Enter Zone",
+                          maxLines: 4,
+                        ),
+                        CustomTextField(
+                          title: "Sub Zone",
+                          textController: _subZoneController,
+                          hint: "Enter Sub Zone",
+                          maxLines: 4,
+                        ),
+                        ValueListenableBuilder(
+                          valueListenable: _selectedFinancialYear,
+                          builder: (context, value, _) {
+                            return CustomDropDownWidget(
+                              title: "Financial Year",
+                              hintText: "Select Financial Year",
+                              isRequired: true,
+                              dataList: financialYearList,
+                              initialValue: value,
+                              onSelected:
+                                  (v) => _selectedFinancialYear.value = v,
+                              validator:
+                                  (v) =>
+                                      v == null
+                                          ? "Financial Year is required"
+                                          : null,
+                              onValueClear:
+                                  () => _selectedFinancialYear.value = null,
+                            );
+                          },
+                        ),
+
+                        AnimatedBuilder(
+                          animation: Listenable.merge([
+                            _effectiveStartDate,
+                            _effectiveEndDate,
+                          ]),
+                          builder: (context, _) {
+                            return CustomFromToDatePicker(
+                              fromDateTitle: "Effective Start Date",
+                              toDateTitle: "Effective End Date",
+                              initialFromDate: _effectiveStartDate.value,
+                              initialToDate: _effectiveEndDate.value,
+                              isRequired: true,
+                              onToDateChanged: (from, to) {
+                                _effectiveStartDate.value = from;
+                                _effectiveEndDate.value = to;
+                              },
+                            );
+                          },
+                        ),
+                        verticalSpacing(height: 12),
+                        _rateField(
+                          "Residential Rate (₹)",
+                          _residentialRateController,
+                        ),
+                        _rateField(
+                          "Commercial Rate (₹)",
+                          _commercialRateController,
+                        ),
+                        _rateField("Shop Rate (₹)", _shopRateController),
+                        _rateField(
+                          "Industrial Rate (₹)",
+                          _industrialRateController,
+                        ),
+                        _rateField("Land Rate (₹)", _landRateController),
+                        CustomTextField(
+                          title: "Remark",
+                          textController: _remarkController,
+                          hint: "Enter Remark",
+                          maxLines: 4,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(

@@ -46,7 +46,8 @@ class _BuildingScreenState extends State<BuildingScreen> {
       _filterCTSNumberC,
       _filterRoadWidthC,
       _filterCityC,
-      _filterVillageC;
+      _filterVillageC,
+      _filterWardC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
@@ -76,6 +77,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _filterRoadWidthC.dispose();
     _filterCityC.dispose();
     _filterVillageC.dispose();
+    _filterWardC.dispose();
     super.dispose();
   }
 
@@ -86,6 +88,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _filterRoadWidthC = TextEditingController();
     _filterCityC = TextEditingController();
     _filterVillageC = TextEditingController();
+    _filterWardC = TextEditingController();
   }
 
   // PAGINATION
@@ -134,6 +137,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _filterCityC.text = state.filterCity;
     _filterVillageC.text = state.filterVillage;
     _searchC.text = state.searchText;
+    _filterWardC.text = state.filterWard;
     String? selectedDirection =
         state.currentSortColumn == "Building Name"
             ? state.currentSortDirection
@@ -144,6 +148,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     final String initialRoadWidth = _filterRoadWidthC.text;
     final String initialCity = _filterCityC.text;
     final String initialVillage = _filterVillageC.text;
+    final String initialWard = _filterWardC.text;
     final String? initialDirection = selectedDirection;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
@@ -157,6 +162,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
             (_filterRoadWidthC.text.trim() != initialRoadWidth) ||
             (_filterCityC.text.trim() != initialCity) ||
             (_filterVillageC.text.trim() != initialVillage) ||
+            (_filterWardC.text.trim() != initialWard) ||
             (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
@@ -257,6 +263,12 @@ class _BuildingScreenState extends State<BuildingScreen> {
                   textController: _filterVillageC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                CustomTextField(
+                  title: "Ward",
+                  hint: "Enter Ward",
+                  textController: _filterWardC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
                 verticalSpacing(),
               ],
             ),
@@ -272,6 +284,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
           filterRoadWidth: "",
           filterCity: "",
           filterVillage: "",
+          filterWard: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
@@ -288,6 +301,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
           filterVillage: _filterVillageC.text,
           sortColumn: selectedDirection != null ? "Building Name" : null,
           sortDirection: selectedDirection,
+          filterWard: _filterWardC.text,
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -301,6 +315,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
       _filterRoadWidthC.clear();
       _filterCityC.clear();
       _filterVillageC.clear();
+      _filterWardC.clear();
     }
   }
 

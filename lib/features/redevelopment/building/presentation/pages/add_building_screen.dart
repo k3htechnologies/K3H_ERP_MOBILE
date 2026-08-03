@@ -408,7 +408,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                     ),
                     CustomTextField(
                       textController: _totalPlotAreaSqFtC,
-                      title: 'Total Plot Area (Sq Ft)',
+                      title: 'Total Plot Area (SqFt)',
                       hint: 'Enter Total Plot Area',
                       keyboardType: TextInputType.number,
                       inputFormatterList:
@@ -509,8 +509,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               textController: _totalGardenAreaC,
                               isRequired: _isGarden,
                               readOnly: !_isGarden,
-                              title: 'Garden Area (Sq Ft)',
-                              hint: 'Enter Garden Area (Sq Ft)',
+                              title: 'Garden Area (SqFt)',
+                              hint: 'Enter Garden Area (SqFt)',
                               keyboardType: TextInputType.number,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
@@ -555,8 +555,8 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               isRequired: _isReligiousStructure,
                               readOnly: !_isReligiousStructure,
                               textController: _totalReligiousStructureAreaC,
-                              title: 'Religious Structure Area (Sq Ft)',
-                              hint: 'Enter Religious Structure Area (Sq Ft)',
+                              title: 'Religious Structure Area (SqFt)',
+                              hint: 'Enter Religious Structure Area (SqFt)',
                               keyboardType: TextInputType.number,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(

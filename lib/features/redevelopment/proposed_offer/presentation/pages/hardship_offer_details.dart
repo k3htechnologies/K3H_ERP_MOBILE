@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -23,12 +24,14 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class HardshipDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
+  final String buildingName;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
   const HardshipDetails({
     super.key,
     required this.projectId,
     required this.buildingId,
+    required this.buildingName,
     required this.onSave,
     required this.routeAuthorizationModel,
   });
@@ -85,7 +88,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
 
   // FILL DATA
   void fillData() {
-    var corpusDetailsModel = _cubit.state.corpusDetails!;
+    var corpusDetailsModel = _cubit.state.hardshipOfferDetails!;
     _residentialAmountC.text =
         corpusDetailsModel.corpusOfferedToResidentialAmount.toString();
     _commercialAmountC.text =
@@ -215,12 +218,31 @@ class _HardshipDetailsState extends State<HardshipDetails> {
     }
   }
 
+  void _showGeneratePDFConfirmation({
+    required HardshipOfferDetailsModel hardshipDetailsModel,
+  }) async {
+    final generatePDf = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Are sure you want generate hardship?',
+      message: 'Once the hardship is generated, it cannot be deleted',
+      confirmText: "Generate",
+    );
+    if (generatePDf && mounted) {
+      _cubit.generateProposedOffer(
+        context,
+        buildingId: hardshipDetailsModel.buildingId,
+        projectId: hardshipDetailsModel.projectId,
+        chargeType: 'Hardship',
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
-          if (state.corpusDetails != null) {
+          if (state.hardshipOfferDetails != null) {
             fillData();
           } else {
             _residentialAmountC.clear();
@@ -252,12 +274,12 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                             Expanded(
                               child: ProposedOfferTile(
                                 svgIcon: AppAssets.hardshipDetailsIcon,
-                                title: "Hardship Details",
+                                title: "Hardship Offer Details",
                               ),
                             ),
                             CustomIconButton.delete(
                               isDisabled:
-                                  (state.corpusDetails == null ||
+                                  (state.hardshipOfferDetails == null ||
                                       disableAction),
                               onPressed: _showPopupToDeleteHardshipData,
                             ),
@@ -265,7 +287,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                         ),
                         verticalSpacing(height: 15),
                         Text(
-                          "Hardship Amount Details",
+                          "Hardship Offer Amount Details",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
                         verticalSpacing(),
@@ -361,54 +383,79 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Hardship List',
+                                  'Hardship Offer List',
                                   style: AppTextStyle.ts14M(
                                     color: AppColor.grey,
                                   ),
                                 ),
-                                CustomIconButton.add(
-                                  isDisabled: disableAction,
-                                  onPressed: () async {
-                                    if (!_formKey.currentState!.validate()) {
-                                      return;
-                                    }
-                                    final result = await goRouter.pushNamed(
-                                      AppRoutes.addUpdateHardshipDetails,
-                                      extra: _corpusList,
-                                      queryParameters: {
-                                        'projectId': Uri.encodeComponent(
-                                          EncryptionManager.encryptData(
-                                            widget.projectId.toString(),
-                                          ),
-                                        ),
-                                        'buildingId': Uri.encodeComponent(
-                                          EncryptionManager.encryptData(
-                                            widget.buildingId.toString(),
-                                          ),
-                                        ),
-                                        'residentialAmount':
-                                            Uri.encodeComponent(
+                                Row(
+                                  spacing: 12,
+                                  children: [
+                                    CustomIconButton.add(
+                                      isDisabled: disableAction,
+                                      onPressed: () async {
+                                        if (!_formKey.currentState!
+                                            .validate()) {
+                                          return;
+                                        }
+                                        final result = await goRouter.pushNamed(
+                                          AppRoutes.addUpdateHardshipDetails,
+                                          extra: _corpusList,
+                                          queryParameters: {
+                                            'projectId': Uri.encodeComponent(
                                               EncryptionManager.encryptData(
-                                                _residentialAmountC.text
-                                                    .toString(),
+                                                widget.projectId.toString(),
                                               ),
                                             ),
-                                        'commercialAmount': Uri.encodeComponent(
-                                          EncryptionManager.encryptData(
-                                            _commercialAmountC.text.toString(),
-                                          ),
-                                        ),
+                                            'buildingId': Uri.encodeComponent(
+                                              EncryptionManager.encryptData(
+                                                widget.buildingId.toString(),
+                                              ),
+                                            ),
+                                            'residentialAmount':
+                                                Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    _residentialAmountC.text
+                                                        .toString(),
+                                                  ),
+                                                ),
+                                            'commercialAmount':
+                                                Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    _commercialAmountC.text
+                                                        .toString(),
+                                                  ),
+                                                ),
+                                            'buildingName': Uri.encodeComponent(
+                                              EncryptionManager.encryptData(
+                                                widget.buildingName,
+                                              ),
+                                            ),
+                                          },
+                                        );
+                                        if (result != null &&
+                                            result
+                                                is List<
+                                                  ProposedOfferHardshipDetailsWithPaymentStageData
+                                                >) {
+                                          _hardshipListNotifier.value = [];
+                                          _hardshipListNotifier.value = result;
+                                        }
                                       },
-                                    );
-                                    if (result != null &&
-                                        result
-                                            is List<
-                                              ProposedOfferHardshipDetailsWithPaymentStageData
-                                            >) {
-                                      _hardshipListNotifier.value = [];
-                                      _hardshipListNotifier.value = result;
-                                    }
-                                  },
+                                    ),
+                                    CustomButton(
+                                      isDisable:
+                                          disableAction ||
+                                          state.hardshipOfferDetails == null,
+                                      text: "Generate",
+                                      onPressed: () {
+                                        _showGeneratePDFConfirmation(
+                                          hardshipDetailsModel:
+                                              state.hardshipOfferDetails!,
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -470,6 +517,11 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                                           .toString(),
                                                     ),
                                                   ),
+                                              'buildingName': Uri.encodeComponent(
+                                                EncryptionManager.encryptData(
+                                                  widget.buildingName,
+                                                ),
+                                              ),
                                             },
                                           );
                                           if (result != null &&
@@ -511,12 +563,11 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 buildColumnTitleValue(
-                                                  title:
-                                                      "Unit / Sq Ft / Lumsum",
+                                                  title: "Unit / SqFt / Lumsum",
                                                   value: corpus.unitSqFtLumsum,
                                                 ),
                                                 buildColumnTitleValue(
-                                                  title: "Carpet Area\n(Sq Ft)",
+                                                  title: "Carpet Area\n(SqFt)",
                                                   value:
                                                       corpus.carpetAreaSqFt
                                                           .addCommas(),
@@ -548,10 +599,10 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                   ),
                 ),
                 actionCardWidget(
-                  createdBy: state.corpusDetails?.createdBy ?? "-",
-                  createdDate: state.corpusDetails?.createdDate,
-                  modifiedBy: state.corpusDetails?.modifiedBy,
-                  modifiedDate: state.corpusDetails?.modifiedDate,
+                  createdBy: state.hardshipOfferDetails?.createdBy ?? "-",
+                  createdDate: state.hardshipOfferDetails?.createdDate,
+                  modifiedBy: state.hardshipOfferDetails?.modifiedBy,
+                  modifiedDate: state.hardshipOfferDetails?.modifiedDate,
                 ),
               ],
             ),

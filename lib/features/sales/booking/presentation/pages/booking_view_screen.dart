@@ -739,6 +739,31 @@ class _BookingViewScreenState extends State<BookingViewScreen>
             ),
           ),
           verticalSpacing(),
+          Container(
+            decoration: commonCardDecoration(),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Address Details", style: AppTextStyle.ts16SB()),
+
+                buildRowWrapper(
+                  child: buildColumnTitleValue(
+                    title: "Permanent Address",
+                    value: bookingModel!.permanentAddress,
+                  ),
+                ),
+                buildRowWrapper(
+                  child: buildColumnTitleValue(
+                    title: "Communication Address",
+                    value: bookingModel!.communicationAddress,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          verticalSpacing(),
           // PROJECT DETAILS SECTION
           Container(
             decoration: commonCardDecoration(),
