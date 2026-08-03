@@ -147,7 +147,7 @@ class PayTrackModel {
     receivedAgreementValue: parseValue<double>(json, "ReceivedAgreementValue"),
     agreementValueGstAmount: parseValue<double>(
       json,
-      "AgreementValueGstAmount",
+      "AgreementValueGSTAmount",
     ),
     receivedAgreementValueGstAmount: parseValue<double>(
       json,
@@ -173,10 +173,10 @@ class PayTrackModel {
       json,
       "ReceivedOtherChargesAmount",
     ),
-    otherChargesGstAmount: parseValue<double>(json, "OtherChargesGstAmount"),
+    otherChargesGstAmount: parseValue<double>(json, "OtherChargesGSTAmount"),
     receivedOtherChargesGstAmount: parseValue<double>(
       json,
-      "ReceivedOtherChargesGstAmount",
+      "ReceivedOtherChargesGSTAmount",
     ),
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     totalAmountReceivedAgainstBooking: parseValue<double>(
@@ -270,7 +270,7 @@ class PayTrackModel {
     "RegistrationDate": registrationDate.toIso8601String(),
     "AgreementValue": agreementValue.toDouble(),
     "ReceivedAgreementValue": receivedAgreementValue.toDouble(),
-    "AgreementValueGstAmount": agreementValueGstAmount.toDouble(),
+    "AgreementValueGSTAmount": agreementValueGstAmount.toDouble(),
     "ReceivedAgreementValueGstAmount":
         receivedAgreementValueGstAmount.toDouble(),
     "StampDutyAmount": stampDutyAmount.toDouble(),
@@ -281,8 +281,8 @@ class PayTrackModel {
     "ReceivedAgreementValueTDS": receivedAgreementValueTds.toDouble(),
     "OtherChargesAmount": otherChargesAmount.toDouble(),
     "ReceivedOtherChargesAmount": receivedOtherChargesAmount.toDouble(),
-    "OtherChargesGstAmount": otherChargesGstAmount.toDouble(),
-    "ReceivedOtherChargesGstAmount": receivedOtherChargesGstAmount.toDouble(),
+    "OtherChargesGSTAmount": otherChargesGstAmount.toDouble(),
+    "ReceivedOtherChargesGSTAmount": receivedOtherChargesGstAmount.toDouble(),
     "ApprovalStatus": approvalStatus,
     "TotalAmountReceivedAgainstBooking":
         totalAmountReceivedAgainstBooking.toDouble(),
@@ -308,10 +308,7 @@ class PayTrackModel {
     "FinalRegistrationDate": finalRegistrationDate,
     "IsFinalRegistrationCompleted": isFinalRegistrationCompleted,
     "FinalRegistrationURL": finalRegistrationUrl,
-    "AgreementValueGSTAmount": agreementValueGstAmount,
     "ReceivedAgreementValueGSTAmount": receivedAgreementValueGstAmount,
-    "OtherChargesGSTAmount": otherChargesGstAmount,
-    "ReceivedOtherChargesGSTAmount": receivedOtherChargesGstAmount,
     "PendingLedgerApprovalCount": pendingLedgerApprovalCount,
     "BookingOtherChargesData": List<dynamic>.from(
       bookingOtherChargesData.map((x) => x.toJson()),

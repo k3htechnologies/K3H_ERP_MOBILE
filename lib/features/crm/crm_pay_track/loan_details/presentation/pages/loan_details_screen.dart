@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_state.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -25,11 +26,13 @@ class LoanDetailsScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
   final String? approvalStatus;
+  final String? bookingApprovalStatus;
   const LoanDetailsScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
     required this.approvalStatus,
+    required this.bookingApprovalStatus,
   });
 
   @override
@@ -125,7 +128,13 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
         final hasActiveBank = state.bankDetailsList.any(
           (e) => e.bankStatusClosedActive.toLowerCase() == "active",
         );
-        final isApproved = widget.approvalStatus?.toLowerCase() == "approved";
+        final bookingStatus = widget.bookingApprovalStatus?.toUpperCase() ?? "";
+
+        final canShowAddBankButton =
+            !hasActiveBank &&
+            _bankLoanAuthorization.isAction &&
+            widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+            !["CANCEL", "REFUND"].contains(bookingStatus);
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -143,19 +152,27 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "No Active Bank",
+                        "No Active Bank Found",
                         style: AppTextStyle.ts14M(
                           color: AppColor.black.withValues(alpha: 0.5),
                         ),
                       ),
                       horizontalSpacing(),
-                      if (isApproved && hasActiveBank)
+                      if (canShowAddBankButton)
                         Align(
                           alignment: Alignment.centerRight,
                           child: CustomButton(
                             text: "Add Bank Details ",
                             isDisable: !_bankLoanAuthorization.isAction,
                             onPressed: () {
+                              context
+                                  .read<PaymentCubit>()
+                                  .getPaymentScheduleList(
+                                    context,
+                                    widget.projectId,
+                                    widget.bookingId,
+                                  );
+
                               goRouter.pushNamed(
                                 AppRoutes.addActiveBank,
                                 queryParameters: {
@@ -195,6 +212,15 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                             : status == "closed"
                             ? "Closed Bank"
                             : bankDetail.bankStatusClosedActive;
+                    final bookingStatus =
+                        widget.bookingApprovalStatus?.toUpperCase() ?? "";
+
+                    final canShowAccountOpenOrClose =
+                        _bankLoanAuthorization.isAction &&
+                        widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+                        !["CANCEL", "REFUND"].contains(bookingStatus) &&
+                        bankDetail.noOfBankDocument > 0 &&
+                        status != "closed";
                     return Container(
                       margin: EdgeInsets.only(bottom: 10.0),
                       decoration: commonCardDecoration(),
@@ -439,9 +465,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                       ),
                                     ],
                                   ),
-                                  if (bankDetail.noOfBankDocument > 0 &&
-                                      status != "closed" &&
-                                      isApproved)
+                                  if (canShowAccountOpenOrClose)
                                     ValueListenableBuilder<Map<int, bool>>(
                                       valueListenable: closeAccountNotifier,
                                       builder: (context, selectedMap, child) {
@@ -623,9 +647,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValueNormal(
-                        title: "Branch Name",
-                        value: document.bankBranchName,
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Branch Name",
+                          value: document.bankBranchName,
+                        ),
                       ),
                     ],
                   ),

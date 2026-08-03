@@ -88,48 +88,10 @@ class _PaymentScheduleDemandLetterSummaryState
                   return loader();
                 }
                 if (state.payTrackPaymentScheduleDemandSummaryModel.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 16,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          decoration: commonCardDecoration(),
-                          padding: const EdgeInsets.all(16.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 16,
-                                height: 16,
-                                margin: const EdgeInsets.only(top: 2),
-                                decoration: BoxDecoration(
-                                  color: AppColor.lightBlue,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              horizontalSpacing(),
-                              Text(
-                                dateFormatterDDMMYYYYDAY(
-                                  DateTime(2001),
-                                  isDayNotRequired: true,
-                                ),
-                                style: AppTextStyle.ts12M(color: AppColor.grey),
-                              ),
-                              Spacer(),
-                              Text(
-                                "Next Follow-up",
-                                style: AppTextStyle.ts12SB(
-                                  color: AppColor.darkGrey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                  return Center(
+                    child: noDataWidget(
+                      message: "No data found",
+                      iconSize: 180.0,
                     ),
                   );
                 }
@@ -239,6 +201,8 @@ class _PaymentScheduleDemandLetterSummaryState
                                                         context,
                                                         item.paymentScheduleDemandSummaryUrl
                                                             .split(","),
+                                                        downloadSuccessMessage:
+                                                            "${item.paymentScheduleDemandType} downloaded successfully",
                                                       );
                                                     }
                                                   },

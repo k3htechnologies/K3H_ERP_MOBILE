@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/widget/custom_expansion_tile.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -26,6 +27,8 @@ class PaymentScreen extends StatefulWidget {
   final String applicantName;
   final String bookingApprovalStatus;
   final String approvalStatus;
+  final String flat;
+  final List<OtherChargeModel> bookingOtherChargesList;
   const PaymentScreen({
     super.key,
     required this.projectId,
@@ -33,6 +36,8 @@ class PaymentScreen extends StatefulWidget {
     required this.applicantName,
     required this.bookingApprovalStatus,
     required this.approvalStatus,
+    required this.flat,
+    required this.bookingOtherChargesList,
   });
 
   @override
@@ -40,21 +45,29 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late PaymentCubit _paymentCubit;
   late TextEditingController _scheduleSearchC;
   late TextEditingController _ledgerSearchC;
 
   late AuthorizationModel _accountAuthorization;
-
+  late AuthorizationModel _accountPaymentScheduleAuthorizationModel;
+  late List<String> _tabs;
   @override
   void initState() {
     super.initState();
     _accountAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.paymentLedger] ??
         AuthorizationModel();
-    _tabController = TabController(length: 2, vsync: this);
+    _accountPaymentScheduleAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.crmPaymentSchedule] ??
+        AuthorizationModel();
+    _tabs = [
+      if (_accountPaymentScheduleAuthorizationModel.isView) "Payment Schedule",
+      if (_accountAuthorization.isView) "Payment Ledger",
+    ];
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
     _paymentCubit = context.read<PaymentCubit>();
     _scheduleSearchC = TextEditingController();
@@ -101,26 +114,29 @@ class _PaymentScreenState extends State<PaymentScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        verticalSpacing(),
-        ChipStyleTabBar(
-          controller: _tabController,
-          tabs: ['Payment Schedule', 'Payment Ledger'],
-        ),
-        _buildSearchBar(),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              _buildPaymentScheduleWidget(context),
-              _buildPaymentLedgerWidget(context),
-            ],
-          ),
-        ),
-      ],
+    return BlocBuilder<PaymentCubit, PaymentState>(
+      builder: (context, state) {
+        final pages = [
+          if (_accountPaymentScheduleAuthorizationModel.isView)
+            _buildPaymentScheduleWidget(context),
+          if (_accountAuthorization.isView) _buildPaymentLedgerWidget(context),
+        ];
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            verticalSpacing(),
+            ChipStyleTabBar(controller: _tabController, tabs: _tabs),
+            _buildSearchBar(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: NeverScrollableScrollPhysics(),
+                children: pages,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -155,9 +171,6 @@ class _PaymentScreenState extends State<PaymentScreen>
                     final hideDemand =
                         stageName == "stamp duty" ||
                         stageName == "registration fees";
-                    final showTrackLetter =
-                        stageName != "stamp duty" &&
-                        stageName != "registration fees";
 
                     final isStageOrDate =
                         paymentSchedules.type.toLowerCase() == "stage" ||
@@ -165,6 +178,19 @@ class _PaymentScreenState extends State<PaymentScreen>
                     final showDemand = !hideDemand && isStageOrDate;
                     final hasDemandType =
                         paymentSchedules.demandType.trim().isNotEmpty;
+
+                    final isLocked =
+                        paymentSchedules.bookingPaymentScheduleId <= 0 ||
+                        !hasDemandType;
+
+                    final isApproved =
+                        widget.bookingApprovalStatus.toUpperCase() ==
+                        "APPROVED";
+
+                    final canShowDemandButton =
+                        _accountPaymentScheduleAuthorizationModel.isAction &&
+                        !isLocked;
+                    final isDisabled = isLocked || !isApproved;
                     return CustomExpandableCard(
                       header: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -215,10 +241,10 @@ class _PaymentScreenState extends State<PaymentScreen>
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                if (hasDemandType && showDemand)
+                                if (showDemand && canShowDemandButton)
                                   Expanded(
                                     child: CustomButton(
-                                      isDisable: _accountAuthorization.isAction,
+                                      isDisable: isDisabled,
                                       text:
                                           paymentSchedules.demandType
                                                   .trim()
@@ -228,6 +254,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                                                   .trim(),
 
                                       onPressed: () {
+                                        if (isDisabled) return;
                                         _paymentCubit.addDemandDraft(
                                           context: context,
                                           bookingPaymentScheduleId:
@@ -241,11 +268,9 @@ class _PaymentScreenState extends State<PaymentScreen>
                                       },
                                     ),
                                   ),
-
-                                if (showDemand && showTrackLetter)
+                                if (showDemand && canShowDemandButton)
                                   horizontalSpacing(),
-                                if (showTrackLetter &&
-                                    !_accountAuthorization.isAction)
+                                if (showDemand && canShowDemandButton)
                                   Expanded(
                                     child: CustomButton(
                                       text: "Track Letter",
@@ -356,31 +381,25 @@ class _PaymentScreenState extends State<PaymentScreen>
                 decoration: commonCardDecoration(),
                 child: Builder(
                   builder: (_) {
-                    double totalAmount = 0;
-                    double totalOutstandingAmount = 0;
-                    double grandTotal = 0;
+                    double totalAmount = state.payTrackPaymentScheduleList.fold(
+                      0.0,
+                      (sum, item) => sum + item.paymentScheduleAmount,
+                    );
 
-                    for (final item in state.payTrackPaymentScheduleList) {
-                      final agreementTotal = item.paymentScheduleAmount;
-                      final agreementReceived =
-                          item.paymentScheduleReceivedAmount;
-                      final agreementOutstanding =
-                          agreementTotal - agreementReceived;
-                      final gstTotal = item.paymentScheduleGstAmount;
-                      final gstReceived = item.paymentScheduleReceivedGstAmount;
-                      final gstOutstanding = gstTotal - gstReceived;
-                      final tdsTotal = item.paymentScheduleTdsAmount;
-                      final tdsReceived = item.paymentScheduleReceivedTdsAmount;
-                      final tdsOutstanding = tdsTotal - tdsReceived;
-                      totalAmount += agreementTotal + gstTotal + tdsTotal;
-                      totalOutstandingAmount +=
-                          agreementOutstanding +
-                          gstOutstanding +
-                          tdsOutstanding;
-                      grandTotal +=
-                          agreementReceived + gstReceived + tdsReceived;
-                    }
+                    double totalOutstandingAmount = state
+                        .payTrackPaymentScheduleList
+                        .fold(
+                          0.0,
+                          (sum, item) =>
+                              sum +
+                              (item.paymentScheduleAmount -
+                                  item.paymentScheduleReceivedAmount),
+                        );
 
+                    double grandTotal = state.payTrackPaymentScheduleList.fold(
+                      0.0,
+                      (sum, item) => sum + item.paymentScheduleReceivedAmount,
+                    );
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -443,7 +462,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                   spacing: 10.0,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    showAddButton && !_accountAuthorization.isAction
+                    showAddButton && _accountAuthorization.isAction
                         ? Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -467,6 +486,14 @@ class _PaymentScreenState extends State<PaymentScreen>
                                               .toList(),
                                         ),
                                       ),
+                                      "bookingOtherCharges":
+                                          Uri.encodeComponent(
+                                            jsonEncode(
+                                              widget.bookingOtherChargesList
+                                                  .map((e) => e.toJson())
+                                                  .toList(),
+                                            ),
+                                          ),
                                     },
                                   );
                                 },
@@ -501,6 +528,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                                                   Uri.encodeComponent(
                                                     jsonEncode(ledger.toJson()),
                                                   ),
+                                              'flat': widget.flat,
                                             },
                                           );
                                         },
@@ -690,7 +718,12 @@ class _PaymentScreenState extends State<PaymentScreen>
                 ),
               ),
               horizontalSpacing(),
-              !AuthorizationModel().isAccess
+              (_accountAuthorization.isExport &&
+                          _tabs[_tabController.index].toLowerCase() ==
+                              'payment ledger') ||
+                      (_accountPaymentScheduleAuthorizationModel.isExport &&
+                          _tabs[_tabController.index].toLowerCase() ==
+                              'payment schedule')
                   ? CustomExportButton(
                     onExport: (type) {
                       if (_tabController.index == 1) {

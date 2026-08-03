@@ -14,6 +14,9 @@ class RequestManagementState extends BaseState {
   final int totalNumberOfRecord;
   final bool isActivityLoading;
   final int currentPage;
+  final bool isSavingApplicantRequest;
+  final bool hasUnsavedApplicantChanges;
+  final bool showRefundPaymentSuccessMessage;
   const RequestManagementState({
     super.isLoading,
     required this.bookingData,
@@ -28,6 +31,9 @@ class RequestManagementState extends BaseState {
     required this.totalNumberOfRecord,
     required this.isActivityLoading,
     required this.currentPage,
+    required this.isSavingApplicantRequest,
+    required this.hasUnsavedApplicantChanges,
+    required this.showRefundPaymentSuccessMessage,
   });
 
   factory RequestManagementState.initial() => RequestManagementState(
@@ -44,6 +50,9 @@ class RequestManagementState extends BaseState {
     totalNumberOfRecord: 0,
     isActivityLoading: false,
     currentPage: 1,
+    isSavingApplicantRequest: false,
+    hasUnsavedApplicantChanges: false,
+    showRefundPaymentSuccessMessage: false,
   );
 
   RequestManagementState copyWith({
@@ -61,6 +70,9 @@ class RequestManagementState extends BaseState {
     int? totalNumberOfRecord,
     bool? isActivityLoading,
     int? currentPage,
+    bool? isSavingApplicantRequest,
+    bool? hasUnsavedApplicantChanges,
+    bool? showRefundPaymentSuccessMessage,
   }) {
     return RequestManagementState(
       isLoading: isLoading ?? this.isLoading,
@@ -84,6 +96,13 @@ class RequestManagementState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       isActivityLoading: isActivityLoading ?? this.isActivityLoading,
       currentPage: currentPage ?? this.currentPage,
+      isSavingApplicantRequest:
+          isSavingApplicantRequest ?? this.isSavingApplicantRequest,
+      hasUnsavedApplicantChanges:
+          hasUnsavedApplicantChanges ?? this.hasUnsavedApplicantChanges,
+      showRefundPaymentSuccessMessage:
+          showRefundPaymentSuccessMessage ??
+          this.showRefundPaymentSuccessMessage,
     );
   }
 
@@ -102,5 +121,8 @@ class RequestManagementState extends BaseState {
     totalNumberOfRecord,
     isActivityLoading,
     currentPage,
+    isSavingApplicantRequest,
+    hasUnsavedApplicantChanges,
+    showRefundPaymentSuccessMessage,
   ];
 }

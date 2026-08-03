@@ -3,7 +3,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
@@ -11,12 +10,11 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_tr
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/repository/payment.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_state.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
-import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/repository/other_charges.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class PaymentCubit extends Cubit<PaymentState> {
   PaymentCubit() : super(PaymentState.initial());
@@ -33,9 +31,6 @@ class PaymentCubit extends Cubit<PaymentState> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
-  // PROJECT MASTER REPO
-  final ProjectMasterRepository _projectMasterRepository =
-      serviceLocator<ProjectMasterRepository>();
   // GET PAY TRACK LIST
   Future getPaymentScheduleList(
     BuildContext context,
@@ -147,10 +142,7 @@ class PaymentCubit extends Cubit<PaymentState> {
       (response) async {
         goRouter.pop();
 
-        showSuccessMessage(
-          context,
-          subTitle: response["message"] ?? "Generated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
 
         await getPaymentScheduleList(context, projectId, bookingId);
       },
@@ -264,8 +256,8 @@ class PaymentCubit extends Cubit<PaymentState> {
   // <---- ADD PAYMENT LEDGER ---->
   Future addPaymentLedgerMaster({
     required BuildContext context,
-    required String bookingId,
-    required String projectId,
+    required int bookingId,
+    required int projectId,
     required String bookingOtherChargesId,
     required String paymentFor,
     required String paymentMode,
@@ -281,8 +273,8 @@ class PaymentCubit extends Cubit<PaymentState> {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "PayTrackPaymentLedgerId": "0",
-      "BookingId": bookingId,
-      "ProjectId": projectId,
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
       "BookingOtherChargesId": bookingOtherChargesId,
       "PaymentFor": paymentFor,
       "PaymentMode": paymentMode,
@@ -327,7 +319,78 @@ class PaymentCubit extends Cubit<PaymentState> {
             ],
           ),
         );
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response['message']);
+        getPaymentLedgerList(context, bookingId, projectId);
+      },
+    );
+  }
+
+  // <---- ADD PAYMENT LEDGER ---->
+  Future updatePaymentLedgerMaster({
+    required BuildContext context,
+    required int bookingId,
+    required int projectId,
+    required String payTrackPaymentLedgerId,
+    required String uniquekey,
+    required String bookingOtherChargesId,
+    required String paymentFor,
+    required String paymentMode,
+    required String paymentReceivedFrom,
+    required String bankListMasterId,
+    required String projectBankListMasterId,
+    required String receivedAmount,
+    required String transactionChequeDemandDraftNumber,
+    required String transactionChequeDemandDraftDate,
+
+    required MultiFilePickerModel selectedChequeUrl,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> requestBody = {
+      "PayTrackPaymentLedgerId": payTrackPaymentLedgerId.toString(),
+      "Uniquekey": uniquekey,
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "BookingOtherChargesId": bookingOtherChargesId,
+      "PaymentFor": paymentFor,
+      "PaymentMode": paymentMode,
+      "PaymentReceivedFrom": paymentReceivedFrom,
+      "BankListMasterId": bankListMasterId,
+      "ProjectBankListMasterId": projectBankListMasterId,
+      "ReceivedAmount": receivedAmount,
+      "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
+      "TransactionChequeDemandDraftDate": transactionChequeDemandDraftDate,
+      "RemoveTransactionChequeDemandDraftURL":
+          selectedChequeUrl.deletedFileList,
+    };
+
+    List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < selectedChequeUrl.fileNameList.length; i++) {
+      if (selectedChequeUrl.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TransactionChequeDemandDraftURL",
+        "value": selectedChequeUrl.fileBytesList[i],
+        "fileName": selectedChequeUrl.fileNameList[i],
+      });
+    }
+
+    var addResult = await paymentRepository.addUpdatePayTrackPaymentLedger(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+
+        showSuccessMessage(context, subTitle: response['message']);
+        getPaymentLedgerList(context, bookingId, projectId);
       },
     );
   }
@@ -351,10 +414,12 @@ class PaymentCubit extends Cubit<PaymentState> {
     deleteResult.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
-        return;
       },
       (response) {
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response["message"]);
+
+        goRouter.pop(true);
+
         if (index != null) {
           final updatedList = List<PayTrackPaymentLedgerModel>.from(
             state.paymentLedger,
@@ -385,17 +450,20 @@ class PaymentCubit extends Cubit<PaymentState> {
         return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
       },
       (response) {
+        final data = response['data'] as List<OtherChargeModel>;
+
+        emit(state.copyWith(otherChargesList: data));
+
         return {
-          "itemList": List<Map<String, dynamic>>.from(
-            (response['data'] as List<dynamic>)
-                .map(
-                  (e) => {
-                    "zAttributesId": e.otherChargesId,
-                    "DisplayName": e.chargeName,
-                  },
-                )
-                .toList(),
-          ),
+          "itemList":
+              data
+                  .map(
+                    (e) => {
+                      "zAttributesId": e.otherChargesId,
+                      "DisplayName": e.chargeName,
+                    },
+                  )
+                  .toList(),
           "totalNumberOfRecord": response["totalNumberOfRecord"],
         };
       },
@@ -430,51 +498,6 @@ class PaymentCubit extends Cubit<PaymentState> {
           ),
           "totalNumberOfRecord": response["totalNumberOfRecord"],
         };
-      },
-    );
-  }
-
-  // PROJECT WISE BANK DROPDOWN
-  Future<Map<String, dynamic>> getProjectWithBankDropdown(
-    int pageNumber, {
-    String? value,
-  }) async {
-    ProjectModel project = getProject();
-
-    var result = await _projectMasterRepository.getProjectWithBankDetails(
-      projectId: project.projectId,
-    );
-
-    return result.fold(
-      (failure) {
-        return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
-      },
-      (response) {
-        final data = response["data"] as List<dynamic>? ?? [];
-        List<Map<String, dynamic>> items = List<Map<String, dynamic>>.from(
-          data.map(
-            (e) => {
-              "zAttributesId": e["ProjectWithBankDetailsId"],
-              "ProjectWithBankDetailsId": e["ProjectWithBankDetailsId"],
-              "BankListMasterId": e["BankListMasterId"],
-              "DisplayName": "${e["BankName"]} - ${e["NatureOfAccount"]}",
-              "AccountHolderName": e["BeneficiaryAccountHolderName"],
-              "AccountNumber": e["AccountNumber"],
-              "Branch": e["Branch"],
-              "IFSCCode": e["IFSCCode"],
-              "AcType": e["AcType"],
-            },
-          ),
-        );
-        if (value != null && value.trim().isNotEmpty) {
-          items =
-              items.where((e) {
-                return e["DisplayName"].toString().toLowerCase().contains(
-                  value.toLowerCase(),
-                );
-              }).toList();
-        }
-        return {"itemList": items, "totalNumberOfRecord": items.length};
       },
     );
   }

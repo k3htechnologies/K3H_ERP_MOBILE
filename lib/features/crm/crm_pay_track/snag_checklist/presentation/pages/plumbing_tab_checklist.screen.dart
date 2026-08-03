@@ -244,7 +244,7 @@ class _PlumbingTabChecklistScreenState
                                                                 .centerRight,
                                                         child: CustomCheckBox(
                                                           isDisabled:
-                                                              _snagChecklistAuthorization
+                                                              !_snagChecklistAuthorization
                                                                   .isAction,
                                                           isSelected:
                                                               isInactive,
@@ -275,13 +275,19 @@ class _PlumbingTabChecklistScreenState
                                                 children: [
                                                   buildRowTitleValue(
                                                     title: "Last Modified By",
-                                                    value: snag.modifiedBy,
+                                                    value:
+                                                        snag.modifiedBy
+                                                                .trim()
+                                                                .isEmpty
+                                                            ? snag.createdBy
+                                                            : snag.modifiedBy,
                                                   ),
                                                   verticalSpacing(),
                                                   buildRowTitleValue(
                                                     title: "Last Modified Date",
                                                     value: formatDate(
-                                                      snag.modifiedDate,
+                                                      snag.modifiedDate ??
+                                                          snag.createdDate,
                                                     ),
                                                   ),
                                                 ],
@@ -314,7 +320,7 @@ class _PlumbingTabChecklistScreenState
                   ],
                 ),
               ),
-              if (!_snagChecklistAuthorization.isAction)
+              if (_snagChecklistAuthorization.isAction)
                 CustomButton(
                   text: "Save",
                   onPressed: () {

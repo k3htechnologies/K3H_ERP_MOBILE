@@ -22,6 +22,7 @@ class FilesCubit extends Cubit<FilesState> {
     String fileType,
   ) async {
     emit(state.copyWith(searchText: value, payTrackBookingFileList: []));
+
     await getFilesList(
       context: context,
       pageNumber: 1,
@@ -29,6 +30,10 @@ class FilesCubit extends Cubit<FilesState> {
       bookingId: bookingId,
       fileType: fileType,
     );
+  }
+
+  Future resetSearch() async {
+    emit(state.copyWith(searchText: ""));
   }
 
   Future getFilesList({
@@ -40,7 +45,7 @@ class FilesCubit extends Cubit<FilesState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {"ApplicantName": state.searchText};
+    Map<String, dynamic> queryParams = {"FileName": state.searchText};
 
     var result = await _payTrackBookingFilesRepository
         .getPayTrackBookingFilesList(
@@ -57,11 +62,38 @@ class FilesCubit extends Cubit<FilesState> {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
+
+      // (response) {
+      //   emit(
+      //     state.copyWith(
+      //       payTrackBookingFileList:
+      //           pageNumber == 1
+      //               ? response['data'] as List<PayTrackBookingFilesModel>
+      //               : [
+      //                 ...state.payTrackBookingFileList,
+      //                 ...(response['data'] as List<PayTrackBookingFilesModel>),
+      //               ],
+      //       totalNumberOfRecord: response['totalNumberOfRecord'],
+      //       currentPage: pageNumber,
+      //       isLoading: false,
+      //     ),
+      //   );
+      // },
       (response) {
+        debugPrint("FILES List Count = ${response['data'].length}");
+        final List<PayTrackBookingFilesModel> newList =
+            response['data'] as List<PayTrackBookingFilesModel>;
+
+        final updatedList =
+            pageNumber == 1
+                ? newList
+                : [...state.payTrackBookingFileList, ...newList];
+
         emit(
           state.copyWith(
-            payTrackBookingFileList:
-                response['data'] as List<PayTrackBookingFilesModel>,
+            payTrackBookingFileList: updatedList,
+            payTrackBookingFileModel: newList.isNotEmpty ? newList.first : null,
+            currentPage: pageNumber,
             totalNumberOfRecord: response['totalNumberOfRecord'],
             isLoading: false,
           ),
@@ -155,7 +187,7 @@ class FilesCubit extends Cubit<FilesState> {
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < payTrackFiles.fileNameList.length; i++) {
       if (payTrackFiles.fileNameList[i].contains("http")) {
-        continue; // Skip already uploaded files
+        continue;
       }
       fileList.add({
         "key": "PayTrackBookingFilesURL",

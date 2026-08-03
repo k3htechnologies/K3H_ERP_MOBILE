@@ -13,7 +13,7 @@ class SnagChecklistModel {
   bool isCheck;
   int createdById;
   String createdBy;
-  DateTime createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
@@ -54,7 +54,7 @@ class SnagChecklistModel {
         createdDate:
             json["CreatedDate"] != null
                 ? DateTime.parse(json["CreatedDate"])
-                : DateTime.now(),
+                : null,
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
@@ -76,7 +76,7 @@ class SnagChecklistModel {
     "IsCheck": isCheck,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),

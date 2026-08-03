@@ -245,7 +245,7 @@ class PaymentDatasourceImpl extends PaymentDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String finalUrl =
-          "PayTrack/PullPayTrackPaymentLedger?BookingId=$bookingId&ProjectId=$projectId";
+          "PayTrack/PullPayTrackPaymentLedgerSummary?BookingId=$bookingId&ProjectId=$projectId";
 
       queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
       return finalUrl;
@@ -333,7 +333,7 @@ class PaymentDatasourceImpl extends PaymentDatasource {
 
       return {
         "data": networkResponse["data"],
-        "successMessage": networkResponse["successMessage"],
+        "message": networkResponse['message'],
         "totalNumberOfRecord": networkResponse["totalNumberOfRecord"],
       };
     } catch (error) {

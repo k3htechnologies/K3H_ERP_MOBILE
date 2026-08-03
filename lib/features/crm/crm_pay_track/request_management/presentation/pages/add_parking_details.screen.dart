@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddParkingDetailsScreen extends StatefulWidget {
   final ParkingModificationRequestModel? parking;
@@ -112,18 +113,20 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            widget.parking == null ? "Swap Parking" : "Edit Swap Parking",
-        authorization: AuthorizationModel(),
-      ),
-      body: BlocBuilder<RequestManagementCubit, RequestManagementState>(
-        builder: (context, state) {
-          if (state.isLoading ?? false) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return Column(
+    return BlocBuilder<RequestManagementCubit, RequestManagementState>(
+      builder: (context, state) {
+        if (state.isLoading ?? false) {
+          return Center(child: loader());
+        }
+        return Scaffold(
+          appBar: CustomAppBarWithBackButton(
+            screenTitle:
+                widget.parking == null
+                    ? "Add Parking Modification Request"
+                    : "Update Parking Modification Request",
+            authorization: AuthorizationModel(),
+          ),
+          body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
@@ -143,6 +146,7 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                           readOnly: true,
                         ),
                         CustomMultiFilePicker(
+                          isRequired: true,
                           title: "Proof Of Document",
                           filePickType: FilePickType.kycDocument,
                           initialFileList: prrofOfDocumentFile.fileNameList,
@@ -160,14 +164,20 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                             prrofOfDocumentFile.fileNameList = fileNameList;
                             prrofOfDocumentFile.deletedFileList = deleted;
                           },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Proof Of Document is required";
+                            }
+                            return null;
+                          },
                         ),
 
                         ValueListenableBuilder(
                           valueListenable: _selectedBankNotifier,
                           builder: (context, selectedParking, child) {
                             return CustomMultipleSelectPopup(
-                              hintText: "Select Parking Type",
-                              title: "Parking Type",
+                              hintText: "Select Parking",
+                              title: "Parking",
                               isRequired: true,
                               isMultiSelect: true,
                               dataList: [],
@@ -178,7 +188,7 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                               dataFetchCallBack: _fetchParking,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Parking Type is required";
+                                  return "Parking is required";
                                 }
                                 return null;
                               },
@@ -193,53 +203,48 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomButton(
-                      text: widget.parking == null ? "Add" : "Update",
-                      onPressed: () {
-                        if (!(_formKey.currentState?.validate() ?? false)) {
-                          return;
-                        }
-
-                        final parkingIds = _selectedBankNotifier.value
-                            .map((e) => e["zAttributesId"].toString())
-                            .join(",");
-                        if (widget.parking == null) {
-                          _requestManagementCubit.addParkingModificationRequest(
-                            context,
-                            bookingId: state.bookingData!.bookingId,
-                            projectId: state.bookingData!.projectId,
-                            parkingId: parkingIds,
-                            proofDocumentFile: prrofOfDocumentFile,
-                          );
-                        } else {
-                          _requestManagementCubit
-                              .updateParkingModificationRequest(
-                                context,
-                                parkingModificationRequestId:
-                                    widget
-                                        .parking!
-                                        .parkingModificationRequestId,
-                                bookingId: widget.parking!.bookingId,
-                                projectId: widget.parking!.projectId,
-                                uniquekey: widget.parking!.uniqueKey,
-                                parkingId: parkingIds,
-                                proofDocumentFile: prrofOfDocumentFile,
-                              );
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
             ],
-          );
-        },
-      ),
+          ),
+          bottomNavigationBar: SafeArea(
+            child: Container(
+              height: 70.0,
+              padding: const EdgeInsets.all(16.0),
+              child: CustomButton(
+                text: widget.parking == null ? "Add" : "Update",
+                onPressed: () {
+                  if (!(_formKey.currentState?.validate() ?? false)) {
+                    return;
+                  }
+
+                  final parkingIds = _selectedBankNotifier.value
+                      .map((e) => e["zAttributesId"].toString())
+                      .join(",");
+                  if (widget.parking == null) {
+                    _requestManagementCubit.addParkingModificationRequest(
+                      context,
+                      bookingId: state.bookingData!.bookingId,
+                      projectId: state.bookingData!.projectId,
+                      parkingId: parkingIds,
+                      proofDocumentFile: prrofOfDocumentFile,
+                    );
+                  } else {
+                    _requestManagementCubit.updateParkingModificationRequest(
+                      context,
+                      parkingModificationRequestId:
+                          widget.parking!.parkingModificationRequestId,
+                      bookingId: widget.parking!.bookingId,
+                      projectId: widget.parking!.projectId,
+                      uniquekey: widget.parking!.uniqueKey,
+                      parkingId: parkingIds,
+                      proofDocumentFile: prrofOfDocumentFile,
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

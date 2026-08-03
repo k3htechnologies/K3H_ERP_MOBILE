@@ -99,11 +99,14 @@ class SnagChecklistCubit extends Cubit<SnagChecklistState> {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
-      (response) {
-        emit(state.copyWith(isLoading: false));
-        showSuccessMessage(
+      (response) async {
+        showSuccessMessage(context, subTitle: response["message"]);
+
+        await getSnagCheckList(
           context,
-          subTitle: response["message"] ?? "Checklist updated successfully",
+          projectId: projectId,
+          bookingId: bookingId,
+          categoryName: state.currentCategory,
         );
       },
     );

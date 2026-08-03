@@ -181,7 +181,7 @@ class _FlatHandoverChecklistScreenState
                     );
                   },
                 ),
-                if (!_flatHandoverChecklistAuthorization.isAction)
+                if (_flatHandoverChecklistAuthorization.isAction)
                   CustomButton(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     text: index != null ? "Update" : "Save",
@@ -255,7 +255,8 @@ class _FlatHandoverChecklistScreenState
           return const Center(child: CircularProgressIndicator());
         }
         final sections =
-            state.flatHandoverCheckList.map((e) => e.section).toSet().toList();
+            state.flatHandoverCheckList.map((e) => e.section).toSet().toList()
+              ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
         if (_tabController.length != sections.length) {
           _tabController.dispose();
@@ -356,7 +357,7 @@ class _FlatHandoverChecklistScreenState
                                       ),
                                     ),
                                     horizontalSpacing(),
-                                    if (!_flatHandoverChecklistAuthorization
+                                    if (_flatHandoverChecklistAuthorization
                                         .isAction)
                                       CustomIconButton.edit(
                                         onPressed: () {
@@ -422,16 +423,19 @@ class _FlatHandoverChecklistScreenState
                                   children: [
                                     Expanded(
                                       child: buildColumnTitleValueNormal(
-                                        title: "Modified By",
-                                        value: item.modifiedBy,
+                                        title: "Last Modified By",
+                                        value:
+                                            item.modifiedBy.trim().isEmpty
+                                                ? item.createdBy
+                                                : item.modifiedBy,
                                       ),
                                     ),
                                     horizontalSpacing(),
                                     Expanded(
                                       child: buildColumnTitleValueNormal(
-                                        title: "Modified Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          item.modifiedDate,
+                                        title: "Last Modified Date",
+                                        value: formatDate(
+                                          item.modifiedDate ?? item.createdDate,
                                         ),
                                       ),
                                     ),

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_tab.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/refund_payment_ledger.screen.dart';
@@ -111,8 +112,21 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
       listenWhen:
           (previous, current) =>
               previous.showRefundPaymentLedgerTab !=
-              current.showRefundPaymentLedgerTab,
-      listener: (context, state) {},
+                  current.showRefundPaymentLedgerTab ||
+              previous.showRefundPaymentSuccessMessage !=
+                  current.showRefundPaymentSuccessMessage,
+      listener: (context, state) {
+        if (state.showRefundPaymentSuccessMessage) {
+          showSuccessMessage(
+            context,
+            subTitle: "Refund Amount Initiated successfully",
+          );
+
+          context
+              .read<RequestManagementCubit>()
+              .clearRefundPaymentSuccessMessage();
+        }
+      },
       child: BlocBuilder<RequestManagementCubit, RequestManagementState>(
         builder: (context, state) {
           final tabs = ['Summary', 'Requests', 'Activity'];
@@ -191,8 +205,28 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
               alpha: 0.3,
             ),
             textColor: AppColor.missingInformationRed,
-            onPressed: () {
-              goRouter.pushNamed(AppRoutes.cancelBookingScreen, extra: booking);
+            onPressed: () async {
+              final result = await goRouter.pushNamed<bool>(
+                AppRoutes.cancelBookingScreen,
+                extra: booking,
+              );
+
+              if (result == true && context.mounted) {
+                await context.read<PayTrackCubit>().getPayTrackList(
+                  context,
+                  1,
+                  booking.projectId,
+                );
+
+                if (context.mounted) {
+                  await context.read<RequestManagementCubit>().getBookingById(
+                    context,
+                    1,
+                    booking.projectId,
+                    booking.bookingId,
+                  );
+                }
+              }
             },
           );
         } else if (isBookingCancelled &&
@@ -203,10 +237,18 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
             text: "Initiate Refund",
             backgroundColor: AppColor.primary.withValues(alpha: 0.15),
             textColor: AppColor.primary,
-            onPressed: () {
-              goRouter.pushNamed(
+            onPressed: () async {
+              await goRouter.pushNamed(
                 AppRoutes.addRefundScreen,
                 extra: {"booking": booking},
+              );
+
+              if (!context.mounted) return;
+
+              context.read<PayTrackCubit>().getPayTrackList(
+                context,
+                1,
+                booking.projectId,
               );
             },
           );
@@ -217,8 +259,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
             text: "Make Payment",
             backgroundColor: AppColor.green,
             textColor: AppColor.white,
-            onPressed: () {
-              goRouter.pushNamed(
+            onPressed: () async {
+              final result = await goRouter.pushNamed(
                 AppRoutes.modifiedRequestsMakePayment,
                 extra: {
                   "uniquekey": booking.uniquekey,
@@ -226,6 +268,27 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                   "projectId": booking.projectId,
                 },
               );
+
+              if (result == true && context.mounted) {
+                await context.read<RequestManagementCubit>().getBookingById(
+                  context,
+                  1,
+                  booking.projectId,
+                  booking.bookingId,
+                );
+
+                if (context.mounted) {
+                  await context
+                      .read<RequestManagementCubit>()
+                      .getRefundAmountPaymentLedger(
+                        context,
+                        booking.projectId,
+                        booking.bookingId,
+                      );
+                }
+
+                _tabController.animateTo(3);
+              }
             },
           );
         }
@@ -265,330 +328,435 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                 style: AppTextStyle.ts16SB(),
                               ),
                               verticalSpacing(),
-                              Container(
-                                padding: EdgeInsets.all(16.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(
-                                    color: AppColor.primary.withValues(
-                                      alpha: 0.3,
+                              ListView.builder(
+                                itemCount:
+                                    bookingData.bookingApplicantData.length,
+                                shrinkWrap: true,
+                                physics: AlwaysScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  final applicantDetails =
+                                      bookingData.bookingApplicantData[index];
+                                  return Container(
+                                    margin: EdgeInsets.only(bottom: 10.0),
+                                    padding: EdgeInsets.all(16.0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      border: Border.all(
+                                        color: AppColor.primary.withValues(
+                                          alpha: 0.3,
+                                        ),
+                                        width: 0.8,
+                                      ),
                                     ),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Column(
-                                  spacing: 16.0,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValueNormal(
-                                      title: "Applicant Type",
-                                      value: applicant.applicantType,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
+                                    child: Column(
+                                      spacing: 16.0,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Applicant Name",
-                                            value: applicant.applicantName,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  text: applicant.applicantName,
-                                                  fileUrl: applicant.photoURL,
-                                                ),
-                                          ),
+                                        buildColumnTitleValueNormal(
+                                          title: "Applicant Type",
+                                          value: applicantDetails.applicantType,
                                         ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Mobile Number",
-                                            value:
-                                                applicant.applicantMobileNumber,
-                                            customValueWidget:
-                                                CustomClickToContactText(
-                                                  countryCode:
-                                                      applicant
-                                                          .applicantMobileNumberCountryCode,
-                                                  value:
-                                                      applicant
-                                                          .applicantMobileNumber,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Email Id",
-                                            value: applicant.applicantEmailId,
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Aadhaar Card No.",
-                                            value: applicant.aadharCardNumber,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "Aadhaar Card",
-                                                  text:
-                                                      applicant
-                                                          .aadharCardNumber,
-                                                  fileUrl:
-                                                      applicant.aadharCardURL,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "PAN No.",
-                                            value: applicant.panNumber,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "PAN Card",
-                                                  text: applicant.panNumber,
-                                                  fileUrl: applicant.panCardURL,
-                                                ),
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Driving License",
-                                            value:
-                                                applicant.drivingLicenseNumber,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "Droivinh License",
-                                                  text:
-                                                      applicant
-                                                          .drivingLicenseNumber,
-                                                  fileUrl:
-                                                      applicant
-                                                          .drivingLicenseURL,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Voting ID",
-                                            value: applicant.votingIdNumber,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "Voting ID",
-                                                  text:
-                                                      applicant.votingIdNumber,
-                                                  fileUrl:
-                                                      applicant.votingIdURL,
-                                                ),
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Passport No.",
-                                            value: applicant.passportNumber,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "Passport",
-                                                  text:
-                                                      applicant.passportNumber,
-                                                  fileUrl:
-                                                      applicant.passportURL,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "GST Number",
-                                            value: applicant.gstNumber,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "GST Number",
-                                                  text: applicant.gstNumber,
-                                                  fileUrl:
-                                                      applicant.gstNumberURL,
-                                                ),
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Cancelled Cheque",
-                                            value: applicant.cancelledChequeUrl,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "Cancelled Cheque",
-                                                  text:
-                                                      applicant
-                                                          .cancelledChequeUrl,
-                                                  fileUrl:
-                                                      applicant
-                                                          .cancelledChequeUrl,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "POA (if NRI Execution)",
-                                            value: applicant.poaurl,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title:
-                                                      "POA (if NRI Execution)",
-                                                  text: applicant.poaurl,
-                                                  fileUrl: applicant.poaurl,
-                                                ),
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title:
-                                                "Income Docs (Form 16 / ITR)",
-                                            value: applicant.incomeForm16Itrurl,
-                                            customValueWidget: DocumentPreviewText(
-                                              title:
-                                                  "Income Docs (Form 16 / ITR)",
-                                              text:
-                                                  applicant.incomeForm16Itrurl,
-                                              fileUrl:
-                                                  applicant.incomeForm16Itrurl,
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Applicant Name",
+                                                value:
+                                                    applicantDetails
+                                                        .applicantName,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Profile Photo",
+                                                      text:
+                                                          applicantDetails
+                                                              .applicantName,
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .photoURL,
+                                                    ),
+                                              ),
                                             ),
-                                          ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Mobile Number",
+                                                value:
+                                                    applicantDetails
+                                                        .applicantMobileNumber,
+                                                customValueWidget:
+                                                    CustomClickToContactText(
+                                                      countryCode:
+                                                          applicantDetails
+                                                              .applicantMobileNumberCountryCode,
+                                                      value:
+                                                          applicantDetails
+                                                              .applicantMobileNumber,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Nre/Nro/Bank Details",
-                                            value:
-                                                applicant.nreNroBankDetailsUrl,
-                                            customValueWidget:
-                                                DocumentPreviewText(
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Email Id",
+                                                    value:
+                                                        applicantDetails
+                                                            .applicantEmailId,
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Aadhaar Card No.",
+                                                value:
+                                                    applicantDetails
+                                                        .aadharCardNumber,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Aadhaar Card",
+                                                      text:
+                                                          applicantDetails
+                                                              .aadharCardNumber,
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .aadharCardURL,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "PAN No.",
+                                                    value:
+                                                        applicantDetails
+                                                            .panNumber,
+                                                    customValueWidget:
+                                                        DocumentPreviewText(
+                                                          title: "PAN Card",
+                                                          text:
+                                                              applicantDetails
+                                                                  .panNumber,
+                                                          fileUrl:
+                                                              applicantDetails
+                                                                  .panCardURL,
+                                                        ),
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Driving License",
+                                                value:
+                                                    applicantDetails
+                                                        .drivingLicenseNumber,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Driving License",
+                                                      text:
+                                                          applicantDetails
+                                                              .drivingLicenseNumber,
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .drivingLicenseURL,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Voting ID No.",
+                                                value:
+                                                    applicantDetails
+                                                        .votingIdNumber,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Voting ID",
+                                                      text:
+                                                          applicantDetails
+                                                              .votingIdNumber,
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .votingIdURL,
+                                                    ),
+                                              ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Passport No.",
+                                                value: applicant.passportNumber,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Passport",
+                                                      text:
+                                                          applicant
+                                                              .passportNumber,
+                                                      fileUrl:
+                                                          applicant.passportURL,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "GST No.",
+                                                    value:
+                                                        applicantDetails
+                                                            .gstNumber,
+                                                    customValueWidget:
+                                                        DocumentPreviewText(
+                                                          title: "GST No.",
+                                                          text:
+                                                              applicantDetails
+                                                                  .gstNumber,
+                                                          fileUrl:
+                                                              applicantDetails
+                                                                  .gstNumberURL,
+                                                        ),
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Cancelled Cheque",
+                                                value:
+                                                    applicantDetails
+                                                        .cancelledChequeUrl,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Cancelled Cheque",
+                                                      text:
+                                                          applicantDetails
+                                                                  .cancelledChequeUrl
+                                                                  .isNotEmpty
+                                                              ? "View"
+                                                              : "-",
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .cancelledChequeUrl,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "POA (if NRI Execution)",
+                                                value: applicantDetails.poaurl,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title:
+                                                          "POA (if NRI Execution)",
+                                                      text:
+                                                          applicantDetails
+                                                                  .poaurl
+                                                                  .isNotEmpty
+                                                              ? "View"
+                                                              : "-",
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .poaurl,
+                                                    ),
+                                              ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title:
+                                                    "Income Docs (Form 16 / ITR)",
+                                                value:
+                                                    applicantDetails
+                                                        .incomeForm16Itrurl,
+                                                customValueWidget: DocumentPreviewText(
+                                                  title:
+                                                      "Income Docs (Form 16 / ITR)",
+                                                  text:
+                                                      applicantDetails
+                                                              .incomeForm16Itrurl
+                                                              .isNotEmpty
+                                                          ? "View"
+                                                          : "-",
+                                                  fileUrl:
+                                                      applicantDetails
+                                                          .incomeForm16Itrurl,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Nre/Nro/Bank Details",
+                                                value:
+                                                    applicantDetails
+                                                        .nreNroBankDetailsUrl,
+                                                customValueWidget: DocumentPreviewText(
                                                   title: "Nre/Nro/Bank Details",
                                                   text:
-                                                      applicant
+                                                      applicantDetails
+                                                              .nreNroBankDetailsUrl
+                                                              .isNotEmpty
+                                                          ? "View"
+                                                          : "-",
+                                                  fileUrl:
+                                                      applicantDetails
                                                           .nreNroBankDetailsUrl,
-                                                  fileUrl:
-                                                      applicant
-                                                          .nreNroBankDetailsUrl,
                                                 ),
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Nominee Form",
-                                            value: applicant.nomineeFormUrl,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "Nominee Form",
-                                                  text:
-                                                      applicant.nomineeFormUrl,
-                                                  fileUrl:
-                                                      applicant.nomineeFormUrl,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title:
-                                                "Statement Of Source Of Funds",
-                                            value:
-                                                applicant
-                                                    .statementOfSourceOfFundsURL,
-                                            customValueWidget: DocumentPreviewText(
-                                              title:
-                                                  "Statement Of Source Of Funds",
-                                              text:
-                                                  applicant
-                                                      .statementOfSourceOfFundsURL,
-                                              fileUrl:
-                                                  applicant
-                                                      .statementOfSourceOfFundsURL,
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Payment Proof",
-                                            value: applicant.paymentProofURL,
-                                            customValueWidget:
-                                                DocumentPreviewText(
-                                                  title: "Payment Proof",
-                                                  text:
-                                                      applicant.paymentProofURL,
-                                                  fileUrl:
-                                                      applicant.paymentProofURL,
-                                                ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Created By",
-                                            value: applicant.createdBy,
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Created Date",
-                                            value: formatDateTimeAsDDMMMYYYY(
-                                              applicant.createdDate,
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Nominee Form",
+                                                value: "View",
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Nominee Form",
+                                                      text:
+                                                          applicantDetails
+                                                                  .nomineeFormUrl
+                                                                  .isNotEmpty
+                                                              ? "View"
+                                                              : "-",
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .nomineeFormUrl,
+                                                    ),
+                                              ),
                                             ),
-                                          ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title:
+                                                    "Statement Of Source Of Funds",
+                                                value:
+                                                    applicantDetails
+                                                        .statementOfSourceOfFundsURL,
+                                                customValueWidget: DocumentPreviewText(
+                                                  title:
+                                                      "Statement Of Source Of Funds",
+                                                  text:
+                                                      applicantDetails
+                                                              .statementOfSourceOfFundsURL
+                                                              .isNotEmpty
+                                                          ? "View"
+                                                          : "-",
+                                                  fileUrl:
+                                                      applicantDetails
+                                                          .statementOfSourceOfFundsURL,
+                                                ),
+                                              ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Payment Proof",
+                                                value:
+                                                    applicantDetails
+                                                        .paymentProofURL,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "Payment Proof",
+                                                      text:
+                                                          applicantDetails
+                                                                  .paymentProofURL
+                                                                  .isNotEmpty
+                                                              ? "View"
+                                                              : "-",
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .paymentProofURL,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child:
+                                                  buildColumnTitleValueNormal(
+                                                    title: "Created By",
+                                                    value:
+                                                        applicantDetails
+                                                            .createdBy,
+                                                  ),
+                                            ),
+                                            horizontalSpacing(),
+                                            Expanded(
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Created Date",
+                                                value:
+                                                    formatDateTimeAsDDMMMYYYY(
+                                                      applicantDetails
+                                                          .createdDate,
+                                                    ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
                             ],
                           ),
@@ -620,158 +788,148 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                               ),
                               verticalSpacing(),
                               Column(
-                                children: List.generate(booking.parkingData.length, (
-                                  index,
-                                ) {
-                                  final parking = booking.parkingData[index];
+                                children: List.generate(
+                                  booking.parkingData.length,
+                                  (index) {
+                                    final parking = booking.parkingData[index];
 
-                                  return Container(
-                                    margin: const EdgeInsets.only(bottom: 12),
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: AppColor.primary.withValues(
-                                          alpha: 0.3,
-                                        ),
-                                        width: 0.8,
-                                      ),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      spacing: 10.0,
-                                      children: [
-                                        Text(
-                                          "Parking ${index + 1}",
-                                          style: AppTextStyle.ts14SB(
-                                            color: AppColor
-                                                .greyTitleAndValueColor
-                                                .withValues(alpha: 0.4),
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: AppColor.primary.withValues(
+                                            alpha: 0.3,
                                           ),
+                                          width: 0.8,
                                         ),
-                                        verticalSpacing(),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        spacing: 10.0,
+                                        children: [
+                                          Text(
+                                            "Parking ${index + 1}",
+                                            style: AppTextStyle.ts14SB(
+                                              color: AppColor
+                                                  .greyTitleAndValueColor
+                                                  .withValues(alpha: 0.4),
+                                            ),
+                                          ),
+                                          verticalSpacing(),
 
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Parking Number",
-                                                    value:
-                                                        parking.parkingNumber,
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Building",
-                                                    value:
-                                                        parking.buildingNumber,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Type",
-                                                    value: parking.parkingType,
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Size",
-                                                    value:
-                                                        parking.parkingSubType,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Wing",
-                                                    value: parking.wing,
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Floor",
-                                                    value: parking.floor,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Category",
-                                                    value:
-                                                        parking.parkingCategory,
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Dimensions",
-                                                    value:
-                                                        parking
-                                                            .parkingDimensions,
-                                                  ),
-                                            ),
-                                          ],
-                                        ),
-
-                                        horizontalSpacing(),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Approval Status",
-                                                    value:
-                                                        parking.approvalStatus,
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
-                                                title: "EV Charging",
-                                                value:
-                                                    parking.isEVChargingAvailable
-                                                        ? "Yes"
-                                                        : "No",
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Parking Number",
+                                                      value:
+                                                          parking.parkingNumber,
+                                                    ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
+                                              horizontalSpacing(),
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Building",
+                                                      value:
+                                                          parking
+                                                              .buildingNumber,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Type",
+                                                      value:
+                                                          parking.parkingType,
+                                                    ),
+                                              ),
+                                              horizontalSpacing(),
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Size",
+                                                      value:
+                                                          parking
+                                                              .parkingSubType,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Wing",
+                                                      value: parking.wing,
+                                                    ),
+                                              ),
+                                              horizontalSpacing(),
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Floor",
+                                                      value: parking.floor,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Category",
+                                                      value:
+                                                          parking
+                                                              .parkingCategory,
+                                                    ),
+                                              ),
+                                              horizontalSpacing(),
+                                              Expanded(
+                                                child:
+                                                    buildColumnTitleValueNormal(
+                                                      title: "Dimensions",
+                                                      value:
+                                                          parking
+                                                              .parkingDimensions,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          horizontalSpacing(),
+                                          buildColumnTitleValueNormal(
+                                            title: "EV Charging",
+                                            value:
+                                                parking.isEVChargingAvailable
+                                                    ? "Yes"
+                                                    : "No",
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
@@ -818,185 +976,194 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                           ],
                         ),
                       ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10.0),
-                        padding: EdgeInsets.all(16.0),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Cancellation Summary",
-                              style: AppTextStyle.ts14SB(),
-                            ),
-                            verticalSpacing(),
-                            Container(
-                              padding: EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: AppColor.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  width: 0.8,
-                                ),
+                      if (bookingData.approvalStatus.trim().toUpperCase() ==
+                              "CANCEL" ||
+                          bookingData.cancelRemark.trim().isNotEmpty)
+                        Container(
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          padding: EdgeInsets.all(16.0),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Cancellation Summary",
+                                style: AppTextStyle.ts14SB(),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Cancelled Date",
-                                          value: formatDateTimeAsDDMMMYYYY(
-                                            bookingData.cancelledDate,
+                              verticalSpacing(),
+                              Container(
+                                padding: EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  border: Border.all(
+                                    color: AppColor.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Cancelled Date",
+                                            value: formatDateTimeAsDDMMMYYYY(
+                                              bookingData.cancelledDate,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Cancelled By",
-                                          value: bookingData.cancelledBy,
+                                        horizontalSpacing(),
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Cancelled By",
+                                            value: bookingData.cancelledBy,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                  verticalSpacing(),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Remark",
-                                          value: bookingData.cancelRemark,
+                                      ],
+                                    ),
+                                    verticalSpacing(),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Remark",
+                                            value: bookingData.cancelRemark,
+                                          ),
                                         ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Proof Of Document",
-                                          value: bookingData.cancelledBy,
-                                          customValueWidget:
-                                              CustomButton.documentOutline(
-                                                onPressed: () {
-                                                  if (bookingData
-                                                      .proofOfDocumentUrl
-                                                      .isNotEmpty) {
-                                                    showFilePreviewDialog(
-                                                      context,
-                                                      title:
-                                                          "Proof Of Document",
-                                                      bookingData
-                                                          .proofOfDocumentUrl
-                                                          .split(","),
-                                                    );
-                                                  }
-                                                },
-                                                isDisable:
-                                                    booking
+                                        horizontalSpacing(),
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Proof Of Document",
+                                            value: bookingData.cancelledBy,
+                                            customValueWidget:
+                                                CustomButton.documentOutline(
+                                                  onPressed: () {
+                                                    if (bookingData
                                                         .proofOfDocumentUrl
-                                                        .isEmpty,
-                                              ),
+                                                        .isNotEmpty) {
+                                                      showFilePreviewDialog(
+                                                        context,
+                                                        title:
+                                                            "Proof Of Document",
+                                                        bookingData
+                                                            .proofOfDocumentUrl
+                                                            .split(","),
+                                                      );
+                                                    }
+                                                  },
+                                                  isDisable:
+                                                      booking
+                                                          .proofOfDocumentUrl
+                                                          .isEmpty,
+                                                ),
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10.0),
-                        padding: EdgeInsets.all(16.0),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Refund Amount Details",
-                              style: AppTextStyle.ts14SB(),
-                            ),
-                            verticalSpacing(),
-                            Container(
-                              padding: EdgeInsets.all(16.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                border: Border.all(
-                                  color: AppColor.primary.withValues(
-                                    alpha: 0.3,
-                                  ),
-                                  width: 0.8,
+                                      ],
+                                    ),
+                                  ],
                                 ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Total Refunded",
-                                          value:
-                                              bookingData
-                                                  .totalAmountRefundedAgainstBooking
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Paid",
-                                          value:
-                                              bookingData
-                                                  .refundedAmountOnTillDate
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  verticalSpacing(),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Pending",
-                                          value:
-                                              (bookingData.totalAmountRefundedAgainstBooking -
-                                                      bookingData
-                                                          .refundedAmountOnTillDate)
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Refund Status",
-                                          value: bookingData.approvalStatus,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
+                      if (bookingData.approvalStatus.trim().toUpperCase() ==
+                          "REFUND")
+                        Container(
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          padding: EdgeInsets.all(16.0),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Refund Amount Details",
+                                style: AppTextStyle.ts14SB(),
+                              ),
+                              verticalSpacing(),
+                              Container(
+                                padding: EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  border: Border.all(
+                                    color: AppColor.primary.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    width: 0.8,
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Total Refunded",
+                                            value:
+                                                bookingData
+                                                    .totalAmountRefundedAgainstBooking
+                                                    .toIndianCurrency(),
+                                          ),
+                                        ),
+                                        horizontalSpacing(),
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Paid",
+                                            value:
+                                                bookingData
+                                                    .refundedAmountOnTillDate
+                                                    .toIndianCurrency(),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    verticalSpacing(),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Pending",
+                                            value:
+                                                (bookingData.totalAmountRefundedAgainstBooking -
+                                                        bookingData
+                                                            .refundedAmountOnTillDate)
+                                                    .toIndianCurrency(),
+                                          ),
+                                        ),
+                                        horizontalSpacing(),
+                                        Expanded(
+                                          child: buildColumnTitleValueNormal(
+                                            title: "Refund Status",
+                                            value: bookingData.approvalStatus,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                     ],
                   ),
                 ),

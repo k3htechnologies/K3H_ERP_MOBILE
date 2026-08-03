@@ -11,7 +11,7 @@ class FlatHandoverChecklistModel {
   String remark;
   int createdById;
   String createdBy;
-  DateTime createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
@@ -51,7 +51,7 @@ class FlatHandoverChecklistModel {
         createdDate:
             json["CreatedDate"] != null
                 ? DateTime.parse(json["CreatedDate"])
-                : DateTime.now(),
+                : null,
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
@@ -71,7 +71,7 @@ class FlatHandoverChecklistModel {
     "Remark": remark,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),

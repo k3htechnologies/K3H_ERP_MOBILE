@@ -57,6 +57,12 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
     super.initState();
     _loanDetailsCubit = context.read<LoanDetailsCubit>();
     _selectedBankNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
+    context.read<PaymentCubit>().getPaymentScheduleList(
+      context,
+      widget.projectId,
+      widget.bookingId,
+    );
+
     _initializeControllers();
     if (_isEditMode) {
       _populateFormFields(widget.details!);
@@ -260,12 +266,11 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       return "Please enter a valid amount";
                     }
 
-                    final totalAmount =
-                        context.read<PaymentCubit>().totalAgreementAmount;
-
-                    if (enteredAmount > totalAmount) {
+                    final paymentLedgerAmount =
+                        context.read<PaymentCubit>().totalAmount;
+                    if (enteredAmount > paymentLedgerAmount) {
                       return "Loan Sanction Amount cannot be greater than "
-                          "Total Unit Cost (${totalAmount.toIndianCurrency()})";
+                          "Total Unit Cost (${paymentLedgerAmount.toIndianCurrency()})";
                     }
 
                     return null;
@@ -278,7 +283,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                   setValue: (value) => sanctionDate = value,
                   validator: (value) {
                     if (value == null) {
-                      return 'Santion Date is required';
+                      return 'Sanction Date is required';
                     }
                     return null;
                   },

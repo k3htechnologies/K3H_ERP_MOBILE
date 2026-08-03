@@ -32,6 +32,7 @@ class PayTrackViewScreen extends StatefulWidget {
   final int enquiryId;
   final String bookingApprovalStatus;
   final String approvalStatus;
+  final String flat;
   const PayTrackViewScreen({
     super.key,
     required this.applicantName,
@@ -40,6 +41,7 @@ class PayTrackViewScreen extends StatefulWidget {
     required this.enquiryId,
     required this.bookingApprovalStatus,
     required this.approvalStatus,
+    required this.flat,
   });
 
   @override
@@ -100,6 +102,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         AuthorizationModel();
     _accountRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.paymentLedger] ??
+        Authorization.routeAuthorizationMap[AppRoutes.crmPaymentSchedule] ??
         AuthorizationModel();
     _modifiedRequestsAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.modificationRequest] ??
@@ -189,6 +192,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           ),
           BlocBuilder<PayTrackCubit, PayTrackState>(
             builder: (context, state) {
+              if (state.bookingData == null) {
+                return Expanded(child: Center(child: loader()));
+              }
               return Expanded(
                 child: TabBarView(
                   controller: _tabController,
@@ -201,6 +207,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
                         approvalStatus: "Approved",
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                     },
                     if (_accountRouteAuthorizationModel.isView) ...{
@@ -210,6 +217,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                         applicantName: widget.applicantName,
                         bookingApprovalStatus: widget.bookingApprovalStatus,
                         approvalStatus: widget.approvalStatus,
+                        flat: widget.flat,
+                        bookingOtherChargesList:
+                            state.bookingData!.bookingOtherChargesData,
                       ),
                     },
                     if (_modifiedRequestsAuthorizationModel.isView)
@@ -287,6 +297,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         _tabController.index == 0 &&
         !booking.isFinalRegistrationCompleted &&
         widget.bookingApprovalStatus.trim().toUpperCase() == "APPROVED";
+    final approvalStatus = booking.approvalStatus.trim().toUpperCase();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: Column(
@@ -394,6 +406,23 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
+                      title: "E-Mail ID",
+                      value: enquiry.emailId,
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: enquiry.emailId,
+                        value: enquiry.emailId,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Current Location",
+                      value: enquiry.currentLocation,
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
                       title: "Source",
                       value: enquiry.source,
                     ),
@@ -423,15 +452,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     buildColumnTitleValue(
                       title: "Sourcing Manager",
                       value: enquiry.sourcingManager,
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Current Location",
-                      value: enquiry.currentLocation,
                     ),
                   ],
                 ),
@@ -560,7 +580,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     itemCount: booking.bookingApplicantData.length,
                     itemBuilder: (_, index) {
                       final applicant = booking.bookingApplicantData[index];
-
                       return infoCard(
                         bgColor: AppColor.white,
                         borderColor: AppColor.primary,
@@ -940,137 +959,139 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // PARKING SECTION
-          Container(
-            height: 350,
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Parking Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Expanded(
-                  child:
-                      booking.parkingData.isEmpty
-                          ? Center(
-                            child: noDataWidget(
-                              message: 'No Parking Data Found',
-                            ),
-                          )
-                          : ListView.builder(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 10,
-                            ),
-                            shrinkWrap: true,
-                            itemCount: booking.parkingData.length,
-                            itemBuilder: (_, index) {
-                              final parking = booking.parkingData[index];
-                              return Container(
-                                margin: EdgeInsets.only(bottom: 10),
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColor.primary,
-                                    width: .3,
+          if (booking.parkingData.isNotEmpty)
+            Container(
+              height: 350,
+              margin: EdgeInsets.only(bottom: 10),
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Parking Details", style: AppTextStyle.ts16SB()),
+                  verticalSpacing(),
+                  Expanded(
+                    child:
+                        booking.parkingData.isEmpty
+                            ? Center(
+                              child: noDataWidget(
+                                message: 'No Parking Data Found',
+                              ),
+                            )
+                            : ListView.builder(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 2,
+                                vertical: 10,
+                              ),
+                              shrinkWrap: true,
+                              itemCount: booking.parkingData.length,
+                              itemBuilder: (_, index) {
+                                final parking = booking.parkingData[index];
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColor.primary,
+                                      width: .3,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 10,
-                                  children: [
-                                    Text(
-                                      "Parking ${index + 1}",
-                                      style: AppTextStyle.ts14SB(
-                                        color: AppColor.greyTitleAndValueColor
-                                            .withValues(alpha: 0.4),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    spacing: 10,
+                                    children: [
+                                      Text(
+                                        "Parking ${index + 1}",
+                                        style: AppTextStyle.ts14SB(
+                                          color: AppColor.greyTitleAndValueColor
+                                              .withValues(alpha: 0.4),
+                                        ),
                                       ),
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Parking Number",
-                                          value: parking.parkingNumber,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Building",
-                                          value: parking.buildingNumber,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Wing",
-                                          value: parking.wing,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Floor",
-                                          value: parking.floor,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Category",
-                                          value: parking.parkingCategory,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Type",
-                                          value: parking.parkingType,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Size",
-                                          value: parking.parkingSubType,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Dimensions",
-                                          value: parking.parkingDimensions,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "EV Charging",
-                                          value:
-                                              parking.isEVChargingAvailable
-                                                  ? "Yes"
-                                                  : "No",
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                ),
-              ],
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Parking Number",
+                                            value: parking.parkingNumber,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Building",
+                                            value: parking.buildingNumber,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Wing",
+                                            value: parking.wing,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Floor",
+                                            value: parking.floor,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Category",
+                                            value: parking.parkingCategory,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Type",
+                                            value: parking.parkingType,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Size",
+                                            value: parking.parkingSubType,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Dimensions",
+                                            value: parking.parkingDimensions,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "EV Charging",
+                                            value:
+                                                parking.isEVChargingAvailable
+                                                    ? "Yes"
+                                                    : "No",
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                  ),
+                ],
+              ),
             ),
-          ),
           // BOOKING DETAILS SECTION
           Container(
             decoration: commonCardDecoration(),
@@ -1436,7 +1457,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     itemBuilder: (context, index) {
                       final payment = booking.bookingPaymentScheduleData[index];
                       final totalAmountWithTDS =
-                          payment.paymentScheduleAmount -
+                          payment.paymentScheduleAmount +
                           payment.paymentScheduleTDSAmount;
                       return Container(
                         decoration: BoxDecoration(
@@ -1451,14 +1472,16 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                         child: Column(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Row(
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 payment.type.contains("Date")
                                     ? buildColumnTitleValue(
-                                      title: "Date / Type",
+                                      title: "Date / Stage (Milestone)",
                                       value:
                                           payment.date != null
                                               ? formatDateTimeAsDDMMMYYYY(
@@ -1467,7 +1490,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                               : "-",
                                     )
                                     : buildColumnTitleValue(
-                                      title: "Stage",
+                                      title: "Date / Stage (Milestone)",
                                       value: payment.name,
                                     ),
                               ],
@@ -1475,6 +1498,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                             Row(
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 buildColumnTitleValue(
                                   title: "Percentage (%)",
@@ -1512,7 +1536,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Amount With TDS (₹)",
+                                  title: "Total Amount With TDS (₹)",
                                   value: totalAmountWithTDS.toIndianCurrency(),
                                 ),
                               ],
@@ -1605,6 +1629,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               builder: (context, value, child) {
                 final hasData =
                     booking.termsAndConditionsDescription.trim().isNotEmpty;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1663,126 +1688,136 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // CANCELLATION SUMMARY
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Cancellation Summary", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Cancelled Date",
-                        value: formatDateTimeAsDDMMMYYYY(booking.cancelledDate),
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Cancelled By",
-                        value: booking.cancelledBy,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Remark",
-                        value: booking.cancelRemark,
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Proof Of Document",
-                        value: booking.cancelledBy,
-                        customValueWidget: CustomButton.documentOutline(
-                          onPressed: () {
-                            if (booking.proofOfDocumentUrl.isNotEmpty) {
-                              showFilePreviewDialog(
-                                context,
-                                title: "Proof Of Document",
-                                booking.proofOfDocumentUrl.split(","),
-                              );
-                            }
-                          },
-                          isDisable: booking.proofOfDocumentUrl.isEmpty,
+          if (approvalStatus == "CANCEL" ||
+              booking.cancelRemark.trim().isNotEmpty)
+            Container(
+              decoration: commonCardDecoration(),
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Cancellation Summary", style: AppTextStyle.ts16SB()),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Cancelled Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            booking.cancelledDate,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Cancelled By",
+                          value: booking.cancelledBy,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Remark",
+                          value: booking.cancelRemark,
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Proof Of Document",
+                          value: booking.cancelledBy,
+                          customValueWidget: CustomButton.documentOutline(
+                            onPressed: () {
+                              if (booking.proofOfDocumentUrl.isNotEmpty) {
+                                showFilePreviewDialog(
+                                  context,
+                                  title: "Proof Of Document",
+                                  booking.proofOfDocumentUrl.split(","),
+                                );
+                              }
+                            },
+                            isDisable: booking.proofOfDocumentUrl.isEmpty,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  buildColumnTitleValueNormal(
+                    title: "Status",
+                    value: booking.cancelBookingApprovalStatus,
+                  ),
+                ],
+              ),
             ),
-          ),
           // REFUND AMOUNT DETAILS
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Refund Amount Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Total Refunded",
-                        value:
-                            booking.totalAmountRefundedAgainstBooking
-                                .toIndianCurrency(),
+          if (approvalStatus == "REFUND")
+            Container(
+              decoration: commonCardDecoration(),
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Refund Amount Details", style: AppTextStyle.ts16SB()),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Total Refunded",
+                          value:
+                              booking.totalAmountRefundedAgainstBooking
+                                  .toIndianCurrency(),
+                        ),
                       ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Paid",
-                        value:
-                            booking.refundedAmountOnTillDate.toIndianCurrency(),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Paid",
+                          value:
+                              booking.refundedAmountOnTillDate
+                                  .toIndianCurrency(),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Pending",
-                        value: pendingAmount.toIndianCurrency(),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Pending",
+                          value: pendingAmount.toIndianCurrency(),
+                        ),
                       ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Refund Status",
-                        value: booking.approvalStatus,
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Refund Status",
+                          value: booking.approvalStatus,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
 
           Container(
             decoration: commonCardDecoration(),

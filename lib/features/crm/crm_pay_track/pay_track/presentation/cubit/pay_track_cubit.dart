@@ -125,6 +125,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
+        debugPrint("PayTrack List Count = ${response['data'].length}");
         final List<PayTrackModel> newList =
             response['data'] as List<PayTrackModel>;
 
@@ -159,6 +160,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       });
       return;
     }
+
     Map<String, dynamic> queryParams = {"IsCheckPermission": false};
     var result = await _payTrackRepository.getPayTrackListById(
       pageSize: 10,
@@ -174,6 +176,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
+        debugPrint("Booking API Count = ${response['data'].length}");
         final List<PayTrackModel> list =
             response['data'] as List<PayTrackModel>;
 
@@ -181,7 +184,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         emit(
           state.copyWith(
             payTrackOverview: model,
-            payTrackList: list,
             currentPage: pageNumber,
             totalNumberOfRecord: response['totalNumberOfRecord'],
             isLoading: false,
@@ -296,7 +298,10 @@ class PayTrackCubit extends Cubit<PayTrackState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {"BookingId": bookingId};
+    Map<String, dynamic> queryParams = {
+      "BookingId": bookingId,
+      "IsCheckPermission": false,
+    };
 
     if (exportType != null) {
       queryParams["IsCheckPermission"] = false;
@@ -337,7 +342,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
   }) async {
     emit(state.copyWith(isFetchingEnquiryDetails: true));
 
-    final queryParams = {"EnquiryId": enquiryId};
+    final queryParams = {"EnquiryId": enquiryId, "IsCheckPermission": false};
 
     final result = await _enquiryRepository.getEnquiryList(
       pageNumber: 1,
@@ -422,6 +427,18 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     await getPayTrackCallLog(context, 1, getProject().projectId, bookingId);
   }
 
+  int updateFilterCount(PayTrackState state) {
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterCallStatus.trim().isNotEmpty,
+      state.filterCallPurpose.trim().isNotEmpty,
+      state.filterByCallLogApplicantName.trim().isNotEmpty,
+      state.filterCallLogApplicantMobileNumber.trim().isNotEmpty,
+      state.filterCallLogFromDate != null,
+      state.filterCallLogToDate != null,
+    ]);
+  }
+
   Future getPayTrackCallLog(
     BuildContext context,
     int pageNumber,
@@ -437,7 +454,10 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       });
       return;
     }
-    Map<String, dynamic> queryParams = {"BookingId": bookingId};
+    Map<String, dynamic> queryParams = {
+      "BookingId": bookingId,
+      "IsCheckPermission": false,
+    };
 
     if (state.filterByCallLogApplicantName.isNotEmpty) {
       queryParams["ApplicantName"] = state.filterByCallLogApplicantName;

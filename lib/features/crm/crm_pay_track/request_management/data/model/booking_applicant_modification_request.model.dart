@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class BookingApplicantModificationRequestModel {
@@ -38,6 +39,22 @@ class BookingApplicantModificationRequestModel {
   String paymentProofUrl;
   String proofOfDocumentUrl;
 
+  MultiFilePickerModel? proofOfDocumentFile;
+  MultiFilePickerModel? panFile;
+  MultiFilePickerModel? aadhaarFile;
+  MultiFilePickerModel? photoFile;
+  MultiFilePickerModel? drivingLicenseFile;
+  MultiFilePickerModel? chequeFile;
+  MultiFilePickerModel? votingIdFile;
+  MultiFilePickerModel? gstFile;
+  MultiFilePickerModel? passportFile;
+  MultiFilePickerModel? poaFile;
+  MultiFilePickerModel? incomeForm16ItrFile;
+  MultiFilePickerModel? nreNroBankDetailsFile;
+  MultiFilePickerModel? nomineeFormFile;
+  MultiFilePickerModel? statementOfSourceOfFundFile;
+  MultiFilePickerModel? paymentProofURLFundFile;
+
   BookingApplicantModificationRequestModel({
     required this.bookingApplicantModificationRequestId,
     required this.applicantType,
@@ -75,6 +92,22 @@ class BookingApplicantModificationRequestModel {
     required this.statementOfSourceOfFundsUrl,
     required this.paymentProofUrl,
     required this.proofOfDocumentUrl,
+
+    this.proofOfDocumentFile,
+    this.panFile,
+    this.aadhaarFile,
+    this.photoFile,
+    this.drivingLicenseFile,
+    this.passportFile,
+    this.votingIdFile,
+    this.gstFile,
+    this.chequeFile,
+    this.poaFile,
+    this.incomeForm16ItrFile,
+    this.nreNroBankDetailsFile,
+    this.nomineeFormFile,
+    this.statementOfSourceOfFundFile,
+    this.paymentProofURLFundFile,
   });
 
   factory BookingApplicantModificationRequestModel.fromJson(

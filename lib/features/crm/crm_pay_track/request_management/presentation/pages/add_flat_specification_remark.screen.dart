@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
@@ -85,8 +86,8 @@ class _AddFlatSpecificationRemarkScreenState
       appBar: CustomAppBarWithBackButton(
         screenTitle:
             widget.remark == null
-                ? "Flat Alteration Request"
-                : "Edit Flat Alteration Request",
+                ? "Add Unit / Modulation / Customization"
+                : "Edit Unit / Modulation / Customization",
         authorization: AuthorizationModel(),
       ),
       body: Column(
@@ -102,6 +103,7 @@ class _AddFlatSpecificationRemarkScreenState
                   children: [
                     CustomMultiFilePicker(
                       title: "Proof Of Document",
+                      isRequired: true,
                       filePickType: FilePickType.kycDocument,
                       initialFileList: prrofOfDocumentFile.fileNameList,
                       initialFileBytes: prrofOfDocumentFile.fileBytesList,
@@ -118,17 +120,23 @@ class _AddFlatSpecificationRemarkScreenState
                         prrofOfDocumentFile.fileNameList = fileNameList;
                         prrofOfDocumentFile.deletedFileList = deleted;
                       },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Proof Of Document is required";
+                        }
+                        return null;
+                      },
                     ),
                     CustomTextField(
                       textController: _remarkC,
-                      title: "Remark",
-                      hint: "Enter Remark",
+                      title: "Unit / Modulation / Customization Remark",
+                      hint: "Enter Unit / Modulation / Customization Remark",
                       minLines: 3,
                       maxLines: 10,
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Remark is required";
+                          return "Unit / Modulation / Customization Remark is required";
                         }
                         return null;
                       },
@@ -138,19 +146,18 @@ class _AddFlatSpecificationRemarkScreenState
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CustomButton(
-                  text: widget.remark == null ? "Add" : "Update",
-                  onPressed: _submitForm,
-                ),
-              ],
-            ),
-          ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70.0,
+          color: AppColor.white,
+          padding: const EdgeInsets.all(16.0),
+          child: CustomButton(
+            text: widget.remark == null ? "Add" : "Update",
+            onPressed: _submitForm,
+          ),
+        ),
       ),
     );
   }

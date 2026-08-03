@@ -573,6 +573,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
       };
     } catch (error) {
@@ -615,6 +616,7 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
       };
     } catch (error) {

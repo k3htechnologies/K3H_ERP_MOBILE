@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -14,12 +16,18 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddApplicantDetailsRequestsScreen extends StatefulWidget {
+  final BookingApplicantModificationRequestModel? applicant;
   final int bookingId;
   final int projectId;
+  final int? index;
+  final bool isEdit;
   const AddApplicantDetailsRequestsScreen({
     super.key,
     required this.bookingId,
     required this.projectId,
+    this.index,
+    this.isEdit = false,
+    this.applicant,
   });
 
   @override
@@ -152,16 +160,19 @@ class _AddApplicantDetailsRequestsScreenState
     fileNameList: [],
     deletedFileList: "",
   );
-  MultiFilePickerModel prrofOfDocumentFile = MultiFilePickerModel(
+  MultiFilePickerModel proofOfDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
+  ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
+    countryList.firstWhere((e) => e.code == "+91"),
+  );
   @override
   void initState() {
     super.initState();
     _initControllers();
+    _prefillData();
   }
 
   void _initControllers() {
@@ -192,6 +203,48 @@ class _AddApplicantDetailsRequestsScreenState
     _accountNumberC.dispose();
     _ifscCodeC.dispose();
     super.dispose();
+  }
+
+  void _prefillData() {
+    if (widget.isEdit && widget.applicant != null) {
+      final a = widget.applicant!;
+
+      _applicantNameC.text = a.applicantName;
+      _mobileC.text = a.applicantMobileNumber;
+      if (a.applicantMobileNumberCountryCode.isNotEmpty) {
+        selectedMobileNoCountry.value = countryList.firstWhere(
+          (e) => e.code == a.applicantMobileNumberCountryCode,
+          orElse: () => countryList.firstWhere((e) => e.code == "+91"),
+        );
+      }
+      _emailC.text = a.applicantEmailId;
+      _aadharC.text = a.aadharCardNumber;
+      _panC.text = a.panNumber;
+      _passportC.text = a.passportNumber;
+      _drivingLicenseC.text = a.drivingLicenseNumber;
+      _votingIdC.text = a.votingIdNumber;
+      _gstC.text = a.gstNumber;
+
+      selectedApplicantType.value = applicantTypeList.firstWhere(
+        (e) => e["DisplayName"] == a.applicantType,
+      );
+      proofOfDocumentFile.fileNameList =
+          a.proofOfDocumentUrl.isEmpty ? [] : a.proofOfDocumentUrl.split(",");
+      profilePhotoFile.fileNameList =
+          a.photoUrl.isEmpty ? [] : a.photoUrl.split(",");
+      aadhaarFile.fileNameList =
+          a.aadharCardUrl.isEmpty ? [] : a.aadharCardUrl.split(",");
+      panFile.fileNameList =
+          a.panCardUrl.isEmpty ? [] : a.panCardUrl.split(",");
+      passportFile.fileNameList =
+          a.passportUrl.isEmpty ? [] : a.passportUrl.split(",");
+      drivingLicenseFile.fileNameList =
+          a.drivingLicenseUrl.isEmpty ? [] : a.drivingLicenseUrl.split(",");
+      votingIdFile.fileNameList =
+          a.votingIdUrl.isEmpty ? [] : a.votingIdUrl.split(",");
+      gstFile.fileNameList =
+          a.gstNumberUrl.isEmpty ? [] : a.gstNumberUrl.split(",");
+    }
   }
 
   void _submitForm() {
@@ -243,7 +296,7 @@ class _AddApplicantDetailsRequestsScreenState
       modifiedById: 0,
       modifiedBy: "",
       modifiedDate: DateTime.now(),
-      applicantMobileNumberCountryCode: "",
+      applicantMobileNumberCountryCode: selectedMobileNoCountry.value.code,
       cancelledChequeUrl: chequeFile.fileNameList.join(","),
       poaurl: poaFile.fileNameList.join(","),
       incomeForm16Itrurl: incomeForm16ItrFile.fileNameList.join(","),
@@ -252,11 +305,46 @@ class _AddApplicantDetailsRequestsScreenState
       statementOfSourceOfFundsUrl: statementOfSourceOfFundsFile.fileNameList
           .join(","),
       paymentProofUrl: paymentProofFile.fileNameList.join(","),
-      proofOfDocumentUrl: prrofOfDocumentFile.fileNameList.join(","),
+      proofOfDocumentUrl: proofOfDocumentFile.fileNameList.join(","),
+
+      proofOfDocumentFile: proofOfDocumentFile,
+      aadhaarFile: aadhaarFile,
+      panFile: panFile,
+      photoFile: profilePhotoFile,
+      drivingLicenseFile: drivingLicenseFile,
+      votingIdFile: votingIdFile,
+      gstFile: gstFile,
+      chequeFile: chequeFile,
+      poaFile: poaFile,
+      incomeForm16ItrFile: incomeForm16ItrFile,
+      nreNroBankDetailsFile: nreNroBankDetailsFile,
+      nomineeFormFile: nomineeFormFile,
+      statementOfSourceOfFundFile: statementOfSourceOfFundFile,
+      paymentProofURLFundFile: paymentProofFile,
     );
 
     if (context.mounted) {
-      goRouter.pop({"isSuccess": true, "applicant": applicant});
+      goRouter.pop({
+        "isSuccess": true,
+        "applicant": applicant,
+        "isEdit": widget.isEdit,
+        "index": widget.index,
+        "proofDocumentFile": proofOfDocumentFile,
+        "aadhaarFile": aadhaarFile,
+        "panFile": panFile,
+        "passportFile": passportFile,
+        "photoFile": profilePhotoFile,
+        "gstFile": gstFile,
+        "votingFile": votingIdFile,
+        "drivingFile": drivingLicenseFile,
+        "poaFile": poaFile,
+        "paymentProofFile": paymentProofFile,
+        "statementFile": statementOfSourceOfFundFile,
+        "incomeFile": incomeForm16ItrFile,
+        "nomineeFile": nomineeFormFile,
+        "cancelledChequeFile": chequeFile,
+        "nreFile": nreNroBankDetailsFile,
+      });
     }
   }
 
@@ -264,7 +352,7 @@ class _AddApplicantDetailsRequestsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Add Applicant",
+        screenTitle: widget.isEdit ? "Update Applicant" : "Add Applicant",
         authorization: AuthorizationModel(),
       ),
       body: Column(
@@ -278,6 +366,33 @@ class _AddApplicantDetailsRequestsScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CustomMultiFilePicker(
+                      title: "Proof Of Document",
+                      isRequired: true,
+                      filePickType: FilePickType.kycDocument,
+                      initialFileList: proofOfDocumentFile.fileNameList,
+                      initialFileBytes: proofOfDocumentFile.fileBytesList,
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        proofOfDocumentFile.fileNameList = fileNameList;
+                        proofOfDocumentFile.fileBytesList = bytesList;
+                      },
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deleted,
+                      ) {
+                        proofOfDocumentFile.fileBytesList = fileBytesList;
+                        proofOfDocumentFile.fileNameList = fileNameList;
+                        proofOfDocumentFile.deletedFileList = deleted;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Proof Of Document is required";
+                        }
+                        return null;
+                      },
+                    ),
+
                     ValueListenableBuilder(
                       valueListenable: selectedApplicantType,
                       builder: (context, value, child) {
@@ -313,20 +428,49 @@ class _AddApplicantDetailsRequestsScreenState
                         return null;
                       },
                     ),
-                    CustomTextField(
-                      title: 'Mobile Number',
-                      isRequired: true,
-                      hint: "Enter Mobile Number",
-                      textController: _mobileC,
-                      inputFormatterList: InputValidator.digit(10),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Mobile Number is required";
-                        }
-                        if (!InputValidator.isValidMobileNumber(value)) {
-                          return "Invalid mobile number";
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: selectedMobileNoCountry,
+                      builder: (context, value, child) {
+                        return CustomTextField(
+                          title: "Mobile Number",
+                          textController: _mobileC,
+                          hint: "Enter Mobile Number",
+                          keyboardType: TextInputType.phone,
+                          isRequired: true,
+                          showCountryDropdown: true,
+                          selectedCountry: value,
+                          onCountryChanged: (country) async {
+                            if (country == null) return;
+
+                            selectedMobileNoCountry.value = country;
+                            if (_mobileC.text.isNotEmpty &&
+                                country.mobileLength == _mobileC.text.length) {}
+                          },
+                          onChangeFunction: (value) async {},
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(
+                              value.mobileLength,
+                            ),
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          validator: (value) {
+                            final mobile = value?.trim() ?? "";
+                            final country = selectedMobileNoCountry.value;
+                            if (value == null || value.isEmpty) {
+                              return "Mobile Number is required";
+                            }
+                            if (mobile.isNotEmpty) {
+                              // LENGTH AND REGEX VALIDATION
+                              if ((mobile.length != country.mobileLength) ||
+                                  country.regex != null &&
+                                      !country.regex!.hasMatch(mobile)) {
+                                return "Invalid Mobile Number";
+                              }
+                            }
+
+                            return null;
+                          },
+                        );
                       },
                     ),
                     CustomTextField(
@@ -365,7 +509,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Profile Photo is required";
+                          return "Applicant Photo is required";
                         }
                         return null;
                       },
@@ -378,16 +522,20 @@ class _AddApplicantDetailsRequestsScreenState
                           InputValidator.aadhaarNumberInputFormatter(),
                       isRequired: true,
                       validator: (value) {
-                        if (value != null &&
-                            value.trim().isNotEmpty &&
-                            !InputValidator.isValidAadharNumber(value.trim())) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Aadhaar Card is required";
+                        }
+
+                        if (!InputValidator.isValidAadharNumber(value.trim())) {
                           return "Invalid Aadhaar Card Number";
                         }
+
                         return null;
                       },
                     ),
                     CustomMultiFilePicker(
                       title: "Upload Aadhaar Card",
+                      isRequired: true,
                       filePickType: FilePickType.kycDocument,
                       initialFileList: aadhaarFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
@@ -403,6 +551,12 @@ class _AddApplicantDetailsRequestsScreenState
                         aadhaarFile.fileNameList = fileNameList;
                         aadhaarFile.deletedFileList = deleted;
                       },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Aadhaar document is required";
+                        }
+                        return null;
+                      },
                     ),
                     CustomTextField(
                       title: 'PAN Number',
@@ -411,16 +565,20 @@ class _AddApplicantDetailsRequestsScreenState
                       isRequired: true,
                       inputFormatterList: InputValidator.panInputFormatters(),
                       validator: (value) {
-                        if (value != null &&
-                            value.trim().isNotEmpty &&
-                            !InputValidator.isValidPAN(value.trim())) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "PAN Card is required";
+                        }
+
+                        if (!InputValidator.isValidPAN(value.trim())) {
                           return "Invalid PAN Number";
                         }
+
                         return null;
                       },
                     ),
                     CustomMultiFilePicker(
                       title: "PAN Card",
+                      isRequired: true,
                       filePickType: FilePickType.kycDocument,
                       initialFileList: panFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
@@ -435,6 +593,12 @@ class _AddApplicantDetailsRequestsScreenState
                         panFile.fileBytesList = fileBytesList;
                         panFile.fileNameList = fileNameList;
                         panFile.deletedFileList = deleted;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "PAN document is required";
+                        }
+                        return null;
                       },
                     ),
                     CustomTextField(
@@ -602,7 +766,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "POA (Power of Attorney)",
+                      title: "POA (if NRI Execution)",
                       filePickType: FilePickType.kycDocument,
                       initialFileList: poaFile.fileNameList,
                       initialFileBytes: poaFile.fileBytesList,
@@ -621,7 +785,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                     ),
                     CustomMultiFilePicker(
-                      title: "Income Form 16 / ITR",
+                      title: "Income Docs (Form 16 / ITR)",
                       filePickType: FilePickType.kycDocument,
                       initialFileList: incomeForm16ItrFile.fileNameList,
                       initialFileBytes: incomeForm16ItrFile.fileBytesList,
@@ -677,6 +841,7 @@ class _AddApplicantDetailsRequestsScreenState
                         nomineeFormFile.deletedFileList = deleted;
                       },
                     ),
+
                     CustomMultiFilePicker(
                       title: "Statement of Source of Funds",
                       filePickType: FilePickType.kycDocument,
@@ -717,38 +882,23 @@ class _AddApplicantDetailsRequestsScreenState
                         paymentProofURLFundFile.deletedFileList = deleted;
                       },
                     ),
-                    CustomMultiFilePicker(
-                      title: "Proof Of Document",
-                      filePickType: FilePickType.kycDocument,
-                      initialFileList: prrofOfDocumentFile.fileNameList,
-                      initialFileBytes: prrofOfDocumentFile.fileBytesList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        prrofOfDocumentFile.fileNameList = fileNameList;
-                        prrofOfDocumentFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                      ) {
-                        prrofOfDocumentFile.fileBytesList = fileBytesList;
-                        prrofOfDocumentFile.fileNameList = fileNameList;
-                        prrofOfDocumentFile.deletedFileList = deleted;
-                      },
-                    ),
                   ],
                 ),
               ),
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [CustomButton(text: "Add", onPressed: _submitForm)],
-            ),
-          ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          color: AppColor.white,
+          padding: EdgeInsets.all(16),
+          child: CustomButton(
+            text: widget.isEdit ? "Update" : "Add",
+            onPressed: _submitForm,
+          ),
+        ),
       ),
     );
   }

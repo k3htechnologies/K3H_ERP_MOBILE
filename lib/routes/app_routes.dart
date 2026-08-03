@@ -228,6 +228,7 @@ class AppRoutes {
       "/updateRegistrationDateAndParking";
   static String addBankLoanDocument = "/addBankLoanDocument";
   static String addActiveBank = "/addActiveBank";
+  static String crmPaymentSchedule = "/paymentSchedule";
   static String paymentScheduleDemandSummary = "/paymentScheduleDemandSummary";
   static String addPaymentLedger = "/addPaymentLedger";
   static String viewPaymentLedger = "/viewPaymentLedger";

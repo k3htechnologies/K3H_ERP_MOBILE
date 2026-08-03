@@ -458,7 +458,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                     height: getActualHeight(context) * .7,
                     child: Center(
                       child: noDataWidget(
-                        message: "No Pay Track Booking Data Found",
+                        message: "No Pay Track Data Available",
                       ),
                     ),
                   ),
@@ -569,67 +569,128 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          GestureDetector(
-                            onTap: () async {
-                              await _payTrackCubit.resetOverview();
-                              await goRouter.pushNamed(
-                                AppRoutes.viewPayTrackMaster,
-                                queryParameters: {
-                                  "applicantName": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      payTrack.applicantName,
-                                    ),
-                                  ),
-                                  "projectId": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      payTrack.projectId.toString(),
-                                    ),
-                                  ),
-                                  "bookingId": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      payTrack.bookingId.toString(),
-                                    ),
-                                  ),
-                                  "enquiryId": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      payTrack.enquiryId.toString(),
-                                    ),
-                                  ),
-                                  "bookingStatus": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      payTrack.bookingApprovalStatus,
-                                    ),
-                                  ),
-                                  "approvalStatus": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      payTrack.approvalStatus,
-                                    ),
-                                  ),
-                                },
-                              );
-                            },
+                          Expanded(
                             child: Text(
-                              payTrack.applicantName.isNotEmpty
-                                  ? payTrack.applicantName
-                                  : '-',
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ),
+                              payTrack.systemGeneratedCode,
+                              style: AppTextStyle.ts14M(),
+                            ),
+                          ),
+                          horizontalSpacing(),
+                          Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                RichText(
+                                  text: TextSpan(
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.black,
+                                    ),
+                                    children: [
+                                      const TextSpan(text: "Reg"),
+                                      const TextSpan(text: " : "),
+                                      TextSpan(
+                                        text:
+                                            payTrack.isFinalRegistrationCompleted
+                                                ? "Yes"
+                                                : "No",
+                                        style: AppTextStyle.ts14M(
+                                          color:
+                                              payTrack.isFinalRegistrationCompleted
+                                                  ? Color(0xff15803D)
+                                                  : AppColor.yellow,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      verticalSpacing(height: 16.0),
-                      Text(
-                        payTrack.systemGeneratedCode,
-                        style: AppTextStyle.ts14M(),
+                      verticalSpacing(),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () async {
+                                await _payTrackCubit.resetOverview();
+                                await goRouter.pushNamed(
+                                  AppRoutes.viewPayTrackMaster,
+                                  queryParameters: {
+                                    "applicantName": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        payTrack.applicantName,
+                                      ),
+                                    ),
+                                    "projectId": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        payTrack.projectId.toString(),
+                                      ),
+                                    ),
+                                    "bookingId": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        payTrack.bookingId.toString(),
+                                      ),
+                                    ),
+                                    "enquiryId": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        payTrack.enquiryId.toString(),
+                                      ),
+                                    ),
+                                    "bookingStatus": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        payTrack.bookingApprovalStatus,
+                                      ),
+                                    ),
+                                    "approvalStatus": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        payTrack.approvalStatus,
+                                      ),
+                                    ),
+                                    "flat": Uri.encodeQueryComponent(
+                                      EncryptionManager.encryptData(
+                                        payTrack.flat,
+                                      ),
+                                    ),
+                                  },
+                                );
+                              },
+                              child: Text(
+                                payTrack.applicantName.isNotEmpty
+                                    ? payTrack.applicantName
+                                    : '-',
+                                style: AppTextStyle.ts16M(
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ),
+                          ),
+                          horizontalSpacing(),
+                          Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Text(
+                                  payTrack.flat,
+                                  style: AppTextStyle.ts14R(),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      verticalSpacing(height: 16.0),
+                      verticalSpacing(),
                       CustomClickToContactText(
                         value: payTrack.applicantMobileNumber,
                       ),
-                      verticalSpacing(height: 16.0),
+                      verticalSpacing(),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -700,84 +761,97 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                       payTrack.bookingApprovalStatus.toLowerCase() !=
                                   "refund" &&
                               payTrack.cancelRemark.isNotEmpty
-                          ? verticalSpacing(height: 16.0)
+                          ? verticalSpacing()
                           : SizedBox.shrink(),
                       payTrack.bookingApprovalStatus.toLowerCase() !=
                                   "refund" &&
                               payTrack.cancelRemark.isNotEmpty
-                          ? ApproveRejectWidget(
-                            isActionAlreadyPerformed:
-                                isAlreadyApproved || isRejected,
-                            actionTitle:
-                                payTrack.cancelBookingApprovalStatus.isEmpty
-                                    ? "Pending"
-                                    : cancelBookingApprovalStatus,
-                            approveIcon: Icons.check,
-                            onApprove: (onApprove) async {
-                              final isSuccess = await context
-                                  .read<UtilsCubit>()
-                                  .updateModulesWorkflowApproval(
-                                    context: context,
-                                    moduleName: "CANCEL BOOKING APPROVAL",
-                                    id: payTrack.bookingId,
-                                    projectId: payTrack.projectId,
-                                    isApproved: true,
-                                    remark: onApprove.trim(),
+                          ? buildRowTitleValueOfCancellationStatus(
+                            title: "Cancellation Status",
+                            value: "",
+                            customValueWidget: ApproveRejectWidget(
+                              isActionAlreadyPerformed:
+                                  isAlreadyApproved || isRejected,
+                              actionTitle:
+                                  payTrack.cancelBookingApprovalStatus.isEmpty
+                                      ? "Pending"
+                                      : payTrack.cancelBookingApprovalStatus,
+                              subTitle:
+                                  "${payTrack.applicantName} > ${payTrack.wing} > ${payTrack.flat}",
+                              approveIcon: Icons.check,
+                              onApprove: (onApprove) async {
+                                final isSuccess = await context
+                                    .read<UtilsCubit>()
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      moduleName: "CANCEL BOOKING APPROVAL",
+                                      id: payTrack.bookingId,
+                                      projectId: payTrack.projectId,
+                                      isApproved: true,
+                                      remark: onApprove.trim(),
+                                    );
+                                if (context.mounted && isSuccess) {
+                                  await _payTrackCubit.getPayTrackList(
+                                    context,
+                                    1,
+                                    payTrack.projectId,
                                   );
-                              if (context.mounted && isSuccess) {
-                                await _payTrackCubit.getPayTrackList(
-                                  context,
-                                  1,
-                                  payTrack.projectId,
-                                  bookingId: payTrack.bookingId,
-                                );
-                              }
-                            },
-                            onReject: (onReject) async {
-                              await context
-                                  .read<UtilsCubit>()
-                                  .updateModulesWorkflowApproval(
-                                    context: context,
-                                    isApproved: false,
-                                    moduleName: "CANCEL BOOKING APPROVAL",
-                                    id: payTrack.bookingId,
-                                    projectId: payTrack.projectId,
-                                    remark: onReject.trim(),
+                                }
+                              },
+                              onReject: (onReject) async {
+                                final isSuccess = await context
+                                    .read<UtilsCubit>()
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      isApproved: false,
+                                      moduleName: "CANCEL BOOKING APPROVAL",
+                                      id: payTrack.bookingId,
+                                      projectId: payTrack.projectId,
+                                      remark: onReject.trim(),
+                                    );
+
+                                if (context.mounted && isSuccess) {
+                                  await _payTrackCubit.getPayTrackList(
+                                    context,
+                                    1,
+                                    payTrack.projectId,
                                   );
-                            },
-                            onThirdTap: () async {
-                              final approvalLogHistoryList = await context
-                                  .read<UtilsCubit>()
-                                  .getApprovalLogHistory(
-                                    context: context,
-                                    projectId: payTrack.projectId,
-                                    id: payTrack.bookingId,
-                                    moduleName: "CANCEL BOOKING APPROVAL",
-                                  );
-                              if (context.mounted) {
-                                goRouter.pushNamed(
-                                  AppRoutes.approvalLogHistory,
-                                  queryParameters: {
-                                    "title": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        "CANCEL BOOKING APPROVAL",
-                                      ),
-                                    ),
-                                    "approvalList": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(
-                                          approvalLogHistoryList
-                                              .map((e) => e.toJson())
-                                              .toList(),
+                                }
+                              },
+                              onThirdTap: () async {
+                                final approvalLogHistoryList = await context
+                                    .read<UtilsCubit>()
+                                    .getApprovalLogHistory(
+                                      context: context,
+                                      projectId: payTrack.projectId,
+                                      id: payTrack.bookingId,
+                                      moduleName: "CANCEL BOOKING APPROVAL",
+                                    );
+                                if (context.mounted) {
+                                  goRouter.pushNamed(
+                                    AppRoutes.approvalLogHistory,
+                                    queryParameters: {
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "CANCEL BOOKING APPROVAL",
                                         ),
                                       ),
-                                    ),
-                                  },
-                                );
-                              }
-                            },
+                                      "approvalList": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            approvalLogHistoryList
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                }
+                              },
 
-                            popupTitle: "CANCEL BOOKING APPROVAL",
+                              popupTitle: "CANCEL BOOKING APPROVAL",
+                            ),
                           )
                           : SizedBox.shrink(),
                       verticalSpacing(height: 16.0),
@@ -902,10 +976,9 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                                             ),
                                             verticalSpacing(height: 6),
                                             _summaryRow(
-                                              "Grand Total",
+                                              "Total Received Amount",
                                               totalPaidAmount
                                                   .toIndianCurrency(),
-                                              isBold: true,
                                               valueColor: AppColor.green,
                                             ),
                                           ],
@@ -976,7 +1049,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
         verticalSpacing(),
         Row(
           children: [
-            Expanded(child: _titleValue("Paid Amount", paidAmount)),
+            Expanded(child: _titleValue("Received Amount", paidAmount)),
             horizontalSpacing(),
             Expanded(child: _titleValue("Outstanding Amount", pendingAmount)),
           ],
@@ -1004,6 +1077,51 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
         verticalSpacing(height: 6),
         Text(value, style: AppTextStyle.ts14M()),
       ],
+    );
+  }
+
+  // BUILD ROW TITLE VALUE
+  Widget buildRowTitleValueOfCancellationStatus({
+    required String title,
+    required String value,
+    double fixesWidth = 120,
+    TextStyle? valueTextStyle,
+    Widget? customValueWidget,
+    bool singleLine = true,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // TITLE
+          SizedBox(
+            width: fixesWidth,
+            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          ),
+
+          // COLON
+          Text(
+            ":",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: AppColor.grey),
+          ),
+          horizontalSpacing(width: 6.0),
+
+          // VALUE
+          Flexible(
+            child:
+                customValueWidget ??
+                Text(
+                  value.isNotEmpty ? value : "-",
+                  maxLines: singleLine ? 1 : null,
+                  overflow:
+                      singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
+                  style: valueTextStyle ?? AppTextStyle.ts14M(),
+                ),
+          ),
+        ],
+      ),
     );
   }
 }

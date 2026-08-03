@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 // DATE FORMATTERS (MOSTLY USED)
 String formatDateTimeAsDDMMMYYYY(DateTime? date, {String? separator}) {
-  if (date == null) return "-";
+  if (date == null) return "";
 
   if (date.year == 1970) return "-";
 

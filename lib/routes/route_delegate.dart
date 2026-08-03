@@ -31,6 +31,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/page
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/parking_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_booking_applicant_history.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_parking_history.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_unit_modulation_customization_history.screen.dart';
@@ -6363,6 +6364,7 @@ final GoRouter goRouter = GoRouter(
                     state.uri.queryParameters['bookingStatus'];
                 final queryParameterApprovalStatus =
                     state.uri.queryParameters['approvalStatus'];
+                final queryParameterFlat = state.uri.queryParameters['flat'];
 
                 final projectId =
                     queryParameterProjectId != null &&
@@ -6412,6 +6414,13 @@ final GoRouter goRouter = GoRouter(
                           Uri.decodeComponent(queryParameterApprovalStatus),
                         )
                         : "";
+                final flat =
+                    queryParameterFlat != null && queryParameterFlat.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterFlat),
+                        )
+                        : "";
+
                 return PayTrackViewScreen(
                   applicantName: applicantName,
                   projectId: projectId,
@@ -6419,6 +6428,7 @@ final GoRouter goRouter = GoRouter(
                   enquiryId: enquiryId,
                   bookingApprovalStatus: bookingStatus,
                   approvalStatus: approvalStatus,
+                  flat: flat,
                 );
               },
             ),
@@ -6589,9 +6599,23 @@ final GoRouter goRouter = GoRouter(
                       );
                 }
 
+                List<OtherChargeModel> bookingOtherChargesList = [];
+
+                final otherChargesParam =
+                    state.uri.queryParameters["bookingOtherCharges"];
+
+                if (otherChargesParam != null && otherChargesParam.isNotEmpty) {
+                  bookingOtherChargesList =
+                      (jsonDecode(Uri.decodeComponent(otherChargesParam))
+                              as List)
+                          .map((e) => OtherChargeModel.fromJson(e))
+                          .toList();
+                }
+
                 return AddPaymentLedgerScreen(
                   paymentLedger: paymentLedger,
                   editPaymentLedger: editPaymentLedger,
+                  bookingOtherChargesList: bookingOtherChargesList,
                 );
               },
             ),
@@ -6601,6 +6625,9 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final paymentLedgerSummaryParam =
                     state.uri.queryParameters['paymentLedgerSummary'];
+
+                final paymentLedgerFlatParam =
+                    state.uri.queryParameters['flat'];
 
                 PayTrackPaymentLedgerSummaryModel? summary;
 
@@ -6614,7 +6641,10 @@ final GoRouter goRouter = GoRouter(
                     decodedData,
                   );
                 }
-
+                final flat =
+                    paymentLedgerFlatParam != null
+                        ? Uri.decodeComponent(paymentLedgerFlatParam)
+                        : "";
                 return ViewPaymentLedgerScreen(
                   summary:
                       summary ??
@@ -6655,6 +6685,7 @@ final GoRouter goRouter = GoRouter(
                         projectNatureOfAccount: '',
                         projectAcType: '',
                       ),
+                  flat: flat,
                 );
               },
             ),
@@ -6665,9 +6696,10 @@ final GoRouter goRouter = GoRouter(
                 final extra = state.extra as Map<String, dynamic>;
 
                 return ViewBookingApplicantHistoryScreen(
-                  applicantDetail:
-                      extra["applicant"]
-                          as BookingApplicantModificationRequestModel,
+                  version: extra["version"] as String,
+                  applicants:
+                      (extra["applicants"]
+                          as List<BookingApplicantModificationRequestModel>),
                 );
               },
             ),
@@ -6724,6 +6756,9 @@ final GoRouter goRouter = GoRouter(
                 return AddApplicantDetailsRequestsScreen(
                   bookingId: extra['bookingId'],
                   projectId: extra['projectId'],
+                  applicant: extra["applicant"],
+                  index: extra["index"],
+                  isEdit: extra["isEdit"] ?? false,
                 );
               },
             ),
@@ -6750,11 +6785,12 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.modifiedRequestsMakePayment,
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>;
+
                 return ModifiedRequestsMakePaymentScreen(
-                  uniquekey: extra["uniquekey"],
-                  bookingId: extra["bookingId"],
-                  projectId: extra["projectId"],
-                  refundData: extra["refundData"],
+                  uniquekey: extra["uniquekey"] as String,
+                  bookingId: extra["bookingId"] as int,
+                  projectId: extra["projectId"] as int,
+                  refundData: extra["refundData"] as RefundedAmountLedgerModel?,
                 );
               },
             ),

@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/core/models/project.model.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -21,6 +22,7 @@ abstract interface class ProjectMasterDatasource {
 
   Future<Map<String, dynamic>> apicallGetProjectWithBankDetails({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   });
 
   Future<Map<String, dynamic>> apicallGetProjectWithEmployee({
@@ -161,22 +163,36 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
   @override
   Future<Map<String, dynamic>> apicallGetProjectWithBankDetails({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   }) async {
-    String pullProjectWithBankDetailsUrl({required int projectId}) {
-      return "Project/PullProjectWithBankDetails?ProjectId=$projectId";
+    String pullProjectWithBankDetailsUrl({
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url = "Project/PullProjectWithBankDetails?ProjectId=$projectId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullProjectWithBankDetailsUrl(projectId: projectId),
+        pullProjectWithBankDetailsUrl(
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
       );
       return {
-        'data': networkResponse["data"],
+        'data': List<ProjectWithBankDetailsModel>.from(
+          networkResponse["data"].map((e) => ProjectWithBankDetailsModel.fromJson(e)),
+        ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallGetProjectWithBankDetails(projectId: projectId);
+        apicallGetProjectWithBankDetails(
+          projectId: projectId,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

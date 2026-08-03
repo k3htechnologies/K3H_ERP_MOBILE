@@ -158,6 +158,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         return;
       },
       (response) {
+        goRouter.pop();
         emit(
           state.copyWith(
             bankLoanDetails: response['data'][0],
@@ -487,7 +488,6 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         return;
       },
       (response) async {
-        goRouter.pop();
         emit(
           state.copyWith(
             bankLoanDetails: response['data'][0],

@@ -241,7 +241,7 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                                                                 .centerRight,
                                                         child: CustomCheckBox(
                                                           isDisabled:
-                                                              _snagChecklistAuthorization
+                                                              !_snagChecklistAuthorization
                                                                   .isAction,
                                                           isSelected:
                                                               isInactive,
@@ -272,13 +272,19 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                                                 children: [
                                                   buildRowTitleValue(
                                                     title: "Last Modified By",
-                                                    value: snag.modifiedBy,
+                                                    value:
+                                                        snag.modifiedBy
+                                                                .trim()
+                                                                .isEmpty
+                                                            ? snag.createdBy
+                                                            : snag.modifiedBy,
                                                   ),
                                                   verticalSpacing(),
                                                   buildRowTitleValue(
                                                     title: "Last Modified Date",
                                                     value: formatDate(
-                                                      snag.modifiedDate,
+                                                      snag.modifiedDate ??
+                                                          snag.createdDate,
                                                     ),
                                                   ),
                                                 ],
@@ -311,7 +317,7 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                   ],
                 ),
               ),
-              if (!_snagChecklistAuthorization.isAction)
+              if (_snagChecklistAuthorization.isAction)
                 CustomButton(
                   text: "Save",
                   onPressed: () {

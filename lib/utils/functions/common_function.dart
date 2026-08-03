@@ -266,6 +266,7 @@ void showFilePreviewDialog(
   List<String> urls, {
   String? title,
   List<Uint8List>? fileBytes,
+  String? downloadSuccessMessage,
 }) {
   showDialog(
     context: context,
@@ -277,6 +278,7 @@ void showFilePreviewDialog(
             urls: urls,
             fileBytes: fileBytes,
             title: title ?? "View File",
+            downloadSuccessMessage: downloadSuccessMessage,
           ),
         ),
   );

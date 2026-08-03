@@ -43,7 +43,7 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
   void initState() {
     super.initState();
     _flatHandoverAuthorization =
-        Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
+        Authorization.routeAuthorizationMap[AppRoutes.flatHandover] ??
         AuthorizationModel();
     _flatHandoverCubit = context.read<FlatHandoverCubit>();
     _searchTextC = TextEditingController();
@@ -110,25 +110,48 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: Text(
-                                flatHandoverDocuments.fileName,
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.primary,
+                              child: GestureDetector(
+                                onTap: () {
+                                  if (flatHandoverDocuments
+                                      .payTrackBookingFilesUrl
+                                      .isNotEmpty) {
+                                    showFilePreviewDialog(
+                                      title: flatHandoverDocuments.fileName,
+                                      context,
+                                      flatHandoverDocuments
+                                          .payTrackBookingFilesUrl
+                                          .split(","),
+                                    );
+                                  }
+                                },
+                                child: Text(
+                                  flatHandoverDocuments.fileName,
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.primary,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: AppColor.primary,
+                                  ),
                                 ),
                               ),
                             ),
                             horizontalSpacing(),
-                            if (!_flatHandoverAuthorization.isAction)
+                            if (_flatHandoverAuthorization.isAction)
                               Row(
                                 spacing: 10.0,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   CustomIconButton.edit(
-                                    isDisabled:
-                                        flatHandoverDocuments.approvalStatus
-                                            .toLowerCase() ==
-                                        "approved",
+                                    isDisabled: [
+                                      "approved",
+                                      "partial approved",
+                                    ].contains(
+                                      flatHandoverDocuments.approvalStatus
+                                          .trim()
+                                          .toLowerCase(),
+                                    ),
+
                                     onPressed: () {
                                       goRouter.pushNamed(
                                         AppRoutes.addFlatHandoverDocuments,
@@ -150,21 +173,24 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                         verticalSpacing(),
                         buildRowTitleValueNormal(
                           title: "Last Modified By",
-                          value: flatHandoverDocuments.modifiedBy,
+                          value:
+                              flatHandoverDocuments.modifiedBy.isEmpty
+                                  ? "-"
+                                  : flatHandoverDocuments.modifiedBy,
                         ),
                         verticalSpacing(),
                         buildRowTitleValueNormal(
                           title: "Last Modified Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            flatHandoverDocuments.modifiedDate,
-                          ),
+                          value:
+                              flatHandoverDocuments.modifiedDate == null
+                                  ? '-'
+                                  : formatDateTimeAsDDMMMYYYY(
+                                    flatHandoverDocuments.modifiedDate,
+                                  ),
                         ),
 
                         verticalSpacing(),
-                        flatHandoverDocuments
-                                    .payTrackBookingFilesUrl
-                                    .isNotEmpty &&
-                                !_flatHandoverAuthorization.isAction
+                        flatHandoverDocuments.payTrackBookingFilesUrl.isNotEmpty
                             ? ApproveRejectWidget(
                               openDetailsBeforeApproval: true,
                               isActionAlreadyPerformed:
@@ -172,9 +198,9 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                               actionTitle:
                                   flatHandoverDocuments.approvalStatus.isEmpty
                                       ? "Pending"
-                                      : approvalStatus,
-                              onOpenDetails: (isApprove) {
-                                goRouter.pushNamed(
+                                      : flatHandoverDocuments.approvalStatus,
+                              onOpenDetails: (isApprove) async {
+                                final result = await goRouter.pushNamed<bool>(
                                   AppRoutes.flatHandoverApprovalDetails,
                                   extra: {
                                     "document": flatHandoverDocuments,
@@ -182,6 +208,15 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                                     "isApprove": isApprove,
                                   },
                                 );
+
+                                if (result == true && context.mounted) {
+                                  _flatHandoverCubit.getFlatHandoverFilesList(
+                                    context: context,
+                                    pageNumber: 1,
+                                    projectId: widget.projectId,
+                                    bookingId: widget.bookingId,
+                                  );
+                                }
                               },
                               approveIcon: Icons.check,
                               onApprove: (onApprove) async {
@@ -240,13 +275,7 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                                               .payTrackBookingFilesId,
                                       moduleName: "FLAT HANDOVER APPROVAL",
                                     );
-                                debugPrint(
-                                  jsonEncode(
-                                    approvalLogHistoryList
-                                        .map((e) => e.toJson())
-                                        .toList(),
-                                  ),
-                                );
+
                                 if (context.mounted) {
                                   goRouter.pushNamed(
                                     AppRoutes.approvalLogHistory,

@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -22,7 +23,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewPaymentLedgerScreen extends StatefulWidget {
   final PayTrackPaymentLedgerSummaryModel summary;
-  const ViewPaymentLedgerScreen({super.key, required this.summary});
+  final String flat;
+  const ViewPaymentLedgerScreen({
+    super.key,
+    required this.summary,
+    required this.flat,
+  });
 
   @override
   State<ViewPaymentLedgerScreen> createState() =>
@@ -43,6 +49,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
         widget.summary.projectId,
         widget.summary.paymentFor,
       );
+      _paymentCubit.getOtherChargesList(1, getProject().projectId);
     });
   }
 
@@ -80,12 +87,16 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                         state.payTrackPaymentLedgerSummaryList[index];
                     final approvalStatus = summary.approvalStatus;
 
-                    final isAlreadyApproved =
-                        approvalStatus.toLowerCase() == "approved";
-                    final isRejected =
-                        approvalStatus.toLowerCase() == "rejected";
+                    final status = approvalStatus.trim().toLowerCase();
+
+                    final isAlreadyApproved = status == "approved";
+                    final isPartiallyApproved = status == "partial approved";
+                    final isRejected = status == "rejected";
+
                     final isEditDeleteDisabled =
-                        isAlreadyApproved || isRejected;
+                        isAlreadyApproved || isPartiallyApproved || isRejected;
+                    final bookingAmount =
+                        summary.isBookingAmount ? "Yes" : "No";
                     return Theme(
                       data: Theme.of(
                         context,
@@ -129,16 +140,34 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                       goRouter.pushNamed(
                                         AppRoutes.addPaymentLedger,
                                         queryParameters: {
-                                          'paymentLedger': Uri.encodeComponent(
-                                            jsonEncode([summary.toJson()]),
+                                          "paymentLedger": Uri.encodeComponent(
+                                            jsonEncode(
+                                              state.paymentLedger
+                                                  .map((e) => e.toJson())
+                                                  .toList(),
+                                            ),
                                           ),
+                                          "editPaymentLedger":
+                                              Uri.encodeComponent(
+                                                jsonEncode(summary.toJson()),
+                                              ),
+                                          "bookingOtherCharges":
+                                              Uri.encodeComponent(
+                                                jsonEncode(
+                                                  state.otherChargesList
+                                                      .map((e) => e.toJson())
+                                                      .toList(),
+                                                ),
+                                              ),
                                         },
                                       );
                                     },
                                   ),
                                   horizontalSpacing(),
                                   CustomIconButton.delete(
-                                    isDisabled: isEditDeleteDisabled,
+                                    isDisabled:
+                                        isEditDeleteDisabled ||
+                                        bookingAmount == "Yes",
                                     onPressed: () {
                                       _paymentCubit.deletePayTrackPaymentLedger(
                                         context: context,
@@ -174,6 +203,8 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                       approvalStatus.isEmpty
                                           ? "Pending"
                                           : approvalStatus,
+                                  subTitle:
+                                      "${summary.applicantName} > ${widget.flat} > ${summary.paymentFor} - ${summary.receivedAmount.toIndianCurrency()}",
                                   approveIcon: Icons.check,
                                   onApprove: (remark) async {
                                     final isSuccess = await context
@@ -307,7 +338,6 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                     ),
                                   ),
                                   child: Column(
-                                    spacing: 12.0,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
@@ -319,17 +349,35 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           ),
                                         ),
                                       ),
+                                      verticalSpacing(),
                                       buildColumnTitleValueNormal(
-                                        title: "Bank Name",
+                                        title: "Payment Received From",
+                                        value: summary.paymentReceivedFrom,
+                                      ),
+                                      verticalSpacing(),
+                                      buildColumnTitleValueNormal(
+                                        title: "Bank",
                                         value: summary.bankName,
                                       ),
+                                      verticalSpacing(),
                                       buildColumnTitleValueNormal(
                                         title:
                                             "Transaction / Cheque / Demand Draft No",
                                         value:
                                             summary
                                                 .transactionChequeDemandDraftNumber,
+                                        customValueWidget: DocumentPreviewText(
+                                          title:
+                                              "Transaction / Cheque / Demand Draft",
+                                          text:
+                                              summary
+                                                  .transactionChequeDemandDraftNumber,
+                                          fileUrl:
+                                              summary
+                                                  .transactionChequeDemandDraftUrl,
+                                        ),
                                       ),
+                                      verticalSpacing(),
                                       buildColumnTitleValueNormal(
                                         title:
                                             "Transaction / Cheque / Demand Draft Date",
@@ -359,7 +407,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "Others",
+                                        "Action Details",
                                         style: AppTextStyle.ts14M(
                                           color: AppColor.black.withValues(
                                             alpha: 0.5,

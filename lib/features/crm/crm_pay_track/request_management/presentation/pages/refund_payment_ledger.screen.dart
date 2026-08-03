@@ -92,68 +92,6 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: EdgeInsets.all(12.0),
-                decoration: BoxDecoration(
-                  color: AppColor.lightBlue,
-                  borderRadius: BorderRadius.circular(6.0),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Refund Details",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Total Refunded",
-                            value:
-                                widget.booking.totalAmountRefundedAgainstBooking
-                                    .toIndianCurrency(),
-                          ),
-                        ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Paid",
-                            value:
-                                widget.booking.refundedAmountOnTillDate
-                                    .toIndianCurrency(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Pending",
-                            value:
-                                (widget
-                                            .booking
-                                            .totalAmountRefundedAgainstBooking -
-                                        widget.booking.refundedAmountOnTillDate)
-                                    .toIndianCurrency(),
-                          ),
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                  ],
-                ),
-              ),
-              verticalSpacing(),
               ListView.builder(
                 itemCount: state.refundAmountLedgerList.length,
                 shrinkWrap: true,
@@ -161,6 +99,14 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                 itemBuilder: (context, index) {
                   final refundDataDetailsDetails =
                       state.refundAmountLedgerList[index];
+                  final approvalStatus =
+                      refundDataDetailsDetails.approvalStatus
+                          .trim()
+                          .toLowerCase();
+
+                  final isEditDeleteDisabled =
+                      approvalStatus == "approved" ||
+                      approvalStatus == "partial approved";
                   return Container(
                     margin: EdgeInsets.only(bottom: 10.0),
                     padding: EdgeInsets.all(12.0),
@@ -214,7 +160,7 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                                           "projectId":
                                               refundDataDetailsDetails
                                                   .projectId,
-                                          "refundDataDetails":
+                                          "refundData":
                                               refundDataDetailsDetails,
                                         },
                                       );
@@ -227,9 +173,7 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                                             );
                                       }
                                     },
-                                    isDisabled:
-                                        approvalStatus.toLowerCase() ==
-                                        "approved",
+                                    isDisabled: isEditDeleteDisabled,
                                   ),
                                   horizontalSpacing(),
                                   CustomIconButton.delete(
@@ -240,9 +184,7 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                                         index,
                                       );
                                     },
-                                    isDisabled:
-                                        approvalStatus.toLowerCase() ==
-                                        "approved",
+                                    isDisabled: isEditDeleteDisabled,
                                   ),
                                 ],
                               ),
@@ -252,92 +194,88 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           thickness: 0.3,
                           color: AppColor.black.withValues(alpha: 0.3),
                         ),
-                        if (_modifiedRequestsAuthorization.isAction)
-                          ApproveRejectWidget(
-                            isActionAlreadyPerformed:
-                                isAlreadyApproved || isRejected,
-                            actionTitle:
-                                refundDataDetails.approvalStatus.isEmpty
-                                    ? "Pending"
-                                    : approvalStatus,
-                            approveIcon: Icons.check,
-                            onApprove: (onApprove) async {
-                              final isSuccess = await context
-                                  .read<UtilsCubit>()
-                                  .updateModulesWorkflowApproval(
-                                    context: context,
-                                    moduleName:
-                                        'REFUND PAYMENT LEDGER APPROVAL',
-                                    id: refundDataDetails.bookingId,
-                                    subId:
-                                        refundDataDetails
-                                            .refundedAmountLedgerId,
-                                    projectId: refundDataDetails.projectId,
-                                    isApproved: true,
-                                    remark: onApprove.trim(),
-                                  );
-                              if (context.mounted && isSuccess) {
-                                await _requestManagementCubit
-                                    .getRefundAmountPaymentLedger(
-                                      context,
-                                      widget.booking.projectId,
-                                      widget.booking.bookingId,
-                                    );
-                              }
-                            },
-                            onReject: (onReject) async {
-                              await context
-                                  .read<UtilsCubit>()
-                                  .updateModulesWorkflowApproval(
-                                    context: context,
-                                    isApproved: false,
-                                    moduleName:
-                                        'REFUND PAYMENT LEDGER APPROVAL',
-                                    id: refundDataDetails.bookingId,
-                                    subId:
-                                        refundDataDetails
-                                            .refundedAmountLedgerId,
-                                    projectId: refundDataDetails.projectId,
-                                    remark: onReject.trim(),
-                                  );
-                            },
-                            onThirdTap: () async {
-                              final approvalLogHistoryList = await context
-                                  .read<UtilsCubit>()
-                                  .getApprovalLogHistory(
-                                    context: context,
-                                    projectId: refundDataDetails.projectId,
-                                    id: refundDataDetails.bookingId,
-                                    subId:
-                                        refundDataDetails
-                                            .refundedAmountLedgerId,
-                                    moduleName:
-                                        'REFUND PAYMENT LEDGER APPROVAL',
-                                  );
-                              if (context.mounted) {
-                                goRouter.pushNamed(
-                                  AppRoutes.approvalLogHistory,
-                                  queryParameters: {
-                                    "title": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        "REFUND PAYMENT LEDGER APPROVAL",
-                                      ),
-                                    ),
-                                    "approvalList": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(
-                                          approvalLogHistoryList
-                                              .map((e) => e.toJson())
-                                              .toList(),
-                                        ),
-                                      ),
-                                    ),
-                                  },
+
+                        ApproveRejectWidget(
+                          isActionAlreadyPerformed:
+                              isAlreadyApproved || isRejected,
+                          actionTitle:
+                              refundDataDetailsDetails.approvalStatus.isEmpty
+                                  ? "Pending"
+                                  : refundDataDetailsDetails.approvalStatus,
+                          subTitle:
+                              "${widget.booking.applicantName} > ${widget.booking.flat} > ${refundDataDetailsDetails.refundedAmount.toIndianCurrency()}",
+                          approveIcon: Icons.check,
+                          onApprove: (onApprove) async {
+                            final isSuccess = await context
+                                .read<UtilsCubit>()
+                                .updateModulesWorkflowApproval(
+                                  context: context,
+                                  moduleName: 'REFUND PAYMENT LEDGER APPROVAL',
+                                  id: refundDataDetails.bookingId,
+                                  subId:
+                                      refundDataDetails.refundedAmountLedgerId,
+                                  projectId: refundDataDetails.projectId,
+                                  isApproved: true,
+                                  remark: onApprove.trim(),
                                 );
-                              }
-                            },
-                            popupTitle: "REFUND PAYMENT LEDGER APPROVAL",
-                          ),
+                            if (context.mounted && isSuccess) {
+                              await _requestManagementCubit
+                                  .getRefundAmountPaymentLedger(
+                                    context,
+                                    widget.booking.projectId,
+                                    widget.booking.bookingId,
+                                  );
+                            }
+                          },
+                          onReject: (onReject) async {
+                            await context
+                                .read<UtilsCubit>()
+                                .updateModulesWorkflowApproval(
+                                  context: context,
+                                  isApproved: false,
+                                  moduleName: 'REFUND PAYMENT LEDGER APPROVAL',
+                                  id: refundDataDetails.bookingId,
+                                  subId:
+                                      refundDataDetails.refundedAmountLedgerId,
+                                  projectId: refundDataDetails.projectId,
+                                  remark: onReject.trim(),
+                                );
+                          },
+                          onThirdTap: () async {
+                            final approvalLogHistoryList = await context
+                                .read<UtilsCubit>()
+                                .getApprovalLogHistory(
+                                  context: context,
+                                  projectId: refundDataDetails.projectId,
+                                  id: refundDataDetails.bookingId,
+                                  subId:
+                                      refundDataDetails.refundedAmountLedgerId,
+                                  moduleName: 'REFUND PAYMENT LEDGER APPROVAL',
+                                );
+                            if (context.mounted) {
+                              goRouter.pushNamed(
+                                AppRoutes.approvalLogHistory,
+                                queryParameters: {
+                                  "title": Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      "REFUND PAYMENT LEDGER APPROVAL",
+                                    ),
+                                  ),
+                                  "approvalList": Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(
+                                        approvalLogHistoryList
+                                            .map((e) => e.toJson())
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                },
+                              );
+                            }
+                          },
+                          popupTitle: "REFUND PAYMENT LEDGER APPROVAL",
+                        ),
                         if (_modifiedRequestsAuthorization.isAction)
                           verticalSpacing(),
                         Text("Payment Details", style: AppTextStyle.ts16SB()),
@@ -384,12 +322,15 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                                 ),
                               ),
                             ),
+
                             Expanded(
                               child: buildColumnTitleValueNormal(
-                                title: "Refunded Amount",
-                                value:
-                                    refundDataDetailsDetails.refundedAmount
-                                        .toIndianCurrency(),
+                                title:
+                                    "Transaction / Cheque / Demand Draft Date",
+                                value: formatDateTimeAsDDMMMYYYY(
+                                  refundDataDetailsDetails
+                                      .transactionChequeDemandDraftDate,
+                                ),
                               ),
                             ),
                           ],

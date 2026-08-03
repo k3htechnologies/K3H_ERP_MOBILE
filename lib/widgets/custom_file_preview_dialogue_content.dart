@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +19,14 @@ class CommonFileViewer extends StatefulWidget {
   final List<String> urls;
   final List<Uint8List>? fileBytes;
   final String title;
+  final String? downloadSuccessMessage;
 
   const CommonFileViewer({
     super.key,
     required this.urls,
     this.fileBytes,
     this.title = "View File",
+    this.downloadSuccessMessage,
   });
 
   @override
@@ -135,19 +139,28 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
           showSuccessMessage(context, subTitle: "Image saved successfully");
         }
       } else {
-        final dir = Directory('/storage/emulated/0/Download');
+        Directory dir;
 
-        if (!await dir.exists()) {
-          await dir.create(recursive: true);
+        if (kIsWeb) {
+          return;
+        } else if (Platform.isAndroid) {
+          dir = Directory('/storage/emulated/0/Download');
+
+          if (!await dir.exists()) {
+            dir =
+                await getExternalStorageDirectory() ??
+                await getApplicationDocumentsDirectory();
+          }
+        } else {
+          dir = await getApplicationDocumentsDirectory();
         }
 
         final filePath = '${dir.path}/$fileName';
 
         final file = File(filePath);
         await file.writeAsBytes(fileData, flush: true);
-
-        if (mounted) {
-          showSuccessMessage(context, subTitle: "Saved to Downloads");
+        if (context.mounted) {
+          showSuccessMessage(context, subTitle: widget.downloadSuccessMessage);
         }
 
         await OpenFilex.open(filePath);

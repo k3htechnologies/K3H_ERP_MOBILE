@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -169,6 +170,14 @@ class _ActivityTabScreenState extends State<ActivityTabScreen> {
   }
 
   Widget _buildBookingApplicantHistoryWidget(RequestManagementState state) {
+    final groupedHistory =
+        <String, List<BookingApplicantModificationRequestModel>>{};
+
+    for (final item in state.bookingApplicantModificationRequestModel) {
+      groupedHistory.putIfAbsent(item.versionNumber, () => []).add(item);
+    }
+
+    final versions = groupedHistory.entries.toList();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -185,40 +194,33 @@ class _ActivityTabScreenState extends State<ActivityTabScreen> {
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: state.bookingApplicantModificationRequestModel.length,
+            itemCount: versions.length,
             itemBuilder: (context, index) {
-              final applicantDetail =
-                  state.bookingApplicantModificationRequestModel[index];
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      "Version ${applicantDetail.versionNumber}",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.primary,
-                      ).copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColor.primary,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.viewVersionWiseBookingApplicantHistory,
-                        extra: {"applicant": applicantDetail},
-                      );
+              final version = versions[index];
+              return GestureDetector(
+                onTap: () {
+                  goRouter.pushNamed(
+                    AppRoutes.viewVersionWiseBookingApplicantHistory,
+                    extra: {
+                      "applicants": version.value,
+                      "version": version.key,
                     },
-                    icon: Icon(
-                      Icons.arrow_forward_ios_outlined,
-                      size: 16,
-                      color: AppColor.primary,
+                  );
+                },
+                child: ListTile(
+                  title: Text(
+                    "Version ${version.key}",
+                    style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColor.primary,
                     ),
                   ),
-                ],
+                  trailing: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: AppColor.primary,
+                    size: 18.0,
+                  ),
+                ),
               );
             },
           ),
@@ -246,36 +248,27 @@ class _ActivityTabScreenState extends State<ActivityTabScreen> {
             itemCount: state.parkingModificationRequestList.length,
             itemBuilder: (context, index) {
               final parkingDetail = state.parkingModificationRequestList[index];
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      "Version ${parkingDetail.versionNumber}",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.primary,
-                      ).copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColor.primary,
-                      ),
+              return GestureDetector(
+                onTap: () {
+                  goRouter.pushNamed(
+                    AppRoutes.viewVersionWiseParkingHistory,
+                    extra: {"parking": parkingDetail},
+                  );
+                },
+                child: ListTile(
+                  title: Text(
+                    "Version ${parkingDetail.versionNumber}",
+                    style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColor.primary,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.viewVersionWiseParkingHistory,
-                        extra: {"parking": parkingDetail},
-                      );
-                    },
-                    icon: Icon(
-                      Icons.arrow_forward_ios_outlined,
-                      size: 16,
-                      color: AppColor.primary,
-                    ),
+                  trailing: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: AppColor.primary,
+                    size: 18.0,
                   ),
-                ],
+                ),
               );
             },
           ),
@@ -304,39 +297,29 @@ class _ActivityTabScreenState extends State<ActivityTabScreen> {
             itemBuilder: (context, index) {
               final unitModulationDetail =
                   state.flatAlterationRequestsModel[index];
-
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      "Version ${unitModulationDetail.versionNumber}",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.primary,
-                      ).copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColor.primary,
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.viewUnitModulationCustomizationHistory,
-                        extra: {
-                          "unitModulationCustomization": unitModulationDetail,
-                        },
-                      );
+              return GestureDetector(
+                onTap: () {
+                  goRouter.pushNamed(
+                    AppRoutes.viewUnitModulationCustomizationHistory,
+                    extra: {
+                      "unitModulationCustomization": unitModulationDetail,
                     },
-                    icon: Icon(
-                      Icons.arrow_forward_ios_outlined,
-                      size: 16,
-                      color: AppColor.primary,
+                  );
+                },
+                child: ListTile(
+                  title: Text(
+                    "Version ${unitModulationDetail.versionNumber}",
+                    style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
+                      decoration: TextDecoration.underline,
+                      decorationColor: AppColor.primary,
                     ),
                   ),
-                ],
+                  trailing: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: AppColor.primary,
+                    size: 18.0,
+                  ),
+                ),
               );
             },
           ),

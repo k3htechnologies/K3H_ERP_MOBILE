@@ -114,10 +114,16 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
                       hint: "Enter File Name",
                       textController: _fileNameC,
                       isRequired: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "File Name is required";
+                        }
+                        return null;
+                      },
                     ),
                     CustomMultiFilePicker(
                       title: "File",
-
+                      isRequired: true,
                       filePickType: FilePickType.kycDocument,
                       initialFileList: selectedFileForUpload.fileNameList,
                       initialFileBytes: selectedFileForUpload.fileBytesList,
@@ -134,25 +140,29 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
                         selectedFileForUpload.fileNameList = fileNameList;
                         selectedFileForUpload.deletedFileList = deleted;
                       },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "File is required";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                CustomButton(
-                  text: widget.isEdit ? "Update" : "Submit",
-                  onPressed: _submit,
-                ),
-              ],
-            ),
-          ),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70.0,
+          padding: const EdgeInsets.all(16.0),
+          child: CustomButton(
+            text: widget.isEdit ? "Update" : "Add",
+            onPressed: _submit,
+          ),
+        ),
       ),
     );
   }

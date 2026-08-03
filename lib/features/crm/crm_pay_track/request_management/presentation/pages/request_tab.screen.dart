@@ -225,7 +225,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildApplicantDetailsWidget(context, state),
-              _buildParkingDetailsWidget(context, state),
+              if (state.bookingData!.parkingData.isNotEmpty)
+                _buildParkingDetailsWidget(context, state),
               _buildFlatSpecificationRemarkgDetailsWidget(context, state),
             ],
           ),
@@ -252,7 +253,21 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     );
 
     final hasApplicantData = applicantList.isNotEmpty;
+    final isAnyApplicantPartiallyApproved = applicantList.any(
+      (e) => e.approvalStatus.trim().toLowerCase() == "partial approved",
+    );
+    BookingApplicantModificationRequestModel? applicantRequest;
 
+    for (final e in applicantList) {
+      if (e.applicantType.trim().toLowerCase() == "applicant") {
+        applicantRequest = e;
+        break;
+      }
+    }
+
+    final isApplicantApproved =
+        applicantRequest != null &&
+        applicantRequest.approvalStatus.trim().toLowerCase() == "approved";
     return Column(
       spacing: 10.0,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,47 +282,43 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (applicantList.isNotEmpty)
+                    if (applicantList.isNotEmpty &&
+                        state.hasUnsavedApplicantChanges &&
+                        !state.isSavingApplicantRequest &&
+                        !isAnyApplicantPartiallyApproved)
                       CustomButton(
                         text: "Save",
                         onPressed: () {
+                          final hasApplicant = applicantList.any(
+                            (e) =>
+                                e.applicantType.trim().toLowerCase() ==
+                                "applicant",
+                          );
+
+                          if (!hasApplicant) {
+                            showErrorMessage(
+                              context,
+                              "Error",
+                              "At least one Applicant is required.",
+                            );
+                            return;
+                          }
                           _requestManagementCubit
                               .updateBookingApplicantModificationRequest(
                                 context,
                                 bookingId: widget.bookingId,
                                 projectId: widget.projectId,
-                                panCardPhoto: selectedPANForPopUpFile,
-                                aadharCardPhoto: selectedAadhaarForPopUpFile,
-                                votingCardPhoto: selectedVotingForPopUpFile,
-                                poaCardPhoto: selectedPOAForPopUpFile,
-                                paymentProofPhoto:
-                                    selectedPaymentProofForPopUpFile,
-                                nreNroBankDetailsPhoto:
-                                    selectedNreNroBankDetailsForPopUpFile,
-                                drivingLicensePhoto:
-                                    selectedDrivingLicenseForPopUpFile,
-                                proofOfDocumentPhoto:
-                                    selectedProofOfDocumentForPopUpFile,
-                                statementOfSourceOfFundsPhoto:
-                                    selectedStatementOfSourceOfFundsForPopUpFile,
-                                incomeForm16ITRPhoto:
-                                    selectedIncomeForm16ITRForPopUpFile,
-                                nomineeFormPhoto:
-                                    selectedNomineeFormPhotoForPopUpFile,
-                                cancelledChequePhoto:
-                                    selectedCancelledChequePhotoForPopUpFile,
-                                photoPhoto: selectedPhotoPhotoForPopUpFile,
-                                passportPhoto:
-                                    selectedPassportPhotoForPopUpFile,
-                                gstNumberPhoto:
-                                    selectedGstNumberPhotForPopUpFile,
                               );
                         },
                       ),
 
                     horizontalSpacing(),
                     if (_modifiedRequestsAuthorization.isAction &&
-                        widget.approvalStatus?.toUpperCase() == "APPROVED")
+                        widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+                        !isAnyApplicantPartiallyApproved &&
+                        (state.hasUnsavedApplicantChanges ||
+                            applicantRequest == null ||
+                            isApplicantApproved))
                       CustomButton(
                         leading: Icon(
                           Icons.add,
@@ -347,10 +358,57 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                           if (result is Map &&
                               result["isSuccess"] == true &&
                               result["applicant"] != null) {
-                            _requestManagementCubit.addApplicantLocally(
-                              result["applicant"]
-                                  as BookingApplicantModificationRequestModel,
-                            );
+                            selectedAadhaarForPopUpFile = result["aadhaarFile"];
+
+                            selectedPANForPopUpFile = result["panFile"];
+
+                            selectedPassportPhotoForPopUpFile =
+                                result["passportFile"];
+
+                            selectedPhotoPhotoForPopUpFile =
+                                result["photoFile"];
+
+                            selectedGstNumberPhotForPopUpFile =
+                                result["gstFile"];
+
+                            selectedVotingForPopUpFile = result["votingFile"];
+
+                            selectedDrivingLicenseForPopUpFile =
+                                result["drivingFile"];
+
+                            selectedPOAForPopUpFile = result["poaFile"];
+
+                            selectedPaymentProofForPopUpFile =
+                                result["paymentProofFile"];
+
+                            selectedProofOfDocumentForPopUpFile =
+                                result["proofDocumentFile"];
+
+                            selectedStatementOfSourceOfFundsForPopUpFile =
+                                result["statementFile"];
+
+                            selectedIncomeForm16ITRForPopUpFile =
+                                result["incomeFile"];
+
+                            selectedNomineeFormPhotoForPopUpFile =
+                                result["nomineeFile"];
+
+                            selectedCancelledChequePhotoForPopUpFile =
+                                result["cancelledChequeFile"];
+
+                            selectedNreNroBankDetailsForPopUpFile =
+                                result["nreFile"];
+
+                            if (result["isEdit"] == true) {
+                              _requestManagementCubit.updateApplicantLocally(
+                                result["index"],
+                                result["applicant"],
+                              );
+                            } else {
+                              _requestManagementCubit.addApplicantLocally(
+                                result["applicant"],
+                              );
+                            }
                           }
                         },
                       ),
@@ -367,7 +425,11 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               final applicantData = applicantList[index];
 
               final applicant = applicantData;
+              final isApplicant =
+                  applicant.applicantType.trim().toLowerCase() == "applicant";
               final isActionAlreadyPerformed = !applicant.isApproval;
+              final isDraftRequest = state.hasUnsavedApplicantChanges;
+              final canDelete = isDraftRequest || isApplicant;
               return Container(
                 margin: EdgeInsets.only(
                   bottom: index == applicantList.length - 1 ? 0 : 10,
@@ -384,30 +446,158 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       children: [
                         Expanded(
                           child: buildColumnTitleValueNormal(
-                            title: "Applicant Type",
+                            title: "Type",
                             value: applicant.applicantType,
                           ),
                         ),
-                        CustomIconButton.delete(
-                          onPressed: () {
-                            _requestManagementCubit
-                                .deleteBookingApplicantModificationRequest(
-                                  context: context,
-                                  model: applicant,
-                                  bookingId: widget.bookingId,
-                                  projectId: widget.projectId,
-                                  index: index,
-                                );
-                          },
+                        horizontalSpacing(),
+                        Expanded(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (isDraftRequest)
+                                CustomIconButton.edit(
+                                  isDisabled:
+                                      applicant.approvalStatus.toLowerCase() ==
+                                          "partial approved" ||
+                                      applicant.approvalStatus.toLowerCase() ==
+                                          "approved",
+                                  onPressed: () async {
+                                    final result = await goRouter.pushNamed(
+                                      AppRoutes.addApplicantDetailsRequests,
+                                      extra: {
+                                        "bookingId": widget.bookingId,
+                                        "projectId": widget.projectId,
+                                        "index": index,
+                                        "isEdit": true,
+                                        "applicant": applicant,
+
+                                        "aadharFile":
+                                            selectedAadhaarForPopUpFile,
+                                        "panFile": selectedPANForPopUpFile,
+                                        "passportFile":
+                                            selectedPassportPhotoForPopUpFile,
+                                        "photoFile":
+                                            selectedPhotoPhotoForPopUpFile,
+                                        "gstFile":
+                                            selectedGstNumberPhotForPopUpFile,
+                                        "votingFile":
+                                            selectedVotingForPopUpFile,
+                                        "drivingFile":
+                                            selectedDrivingLicenseForPopUpFile,
+                                        "poaFile": selectedPOAForPopUpFile,
+                                        "paymentProofFile":
+                                            selectedPaymentProofForPopUpFile,
+                                        "proofDocumentFile":
+                                            selectedProofOfDocumentForPopUpFile,
+                                        "statementFile":
+                                            selectedStatementOfSourceOfFundsForPopUpFile,
+                                        "incomeFile":
+                                            selectedIncomeForm16ITRForPopUpFile,
+                                        "nomineeFile":
+                                            selectedNomineeFormPhotoForPopUpFile,
+                                        "cancelledChequeFile":
+                                            selectedCancelledChequePhotoForPopUpFile,
+                                        "nreFile":
+                                            selectedNreNroBankDetailsForPopUpFile,
+                                      },
+                                    );
+
+                                    if (result is Map &&
+                                        result["isSuccess"] == true &&
+                                        result["applicant"] != null) {
+                                      selectedProofOfDocumentForPopUpFile =
+                                          result["proofDocumentFile"];
+                                      selectedAadhaarForPopUpFile =
+                                          result["aadhaarFile"];
+                                      selectedPANForPopUpFile =
+                                          result["panFile"];
+                                      selectedPassportPhotoForPopUpFile =
+                                          result["passportFile"];
+                                      selectedPhotoPhotoForPopUpFile =
+                                          result["photoFile"];
+                                      selectedGstNumberPhotForPopUpFile =
+                                          result["gstFile"];
+                                      selectedVotingForPopUpFile =
+                                          result["votingFile"];
+                                      selectedDrivingLicenseForPopUpFile =
+                                          result["drivingFile"];
+                                      selectedPOAForPopUpFile =
+                                          result["poaFile"];
+                                      selectedPaymentProofForPopUpFile =
+                                          result["paymentProofFile"];
+                                      selectedStatementOfSourceOfFundsForPopUpFile =
+                                          result["statementFile"];
+                                      selectedIncomeForm16ITRForPopUpFile =
+                                          result["incomeFile"];
+                                      selectedNomineeFormPhotoForPopUpFile =
+                                          result["nomineeFile"];
+                                      selectedCancelledChequePhotoForPopUpFile =
+                                          result["cancelledChequeFile"];
+                                      selectedNreNroBankDetailsForPopUpFile =
+                                          result["nreFile"];
+
+                                      _requestManagementCubit
+                                          .updateApplicantLocally(
+                                            result["index"],
+                                            result["applicant"],
+                                          );
+                                    }
+                                  },
+                                ),
+                              if (isDraftRequest) horizontalSpacing(),
+                              if (canDelete)
+                                CustomIconButton.delete(
+                                  isDisabled:
+                                      isAnyApplicantPartiallyApproved ||
+                                      applicant.approvalStatus.toLowerCase() ==
+                                          "partial approved" ||
+                                      applicant.approvalStatus.toLowerCase() ==
+                                          "approved",
+                                  onPressed: () async {
+                                    final isDelete =
+                                        await DialogHelper.deleteDialog(
+                                          context,
+                                          "Delete Applicant?",
+                                          "Are you sure you want to delete this applicant?",
+                                        );
+
+                                    if (!isDelete) return;
+
+                                    final isDraftRequest =
+                                        applicant
+                                            .bookingApplicantModificationRequestId ==
+                                        0;
+
+                                    if (isDraftRequest) {
+                                      _requestManagementCubit
+                                          .deleteApplicantLocally(index);
+                                    } else {
+                                      if (context.mounted) {
+                                        _requestManagementCubit
+                                            .deleteBookingApplicantModificationRequest(
+                                              context: context,
+                                              model: applicant,
+                                              bookingId: widget.bookingId,
+                                              projectId: widget.projectId,
+                                              index: index,
+                                            );
+                                      }
+                                    }
+                                  },
+                                ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                     buildRowTitleValue(
-                      title: "Full Name",
+                      title: "Applicant Name",
                       value: applicant.applicantName,
+                      singleLine: false,
                     ),
                     buildRowTitleValue(
-                      title: "Contact Number",
+                      title: "Mobile No. ",
                       value: applicant.applicantMobileNumber,
                       customValueWidget: CustomClickToContactText(
                         countryCode: applicant.applicantMobileNumberCountryCode,
@@ -420,10 +610,21 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       value: applicant.applicantEmailId,
                       singleLine: false,
                     ),
+                    if (applicant.proofOfDocumentUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Proof Of Document",
+                        value: applicant.proofOfDocumentUrl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Proof Of Document",
+                          text: "View",
+                          fileUrl: applicant.proofOfDocumentUrl,
+                        ),
+                      ),
                     buildRowTitleValue(
-                      title: "Aadhar Card No.",
+                      title: "Aadhaar Card No.",
                       value: applicant.aadharCardNumber,
                       customValueWidget: DocumentPreviewText(
+                        title: "Aadhaar Card",
                         text: applicant.aadharCardNumber,
                         fileUrl: applicant.aadharCardUrl,
                       ),
@@ -432,15 +633,135 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       title: "PAN Card No.",
                       value: applicant.panNumber,
                       customValueWidget: DocumentPreviewText(
+                        title: "PAN Card",
                         text: applicant.panNumber,
                         fileUrl: applicant.panCardUrl,
                       ),
                     ),
-                    _modifiedRequestsAuthorization.isAction
+                    if (applicant.passportNumber.isNotEmpty &&
+                        applicant.passportUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Passport Number",
+                        value: applicant.passportNumber,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Passport Number",
+                          text: applicant.passportNumber,
+                          fileUrl: applicant.passportUrl,
+                        ),
+                      ),
+                    if (applicant.drivingLicenseNumber.isNotEmpty &&
+                        applicant.drivingLicenseUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Driving License Number",
+                        value: applicant.drivingLicenseNumber,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Driving License Number",
+                          text: applicant.drivingLicenseNumber,
+                          fileUrl: applicant.drivingLicenseUrl,
+                        ),
+                      ),
+                    if (applicant.votingIdNumber.isNotEmpty &&
+                        applicant.votingIdUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Voting ID Number",
+                        value: applicant.votingIdNumber,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Voting ID Number",
+                          text: applicant.votingIdNumber,
+                          fileUrl: applicant.votingIdUrl,
+                        ),
+                      ),
+                    if (applicant.gstNumber.isNotEmpty &&
+                        applicant.gstNumberUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "GST Number",
+                        value: applicant.gstNumber,
+                        customValueWidget: DocumentPreviewText(
+                          title: "GST Number",
+                          text: applicant.gstNumber,
+                          fileUrl: applicant.gstNumberUrl,
+                        ),
+                      ),
+                    if (applicant.cancelledChequeUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Cancelled Cheque",
+                        value: applicant.cancelledChequeUrl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Cancelled Cheque",
+                          text: "View",
+                          fileUrl: applicant.cancelledChequeUrl,
+                        ),
+                      ),
+                    if (applicant.poaurl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "POA (if NRI Execution)",
+                        value: applicant.poaurl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "POA (if NRI Execution)",
+                          text: "View",
+                          fileUrl: applicant.poaurl,
+                        ),
+                      ),
+                    if (applicant.incomeForm16Itrurl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Income Docs (Form 16 / ITR)",
+                        value: applicant.incomeForm16Itrurl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Income Docs (Form 16 / ITR)",
+                          text: "View",
+                          fileUrl: applicant.incomeForm16Itrurl,
+                        ),
+                      ),
+                    if (applicant.nreNroBankDetailsUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "NRE / NRO Bank Details",
+                        value: applicant.nreNroBankDetailsUrl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "NRE / NRO Bank Details",
+                          text: "View",
+                          fileUrl: applicant.nreNroBankDetailsUrl,
+                        ),
+                      ),
+                    if (applicant.nomineeFormUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Nominee Form",
+                        value: applicant.nomineeFormUrl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Nominee Form",
+                          text: "View",
+                          fileUrl: applicant.nomineeFormUrl,
+                        ),
+                      ),
+                    if (applicant.statementOfSourceOfFundsUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Statement of Source of Funds",
+                        value: applicant.statementOfSourceOfFundsUrl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Statement of Source of Funds",
+                          text: "View",
+                          fileUrl: applicant.statementOfSourceOfFundsUrl,
+                        ),
+                      ),
+                    if (applicant.paymentProofUrl.isNotEmpty)
+                      buildRowTitleValue(
+                        title: "Payment Proof",
+                        value: applicant.paymentProofUrl,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Payment Proof",
+                          text: "View",
+                          fileUrl: applicant.paymentProofUrl,
+                        ),
+                      ),
+                    _modifiedRequestsAuthorization.isAction &&
+                            !isDraftRequest &&
+                            isApplicant
                         ? ApproveRejectWidget(
                           isActionAlreadyPerformed: isActionAlreadyPerformed,
                           actionTitle:
-                              applicant.isApproval ? "Approval" : "History",
+                              applicant.approvalStatus.isEmpty
+                                  ? "Pending"
+                                  : applicant.approvalStatus,
+                          subTitle: applicant.applicantName,
                           onApprove: (remark) async {
                             final isSuccess = await _utilsCubit
                                 .updateModulesWorkflowApproval(
@@ -563,6 +884,15 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     final hasParkingData =
         state.parkingModificationRequestList.isNotEmpty &&
         state.parkingModificationRequestList.first.parkingData.isNotEmpty;
+    final hasPendingParkingRequest = state.parkingModificationRequestList.any((
+      e,
+    ) {
+      final status = e.approvalStatus.trim().toLowerCase();
+
+      return status == "" ||
+          status == "pending" ||
+          status == "partial approved";
+    });
     return Column(
       spacing: 10.0,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,7 +902,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
           children: [
             Text("Parking Details", style: AppTextStyle.ts16SB()),
             if (_modifiedRequestsAuthorization.isAction &&
-                widget.approvalStatus?.toUpperCase() == "APPROVED")
+                widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+                !hasPendingParkingRequest)
               CustomButton(
                 leading: Icon(Icons.add, size: 18, color: AppColor.white),
                 text: "Add",
@@ -598,11 +929,13 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                 }
 
                 final parking = parkingData.parkingData.first;
+                final parkingStatus = parkingData.approvalStatus;
                 final isActionAlreadyPerformed =
-                    parking.approvalStatus.toLowerCase() == "approved";
-                final isRejected =
-                    parking.approvalStatus.toLowerCase() == "rejected";
-
+                    parkingStatus.toLowerCase() == "approved";
+                final isRejected = parkingStatus.toLowerCase() == "rejected";
+                final isEditDeleteDisabled =
+                    parkingStatus.trim().toLowerCase() == "partial approved" ||
+                    parkingStatus.trim().toLowerCase() == "approved";
                 return Container(
                   margin: EdgeInsets.only(
                     bottom:
@@ -622,6 +955,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               CustomIconButton.edit(
+                                isDisabled: isEditDeleteDisabled,
                                 onPressed: () async {
                                   goRouter.pushNamed(
                                     AppRoutes.swapBookedParking,
@@ -631,6 +965,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                               ),
                               horizontalSpacing(),
                               CustomIconButton.delete(
+                                isDisabled: isEditDeleteDisabled,
                                 onPressed: () {
                                   _showPopupToDeleteParkingAlterationRequest(
                                     context,
@@ -646,16 +981,16 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       _modifiedRequestsAuthorization.isAction
                           ? buildColumnTitleValueNormal(
                             title: "Approval Status",
-                            value: parkingData.approvalStatus,
+                            value: parkingStatus,
                             customValueWidget: ApproveRejectWidget(
                               isActionAlreadyPerformed:
                                   isActionAlreadyPerformed || isRejected,
                               actionTitle:
-                                  parkingData.approvalStatus.isEmpty
+                                  parkingStatus.isEmpty
                                       ? "Pending"
-                                      : parkingData.approvalStatus,
-                              approveIcon: Icons.check,
-                              onApprove: (value) async {
+                                      : parkingStatus,
+                              subTitle: parking.parkingNumber,
+                              onApprove: (remark) async {
                                 final isSuccess = await _utilsCubit
                                     .updateModulesWorkflowApproval(
                                       context: context,
@@ -667,21 +1002,21 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                                               .parkingModificationRequestId,
                                       projectId: widget.projectId,
                                       isApproved: true,
-                                      remark: value.trim(),
+                                      remark: remark.trim(),
                                     );
 
                                 if (context.mounted && isSuccess) {
                                   _requestManagementCubit
-                                      .getFlatAlterationRequestList(
+                                      .getParkingModificationRequestList(
                                         context,
-                                        10,
+                                        100,
                                         1,
                                         widget.bookingId,
                                         widget.projectId,
                                       );
                                 }
                               },
-                              onReject: (value) async {
+                              onReject: (remark) async {
                                 final isSuccess = await _utilsCubit
                                     .updateModulesWorkflowApproval(
                                       context: context,
@@ -693,14 +1028,14 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                                               .parkingModificationRequestId,
                                       projectId: widget.projectId,
                                       isApproved: false,
-                                      remark: value.trim(),
+                                      remark: remark.trim(),
                                     );
 
                                 if (context.mounted && isSuccess) {
                                   _requestManagementCubit
-                                      .getFlatAlterationRequestList(
+                                      .getParkingModificationRequestList(
                                         context,
-                                        10,
+                                        100,
                                         1,
                                         widget.bookingId,
                                         widget.projectId,
@@ -741,8 +1076,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                                   );
                                 }
                               },
-                              popupTitle:
-                                  "Unit / Modulation / Customization Remark",
+                              popupTitle: "PARKING MODIFICATION APPROVAL",
                             ),
                           )
                           : SizedBox.shrink(),
@@ -752,6 +1086,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       ...List.generate(request.parkingData.length, (
                         parkingIndex,
                       ) {
+                        final request =
+                            state.parkingModificationRequestList[index];
                         final parking = request.parkingData[parkingIndex];
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -778,28 +1114,19 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                             ),
                             buildRowTitleValue(
                               title: "EV Charging",
-                              value: parking.isEvChargingAvailable.toString(),
+                              value:
+                                  parking.isEvChargingAvailable ? "Yes" : "No",
                             ),
                             buildRowTitleValue(
-                              title: "Parking Status",
-                              value: parking.parkingStatus,
+                              title: "Proof Of Document",
+                              value: request.proofOfDocumentUrl,
+                              customValueWidget: DocumentPreviewText(
+                                title: "Proof Of Document",
+                                text: "View",
+                                fileUrl: request.proofOfDocumentUrl,
+                              ),
                             ),
-                            buildRowTitleValue(
-                              title: "Building Number",
-                              value: parking.buildingNumber,
-                            ),
-                            buildRowTitleValue(
-                              title: "Wing",
-                              value: parking.wing,
-                            ),
-                            buildRowTitleValue(
-                              title: "Floor",
-                              value: parking.floor,
-                            ),
-                            buildRowTitleValue(
-                              title: "Approval Status",
-                              value: parking.approvalStatus,
-                            ),
+
                             Divider(thickness: 1, color: AppColor.lightGrey),
                           ],
                         );
@@ -837,6 +1164,14 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
   ) {
     final hasFlatSpecificationRemark =
         state.flatAlterationRequestsModel.isNotEmpty;
+    final hasPendingFlatAlterationRequest = state.flatAlterationRequestsModel
+        .any((e) {
+          final status = e.approvalStatus.trim().toLowerCase();
+
+          return status.isEmpty ||
+              status == "pending" ||
+              status == "partial approved";
+        });
     return Column(
       spacing: 10.0,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -851,7 +1186,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               ),
             ),
             if (_modifiedRequestsAuthorization.isAction &&
-                widget.approvalStatus?.toUpperCase() == "APPROVED")
+                widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+                !hasPendingFlatAlterationRequest)
               CustomButton(
                 leading: Icon(Icons.add, size: 18, color: AppColor.white),
                 text: "Add",
@@ -870,10 +1206,14 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             itemCount: state.flatAlterationRequestsModel.length,
             itemBuilder: (context, index) {
               final remark = state.flatAlterationRequestsModel[index];
-              final approvalStatus = remark.approvalStatus;
+              final approvalStatus = remark.approvalStatus.trim().toLowerCase();
               final isAlreadyApproved =
                   approvalStatus.toLowerCase() == "approved";
               final isRejected = approvalStatus.toLowerCase() == "rejected";
+
+              final isEditDeleteDisabled =
+                  approvalStatus == "approved" ||
+                  approvalStatus == "partial approved";
               return Container(
                 margin: EdgeInsets.only(
                   bottom:
@@ -892,6 +1232,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomIconButton.edit(
+                              isDisabled: isEditDeleteDisabled,
                               onPressed: () async {
                                 goRouter.pushNamed(
                                   AppRoutes.addFlatSpecificationRemarkScreen,
@@ -901,6 +1242,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                             ),
                             horizontalSpacing(),
                             CustomIconButton.delete(
+                              isDisabled: isEditDeleteDisabled,
                               onPressed: () {
                                 _showPopupToDeleteFlatAlterationRequest(
                                   context,
@@ -998,7 +1340,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                                   queryParameters: {
                                     "title": Uri.encodeComponent(
                                       EncryptionManager.encryptData(
-                                        "Unit / Modulation / Customization Remark Log History",
+                                        "Unit/ Modulation/ Customization Remark Log History",
                                       ),
                                     ),
                                     "approvalList": Uri.encodeComponent(

@@ -64,7 +64,6 @@ enum PayTrackTab {
   bankLoan,
   paymentLedger,
   modificationRequest,
-  paymentSchedule,
   flatHandover,
   files,
   payTrackCallLog,
@@ -82,15 +81,13 @@ extension PayTrackTabExtension on PayTrackTab {
       case PayTrackTab.paymentLedger:
         return "Account";
       case PayTrackTab.modificationRequest:
-        return "Modification Request";
-      case PayTrackTab.paymentSchedule:
-        return "Payment Schedule";
+        return "Modified Request";
       case PayTrackTab.flatHandover:
         return "Flat Handover";
       case PayTrackTab.files:
         return "Files";
       case PayTrackTab.payTrackCallLog:
-        return "Pay Track Call Log";
+        return "Call Logs";
       case PayTrackTab.snagChecklist:
         return "Snag Checklist";
       case PayTrackTab.flatHandoverChecklist:

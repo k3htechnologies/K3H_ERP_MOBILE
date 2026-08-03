@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_
 
 class FilesState extends BaseState {
   final List<PayTrackBookingFilesModel> payTrackBookingFileList;
+  final PayTrackBookingFilesModel? payTrackBookingFileModel;
   final int currentPage;
   final int totalNumberOfRecord;
   final String searchText;
@@ -13,6 +14,7 @@ class FilesState extends BaseState {
     required this.currentPage,
     required this.totalNumberOfRecord,
     required this.searchText,
+    this.payTrackBookingFileModel,
   });
 
   factory FilesState.initial() => FilesState(
@@ -21,6 +23,7 @@ class FilesState extends BaseState {
     totalNumberOfRecord: 0,
     searchText: "",
     isLoading: true,
+    payTrackBookingFileModel: null,
   );
 
   FilesState copyWith({
@@ -29,6 +32,7 @@ class FilesState extends BaseState {
     int? currentPage,
     int? totalNumberOfRecord,
     String? searchText,
+    PayTrackBookingFilesModel? payTrackBookingFileModel,
   }) {
     return FilesState(
       isLoading: isLoading ?? this.isLoading,
@@ -37,6 +41,8 @@ class FilesState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
+      payTrackBookingFileModel:
+          payTrackBookingFileModel ?? this.payTrackBookingFileModel,
     );
   }
 
@@ -45,6 +51,8 @@ class FilesState extends BaseState {
     isLoading,
     payTrackBookingFileList,
     currentPage,
+    searchText,
     totalNumberOfRecord,
+    payTrackBookingFileModel,
   ];
 }
