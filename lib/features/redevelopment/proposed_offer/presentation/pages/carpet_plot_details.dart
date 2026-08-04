@@ -111,9 +111,9 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Total Build Up Area (Sq. ft)",
+                          title: "Total Carpet Area (Sq. ft)",
                           value:
-                              carpetPlotDetails.totalBuiltUpAreaSqFt.toString(),
+                              carpetPlotDetails.totalCarpetAreaSqFt.toString(),
                         ),
                         buildColumnTitleValue(
                           title: "Total Residential Units",

@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -123,9 +124,9 @@ class BuildingDetailsView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
-                        title: "Total Build Up Area (Sq. ft)",
+                        title: "Total Carpet Area (SqFt)",
                         value:
-                            state.buildingDetails!.totalBuiltUpAreaSqFt
+                            state.buildingDetails!.totalCarpetAreaSqFt
                                 .toString(),
                       ),
                       buildColumnTitleValue(
@@ -206,6 +207,10 @@ class BuildingDetailsView extends StatelessWidget {
                                   ? "-"
                                   : contact.mobileNumber,
                           singleLine: false,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode: "+91",
+                            value: contact.mobileNumber,
+                          ),
                         ),
 
                         buildRowTitleValue(
@@ -213,6 +218,10 @@ class BuildingDetailsView extends StatelessWidget {
                           value:
                               contact.emailId.isEmpty ? "-" : contact.emailId,
                           singleLine: false,
+                          customValueWidget: CustomClickToContactText(
+                            value: contact.emailId,
+                            type: ContactType.email,
+                          ),
                         ),
                       ],
                     );

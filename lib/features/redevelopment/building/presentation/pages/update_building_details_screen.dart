@@ -44,7 +44,7 @@ class _UpdateBuildingDetailsScreenState
   late TextEditingController _plotAreaPRCardController;
 
   // CONSTRUCTION DETAILS KEYS
-  late TextEditingController _totalBuiltUpAreaController;
+  late TextEditingController _totalCarpetAreaController;
   late TextEditingController _totalResidentialUnitsController;
   late TextEditingController _totalResidentialCarpetAreaController;
   late TextEditingController _totalCommercialUnitsController;
@@ -96,7 +96,7 @@ class _UpdateBuildingDetailsScreenState
     _plotAreaPRCardController.dispose();
 
     // CONSTRUCTION DETAILS Controllers
-    _totalBuiltUpAreaController.dispose();
+    _totalCarpetAreaController.dispose();
     _totalResidentialUnitsController.dispose();
     _totalResidentialCarpetAreaController.dispose();
     _totalCommercialUnitsController.dispose();
@@ -138,7 +138,7 @@ class _UpdateBuildingDetailsScreenState
     _plotAreaConveyanceController = TextEditingController();
     _plotAreaPRCardController = TextEditingController();
 
-    _totalBuiltUpAreaController = TextEditingController();
+    _totalCarpetAreaController = TextEditingController();
     _totalResidentialUnitsController = TextEditingController();
     _totalResidentialCarpetAreaController = TextEditingController();
     _totalCommercialUnitsController = TextEditingController();
@@ -178,8 +178,8 @@ class _UpdateBuildingDetailsScreenState
     _plotAreaPRCardController.text =
         buildingDetails.plotAreaPRCardSqFt.toString();
 
-    _totalBuiltUpAreaController.text =
-        buildingDetails.totalBuiltUpAreaSqFt.toString();
+    _totalCarpetAreaController.text =
+        buildingDetails.totalCarpetAreaSqFt.toString();
     _totalResidentialUnitsController.text =
         buildingDetails.totalResidentialUnits.toString();
     _totalResidentialCarpetAreaController.text =
@@ -236,8 +236,8 @@ class _UpdateBuildingDetailsScreenState
             double.tryParse(_plotAreaConveyanceController.text) ?? 0.0,
         'PlotAreaPRCardSqFt':
             double.tryParse(_plotAreaPRCardController.text) ?? 0.0,
-        'TotalBuiltUpAreaSqFt':
-            double.tryParse(_totalBuiltUpAreaController.text) ?? 0.0,
+        'TotalCarpetAreaSqFt':
+            double.tryParse(_totalCarpetAreaController.text) ?? 0.0,
         'TotalResidentialUnits':
             int.tryParse(_totalResidentialUnitsController.text) ?? 0,
         'TotalResidentialCarpetAreaSqFt':
@@ -416,7 +416,7 @@ class _UpdateBuildingDetailsScreenState
                     CustomTextField(
                       title: 'Total Built Up Area (SqFt)',
                       hint: 'Enter Total Built Up Area',
-                      textController: _totalBuiltUpAreaController,
+                      textController: _totalCarpetAreaController,
                       isRequired: true,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(7),

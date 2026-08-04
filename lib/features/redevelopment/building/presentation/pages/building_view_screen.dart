@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/b
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/widgets/building_details_view.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/widgets/building_document_view.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/widgets/building_overview.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -51,7 +52,9 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
     super.initState();
     _buildingCubit = context.read<BuildingCubit>();
     _project = getProject();
-    _routeAuthorizationModel = AuthorizationModel();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.building] ??
+        AuthorizationModel();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabChange);
     _newDocumentTitleController = TextEditingController();

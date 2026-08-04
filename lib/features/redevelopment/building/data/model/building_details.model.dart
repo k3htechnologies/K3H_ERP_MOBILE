@@ -10,7 +10,7 @@ class BuildingDetailsModel {
   double plotAreaOldApprovedPlanSqFt;
   double plotAreaConveyanceSqFt;
   double plotAreaPRCardSqFt;
-  double totalBuiltUpAreaSqFt;
+  double totalCarpetAreaSqFt;
   int totalResidentialUnits;
   double totalResidentialCarpetAreaSqFt;
   int totalCommercialUnits;
@@ -31,7 +31,7 @@ class BuildingDetailsModel {
     required this.plotAreaOldApprovedPlanSqFt,
     required this.plotAreaConveyanceSqFt,
     required this.plotAreaPRCardSqFt,
-    required this.totalBuiltUpAreaSqFt,
+    required this.totalCarpetAreaSqFt,
     required this.totalResidentialUnits,
     required this.totalResidentialCarpetAreaSqFt,
     required this.totalCommercialUnits,
@@ -46,8 +46,8 @@ class BuildingDetailsModel {
   });
 
   factory BuildingDetailsModel.fromJson(
-      Map<String, dynamic> json,
-      ) => BuildingDetailsModel(
+    Map<String, dynamic> json,
+  ) => BuildingDetailsModel(
     buildingId: parseValue<int>(json, "BuildingId"),
     projectId: parseValue<int>(json, "ProjectId"),
     grossPlotAreaSqFt: parseValue<double>(json, "GrossPlotAreaSqFt"),
@@ -61,7 +61,7 @@ class BuildingDetailsModel {
     ),
     plotAreaConveyanceSqFt: parseValue<double>(json, "PlotAreaConveyanceSqFt"),
     plotAreaPRCardSqFt: parseValue<double>(json, "PlotAreaPRCardSqFt"),
-    totalBuiltUpAreaSqFt: parseValue<double>(json, "TotalBuiltUpAreaSqFt"),
+    totalCarpetAreaSqFt: parseValue<double>(json, "TotalCarpetAreaSqFt"),
     totalResidentialUnits: parseValue<int>(json, "TotalResidentialUnits"),
     totalResidentialCarpetAreaSqFt: parseValue<double>(
       json,
@@ -74,7 +74,7 @@ class BuildingDetailsModel {
     ),
     buildingKeyContactDetailsData: List<BuildingKeyContactDetailsModel>.from(
       (json["BuildingKeyContactDetailsData"] as List<dynamic>? ?? []).map(
-            (x) => BuildingKeyContactDetailsModel.fromJson(x),
+        (x) => BuildingKeyContactDetailsModel.fromJson(x),
       ),
     ),
     createdById: parseValue<int>(json, "CreatedById"),
@@ -83,9 +83,9 @@ class BuildingDetailsModel {
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : parseValue<DateTime>(json, "ModifiedDate"),
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -96,13 +96,13 @@ class BuildingDetailsModel {
     "PlotAreaOldApprovedPlanSqFt": plotAreaOldApprovedPlanSqFt,
     "PlotAreaConveyanceSqFt": plotAreaConveyanceSqFt,
     "PlotAreaPRCardSqFt": plotAreaPRCardSqFt,
-    "TotalBuiltUpAreaSqFt": totalBuiltUpAreaSqFt,
+    "TotalCarpetAreaSqFt": totalCarpetAreaSqFt,
     "TotalResidentialUnits": totalResidentialUnits,
     "TotalResidentialCarpetAreaSqFt": totalResidentialCarpetAreaSqFt,
     "TotalCommercialUnits": totalCommercialUnits,
     "TotalCommercialCarpetAreaSqFt": totalCommercialCarpetAreaSqFt,
     "BuildingKeyContactDetailsData":
-    buildingKeyContactDetailsData.map((x) => x.toJson()).toList(),
+        buildingKeyContactDetailsData.map((x) => x.toJson()).toList(),
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
