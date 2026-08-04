@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
@@ -204,6 +205,33 @@ class _ParkingScreenState extends State<ParkingScreen>
   // DISPOSE TEXT EDITING CONTROLLERS
   void _disposeTextEditingControllers() {
     _searchC.dispose();
+  }
+
+  void showRemarkDialog(BuildContext context, {required String note}) {
+    final ScrollController controller = ScrollController();
+
+    DialogHelper.showCustomDialogue(
+      context,
+      title: "Remark",
+      childContent: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.5,
+        ),
+        child: RawScrollbar(
+          controller: controller,
+          thumbVisibility: true,
+          thumbColor: AppColor.lightBlue,
+          radius: const Radius.circular(8),
+          child: SingleChildScrollView(
+            controller: controller,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(note, style: AppTextStyle.ts14R()),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -554,9 +582,32 @@ class _ParkingScreenState extends State<ParkingScreen>
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "Parking No: ${parking.parkingNumber}",
-                                    style: AppTextStyle.ts14M(),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Parking No: ${parking.parkingNumber}",
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                      if (parking.remark.isNotEmpty)
+                                        InkWell(
+                                          onTap: () {
+                                            showRemarkDialog(
+                                              context,
+                                              note: parking.remark,
+                                            );
+                                          },
+                                          child: Padding(
+                                            padding: EdgeInsets.only(
+                                              left: 10.w,
+                                            ),
+                                            child: Icon(
+                                              Icons.info_outline,
+                                              size: 18,
+                                              color: AppColor.primary,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
                                   ),
                                   Text(
                                     "Floor: ${parking.floor}",
@@ -744,11 +795,28 @@ class _ParkingScreenState extends State<ParkingScreen>
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Owner: ${parking.ownerName}',
-                  style: AppTextStyle.ts12R(color: AppColor.primary),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                InkWell(
+                  onTap: () {
+                    goRouter.pushNamed(
+                      AppRoutes.viewBooking,
+                      queryParameters: {
+                        "bookingId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            parking.bookingId.toString(),
+                          ),
+                        ),
+                        "projectId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            _project.projectId.toString(),
+                          ),
+                        ),
+                      },
+                    );
+                  },
+                  child: Text(
+                    'Owner: ${parking.ownerName}',
+                    style: AppTextStyle.ts14M(color: AppColor.primary),
+                  ),
                 ),
               ],
             ),

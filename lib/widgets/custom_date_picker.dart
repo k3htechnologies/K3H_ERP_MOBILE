@@ -211,21 +211,19 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
 
                                 formFieldState.didChange(null);
                               },
-                              child: Padding(
-                                padding: EdgeInsets.only(right: 8.w),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 18,
-                                  color: AppColor.grey,
-                                ),
+                              child: Icon(
+                                Icons.close,
+                                size: 18,
+                                color: AppColor.grey,
                               ),
                             ),
 
-                          Icon(
-                            Icons.calendar_month_outlined,
-                            color: AppColor.grey,
-                            size: 18.0,
-                          ),
+                          if (finalDate == null)
+                            Icon(
+                              Icons.calendar_month_outlined,
+                              color: AppColor.grey,
+                              size: 18.0,
+                            ),
                         ],
                       ),
                     ),

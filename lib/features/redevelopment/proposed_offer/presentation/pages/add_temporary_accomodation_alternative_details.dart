@@ -69,14 +69,6 @@ class _AddTemporaryAccommodationAlternativeDetailsState
 
   final ValueNotifier<bool> _isPayTAA = ValueNotifier(false);
 
-  final List<Map<String, dynamic>> _tenureList = [
-    {"zAttributesId": 1, "DisplayName": "Tenure 1"},
-    {"zAttributesId": 2, "DisplayName": "Tenure 2"},
-    {"zAttributesId": 3, "DisplayName": "Tenure 3"},
-    {"zAttributesId": 4, "DisplayName": "Tenure 4"},
-    {"zAttributesId": 5, "DisplayName": "Tenure 5"},
-  ];
-
   @override
   void initState() {
     _cubit = context.read<ProposedOfferCubit>();
@@ -104,9 +96,9 @@ class _AddTemporaryAccommodationAlternativeDetailsState
       orElse: () => propertyTypeList.first,
     );
 
-    _selectedTenure.value = _tenureList.firstWhere(
+    _selectedTenure.value = tenureList.firstWhere(
       (e) => e['DisplayName'] == rentDetailsModel.tenure,
-      orElse: () => _tenureList.first,
+      orElse: () => tenureList.first,
     );
     _isPerSqFt.value =
         rentDetailsModel.unitSqFtLumsum.toLowerCase().contains('per sq ft')
@@ -130,7 +122,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
             context,
             buildingId: widget.buildingId,
             projectId: widget.projectId,
-            proposedOfferTemporaryAccommodationAlternativeDetailsId:
+            proposedOfferTemporaryAlternateAccommodationDetailsId:
                 rentDetailsModel
                     .proposedOfferTemporaryAlternateAccommodationDetailsId,
             uniqueKey: rentDetailsModel.uniquekey,
@@ -349,7 +341,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                         title: 'Tenure',
                         hintText: "Select Tenure",
                         isRequired: true,
-                        dataList: _tenureList,
+                        dataList: tenureList,
                         initialValue: value,
                         onSelected: (v) => _selectedTenure.value = v,
                         validator: (v) {
@@ -448,7 +440,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
         },
       ),
 
-      verticalSpacing(),
+      verticalSpacing(height: 16),
 
       CustomTextField(
         title: "Amount (₹)",
@@ -462,8 +454,6 @@ class _AddTemporaryAccommodationAlternativeDetailsState
         validator:
             (v) => (v == null || v.isEmpty) ? "Amount is required" : null,
       ),
-
-      verticalSpacing(),
 
       CustomTextField(
         title: "Carpet Area (Sq. ft)",
@@ -483,8 +473,8 @@ class _AddTemporaryAccommodationAlternativeDetailsState
         animation: Listenable.merge([_rentStartDate, _rentEndDate]),
         builder: (context, _) {
           return CustomFromToDatePicker(
-            fromDateTitle: 'TAA Start Date',
-            toDateTitle: 'TAA End Date',
+            fromDateTitle: 'Start Date',
+            toDateTitle: 'End Date',
             initialFromDate: _rentStartDate.value,
             initialToDate: _rentEndDate.value,
             onToDateChanged: (start, end) {

@@ -64,6 +64,24 @@ class ProjectModel {
   String googleLocation;
   int notificationCount;
   int clientRegistrationId;
+  String tenderAmountPaymentMode;
+  String tenderAmountChequeNumber;
+  String tenderAmountChequeNumberUrl;
+  String tenderAmountPayorderRemark;
+  String tenderEmdPaymentMode;
+  String tenderEmdChequeNumber;
+  String tenderEmdChequeNumberUrl;
+  String tenderEmdPayorderRemark;
+  String siteContactDesignation;
+  String siteContact2MobileNumber;
+  String siteContact2Name;
+  String siteContact2Designation;
+  String siteContact3MobileNumber;
+  String siteContact3Name;
+  String siteContact3Designation;
+  bool isFederation;
+  double federationAmount;
+  DateTime? reraPossessionDate;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -135,6 +153,24 @@ class ProjectModel {
     required this.googleLocation,
     required this.notificationCount,
     required this.clientRegistrationId,
+    required this.tenderAmountPaymentMode,
+    required this.tenderAmountChequeNumber,
+    required this.tenderAmountChequeNumberUrl,
+    required this.tenderAmountPayorderRemark,
+    required this.tenderEmdPaymentMode,
+    required this.tenderEmdChequeNumber,
+    required this.tenderEmdChequeNumberUrl,
+    required this.tenderEmdPayorderRemark,
+    required this.siteContactDesignation,
+    required this.siteContact2MobileNumber,
+    required this.siteContact2Name,
+    required this.siteContact2Designation,
+    required this.siteContact3MobileNumber,
+    required this.siteContact3Name,
+    required this.siteContact3Designation,
+    required this.isFederation,
+    required this.federationAmount,
+    this.reraPossessionDate,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -244,6 +280,40 @@ class ProjectModel {
     googleLocation: parseValue<String>(json, "GoogleLocation"),
     notificationCount: parseValue<int>(json, "NotificationCount"),
     clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
+
+    tenderAmountPaymentMode: parseValue<String>(
+      json,
+      "TenderAmountPaymentMode",
+    ),
+
+    tenderAmountChequeNumber: parseValue<String>(
+      json,
+      "TenderAmountChequeNumber",
+    ),
+
+    tenderAmountChequeNumberUrl: parseValue<String>(
+      json,
+      "TenderAmountChequeNumberURL",
+    ),
+
+    tenderAmountPayorderRemark: parseValue<String>(
+      json,
+      "TenderAmountPayorderRemark",
+    ),
+
+    tenderEmdPaymentMode: parseValue<String>(json, "TenderEMDPaymentMode"),
+
+    tenderEmdChequeNumber: parseValue<String>(json, "TenderEMDChequeNumber"),
+
+    tenderEmdChequeNumberUrl: parseValue<String>(
+      json,
+      "TenderEMDChequeNumberURL",
+    ),
+
+    tenderEmdPayorderRemark: parseValue<String>(
+      json,
+      "TenderEMDPayorderRemark",
+    ),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: DateTime.parse(json["CreatedDate"]),
@@ -273,6 +343,38 @@ class ProjectModel {
                 .map((e) => UserModel.fromJson(e as Map<String, dynamic>))
                 .toList()
             : null,
+    siteContactDesignation: parseValue<String>(json, "SiteContactDesignation"),
+
+    siteContact2MobileNumber: parseValue<String>(
+      json,
+      "SiteContact2MobileNumber",
+    ),
+
+    siteContact2Name: parseValue<String>(json, "SiteContact2Name"),
+
+    siteContact2Designation: parseValue<String>(
+      json,
+      "SiteContact2Designation",
+    ),
+
+    siteContact3MobileNumber: parseValue<String>(
+      json,
+      "SiteContact3MobileNumber",
+    ),
+
+    siteContact3Name: parseValue<String>(json, "SiteContact3Name"),
+
+    siteContact3Designation: parseValue<String>(
+      json,
+      "SiteContact3Designation",
+    ),
+    reraPossessionDate:
+        json["RERAPossessionDate"] != null
+            ? DateTime.parse(json["RERAPossessionDate"])
+            : null,
+    isFederation: parseValue<bool>(json, "IsFederation"),
+
+    federationAmount: parseValue<double>(json, "FederationAmount"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -336,6 +438,24 @@ class ProjectModel {
     "GoogleLocation": googleLocation,
     "NotificationCount": notificationCount,
     "ClientRegistrationId": clientRegistrationId,
+    "TenderAmountPaymentMode": tenderAmountPaymentMode,
+    "TenderAmountChequeNumber": tenderAmountChequeNumber,
+    "TenderAmountChequeNumberURL": tenderAmountChequeNumberUrl,
+    "TenderAmountPayorderRemark": tenderAmountPayorderRemark,
+    "TenderEMDPaymentMode": tenderEmdPaymentMode,
+    "TenderEMDChequeNumber": tenderEmdChequeNumber,
+    "TenderEMDChequeNumberURL": tenderEmdChequeNumberUrl,
+    "TenderEMDPayorderRemark": tenderEmdPayorderRemark,
+    "SiteContactDesignation": siteContactDesignation,
+    "SiteContact2MobileNumber": siteContact2MobileNumber,
+    "SiteContact2Name": siteContact2Name,
+    "SiteContact2Designation": siteContact2Designation,
+    "SiteContact3MobileNumber": siteContact3MobileNumber,
+    "SiteContact3Name": siteContact3Name,
+    "SiteContact3Designation": siteContact3Designation,
+    "RERAPossessionDate": reraPossessionDate?.toIso8601String(),
+    "IsFederation": isFederation,
+    "FederationAmount": federationAmount,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

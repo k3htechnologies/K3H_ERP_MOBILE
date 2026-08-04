@@ -27,6 +27,37 @@ class TenantModel {
   List<ParkingModel> parkingData;
   String parkingNumber;
   String parkingId;
+  String systemGeneratedCode;
+  String unitAnnexureSurveyNumber;
+  String applicantName;
+
+  String unitType;
+  String unitConfiguration;
+  double unitCarpetAreaSqFt;
+  String unitFacing;
+
+  double extraFreeCarpetAreaOfferedPercent;
+  double freeMOFACarpetAreaSqFt;
+  double newEligibilityMOFACarpetAreaSqFt;
+  double newEligibilityRERACarpetAreaSqFt;
+
+  double mofaCarpetAreaPurchasedSqFt;
+  double reraCarpetAreaPurchasedSqFt;
+
+  double totalNewMOFACarpetAreaSqFt;
+  double totalNewRERACarpetAreaSqFt;
+
+  double deckAreaSqFt;
+  double existingTerraceAreaSqFt;
+  double areaAgainstTerraceSqFt;
+  double totalNewRERACarpetAreaWithDeckSqFt;
+
+  String remark;
+
+  String flat;
+  String flatFacing;
+
+  int bookingId;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -58,6 +89,29 @@ class TenantModel {
     required this.parkingData,
     required this.parkingNumber,
     required this.parkingId,
+    required this.systemGeneratedCode,
+    required this.unitAnnexureSurveyNumber,
+    required this.applicantName,
+    required this.unitType,
+    required this.unitConfiguration,
+    required this.unitCarpetAreaSqFt,
+    required this.unitFacing,
+    required this.extraFreeCarpetAreaOfferedPercent,
+    required this.freeMOFACarpetAreaSqFt,
+    required this.newEligibilityMOFACarpetAreaSqFt,
+    required this.newEligibilityRERACarpetAreaSqFt,
+    required this.mofaCarpetAreaPurchasedSqFt,
+    required this.reraCarpetAreaPurchasedSqFt,
+    required this.totalNewMOFACarpetAreaSqFt,
+    required this.totalNewRERACarpetAreaSqFt,
+    required this.deckAreaSqFt,
+    required this.existingTerraceAreaSqFt,
+    required this.areaAgainstTerraceSqFt,
+    required this.totalNewRERACarpetAreaWithDeckSqFt,
+    required this.remark,
+    required this.flat,
+    required this.flatFacing,
+    required this.bookingId,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -105,6 +159,76 @@ class TenantModel {
             : [],
     parkingNumber: parseValue<String>(json, "ParkingNumber"),
     parkingId: parseValue<String>(json, "ParkingId"),
+    systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
+    unitAnnexureSurveyNumber: parseValue<String>(
+      json,
+      "UnitAnnexureSurveyNumber",
+    ),
+    applicantName: parseValue<String>(json, "ApplicantName"),
+
+    unitType: parseValue<String>(json, "UnitType"),
+    unitConfiguration: parseValue<String>(json, "UnitConfiguration"),
+    unitCarpetAreaSqFt: parseValue<double>(json, "UnitCarpetAreaSqFt"),
+    unitFacing: parseValue<String>(json, "UnitFacing"),
+
+    extraFreeCarpetAreaOfferedPercent: parseValue<double>(
+      json,
+      "ExtraFreeCarpetAreaOfferedPercent",
+    ),
+
+    freeMOFACarpetAreaSqFt: parseValue<double>(json, "FreeMOFACarpetAreaSqFt"),
+
+    newEligibilityMOFACarpetAreaSqFt: parseValue<double>(
+      json,
+      "NewEligibilityMOFACarpetAreaSqFt",
+    ),
+
+    newEligibilityRERACarpetAreaSqFt: parseValue<double>(
+      json,
+      "NewEligibilityRERACarpetAreaSqFt",
+    ),
+
+    mofaCarpetAreaPurchasedSqFt: parseValue<double>(
+      json,
+      "MOFACarpetAreaPurchasedSqFt",
+    ),
+
+    reraCarpetAreaPurchasedSqFt: parseValue<double>(
+      json,
+      "RERACarpetAreaPurchasedSqFt",
+    ),
+
+    totalNewMOFACarpetAreaSqFt: parseValue<double>(
+      json,
+      "TotalNewMOFACarpetAreaSqFt",
+    ),
+
+    totalNewRERACarpetAreaSqFt: parseValue<double>(
+      json,
+      "TotalNewRERACarpetAreaSqFt",
+    ),
+
+    deckAreaSqFt: parseValue<double>(json, "DeckAreaSqFt"),
+
+    existingTerraceAreaSqFt: parseValue<double>(
+      json,
+      "ExistingTerraceAreaSqFt",
+    ),
+
+    areaAgainstTerraceSqFt: parseValue<double>(json, "AreaAgainstTerraceSqFt"),
+
+    totalNewRERACarpetAreaWithDeckSqFt: parseValue<double>(
+      json,
+      "TotalNewRERACarpetAreaWithDeckSqFt",
+    ),
+
+    remark: parseValue<String>(json, "Remark"),
+
+    flat: parseValue<String>(json, "Flat"),
+
+    flatFacing: parseValue<String>(json, "FlatFacing"),
+
+    bookingId: parseValue<int>(json, "BookingId"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -140,6 +264,42 @@ class TenantModel {
     "ParkingData": parkingData.map((e) => e.toJson()).toList(),
     "ParkingNumber": parkingNumber,
     "ParkingId": parkingId,
+    "SystemGeneratedCode": systemGeneratedCode,
+    "UnitAnnexureSurveyNumber": unitAnnexureSurveyNumber,
+    "ApplicantName": applicantName,
+
+    "UnitType": unitType,
+    "UnitConfiguration": unitConfiguration,
+    "UnitCarpetAreaSqFt": unitCarpetAreaSqFt,
+    "UnitFacing": unitFacing,
+
+    "ExtraFreeCarpetAreaOfferedPercent": extraFreeCarpetAreaOfferedPercent,
+
+    "FreeMOFACarpetAreaSqFt": freeMOFACarpetAreaSqFt,
+
+    "NewEligibilityMOFACarpetAreaSqFt": newEligibilityMOFACarpetAreaSqFt,
+
+    "NewEligibilityRERACarpetAreaSqFt": newEligibilityRERACarpetAreaSqFt,
+
+    "MOFACarpetAreaPurchasedSqFt": mofaCarpetAreaPurchasedSqFt,
+
+    "RERACarpetAreaPurchasedSqFt": reraCarpetAreaPurchasedSqFt,
+
+    "TotalNewMOFACarpetAreaSqFt": totalNewMOFACarpetAreaSqFt,
+
+    "TotalNewRERACarpetAreaSqFt": totalNewRERACarpetAreaSqFt,
+
+    "DeckAreaSqFt": deckAreaSqFt,
+    "ExistingTerraceAreaSqFt": existingTerraceAreaSqFt,
+    "AreaAgainstTerraceSqFt": areaAgainstTerraceSqFt,
+
+    "TotalNewRERACarpetAreaWithDeckSqFt": totalNewRERACarpetAreaWithDeckSqFt,
+
+    "Remark": remark,
+
+    "Flat": flat,
+    "FlatFacing": flatFacing,
+    "BookingId": bookingId,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

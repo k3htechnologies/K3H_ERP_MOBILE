@@ -876,7 +876,9 @@ class DialogHelper {
                   children: [
                     if (icon != null) ...[icon, horizontalSpacing()],
                     if (title != null)
-                      Expanded(child: Text(title, style: AppTextStyle.ts14M())),
+                      Expanded(
+                        child: Text(title, style: AppTextStyle.ts16SB()),
+                      ),
                     GestureDetector(
                       onTap: () {
                         goRouter.pop();

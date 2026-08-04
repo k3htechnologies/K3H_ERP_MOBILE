@@ -232,3 +232,9 @@ final List<Map<String, dynamic>> unitSqFtLumsumList = createAttributeList(
 final List<Map<String, dynamic>> propertyTypeList = createAttributeList(
   propertyTypeValues,
 );
+
+final List<Map<String, dynamic>> tenureList = createAttributeList(tenureValues);
+
+final List<Map<String, dynamic>> tenurePaymentModeList = createAttributeList(
+  tenderPaymentModeValues,
+);

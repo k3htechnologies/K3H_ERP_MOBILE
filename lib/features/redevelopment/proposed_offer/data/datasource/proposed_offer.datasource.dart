@@ -119,10 +119,10 @@ abstract interface class ProposedOfferDatasource {
   });
 
   Future<Map<String, dynamic>>
-  apicallDeleteTemporaryAccommodationAlternativeDetails({
+  apicallDeleteTemporaryAlternateAccommodationDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required int proposedOfferTemporaryAlternateAccommodationDetailsId,
     required String uniquekey,
   });
   Future<Map<String, dynamic>> apicallAddUpdateGenerateProposedOffer({
@@ -957,26 +957,26 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
 
   @override
   Future<Map<String, dynamic>>
-  apicallDeleteTemporaryAccommodationAlternativeDetails({
+  apicallDeleteTemporaryAlternateAccommodationDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required int proposedOfferTemporaryAlternateAccommodationDetailsId,
     required String uniquekey,
   }) async {
     String deleteRentDetailsUrl({
-      required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+      required int proposedOfferTemporaryAlternateAccommodationDetailsId,
       required int buildingId,
       required int projectId,
       required String uniqueKey,
     }) {
-      return "ProposedOffer/DeleteTemporaryAccommodationAlternativeDetails?ProposedOfferTemporaryAccommodationAlternativeDetailsId=$proposedOfferTemporaryAccommodationAlternativeDetailsId&Uniquekey=$uniqueKey&BuildingId=$buildingId&ProjectId=$projectId";
+      return "ProposedOffer/DeleteTemporaryAlternateAccommodationDetails?ProposedOfferTemporaryAlternateAccommodationDetailsId=$proposedOfferTemporaryAlternateAccommodationDetailsId&Uniquekey=$uniqueKey&BuildingId=$buildingId&ProjectId=$projectId";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteRentDetailsUrl(
-          proposedOfferTemporaryAccommodationAlternativeDetailsId:
-              proposedOfferTemporaryAccommodationAlternativeDetailsId,
+          proposedOfferTemporaryAlternateAccommodationDetailsId:
+              proposedOfferTemporaryAlternateAccommodationDetailsId,
           buildingId: buildingId,
           projectId: projectId,
           uniqueKey: uniquekey,
@@ -989,11 +989,11 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallDeleteTemporaryAccommodationAlternativeDetails(
+        apicallDeleteTemporaryAlternateAccommodationDetails(
           projectId: projectId,
           buildingId: buildingId,
-          proposedOfferTemporaryAccommodationAlternativeDetailsId:
-              proposedOfferTemporaryAccommodationAlternativeDetailsId,
+          proposedOfferTemporaryAlternateAccommodationDetailsId:
+              proposedOfferTemporaryAlternateAccommodationDetailsId,
           uniquekey: uniquekey,
         );
       }

@@ -257,6 +257,33 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
   }
 
+  void showNoteDialog(BuildContext context, {required String note}) {
+    final ScrollController controller = ScrollController();
+
+    DialogHelper.showCustomDialogue(
+      context,
+      title: "Note",
+      childContent: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.5,
+        ),
+        child: RawScrollbar(
+          controller: controller,
+          thumbVisibility: true,
+          thumbColor: AppColor.lightBlue,
+          radius: const Radius.circular(8),
+          child: SingleChildScrollView(
+            controller: controller,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(note, style: AppTextStyle.ts14R()),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -725,6 +752,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                             parkingCount:
                                                                 floor
                                                                     .parkingCount,
+                                                            note: "",
                                                             flat: "",
                                                             reraCarpetAreaSqFt:
                                                                 0,
@@ -997,7 +1025,31 @@ class _InventoryScreenState extends State<InventoryScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
+              if (flat.note.isNotEmpty)
+                InkWell(
+                  onTap: () {
+                    showNoteDialog(
+                      context,
+                      // flat.note
+                      note:
+                          "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi. Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc,",
+                    );
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 10.w),
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: AppColor.primary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           verticalSpacing(height: 5),
           buildRowTitleValue(title: "Type", value: flat.flatType),
           buildRowTitleValue(
@@ -1143,10 +1195,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               },
               child: Text(
                 "Owner : ${flat.ownerName}",
-                style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColor.primary,
-                ),
+                style: AppTextStyle.ts14M(color: AppColor.primary),
               ),
             ),
           ],

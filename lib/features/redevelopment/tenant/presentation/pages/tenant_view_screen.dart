@@ -1,21 +1,21 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TenantViewScreen extends StatefulWidget {
@@ -37,6 +37,13 @@ class _TenantViewScreenState extends State<TenantViewScreen>
 
   // TAB CONTROLLER
   late TabController _tabController;
+  late TextEditingController _newDocumentTitleC, _searchDocumentNameC;
+
+  MultiFilePickerModel _newDocumentFiles = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
 
   @override
   void initState() {
@@ -44,12 +51,15 @@ class _TenantViewScreenState extends State<TenantViewScreen>
     _tenantCubit = context.read<TenantCubit>();
     _routeAuthorizationModel = AuthorizationModel();
     _tabController = TabController(length: 2, vsync: this);
+    _newDocumentTitleC = TextEditingController();
+    _searchDocumentNameC = TextEditingController();
     _tabController.addListener(_handleTabChange);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _newDocumentTitleC.dispose();
     super.dispose();
   }
 
@@ -64,6 +74,83 @@ class _TenantViewScreenState extends State<TenantViewScreen>
         widget.tenant.tenantId,
       );
     }
+  }
+
+  Future<void> _showAddDocumentBottomSheet() async {
+    // Reset files for new document
+    _newDocumentFiles = MultiFilePickerModel(
+      fileBytesList: [],
+      fileNameList: [],
+      deletedFileList: "",
+    );
+
+    await DialogHelper.showCustomBottomSheet(
+      context,
+      "Add Document",
+      contentWidget: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          CustomTextField(
+            textController: _newDocumentTitleC,
+            title: "Document title",
+            hint: "Enter document title",
+          ),
+          verticalSpacing(height: 12),
+          CustomMultiFilePicker(
+            title: "Files",
+            isRequired: true,
+            initialFileList: _newDocumentFiles.fileNameList,
+            onFilePickedCallback: (bytesList, fileNameList) {
+              _newDocumentFiles.fileBytesList = bytesList;
+              _newDocumentFiles.fileNameList = fileNameList;
+            },
+            onFileDeleteCallback: (fileBytesList, fileNameList, deleted) {
+              _newDocumentFiles.fileBytesList = fileBytesList;
+              _newDocumentFiles.fileNameList = fileNameList;
+              _newDocumentFiles.deletedFileList = deleted;
+            },
+          ),
+          verticalSpacing(height: 16),
+        ],
+      ),
+      bottomActions: CustomButton(
+        text: "Add Document",
+        onPressed: () async {
+          final title = _newDocumentTitleC.text.trim();
+          if (title.isEmpty) {
+            showErrorMessage(context, "Error", "Please enter document title");
+            return;
+          }
+          if (_newDocumentFiles.fileNameList.isEmpty) {
+            showErrorMessage(
+              context,
+              "Error",
+              "Please select at least one file",
+            );
+            return;
+          }
+
+          await _tenantCubit.addTenantDocument(
+            context: context,
+            tenantId: widget.tenant.tenantId,
+            projectId: widget.tenant.projectId,
+            buildingId: widget.tenant.buildingId,
+            documentName: title,
+            files: _newDocumentFiles,
+          );
+          if (!mounted) return;
+          Navigator.of(context).pop();
+          _newDocumentTitleC.clear();
+          _tenantCubit.getTenantDocumentList(
+            context: context,
+            projectId: widget.tenant.projectId,
+            buildingId: widget.tenant.buildingId,
+            tenantId: widget.tenant.tenantId,
+          );
+        },
+      ),
+    );
   }
 
   @override
@@ -638,31 +725,29 @@ class _TenantViewScreenState extends State<TenantViewScreen>
         verticalSpacing(),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: SizedBox(
-            width: 160,
-            child: CustomButton(
-              text: "Add/Update",
-              onPressed: () async {
-                await goRouter.pushNamed(
-                  AppRoutes.addUpdateTenantDoc,
-                  queryParameters: {
-                    "tenant": Uri.encodeComponent(
-                      EncryptionManager.encryptData(
-                        jsonEncode(widget.tenant.toJson()),
-                      ),
-                    ),
+          child: Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: SearchWidget(
+                  onSubmit: (v) {
+                    // _buildingCubit.searchDocument(
+                    //   buildingId: widget.building.buildingId,
+                    //   context: context,
+                    //   projectId: widget.building.projectId,
+                    //   value: v,
+                    // );
                   },
-                );
-                if (mounted) {
-                  _tenantCubit.getTenantDocumentList(
-                    context: context,
-                    projectId: widget.tenant.projectId,
-                    buildingId: widget.tenant.buildingId,
-                    tenantId: widget.tenant.tenantId,
-                  );
-                }
-              },
-            ),
+                  hintText: "Search By Document Name",
+                  textController: _searchDocumentNameC,
+                ),
+              ),
+              CustomIconButton.add(
+                onPressed: () async {
+                  _showAddDocumentBottomSheet();
+                },
+              ),
+            ],
           ),
         ),
         Expanded(

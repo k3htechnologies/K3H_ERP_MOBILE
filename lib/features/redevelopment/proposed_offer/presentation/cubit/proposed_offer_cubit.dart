@@ -966,24 +966,12 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final list = [
-          response['data'][0] as TemporaryAlternativeAccommodationDetailsModel,
-          ...state.temporaryAccommodationAlternativeDetails,
-        ];
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            temporaryAccommodationAlternativeDetails: list,
-            totalNumberOfRecordTemporaryAccommodationAlternative:
-                state.totalNumberOfRecordTemporaryAccommodationAlternative == -1
-                    ? 1
-                    : state.totalNumberOfRecordTemporaryAccommodationAlternative +
-                        1,
-          ),
-        );
-
         goRouter.pop();
+        pullTemporaryAccommodationAlternativeDetails(
+          context: context,
+          projectId: projectId,
+          buildingId: buildingId,
+        );
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -994,7 +982,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     BuildContext context, {
     required int buildingId,
     required int projectId,
-    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required int proposedOfferTemporaryAlternateAccommodationDetailsId,
     required bool isAdditionalTemporaryAlternateAccommodation,
     required String uniqueKey,
     required String type,
@@ -1011,7 +999,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     DialogHelper.showProcessingOverlay(context);
     final Map<String, dynamic> body = {
       "ProposedOfferTemporaryAlternateAccommodationDetailsId":
-          proposedOfferTemporaryAccommodationAlternativeDetailsId,
+          proposedOfferTemporaryAlternateAccommodationDetailsId,
       "Uniquekey": uniqueKey,
       "BuildingId": buildingId,
       "ProjectId": projectId,
@@ -1065,7 +1053,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   // DELETE RENT DETAILS
   Future deleteRentDetails({
     required BuildContext context,
-    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required int proposedOfferTemporaryAlternateAccommodationDetailsId,
     required int projectId,
     required int buildingId,
     required String uniqueKey,
@@ -1075,8 +1063,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     var deleteResult = await _proposedOfferRepository.deleteRentDetails(
       projectId: projectId,
       buildingId: buildingId,
-      proposedOfferTemporaryAccommodationAlternativeDetailsId:
-          proposedOfferTemporaryAccommodationAlternativeDetailsId,
+      proposedOfferTemporaryAlternateAccommodationDetailsId:
+          proposedOfferTemporaryAlternateAccommodationDetailsId,
       uniquekey: uniqueKey,
     );
     goRouter.pop();
@@ -1108,6 +1096,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     bool? isAdditionalTemporaryAlternateAccommodation,
     String? tenure,
     bool? isPayBrokerage,
+    bool? isPayTAA,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> body = {
@@ -1119,6 +1108,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       if (isPayBrokerage != null) "IsPayBrokerage": isPayBrokerage,
       "ChargeType": chargeType,
       if (tenure != null) "Tenure": tenure,
+      if (isPayTAA != null) "IsPayTAA": isPayTAA,
     };
 
     final result = await _proposedOfferRepository

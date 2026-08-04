@@ -736,7 +736,10 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     icon: Icon(
                       Icons.refresh,
                       size: 16,
-                      color: AppColor.darkGreen,
+                      color:
+                          _inwardOutwardRouteAuthorizationModel.isAction
+                              ? AppColor.darkGreen
+                              : AppColor.grey2,
                     ),
                   ),
                 ],

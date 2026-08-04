@@ -145,8 +145,8 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
   }) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete this document',
-      'Deleting this Enquiry will permanently remove its contents.',
+      'You are about to delete a document ?',
+      'Deleting this document will permanently remove all associated data.',
     );
 
     if (result && context.mounted) {

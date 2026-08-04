@@ -107,7 +107,7 @@ abstract interface class ProposedOfferRepository {
   Future<Either<Failure, Map<String, dynamic>>> deleteRentDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required int proposedOfferTemporaryAlternateAccommodationDetailsId,
     required String uniquekey,
   });
 
@@ -494,16 +494,16 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   Future<Either<Failure, Map<String, dynamic>>> deleteRentDetails({
     required int projectId,
     required int buildingId,
-    required int proposedOfferTemporaryAccommodationAlternativeDetailsId,
+    required int proposedOfferTemporaryAlternateAccommodationDetailsId,
     required String uniquekey,
   }) async {
     try {
       var result = await proposedOfferDatasource
-          .apicallDeleteTemporaryAccommodationAlternativeDetails(
+          .apicallDeleteTemporaryAlternateAccommodationDetails(
             projectId: projectId,
             buildingId: buildingId,
-            proposedOfferTemporaryAccommodationAlternativeDetailsId:
-                proposedOfferTemporaryAccommodationAlternativeDetailsId,
+            proposedOfferTemporaryAlternateAccommodationDetailsId:
+                proposedOfferTemporaryAlternateAccommodationDetailsId,
             uniquekey: uniquekey,
           );
       return right(result);

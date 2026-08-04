@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -656,49 +657,87 @@ class _TenantScreenState extends State<TenantScreen> {
                                 : const SizedBox.shrink();
                           }
                           var tenant = state.tenantList[index];
+                          final applicant = tenant.tenantApplicantData.where(
+                            (e) => e.applicantType.toLowerCase() == "applicant",
+                          );
+
+                          final applicantName =
+                              applicant.isNotEmpty
+                                  ? applicant.first.applicantName
+                                  : '';
                           return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            padding: const EdgeInsets.all(14),
                             decoration: commonCardDecoration(),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                /// Header
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Flexible(
-                                      child: GestureDetector(
-                                        onTap: () {
-                                          goRouter.pushNamed(
-                                            AppRoutes.viewTenant,
-                                            queryParameters: {
-                                              "tenant":
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(tenant.toJson()),
-                                                  ),
-                                            },
-                                          );
-                                        },
-                                        child: Text(
-                                          tenant.tenantApplicantData
-                                              .firstWhere(
-                                                (e) =>
-                                                    e.applicantType
-                                                        .toLowerCase() ==
-                                                    "applicant",
-                                              )
-                                              .applicantName,
-                                          style: AppTextStyle.ts16M(
-                                            color: AppColor.primary,
-                                          ).copyWith(
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationColor: AppColor.primary,
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: Colors.blue.shade50,
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                            ),
+                                            child: Text(
+                                              tenant.systemGeneratedCode,
+                                              style: AppTextStyle.ts12M(),
+                                            ),
                                           ),
-                                        ),
+                                          const SizedBox(height: 8),
+                                          GestureDetector(
+                                            onTap: () {
+                                              goRouter.pushNamed(
+                                                AppRoutes.viewTenant,
+                                                queryParameters: {
+                                                  "tenant":
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(
+                                                          tenant.toJson(),
+                                                        ),
+                                                      ),
+                                                },
+                                              );
+                                            },
+                                            child: Text(
+                                              tenant.unitAnnexureSurveyNumber,
+                                              style: AppTextStyle.ts16M(
+                                                color: AppColor.primary,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 4),
+                                          RichText(
+                                            text: TextSpan(
+                                              text: applicantName,
+                                              style: AppTextStyle.ts14M(),
+                                              children: [
+                                                TextSpan(
+                                                  text:
+                                                      "\n • ${tenant.unitType}",
+                                                  style: AppTextStyle.ts12M(
+                                                    color: AppColor.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
+
                                     Row(
                                       children: [
                                         CustomIconButton.edit(
@@ -751,21 +790,106 @@ class _TenantScreenState extends State<TenantScreen> {
                                     ),
                                   ],
                                 ),
-                                verticalSpacing(height: 8),
-                                buildRowTitleValue(
-                                  title: "Existing Flat No.",
-                                  value: tenant.flatNumber,
+
+                                Divider(
+                                  height: 28,
+                                  color: AppColor.grey2.withValues(alpha: 0.5),
                                 ),
-                                buildRowTitleValue(
-                                  title: "Existing Flat Type",
-                                  value: tenant.flatType,
+
+                                /// Eligibility Badge
+                                _sectionChip(
+                                  "ELIGIBILITY",
+                                  Colors.deepPurple.shade50,
+                                  Colors.deepPurple,
                                 ),
-                                buildRowTitleValue(
-                                  title: "New Flat No",
-                                  value:
-                                      tenant.inventoryFlatType.isEmpty
-                                          ? "-"
-                                          : tenant.inventoryFlatType,
+
+                                const SizedBox(height: 10),
+
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: buildColumnTitleValue(
+                                        title: "Free Offer Area",
+                                        value:
+                                            "${tenant.extraFreeCarpetAreaOfferedPercent}%",
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: buildColumnTitleValue(
+                                        title: "Free MOFA CA",
+                                        value:
+                                            "${tenant.freeMOFACarpetAreaSqFt} Sq.Ft",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Divider(
+                                  height: 28,
+                                  color: AppColor.grey2.withValues(alpha: 0.5),
+                                ),
+                                buildRowWrapper(
+                                  child: buildColumnTitleValue(
+                                    title:
+                                        "Total New RERA CA With Deck & Terrace",
+                                    value:
+                                        "${tenant.totalNewRERACarpetAreaWithDeckSqFt} Sq.Ft",
+                                  ),
+                                ),
+
+                                Divider(
+                                  height: 28,
+                                  color: AppColor.grey2.withValues(alpha: 0.5),
+                                ),
+
+                                /// New Unit Badge
+                                _sectionChip(
+                                  "NEW UNIT",
+                                  Colors.green.shade50,
+                                  Colors.green,
+                                ),
+
+                                const SizedBox(height: 12),
+
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: buildColumnTitleValue(
+                                        title: "Building",
+                                        value: tenant.buildingNumber,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: buildColumnTitleValue(
+                                        title: "Wing | Floor",
+                                        value:
+                                            tenant.wing.isNotEmpty &&
+                                                    tenant.floor.isNotEmpty
+                                                ? "${tenant.wing} | ${tenant.floor}"
+                                                : '-',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                Divider(
+                                  height: 28,
+                                  color: AppColor.grey2.withValues(alpha: 0.5),
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: buildColumnTitleValue(
+                                        title: "Unit No.",
+                                        value: tenant.inventoryFlatType,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: buildColumnTitleValue(
+                                        title: "Unit Type",
+                                        value: tenant.unitType,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -782,4 +906,18 @@ class _TenantScreenState extends State<TenantScreen> {
       ),
     );
   }
+}
+
+Widget _sectionChip(String title, Color bgColor, Color dotColor) {
+  return statusChip(
+    title,
+    bgColor,
+    dotColor,
+    textStyle: AppTextStyle.ts10M().copyWith(color: dotColor),
+    leading: Container(
+      width: 6,
+      height: 6,
+      decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+    ),
+  );
 }

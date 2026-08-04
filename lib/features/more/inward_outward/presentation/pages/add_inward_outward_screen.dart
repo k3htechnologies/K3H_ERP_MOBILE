@@ -985,6 +985,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   CustomDatePicker(
                     title: "Handover Date",
                     initialDate: _handoverDate,
+                    startDate: DateTime.now(),
                     setValue: (value) {
                       _handoverDate = value;
                     },

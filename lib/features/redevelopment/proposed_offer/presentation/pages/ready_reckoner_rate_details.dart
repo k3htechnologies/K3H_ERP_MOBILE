@@ -61,7 +61,7 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
   }
 
   // DIALOGUE TO DELETE RENT DETAILS
-  Future<void> _showPopupToDeleteTemporaryAccommodationAlternativeDetails(
+  Future<void> _showPopupToDeleteTemporaryAlternateAccommodationDetails(
     BuildContext context,
     ReadyReckonerRateDetailsModel obj,
     int index,
@@ -183,7 +183,7 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                               );
                             },
                             onDelete: () {
-                              _showPopupToDeleteTemporaryAccommodationAlternativeDetails(
+                              _showPopupToDeleteTemporaryAlternateAccommodationDetails(
                                 context,
                                 rent,
                                 index,
@@ -269,6 +269,22 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                                     buildColumnTitleValue(
                                       title: "Remark",
                                       value: rent.remark,
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildColumnTitleValue(
+                                      title: "Last Modified By",
+                                      value: rent.modifiedBy,
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "Last Modified Date",
+                                      value: formatDateTimeAsDDMMMYYYY(
+                                        rent.modifiedDate,
+                                      ),
                                     ),
                                   ],
                                 ),

@@ -445,3 +445,29 @@ const paymentForValues = [
 const unitSqFtLumsumValues = ["Per SqFt", "Lump Sum"];
 
 const propertyTypeValues = ['Residential', 'Commercial'];
+const tenureValues = [
+  'Tenure 1',
+  'Tenure 2',
+  'Tenure 3',
+  'Tenure 4',
+  'Tenure 5',
+  'Tenure 6',
+  'Tenure 7',
+  'Tenure 8',
+  'Tenure 9',
+  'Tenure 10',
+  'Tenure 11',
+  'Tenure 12',
+  'Tenure 13',
+  'Tenure 14',
+];
+const tenderPaymentModeValues = [
+  "Cheque",
+  "Cash",
+  "Demand Draft",
+  "IMPS",
+  "NEFT",
+  "Pay Order",
+  "RTGS",
+  "UPI",
+];

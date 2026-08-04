@@ -2434,7 +2434,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 Expanded(
                   child: Builder(
                     builder: (context) {
-                      if (state.isLoading! && list.isEmpty) {
+                      if ((state.isLoading ?? false) &&
+                          list.isEmpty &&
+                          _agreementValueNotifier.value > 0) {
                         return const Center(child: CircularProgressIndicator());
                       }
 
