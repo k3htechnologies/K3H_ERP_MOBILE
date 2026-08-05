@@ -23,11 +23,13 @@ class FlatHandoverScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
   final BookingModel? bookingModel;
+  final String? bookingApprovalStatus;
   const FlatHandoverScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
     this.bookingModel,
+    this.bookingApprovalStatus,
   });
 
   @override
@@ -82,6 +84,9 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
               if (state.flatHandoverFileList.isEmpty) {
                 return Center(child: noDataWidget(iconSize: 180));
               }
+              final bool isBookingCancelledOrRefund =
+                  widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
+                  widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: state.flatHandoverFileList.length,
@@ -136,7 +141,8 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                               ),
                             ),
                             horizontalSpacing(),
-                            if (_flatHandoverAuthorization.isAction)
+                            if (_flatHandoverAuthorization.isAction &&
+                                !isBookingCancelledOrRefund)
                               Row(
                                 spacing: 10.0,
                                 crossAxisAlignment: CrossAxisAlignment.start,

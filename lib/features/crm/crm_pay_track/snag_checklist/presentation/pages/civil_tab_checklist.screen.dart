@@ -16,11 +16,13 @@ class CivilTabChecklistScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
   final String categoryName;
+  final String bookingApprovalStatus;
   const CivilTabChecklistScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
     required this.categoryName,
+    required this.bookingApprovalStatus,
   });
 
   @override
@@ -76,6 +78,9 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
 
         final groupedData = _groupData(state.snagChecklist);
         final groupedList = groupedData.entries.toList();
+        final bool isBookingCancelledOrRefund =
+            widget.bookingApprovalStatus.toUpperCase() == "CANCEL" ||
+            widget.bookingApprovalStatus.toUpperCase() == "REFUND";
         return Padding(
           padding: EdgeInsets.all(20.0),
           child: Column(
@@ -96,6 +101,7 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                           final items = group.value;
                           final pendingCount =
                               items.where((e) => e.isCheck == false).length;
+
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -242,7 +248,8 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                                                         child: CustomCheckBox(
                                                           isDisabled:
                                                               !_snagChecklistAuthorization
-                                                                  .isAction,
+                                                                  .isAction ||
+                                                              isBookingCancelledOrRefund,
                                                           isSelected:
                                                               isInactive,
                                                           onChanged: (value) {
@@ -317,7 +324,8 @@ class _CivilTabChecklistScreenState extends State<CivilTabChecklistScreen> {
                   ],
                 ),
               ),
-              if (_snagChecklistAuthorization.isAction)
+              if (_snagChecklistAuthorization.isAction &&
+                  !isBookingCancelledOrRefund)
                 CustomButton(
                   text: "Save",
                   onPressed: () {

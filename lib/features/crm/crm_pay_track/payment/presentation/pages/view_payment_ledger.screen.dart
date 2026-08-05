@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -51,6 +52,28 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
       );
       _paymentCubit.getOtherChargesList(1, getProject().projectId);
     });
+  }
+
+  // DELETE BANK DIALOG
+  void _showPopUpToDeletdBank(
+    BuildContext context,
+    PayTrackPaymentLedgerSummaryModel summary,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      "You are about to delete a Payment Ledger ?",
+      "Deleting this Payment Ledger will permanently remove all associated data.",
+    );
+    if (result && context.mounted) {
+      _paymentCubit.deletePayTrackPaymentLedger(
+        context: context,
+        payTrackPaymentLedgerId: summary.payTrackPaymentLedgerId,
+        uniqueKey: summary.uniquekey,
+        bookingId: summary.bookingId,
+        projectId: summary.projectId,
+      );
+    }
   }
 
   @override
@@ -118,11 +141,11 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                             children: [
                               Expanded(
                                 child: buildRowTitleValue(
-                                  title: "Agreement Value (Without TDS)",
+                                  title: widget.summary.paymentFor,
                                   value:
                                       summary.receivedAmount.toIndianCurrency(),
                                   customValueWidget: DocumentPreviewText(
-                                    title: "Agreement Value (Without TDS)",
+                                    title: widget.summary.paymentFor,
                                     text:
                                         summary.receivedAmount
                                             .toIndianCurrency(),
@@ -169,13 +192,10 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         isEditDeleteDisabled ||
                                         bookingAmount == "Yes",
                                     onPressed: () {
-                                      _paymentCubit.deletePayTrackPaymentLedger(
-                                        context: context,
-                                        payTrackPaymentLedgerId:
-                                            summary.payTrackPaymentLedgerId,
-                                        uniqueKey: summary.uniquekey,
-                                        bookingId: summary.bookingId,
-                                        projectId: summary.projectId,
+                                      _showPopUpToDeletdBank(
+                                        context,
+                                        summary,
+                                        index,
                                       );
                                     },
                                   ),
@@ -192,10 +212,15 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                   title: "Payment Mode",
                                   value: summary.paymentMode,
                                 ),
-                                buildRowTitleValue(
-                                  title: "Booking Amount",
-                                  value: summary.isBookingAmount ? "Yes" : "No",
-                                ),
+                                summary.isBookingAmount == false
+                                    ? SizedBox.shrink()
+                                    : buildRowTitleValue(
+                                      title: "Booking Amount",
+                                      value:
+                                          summary.isBookingAmount
+                                              ? "Yes"
+                                              : "No",
+                                    ),
                                 ApproveRejectWidget(
                                   isActionAlreadyPerformed:
                                       isAlreadyApproved || isRejected,

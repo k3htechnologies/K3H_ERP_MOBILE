@@ -19,10 +19,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class FlatHandoverChecklistScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? bookingApprovalStatus;
   const FlatHandoverChecklistScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.bookingApprovalStatus,
   });
 
   @override
@@ -265,7 +267,9 @@ class _FlatHandoverChecklistScreenState
 
           _tabController.addListener(_handleTabChange);
         }
-
+        final bool isBookingCancelledOrRefund =
+            widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
+            widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -358,7 +362,8 @@ class _FlatHandoverChecklistScreenState
                                     ),
                                     horizontalSpacing(),
                                     if (_flatHandoverChecklistAuthorization
-                                        .isAction)
+                                            .isAction &&
+                                        !isBookingCancelledOrRefund)
                                       CustomIconButton.edit(
                                         onPressed: () {
                                           _showAddUpdateFlatHandoverChecklistBottomSheet(

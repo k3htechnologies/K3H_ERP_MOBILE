@@ -63,24 +63,7 @@ class FilesCubit extends Cubit<FilesState> {
         showErrorMessage(context, "Error", failure.message);
       },
 
-      // (response) {
-      //   emit(
-      //     state.copyWith(
-      //       payTrackBookingFileList:
-      //           pageNumber == 1
-      //               ? response['data'] as List<PayTrackBookingFilesModel>
-      //               : [
-      //                 ...state.payTrackBookingFileList,
-      //                 ...(response['data'] as List<PayTrackBookingFilesModel>),
-      //               ],
-      //       totalNumberOfRecord: response['totalNumberOfRecord'],
-      //       currentPage: pageNumber,
-      //       isLoading: false,
-      //     ),
-      //   );
-      // },
       (response) {
-        debugPrint("FILES List Count = ${response['data'].length}");
         final List<PayTrackBookingFilesModel> newList =
             response['data'] as List<PayTrackBookingFilesModel>;
 

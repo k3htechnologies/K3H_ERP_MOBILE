@@ -510,4 +510,7 @@ class AppRoutes {
   static String taxTracker = "/taxTracker";
   static String addTaxTracker = "/addTaxTracker";
   static String viewTaxTracker = "/viewTaxTracker";
+
+  // otp LOGS
+  static String otpLogs = "/otpLogs";
 }

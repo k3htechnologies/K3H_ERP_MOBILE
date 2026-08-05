@@ -54,54 +54,85 @@ class _PaymentScreenState extends State<PaymentScreen>
   late AuthorizationModel _accountAuthorization;
   late AuthorizationModel _accountPaymentScheduleAuthorizationModel;
   late List<String> _tabs;
+
   @override
   void initState() {
     super.initState();
+
     _accountAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.paymentLedger] ??
         AuthorizationModel();
+
     _accountPaymentScheduleAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.crmPaymentSchedule] ??
         AuthorizationModel();
+
     _tabs = [
       if (_accountPaymentScheduleAuthorizationModel.isView) "Payment Schedule",
       if (_accountAuthorization.isView) "Payment Ledger",
     ];
+
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
+
     _paymentCubit = context.read<PaymentCubit>();
     _scheduleSearchC = TextEditingController();
     _ledgerSearchC = TextEditingController();
-    _paymentCubit.getPaymentScheduleList(
-      context,
-      widget.projectId,
-      widget.bookingId,
-    );
+
+    _loadInitialData();
+  }
+
+  Future<void> _loadInitialData() async {
+    if (_accountPaymentScheduleAuthorizationModel.isView &&
+        _accountAuthorization.isView) {
+      await Future.wait([
+        _paymentCubit.getPaymentScheduleList(
+          context,
+          widget.projectId,
+          widget.bookingId,
+        ),
+        _paymentCubit.getPaymentLedgerList(
+          context,
+          widget.bookingId,
+          widget.projectId,
+        ),
+      ]);
+    } else if (_accountPaymentScheduleAuthorizationModel.isView) {
+      await _paymentCubit.getPaymentScheduleList(
+        context,
+        widget.projectId,
+        widget.bookingId,
+      );
+    } else if (_accountAuthorization.isView) {
+      await _paymentCubit.getPaymentLedgerList(
+        context,
+        widget.bookingId,
+        widget.projectId,
+      );
+    }
   }
 
   // HANDLE TAB CHANGE
   void _handleTabChange() async {
-    if (!_tabController.indexIsChanging) {
-      _scheduleSearchC.clear();
-      _ledgerSearchC.clear();
+    if (_tabController.indexIsChanging) return;
 
-      switch (_tabController.index) {
-        case 0:
-          await _paymentCubit.getPaymentScheduleList(
-            context,
-            widget.projectId,
-            widget.bookingId,
-          );
-          break;
+    final selectedTab = _tabs[_tabController.index];
 
-        case 1:
-          await _paymentCubit.getPaymentLedgerList(
-            context,
-            widget.bookingId,
-            widget.projectId,
-          );
-          break;
-      }
+    _scheduleSearchC.clear();
+    _ledgerSearchC.clear();
+
+    if (selectedTab == "Payment Schedule") {
+      await _paymentCubit.getPaymentScheduleList(
+        context,
+        widget.projectId,
+        widget.bookingId,
+      );
+    } else if (selectedTab == "Payment Ledger") {
+      await _paymentCubit.getPaymentLedgerList(
+        context,
+        widget.bookingId,
+        widget.projectId,
+      );
     }
   }
 

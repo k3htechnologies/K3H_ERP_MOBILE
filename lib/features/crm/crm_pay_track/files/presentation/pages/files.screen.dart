@@ -21,10 +21,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class FilesScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? bookingApprovalStatus;
   const FilesScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.bookingApprovalStatus,
   });
 
   @override
@@ -107,132 +109,148 @@ class _FilesScreenState extends State<FilesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildSearchBar(),
-        if (_filesAuthorization.isAction)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: CustomButton(
-                  text: "Add",
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addFiles,
-                      extra: {
-                        'bookingId': widget.bookingId,
-                        'projectId': widget.projectId,
+    return BlocBuilder<FilesCubit, FilesState>(
+      builder: (context, state) {
+        if (state.isLoading ?? true) {
+          return Center(child: loader());
+        }
+        final bool isBookingCancelledOrRefund =
+            widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
+            widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSearchBar(),
+            if (_filesAuthorization.isAction && !isBookingCancelledOrRefund)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addFiles,
+                          extra: {
+                            'bookingId': widget.bookingId,
+                            'projectId': widget.projectId,
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        verticalSpacing(),
-        Expanded(
-          child: BlocBuilder<FilesCubit, FilesState>(
-            builder: (context, state) {
-              if (state.isLoading == true &&
-                  state.payTrackBookingFileList.isEmpty) {
-                return Center(child: loader());
-              }
-
-              if (state.payTrackBookingFileList.isEmpty) {
-                return Center(
-                  child: noDataWidget(message: "No Files Found", iconSize: 180),
-                );
-              }
-              return ListView.builder(
-                controller: scrollController,
-                itemCount:
-                    state.payTrackBookingFileList.length +
-                    (state.payTrackBookingFileList.length <
-                            state.totalNumberOfRecord
-                        ? 1
-                        : 0),
-                shrinkWrap: true,
-                physics: AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
-                itemBuilder: (context, index) {
-                  if (index == state.payTrackBookingFileList.length) {
-                    return state.payTrackBookingFileList.length <
-                            state.totalNumberOfRecord
-                        ? Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                        : const SizedBox.shrink();
-                  }
-                  final file = state.payTrackBookingFileList[index];
-                  return Container(
-                    margin: EdgeInsets.only(bottom: 10.0),
-                    padding: EdgeInsets.all(12.0),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (_filesAuthorization.isAction)
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addFiles,
-                                    extra: {
-                                      'bookingId': widget.bookingId,
-                                      'projectId': widget.projectId,
-                                      'file': file,
-                                      'index': index,
-                                      'isEdit': true,
-                                    },
-                                  );
-                                },
-                              ),
-                              horizontalSpacing(),
-                              CustomIconButton.delete(
-                                onPressed: () {
-                                  _showPopupToDeleteFiles(
-                                    context,
-                                    file,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
-                              ),
-                            ],
-                          ),
-
-                        buildRowTitleValue(
-                          title: "File Name",
-                          value: file.payTrackBookingFilesUrl,
-                          customValueWidget: DocumentPreviewText(
-                            title: file.fileName,
-                            text: file.fileName,
-                            fileUrl: file.payTrackBookingFilesUrl,
-                          ),
-                        ),
-                        buildRowTitleValue(
-                          title: "Last Modified By",
-                          value: file.createdBy,
-                        ),
-                        buildRowTitleValue(
-                          title: "Last Modified Date",
-                          value: formatDate(file.createdDate),
-                        ),
-                      ],
                     ),
+                  ),
+                ],
+              ),
+            verticalSpacing(),
+            Expanded(
+              child: BlocBuilder<FilesCubit, FilesState>(
+                builder: (context, state) {
+                  if (state.isLoading == true &&
+                      state.payTrackBookingFileList.isEmpty) {
+                    return Center(child: loader());
+                  }
+
+                  if (state.payTrackBookingFileList.isEmpty) {
+                    return Center(
+                      child: noDataWidget(
+                        message: "No Files Found",
+                        iconSize: 180,
+                      ),
+                    );
+                  }
+                  return ListView.builder(
+                    controller: scrollController,
+                    itemCount:
+                        state.payTrackBookingFileList.length +
+                        (state.payTrackBookingFileList.length <
+                                state.totalNumberOfRecord
+                            ? 1
+                            : 0),
+                    shrinkWrap: true,
+                    physics: AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 16.0,
+                    ),
+                    itemBuilder: (context, index) {
+                      if (index == state.payTrackBookingFileList.length) {
+                        return state.payTrackBookingFileList.length <
+                                state.totalNumberOfRecord
+                            ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      final file = state.payTrackBookingFileList[index];
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 10.0),
+                        padding: EdgeInsets.all(12.0),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (_filesAuthorization.isAction)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  CustomIconButton.edit(
+                                    onPressed: () async {
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addFiles,
+                                        extra: {
+                                          'bookingId': widget.bookingId,
+                                          'projectId': widget.projectId,
+                                          'file': file,
+                                          'index': index,
+                                          'isEdit': true,
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  horizontalSpacing(),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteFiles(
+                                        context,
+                                        file,
+                                        state.currentPage,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+
+                            buildRowTitleValue(
+                              title: "File Name",
+                              value: file.payTrackBookingFilesUrl,
+                              customValueWidget: DocumentPreviewText(
+                                title: file.fileName,
+                                text: file.fileName,
+                                fileUrl: file.payTrackBookingFilesUrl,
+                              ),
+                            ),
+                            buildRowTitleValue(
+                              title: "Last Modified By",
+                              value: file.createdBy,
+                            ),
+                            buildRowTitleValue(
+                              title: "Last Modified Date",
+                              value: formatDate(file.createdDate),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   );
                 },
-              );
-            },
-          ),
-        ),
-      ],
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 

@@ -16,12 +16,14 @@ class PlumbingTabChecklistScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
   final String categoryName;
+  final String bookingApprovalStatus;
 
   const PlumbingTabChecklistScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
     required this.categoryName,
+    required this.bookingApprovalStatus,
   });
 
   @override
@@ -78,6 +80,9 @@ class _PlumbingTabChecklistScreenState
 
         final groupedData = _groupData(state.snagChecklist);
         final groupedList = groupedData.entries.toList();
+        final bool isBookingCancelledOrRefund =
+            widget.bookingApprovalStatus.toUpperCase() == "CANCEL" ||
+            widget.bookingApprovalStatus.toUpperCase() == "REFUND";
         return Padding(
           padding: EdgeInsets.all(20.0),
           child: Column(
@@ -245,7 +250,8 @@ class _PlumbingTabChecklistScreenState
                                                         child: CustomCheckBox(
                                                           isDisabled:
                                                               !_snagChecklistAuthorization
-                                                                  .isAction,
+                                                                  .isAction ||
+                                                              isBookingCancelledOrRefund,
                                                           isSelected:
                                                               isInactive,
                                                           onChanged: (value) {
@@ -320,7 +326,8 @@ class _PlumbingTabChecklistScreenState
                   ],
                 ),
               ),
-              if (_snagChecklistAuthorization.isAction)
+              if (_snagChecklistAuthorization.isAction &&
+                  !isBookingCancelledOrRefund)
                 CustomButton(
                   text: "Save",
                   onPressed: () {

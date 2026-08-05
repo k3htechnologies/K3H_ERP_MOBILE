@@ -125,6 +125,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
             (userData != null && userData.table0.isNotEmpty)
                 ? userData.table0.first
                 : null;
+
         return Scaffold(
           appBar: CustomAppBarWithBackButton(
             screenTitle: "Crm Dashbaord",
@@ -261,21 +262,27 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                           ],
                         ),
                       } else ...{
-                        Center(
-                          child: noDataWidget(
-                            message: "No Data Found",
-                            iconSize: 160.0,
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.55,
+                          child: Center(
+                            child: noDataWidget(
+                              message: "No Data Found",
+                              iconSize: 160.0,
+                            ),
                           ),
                         ),
                       },
-                      verticalSpacing(height: 16.0),
-                      _collectionSummaryWidget(context, state),
-                      _bookingSummaryWidget(context, state),
-                      _recentBookingSummaryWidget(context, state),
-                      _brokerageSummaryWidget(context, state),
-                      _accountSummaryWidget(context, state),
-                      _modifiedRequestsWidget(context, state),
-                      _recentTransactionWidget(context, state),
+                      if (state.crmDashboardList.isNotEmpty &&
+                          state.crmDashboardList.first.table0.isNotEmpty) ...[
+                        verticalSpacing(height: 16.0),
+                        _collectionSummaryWidget(context, state),
+                        _bookingSummaryWidget(context, state),
+                        _recentBookingSummaryWidget(context, state),
+                        _brokerageSummaryWidget(context, state),
+                        _accountSummaryWidget(context, state),
+                        _modifiedRequestsWidget(context, state),
+                        _recentTransactionWidget(context, state),
+                      ],
                     ],
                   ),
                 ),
@@ -1086,7 +1093,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Recent Transaction",
+            "Recent Transaction (${list.length} records)",
             style: AppTextStyle.ts14M(
               color: AppColor.black.withValues(alpha: 0.5),
             ),
@@ -1168,7 +1175,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen>
                                           children: [
                                             TextSpan(
                                               text:
-                                                  "${formattedAmount(item.receivedAmount)} : ",
+                                                  "${item.receivedAmount.toIndianCurrency()} : ",
                                               style: AppTextStyle.ts16M(
                                                 color: AppColor.black,
                                               ),

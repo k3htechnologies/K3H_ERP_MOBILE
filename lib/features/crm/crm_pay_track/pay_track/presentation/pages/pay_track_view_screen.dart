@@ -56,7 +56,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   late ValueNotifier<bool> isExpanded;
   late AuthorizationModel _bookingPayTrackRouteAuthorizationModel,
       _bankLoansRouteAuthorizationModel,
-      _accountRouteAuthorizationModel,
+      _paymentLedgerAuthorization,
+      _paymentScheduleAuthorization,
       _modifiedRequestsAuthorizationModel,
       _snagChecklistAuthorizationModel,
       _flatHandoverChecklistAuthorizationModel,
@@ -75,7 +76,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         PayTrackTab.bookingPayTrack,
       if (_bankLoansRouteAuthorizationModel.isView) PayTrackTab.bankLoan,
 
-      if (_accountRouteAuthorizationModel.isView) PayTrackTab.paymentLedger,
+      if (_paymentLedgerAuthorization.isView ||
+          _paymentScheduleAuthorization.isView)
+        PayTrackTab.paymentLedger,
       if (_modifiedRequestsAuthorizationModel.isView)
         PayTrackTab.modificationRequest,
       if (_snagChecklistAuthorizationModel.isView) PayTrackTab.snagChecklist,
@@ -100,8 +103,11 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     _bankLoansRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
         AuthorizationModel();
-    _accountRouteAuthorizationModel =
+    _paymentLedgerAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.paymentLedger] ??
+        AuthorizationModel();
+
+    _paymentScheduleAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.crmPaymentSchedule] ??
         AuthorizationModel();
     _modifiedRequestsAuthorizationModel =
@@ -158,15 +164,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
       projectId: widget.projectId,
       employeeId: 0,
     );
-    // if (!_tabController.indexIsChanging) {
-    //   if (_tabController.index == 0) {
-    //     switch (_tabController.index) {
-    //       case 0:
-    //         initOverview();
-    //         break;
-    //     }
-    //   }
-    // }
   }
 
   @override
@@ -210,7 +207,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                         bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                     },
-                    if (_accountRouteAuthorizationModel.isView) ...{
+                    if (_paymentLedgerAuthorization.isView ||
+                        _paymentScheduleAuthorization.isView) ...{
                       PaymentScreen(
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
@@ -232,21 +230,25 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       SnagCheckListScreen(
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                     if (_flatHandoverChecklistAuthorizationModel.isView)
                       FlatHandoverChecklistScreen(
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                     if (_flatHandoverAuthoriationModel.isView)
                       FlatHandoverScreen(
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                     if (_filesAuthorizationModel.isView)
                       FilesScreen(
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                     if (_callLogsAuthorizationModel.isView)
                       CallLogsScreen(
@@ -315,7 +317,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               children: [
                 Expanded(
                   child: CustomMessageButton(
-                    onMessage: () async {
+                    onWelcome: () async {
                       final result = await _payTrackCubit.getBookingById(
                         context,
                         1,
@@ -383,7 +385,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Unique Code",
+                      title: "Enquiry Code",
                       value: enquiry.systemGeneratedCode,
                     ),
                   ],
@@ -2111,12 +2113,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
 class CustomMessageButton extends StatefulWidget {
   final bool isDisabled;
-  final VoidCallback onMessage;
+  final VoidCallback onWelcome;
   final VoidCallback onEmail;
 
   const CustomMessageButton({
     super.key,
-    required this.onMessage,
+    required this.onWelcome,
     required this.onEmail,
     this.isDisabled = false,
   });
@@ -2194,7 +2196,7 @@ class _CustomMessageButtonState extends State<CustomMessageButton> {
                         label: "Send Message",
                         onTap: () {
                           _removeOverlay();
-                          widget.onMessage();
+                          widget.onWelcome();
                         },
                       ),
                       _buildItem(
@@ -2254,7 +2256,7 @@ class _CustomMessageButtonState extends State<CustomMessageButton> {
       link: _layerLink,
       child: CustomButton(
         key: _buttonKey,
-        text: "Message",
+        text: "Welcome",
         isDisable: widget.isDisabled,
         onPressed: _toggleOverlay,
       ),

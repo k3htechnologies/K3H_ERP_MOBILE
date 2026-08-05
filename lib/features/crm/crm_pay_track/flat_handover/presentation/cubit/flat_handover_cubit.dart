@@ -86,7 +86,7 @@ class FlatHandoverCubit extends Cubit<FlatHandoverState> {
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < flatHandoverDocuments.fileNameList.length; i++) {
       if (flatHandoverDocuments.fileNameList[i].contains("http")) {
-        continue; // Skip already uploaded files
+        continue;
       }
       fileList.add({
         "key": "PayTrackBookingFilesURL",
@@ -143,7 +143,7 @@ class FlatHandoverCubit extends Cubit<FlatHandoverState> {
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < flatHandoverDocuments.fileNameList.length; i++) {
       if (flatHandoverDocuments.fileNameList[i].contains("http")) {
-        continue; // Skip already uploaded files
+        continue;
       }
       fileList.add({
         "key": "PayTrackBookingFilesURL",

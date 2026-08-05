@@ -83,6 +83,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBar(
         screenTitle: 'UOM',
+        searchHintText: "Search by UOM Name",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
           _uomMasterCubit.searchUOM(context, value);

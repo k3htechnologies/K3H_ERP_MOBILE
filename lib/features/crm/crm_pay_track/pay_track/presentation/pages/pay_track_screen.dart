@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -687,8 +688,14 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                         ],
                       ),
                       verticalSpacing(),
-                      CustomClickToContactText(
+                      buildRowTitleValue(
+                        title: "Mobile Number",
                         value: payTrack.applicantMobileNumber,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode:
+                              payTrack.applicantMobileNumberCountryCode,
+                          value: payTrack.applicantMobileNumber,
+                        ),
                       ),
                       verticalSpacing(),
                       Row(

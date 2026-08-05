@@ -48,6 +48,8 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/more/otp_logs/presentation/cubit/otp_logs_cubit.dart';
+import 'package:k3h_erp_app/features/more/otp_logs/presentation/pages/otp_logs.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
@@ -7065,6 +7067,16 @@ final GoRouter goRouter = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      name: AppRoutes.otpLogs,
+      path: AppRoutes.otpLogs,
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => OtpLogsCubit(),
+          child: OtpLogsScreen(),
+        );
+      },
     ),
   ],
 );
