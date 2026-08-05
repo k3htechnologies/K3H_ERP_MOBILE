@@ -579,11 +579,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   children: [
                     Expanded(
                       child: buildColumnTitleValueNormal(
-                        title: "RERA Completion Date",
+                        title: "RERA Possession Date",
                         value:
-                            widget.project.reraComplitionDate != null
+                            widget.project.reraPossessionDate != null
                                 ? formatDateTimeAsDDMMMYYYY(
-                                  widget.project.reraComplitionDate!,
+                                  widget.project.reraPossessionDate!,
                                 )
                                 : "-",
                       ),

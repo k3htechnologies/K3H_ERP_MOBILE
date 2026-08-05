@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -136,7 +136,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        ProposedOfferTile(
+                        CardHeaderTile(
                           svgIcon: AppAssets.gstDetailsIcon,
                           title: "GST on Existing + Free Area",
                         ),

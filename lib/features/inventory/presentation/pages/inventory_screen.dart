@@ -1028,7 +1028,12 @@ class _InventoryScreenState extends State<InventoryScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
+              Expanded(
+                child: Text(
+                  "Unit No. : ${flat.flat}",
+                  style: AppTextStyle.ts14M(),
+                ),
+              ),
               if (flat.note.isNotEmpty)
                 InkWell(
                   onTap: () {

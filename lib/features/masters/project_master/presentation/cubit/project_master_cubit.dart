@@ -222,7 +222,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String liasoningArchitectMobileNumber,
     required String designingArchitectName,
     required String designingArchitectMobileNumber,
-    required String rccArchitectName,
+    required String rccConsulantName,
     required String rccMobileNumber,
     required String category,
     required String tenderAmount,
@@ -242,9 +242,8 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String projectScope,
     required String projectEstimateCost,
     required String projectAreaInSqft,
-    required String apfNumber,
-    required String onGoingBudgetCost,
     required String projectAreaInSqmt,
+    required String onGoingBudgetCost,
     required String surveyDate,
     required String expectedStartDate,
     required String executionStartDate,
@@ -258,48 +257,65 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String siteContact3Name,
     required String siteContact3Designation,
     required String projectStatus,
+    required String apfNumber,
     required String reraNumber,
     required String reraCertificateDate,
-    required String reraComplitionDate,
+    required String reraPossessionDate,
     required String projectScheme,
     required String projectSubScheme,
     required String googleLocation,
     required MultiFilePickerModel projectPhotoMap,
-    required MultiFilePickerModel tenderChequeNumberURL,
+    required MultiFilePickerModel tenderChequeNumberFile,
+    required MultiFilePickerModel tenderEmdChequeNumberFile,
+    required String tenderAmountPaymentMode,
+    required String tenderAmountChequeNumber,
+    required String tenderAmountPayorderRemark,
+    required String tenderEmdPaymentMode,
+    required String tenderEmdChequeNumber,
+    required String tenderEmdPayorderRemark,
+    required String projectShortName,
+    required bool isFederation,
+    required String federationAmount,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
+      "ProjectId": 0.toString(),
       "ProjectName": projectName,
       "ProjectLocation": location,
       "CTSNumber": ctsNumber,
-      "BussinessCategory": businessCategory,
+      "IsRedevelopment": isRedevelopment ? "1" : "0",
       "FileNumber": fileNumber,
       "LiasoningArchitectName": liasoningArchitectName,
       "LiasoningArchitectMobileNumber": liasoningArchitectMobileNumber,
       "DesigningArchitectName": designingArchitectName,
       "DesigningArchitectMobileNumber": designingArchitectMobileNumber,
-      "RCCConsultantName": rccArchitectName,
+      "RCCConsultantName": rccConsulantName,
       "RCCConsultantMobileNumber": rccMobileNumber,
       "Category": category,
       "TenderAmount": tenderAmount,
-      "TenderEMDAmount": tenderEMDAmount,
       "TenderPurchaseStartDate": tenderPurchaseStartDate,
       "TenderPurchaseEndDate": tenderPurchaseEndDate,
-      "TenderChequeNumber": tenderChequeNumber,
+      "TenderAmountPaymentMode": tenderAmountPaymentMode,
+      "TenderAmountChequeNumber": tenderChequeNumber,
+      "TenderAmountPayorderRemark": tenderPayorderRemark,
+      "TenderEMDAmount": tenderEMDAmount,
       "TenderSubmissionDate": tenderSubmissionDate,
-      "TenderPayorderRemark": tenderPayorderRemark,
-      "IsRedevelopment": isRedevelopment ? '1' : '0',
+      "TenderEMDPaymentMode": tenderEmdPaymentMode,
+      "TenderEMDChequeNumber": tenderEmdChequeNumber,
+      "TenderEMDPayorderRemark": tenderEmdPayorderRemark,
+      "BussinessCategory": businessCategory,
+      "ProjectShortName": "",
       "CountryMasterId": countryMasterId,
-      "DistrictMasterId": districtMasterId,
       "StateMasterId": stateMasterId,
+      "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
       "VillageMasterId": villageMasterId,
       "ZipCode": pinCode,
       "ProjectScope": projectScope,
       "ProjectEstimateCost": projectEstimateCost,
       "ProjectAreaInSqft": projectAreaInSqft,
-      "OnGoingBudgetCost": onGoingBudgetCost,
       "ProjectAreaInSqmt": projectAreaInSqmt,
+      "OnGoingBudgetCost": onGoingBudgetCost,
       "SurveyDate": surveyDate,
       "ExpectedStartDate": expectedStartDate,
       "ExecutionStartDate": executionStartDate,
@@ -313,13 +329,20 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "SiteContact3Name": siteContact3Name,
       "SiteContact3Designation": siteContact3Designation,
       "ProjectStatus": projectStatus,
-      "APFNumber": apfNumber,
       "RERANumber": reraNumber,
+      "APFNumber": apfNumber,
       "RERACertificateDate": reraCertificateDate,
-      "RERAComplitionDate": reraComplitionDate,
+      "RERAPossessionDate": reraPossessionDate,
       "ProjectScheme": projectScheme,
       "ProjectSubScheme": projectSubScheme,
       "GoogleLocation": googleLocation,
+      "IsFederation": isFederation.toString(),
+      "FederationAmount": federationAmount,
+      "RemoveProjectPhotoURL": projectPhotoMap.deletedFileList,
+      "RemoveTenderAmountChequeNumberURL":
+          tenderChequeNumberFile.deletedFileList,
+      "RemoveTenderEMDChequeNumberURL":
+          tenderEmdChequeNumberFile.deletedFileList,
     };
     List<Map<String, dynamic>> fileList = [];
 
@@ -333,14 +356,24 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "fileName": projectPhotoMap.fileNameList[i],
       });
     }
-    for (int i = 0; i < tenderChequeNumberURL.fileBytesList.length; i++) {
-      if (tenderChequeNumberURL.fileNameList[i].contains("http")) {
+    for (int i = 0; i < tenderChequeNumberFile.fileBytesList.length; i++) {
+      if (tenderChequeNumberFile.fileNameList[i].contains("http")) {
         continue;
       }
       fileList.add({
         "key": "TenderChequeNumberURL",
-        "value": tenderChequeNumberURL.fileBytesList[i],
-        "fileName": tenderChequeNumberURL.fileNameList[i],
+        "value": tenderChequeNumberFile.fileBytesList[i],
+        "fileName": tenderChequeNumberFile.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < tenderEmdChequeNumberFile.fileBytesList.length; i++) {
+      if (tenderEmdChequeNumberFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TenderEMDChequeNumberURL",
+        "value": tenderEmdChequeNumberFile.fileBytesList[i],
+        "fileName": tenderEmdChequeNumberFile.fileNameList[i],
       });
     }
     var addResult = await _projectMasterRepository.addUpateProject(
@@ -375,7 +408,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String liasoningArchitectMobileNumber,
     required String designingArchitectName,
     required String designingArchitectMobileNumber,
-    required String rccArchitectName,
+    required String rccConsulantName,
     required String rccMobileNumber,
     required String category,
     required String tenderAmount,
@@ -413,12 +446,22 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
     required String apfNumber,
     required String reraNumber,
     required String reraCertificateDate,
-    required String reraComplitionDate,
+    required String reraPossessionDate,
     required String projectScheme,
     required String projectSubScheme,
     required String googleLocation,
     required MultiFilePickerModel projectPhotoMap,
-    required MultiFilePickerModel tenderChequeNumberURL,
+    required MultiFilePickerModel tenderChequeNumberFile,
+    required MultiFilePickerModel tenderEmdChequeNumberFile,
+    required String tenderAmountPaymentMode,
+    required String tenderAmountChequeNumber,
+    required String tenderAmountPayorderRemark,
+    required String tenderEmdPaymentMode,
+    required String tenderEmdChequeNumber,
+    required String tenderEmdPayorderRemark,
+    required String projectShortName,
+    required bool isFederation,
+    required String federationAmount,
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -428,58 +471,86 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
       "ProjectName": projectName,
       "ProjectLocation": location,
       "CTSNumber": ctsNumber,
-      "BussinessCategory": businessCategory,
+      "IsRedevelopment": isRedevelopment ? "1" : "0",
+
       "FileNumber": fileNumber,
       "LiasoningArchitectName": liasoningArchitectName,
       "LiasoningArchitectMobileNumber": liasoningArchitectMobileNumber,
       "DesigningArchitectName": designingArchitectName,
       "DesigningArchitectMobileNumber": designingArchitectMobileNumber,
-      "RCCConsultantName": rccArchitectName,
+      "RCCConsultantName": rccConsulantName,
       "RCCConsultantMobileNumber": rccMobileNumber,
+
       "Category": category,
       "TenderAmount": tenderAmount,
-      "TenderEMDAmount": tenderEMDAmount,
+
       "TenderPurchaseStartDate": tenderPurchaseStartDate,
       "TenderPurchaseEndDate": tenderPurchaseEndDate,
-      "TenderChequeNumber": tenderChequeNumber,
+
+      "TenderAmountPaymentMode": tenderAmountPaymentMode,
+      "TenderAmountChequeNumber": tenderChequeNumber,
+      "TenderAmountPayorderRemark": tenderPayorderRemark,
+
+      "TenderEMDAmount": tenderEMDAmount,
       "TenderSubmissionDate": tenderSubmissionDate,
-      "TenderPayorderRemark": tenderPayorderRemark,
+
+      "TenderEMDPaymentMode": tenderEmdPaymentMode,
+      "TenderEMDChequeNumber": tenderEmdChequeNumber,
+      "TenderEMDPayorderRemark": tenderEmdPayorderRemark,
+
+      "BussinessCategory": businessCategory,
+      "ProjectShortName": "",
+
       "CountryMasterId": countryMasterId,
-      "IsRedevelopment": isRedevelopment ? '1' : '0',
-      "DistrictMasterId": districtMasterId,
       "StateMasterId": stateMasterId,
+      "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
       "VillageMasterId": villageMasterId,
       "ZipCode": pinCode,
+
       "ProjectScope": projectScope,
       "ProjectEstimateCost": projectEstimateCost,
       "ProjectAreaInSqft": projectAreaInSqft,
       "ProjectAreaInSqmt": projectAreaInSqmt,
       "OnGoingBudgetCost": onGoingBudgetCost,
+
       "SurveyDate": surveyDate,
       "ExpectedStartDate": expectedStartDate,
       "ExecutionStartDate": executionStartDate,
+
       "SiteContactMobileNumber": siteContact1MobileNumber,
       "SiteContactName": siteContact1Name,
       "SiteContactDesignation": siteContact1Designation,
+
       "SiteContact2MobileNumber": siteContact2MobileNumber,
       "SiteContact2Name": siteContact2Name,
       "SiteContact2Designation": siteContact2Designation,
+
       "SiteContact3MobileNumber": siteContact3MobileNumber,
       "SiteContact3Name": siteContact3Name,
       "SiteContact3Designation": siteContact3Designation,
+
       "ProjectStatus": projectStatus,
+
       "RERANumber": reraNumber,
-      "RERACertificateDate": reraCertificateDate,
-      "RERAComplitionDate": reraComplitionDate,
       "APFNumber": apfNumber,
+      "RERACertificateDate": reraCertificateDate,
+
+      "RERAPossessionDate": reraPossessionDate,
+
       "ProjectScheme": projectScheme,
       "ProjectSubScheme": projectSubScheme,
       "GoogleLocation": googleLocation,
-      "RemoveProjectPhotoURL": projectPhotoMap.deletedFileList,
-      "RemoveTenderChequeNumberURL": tenderChequeNumberURL.deletedFileList,
-    };
 
+      "IsFederation": isFederation.toString(),
+      "FederationAmount": federationAmount,
+
+      "RemoveProjectPhotoURL": projectPhotoMap.deletedFileList,
+      "RemoveTenderAmountChequeNumberURL":
+          tenderChequeNumberFile.deletedFileList,
+      "RemoveTenderEMDChequeNumberURL":
+          tenderEmdChequeNumberFile.deletedFileList,
+    };
     List<Map<String, dynamic>> fileList = [];
 
     for (int i = 0; i < projectPhotoMap.fileBytesList.length; i++) {
@@ -492,14 +563,24 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         "fileName": projectPhotoMap.fileNameList[i],
       });
     }
-    for (int i = 0; i < tenderChequeNumberURL.fileBytesList.length; i++) {
-      if (tenderChequeNumberURL.fileNameList[i].contains("http")) {
+    for (int i = 0; i < tenderChequeNumberFile.fileBytesList.length; i++) {
+      if (tenderChequeNumberFile.fileNameList[i].contains("http")) {
         continue;
       }
       fileList.add({
-        "key": "TenderChequeNumberURL",
-        "value": tenderChequeNumberURL.fileBytesList[i],
-        "fileName": tenderChequeNumberURL.fileNameList[i],
+        "key": "TenderAmountChequeNumberURL",
+        "value": tenderChequeNumberFile.fileBytesList[i],
+        "fileName": tenderChequeNumberFile.fileNameList[i],
+      });
+    }
+    for (int i = 0; i < tenderEmdChequeNumberFile.fileBytesList.length; i++) {
+      if (tenderEmdChequeNumberFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "TenderEMDChequeNumberURL",
+        "value": tenderEmdChequeNumberFile.fileBytesList[i],
+        "fileName": tenderEmdChequeNumberFile.fileNameList[i],
       });
     }
     var addResult = await _projectMasterRepository.addUpateProject(

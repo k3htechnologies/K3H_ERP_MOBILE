@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/ready_reckover_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -13,6 +12,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -210,7 +210,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                     key: _formKey,
                     child: Column(
                       children: [
-                        ProposedOfferTile(
+                        CardHeaderTile(
                           svgIcon: AppAssets.readyReckonerIcon,
                           title:
                               _isEditMode

@@ -101,6 +101,10 @@ class RecentBookingWidget extends StatelessWidget {
                                   ),
 
                                   Container(
+                                    width:
+                                        recentBooking.flat.length > 10
+                                            ? 100.w
+                                            : null,
                                     padding: EdgeInsets.symmetric(
                                       horizontal: 12.w,
                                       vertical: 6.h,
@@ -111,6 +115,8 @@ class RecentBookingWidget extends StatelessWidget {
                                     ),
                                     child: Text(
                                       recentBooking.flat,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                       style: AppTextStyle.ts14M(),
                                     ),
                                   ),

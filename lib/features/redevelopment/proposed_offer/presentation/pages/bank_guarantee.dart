@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -386,7 +387,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: ProposedOfferTile(
+                              child: CardHeaderTile(
                                 svgIcon: AppAssets.bankGuaranteeIcon,
                                 title: "Bank Guarantee Amount Details",
                               ),

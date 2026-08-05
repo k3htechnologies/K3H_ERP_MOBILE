@@ -32,7 +32,6 @@ class ProjectModel {
   DateTime? tenderSubmissionDate;
   DateTime? tenderIssueDate;
   String? tenderPayorderRemark;
-  String projectShortName;
   int countryMasterId;
   String countryName;
   int districtMasterId;
@@ -58,7 +57,6 @@ class ProjectModel {
   String? apfNumber;
   String reraNumber;
   DateTime? reraCertificateDate;
-  DateTime? reraComplitionDate;
   String projectScheme;
   String projectSubScheme;
   String googleLocation;
@@ -121,7 +119,6 @@ class ProjectModel {
     this.tenderSubmissionDate,
     this.tenderIssueDate,
     this.tenderPayorderRemark,
-    required this.projectShortName,
     required this.countryMasterId,
     required this.countryName,
     required this.districtMasterId,
@@ -147,7 +144,6 @@ class ProjectModel {
     this.apfNumber,
     required this.reraNumber,
     this.reraCertificateDate,
-    this.reraComplitionDate,
     required this.projectScheme,
     required this.projectSubScheme,
     required this.googleLocation,
@@ -232,7 +228,6 @@ class ProjectModel {
             ? DateTime.parse(json["TenderIssueDate"])
             : null,
     tenderPayorderRemark: parseValue<String>(json, "TenderPayorderRemark"),
-    projectShortName: parseValue<String>(json, "ProjectShortName"),
     countryMasterId: parseValue<int>(json, "CountryMasterId"),
     countryName: parseValue<String>(json, "CountryName"),
     districtMasterId: parseValue<int>(json, "DistrictMasterId"),
@@ -270,10 +265,6 @@ class ProjectModel {
     reraCertificateDate:
         json["RERACertificateDate"] != null
             ? DateTime.parse(json["RERACertificateDate"])
-            : null,
-    reraComplitionDate:
-        json["RERAComplitionDate"] != null
-            ? DateTime.parse(json["RERAComplitionDate"])
             : null,
     projectScheme: parseValue<String>(json, "ProjectScheme"),
     projectSubScheme: parseValue<String>(json, "ProjectSubScheme"),
@@ -406,7 +397,6 @@ class ProjectModel {
     "TenderSubmissionDate": tenderSubmissionDate?.toIso8601String(),
     "TenderIssueDate": tenderIssueDate?.toIso8601String(),
     "TenderPayorderRemark": tenderPayorderRemark,
-    "ProjectShortName": projectShortName,
     "CountryMasterId": countryMasterId,
     "CountryName": countryName,
     "DistrictMasterId": districtMasterId,
@@ -432,7 +422,6 @@ class ProjectModel {
     "APFNumber": apfNumber,
     "RERANumber": reraNumber,
     "RERACertificateDate": reraCertificateDate?.toIso8601String(),
-    "RERAComplitionDate": reraComplitionDate?.toIso8601String(),
     "ProjectScheme": projectScheme,
     "ProjectSubScheme": projectSubScheme,
     "GoogleLocation": googleLocation,

@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -393,7 +394,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: ProposedOfferTile(
+                              child: CardHeaderTile(
                                 svgIcon: AppAssets.securityDepositIcon,
                                 title: "Security Deposit Amount Details",
                               ),

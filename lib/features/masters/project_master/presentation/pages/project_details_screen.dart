@@ -31,7 +31,9 @@ import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -450,576 +452,608 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
           ),
           verticalSpacing(),
           // BASIC DETAILS
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Basic Project Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Redevelopment",
-                      value: widget.project.isRedevelopment ? "Yes" : "No",
-                    ),
-                    buildColumnTitleValue(
-                      title: "Project Name",
-                      value: widget.project.projectName,
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "CTS Number",
-                      value: widget.project.ctsNumber,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Business Category",
-                      value: widget.project.bussinessCategory,
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "File Number",
-                      value: widget.project.fileNumber,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // PROJECT DETAILS
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Project Category", style: AppTextStyle.ts16SB()),
-
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Category",
-                      value: widget.project.category,
-                    ),
-
-                    if (isTender) ...[
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "Amount",
-                        value: widget.project.tenderAmount.toIndianCurrency(),
-                      ),
-                    ],
-                  ],
-                ),
-
-                if (isTender) ...[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "EMD Amount",
-                        value:
-                            widget.project.tenderEmdAmount.toIndianCurrency(),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Purchase Start Date",
-                        value:
-                            widget.project.tenderPurchaseStartDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  widget.project.tenderPurchaseStartDate!,
-                                )
-                                : "-",
-                      ),
-                    ],
+          SectionCard(
+            title: "Basic Project Details",
+            icon: LucideIcons.building,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Redevelopment",
+                    value: widget.project.isRedevelopment ? "Yes" : "No",
                   ),
-
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Purchase End Date",
-                        value:
-                            widget.project.tenderPurchaseEndDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  widget.project.tenderPurchaseEndDate!,
-                                )
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Cheque Number",
-                        value: widget.project.tenderChequeNumber ?? "-",
-                        customValueWidget:
-                            (widget.project.tenderChequeNumber == null ||
-                                    widget.project.tenderChequeNumber!.isEmpty)
-                                ? null
-                                : Row(
-                                  children: [
-                                    Text(
-                                      widget.project.tenderChequeNumber ?? "-",
-                                      style: AppTextStyle.ts14M(),
-                                    ),
-
-                                    CustomIconButton(
-                                      onPressed: () {
-                                        showFilePreviewDialog(
-                                          context,
-                                          widget.project.tenderChequeNumberUrl!
-                                              .split(","),
-                                        );
-                                      },
-                                      icon: Icon(
-                                        Icons.remove_red_eye_outlined,
-                                        size: 16,
-                                        color: AppColor.primary,
-                                      ),
-                                      backgroundColor: AppColor.white,
-                                    ),
-                                  ],
-                                ),
-                      ),
-                    ],
-                  ),
-
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Submission Date",
-                        value:
-                            widget.project.tenderSubmissionDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  widget.project.tenderSubmissionDate!,
-                                )
-                                : "-",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Issue Date",
-                        value:
-                            widget.project.tenderIssueDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  widget.project.tenderIssueDate!,
-                                )
-                                : "-",
-                      ),
-                    ],
-                  ),
-
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Payorder Remark",
-                        value: widget.project.tenderPayorderRemark ?? "-",
-                      ),
-                    ],
+                  buildColumnTitleValue(
+                    title: "Project Name",
+                    value: widget.project.projectName,
                   ),
                 ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "CTS Number",
+                    value: widget.project.ctsNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Business Category",
+                    value: widget.project.bussinessCategory,
+                  ),
+                ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "File Number",
+                    value: widget.project.fileNumber,
+                  ),
+                ],
+              ),
+            ],
+          ), // PROJECT DETAILS
+          if (isTender) ...[
+            SectionCard(
+              title: "Tender Amount Details",
+              icon: LucideIcons.badgeDollarSign,
+              iconColor: AppColor.darkGreen10,
+              iconContainerColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Amount",
+                      value: widget.project.tenderAmount.toIndianCurrency(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Purchase Start Date",
+                      value:
+                          widget.project.tenderPurchaseStartDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.tenderPurchaseStartDate!,
+                              )
+                              : "-",
+                    ),
+                  ],
+                ),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Purchase End Date",
+                      value:
+                          widget.project.tenderPurchaseEndDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.tenderPurchaseEndDate!,
+                              )
+                              : "-",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Payment Mode",
+                      value: widget.project.tenderAmountPaymentMode,
+                    ),
+                  ],
+                ),
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Transaction / Cheque / DD No",
+                      value: widget.project.tenderAmountChequeNumber,
+                      customValueWidget:
+                          (widget.project.tenderAmountChequeNumber.isEmpty)
+                              ? null
+                              : Row(
+                                children: [
+                                  Text(
+                                    widget.project.tenderAmountChequeNumber,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                  CustomIconButton(
+                                    onPressed: () {
+                                      showFilePreviewDialog(
+                                        context,
+                                        widget
+                                            .project
+                                            .tenderAmountChequeNumberUrl
+                                            .split(","),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.remove_red_eye_outlined,
+                                      size: 16,
+                                      color: AppColor.primary,
+                                    ),
+                                    backgroundColor: AppColor.white,
+                                  ),
+                                ],
+                              ),
+                    ),
+                  ],
+                ),
+                buildRowWrapper(
+                  child: buildColumnTitleValue(
+                    title: "Payoder Remark",
+                    value: widget.project.tenderAmountPayorderRemark,
+                  ),
+                ),
               ],
             ),
-          ),
-          // LIOSONING ARCHITECT DETAILS
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            SectionCard(
+              title: "Tender EMD Details",
+              icon: LucideIcons.wallet,
+              iconColor: AppColor.primary,
               children: [
-                Text("Liasoning Architect", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Name",
-                      value:
-                          widget.project.liasoningArchitectName.isEmpty
-                              ? "-"
-                              : widget.project.liasoningArchitectName,
+                      title: "EMD Amount",
+                      value: widget.project.tenderEmdAmount.toIndianCurrency(),
                     ),
                     buildColumnTitleValue(
-                      title: "Mobile Number",
+                      title: "Submission Date",
                       value:
-                          widget.project.liasoningArchitectMobileNumber.isEmpty
-                              ? "-"
-                              : widget.project.liasoningArchitectMobileNumber,
+                          widget.project.tenderSubmissionDate != null
+                              ? formatDateTimeAsDDMMMYYYY(
+                                widget.project.tenderSubmissionDate!,
+                              )
+                              : "-",
                     ),
                   ],
                 ),
-                verticalSpacing(),
-                Text("Designing Architect", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
+
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Name",
-                      value:
-                          widget.project.designingArchitectName.isEmpty
-                              ? "-"
-                              : widget.project.designingArchitectName,
+                      title: "Payment Mode",
+                      value: widget.project.tenderEmdPaymentMode,
                     ),
                     buildColumnTitleValue(
-                      title: "Mobile Number",
-                      value:
-                          widget.project.designingArchitectMobileNumber.isEmpty
-                              ? "-"
-                              : widget.project.designingArchitectMobileNumber,
+                      title: "Transaction / Cheque / DD No",
+                      value: widget.project.tenderEmdChequeNumber,
+                      customValueWidget:
+                          (widget.project.tenderEmdChequeNumber.isEmpty)
+                              ? null
+                              : Row(
+                                children: [
+                                  Text(
+                                    widget.project.tenderEmdChequeNumber,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                  CustomIconButton(
+                                    onPressed: () {
+                                      showFilePreviewDialog(
+                                        context,
+                                        widget.project.tenderEmdChequeNumberUrl
+                                            .split(","),
+                                      );
+                                    },
+                                    icon: const Icon(
+                                      Icons.remove_red_eye_outlined,
+                                      size: 16,
+                                      color: AppColor.primary,
+                                    ),
+                                    backgroundColor: AppColor.white,
+                                  ),
+                                ],
+                              ),
                     ),
                   ],
                 ),
-                verticalSpacing(),
-                Text("RCC Consultant", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Name",
-                      value:
-                          widget.project.rccConsultantName.isEmpty
-                              ? "-"
-                              : widget.project.rccConsultantName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Mobile Number",
-                      value:
-                          widget.project.rccConsultantMobileNumber.isEmpty
-                              ? "-"
-                              : widget.project.rccConsultantMobileNumber,
-                    ),
+
+                Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   ],
+                ),
+                buildRowWrapper(
+                  child: buildColumnTitleValue(
+                    title: "Payoder Remark",
+                    value: widget.project.tenderAmountPayorderRemark,
+                  ),
                 ),
               ],
-            ),
+            ), // LIOSONING ARCHITECT DETAILS
+          ],
+          SectionCard(
+            title: "Liasoning Architect",
+            icon: LucideIcons.draftingCompass,
+            iconColor: AppColor.primary,
+            children: [
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Name",
+                    value:
+                        widget.project.liasoningArchitectName.isEmpty
+                            ? "-"
+                            : widget.project.liasoningArchitectName,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Mobile Number",
+                    value:
+                        widget.project.liasoningArchitectMobileNumber.isEmpty
+                            ? "-"
+                            : widget.project.liasoningArchitectMobileNumber,
+                  ),
+                ],
+              ),
+            ],
           ),
-          // LOCATION DETAILS
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Location Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Project Location",
-                      value: widget.project.projectLocation,
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Google Location",
-                      value: widget.project.googleLocation,
-                      customValueWidget: GestureDetector(
-                        onTap: () async {
-                          final url = widget.project.googleLocation;
 
-                          if (url.isNotEmpty) {
-                            final Uri uri = Uri.parse(url);
+          SectionCard(
+            title: "Designing Architect",
+            icon: LucideIcons.swords,
+            iconColor: AppColor.purple700,
+            iconContainerColor: AppColor.purple700.withValues(alpha: 0.1),
+            children: [
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Name",
+                    value:
+                        widget.project.designingArchitectName.isEmpty
+                            ? "-"
+                            : widget.project.designingArchitectName,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Mobile Number",
+                    value:
+                        widget.project.designingArchitectMobileNumber.isEmpty
+                            ? "-"
+                            : widget.project.designingArchitectMobileNumber,
+                  ),
+                ],
+              ),
+            ],
+          ),
 
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            }
+          SectionCard(
+            title: "RCC Consultant",
+            icon: LucideIcons.landmark,
+            iconColor: AppColor.primary,
+            children: [
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Name",
+                    value:
+                        widget.project.rccConsultantName.isEmpty
+                            ? "-"
+                            : widget.project.rccConsultantName,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Mobile Number",
+                    value:
+                        widget.project.rccConsultantMobileNumber.isEmpty
+                            ? "-"
+                            : widget.project.rccConsultantMobileNumber,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SectionCard(
+            title: "Location Details",
+            icon: LucideIcons.mapPin,
+            iconColor: AppColor.primary,
+            children: [
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Project Location",
+                    value: widget.project.projectLocation,
+                  ),
+                ],
+              ),
+
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Google Location",
+                    value: widget.project.googleLocation,
+                    customValueWidget: GestureDetector(
+                      onTap: () async {
+                        final url = widget.project.googleLocation;
+
+                        if (url.isNotEmpty) {
+                          final uri = Uri.parse(url);
+
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
                           }
-                        },
-                        child: Text(
-                          widget.project.googleLocation.isEmpty
-                              ? "-"
-                              : widget.project.googleLocation,
-                          style: AppTextStyle.ts14M(
-                            color: AppColor.primary,
-                          ).copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColor.primary,
-                          ),
+                        }
+                      },
+                      child: Text(
+                        widget.project.googleLocation.isEmpty
+                            ? "-"
+                            : widget.project.googleLocation,
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.primary,
+                        ).copyWith(
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColor.primary,
                         ),
                       ),
                     ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Country",
-                      value: widget.project.countryName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "State",
-                      value: widget.project.stateName,
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "District",
-                      value: widget.project.districtName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "City",
-                      value: widget.project.cityName,
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Village",
-                      value: widget.project.villageName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "PIN Code",
-                      value: widget.project.zipCode,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // PROJECT SCOPE
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Scheme & Scope Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Project Scope",
-                      value: widget.project.projectScope,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Project Scheme",
-                      value: widget.project.projectScheme,
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Project Sub Scheme",
-                      value: widget.project.projectSubScheme,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // PROJECT DOCUMENT
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Project Documentation", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "RERA Number",
-                        value:
-                            widget.project.reraNumber.isNotEmpty
-                                ? widget.project.reraNumber
-                                : "-",
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "RERA Certificate Date",
-                        value:
-                            widget.project.reraCertificateDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  widget.project.reraCertificateDate!,
-                                )
-                                : "-",
-                      ),
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "RERA Completion Date",
-                        value:
-                            widget.project.reraComplitionDate != null
-                                ? formatDateTimeAsDDMMMYYYY(
-                                  widget.project.reraComplitionDate!,
-                                )
-                                : "-",
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "APF Number",
-                        value: widget.project.apfNumber.toString(),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // PROJECT FINANCIALS
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Project Financials", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Project Estimate Cost",
-                      value: widget.project.projectEstimateCost.toString(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Ongoing Budget Cost",
-                      value: widget.project.onGoingBudgetCost.toString(),
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Project Area (Sq.ft)",
-                      value: widget.project.projectAreaInSqft.toString(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Project Area (Sq.mt)",
-                      value: widget.project.projectAreaInSqmt.toString(),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // PROJECT TIMELINE
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Project Timeline", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Survey Date",
+                  ),
+                ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Country",
+                    value: widget.project.countryName,
+                  ),
+                  buildColumnTitleValue(
+                    title: "State",
+                    value: widget.project.stateName,
+                  ),
+                ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "District",
+                    value: widget.project.districtName,
+                  ),
+                  buildColumnTitleValue(
+                    title: "City",
+                    value: widget.project.cityName,
+                  ),
+                ],
+              ),
+
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Village",
+                    value: widget.project.villageName,
+                  ),
+                  buildColumnTitleValue(
+                    title: "PIN Code",
+                    value: widget.project.zipCode,
+                  ),
+                ],
+              ),
+            ],
+          ), // PROJECT SCOPE
+          SectionCard(
+            title: "Scheme & Scope Details",
+            icon: LucideIcons.clipboardList,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Project Scope",
+                    value: widget.project.projectScope,
+                  ),
+                  horizontalSpacing(),
+                  buildColumnTitleValue(
+                    title: "Project Scheme",
+                    value: widget.project.projectScheme,
+                  ),
+                ],
+              ),
+
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Project Sub Scheme",
+                    value: widget.project.projectSubScheme,
+                  ),
+                ],
+              ),
+            ],
+          ), // PROJECT DOCUMENT
+          SectionCard(
+            title: "Project Documentation",
+            icon: LucideIcons.badgeCheck,
+            iconColor: AppColor.purple700,
+            iconContainerColor: AppColor.purple700.withValues(alpha: 0.1),
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: buildColumnTitleValueNormal(
+                      title: "RERA Number",
                       value:
-                          widget.project.surveyDate != null
+                          widget.project.reraNumber.isNotEmpty
+                              ? widget.project.reraNumber
+                              : "-",
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  Expanded(
+                    child: buildColumnTitleValueNormal(
+                      title: "RERA Certificate Date",
+                      value:
+                          widget.project.reraCertificateDate != null
                               ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.surveyDate!,
+                                widget.project.reraCertificateDate!,
                               )
                               : "-",
                     ),
-                    buildColumnTitleValue(
-                      title: "Expected Start Date",
+                  ),
+                ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: buildColumnTitleValueNormal(
+                      title: "RERA Completion Date",
                       value:
-                          widget.project.expectedStartDate != null
+                          widget.project.reraPossessionDate != null
                               ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.expectedStartDate!,
+                                widget.project.reraPossessionDate!,
                               )
                               : "-",
                     ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Execution Start Date",
-                      value:
-                          widget.project.executionStartDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.executionStartDate!,
-                              )
-                              : "-",
+                  ),
+                  horizontalSpacing(),
+                  Expanded(
+                    child: buildColumnTitleValueNormal(
+                      title: "APF Number",
+                      value: widget.project.apfNumber.toString(),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+            ],
+          ), // PROJECT FINANCIALS
+          SectionCard(
+            title: "Project Financials",
+            icon: LucideIcons.indianRupee,
+            iconColor: AppColor.primary,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Project Estimate Cost",
+                    value: widget.project.projectEstimateCost.toString(),
+                  ),
+                  horizontalSpacing(),
+                  buildColumnTitleValue(
+                    title: "Ongoing Budget Cost",
+                    value: widget.project.onGoingBudgetCost.toString(),
+                  ),
+                ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Project Area (Sq.ft)",
+                    value: widget.project.projectAreaInSqft.toString(),
+                  ),
+                  horizontalSpacing(),
+                  buildColumnTitleValue(
+                    title: "Project Area (Sq.mt)",
+                    value: widget.project.projectAreaInSqmt.toString(),
+                  ),
+                ],
+              ),
+            ],
+          ), // PROJECT TIMELINE
+          SectionCard(
+            title: "Project Timeline",
+            icon: LucideIcons.indianRupee,
+            iconColor: AppColor.primary,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Survey Date",
+                    value:
+                        widget.project.surveyDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.surveyDate!,
+                            )
+                            : "-",
+                  ),
+                  horizontalSpacing(),
+                  buildColumnTitleValue(
+                    title: "Expected Start Date",
+                    value:
+                        widget.project.expectedStartDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.expectedStartDate!,
+                            )
+                            : "-",
+                  ),
+                ],
+              ),
+
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Execution Start Date",
+                    value:
+                        widget.project.executionStartDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.executionStartDate!,
+                            )
+                            : "-",
+                  ),
+                ],
+              ),
+            ],
+          ), // CONTACT INFORMATION
+          SectionCard(
+            title: "Site Contact Information",
+            icon: LucideIcons.contactRound,
+            iconColor: AppColor.darkGreen10,
+            iconContainerColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+            children: [
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColor.grey2.withValues(alpha: 0.5),
+                  ),
+                  //   boxShadow: [
+                  //   BoxShadow(
+                  //     color: AppColor.black.withValues(alpha: 0.2),
+                  //     blurRadius: 2,
+                  //     spreadRadius: 0,
+                  //     offset: Offset(0, 2),
+                  //   ),
+                  //   BoxShadow(
+                  //     color: AppColor.black.withValues(alpha: 0.0),
+                  //     blurRadius: 0,
+                  //     spreadRadius: 0,
+                  //     offset: Offset(0, 2),
+                  //   ),
+                  //   BoxShadow(
+                  //     color: AppColor.black.withValues(alpha: 0.0),
+                  //     blurRadius: 0,
+                  //     spreadRadius: 0,
+                  //     offset: Offset(0, 0),
+                  //   ),
+                  // ],
                 ),
-              ],
-            ),
-          ),
-          // CONTACT INFORMATION
-          Container(
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Contact Information", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "Site Contact Name",
+                    buildRowTitleValue(
+                      title: "Name",
                       value:
                           widget.project.siteContactName.isNotEmpty
                               ? widget.project.siteContactName
                               : "-",
                     ),
-                    buildColumnTitleValue(
-                      title: "Site Contact Mobile Number",
+                    buildRowTitleValue(
+                      title: "Designation",
+                      value:
+                          widget.project.siteContactDesignation.isNotEmpty
+                              ? widget.project.siteContactDesignation
+                              : "-",
+                    ),
+                    buildRowTitleValue(
+                      title: "Mobile Number",
                       value:
                           widget.project.siteContactMobileNumber.isNotEmpty
                               ? widget.project.siteContactMobileNumber
@@ -1031,20 +1065,116 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     ),
                   ],
                 ),
-                verticalSpacing(),
-                Row(
+              ),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColor.grey2.withValues(alpha: 0.5),
+                  ),
+                  //   boxShadow: [
+                  //   BoxShadow(
+                  //     color: AppColor.black.withValues(alpha: 0.2),
+                  //     blurRadius: 2,
+                  //     spreadRadius: 0,
+                  //     offset: Offset(0, 2),
+                  //   ),
+                  //   BoxShadow(
+                  //     color: AppColor.black.withValues(alpha: 0.0),
+                  //     blurRadius: 0,
+                  //     spreadRadius: 0,
+                  //     offset: Offset(0, 2),
+                  //   ),
+                  //   BoxShadow(
+                  //     color: AppColor.black.withValues(alpha: 0.0),
+                  //     blurRadius: 0,
+                  //     spreadRadius: 0,
+                  //     offset: Offset(0, 0),
+                  //   ),
+                  // ],
+                ),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "Project Status",
-                      value: widget.project.projectStatus,
+                    buildRowTitleValue(
+                      title: "Name",
+                      value:
+                          widget.project.siteContact2Name.isNotEmpty
+                              ? widget.project.siteContact2Name
+                              : "-",
+                    ),
+                    buildRowTitleValue(
+                      title: "Designation",
+                      value:
+                          widget.project.siteContact2Designation.isNotEmpty
+                              ? widget.project.siteContact2Designation
+                              : "-",
+                    ),
+                    buildRowTitleValue(
+                      title: "Mobile Number",
+                      value:
+                          widget.project.siteContact2MobileNumber.isNotEmpty
+                              ? widget.project.siteContact2MobileNumber
+                              : "-",
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
+                        value: widget.project.siteContact2MobileNumber,
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          // ACTION DETaILS
+              ),
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: AppColor.grey2.withValues(alpha: 0.5),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.project.siteContact3Name.isNotEmpty
+                                    ? widget.project.siteContact3Name
+                                    : "-",
+                                style: AppTextStyle.ts14M(),
+                              ),
+                              Text(
+                                widget
+                                        .project
+                                        .siteContact3Designation
+                                        .isNotEmpty
+                                    ? widget.project.siteContact3Designation
+                                    : "-",
+                                style: AppTextStyle.ts12M(color: AppColor.grey),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: CustomClickToContactText(
+                            countryCode: "+91",
+                            value: widget.project.siteContact3MobileNumber,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ), // ACTION DETaILS
           actionCardWidget(
             createdBy: widget.project.createdBy,
             createdDate: widget.project.createdDate,

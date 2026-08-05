@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -17,6 +16,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -290,13 +290,12 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: ProposedOfferTile(
+                            child: CardHeaderTile(
                               icon: index == 0 ? LucideIcons.building2 : null,
                               svgIcon:
                                   index == 0
                                       ? null
                                       : _proposedOfferIcons[index],
-
                               title: _proposedOfferTypeList[index],
                             ),
                           ),
