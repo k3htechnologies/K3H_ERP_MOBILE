@@ -1982,8 +1982,9 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                             module.subSubModuleName,
                                             style: AppTextStyle.ts16SB(),
                                           ),
-                                          if (module.employeeData.length >
-                                              0) ...[
+                                          if (module
+                                              .employeeData
+                                              .isNotEmpty) ...[
                                             RichText(
                                               text: TextSpan(
                                                 text: "Assigned Employee: ",

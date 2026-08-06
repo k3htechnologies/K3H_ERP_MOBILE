@@ -21,7 +21,6 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SourcingViewScreen extends StatefulWidget {
   final ChannelPartnerModel channelPartner;

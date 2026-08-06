@@ -6,9 +6,27 @@ import 'package:flutter_quill/quill_delta.dart' as quill_delta;
 import 'package:html/parser.dart' as html_parser;
 import 'package:html/dom.dart' as dom;
 import 'package:flutter_quill_delta_from_html/flutter_quill_delta_from_html.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart' as vsc;
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/theme/theme.dart';
+
+/// Strips an 8-digit alpha-channel suffix/prefix from hex colors, leaving
+/// plain 6-digit hex (`#RRGGBB`).
+///
+/// `vsc_quill_delta_to_html` emits colors as `#RRGGBBAA` (CSS order), while
+/// Dart's `Color` class — and by extension how `flutter_quill_delta_from_html`
+/// re-parses colors when HTML is loaded back into the editor — expects
+/// `#AARRGGBB` (alpha first). Round-tripping an 8-digit color through both
+/// libraries silently reinterprets the bytes and produces the wrong color
+/// (e.g. a pink `#F06292FF` coming back as blue). Since text color is always
+/// fully opaque in practice, dropping the alpha byte on both the way out and
+/// the way in removes the ambiguity entirely.
+String _normalizeHexColors(String html) {
+  return html.replaceAllMapped(
+    RegExp(r'#([0-9A-Fa-f]{6})[0-9A-Fa-f]{2}\b'),
+    (m) => '#${m.group(1)}',
+  );
+}
 
 /// Sanitizes/normalizes an HTML string coming out of (or going into) Quill.
 ///
@@ -40,6 +58,9 @@ String cleanHtml(String? html) {
   }
 
   var cleaned = document.outerHtml;
+
+  // Drop alpha channel from any 8-digit hex colors (see _normalizeHexColors).
+  cleaned = _normalizeHexColors(cleaned);
 
   // Treat Quill's empty placeholder (or any tag-only content) as blank.
   final strippedText = cleaned.replaceAll(RegExp(r'<(.|\n)*?>'), '').trim();
@@ -172,18 +193,97 @@ class _RichTextEditorState extends State<RichTextEditor> {
     final delta = _controller.document.toDelta();
     final converter = vsc.QuillDeltaToHtmlConverter(
       delta.toJson().cast<Map<String, dynamic>>(),
-      vsc.ConverterOptions.forEmail(),
+      vsc.ConverterOptions(
+        converterOptions: vsc.OpConverterOptions(inlineStylesFlag: true),
+        sanitizerOptions: vsc.OpAttributeSanitizerOptions(
+          allow8DigitHexColors: true,
+        ),
+      ),
     );
     final html = converter.convert();
     return cleanHtml(html);
   }
 
   /// HTML -> Delta, using `flutter_quill_delta_from_html`.
+  ///
+  /// `flutter_quill_delta_from_html` only reads `text-align` off `<p>`
+  /// elements — it does not currently support alignment on `<li>` elements
+  /// inside `<ol>`/`<ul>` (this is a documented gap in the package, not a
+  /// bug in this widget). To round-trip list-item alignment correctly, we
+  /// parse the raw HTML ourselves just for `<li>` alignment, then splice
+  /// that onto the resulting Delta's list-line ops after conversion.
   void _applyHtmlToController(String html) {
-    final delta = HtmlToDelta().convert(html.isEmpty ? '<p><br></p>' : html);
-    _controller.document = quill.Document.fromDelta(
-      quill_delta.Delta.fromJson(delta.toJson()),
-    );
+    final source = html.isEmpty ? '<p><br></p>' : html;
+    final rawDelta = HtmlToDelta().convert(source);
+    var delta = quill_delta.Delta.fromJson(rawDelta.toJson());
+    delta = _applyListAlignmentFromHtml(source, delta);
+    _controller.document = quill.Document.fromDelta(delta);
+  }
+
+  /// Extracts `text-align` from each `<li>` in [html], in document order,
+  /// and applies it as an `align` attribute to the corresponding list-line
+  /// op in [delta] (the `\n` insert carrying a `list` attribute).
+  ///
+  /// Caveat: matching is positional (Nth `<li>` -> Nth list-line op), which
+  /// holds for flat and simple nested lists but could mismatch on deeply
+  /// irregular nested-list HTML. Good enough for the common case; revisit
+  /// if you see misaligned items in heavily nested lists.
+  quill_delta.Delta _applyListAlignmentFromHtml(
+    String html,
+    quill_delta.Delta delta,
+  ) {
+    final fragment = html_parser.parseFragment(html);
+    final liAligns = <String?>[];
+
+    void collectLis(dom.Node node) {
+      if (node is dom.Element) {
+        if (node.localName == 'li') {
+          final style = node.attributes['style'] ?? '';
+          final match = RegExp(
+            r'text-align\s*:\s*(left|center|right|justify)',
+          ).firstMatch(style);
+          liAligns.add(match?.group(1));
+        }
+        for (final child in node.nodes.toList()) {
+          collectLis(child);
+        }
+      }
+    }
+
+    for (final node in fragment.nodes.toList()) {
+      collectLis(node);
+    }
+
+    if (liAligns.isEmpty || liAligns.every((a) => a == null)) {
+      return delta;
+    }
+
+    var liIndex = 0;
+    final newDelta = quill_delta.Delta();
+
+    for (final op in delta.toList()) {
+      final data = op.data;
+      final attrs = op.attributes;
+      final isListLine =
+          data is String &&
+          data == '\n' &&
+          attrs != null &&
+          attrs.containsKey('list');
+
+      if (isListLine && liIndex < liAligns.length) {
+        final align = liAligns[liIndex];
+        liIndex++;
+        if (align != null) {
+          final newAttrs = Map<String, dynamic>.from(attrs)..['align'] = align;
+          newDelta.push(quill_delta.Operation.insert(data, newAttrs));
+          continue;
+        }
+      }
+
+      newDelta.push(op);
+    }
+
+    return newDelta;
   }
 
   // ✅ DEBOUNCED CHANGE HANDLER (mirrors the 200ms setTimeout debounce)
@@ -244,17 +344,13 @@ class _RichTextEditorState extends State<RichTextEditor> {
               RichText(
                 text: TextSpan(
                   text: widget.label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
+                  style: AppTextStyle.ts14R(),
                   children:
                       widget.isRequired
                           ? [
                             const TextSpan(
                               text: ' *',
-                              style: TextStyle(color: Colors.red),
+                              style: TextStyle(color: AppColor.red),
                             ),
                           ]
                           : null,
@@ -289,23 +385,45 @@ class _RichTextEditorState extends State<RichTextEditor> {
                     quill.QuillSimpleToolbar(
                       controller: _controller,
                       config: const quill.QuillSimpleToolbarConfig(
+                        // Text styles
                         showBoldButton: true,
                         showItalicButton: true,
                         showUnderLineButton: true,
                         showStrikeThrough: true,
-                        showFontSize: true,
+
+                        // Dropdowns
                         showFontFamily: true,
+                        showFontSize: false, // Hide size
+                        showHeaderStyle: true, // Shows "Normal"
+                        // Colors
                         showColorButton: true,
                         showBackgroundColorButton: true,
+
+                        // Alignment
                         showAlignmentButtons: true,
+
+                        // Lists
                         showListNumbers: true,
                         showListBullets: true,
+
+                        // Clear formatting
                         showClearFormat: true,
-                        showHeaderStyle: false,
+
+                        // Hide everything else
                         showQuote: false,
                         showLink: false,
                         showCodeBlock: false,
                         showSearchButton: false,
+                        showRedo: false,
+                        showUndo: false,
+                        showDividers: false,
+                        showListCheck: false,
+                        showSubscript: false,
+                        showSuperscript: false,
+                        showSmallButton: false,
+                        showIndent: false,
+                        showInlineCode: false,
+                        showDirection: false,
                       ),
                     ),
                   Padding(
@@ -317,6 +435,7 @@ class _RichTextEditorState extends State<RichTextEditor> {
                       controller: _controller,
                       focusNode: _focusNode,
                       scrollController: _scrollController,
+
                       config: quill.QuillEditorConfig(
                         placeholder: widget.placeholder,
                         autoFocus: false,
@@ -339,8 +458,7 @@ class _RichTextEditorState extends State<RichTextEditor> {
                       ),
                       child: Text(
                         errorText ?? widget.helperText ?? '',
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyle.ts12R(
                           color:
                               errorText != null
                                   ? AppColor.error
