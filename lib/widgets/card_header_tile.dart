@@ -19,8 +19,8 @@ class CardHeaderTile extends StatelessWidget {
     this.icon,
     required this.title,
     this.backgroundColor = const Color(0xffF5F6F8),
-    this.iconSize = 18,
-    this.containerSize = 34,
+    this.iconSize = 20,
+    this.containerSize = 32,
     this.iconColor,
     this.textStyle,
   }) : assert(
@@ -47,7 +47,11 @@ class CardHeaderTile extends StatelessWidget {
                     height: iconSize,
                     width: iconSize,
                   )
-                  : Icon(icon, size: 22, color: iconColor ?? AppColor.darkBlue),
+                  : Icon(
+                    icon,
+                    size: iconSize,
+                    color: iconColor ?? AppColor.darkBlue,
+                  ),
         ),
         const SizedBox(width: 12),
         Expanded(

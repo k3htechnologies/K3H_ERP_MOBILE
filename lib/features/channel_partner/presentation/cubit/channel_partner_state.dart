@@ -11,6 +11,7 @@ class ChannelPartnerState extends BaseState {
   final int currentChannelPartnerAopPage;
 
   final String searchText;
+  final String filterByCpCode;
   final String filterByCompanyName;
   final String filterByDesignation;
   final String filterByFirmType;
@@ -26,6 +27,7 @@ class ChannelPartnerState extends BaseState {
   final String filterByVillage;
   final String filterByNoOfIBM;
   final String filterByNoOfOBM;
+  final String filterByAopStatus;
   final String currentSortColumn;
   final String currentSortDirection;
 
@@ -38,6 +40,7 @@ class ChannelPartnerState extends BaseState {
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
+    required this.filterByCpCode,
     required this.filterByCompanyName,
     required this.filterByDesignation,
     required this.filterByFirmType,
@@ -53,7 +56,7 @@ class ChannelPartnerState extends BaseState {
     required this.filterByVillage,
     required this.filterByNoOfIBM,
     required this.filterByNoOfOBM,
-
+    required this.filterByAopStatus,
     required this.currentSortColumn,
     required this.currentSortDirection,
     required this.channelPartnerAopList,
@@ -67,6 +70,7 @@ class ChannelPartnerState extends BaseState {
     totalNumberOfRecord: 0,
     currentPage: 1,
     searchText: "",
+    filterByCpCode: "",
     filterByCompanyName: "",
     filterByDesignation: "",
     filterByFirmType: "",
@@ -85,6 +89,7 @@ class ChannelPartnerState extends BaseState {
     isLoading: true,
     currentSortColumn: "",
     currentSortDirection: "",
+    filterByAopStatus: "",
     channelPartnerAopList: [],
     totalNumberOfChannelPartnerAopRecord: 0,
     currentChannelPartnerAopPage: 1,
@@ -99,7 +104,7 @@ class ChannelPartnerState extends BaseState {
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
-
+    String? filterByCpCode,
     String? filterByCompanyName,
     String? filterByDesignation,
     String? filterByFirmType,
@@ -115,7 +120,7 @@ class ChannelPartnerState extends BaseState {
     String? filterByVillage,
     String? filterByNoOfIBM,
     String? filterByNoOfOBM,
-
+    String? filterByAopStatus,
     String? currentSortColumn,
     String? currentSortDirection,
 
@@ -135,7 +140,8 @@ class ChannelPartnerState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
-
+      filterByAopStatus: filterByAopStatus ?? this.filterByAopStatus,
+      filterByCpCode: filterByCpCode ?? this.filterByCpCode,
       filterByCompanyName: filterByCompanyName ?? this.filterByCompanyName,
       filterByDesignation: filterByDesignation ?? this.filterByDesignation,
       filterByFirmType: filterByFirmType ?? this.filterByFirmType,
@@ -176,7 +182,7 @@ class ChannelPartnerState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     searchText,
-
+    filterByCpCode,
     filterByCompanyName,
     filterByDesignation,
     filterByFirmType,
@@ -192,7 +198,7 @@ class ChannelPartnerState extends BaseState {
     filterByVillage,
     filterByNoOfIBM,
     filterByNoOfOBM,
-
+    filterByAopStatus,
     currentSortColumn,
     currentSortDirection,
     channelPartnerAopList,

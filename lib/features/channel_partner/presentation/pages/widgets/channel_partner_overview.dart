@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -83,62 +84,10 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                                     style: AppTextStyle.ts18SB(),
                                   ),
                                 ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 14,
-                                    vertical: 6,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        (channelPartnerModel.noOfEnquiry > 0)
-                                            ? AppColor.lightGreenBg.withValues(
-                                              alpha: .3,
-                                            )
-                                            : AppColor.lightRed2,
-                                    borderRadius: BorderRadius.circular(30),
-                                    border: Border.all(
-                                      color:
-                                          channelPartnerModel.noOfEnquiry > 0
-                                              ? AppColor.darkGreen.withValues(
-                                                alpha: 0.2,
-                                              )
-                                              : AppColor.red.withValues(
-                                                alpha: 0.2,
-                                              ),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Container(
-                                        width: 8,
-                                        height: 8,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              (channelPartnerModel.noOfEnquiry >
-                                                      0)
-                                                  ? AppColor.darkGreen
-                                                      .withValues(alpha: 0.8)
-                                                  : AppColor.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      horizontalSpacing(width: 6),
-                                      Text(
-                                        channelPartnerModel.noOfEnquiry > 0
-                                            ? "ACTIVE"
-                                            : "INACTIVE",
-                                        style: AppTextStyle.ts12SB(
-                                          color:
-                                              channelPartnerModel.noOfEnquiry >
-                                                      0
-                                                  ? AppColor.darkGreen
-                                                      .withValues(alpha: 0.8)
-                                                  : AppColor.darkRed,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                activeInactiveStatusWidget(
+                                  channelPartnerModel.noOfEnquiry > 0
+                                      ? "ACTIVE"
+                                      : "INACTIVE",
                                 ),
                               ],
                             ),
@@ -196,11 +145,12 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
               ),
             ),
 
-            _channelPartnerSectionCard(
+            SectionCard(
               title: "Compliance Status",
-              bgColor: AppColor.lightPurple,
+              iconContainerColor: AppColor.lightPurple,
               iconColor: AppColor.purple,
               icon: LucideIcons.handshake,
+              childSpacing: 0,
               children: [
                 GestureDetector(
                   onTap: () {
@@ -270,7 +220,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                             .resetAopState();
                       },
                       child: Text(
-                        "View Status Matrics",
+                        "View Sales Matrics",
                         style: AppTextStyle.ts12SB(
                           color: AppColor.primary,
                         ).copyWith(
@@ -283,11 +233,12 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _channelPartnerSectionCard(
+            SectionCard(
               title: "Personal Information",
-              bgColor: AppColor.lightBlue,
+              iconContainerColor: AppColor.lightBlue,
               iconColor: AppColor.primary,
               icon: LucideIcons.user,
+              childSpacing: 0,
               children: [
                 buildRowTitleValue(
                   singleLine: false,
@@ -325,51 +276,19 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                   singleLine: false,
                   title: "Website",
                   value: channelPartnerModel.websiteURL,
-                  customValueWidget: GestureDetector(
-                    onTap: () async {
-                      final url = channelPartnerModel.websiteURL;
-
-                      if (url.isNotEmpty) {
-                        final Uri uri = Uri.parse(url);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(
-                            uri,
-                            mode: LaunchMode.externalApplication,
-                          );
-                        } else {
-                          debugPrint("Could not launch URL: $url");
-                        }
-                      }
-                    },
-                    child: Text(
-                      channelPartnerModel.websiteURL.isEmpty
-                          ? "-"
-                          : channelPartnerModel.websiteURL,
-                      style: AppTextStyle.ts14M(
-                        color:
-                            channelPartnerModel.websiteURL.isEmpty
-                                ? null
-                                : AppColor.primary,
-                      ).copyWith(
-                        decoration:
-                            channelPartnerModel.websiteURL.isEmpty
-                                ? TextDecoration.none
-                                : TextDecoration.underline,
-                        decorationColor:
-                            channelPartnerModel.websiteURL.isEmpty
-                                ? null
-                                : AppColor.primary,
-                      ),
-                    ),
+                  customValueWidget: CustomClickToContactText(
+                    value: channelPartnerModel.websiteURL ,
+                    type: ContactType.url,
                   ),
                 ),
               ],
             ),
-            _channelPartnerSectionCard(
+            SectionCard(
               title: "Business Information",
-              bgColor: AppColor.lightGreenBg.withValues(alpha: 0.2),
+              iconContainerColor: AppColor.lightGreenBg.withValues(alpha: 0.2),
               iconColor: AppColor.darkGreen,
               icon: LucideIcons.briefcaseBusiness,
+              childSpacing: 0,
               children: [
                 buildRowTitleValue(
                   singleLine: false,
@@ -412,11 +331,12 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _channelPartnerSectionCard(
+            SectionCard(
               title: "Address Details",
-              bgColor: AppColor.lightOrange.withValues(alpha: 0.4),
+              iconContainerColor: AppColor.lightOrange.withValues(alpha: 0.4),
               iconColor: AppColor.rustOrange,
               icon: LucideIcons.map,
+              childSpacing: 0,
               children: [
                 buildRowTitleValue(
                   singleLine: false,
@@ -453,11 +373,12 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _channelPartnerSectionCard(
-              title: "Sales Matrix",
-              bgColor: AppColor.lightGreyBackground,
+            SectionCard(
+              title: "Sales Metric",
+              iconContainerColor: AppColor.lightGreyBackground,
               iconColor: AppColor.grey,
               icon: LucideIcons.chartNoAxesCombined,
+              childSpacing: 0,
               children: [
                 buildRowTitleValue(
                   singleLine: false,
@@ -480,7 +401,13 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                   title: "Brokerage Amount (₹)",
                   value: channelPartnerModel.brokerageAmount.toIndianCurrency(),
                 ),
-
+                buildRowTitleValue(
+                  singleLine: false,
+                  title: "Paid Brokerage Amount (₹)",
+                  value:
+                      channelPartnerModel.paidBrokerageAmount
+                          .toIndianCurrency(),
+                ),
                 buildRowTitleValue(
                   singleLine: false,
                   title: "No Of IBM",
@@ -494,24 +421,27 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ),
               ],
             ),
-            _channelPartnerSectionCard(
+            SectionCard(
               title: "Assigned Project",
-              bgColor: AppColor.lightBlue,
+              iconContainerColor: AppColor.lightBlue,
               iconColor: AppColor.primary,
               icon: LucideIcons.building2,
+              childSpacing: 0,
               children: [
-                _projectPortfolioWidget(
-                  primaryProject: channelPartnerModel.primaryProjectPortfolio,
-                  secondaryProjects:
-                      channelPartnerModel.secondaryProjectPortfolio,
-                  micromarketProximity:
-                      channelPartnerModel.micromarketProximity,
+                Center(
+                  child: _projectPortfolioWidget(
+                    primaryProject: channelPartnerModel.primaryProjectPortfolio,
+                    secondaryProjects:
+                        channelPartnerModel.secondaryProjectPortfolio,
+                    micromarketProximity:
+                        channelPartnerModel.micromarketProximity,
+                  ),
                 ),
               ],
             ),
-            _channelPartnerSectionCard(
+            SectionCard(
               title: "Action Details",
-              bgColor: AppColor.greyBackground,
+              iconContainerColor: AppColor.greyBackground,
               iconColor: AppColor.grey,
               icon: LucideIcons.history,
               children: [
@@ -552,42 +482,6 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
         ),
       );
     },
-  );
-}
-
-Widget _channelPartnerSectionCard({
-  required String title,
-  required IconData icon,
-  required Color? iconColor,
-  required Color? bgColor,
-  required List<Widget> children,
-}) {
-  return Container(
-    decoration: commonCardDecoration(),
-    margin: EdgeInsets.only(bottom: 12.h),
-    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-    child: Column(
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          spacing: 10,
-          children: [
-            Container(
-              height: 32.h,
-              width: 32.w,
-              decoration: BoxDecoration(
-                color: bgColor ?? AppColor.lightBlue,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Icon(icon, color: iconColor ?? AppColor.primary, size: 22),
-            ),
-            Text(title, style: AppTextStyle.ts14SB(color: AppColor.grey)),
-          ],
-        ),
-        verticalSpacing(height: 4),
-        ...children,
-      ],
-    ),
   );
 }
 

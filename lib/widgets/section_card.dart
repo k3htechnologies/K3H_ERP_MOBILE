@@ -14,6 +14,7 @@ class SectionCard extends StatelessWidget {
   final Color iconContainerColor;
   final Color? iconColor;
   final List<Widget> children;
+  final double? childSpacing;
 
   const SectionCard({
     super.key,
@@ -24,6 +25,7 @@ class SectionCard extends StatelessWidget {
     this.titleTextColor,
     this.iconContainerColor = AppColor.lightBlue,
     this.iconColor,
+    this.childSpacing,
   });
 
   @override
@@ -39,7 +41,7 @@ class SectionCard extends StatelessWidget {
             title: title,
             textStyle:
                 titleTextStyle ??
-                AppTextStyle.ts16SB().copyWith(color: titleTextColor),
+                AppTextStyle.ts14SB().copyWith(color: titleTextColor),
             icon: icon,
             backgroundColor: iconContainerColor,
             iconColor: iconColor,
@@ -51,7 +53,7 @@ class SectionCard extends StatelessWidget {
               children.length,
               (index) => Padding(
                 padding: EdgeInsets.only(
-                  bottom: index == children.length - 1 ? 0 : 10,
+                  bottom: index == children.length - 1 ? 0 : childSpacing ?? 10,
                 ),
                 child: children[index],
               ),

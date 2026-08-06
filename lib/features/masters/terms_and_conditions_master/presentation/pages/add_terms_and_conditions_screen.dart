@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/text_field/rich_text_editor.dart';
 import 'package:k3h_erp_app/widgets/text_field/rich_text_input.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -183,12 +184,13 @@ class _AddTermsAndConditionsScreenState
                       },
                     ),
                     verticalSpacing(),
-                    RichTextInput(
-                      initialText: _descriptionC.text,
-                      label: "Description",
+                    RichTextEditor(
+                      name: 'description',
+                      value: _descriptionC.text,
+                      label: 'Description',
                       isRequired: true,
-                      hintText: 'Enter Description',
-                      onFormattedTextChanged: (value) {
+                      placeholder: 'Enter Description',
+                      onChange: (value) {
                         _descriptionC.text = value;
                       },
                       validator: (value) {

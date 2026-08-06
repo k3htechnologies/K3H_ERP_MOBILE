@@ -572,33 +572,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     buildColumnTitleValue(
                       title: "Website URL",
                       value: widget.channelPartner.websiteURL,
-                      customValueWidget: GestureDetector(
-                        onTap: () async {
-                          final url = widget.channelPartner.websiteURL;
-
-                          if (url.isNotEmpty) {
-                            final Uri uri = Uri.parse(url);
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            } else {
-                              debugPrint("Could not launch URL: $url");
-                            }
-                          }
-                        },
-                        child: Text(
-                          widget.channelPartner.websiteURL.isEmpty
-                              ? "-"
-                              : widget.channelPartner.websiteURL,
-                          style: AppTextStyle.ts14M(
-                            color: AppColor.primary,
-                          ).copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColor.primary,
-                          ),
-                        ),
+                      customValueWidget: CustomClickToContactText(
+                        value: widget.channelPartner.websiteURL,
+                        type: ContactType.url,
                       ),
                     ),
                     Spacer(),

@@ -126,6 +126,7 @@ class _AddAssetMappingMasterScreenState
         'assetType': assetMapping.assetType,
         'assetBrand': assetMapping.assetBrand,
         'serialNumber': assetMapping.serialNumber,
+        'purchaseDate': assetMapping.purchaseDate,
       },
     ];
     _assignedDateNotifier.value = assetMapping.assignedDate;

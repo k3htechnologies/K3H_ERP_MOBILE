@@ -411,38 +411,38 @@ const yearValues = [
 ];
 
 const supportValues = [
-  "Below The Line (BTL)",
-  "Paper Insert",
-  "Standee Require",
-  "Video Recording",
+  'Below The Line (BTL)',
+  'Paper Insert',
+  'Standee Require',
+  'Video Recording',
 ];
 
 const paymentModeValues = [
-  "Cheque",
-  "Demand Draft",
-  "IMPS",
-  "NEFT",
-  "Online Transfer",
-  "RTGS",
-  "UPI",
+  'Cheque',
+  'Demand Draft',
+  'IMPS',
+  'NEFT',
+  'Online Transfer',
+  'RTGS',
+  'UPI',
 ];
 
-const paymentTypeValues = ["Full", "Partial"];
+const paymentTypeValues = ['Full', 'Partial'];
 
-const financialYearValues = ["2025-26", "2026-27", "2027-28"];
+const financialYearValues = ['2025-26', '2026-27', '2027-28'];
 
-const paymentReceivedFormValues = ["Bank", "Owner"];
+const paymentReceivedFormValues = ['Bank', 'Owner'];
 const paymentForValues = [
-  "Stamp Duty",
-  "Registration Fees",
-  "Agreement Value (Without TDS)",
-  "Agreement Value GST",
-  "Agreement Value TDS",
-  "Other Charges Value",
-  "Other Charges GST",
+  'Stamp Duty',
+  'Registration Fees',
+  'Agreement Value (Without TDS)',
+  'Agreement Value GST',
+  'Agreement Value TDS',
+  'Other Charges Value',
+  'Other Charges GST',
 ];
 
-const unitSqFtLumsumValues = ["Per SqFt", "Lump Sum"];
+const unitSqFtLumsumValues = ['Per SqFt', 'Lump Sum'];
 
 const propertyTypeValues = ['Residential', 'Commercial'];
 const tenureValues = [
@@ -462,12 +462,14 @@ const tenureValues = [
   'Tenure 14',
 ];
 const tenderPaymentModeValues = [
-  "Cheque",
-  "Cash",
-  "Demand Draft",
-  "IMPS",
-  "NEFT",
-  "Pay Order",
-  "RTGS",
-  "UPI",
+  'Cheque',
+  'Cash',
+  'Demand Draft',
+  'IMPS',
+  'NEFT',
+  'Pay Order',
+  'RTGS',
+  'UPI',
 ];
+
+const aopStatusValues = ['AOP', 'NON - AOP', 'EXPIRED', 'EXPIRE SOON'];

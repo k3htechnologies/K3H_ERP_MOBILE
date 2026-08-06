@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
+import 'package:k3h_erp_app/widgets/status/active_inactive_status.dart';
 import 'package:k3h_erp_app/widgets/status/aop_status.dart';
 import 'package:k3h_erp_app/widgets/status/approval_status.dart';
 import 'package:k3h_erp_app/widgets/status/call_log_status.dart';
@@ -96,5 +98,30 @@ Widget channelPartnerCategoryStatusWidget(
     status: localStatus,
     config: channelPartnerCategoryStatusConfig,
     textStyle: textStyle,
+  );
+}
+
+Widget activeInactiveStatusWidget(
+  String status, {
+  TextStyle? textStyle,
+  Widget? leading,
+  Widget? trailing,
+}) {
+  return commonStatusWidget(
+    status: status,
+    config: activeInactiveStatusConfig,
+    textStyle: textStyle,
+    leading: Container(
+      width: 8,
+      height: 8,
+      decoration: BoxDecoration(
+        color:
+            status.toLowerCase() == 'active'
+                ? AppColor.darkGreen.withValues(alpha: 0.8)
+                : AppColor.red,
+        shape: BoxShape.circle,
+      ),
+    ),
+    trailing: trailing,
   );
 }

@@ -238,3 +238,7 @@ final List<Map<String, dynamic>> tenureList = createAttributeList(tenureValues);
 final List<Map<String, dynamic>> tenurePaymentModeList = createAttributeList(
   tenderPaymentModeValues,
 );
+
+final List<Map<String, dynamic>> aopStatusList = createAttributeList(
+  aopStatusValues,
+);

@@ -110,11 +110,16 @@ class CustomClickToContactText extends StatelessWidget {
     } else if (type == ContactType.email) {
       uri = Uri(scheme: 'mailto', path: value.trim());
     } else {
-      // URL / Google Map / Website
+      String url = value.trim();
+
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://$url';
+      }
+
       try {
-        uri = Uri.parse(value.trim());
+        uri = Uri.parse(url);
       } catch (_) {
-        debugPrint("Invalid URL: $value");
+        debugPrint("Invalid URL: $url");
         return;
       }
     }

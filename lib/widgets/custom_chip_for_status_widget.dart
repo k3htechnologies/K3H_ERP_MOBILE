@@ -23,10 +23,12 @@ Widget statusChip(
     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
     decoration: BoxDecoration(
       color: bg,
+      border: Border.all(color: txtC.withValues(alpha: 0.5), width: 0.5),
       borderRadius: BorderRadius.circular(20),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         if (leading != null) leading,
         if (leading != null) SizedBox(width: spacing),

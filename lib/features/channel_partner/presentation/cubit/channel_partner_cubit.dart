@@ -43,6 +43,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
   Future applyChannelPartnerFilterAndSort({
     required BuildContext context,
     String? fullName,
+    String? cpCode,
     String? companyName,
     String? designation,
     String? firmType,
@@ -58,6 +59,7 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
     String? village,
     String? noOfIBM,
     String? noOfOBM,
+    String? aopStatus,
     String? sortColumn,
     String? sortDirection,
     bool? isClear,
@@ -81,7 +83,9 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
           filterByCity: "",
           filterByVillage: "",
           filterByNoOfIBM: "",
+          filterByCpCode: "",
           filterByNoOfOBM: "",
+          filterByAopStatus: "",
           currentSortColumn: "",
           currentSortDirection: "",
           currentPage: 1,
@@ -104,12 +108,13 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
           filterByAadhaarNumber: aadhaarNumber ?? state.filterByAadhaarNumber,
           filterBySpeciality: speciality ?? state.filterBySpeciality,
           filterByCity: city ?? state.filterByCity,
+          filterByCpCode: cpCode ?? state.filterByCpCode,
           filterByVillage: village ?? state.filterByVillage,
           filterByNoOfIBM: noOfIBM ?? state.filterByNoOfIBM,
           filterByNoOfOBM: noOfOBM ?? state.filterByNoOfOBM,
+          filterByAopStatus: aopStatus ?? state.filterByAopStatus,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
-
           currentPage: 1,
         ),
       );
@@ -138,7 +143,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       "VillageName": state.filterByVillage,
       "NoOfIBM": state.filterByNoOfIBM,
       "NoOfOBM": state.filterByNoOfOBM,
-
+      "SystemGeneratedCode": state.filterByCpCode,
+      "AOPStatus": state.filterByAopStatus,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _channelPartnerRepository.getChannelPartnerList(
@@ -564,6 +570,8 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       state.filterByVillage.trim().isNotEmpty,
       state.filterByNoOfIBM.trim().isNotEmpty,
       state.filterByNoOfOBM.trim().isNotEmpty,
+      state.filterByCpCode.trim().isNotEmpty,
+      state.filterByAopStatus.trim().isNotEmpty,
       hasSort,
     ]);
   }
