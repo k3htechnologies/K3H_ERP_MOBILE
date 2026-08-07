@@ -78,8 +78,10 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     deletedFileList: "",
   );
 
-  DateTime? transactionDate;
+  // DateTime? transactionDate;
 
+  late ValueNotifier<DateTime?> transactionDateNotifier;
+  late ValueNotifier<MultiFilePickerModel?> selectedImageNotifier;
   //EDIT MODE
   bool get _isEditMode => widget.editPaymentLedger != null;
 
@@ -114,6 +116,8 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _selectedPaymentreceivedFromNotifier = ValueNotifier<Map<String, dynamic>?>(
       null,
     );
+    transactionDateNotifier = ValueNotifier(null);
+    selectedImageNotifier = ValueNotifier(null);
     totalAmountVN = ValueNotifier(0);
     paidAmountVN = ValueNotifier(0);
     pendingAmountVN = ValueNotifier(0);
@@ -127,9 +131,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
         await getProjectWithBankDropdown(1);
 
         _prefillPaymentLedger(widget.editPaymentLedger!);
-        if (mounted) {
-          setState(() {});
-        }
+
         if (context.mounted) {
           _paymentCubit.getPaymentLedgerSummaryList(
             context,
@@ -144,7 +146,6 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     selectedPaymentFor.dispose();
     totalAmountVN.dispose();
     paidAmountVN.dispose();
@@ -161,6 +162,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _accountTypeC.dispose();
     _natureOfAccountC.dispose();
     selectedOtherCharge.dispose();
+    transactionDateNotifier.dispose();
+    selectedImageNotifier.dispose();
+    super.dispose();
   }
 
   void _initializeControllers() {
@@ -219,12 +223,6 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     } else {
       _selectedBankNotifier.value = [];
     }
-    _selectedProjectBankNameNotifier.value = [
-      {
-        "zAttributesId": item.projectBankListMasterId,
-        "DisplayName": item.projectBankName,
-      },
-    ];
 
     final paymentReceivedFrom = paymentReceivedFormList.firstWhere(
       (e) => e['DisplayName'] == item.paymentReceivedFrom,
@@ -236,30 +234,44 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
     _transactionOrChequeNumberC.text = item.transactionChequeDemandDraftNumber;
 
-    transactionDate = item.transactionChequeDemandDraftDate;
+    transactionDateNotifier.value = item.transactionChequeDemandDraftDate;
 
     _selectedPaymentModeNotifier.value = paymentModeList.firstWhereOrNull(
       (e) => (e['DisplayName']) == item.paymentMode,
     );
 
-    selectedChequeForPopUpFile.fileNameList =
-        item.transactionChequeDemandDraftUrl.isEmpty
-            ? []
-            : item.transactionChequeDemandDraftUrl.split(",");
+    selectedImageNotifier.value = MultiFilePickerModel(
+      fileBytesList: [],
+      fileNameList: item.transactionChequeDemandDraftUrl.split(","),
+      deletedFileList: "",
+    );
+    if (item.transactionChequeDemandDraftUrl.isNotEmpty) {
+      selectedChequeForPopUpFile = selectedImageNotifier.value!;
+    }
+    if (item.projectBankListMasterId != 0 &&
+        item.projectBankName.trim().isNotEmpty) {
+      _selectedProjectBankNameNotifier.value = [
+        {
+          "zAttributesId": item.projectBankListMasterId,
+          "ProjectWithBankDetailsId": item.projectBankListMasterId,
+          "BankListMasterId": item.bankListMasterId,
+          "DisplayName":
+              "${item.projectBankName} - ${item.projectNatureOfAccount}",
+          "AccountNumber": item.projectAccountNumber,
+          "IFSCCode": item.projectIfscCode,
+          "AcType": item.projectAcType,
+          "NatureOfAccount": item.projectNatureOfAccount,
+        },
+      ];
+    } else {
+      _selectedProjectBankNameNotifier.value = [];
 
-    _selectedProjectBankNameNotifier.value = [
-      {
-        "zAttributesId": item.projectBankListMasterId,
-        "ProjectWithBankDetailsId": item.projectBankListMasterId,
-        "BankListMasterId": item.bankListMasterId,
-        "DisplayName":
-            "${item.projectBankName} - ${item.projectNatureOfAccount}",
-        "AccountNumber": item.projectAccountNumber,
-        "IFSCCode": item.projectIfscCode,
-        "AcType": item.projectAcType,
-        "NatureOfAccount": item.projectNatureOfAccount,
-      },
-    ];
+      _accountNumberC.clear();
+      _ifscCodeC.clear();
+      _branchC.clear();
+      _accountTypeC.clear();
+      _natureOfAccountC.clear();
+    }
 
     final matchedProjectBank = _projectBankList.firstWhereOrNull(
       (e) => e["ProjectWithBankDetailsId"] == item.projectBankListMasterId,
@@ -411,7 +423,8 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
             _transactionOrChequeNumberC.text.trim(),
 
         transactionChequeDemandDraftDate:
-            transactionDate?.toIso8601String().split("T").first ?? "",
+            transactionDateNotifier.value?.toIso8601String().split("T").first ??
+            "",
 
         selectedChequeUrl: selectedChequeForPopUpFile,
         uniquekey: widget.editPaymentLedger!.uniquekey.toString(),
@@ -452,7 +465,8 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
             _transactionOrChequeNumberC.text.trim(),
 
         transactionChequeDemandDraftDate:
-            transactionDate?.toIso8601String().split("T").first ?? "",
+            transactionDateNotifier.value?.toIso8601String().split("T").first ??
+            "",
 
         selectedChequeUrl: selectedChequeForPopUpFile,
       );
@@ -668,9 +682,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                       value["zAttributesId"],
                                 );
 
-                            totalAmountVN.value = model.gstValue;
+                            totalAmountVN.value = model.value;
                             paidAmountVN.value = 0;
-                            pendingAmountVN.value = model.gstValue;
+                            pendingAmountVN.value = model.value;
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -706,6 +720,16 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                               }).toList(),
                           onSelected: (value) {
                             selectedOtherCharge.value = value;
+                            final model = widget.bookingOtherChargesList
+                                .firstWhere(
+                                  (e) =>
+                                      e.bookingOtherChargesId ==
+                                      value["zAttributesId"],
+                                );
+
+                            totalAmountVN.value = model.gstValue;
+                            paidAmountVN.value = 0;
+                            pendingAmountVN.value = model.gstValue;
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -837,45 +861,60 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                         return null;
                       },
                     ),
-                    CustomMultiFilePicker(
-                      title: "Transaction / Cheque / Demand Draft Image",
-                      isRequired: true,
-                      filePickType: FilePickType.both,
-                      initialFileList: selectedChequeForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedChequeForPopUpFile.fileNameList = fileNameList;
-                        selectedChequeForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedChequeForPopUpFile.fileNameList = fileNameList;
-                        selectedChequeForPopUpFile.fileBytesList =
-                            fileBytesList;
-                        selectedChequeForPopUpFile.deletedFileList =
-                            deletedFile;
-                      },
-                      validator: (fileList) {
-                        if (fileList == null || fileList.isEmpty) {
-                          return "Transaction / Cheque / Demand Draft Image is required";
-                        }
-
-                        return null;
+                    ValueListenableBuilder<MultiFilePickerModel?>(
+                      valueListenable: selectedImageNotifier,
+                      builder: (context, value, child) {
+                        return CustomMultiFilePicker(
+                          key: ValueKey(value?.fileNameList.join(",")),
+                          title: "Transaction / Cheque / Demand Draft Image",
+                          isRequired: true,
+                          filePickType: FilePickType.both,
+                          initialFileList: value?.fileNameList ?? [],
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            selectedChequeForPopUpFile.fileNameList =
+                                fileNameList;
+                            selectedChequeForPopUpFile.fileBytesList =
+                                bytesList;
+                          },
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            selectedChequeForPopUpFile.fileNameList =
+                                fileNameList;
+                            selectedChequeForPopUpFile.fileBytesList =
+                                fileBytesList;
+                            selectedChequeForPopUpFile.deletedFileList =
+                                deletedFile;
+                          },
+                          validator: (fileList) {
+                            if (fileList == null || fileList.isEmpty) {
+                              return "Transaction / Cheque / Demand Draft Image is required";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
-                    CustomDatePicker(
-                      title: "Transaction / Cheque / Demand Draft Date",
-                      hint: "Transaction / Cheque / Demand Draft Date",
-                      isRequired: true,
-                      initialDate: transactionDate,
-                      setValue: (value) => transactionDate = value,
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Transaction / Cheque / Demand Draft Date is required';
-                        }
-                        return null;
+                    ValueListenableBuilder<DateTime?>(
+                      valueListenable: transactionDateNotifier,
+                      builder: (context, value, child) {
+                        return CustomDatePicker(
+                          title: "Transaction / Cheque / Demand Draft Date",
+                          hint: "Transaction / Cheque / Demand Draft Date",
+                          isRequired: true,
+                          initialDate: value,
+                          setValue: (value) {
+                            transactionDateNotifier.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Transaction / Cheque / Demand Draft Date is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                   ],

@@ -673,18 +673,31 @@ class _ModifiedRequestsMakePaymentScreenState
                                     }
 
                                     final enteredAmount =
-                                        double.tryParse(value.trim()) ?? 0.0;
+                                        double.tryParse(value) ?? 0;
 
-                                    final maxRefundableAmount =
+                                    final overview =
                                         context
                                             .read<PayTrackCubit>()
                                             .state
-                                            .payTrackOverview
-                                            ?.totalAmountRefundedAgainstBooking ??
-                                        0.0;
+                                            .payTrackOverview!;
 
-                                    if (enteredAmount > maxRefundableAmount) {
-                                      return "Refundable Amount cannot be greater than ${maxRefundableAmount.toIndianCurrency()}.";
+                                    final refundableLimit =
+                                        overview
+                                            .totalAmountRefundedAgainstBooking -
+                                        overview.refundedAmountOnTillDate;
+
+                                    final totalReceived =
+                                        overview
+                                            .totalAmountReceivedAgainstBooking;
+
+                                    if (enteredAmount > refundableLimit) {
+                                      return "Refundable Amount cannot be greater than "
+                                          "${refundableLimit.toIndianCurrency()}.";
+                                    }
+
+                                    if (enteredAmount > totalReceived) {
+                                      return "Refundable Amount cannot be greater than "
+                                          "${totalReceived.toIndianCurrency()}.";
                                     }
 
                                     return null;
@@ -810,6 +823,10 @@ class _ModifiedRequestsMakePaymentScreenState
   }
 
   Widget buildReceivedAmountCard(PayTrackModel data) {
+    final double otherChargesOutstandingGST =
+        data.receivedOtherChargesAmount == 0
+            ? 0
+            : (data.otherChargesAmount - data.receivedOtherChargesGstAmount);
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: EdgeInsets.all(12.0),
@@ -892,7 +909,7 @@ class _ModifiedRequestsMakePaymentScreenState
               Expanded(
                 child: buildColumnTitleValueNormal(
                   title: "Other Charges GST",
-                  value: data.otherChargesGstAmount.toIndianCurrency(),
+                  value: otherChargesOutstandingGST.toIndianCurrency(),
                 ),
               ),
               horizontalSpacing(width: 20.0),
@@ -1025,7 +1042,7 @@ class _ModifiedRequestsMakePaymentScreenState
     );
   }
 
-  Widget buildApplicantAndCoApplicantDetailsCard(BookingModel data) {
+  Widget buildApplicantAndCoApplicantDetailsCard(BookingModel booking) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1047,78 +1064,81 @@ class _ModifiedRequestsMakePaymentScreenState
               border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
             ),
             child: Text(
-              "Applicant & Co - Applicant Details",
-              style: AppTextStyle.ts14M(color: Color(0xffc2410c)),
+              "Applicant & Co-Applicant Details",
+              style: AppTextStyle.ts14M(color: const Color(0xffc2410c)),
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 2,
-                        horizontal: 6.0,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.0),
-                        color: AppColor.lightBlue,
-                      ),
-                      child: Text(
-                        data.bookingApplicantData.first.applicantType,
-                        style: AppTextStyle.ts14M(color: AppColor.primary),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(booking.bookingApplicantData.length, (
+                index,
+              ) {
+                final applicant = booking.bookingApplicantData[index];
+
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Applicant Name",
-                        value: data.bookingApplicantData.first.applicantName,
+                    if (index != 0)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(color: Colors.grey.shade300),
+                      ),
 
-                        customValueWidget: DocumentPreviewText(
-                          title: "Profile Photo",
-                          text: data.bookingApplicantData.first.applicantName,
-                          fileUrl: data.bookingApplicantData.first.photoURL,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.lightBlue,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          applicant.applicantType,
+                          style: AppTextStyle.ts14M(color: AppColor.primary),
                         ),
                       ),
                     ),
-                    horizontalSpacing(width: 20.0),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Mobile Number",
-                        value:
-                            data
-                                .bookingApplicantData
-                                .first
-                                .applicantMobileNumber,
 
-                        customValueWidget: CustomClickToContactText(
-                          countryCode:
-                              data
-                                  .bookingApplicantData
-                                  .first
-                                  .applicantMobileNumberCountryCode,
-                          value:
-                              data
-                                  .bookingApplicantData
-                                  .first
-                                  .applicantMobileNumber,
+                    const SizedBox(height: 10),
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Applicant Name",
+                            value: applicant.applicantName,
+                            customValueWidget: DocumentPreviewText(
+                              title: "Profile Photo",
+                              text: applicant.applicantName,
+                              fileUrl: applicant.photoURL,
+                            ),
+                          ),
                         ),
-                      ),
+
+                        horizontalSpacing(width: 20),
+
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Mobile Number",
+                            value: applicant.applicantMobileNumber,
+                            customValueWidget: CustomClickToContactText(
+                              countryCode:
+                                  applicant.applicantMobileNumberCountryCode,
+                              value: applicant.applicantMobileNumber,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
+                );
+              }),
             ),
           ),
         ],

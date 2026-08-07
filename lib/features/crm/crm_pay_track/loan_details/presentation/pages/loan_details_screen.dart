@@ -300,7 +300,8 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
               bankDetail.noOfBankDocument == 0
                   ? SizedBox.shrink()
                   : horizontalSpacing(),
-              bankDetail.noOfBankDocument == 0
+              _bankLoanAuthorization.isAction &&
+                      bankDetail.noOfBankDocument == 0
                   ? Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
@@ -785,34 +786,35 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                         ),
                       ),
                       horizontalSpacing(),
-                      document.bankStatusClosedActive.toLowerCase() == "closed"
-                          ? SizedBox.shrink()
-                          : CustomIconButton.add(
-                            onPressed: () {
-                              goRouter.pushNamed(
-                                AppRoutes.addBankLoanDocument,
-                                queryParameters: {
-                                  'bookingId': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      widget.bookingId.toString(),
-                                    ),
+                      if (_bankLoanAuthorization.isAction &&
+                          document.bankStatusClosedActive.toLowerCase() ==
+                              "closed")
+                        CustomIconButton.add(
+                          onPressed: () {
+                            goRouter.pushNamed(
+                              AppRoutes.addBankLoanDocument,
+                              queryParameters: {
+                                'bookingId': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    widget.bookingId.toString(),
                                   ),
+                                ),
 
-                                  'projectId': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      widget.projectId.toString(),
-                                    ),
+                                'projectId': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    widget.projectId.toString(),
                                   ),
+                                ),
 
-                                  'bookingLoanDetailsId': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      document.bookingLoanDetailsId.toString(),
-                                    ),
+                                'bookingLoanDetailsId': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    document.bookingLoanDetailsId.toString(),
                                   ),
-                                },
-                              );
-                            },
-                          ),
+                                ),
+                              },
+                            );
+                          },
+                        ),
                     ],
                   ),
                   Row(

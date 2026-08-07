@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ApproveRejectWidget extends StatelessWidget {
   final String actionTitle;
   final bool isActionAlreadyPerformed;
+  final bool showApproval;
 
   final ValueChanged<String> onApprove;
   final ValueChanged<String> onReject;
@@ -47,6 +48,7 @@ class ApproveRejectWidget extends StatelessWidget {
     this.canOpenDialog,
     this.onOpenDetails,
     this.openDetailsBeforeApproval = false,
+    this.showApproval = true,
   });
   // HANDLER FOR APPROVE/REJECT TAP - TO CHECK IF DIALOG CAN BE OPENED OR NOT
   void _handleApprovalTap(
@@ -79,7 +81,7 @@ class ApproveRejectWidget extends StatelessWidget {
                     approvalStatusWidget(actionTitle),
                   ],
                 ),
-            (isActionAlreadyPerformed && onThirdTap != null)
+            (!showApproval && onThirdTap != null)
                 ? Row(
                   children: [
                     CustomIconButton(
@@ -91,30 +93,36 @@ class ApproveRejectWidget extends StatelessWidget {
                 : Row(
                   spacing: 10.w,
                   children: [
-                    CustomIconButton(
-                      onPressed:
-                          () => _handleApprovalTap(
-                            context,
-                            actionType: "Approve",
-                            onSubmit: onApprove,
-                          ),
-                      backgroundColor: AppColor.lightGreen50,
-                      icon: Icon(approveIcon, size: 16, color: AppColor.green),
-                    ),
-                    CustomIconButton(
-                      onPressed:
-                          () => _handleApprovalTap(
-                            context,
-                            actionType: "Reject",
-                            onSubmit: onReject,
-                          ),
-                      backgroundColor: AppColor.lightRed,
-                      icon: Icon(rejectIcon, size: 16, color: AppColor.red),
-                    ),
+                    if (showApproval) ...[
+                      CustomIconButton(
+                        onPressed:
+                            () => _handleApprovalTap(
+                              context,
+                              actionType: "Approve",
+                              onSubmit: onApprove,
+                            ),
+                        backgroundColor: AppColor.lightGreen50,
+                        icon: Icon(
+                          approveIcon,
+                          size: 16,
+                          color: AppColor.green,
+                        ),
+                      ),
+                      CustomIconButton(
+                        onPressed:
+                            () => _handleApprovalTap(
+                              context,
+                              actionType: "Reject",
+                              onSubmit: onReject,
+                            ),
+                        backgroundColor: AppColor.lightRed,
+                        icon: Icon(rejectIcon, size: 16, color: AppColor.red),
+                      ),
+                    ],
+
                     if (onThirdTap != null)
                       CustomIconButton(
                         onPressed: onThirdTap!,
-
                         icon: Icon(
                           thirdIcon,
                           size: 16,
@@ -150,7 +158,7 @@ class ApproveRejectWidget extends StatelessWidget {
                   child: Text('$actionTitle :', style: AppTextStyle.ts14R()),
                 ),
               ),
-              if (!isActionAlreadyPerformed) ...[
+              if (showApproval && !isActionAlreadyPerformed) ...[
                 Expanded(
                   flex: 1,
                   child: InkWell(

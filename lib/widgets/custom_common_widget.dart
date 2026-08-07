@@ -392,3 +392,78 @@ Widget followUpStatusTextWidget(String? enquiryFollowUpDays) {
 Widget buildRowWrapper({required Widget child}) {
   return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [child]);
 }
+
+Widget summaryRow(
+  String title,
+  String value, {
+  bool isBold = false,
+  Color? valueColor,
+}) {
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Expanded(
+        child: Text(
+          title,
+          style:
+              isBold
+                  ? AppTextStyle.ts14B()
+                  : AppTextStyle.ts14R(
+                    color: AppColor.black.withValues(alpha: 0.5),
+                  ),
+        ),
+      ),
+      Text(value, style: AppTextStyle.ts14M(color: valueColor)),
+    ],
+  );
+}
+
+Widget buildSummaryItem({
+  required String type,
+  required String totalAmount,
+  required String paidAmount,
+  required String pendingAmount,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: titleValue("Type", type)),
+          horizontalSpacing(),
+          Expanded(child: titleValue("Total Amount", totalAmount)),
+        ],
+      ),
+      verticalSpacing(),
+      Row(
+        children: [
+          Expanded(child: titleValue("Received Amount", paidAmount)),
+          horizontalSpacing(),
+          Expanded(child: titleValue("Outstanding Amount", pendingAmount)),
+        ],
+      ),
+      verticalSpacing(),
+      Divider(
+        height: 1,
+        thickness: 0.3,
+        color: AppColor.black.withValues(alpha: 0.5),
+      ),
+    ],
+  );
+}
+
+Widget titleValue(String title, String value) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        title,
+        style: AppTextStyle.ts12M(color: AppColor.black.withValues(alpha: 0.5)),
+      ),
+      verticalSpacing(height: 6),
+      Text(value, style: AppTextStyle.ts14M()),
+    ],
+  );
+}

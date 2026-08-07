@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
@@ -11,6 +12,7 @@ import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -41,6 +43,8 @@ class _UpdateRegistrationDateParkingScreenState
       serviceLocator<ParkingRepository>();
   late PayTrackCubit _payTrackCubit;
 
+  late ProjectModel _selectedProject;
+
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   late ValueNotifier<bool> markAsFinalRegiserationNotifier;
 
@@ -58,7 +62,7 @@ class _UpdateRegistrationDateParkingScreenState
     _selectedBankNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     markAsFinalRegiserationNotifier = ValueNotifier(false);
     _payTrackCubit = context.read<PayTrackCubit>();
-
+    _selectedProject = getProject();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _payTrackCubit.getPayTrackList(
         context,
@@ -67,11 +71,15 @@ class _UpdateRegistrationDateParkingScreenState
         bookingId: widget.bookingId,
       );
 
-      final parkingList =
-          _payTrackCubit.state.payTrackOverview?.parkingData ?? [];
+      final payTrack = _payTrackCubit.state.payTrackOverview;
+
+      finalRegisterationDate = payTrack?.finalRegistrationDate;
+
+      markAsFinalRegiserationNotifier.value =
+          payTrack?.isFinalRegistrationCompleted ?? false;
 
       _selectedBankNotifier.value =
-          parkingList
+          (payTrack?.parkingData ?? [])
               .map(
                 (e) => {
                   "zAttributesId": e.parkingId,
@@ -79,6 +87,10 @@ class _UpdateRegistrationDateParkingScreenState
                 },
               )
               .toList();
+
+      if (mounted) {
+        setState(() {});
+      }
     });
   }
 
@@ -93,22 +105,11 @@ class _UpdateRegistrationDateParkingScreenState
     int pageNumber, {
     String? value,
   }) async {
-    final parkingId =
-        _payTrackCubit
-            .state
-            .payTrackOverview
-            ?.parkingData
-            .firstOrNull
-            ?.parkingId;
     final result = await _parkingRepository.getParkingWithPagination(
       pageNumber: pageNumber,
       pageSize: 10,
-      projectId: widget.projectId,
-      queryParams: {
-        "ParkingNumber": value,
-        "IsAcessOnlyApprovedParking": true,
-        "DisplayParkingId": parkingId,
-      },
+      projectId: _selectedProject.projectId,
+      queryParams: {"ParkingNumber": value},
     );
     return result.fold(
       (failure) => {
@@ -194,16 +195,22 @@ class _UpdateRegistrationDateParkingScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CustomDatePicker(
-                          title: 'Final Registration Date',
-                          isRequired: true,
-                          initialDate: finalRegisterationDate,
-                          setValue: (value) => finalRegisterationDate = value,
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Final Registration Date is required';
-                            }
-                            return null;
+                        ValueListenableBuilder<bool>(
+                          valueListenable: markAsFinalRegiserationNotifier,
+                          builder: (context, isChecked, child) {
+                            return CustomDatePicker(
+                              title: "Final Registration Date",
+                              isRequired: isChecked,
+                              initialDate: finalRegisterationDate,
+                              setValue:
+                                  (value) => finalRegisterationDate = value,
+                              validator: (value) {
+                                if (isChecked && value == null) {
+                                  return "Final Registration Date is required";
+                                }
+                                return null;
+                              },
+                            );
                           },
                         ),
                         ValueListenableBuilder(
@@ -212,7 +219,6 @@ class _UpdateRegistrationDateParkingScreenState
                             return CustomMultipleSelectPopup(
                               hintText: "Select Parking",
                               title: "Parking",
-                              isRequired: true,
                               isMultiSelect: true,
                               dataList: [],
                               initialValue: selectedParking,
@@ -220,15 +226,6 @@ class _UpdateRegistrationDateParkingScreenState
                                 _selectedBankNotifier.value = value;
                               },
                               dataFetchCallBack: _fetchParking,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Parking Type is required";
-                                }
-                                return null;
-                              },
-                              onClear: () {
-                                _selectedBankNotifier.value = [];
-                              },
                             );
                           },
                         ),

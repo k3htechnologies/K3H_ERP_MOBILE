@@ -140,7 +140,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Expanded(
-                                child: buildRowTitleValue(
+                                child: buildColumnTitleValueNormal(
                                   title: widget.summary.paymentFor,
                                   value:
                                       summary.receivedAmount.toIndianCurrency(),
@@ -222,6 +222,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                               : "No",
                                     ),
                                 ApproveRejectWidget(
+                                  showApproval: summary.isApproval,
                                   isActionAlreadyPerformed:
                                       isAlreadyApproved || isRejected,
                                   actionTitle:
@@ -230,7 +231,6 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           : approvalStatus,
                                   subTitle:
                                       "${summary.applicantName} > ${widget.flat} > ${summary.paymentFor} - ${summary.receivedAmount.toIndianCurrency()}",
-                                  approveIcon: Icons.check,
                                   onApprove: (remark) async {
                                     final isSuccess = await context
                                         .read<UtilsCubit>()
@@ -283,7 +283,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         queryParameters: {
                                           "title": Uri.encodeComponent(
                                             EncryptionManager.encryptData(
-                                              "PAY TRACK LEDGER APPROVAL",
+                                              "${summary.paymentFor} - ${summary.receivedAmount.toIndianCurrency()}",
                                             ),
                                           ),
                                           "approvalList": Uri.encodeComponent(

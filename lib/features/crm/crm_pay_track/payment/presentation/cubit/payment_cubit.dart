@@ -363,19 +363,29 @@ class PaymentCubit extends Cubit<PaymentState> {
           selectedChequeUrl.deletedFileList,
     };
 
+    // List<Map<String, dynamic>> fileList = [];
+    // debugPrint("fileNameList : ${selectedChequeUrl.fileNameList.length}");
+    // debugPrint("fileBytesList : ${selectedChequeUrl.fileBytesList.length}");
+    // debugPrint("deletedFileList : ${selectedChequeUrl.deletedFileList}");
+    // for (int i = 0; i < selectedChequeUrl.fileNameList.length; i++) {
+    //   if (selectedChequeUrl.fileNameList[i].contains("http")) {
+    //     continue;
+    //   }
+    //   fileList.add({
+    //     "key": "TransactionChequeDemandDraftURL",
+    //     "value": selectedChequeUrl.fileBytesList[i],
+    //     "fileName": selectedChequeUrl.fileNameList[i],
+    //   });
+    // }
     List<Map<String, dynamic>> fileList = [];
 
-    for (int i = 0; i < selectedChequeUrl.fileNameList.length; i++) {
-      if (selectedChequeUrl.fileNameList[i].contains("http")) {
-        continue;
-      }
+    for (int i = 0; i < selectedChequeUrl.fileBytesList.length; i++) {
       fileList.add({
         "key": "TransactionChequeDemandDraftURL",
         "value": selectedChequeUrl.fileBytesList[i],
         "fileName": selectedChequeUrl.fileNameList[i],
       });
     }
-
     var addResult = await paymentRepository.addUpdatePayTrackPaymentLedger(
       body: requestBody,
       fileList: fileList,

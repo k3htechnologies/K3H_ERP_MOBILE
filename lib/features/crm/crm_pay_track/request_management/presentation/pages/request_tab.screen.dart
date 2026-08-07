@@ -425,9 +425,10 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               final applicantData = applicantList[index];
 
               final applicant = applicantData;
+
               final isApplicant =
                   applicant.applicantType.trim().toLowerCase() == "applicant";
-              final isActionAlreadyPerformed = !applicant.isApproval;
+
               final isDraftRequest = state.hasUnsavedApplicantChanges;
               final canDelete = isDraftRequest || isApplicant;
               return Container(
@@ -555,12 +556,11 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                                       applicant.approvalStatus.toLowerCase() ==
                                           "approved",
                                   onPressed: () async {
-                                    final isDelete =
-                                        await DialogHelper.deleteDialog(
-                                          context,
-                                          "Delete Applicant?",
-                                          "Are you sure you want to delete this applicant?",
-                                        );
+                                    final isDelete = await DialogHelper.deleteDialog(
+                                      context,
+                                      "You are about to delete a Booking Applicant ?",
+                                      "Deleting this Booking Applicant will permanently remove all associated data.",
+                                    );
 
                                     if (!isDelete) return;
 
@@ -595,6 +595,11 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       title: "Applicant Name",
                       value: applicant.applicantName,
                       singleLine: false,
+                      customValueWidget: DocumentPreviewText(
+                        title: "Profile Photo",
+                        text: applicant.applicantName,
+                        fileUrl: applicant.photoUrl,
+                      ),
                     ),
                     buildRowTitleValue(
                       title: "Mobile No. ",
@@ -756,7 +761,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                             !isDraftRequest &&
                             isApplicant
                         ? ApproveRejectWidget(
-                          isActionAlreadyPerformed: isActionAlreadyPerformed,
+                          showApproval: applicant.isApproval,
                           actionTitle:
                               applicant.approvalStatus.isEmpty
                                   ? "Pending"
@@ -857,20 +862,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             },
           ),
         } else ...{
-          Container(
-            padding: EdgeInsets.all(12.0),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: noDataWidget(
-                    message: "No Applicant Found",
-                    iconSize: 160.0,
-                  ),
-                ),
-              ],
-            ),
+          Center(
+            child: noDataWidget(message: "No Applicant Found", iconSize: 160.0),
           ),
         },
       ],
@@ -930,9 +923,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
 
                 final parking = parkingData.parkingData.first;
                 final parkingStatus = parkingData.approvalStatus;
-                final isActionAlreadyPerformed =
-                    parkingStatus.toLowerCase() == "approved";
-                final isRejected = parkingStatus.toLowerCase() == "rejected";
+
                 final isEditDeleteDisabled =
                     parkingStatus.trim().toLowerCase() == "partial approved" ||
                     parkingStatus.trim().toLowerCase() == "approved";
@@ -983,8 +974,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                             title: "Approval Status",
                             value: parkingStatus,
                             customValueWidget: ApproveRejectWidget(
-                              isActionAlreadyPerformed:
-                                  isActionAlreadyPerformed || isRejected,
+                              showApproval: parkingData.isApproval,
                               actionTitle:
                                   parkingStatus.isEmpty
                                       ? "Pending"
@@ -1138,19 +1128,10 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             ),
           ),
         } else ...{
-          Container(
-            padding: EdgeInsets.all(12.0),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: noDataWidget(
-                    message: "No data available",
-                    iconSize: 160.0,
-                  ),
-                ),
-              ],
+          Center(
+            child: noDataWidget(
+              message: "No Parking Data Found",
+              iconSize: 160.0,
             ),
           ),
         },
@@ -1207,9 +1188,6 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             itemBuilder: (context, index) {
               final remark = state.flatAlterationRequestsModel[index];
               final approvalStatus = remark.approvalStatus.trim().toLowerCase();
-              final isAlreadyApproved =
-                  approvalStatus.toLowerCase() == "approved";
-              final isRejected = approvalStatus.toLowerCase() == "rejected";
 
               final isEditDeleteDisabled =
                   approvalStatus == "approved" ||
@@ -1272,12 +1250,11 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                           title: "Approval Status",
                           value: remark.approvalStatus,
                           customValueWidget: ApproveRejectWidget(
-                            isActionAlreadyPerformed:
-                                isAlreadyApproved || isRejected,
+                            showApproval: remark.isApproval,
                             actionTitle:
                                 remark.approvalStatus.isEmpty
                                     ? "Pending"
-                                    : approvalStatus,
+                                    : remark.approvalStatus,
                             approveIcon: Icons.check,
                             onApprove: (value) async {
                               final isSuccess = await _utilsCubit

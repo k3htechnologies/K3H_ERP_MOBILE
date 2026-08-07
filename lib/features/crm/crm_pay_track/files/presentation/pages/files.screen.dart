@@ -57,6 +57,21 @@ class _FilesScreenState extends State<FilesScreen> {
       fileType: "FILES",
     );
     _onScroll();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<FilesCubit>();
+
+      _searchTextC.clear();
+
+      cubit.clearSearch();
+
+      cubit.getFilesList(
+        context: context,
+        pageNumber: 1,
+        projectId: widget.projectId,
+        bookingId: widget.bookingId,
+        fileType: 'FILES',
+      );
+    });
   }
 
   Future<void> _showPopupToDeleteFiles(
@@ -191,7 +206,8 @@ class _FilesScreenState extends State<FilesScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (_filesAuthorization.isAction)
+                            if (_filesAuthorization.isAction &&
+                                !isBookingCancelledOrRefund)
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -282,7 +298,8 @@ class _FilesScreenState extends State<FilesScreen> {
             child: SearchWidget(
               hintText: "Search by File Name",
               onSubmit: (value) {
-                _filesCubit.resetSearch();
+                _searchTextC.clear();
+                _filesCubit.clearSearch();
                 _filesCubit.searchFiles(
                   context,
                   widget.projectId,

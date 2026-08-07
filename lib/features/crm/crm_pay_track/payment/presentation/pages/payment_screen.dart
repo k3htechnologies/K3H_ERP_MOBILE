@@ -414,7 +414,11 @@ class _PaymentScreenState extends State<PaymentScreen>
                   builder: (_) {
                     double totalAmount = state.payTrackPaymentScheduleList.fold(
                       0.0,
-                      (sum, item) => sum + item.paymentScheduleAmount,
+                      (sum, item) =>
+                          sum +
+                          item.paymentScheduleAmount +
+                          item.paymentScheduleGstAmount +
+                          item.paymentScheduleTdsAmount,
                     );
 
                     double totalOutstandingAmount = state
@@ -423,13 +427,21 @@ class _PaymentScreenState extends State<PaymentScreen>
                           0.0,
                           (sum, item) =>
                               sum +
-                              (item.paymentScheduleAmount -
-                                  item.paymentScheduleReceivedAmount),
+                              ((item.paymentScheduleAmount +
+                                      item.paymentScheduleGstAmount +
+                                      item.paymentScheduleTdsAmount) -
+                                  (item.paymentScheduleReceivedAmount +
+                                      item.paymentScheduleReceivedGstAmount +
+                                      item.paymentScheduleReceivedTdsAmount)),
                         );
 
                     double grandTotal = state.payTrackPaymentScheduleList.fold(
                       0.0,
-                      (sum, item) => sum + item.paymentScheduleReceivedAmount,
+                      (sum, item) =>
+                          sum +
+                          item.paymentScheduleReceivedAmount +
+                          item.paymentScheduleReceivedGstAmount +
+                          item.paymentScheduleReceivedTdsAmount,
                     );
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -481,9 +493,15 @@ class _PaymentScreenState extends State<PaymentScreen>
         if (state.isLoading ?? true && state.paymentLedger.isEmpty) {
           return Center(child: CircularProgressIndicator());
         }
+        double totalOutstandingAmount = 0;
+
+        for (final item in state.paymentLedger) {
+          totalOutstandingAmount += (item.totalAmount - item.receivedAmount);
+        }
         final showAddButton =
             widget.bookingApprovalStatus.toLowerCase() != "cancel" &&
-            widget.bookingApprovalStatus.toLowerCase() != "refund";
+            widget.bookingApprovalStatus.toLowerCase() != "refund" &&
+            totalOutstandingAmount > 0;
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -626,9 +644,25 @@ class _PaymentScreenState extends State<PaymentScreen>
                 ),
               ),
               Container(
+                height: 200.0,
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
+                decoration: BoxDecoration(
+                  color: AppColor.white,
+                  borderRadius: BorderRadius.circular(8.0),
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 10,
+                      offset: Offset(2, 0),
+                      color: AppColor.black.withValues(alpha: 0.05),
+                    ),
+                    BoxShadow(
+                      blurRadius: 0,
+                      offset: Offset(0, 0),
+                      color: AppColor.black.withValues(alpha: 0),
+                    ),
+                  ],
+                ),
                 child: Builder(
                   builder: (_) {
                     double totalAmount = 0;
@@ -654,59 +688,61 @@ class _PaymentScreenState extends State<PaymentScreen>
                       approvalCountTotal += totalApprovalCount;
                     }
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        buildRowTitleValue(
-                          title: "Total Amount",
-                          value: totalAmount.toIndianCurrency(),
-                          valueTextStyle: AppTextStyle.ts14SB(),
-                        ),
-
-                        Divider(
-                          thickness: 0.3,
-                          color: AppColor.black.withValues(alpha: 0.3),
-                        ),
-
-                        buildRowTitleValue(
-                          title: "Total Outstanding Amount",
-                          value: totalOutstandingAmount.toIndianCurrency(),
-                          valueTextStyle: AppTextStyle.ts14SB(),
-                        ),
-
-                        Divider(
-                          thickness: 0.3,
-                          color: AppColor.black.withValues(alpha: 0.3),
-                        ),
-
-                        buildRowTitleValue(
-                          title: "Grand Total",
-                          value: grandTotal.toIndianCurrency(),
-                          valueTextStyle: AppTextStyle.ts14SB(
-                            color: AppColor.green,
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          buildRowTitleValue(
+                            title: "Total Amount",
+                            value: totalAmount.toIndianCurrency(),
+                            valueTextStyle: AppTextStyle.ts14SB(),
                           ),
-                        ),
-                        Divider(
-                          thickness: 0.3,
-                          color: AppColor.black.withValues(alpha: 0.3),
-                        ),
 
-                        buildRowTitleValue(
-                          title: "Ledger Count",
-                          value: ledgerCountTotal.toIndianCurrency(),
-                          valueTextStyle: AppTextStyle.ts14SB(),
-                        ),
-                        Divider(
-                          thickness: 0.3,
-                          color: AppColor.black.withValues(alpha: 0.3),
-                        ),
+                          Divider(
+                            thickness: 0.3,
+                            color: AppColor.black.withValues(alpha: 0.3),
+                          ),
 
-                        buildRowTitleValue(
-                          title: "Approval Count",
-                          value: approvalCountTotal.toIndianCurrency(),
-                          valueTextStyle: AppTextStyle.ts14SB(),
-                        ),
-                      ],
+                          buildRowTitleValue(
+                            title: "Total Outstanding Amount",
+                            value: totalOutstandingAmount.toIndianCurrency(),
+                            valueTextStyle: AppTextStyle.ts14SB(),
+                          ),
+
+                          Divider(
+                            thickness: 0.3,
+                            color: AppColor.black.withValues(alpha: 0.3),
+                          ),
+
+                          buildRowTitleValue(
+                            title: "Grand Total",
+                            value: grandTotal.toIndianCurrency(),
+                            valueTextStyle: AppTextStyle.ts14SB(
+                              color: AppColor.green,
+                            ),
+                          ),
+                          Divider(
+                            thickness: 0.3,
+                            color: AppColor.black.withValues(alpha: 0.3),
+                          ),
+
+                          buildRowTitleValue(
+                            title: "Ledger Count",
+                            value: ledgerCountTotal.toIndianCurrency(),
+                            valueTextStyle: AppTextStyle.ts14SB(),
+                          ),
+                          Divider(
+                            thickness: 0.3,
+                            color: AppColor.black.withValues(alpha: 0.3),
+                          ),
+
+                          buildRowTitleValue(
+                            title: "Approval Count",
+                            value: approvalCountTotal.toIndianCurrency(),
+                            valueTextStyle: AppTextStyle.ts14SB(),
+                          ),
+                        ],
+                      ),
                     );
                   },
                 ),

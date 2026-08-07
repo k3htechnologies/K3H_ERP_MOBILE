@@ -55,6 +55,20 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
       projectId: widget.projectId,
       bookingId: widget.bookingId,
     );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final cubit = context.read<FlatHandoverCubit>();
+
+      _searchTextC.clear();
+
+      cubit.clearSearch();
+
+      cubit.getFlatHandoverFilesList(
+        context: context,
+        pageNumber: 1,
+        projectId: widget.projectId,
+        bookingId: widget.bookingId,
+      );
+    });
   }
 
   @override
@@ -93,10 +107,6 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                 itemBuilder: (context, index) {
                   final flatHandoverDocuments =
                       state.flatHandoverFileList[index];
-                  final approvalStatus = flatHandoverDocuments.approvalStatus;
-                  final isAlreadyApproved =
-                      approvalStatus.toLowerCase() == "approved";
-                  final isRejected = approvalStatus.toLowerCase() == "rejected";
                   final booking =
                       context.read<PayTrackCubit>().state.bookingData;
 
@@ -132,9 +142,19 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                                 child: Text(
                                   flatHandoverDocuments.fileName,
                                   style: AppTextStyle.ts14M(
-                                    color: AppColor.primary,
+                                    color:
+                                        flatHandoverDocuments
+                                                .payTrackBookingFilesUrl
+                                                .isNotEmpty
+                                            ? AppColor.primary
+                                            : AppColor.black,
                                   ).copyWith(
-                                    decoration: TextDecoration.underline,
+                                    decoration:
+                                        flatHandoverDocuments
+                                                .payTrackBookingFilesUrl
+                                                .isNotEmpty
+                                            ? TextDecoration.underline
+                                            : TextDecoration.none,
                                     decorationColor: AppColor.primary,
                                   ),
                                 ),
@@ -196,11 +216,11 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                         ),
 
                         verticalSpacing(),
+
                         flatHandoverDocuments.payTrackBookingFilesUrl.isNotEmpty
                             ? ApproveRejectWidget(
+                              showApproval: flatHandoverDocuments.isApproval,
                               openDetailsBeforeApproval: true,
-                              isActionAlreadyPerformed:
-                                  isAlreadyApproved || isRejected,
                               actionTitle:
                                   flatHandoverDocuments.approvalStatus.isEmpty
                                       ? "Pending"
@@ -330,6 +350,9 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
             child: SearchWidget(
               hintText: "Search by File Name",
               onSubmit: (value) {
+                _searchTextC.clear();
+                _flatHandoverCubit.clearSearch();
+
                 _flatHandoverCubit.searchFlatHandoverFiles(
                   context,
                   widget.projectId,

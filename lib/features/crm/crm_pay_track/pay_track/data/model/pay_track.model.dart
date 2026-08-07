@@ -49,7 +49,7 @@ class PayTrackModel {
   String applicantEmailId;
   String numberOfParking;
   String? parkingId;
-  String? finalRegistrationDate;
+  DateTime? finalRegistrationDate;
   bool isFinalRegistrationCompleted;
   String finalRegistrationUrl;
   String cancelRemark;
@@ -219,7 +219,10 @@ class PayTrackModel {
     tenantId: parseValue<int>(json, "TenantId"),
     applicantEmailId: json["ApplicantEmailId"],
     numberOfParking: json["NumberOfParking"],
-    finalRegistrationDate: json["FinalRegistrationDate"],
+    finalRegistrationDate:
+        json["FinalRegistrationDate"] != null
+            ? DateTime.parse(json["FinalRegistrationDate"])
+            : null,
     isFinalRegistrationCompleted: json["IsFinalRegistrationCompleted"],
     finalRegistrationUrl: json["FinalRegistrationURL"],
 
@@ -305,7 +308,7 @@ class PayTrackModel {
     "NumberOfParking": numberOfParking,
     "RERACarpetAreaSqFt": reraCarpetAreaSqFt,
     "ParkingId": parkingId,
-    "FinalRegistrationDate": finalRegistrationDate,
+    "FinalRegistrationDate": finalRegistrationDate?.toIso8601String(),
     "IsFinalRegistrationCompleted": isFinalRegistrationCompleted,
     "FinalRegistrationURL": finalRegistrationUrl,
     "ReceivedAgreementValueGSTAmount": receivedAgreementValueGstAmount,

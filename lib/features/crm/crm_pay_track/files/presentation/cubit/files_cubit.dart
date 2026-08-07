@@ -32,6 +32,10 @@ class FilesCubit extends Cubit<FilesState> {
     );
   }
 
+  void clearSearch() {
+    emit(state.copyWith(searchText: "", payTrackBookingFileList: []));
+  }
+
   Future resetSearch() async {
     emit(state.copyWith(searchText: ""));
   }
@@ -53,7 +57,7 @@ class FilesCubit extends Cubit<FilesState> {
           pageNumber: pageNumber,
           projectId: projectId,
           bookingId: bookingId,
-          fileType: "FILES",
+          fileType: fileType,
           queryParams: queryParams,
         );
 

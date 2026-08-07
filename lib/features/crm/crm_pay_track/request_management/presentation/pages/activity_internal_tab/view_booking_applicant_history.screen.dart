@@ -66,7 +66,10 @@ class _ViewBookingApplicantHistoryScreenState
                             value: applicant.proofOfDocumentUrl,
                             customValueWidget: DocumentPreviewText(
                               title: "Proof Of Document",
-                              text: "View",
+                              text:
+                                  applicant.proofOfDocumentUrl.isEmpty
+                                      ? "-"
+                                      : "View",
                               fileUrl: applicant.proofOfDocumentUrl,
                             ),
                           ),

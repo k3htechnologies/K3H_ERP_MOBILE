@@ -182,6 +182,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: showSiteSelectedWidget(),
+          ),
           ChipStyleTabBar(
             controller: _tabController,
             isSecondaryStyle: true,
@@ -267,16 +271,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
   Widget _buildOverviewTab(PayTrackState state, BuildContext context) {
     if ((state.isLoading ?? false)) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: loader());
     }
 
     final booking = state.bookingData;
-    if (booking == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
     final enquiry = state.currentEnquiryDetails;
-    if (enquiry == null) {
-      return const Center(child: CircularProgressIndicator());
+
+    if (booking == null || enquiry == null) {
+      return Center(child: loader());
     }
     final bool isDirectWalking = enquiry.source == "Direct Walkin";
     final source = enquiry.source.toLowerCase().replaceAll("-", "").trim();
@@ -296,7 +298,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
     final bool showUpdateRegistrationButton =
         _bookingPayTrackRouteAuthorizationModel.isAction &&
-        _tabController.index == 0 &&
         !booking.isFinalRegistrationCompleted &&
         widget.bookingApprovalStatus.trim().toUpperCase() == "APPROVED";
     final approvalStatus = booking.approvalStatus.trim().toUpperCase();
@@ -879,6 +880,27 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       );
                     },
                   ),
+                ),
+              ],
+            ),
+          ),
+          // ADDRESS DETAILS SECTION
+          Container(
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Addess Details", style: AppTextStyle.ts16SB()),
+                buildColumnTitleValueNormal(
+                  title: "Communication Address",
+                  value: booking.communicationAddress,
+                ),
+                buildColumnTitleValueNormal(
+                  title: "Permanent Address",
+                  value: booking.permanentAddress,
                 ),
               ],
             ),
@@ -1561,7 +1583,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Flat Alteration Remarks", style: AppTextStyle.ts16SB()),
+                Text(
+                  "Unit / Modulation / Customization Remark",
+                  style: AppTextStyle.ts16SB(),
+                ),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,

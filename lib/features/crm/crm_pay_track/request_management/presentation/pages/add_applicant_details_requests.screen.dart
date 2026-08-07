@@ -150,11 +150,7 @@ class _AddApplicantDetailsRequestsScreenState
     fileNameList: [],
     deletedFileList: "",
   );
-  MultiFilePickerModel statementOfSourceOfFundFile = MultiFilePickerModel(
-    fileBytesList: [],
-    fileNameList: [],
-    deletedFileList: "",
-  );
+
   MultiFilePickerModel paymentProofURLFundFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -244,6 +240,26 @@ class _AddApplicantDetailsRequestsScreenState
           a.votingIdUrl.isEmpty ? [] : a.votingIdUrl.split(",");
       gstFile.fileNameList =
           a.gstNumberUrl.isEmpty ? [] : a.gstNumberUrl.split(",");
+      chequeFile.fileNameList =
+          a.cancelledChequeUrl.isEmpty ? [] : a.cancelledChequeUrl.split(",");
+      poaFile.fileNameList = a.poaurl.isEmpty ? [] : a.poaurl.split(",");
+      incomeForm16ItrFile.fileNameList =
+          a.incomeForm16Itrurl.isEmpty ? [] : a.incomeForm16Itrurl.split(",");
+
+      nreNroBankDetailsFile.fileNameList =
+          a.nreNroBankDetailsUrl.isEmpty
+              ? []
+              : a.nreNroBankDetailsUrl.split(",");
+
+      nomineeFormFile.fileNameList =
+          a.nomineeFormUrl.isEmpty ? [] : a.nomineeFormUrl.split(",");
+      statementOfSourceOfFundsFile.fileNameList =
+          a.statementOfSourceOfFundsUrl.isEmpty
+              ? []
+              : a.statementOfSourceOfFundsUrl.split(",");
+
+      paymentProofURLFundFile.fileNameList =
+          a.paymentProofUrl.isEmpty ? [] : a.paymentProofUrl.split(",");
     }
   }
 
@@ -304,7 +320,7 @@ class _AddApplicantDetailsRequestsScreenState
       nomineeFormUrl: nomineeFormFile.fileNameList.join(","),
       statementOfSourceOfFundsUrl: statementOfSourceOfFundsFile.fileNameList
           .join(","),
-      paymentProofUrl: paymentProofFile.fileNameList.join(","),
+      paymentProofUrl: paymentProofURLFundFile.fileNameList.join(","),
       proofOfDocumentUrl: proofOfDocumentFile.fileNameList.join(","),
 
       proofOfDocumentFile: proofOfDocumentFile,
@@ -319,7 +335,7 @@ class _AddApplicantDetailsRequestsScreenState
       incomeForm16ItrFile: incomeForm16ItrFile,
       nreNroBankDetailsFile: nreNroBankDetailsFile,
       nomineeFormFile: nomineeFormFile,
-      statementOfSourceOfFundFile: statementOfSourceOfFundFile,
+      statementOfSourceOfFundFile: statementOfSourceOfFundsFile,
       paymentProofURLFundFile: paymentProofFile,
     );
 
@@ -338,8 +354,8 @@ class _AddApplicantDetailsRequestsScreenState
         "votingFile": votingIdFile,
         "drivingFile": drivingLicenseFile,
         "poaFile": poaFile,
-        "paymentProofFile": paymentProofFile,
-        "statementFile": statementOfSourceOfFundFile,
+        "paymentProofFile": paymentProofURLFundFile,
+        "statementFile": statementOfSourceOfFundsFile,
         "incomeFile": incomeForm16ItrFile,
         "nomineeFile": nomineeFormFile,
         "cancelledChequeFile": chequeFile,
@@ -608,6 +624,20 @@ class _AddApplicantDetailsRequestsScreenState
                       inputFormatterList: [
                         LengthLimitingTextInputFormatter(20),
                       ],
+                      validator: (value) {
+                        if (drivingLicenseFile.fileNameList.isEmpty) {
+                          return null;
+                        }
+                        if (value == null || value.isEmpty) {
+                          return "Passport Number is required";
+                        }
+
+                        if (InputValidator.isValidPassport(value)) {
+                          return "Passport Number is invalid";
+                        }
+
+                        return null;
+                      },
                     ),
                     CustomMultiFilePicker(
                       title: "Passport",
@@ -671,20 +701,19 @@ class _AddApplicantDetailsRequestsScreenState
                       hint: "Enter Voting ID Number",
                       inputFormatterList: InputValidator.textDigit(20),
                       validator: (value) {
-                        if (votingIdFile.fileNameList.isNotEmpty) {
-                          if (value == null || value.isEmpty) {
-                            return "Voting Id is required";
-                          }
-                          if (!InputValidator.isValidVoterId(value)) {
-                            return "Voting Id is invalid";
-                          }
-                        } else {
-                          if (value != null &&
-                              value.isNotEmpty &&
-                              !InputValidator.isValidVoterId(value)) {
-                            return "Voting Id is invalid";
-                          }
+                        final hasNumber = value?.trim().isNotEmpty ?? false;
+                        final hasDocument =
+                            votingIdFile.fileNameList.isNotEmpty;
+
+                        if (hasDocument && !hasNumber) {
+                          return "Voting ID Number is required";
                         }
+
+                        if (hasNumber &&
+                            !InputValidator.isValidVoterId(value!.trim())) {
+                          return "Voting ID Number is invalid";
+                        }
+
                         return null;
                       },
                     ),
@@ -845,22 +874,25 @@ class _AddApplicantDetailsRequestsScreenState
                     CustomMultiFilePicker(
                       title: "Statement of Source of Funds",
                       filePickType: FilePickType.kycDocument,
-                      initialFileList: statementOfSourceOfFundFile.fileNameList,
+                      initialFileList:
+                          statementOfSourceOfFundsFile.fileNameList,
                       initialFileBytes:
-                          statementOfSourceOfFundFile.fileBytesList,
+                          statementOfSourceOfFundsFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        statementOfSourceOfFundFile.fileNameList = fileNameList;
-                        statementOfSourceOfFundFile.fileBytesList = bytesList;
+                        statementOfSourceOfFundsFile.fileNameList =
+                            fileNameList;
+                        statementOfSourceOfFundsFile.fileBytesList = bytesList;
                       },
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
                         deleted,
                       ) {
-                        statementOfSourceOfFundFile.fileBytesList =
+                        statementOfSourceOfFundsFile.fileBytesList =
                             fileBytesList;
-                        statementOfSourceOfFundFile.fileNameList = fileNameList;
-                        statementOfSourceOfFundFile.deletedFileList = deleted;
+                        statementOfSourceOfFundsFile.fileNameList =
+                            fileNameList;
+                        statementOfSourceOfFundsFile.deletedFileList = deleted;
                       },
                     ),
                     CustomMultiFilePicker(

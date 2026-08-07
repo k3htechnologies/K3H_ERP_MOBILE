@@ -125,7 +125,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        debugPrint("PayTrack List Count = ${response['data'].length}");
         final List<PayTrackModel> newList =
             response['data'] as List<PayTrackModel>;
 
@@ -191,6 +190,10 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         );
       },
     );
+  }
+
+  void clearSearch() {
+    emit(state.copyWith(searchText: "", payTrackList: [], currentPage: 1));
   }
 
   Future searchPayTrack(
@@ -427,6 +430,19 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     await getPayTrackCallLog(context, 1, getProject().projectId, bookingId);
   }
 
+  int updatePayTrackFilterCount(PayTrackState state) {
+    return getActiveFilterCount([
+      state.filterByApplicantName.trim().isNotEmpty,
+      state.filterByMobileNumber.trim().isNotEmpty,
+      state.filterByWing.trim().isNotEmpty,
+      state.filterByWing.trim().isNotEmpty,
+      state.filterByUnit.trim().isNotEmpty,
+      state.filterByFloor.trim().isNotEmpty,
+      state.filterByFromDate != null,
+      state.filterByToDate != null,
+    ]);
+  }
+
   int updateFilterCount(PayTrackState state) {
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
@@ -566,7 +582,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
 
         goRouter.pop();
 
-        await getBookingById(context, 1, projectId, bookingId);
+        await getPayTrackList(context, 1, projectId);
       },
     );
   }

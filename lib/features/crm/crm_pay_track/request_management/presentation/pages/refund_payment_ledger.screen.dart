@@ -196,6 +196,7 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                         ),
 
                         ApproveRejectWidget(
+                          showApproval: refundDataDetailsDetails.isApproval,
                           isActionAlreadyPerformed:
                               isAlreadyApproved || isRejected,
                           actionTitle:
