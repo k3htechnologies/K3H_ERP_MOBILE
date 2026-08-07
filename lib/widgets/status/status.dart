@@ -19,11 +19,28 @@ Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
   );
 }
 
-Widget projectStatusWidget(String status, {TextStyle? textStyle}) {
+Widget projectStatusWidget(
+  String status, {
+  TextStyle? textStyle,
+  bool showLeading = false,
+}) {
+  final config = projectStatusConfig[status.toLowerCase()];
+
   return commonStatusWidget(
     status: status,
     config: projectStatusConfig,
     textStyle: textStyle,
+    leading:
+        showLeading
+            ? Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: config?.textColor ?? const Color(0xFF000000),
+                shape: BoxShape.circle,
+              ),
+            )
+            : null,
   );
 }
 

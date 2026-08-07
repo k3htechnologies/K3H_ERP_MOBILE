@@ -2069,7 +2069,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             value: "${payment.paymentSchedulePercentage} %",
                           ),
                           buildColumnTitleValue(
-                            title: "Amount Without Tds(₹)",
+                            title: "Amount Without TDS(₹)",
                             value:
                                 payment.paymentScheduleAmount
                                     .toIndianCurrency(),

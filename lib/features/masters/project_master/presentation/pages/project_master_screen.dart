@@ -618,6 +618,10 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                           value: project.ctsNumber,
                         ),
                         buildRowTitleValue(
+                          title: "Category",
+                          value: project.category,
+                        ),
+                        buildRowTitleValue(
                           title: "Business Category",
                           value: project.bussinessCategory,
                         ),

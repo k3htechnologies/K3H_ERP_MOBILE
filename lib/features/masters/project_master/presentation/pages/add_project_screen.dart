@@ -490,7 +490,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             tenderChequeNumberFile: tenderAmountTransactionFile,
             tenderEmdChequeNumberFile: tenderEmdTransactionFile,
             tenderSubmissionDate: submissionDate.value?.toIso8601String() ?? "",
-            tenderPayorderRemark: _tenderEmdPayOrderRemarkC.text,
+            tenderPayorderRemark: _tenderAmountPayOrderRemarkC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             countryMasterId: _countryMasterId?.toString() ?? "1",
             districtMasterId: _districtMasterId.toString(),
@@ -597,7 +597,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             tenderChequeNumberFile: tenderAmountTransactionFile,
             tenderEmdChequeNumberFile: tenderEmdTransactionFile,
             tenderSubmissionDate: submissionDate.value?.toIso8601String() ?? "",
-            tenderPayorderRemark: _tenderEmdPayOrderRemarkC.text,
+            tenderPayorderRemark: _tenderAmountPayOrderRemarkC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             countryMasterId: _countryMasterId?.toString() ?? "1",
             districtMasterId: _districtMasterId.toString(),
@@ -1028,18 +1028,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                             _tenantAmountTransactionNumberC,
                                         hint:
                                             "Enter Transaction / Cheque / Demand Draft No",
-                                        validator: (value) {
-                                          final hasFile =
-                                              tenderAmountTransactionFile
-                                                  .fileNameList
-                                                  .isNotEmpty;
-                                          if (hasFile &&
-                                              (value == null ||
-                                                  value.isEmpty)) {
-                                            return "Transaction / Cheque / Demand Draft No is required";
-                                          }
-                                          return null;
-                                        },
+                                        inputFormatterList:
+                                            InputValidator.digitAndCharacterOnly(
+                                              15,
+                                            ),
                                       ),
                                       CustomMultiFilePicker(
                                         title:
@@ -1071,19 +1063,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                               .fileNameList = fileNameList;
                                           tenderAmountTransactionFile
                                               .deletedFileList = deleted;
-                                        },
-                                        validator: (value) {
-                                          final hasChequeNumber =
-                                              _tenantAmountTransactionNumberC
-                                                  .text
-                                                  .trim()
-                                                  .isNotEmpty;
-                                          if (hasChequeNumber &&
-                                              (value == null ||
-                                                  value.isEmpty)) {
-                                            return "Transaction / Cheque / Demand Draft Image is required";
-                                          }
-                                          return null;
                                         },
                                       ),
                                       CustomTextField(
@@ -1187,18 +1166,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                             _tenantEmdTransactionNumberC,
                                         hint:
                                             "Enter Transaction / Cheque / Demand Draft No",
-                                        validator: (value) {
-                                          final hasFile =
-                                              tenderEmdTransactionFile
-                                                  .fileNameList
-                                                  .isNotEmpty;
-                                          if (hasFile &&
-                                              (value == null ||
-                                                  value.isEmpty)) {
-                                            return "Transaction / Cheque / Demand Draft No is required";
-                                          }
-                                          return null;
-                                        },
+                                        inputFormatterList:
+                                            InputValidator.digitAndCharacterOnly(
+                                              15,
+                                            ),
                                       ),
                                       CustomMultiFilePicker(
                                         title:
@@ -1230,19 +1201,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                               .fileNameList = fileNameList;
                                           tenderEmdTransactionFile
                                               .deletedFileList = deleted;
-                                        },
-                                        validator: (value) {
-                                          final hasChequeNumber =
-                                              _tenantAmountTransactionNumberC
-                                                  .text
-                                                  .trim()
-                                                  .isNotEmpty;
-                                          if (hasChequeNumber &&
-                                              (value == null ||
-                                                  value.isEmpty)) {
-                                            return "Transaction / Cheque / Demand Draft Image is required";
-                                          }
-                                          return null;
                                         },
                                       ),
 
@@ -1799,56 +1757,104 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       ),
                       verticalSpacing(),
                       CustomTextField(
-                        title: 'Site Contact Name',
+                        title: 'Name',
                         hint: "Enter Site Contact Name",
                         textController: _siteContact1NameC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),
                       CustomTextField(
-                        title: 'Site Contact Mobile Number',
-                        hint: "Enter Site Contact Mobile Number",
+                        title: 'Mobile Number',
+                        hint: "Enter Mobile Number",
                         textController: _siteContact1MobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       CustomTextField(
-                        title: 'Site Contact Designation',
-                        hint: "Enter Site Contact Designation",
+                        title: 'Designation',
+                        hint: "Enter Designation",
                         textController: _siteContact1DesignationC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),
                       CustomTextField(
-                        title: 'Site Contact 2 Name',
-                        hint: "Enter Site Contact 2 Name",
+                        title: 'Name 2',
+                        hint: "Enter Site Contact2 Name",
                         textController: _siteContact2NameC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),
                       CustomTextField(
-                        title: 'Site Contact 2 Mobile Number',
-                        hint: "Enter Site Contact 2 Mobile Number",
+                        title: 'Mobile Number 2',
+                        hint: "Enter Mobile Number",
                         textController: _siteContact2MobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       CustomTextField(
-                        title: 'Site Contact 2 Designation',
-                        hint: "Enter Site Contact 2 Designation",
+                        title: 'Designation 2',
+                        hint: "Enter Designation",
                         textController: _siteContact2DesignationC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),
                       CustomTextField(
-                        title: 'Site Contact 3 Name',
-                        hint: "Enter Site Contact 3 Name",
+                        title: 'Name 3',
+                        hint: "Enter Site Contact3 Name",
                         textController: _siteContact3NameC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),
                       CustomTextField(
-                        title: 'Site Contact 3 Mobile Number',
-                        hint: "Enter Site Contact 3 Mobile Number",
+                        title: 'Mobile Number 3',
+                        hint: "Enter Mobile Number",
                         textController: _siteContact3MobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                       CustomTextField(
-                        title: 'Site Contact 3 Designation',
-                        hint: "Enter Site Contact 3 Designation",
+                        title: 'Designation 3',
+                        hint: "Enter Designation",
                         textController: _siteContact3DesignationC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),

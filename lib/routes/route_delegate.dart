@@ -357,27 +357,22 @@ import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/update_building_details_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/pages/redevelopment_dashboard_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/add_payment_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/rent_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/view_payment_summary_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_update_tenant_document_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
@@ -2365,7 +2360,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.building,
               path: AppRoutes.building,
               builder: (context, state) {
-                return const BuildingScreen();
+                // return const BuildingScreen();
+                return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
@@ -2502,7 +2498,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.tenant,
               path: AppRoutes.tenant,
               builder: (context, state) {
-                return const TenantScreen();
+                // return const TenantScreen();
+                return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2600,7 +2597,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                return RentScreen();
+                // return RentScreen();
+                return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2690,7 +2688,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedPlan,
               path: AppRoutes.proposedPlan,
               builder: (context, state) {
-                return const ProposedPlansScreen();
+                // return const ProposedPlansScreen();
+                return const ComingSoonScreen(title: "Proposed Plan");
               },
             ),
             GoRoute(
@@ -2733,7 +2732,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedOffer,
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
-                return const ProposedOfferScreen();
+                // return const ProposedOfferScreen();
+                return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(

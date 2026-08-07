@@ -19,10 +19,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
   return Builder(
     builder: (context) {
-      return SingleChildScrollView(
+      return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               decoration: commonCardDecoration(),
@@ -143,339 +142,364 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                 ],
               ),
             ),
-
-            SectionCard(
-              title: "Compliance Status",
-              iconContainerColor: AppColor.lightPurple,
-              iconColor: AppColor.purple,
-              icon: LucideIcons.handshake,
-              childSpacing: 0,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    if (channelPartnerModel.aopDocumentUrl.isNotEmpty) {
-                      showFilePreviewDialog(
-                        title: "AOP Document",
-                        context,
-                        channelPartnerModel.aopDocumentUrl.split(","),
-                      );
-                    }
-                  },
-                  child: buildRowTitleValue(
-                    singleLine: false,
-                    title: "Status",
-                    value: channelPartnerModel.aopStatus,
-                    customValueWidget: aopStatusWidget(
-                      channelPartnerModel.aopStatus,
-                      trailing:
-                          channelPartnerModel.aopStatus.toLowerCase() ==
-                                  "non - aop"
-                              ? null
-                              : Icon(
-                                Icons.remove_red_eye_outlined,
-                                color:
-                                    channelPartnerModel
-                                            .aopDocumentUrl
-                                            .isNotEmpty
-                                        ? AppColor.primary
-                                        : AppColor.grey,
-                                size: 16,
-                              ),
-                    ),
-                  ),
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Validity",
-                  value:
-                      (channelPartnerModel.aopFromDate == null &&
-                              channelPartnerModel.aopToDate == null)
-                          ? "-"
-                          : "${formatDateTimeAsDDMMMYYYY(channelPartnerModel.aopFromDate)} - ${formatDateTimeAsDDMMMYYYY(channelPartnerModel.aopToDate)}",
-                ),
-                verticalSpacing(height: 5),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap: () async {
-                        goRouter.pushNamed(
-                          AppRoutes.channelPartnerSalesMatrics,
-                          queryParameters: {
-                            "channelPartnerId": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                channelPartnerModel.channelPartnerId.toString(),
-                              ),
-                            ),
-                            "channelPartnerName": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                channelPartnerModel.name,
-                              ),
-                            ),
+                    SectionCard(
+                      title: "Compliance Status",
+                      iconContainerColor: AppColor.lightPurple,
+                      iconColor: AppColor.purple,
+                      icon: LucideIcons.handshake,
+                      childSpacing: 0,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            if (channelPartnerModel.aopDocumentUrl.isNotEmpty) {
+                              showFilePreviewDialog(
+                                title: "AOP Document",
+                                context,
+                                channelPartnerModel.aopDocumentUrl.split(","),
+                              );
+                            }
                           },
-                        );
-                        await context
-                            .read<ChannelPartnerCubit>()
-                            .resetAopState();
-                      },
-                      child: Text(
-                        "View Sales Metrics",
-                        style: AppTextStyle.ts12SB(
-                          color: AppColor.primary,
-                        ).copyWith(
-                          decorationColor: AppColor.primary,
-                          decoration: TextDecoration.underline,
+                          child: buildRowTitleValue(
+                            singleLine: false,
+                            title: "Status",
+                            value: channelPartnerModel.aopStatus,
+                            customValueWidget: aopStatusWidget(
+                              channelPartnerModel.aopStatus,
+                              trailing:
+                                  channelPartnerModel.aopStatus.toLowerCase() ==
+                                          "non - aop"
+                                      ? null
+                                      : Icon(
+                                        Icons.remove_red_eye_outlined,
+                                        color:
+                                            channelPartnerModel
+                                                    .aopDocumentUrl
+                                                    .isNotEmpty
+                                                ? AppColor.primary
+                                                : AppColor.grey,
+                                        size: 16,
+                                      ),
+                            ),
+                          ),
                         ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Validity",
+                          value:
+                              (channelPartnerModel.aopFromDate == null &&
+                                      channelPartnerModel.aopToDate == null)
+                                  ? "-"
+                                  : "${formatDateTimeAsDDMMMYYYY(channelPartnerModel.aopFromDate)} - ${formatDateTimeAsDDMMMYYYY(channelPartnerModel.aopToDate)}",
+                        ),
+                        verticalSpacing(height: 5),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                goRouter.pushNamed(
+                                  AppRoutes.channelPartnerSalesMatrics,
+                                  queryParameters: {
+                                    "channelPartnerId":
+                                        Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            channelPartnerModel.channelPartnerId
+                                                .toString(),
+                                          ),
+                                        ),
+                                    "channelPartnerName":
+                                        Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            channelPartnerModel.name,
+                                          ),
+                                        ),
+                                  },
+                                );
+                                await context
+                                    .read<ChannelPartnerCubit>()
+                                    .resetAopState();
+                              },
+                              child: Text(
+                                "View Sales Metrics",
+                                style: AppTextStyle.ts12SB(
+                                  color: AppColor.primary,
+                                ).copyWith(
+                                  decorationColor: AppColor.primary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SectionCard(
+                      title: "Personal Information",
+                      iconContainerColor: AppColor.lightBlue,
+                      iconColor: AppColor.primary,
+                      icon: LucideIcons.user,
+                      childSpacing: 0,
+                      children: [
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Full Name",
+                          value: channelPartnerModel.name,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "DOB",
+                          value:
+                              channelPartnerModel.dob != null
+                                  ? formatDateTimeAsDDMMMYYYY(
+                                    channelPartnerModel.dob!,
+                                  )
+                                  : "-",
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Mobile Number",
+                          value: channelPartnerModel.mobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode:
+                                channelPartnerModel.mobileNumberCountryCode,
+                            value: channelPartnerModel.mobileNumber,
+                            type: ContactType.phone,
+                          ),
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "E-Mail ID",
+                          value: channelPartnerModel.emailId,
+                          customValueWidget: CustomClickToContactText(
+                            value: channelPartnerModel.emailId,
+                            type: ContactType.email,
+                          ),
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Website",
+                          value: channelPartnerModel.websiteURL,
+                          customValueWidget: CustomClickToContactText(
+                            value: channelPartnerModel.websiteURL,
+                            type: ContactType.url,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SectionCard(
+                      title: "Business Information",
+                      iconContainerColor: AppColor.lightGreenBg.withValues(
+                        alpha: 0.2,
                       ),
+                      iconColor: AppColor.darkGreen,
+                      icon: LucideIcons.briefcaseBusiness,
+                      childSpacing: 0,
+                      children: [
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Company Name",
+                          value: channelPartnerModel.companyName,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Firm Type",
+                          value: channelPartnerModel.firmsType,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Speciality",
+                          value: channelPartnerModel.speciality,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "RERA Number",
+                          value: channelPartnerModel.reraNumber,
+                        ),
+
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Type",
+                          value: channelPartnerModel.type,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Designation",
+                          value: channelPartnerModel.designation,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Alternate Contact No.",
+                          value: channelPartnerModel.alternativeMobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            value: channelPartnerModel.alternativeMobileNumber,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SectionCard(
+                      title: "Address Details",
+                      iconContainerColor: AppColor.lightOrange.withValues(
+                        alpha: 0.4,
+                      ),
+                      iconColor: AppColor.rustOrange,
+                      icon: LucideIcons.map,
+                      childSpacing: 0,
+                      children: [
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Country",
+                          value: channelPartnerModel.countryName,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "State",
+                          value: channelPartnerModel.stateName,
+                        ),
+
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "District",
+                          value: channelPartnerModel.districtName,
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "City",
+                          value: channelPartnerModel.cityName,
+                        ),
+
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Village",
+                          value: channelPartnerModel.villageName,
+                        ),
+
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Office Address",
+                          value: channelPartnerModel.officeAddress,
+                        ),
+                      ],
+                    ),
+                    SectionCard(
+                      title: "Sales Metric",
+                      iconContainerColor: AppColor.lightGreyBackground,
+                      iconColor: AppColor.grey,
+                      icon: LucideIcons.chartNoAxesCombined,
+                      childSpacing: 0,
+                      children: [
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "No Of Enquiry",
+                          value: channelPartnerModel.noOfEnquiry.addCommas(),
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "No Of Booking",
+                          value: channelPartnerModel.noOfBooking.addCommas(),
+                        ),
+
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Brokerage Percentage (%)",
+                          value:
+                              channelPartnerModel.brokeragePercentage
+                                  .addCommas(),
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Brokerage Amount (₹)",
+                          value:
+                              channelPartnerModel.brokerageAmount
+                                  .toIndianCurrency(),
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "Paid Brokerage Amount (₹)",
+                          value:
+                              channelPartnerModel.paidBrokerageAmount
+                                  .toIndianCurrency(),
+                        ),
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "No Of IBM",
+                          value: channelPartnerModel.noOfIbm.addCommas(),
+                        ),
+
+                        buildRowTitleValue(
+                          singleLine: false,
+                          title: "No Of OBM",
+                          value: channelPartnerModel.noOfObm.addCommas(),
+                        ),
+                      ],
+                    ),
+                    SectionCard(
+                      title: "Assigned Project",
+                      iconContainerColor: AppColor.lightBlue,
+                      iconColor: AppColor.primary,
+                      icon: LucideIcons.building2,
+                      childSpacing: 0,
+                      children: [
+                        Center(
+                          child: _projectPortfolioWidget(
+                            primaryProject:
+                                channelPartnerModel.primaryProjectPortfolio,
+                            secondaryProjects:
+                                channelPartnerModel.secondaryProjectPortfolio,
+                            micromarketProximity:
+                                channelPartnerModel.micromarketProximity,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SectionCard(
+                      title: "Action Details",
+                      iconContainerColor: AppColor.greyBackground,
+                      iconColor: AppColor.grey,
+                      icon: LucideIcons.history,
+                      children: [
+                        buildRowTitleValue(
+                          title: "Created By",
+                          value: channelPartnerModel.createdBy,
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "Created Date",
+                          value: formatDate(channelPartnerModel.createdDate),
+                          singleLine: false,
+                        ),
+
+                        buildRowTitleValue(
+                          title: "Modified By",
+                          value:
+                              (channelPartnerModel.modifiedBy.isNotEmpty)
+                                  ? channelPartnerModel.modifiedBy
+                                  : "-",
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "Modified Date",
+                          value:
+                              (channelPartnerModel.modifiedDate == null ||
+                                      channelPartnerModel.modifiedDate
+                                          .toString()
+                                          .trim()
+                                          .isEmpty)
+                                  ? "-"
+                                  : formatDate(
+                                    channelPartnerModel.modifiedDate,
+                                  ),
+                          singleLine: false,
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-            SectionCard(
-              title: "Personal Information",
-              iconContainerColor: AppColor.lightBlue,
-              iconColor: AppColor.primary,
-              icon: LucideIcons.user,
-              childSpacing: 0,
-              children: [
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Full Name",
-                  value: channelPartnerModel.name,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "DOB",
-                  value:
-                      channelPartnerModel.dob != null
-                          ? formatDateTimeAsDDMMMYYYY(channelPartnerModel.dob!)
-                          : "-",
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Mobile Number",
-                  value: channelPartnerModel.mobileNumber,
-                  customValueWidget: CustomClickToContactText(
-                    countryCode: channelPartnerModel.mobileNumberCountryCode,
-                    value: channelPartnerModel.mobileNumber,
-                    type: ContactType.phone,
-                  ),
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "E-Mail ID",
-                  value: channelPartnerModel.emailId,
-                  customValueWidget: CustomClickToContactText(
-                    value: channelPartnerModel.emailId,
-                    type: ContactType.email,
-                  ),
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Website",
-                  value: channelPartnerModel.websiteURL,
-                  customValueWidget: CustomClickToContactText(
-                    value: channelPartnerModel.websiteURL,
-                    type: ContactType.url,
-                  ),
-                ),
-              ],
-            ),
-            SectionCard(
-              title: "Business Information",
-              iconContainerColor: AppColor.lightGreenBg.withValues(alpha: 0.2),
-              iconColor: AppColor.darkGreen,
-              icon: LucideIcons.briefcaseBusiness,
-              childSpacing: 0,
-              children: [
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Company Name",
-                  value: channelPartnerModel.companyName,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Firm Type",
-                  value: channelPartnerModel.firmsType,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Speciality",
-                  value: channelPartnerModel.speciality,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "RERA Number",
-                  value: channelPartnerModel.reraNumber,
-                ),
-
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Type",
-                  value: channelPartnerModel.type,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Designation",
-                  value: channelPartnerModel.designation,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Alternate Contact No.",
-                  value: channelPartnerModel.alternativeMobileNumber,
-                  customValueWidget: CustomClickToContactText(
-                    value: channelPartnerModel.alternativeMobileNumber,
-                  ),
-                ),
-              ],
-            ),
-            SectionCard(
-              title: "Address Details",
-              iconContainerColor: AppColor.lightOrange.withValues(alpha: 0.4),
-              iconColor: AppColor.rustOrange,
-              icon: LucideIcons.map,
-              childSpacing: 0,
-              children: [
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Country",
-                  value: channelPartnerModel.countryName,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "State",
-                  value: channelPartnerModel.stateName,
-                ),
-
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "District",
-                  value: channelPartnerModel.districtName,
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "City",
-                  value: channelPartnerModel.cityName,
-                ),
-
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Village",
-                  value: channelPartnerModel.villageName,
-                ),
-
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Office Address",
-                  value: channelPartnerModel.officeAddress,
-                ),
-              ],
-            ),
-            SectionCard(
-              title: "Sales Metric",
-              iconContainerColor: AppColor.lightGreyBackground,
-              iconColor: AppColor.grey,
-              icon: LucideIcons.chartNoAxesCombined,
-              childSpacing: 0,
-              children: [
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "No Of Enquiry",
-                  value: channelPartnerModel.noOfEnquiry.addCommas(),
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "No Of Booking",
-                  value: channelPartnerModel.noOfBooking.addCommas(),
-                ),
-
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Brokerage Percentage (%)",
-                  value: channelPartnerModel.brokeragePercentage.addCommas(),
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Brokerage Amount (₹)",
-                  value: channelPartnerModel.brokerageAmount.toIndianCurrency(),
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "Paid Brokerage Amount (₹)",
-                  value:
-                      channelPartnerModel.paidBrokerageAmount
-                          .toIndianCurrency(),
-                ),
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "No Of IBM",
-                  value: channelPartnerModel.noOfIbm.addCommas(),
-                ),
-
-                buildRowTitleValue(
-                  singleLine: false,
-                  title: "No Of OBM",
-                  value: channelPartnerModel.noOfObm.addCommas(),
-                ),
-              ],
-            ),
-            SectionCard(
-              title: "Assigned Project",
-              iconContainerColor: AppColor.lightBlue,
-              iconColor: AppColor.primary,
-              icon: LucideIcons.building2,
-              childSpacing: 0,
-              children: [
-                Center(
-                  child: _projectPortfolioWidget(
-                    primaryProject: channelPartnerModel.primaryProjectPortfolio,
-                    secondaryProjects:
-                        channelPartnerModel.secondaryProjectPortfolio,
-                    micromarketProximity:
-                        channelPartnerModel.micromarketProximity,
-                  ),
-                ),
-              ],
-            ),
-            SectionCard(
-              title: "Action Details",
-              iconContainerColor: AppColor.greyBackground,
-              iconColor: AppColor.grey,
-              icon: LucideIcons.history,
-              children: [
-                buildRowTitleValue(
-                  title: "Created By",
-                  value: channelPartnerModel.createdBy,
-                  singleLine: false,
-                ),
-                buildRowTitleValue(
-                  title: "Created Date",
-                  value: formatDate(channelPartnerModel.createdDate),
-                  singleLine: false,
-                ),
-
-                buildRowTitleValue(
-                  title: "Modified By",
-                  value:
-                      (channelPartnerModel.modifiedBy.isNotEmpty)
-                          ? channelPartnerModel.modifiedBy
-                          : "-",
-                  singleLine: false,
-                ),
-                buildRowTitleValue(
-                  title: "Modified Date",
-                  value:
-                      (channelPartnerModel.modifiedDate == null ||
-                              channelPartnerModel.modifiedDate
-                                  .toString()
-                                  .trim()
-                                  .isEmpty)
-                          ? "-"
-                          : formatDate(channelPartnerModel.modifiedDate),
-                  singleLine: false,
-                ),
-              ],
+              ),
             ),
           ],
         ),

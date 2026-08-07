@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/widget/pending_approval_card.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -33,6 +34,7 @@ import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
 class DashboardScreen extends StatefulWidget {
   final AttendanceModel? data;
   const DashboardScreen({super.key, this.data});
@@ -551,7 +553,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                     _buildWordayOverviewWidget(state, context),
                     verticalSpacing(height: 16),
                     // PENDING APPROVAL WIDGET
-                    _pendingApprovalWidget(),
+                    pendingApprovalWidget(),
                     verticalSpacing(height: 16),
                     //  QUICK ACTIONS WIDGET
                     _buildQuickActionsWidget(context),
@@ -931,250 +933,6 @@ class _DashboardScreenState extends State<DashboardScreen>
           ),
         );
       },
-    );
-  }
-
-  Widget _pendingApprovalWidget() {
-    return BlocBuilder<DashboardCubit, DashboardState>(
-      builder: (context, state) {
-        final table13 = state.userData?.table13 ?? [];
-
-        /// INVENTORY DATA
-        final inventoryList =
-            table13
-                .where((i) => i.moduleName.toLowerCase().contains('inventory'))
-                .toList();
-
-        /// PARKING DATA
-        final parkingList =
-            table13
-                .where((i) => i.moduleName.toLowerCase().contains('parking'))
-                .toList();
-
-        /// BOOKING DATA
-        final bookingList =
-            table13
-                .where((i) => i.moduleName.toLowerCase().contains('booking'))
-                .toList();
-
-        final pendingInventory = inventoryList.length;
-        final pendingParking = parkingList.length;
-        final pendingBooking = bookingList.length;
-
-        return Container(
-          decoration: commonCardDecoration(),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Pending Approvals",
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.50),
-                ),
-              ),
-
-              verticalSpacing(height: 12),
-
-              /// Header
-              if (pendingInventory > 0 ||
-                  pendingParking > 0 ||
-                  pendingBooking > 0) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text("Type", style: AppTextStyle.ts12R()),
-                      ),
-                      Text("Count", style: AppTextStyle.ts12R()),
-                    ],
-                  ),
-                ),
-              ] else ...[
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    noDataWidget(
-                      iconSize: 100,
-                      message: "No module approval data",
-                    ),
-                  ],
-                ),
-              ],
-
-              /// INVENTORY
-              if (pendingInventory > 0)
-                _approvalTile(
-                  title: "Inventory",
-                  count: pendingInventory,
-                  icon: AppAssets.boxIcon,
-                  iconBg: AppColor.lightBluebg,
-                  iconColor: AppColor.primary,
-                  onTap: () {
-                    final inventoryData =
-                        inventoryList.map((e) {
-                          return [
-                            {"title": "Project", "value": e.projectName},
-                            {"title": "Building", "value": e.buildingNumber},
-                            {"title": "Wing", "value": e.wing},
-                          ];
-                        }).toList();
-
-                    goRouter.pushNamed(
-                      AppRoutes.pendingApprovalScreen,
-                      queryParameters: {
-                        "title": "Inventory",
-                        "onViewRoute": AppRoutes.inventory,
-                        "pendingApproval": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(inventoryData),
-                          ),
-                        ),
-                      },
-                    );
-                  },
-                ),
-
-              /// PARKING
-              if (pendingParking > 0)
-                _approvalTile(
-                  title: "Parking",
-                  count: pendingParking,
-                  icon: AppAssets.car,
-                  iconBg: AppColor.lightGreen.withValues(alpha: 0.3),
-                  iconColor: AppColor.darkGreen,
-                  onTap: () {
-                    final parkingData =
-                        parkingList.map((e) {
-                          return [
-                            {"title": "Project", "value": e.projectName},
-                            {"title": "Building", "value": e.buildingNumber},
-                            {"title": "Wing", "value": e.wing},
-                            {"title": "Floor", "value": e.floor},
-                          ];
-                        }).toList();
-
-                    goRouter.pushNamed(
-                      AppRoutes.pendingApprovalScreen,
-                      queryParameters: {
-                        "title": "Parking",
-                        "onViewRoute": AppRoutes.parking,
-                        "pendingApproval": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(parkingData),
-                          ),
-                        ),
-                      },
-                    );
-                  },
-                ),
-
-              /// BOOKING
-              if (pendingBooking > 0)
-                _approvalTile(
-                  title: "Booking",
-                  count: pendingBooking,
-                  iconData: Icons.assignment_turned_in_outlined,
-                  iconBg: AppColor.lightOrange,
-                  iconColor: AppColor.rustOrange,
-                  removeBorder: true,
-                  onTap: () {
-                    final bookingData =
-                        bookingList.map((e) {
-                          return [
-                            {"title": "Project", "value": e.projectName},
-                            {"title": "Flat", "value": e.flat},
-                            {"title": "Applicant", "value": e.applicantName},
-                          ];
-                        }).toList();
-
-                    goRouter.pushNamed(
-                      AppRoutes.pendingApprovalScreen,
-                      queryParameters: {
-                        "title": "Booking",
-                        "onViewRoute": AppRoutes.booking,
-                        "pendingApproval": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(bookingData),
-                          ),
-                        ),
-                      },
-                    );
-                  },
-                ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _approvalTile({
-    required String title,
-    required int count,
-    required VoidCallback onTap,
-    required Color iconBg,
-    required Color iconColor,
-    bool removeBorder = false,
-    String? icon,
-    IconData? iconData,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          border:
-              !removeBorder
-                  ? Border(bottom: BorderSide(color: AppColor.grey30))
-                  : null,
-        ),
-        child: Row(
-          children: [
-            /// Icon
-            Container(
-              height: 38,
-              width: 38,
-              decoration: BoxDecoration(
-                color: iconBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child:
-                  icon != null
-                      ? SvgPicture.asset(
-                        icon,
-                        height: 20,
-                        width: 20,
-                        color: iconColor,
-                      )
-                      : Icon(iconData, size: 20, color: iconColor),
-            ),
-
-            horizontalSpacing(width: 14),
-
-            /// TITLE
-            Expanded(child: Text(title, style: AppTextStyle.ts14M())),
-
-            /// COUNT
-            Text(count.toString(), style: AppTextStyle.ts14M()),
-
-            horizontalSpacing(width: 14),
-
-            /// ARROW
-            Container(
-              height: 24.h,
-              width: 24.w,
-              decoration: BoxDecoration(
-                color: AppColor.lightBluebg,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: const Icon(Icons.chevron_right, size: 18),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
