@@ -182,9 +182,7 @@ class _LeaveEncashmentScreenState extends State<LeaveEncashmentScreen> {
                                 Expanded(
                                   child: Text(
                                     leaveEncashment.earningMasterName,
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.primary,
-                                    ),
+                                    style: AppTextStyle.ts16M(),
                                   ),
                                 ),
                                 horizontalSpacing(),

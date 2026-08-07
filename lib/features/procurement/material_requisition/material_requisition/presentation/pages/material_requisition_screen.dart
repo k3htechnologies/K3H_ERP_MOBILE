@@ -535,11 +535,8 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                               },
                               child: Text(
                                 materialRequisition.systemGeneratedCode,
-                                style: AppTextStyle.ts14M(
+                                style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),

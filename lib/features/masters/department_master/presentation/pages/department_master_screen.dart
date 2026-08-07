@@ -350,7 +350,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
                             Expanded(
                               child: Text(
                                 department.departmentName,
-                                style: AppTextStyle.ts14R(),
+                                style: AppTextStyle.ts16M(),
                               ),
                             ),
                             horizontalSpacing(),

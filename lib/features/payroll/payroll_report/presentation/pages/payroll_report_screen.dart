@@ -1229,12 +1229,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      employeeName,
-                      style: AppTextStyle.ts16M(color: AppColor.primary),
-                    ),
-                  ],
+                  children: [Text(employeeName, style: AppTextStyle.ts16M())],
                 ),
               ),
             ],

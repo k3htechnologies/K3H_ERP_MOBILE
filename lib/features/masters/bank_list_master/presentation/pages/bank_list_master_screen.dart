@@ -130,12 +130,9 @@ class _BankListScreenState extends State<BankListScreen> {
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.all(12),
                   decoration: commonCardDecoration(),
-                  child: Container(
-                    decoration: commonCardDecoration(),
-                    child: Text(
-                      bank.bankNameWithCode,
-                      style: AppTextStyle.ts14SB(),
-                    ),
+                  child: Text(
+                    bank.bankNameWithCode,
+                    style: AppTextStyle.ts14SB(),
                   ),
                 );
               },

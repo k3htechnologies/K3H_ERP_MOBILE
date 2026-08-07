@@ -233,9 +233,6 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                 approvalCategory.approvalDocumentCategoryName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

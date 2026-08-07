@@ -1,4 +1,4 @@
-part of 'umo_master_cubit.dart';
+part of 'uom_master_cubit.dart';
 
 class UOMMasterState extends BaseState {
   final List<UOMModel> uomList;

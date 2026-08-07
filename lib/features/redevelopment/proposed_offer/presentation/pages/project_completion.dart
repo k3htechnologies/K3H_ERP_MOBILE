@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
@@ -174,11 +175,41 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                     ),
                   ),
                 ),
-                actionCardWidget(
-                  createdBy: state.projectCompletion?.createdBy ?? "-",
-                  createdDate: state.projectCompletion?.createdDate,
-                  modifiedBy: state.projectCompletion?.modifiedBy,
-                  modifiedDate: state.projectCompletion?.modifiedDate,
+                sectionCard(
+                  title: 'Action Details',
+                  textColor: AppColor.black,
+                  bgColor: AppColor.grey20,
+                  children: [
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: state.projectCompletion?.createdBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDate(
+                            state.projectCompletion?.createdDate,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: state.projectCompletion?.modifiedBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDate(
+                            state.projectCompletion?.modifiedDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

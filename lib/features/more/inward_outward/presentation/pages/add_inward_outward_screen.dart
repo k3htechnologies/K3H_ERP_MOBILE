@@ -504,8 +504,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           title: "Invoice Number",
                           isRequired: !isOther,
                           hint: "Enter Invoice Number",
-                          inputFormatterList: InputValidator.digit(15),
-                          keyboardType: TextInputType.number,
+                          inputFormatterList:
+                              InputValidator.digitAndCharacterOnly(15),
                           validator: (value) {
                             if (value != null &&
                                 value.trim().isNotEmpty &&

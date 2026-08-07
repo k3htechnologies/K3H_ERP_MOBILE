@@ -222,13 +222,41 @@ class _AdditionalInformationDetailsState
                     ),
                   ),
                 ),
-                actionCardWidget(
-                  createdBy:
-                      state.additionalInformationDetails?.createdBy ?? "-",
-                  createdDate: state.additionalInformationDetails?.createdDate,
-                  modifiedBy: state.additionalInformationDetails?.modifiedBy,
-                  modifiedDate:
-                      state.additionalInformationDetails?.modifiedDate,
+                sectionCard(
+                  title: 'Action Details',
+                  textColor: AppColor.black,
+                  bgColor: AppColor.grey20,
+                  children: [
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: state.additionalInformationDetails?.createdBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDate(
+                            state.additionalInformationDetails?.createdDate,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: state.additionalInformationDetails?.modifiedBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDate(
+                            state.additionalInformationDetails?.modifiedDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

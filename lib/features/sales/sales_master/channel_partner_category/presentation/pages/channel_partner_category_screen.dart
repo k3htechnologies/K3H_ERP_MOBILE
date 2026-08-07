@@ -227,9 +227,7 @@ class _ChannelPartnerCategoryScreenState
                                     children: [
                                       Text(
                                         channelPartnerCategory.categoryName,
-                                        style: AppTextStyle.ts16M(
-                                          color: AppColor.primary,
-                                        ),
+                                        style: AppTextStyle.ts16M(),
                                       ),
                                       ValueListenableBuilder(
                                         valueListenable: _isEditMode,

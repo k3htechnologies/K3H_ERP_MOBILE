@@ -219,7 +219,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                             .resetAopState();
                       },
                       child: Text(
-                        "View Sales Matrics",
+                        "View Sales Metrics",
                         style: AppTextStyle.ts12SB(
                           color: AppColor.primary,
                         ).copyWith(
@@ -276,7 +276,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                   title: "Website",
                   value: channelPartnerModel.websiteURL,
                   customValueWidget: CustomClickToContactText(
-                    value: channelPartnerModel.websiteURL ,
+                    value: channelPartnerModel.websiteURL,
                     type: ContactType.url,
                   ),
                 ),

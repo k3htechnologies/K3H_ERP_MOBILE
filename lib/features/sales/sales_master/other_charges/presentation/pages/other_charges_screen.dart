@@ -211,9 +211,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                                   Expanded(
                                     child: Text(
                                       otherCharges.chargeName,
-                                      style: AppTextStyle.ts14SB(
-                                        color: AppColor.primary,
-                                      ),
+                                      style: AppTextStyle.ts16M(),
                                     ),
                                   ),
                                   horizontalSpacing(),

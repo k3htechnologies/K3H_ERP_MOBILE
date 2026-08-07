@@ -490,7 +490,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
         _filterCpCode.clear();
         _selectedNoOfIBM.value = null;
         _selectedNoOfOBM.value = null;
-        _selectedAopStatus.value=null;
+        _selectedAopStatus.value = null;
         selectedDirection = null;
         _channelPartnerCubit.applyChannelPartnerFilterAndSort(
           context: context,
@@ -658,9 +658,6 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                   channelPartner.name,
                                   style: AppTextStyle.ts16M(
                                     color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
                                   ),
                                 ),
                               ),

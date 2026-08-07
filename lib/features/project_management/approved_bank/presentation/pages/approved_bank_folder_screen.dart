@@ -33,7 +33,6 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
   // AUTHORIZATION MODEL
   late AuthorizationModel _routeAuthorizationModel;
 
-
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
 
@@ -169,25 +168,27 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
                               },
                               child: Text(
                                 folder.bankName,
-                                style: AppTextStyle.ts14M().copyWith(
+                                style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),
                           ),
-                          if(_routeAuthorizationModel.isAction)
-                          CustomIconButton.delete(
-                            isDisabled: state.approvedBankFolderList[index].numberOfApprovedBankFile>0,
-                            onPressed: () {
-                              _showPopupToDeleteApprovedBankFile(
-                                context,
-                                state.approvedBankFolderList[index],
-                                1,
-                              );
-                            },
-                          ),
+                          if (_routeAuthorizationModel.isAction)
+                            CustomIconButton.delete(
+                              isDisabled:
+                                  state
+                                      .approvedBankFolderList[index]
+                                      .numberOfApprovedBankFile >
+                                  0,
+                              onPressed: () {
+                                _showPopupToDeleteApprovedBankFile(
+                                  context,
+                                  state.approvedBankFolderList[index],
+                                  1,
+                                );
+                              },
+                            ),
                         ],
                       ),
                       verticalSpacing(),
@@ -207,15 +208,15 @@ class _ApprovedBankFolderScreenState extends State<ApprovedBankFolderScreen> {
                               ),
                             ],
                           ),
-                          if(_routeAuthorizationModel.isExport)
-                          CustomIconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.file_download_outlined,
-                              size: 16,
-                              color: AppColor.primary,
+                          if (_routeAuthorizationModel.isExport)
+                            CustomIconButton(
+                              onPressed: () {},
+                              icon: Icon(
+                                Icons.file_download_outlined,
+                                size: 16,
+                                color: AppColor.primary,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],

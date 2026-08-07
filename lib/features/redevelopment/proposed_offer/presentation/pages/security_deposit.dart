@@ -549,11 +549,41 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                     ),
                   ),
                 ),
-                actionCardWidget(
-                  createdBy: state.securityDepositDetails?.createdBy ?? "-",
-                  createdDate: state.securityDepositDetails?.createdDate,
-                  modifiedBy: state.securityDepositDetails?.modifiedBy,
-                  modifiedDate: state.securityDepositDetails?.modifiedDate,
+                sectionCard(
+                  title: 'Action Details',
+                  textColor: AppColor.black,
+                  bgColor: AppColor.grey20,
+                  children: [
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: state.securityDepositDetails?.createdBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDate(
+                            state.securityDepositDetails?.createdDate,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: state.securityDepositDetails?.modifiedBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDate(
+                            state.securityDepositDetails?.modifiedDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

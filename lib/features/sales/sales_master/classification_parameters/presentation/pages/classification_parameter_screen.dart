@@ -253,9 +253,7 @@ class _ClassificationParameterScreenState
                                   Flexible(
                                     child: Text(
                                       "${classificationParameter.minBudget} Min Budget (In CR)",
-                                      style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
-                                      ),
+                                      style: AppTextStyle.ts16M(),
                                     ),
                                   ),
                                   Visibility(

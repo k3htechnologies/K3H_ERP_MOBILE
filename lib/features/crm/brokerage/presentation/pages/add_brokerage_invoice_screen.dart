@@ -182,8 +182,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   title: "Invoice Number",
                   hint: "Enter Invoice Number",
                   isRequired: true,
-                  inputFormatterList: InputValidator.digit(15),
-                  keyboardType: TextInputType.number,
+                  inputFormatterList: InputValidator.digitAndCharacterOnly(15),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Invoice Number is required";

@@ -633,11 +633,6 @@ class _BookingScreenState extends State<BookingScreen> {
                                                 booking.applicantName,
                                                 style: AppTextStyle.ts14M(
                                                   color: AppColor.primary,
-                                                ).copyWith(
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                  decorationColor:
-                                                      AppColor.primary,
                                                 ),
                                               ),
                                             ),

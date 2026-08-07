@@ -213,8 +213,8 @@ import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_mas
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/add_sub_material_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/sub_material_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/sub_material_master_view_screen.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/cubit/umo_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/pages/umo_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/presentation/cubit/uom_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/presentation/pages/uom_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';

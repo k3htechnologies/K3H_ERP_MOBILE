@@ -395,12 +395,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           },
                           child: Text(
                             document.projectRERADocumentName,
-                            style: AppTextStyle.ts16M(
-                              color: AppColor.primary,
-                            ).copyWith(
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColor.primary,
-                            ),
+                            style: AppTextStyle.ts16M(color: AppColor.primary),
                           ),
                         ),
                       ),

@@ -410,12 +410,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                           },
                           child: Text(
                             document.approvalDocumentName,
-                            style: AppTextStyle.ts16M(
-                              color: AppColor.primary,
-                            ).copyWith(
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColor.primary,
-                            ),
+                            style: AppTextStyle.ts16M(color: AppColor.primary),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),

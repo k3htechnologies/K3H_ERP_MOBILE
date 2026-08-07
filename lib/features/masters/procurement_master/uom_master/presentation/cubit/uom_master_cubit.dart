@@ -2,13 +2,13 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/data/model/umo_master.model.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/data/repository/umo_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/data/model/uom_master.model.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/data/repository/uom_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
-part 'umo_master_state.dart';
+part 'uom_master_state.dart';
 
 class UOMMasterCubit extends Cubit<UOMMasterState> {
   UOMMasterCubit() : super(UOMMasterState.initial());
@@ -23,7 +23,7 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
     Map<String, dynamic> queryParams = {"Uom": state.searchText};
     var result = await _uomMasterRepository.getUOMList(
       pageNumber: pageNumber,
-      pageSize: 15,
+      pageSize: 20,
       queryParams: queryParams,
     );
     result.fold(
@@ -41,10 +41,7 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
           state.copyWith(
             isLoading: false,
             uomList: updatedList,
-            totalNumberOfRecord:
-                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
-                    ? state.totalNumberOfRecord - 1
-                    : response['totalNumberOfRecord'],
+            totalNumberOfRecord: response['totalNumberOfRecord'],
             currentPage: pageNumber,
           ),
         );

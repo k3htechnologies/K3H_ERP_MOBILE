@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/data/datasource/umo_master.datasource.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/data/datasource/uom_master.datasource.dart';
 
 abstract interface class UOMMasterRepository {
   Future<Either<Failure, Map<String, dynamic>>> getUOMList({

@@ -232,11 +232,39 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                     ),
                   ),
                 ),
-                actionCardWidget(
-                  createdBy: state.extraCarpetArea?.createdBy ?? "-",
-                  createdDate: state.extraCarpetArea?.createdDate,
-                  modifiedBy: state.extraCarpetArea?.modifiedBy,
-                  modifiedDate: state.extraCarpetArea?.modifiedDate,
+                sectionCard(
+                  title: 'Action Details',
+                  textColor: AppColor.black,
+                  bgColor: AppColor.grey20,
+                  children: [
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: state.extraCarpetArea?.createdBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDate(state.extraCarpetArea?.createdDate),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: state.extraCarpetArea?.modifiedBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDate(
+                            state.extraCarpetArea?.modifiedDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

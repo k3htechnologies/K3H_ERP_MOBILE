@@ -38,7 +38,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     var result = await _termsAndConditionsMasterRepository
         .getTermsAndConditionsList(
           pageNumber: pageNumber,
-          pageSize: 10,
+          pageSize: 15,
           moduleName: "MATERIAL REQUISITION",
           queryParams: queryParams,
         );
@@ -87,7 +87,7 @@ class TermsAndConditionsCubit extends Cubit<TermsAndConditionsState> {
     var result = await _termsAndConditionsMasterRepository
         .getTermsAndConditionsList(
           pageNumber: pageNumber,
-          pageSize: 10,
+          pageSize: 15,
           moduleName: "BOOKING",
           queryParams: queryParams,
         );

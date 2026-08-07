@@ -599,11 +599,41 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                     ),
                   ),
                 ),
-                actionCardWidget(
-                  createdBy: state.hardshipOfferDetails?.createdBy ?? "-",
-                  createdDate: state.hardshipOfferDetails?.createdDate,
-                  modifiedBy: state.hardshipOfferDetails?.modifiedBy,
-                  modifiedDate: state.hardshipOfferDetails?.modifiedDate,
+                sectionCard(
+                  title: 'Action Details',
+                  textColor: AppColor.black,
+                  bgColor: AppColor.grey20,
+                  children: [
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: state.hardshipOfferDetails?.createdBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDate(
+                            state.hardshipOfferDetails?.createdDate,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: state.hardshipOfferDetails?.modifiedBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDate(
+                            state.hardshipOfferDetails?.modifiedDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
 import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -248,11 +249,37 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // ACTION DETAILS
-          actionCardWidget(
-            createdBy: building.createdBy,
-            createdDate: building.createdDate,
-            modifiedBy: building.modifiedBy,
-            modifiedDate: building.modifiedDate,
+          sectionCard(
+            title: 'Action Details',
+            textColor: AppColor.black,
+            bgColor: AppColor.grey20,
+            children: [
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Created By",
+                    value: building.createdBy,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Created Date",
+                    value: formatDate(building.createdDate),
+                  ),
+                ],
+              ),
+
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Modified By",
+                    value: building.modifiedBy,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Modified Date",
+                    value: formatDate(building.modifiedDate),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),

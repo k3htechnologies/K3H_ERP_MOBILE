@@ -756,11 +756,39 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                     ),
                   ),
                 ),
-                actionCardWidget(
-                  createdBy: state.shiftingDetails?.createdBy ?? "-",
-                  createdDate: state.shiftingDetails?.createdDate,
-                  modifiedBy: state.shiftingDetails?.modifiedBy,
-                  modifiedDate: state.shiftingDetails?.modifiedDate,
+                sectionCard(
+                  title: 'Action Details',
+                  textColor: AppColor.black,
+                  bgColor: AppColor.grey20,
+                  children: [
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: state.shiftingDetails?.createdBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDate(state.shiftingDetails?.createdDate),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: state.shiftingDetails?.modifiedBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDate(
+                            state.shiftingDetails?.modifiedDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),

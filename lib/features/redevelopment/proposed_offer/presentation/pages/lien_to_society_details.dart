@@ -764,11 +764,41 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                     ),
                   ),
                 ),
-                actionCardWidget(
-                  createdBy: state.lienToSocietyDetails?.createdBy ?? "-",
-                  createdDate: state.lienToSocietyDetails?.createdDate,
-                  modifiedBy: state.lienToSocietyDetails?.modifiedBy,
-                  modifiedDate: state.lienToSocietyDetails?.modifiedDate,
+                sectionCard(
+                  title: 'Action Details',
+                  textColor: AppColor.black,
+                  bgColor: AppColor.grey20,
+                  children: [
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: state.lienToSocietyDetails?.createdBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDate(
+                            state.lienToSocietyDetails?.createdDate,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    Row(
+                      children: [
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: state.lienToSocietyDetails?.modifiedBy,
+                        ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDate(
+                            state.lienToSocietyDetails?.modifiedDate,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ],
             ),
