@@ -156,125 +156,125 @@ class _ProposedPlanParkingDetailsViewState
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(16),
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 16,
         children: [
           Text(
             "Parking Details",
             style: AppTextStyle.ts14M(color: AppColor.grey),
           ),
 
-          verticalSpacing(),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: commonCardDecoration(),
+            child: CustomTextField(
+              title: "Overall Parking (Sales Parking + Members Parking)",
+              readOnly: true,
+              textController: _overallParkingC,
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Sales Parking",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 16.h,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: CustomTextField(
-                  title: "Overall Parking (Sales Parking + Members Parking)",
-                  readOnly: true,
-                  textController: _overallParkingC,
-                ),
+                        verticalSpacing(),
+
+                        CustomTextField(
+                          title: "Residential",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(3),
+                          textController: _salesResidentialC,
+                        ),
+
+                        CustomTextField(
+                          title: "Commercial",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(3),
+                          textController: _salesCommercialC,
+                        ),
+
+                        CustomTextField(
+                          title: "Visitor",
+                          keyboardType: TextInputType.number,
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          inputFormatterList: InputValidator.digit(3),
+                          textController: _salesVisitorC,
+                        ),
+
+                        CustomTextField(
+                          title: "Total Sales Parking",
+                          readOnly: true,
+                          textController: _totalSalesParkingC,
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Members Parking",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
+
+                        verticalSpacing(),
+
+                        CustomTextField(
+                          title: "Residential",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(3),
+                          textController: _memberResidentialC,
+                        ),
+
+                        CustomTextField(
+                          title: "Commercial",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(3),
+                          textController: _memberCommercialC,
+                        ),
+
+                        CustomTextField(
+                          title: "Visitor",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          inputFormatterList: InputValidator.digit(3),
+                          keyboardType: TextInputType.number,
+                          textController: _memberVisitorC,
+                        ),
+
+                        CustomTextField(
+                          title: "Total Members Parking",
+                          readOnly: true,
+                          textController: _totalMemberParkingC,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Sales Parking",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-
-                    verticalSpacing(),
-
-                    CustomTextField(
-                      title: "Residential",
-                      readOnly: !_routeAuthorizationModel.isAction,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(3),
-                      textController: _salesResidentialC,
-                    ),
-
-                    CustomTextField(
-                      title: "Commercial",
-                      readOnly: !_routeAuthorizationModel.isAction,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(3),
-                      textController: _salesCommercialC,
-                    ),
-
-                    CustomTextField(
-                      title: "Visitor",
-                      keyboardType: TextInputType.number,
-                      readOnly: !_routeAuthorizationModel.isAction,
-                      inputFormatterList: InputValidator.digit(3),
-                      textController: _salesVisitorC,
-                    ),
-
-                    CustomTextField(
-                      title: "Total Sales Parking",
-                      readOnly: true,
-                      textController: _totalSalesParkingC,
-                    ),
-                  ],
-                ),
-              ),
-
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Members Parking",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-
-                    verticalSpacing(),
-
-                    CustomTextField(
-                      title: "Residential",
-                      readOnly: !_routeAuthorizationModel.isAction,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(3),
-                      textController: _memberResidentialC,
-                    ),
-
-                    CustomTextField(
-                      title: "Commercial",
-                      readOnly: !_routeAuthorizationModel.isAction,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(3),
-                      textController: _memberCommercialC,
-                    ),
-
-                    CustomTextField(
-                      title: "Visitor",
-                      readOnly: !_routeAuthorizationModel.isAction,
-                      inputFormatterList: InputValidator.digit(3),
-                      keyboardType: TextInputType.number,
-                      textController: _memberVisitorC,
-                    ),
-
-                    CustomTextField(
-                      title: "Total Members Parking",
-                      readOnly: true,
-                      textController: _totalMemberParkingC,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),

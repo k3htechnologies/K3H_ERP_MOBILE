@@ -6,7 +6,6 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/proposed_plans.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/data/model/amenity_category.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_state.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_amenities_view.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/widgets/proposed_plan_details_view.dart';
@@ -20,7 +19,6 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -52,14 +50,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
   late final TextEditingController _totalBuildingC;
 
-  final ValueNotifier<List<AmenityCategory>> _amenitiesList =
-      ValueNotifier<List<AmenityCategory>>([]);
-
-  /// Tracks whether the currently-selected building's amenities have
-  /// already been pushed into [_amenitiesList], so we don't clobber the
-  /// user's in-progress selection on every rebuild.
-  bool _amenitiesPrefilledForCurrentBuilding = false;
-
   final ValueNotifier<bool> _hasSearchResults = ValueNotifier(true);
   final TextEditingController _buildingCountC = TextEditingController();
   final GlobalKey<FormState> _buildingCountFormKey = GlobalKey<FormState>();
@@ -84,22 +74,18 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     );
     _buildingDetailsTabController.addListener(_handleDetailsTabChange);
 
-    _amenitiesList.value = _buildDefaultAmenities();
-
     _proposedPlansCubit.onTabChanged(_buildingDetailsTabController.index);
   }
 
   @override
   void dispose() {
     _hasSearchResults.dispose();
-    _amenitiesList.dispose();
     _buildingTabController.dispose();
     _buildingDetailsTabController.dispose();
     _totalBuildingC.dispose();
     super.dispose();
   }
 
-  // Tab handling
   void _handleBuildingTabChange() {
     if (!_buildingTabController.indexIsChanging) {
       _proposedPlansCubit.changeBuildingTab(_buildingTabController.index);
@@ -123,166 +109,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     )..addListener(_handleBuildingTabChange);
   }
 
-  // Amenities
-  void _applyAmenitiesSelection(String amenitiesString) {
-    final selected =
-        amenitiesString
-            .split(',')
-            .map((e) => e.trim().toLowerCase())
-            .where((e) => e.isNotEmpty)
-            .toSet();
-
-    _amenitiesList.value =
-        _amenitiesList.value
-            .map(
-              (category) => category.copyWith(
-                subCategories:
-                    category.subCategories
-                        .map(
-                          (sub) => sub.copyWith(
-                            isSelected: selected.contains(
-                              sub.name.trim().toLowerCase(),
-                            ),
-                          ),
-                        )
-                        .toList(),
-              ),
-            )
-            .toList();
-  }
-
-  void _clearAmenitiesSelection() {
-    _amenitiesList.value =
-        _amenitiesList.value
-            .map(
-              (category) => category.copyWith(
-                subCategories:
-                    category.subCategories
-                        .map((sub) => sub.copyWith(isSelected: false))
-                        .toList(),
-              ),
-            )
-            .toList();
-  }
-
-  void _updateAmenityCategory(int index, AmenityCategory updated) {
-    final updatedList = List<AmenityCategory>.from(_amenitiesList.value);
-    updatedList[index] = updated;
-    _amenitiesList.value = updatedList;
-  }
-
-  List<String> _selectedAmenityNames() => [
-    for (final category in _amenitiesList.value)
-      for (final sub in category.subCategories)
-        if (sub.isSelected) sub.name,
-  ];
-
-  String _selectedAmenitiesCsv() => _selectedAmenityNames().join(',');
-
-  List<AmenityCategory> _buildDefaultAmenities() => [
-    AmenityCategory(
-      title: "Safety & Security",
-      subCategories: [
-        AmenitySubCategory(name: "24* 7 Security"),
-        AmenitySubCategory(name: "CCTV Surveillance"),
-        AmenitySubCategory(name: "Fire Fighting System"),
-        AmenitySubCategory(name: "First Aid Room"),
-        AmenitySubCategory(name: "Intercom Facility"),
-        AmenitySubCategory(name: "Security Cabin"),
-        AmenitySubCategory(name: "Earthquake Resistant Structure"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Sports & Fitness",
-      subCategories: [
-        AmenitySubCategory(name: "Swimming Pool"),
-        AmenitySubCategory(name: "Gym"),
-        AmenitySubCategory(name: "Yoga Room"),
-        AmenitySubCategory(name: "Jogging Track"),
-        AmenitySubCategory(name: "Badminton Court"),
-        AmenitySubCategory(name: "BasketBall Court"),
-        AmenitySubCategory(name: "Tennis Court"),
-        AmenitySubCategory(name: "Squash Court"),
-        AmenitySubCategory(name: "Table Tennis"),
-        AmenitySubCategory(name: "Kids Pool"),
-        AmenitySubCategory(name: "Indoor Games"),
-        AmenitySubCategory(name: "Cycling Track"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Community & Social Spaces",
-      subCategories: [
-        AmenitySubCategory(name: "Club House"),
-        AmenitySubCategory(name: "Banquet Hall"),
-        AmenitySubCategory(name: "Amphitheatre"),
-        AmenitySubCategory(name: "Library"),
-        AmenitySubCategory(name: "Reading Room"),
-        AmenitySubCategory(name: "Society Office"),
-        AmenitySubCategory(name: "Temple/Prayer Hall"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Kids & Family",
-      subCategories: [
-        AmenitySubCategory(name: "Children Play Area"),
-        AmenitySubCategory(name: "Creche"),
-        AmenitySubCategory(name: "Day Care Center"),
-        AmenitySubCategory(name: "School Bus Bay"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Pets - Friendly Facilities",
-      subCategories: [
-        AmenitySubCategory(name: "Pet Park"),
-        AmenitySubCategory(name: "Pet Care Area"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Work & Business",
-      subCategories: [
-        AmenitySubCategory(name: "Co-Working Space"),
-        AmenitySubCategory(name: "Conference Room"),
-        AmenitySubCategory(name: "Society Office"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Convenience & Utilities",
-      subCategories: [
-        AmenitySubCategory(name: "Lift"),
-        AmenitySubCategory(name: "Power Backup"),
-        AmenitySubCategory(name: "Water Supply"),
-        AmenitySubCategory(name: "Parking"),
-        AmenitySubCategory(name: "Visitor Parking"),
-        AmenitySubCategory(name: "Covered Parking"),
-        AmenitySubCategory(name: "EV Charging Points"),
-        AmenitySubCategory(name: "Laundry Service"),
-        AmenitySubCategory(name: "Garbage Disposal System"),
-        AmenitySubCategory(name: "Sewage Treatment Plant"),
-        AmenitySubCategory(name: "Rainwater Harvesting"),
-        AmenitySubCategory(name: "Service Lift"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Health & Wellness",
-      subCategories: [
-        AmenitySubCategory(name: "Spa"),
-        AmenitySubCategory(name: "Steam Room"),
-        AmenitySubCategory(name: "Meditation Area"),
-        AmenitySubCategory(name: "Jacuzzi"),
-      ],
-    ),
-    AmenityCategory(
-      title: "Commercial & Services",
-      subCategories: [
-        AmenitySubCategory(name: "ATM"),
-        AmenitySubCategory(name: "Pharmacy"),
-        AmenitySubCategory(name: "Convenience Store"),
-        AmenitySubCategory(name: "Co-working Space"),
-        AmenitySubCategory(name: "Cafeteria"),
-      ],
-    ),
-  ];
-
   void _handleAddOrUpdateProposedPlan(ProposedPlansState state) {
     if (state.proposedPlansList.isEmpty) return;
 
@@ -298,7 +124,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
       projectId: _project.projectId,
       totalUnits: form.totalUnits,
       totalParking: form.totalParking,
-      amenities: _selectedAmenitiesCsv(),
+      amenities: form.amenities,
       planFile: form.planFile,
       threeDViewFile: form.threeDViewFile,
       salesPlanFile: form.salesPlanFile,
@@ -331,7 +157,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
 
     await DialogHelper.showCustomBottomSheet(
       context,
-      "Update Building Count",
+      "${_buildingCountC.text.isNotEmpty ? 'Update' : 'Add'} Building",
       contentWidget: Form(
         key: _buildingCountFormKey,
         child: Column(
@@ -339,14 +165,14 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
           children: [
             verticalSpacing(),
             CustomTextField(
-              title: "Total Building",
-              hint: "Enter Total Building",
+              title: "Total Number Of Buildings",
+              hint: "Enter Total Number Of Buildings",
               textController: _buildingCountC,
               keyboardType: TextInputType.number,
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Please enter building count";
+                  return "Total Number Of Buildings is required";
                 }
 
                 final count = int.tryParse(value);
@@ -420,33 +246,21 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     _buildingCountC.clear();
   }
 
-  // Bloc listener
   void _onProposedPlansStateChanged(
     BuildContext context,
     ProposedPlansState state,
   ) {
     if (state.proposedPlansList.isEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        _clearAmenitiesSelection();
-        _amenitiesPrefilledForCurrentBuilding = false;
-      });
       _totalBuildingC.clear();
       return;
     }
 
-    _amenitiesPrefilledForCurrentBuilding = false;
-
     final plan = state.proposedPlansList.first;
     if (plan.buildingProposedPlanData.isEmpty) return;
-    final building = plan.buildingProposedPlanData[state.currentBuildingIndex];
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _totalBuildingC.text = plan.totalNumberOfBuilding.toString();
-      _totalBuildingC.text = plan.totalNumberOfBuilding.toString();
-      _applyAmenitiesSelection(building.amenities);
-      _amenitiesPrefilledForCurrentBuilding = true;
     });
   }
 
@@ -513,14 +327,15 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
               Expanded(
                 child: CustomTextField(
                   textController: _totalBuildingC,
-                  title: "Total Building",
-                  hint: "Enter Total Building",
+                  title: "Total No. Of Buildings",
+                  hint: "Enter Total No. Of Buildings",
                   keyboardType: TextInputType.number,
                   readOnly: true,
                 ),
               ),
-              CustomIconButton.add(
-                isDisabled: !_routeAuthorizationModel.isAction,
+              CustomButton(
+                text: _totalBuildingC.text.isEmpty ? 'Add' : 'Update',
+                isDisable: !_routeAuthorizationModel.isAction,
                 onPressed: _showBuildingCountBottomSheet,
               ),
             ],
@@ -550,16 +365,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
         state.currentBuildingIndex < buildingList.length
             ? buildingList[state.currentBuildingIndex]
             : buildingList.first;
-
-    // Only prefill amenities once per building load — repeated rebuilds
-    // (tab switches, unrelated state emissions) must not overwrite the
-    // user's in-progress selection.
-    if (!_amenitiesPrefilledForCurrentBuilding) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _applyAmenitiesSelection(selectedBuilding.amenities);
-        _amenitiesPrefilledForCurrentBuilding = true;
-      });
-    }
 
     return Column(
       children: [
@@ -639,17 +444,11 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                 ),
                 building: selectedBuilding,
               ),
-              ValueListenableBuilder<List<AmenityCategory>>(
-                valueListenable: _amenitiesList,
-                builder: (context, list, child) {
-                  return AmenitiesTab(
-                    key: ValueKey(state.currentBuildingIndex),
-                    amenitiesList: list,
-                    onUpdate: _updateAmenityCategory,
-                    onSearchResultChanged: (hasData) {
-                      _hasSearchResults.value = hasData;
-                    },
-                  );
+              AmenitiesDetailsView(
+                key: ValueKey(_buildingDetailsTabController.index.toString()),
+                initialAmenities: selectedBuilding.amenities,
+                onSearchResultChanged: (hasData) {
+                  _hasSearchResults.value = hasData;
                 },
               ),
             ],

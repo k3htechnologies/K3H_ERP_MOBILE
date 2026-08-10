@@ -99,7 +99,7 @@ class _DuplicateBuildingProposedPlanScreenState
                 child: Column(
                   children: [
                     CustomTextField(
-                      title: 'Duplicate From',
+                      title: 'Source Building',
                       textController: TextEditingController(
                         text: widget.buildingName,
                       ),
@@ -109,7 +109,7 @@ class _DuplicateBuildingProposedPlanScreenState
                       valueListenable: _selectedBuildings,
                       builder: (context, value, child) {
                         return CustomMultipleSelectPopup(
-                          title: "Duplicate To",
+                          title: "Applicable Buildings",
                           hintText: "Select Buildings",
                           isRequired: true,
                           initialValue: _selectedBuildings.value,
@@ -120,7 +120,7 @@ class _DuplicateBuildingProposedPlanScreenState
                           dataFetchCallBack: _fetchBuildings,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Duplicate To is required";
+                              return "Applicable Buildings is required";
                             }
                             return null;
                           },
