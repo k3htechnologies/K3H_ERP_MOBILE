@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/c
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CarpetPlotDetails extends StatefulWidget {
@@ -48,10 +49,10 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
             return Column(
               children: [
                 // BUILDING PLOT AREA
-                sectionCard(
+                SectionCard(
                   title: 'Building Plot Area',
-                  textColor: AppColor.primary,
-                  bgColor: AppColor.lightBlue,
+                  titleTextColor: AppColor.primary,
+                  headerBackgroundColor: AppColor.lightBlue,
                   children: [
                     Row(
                       spacing: 10,
@@ -101,10 +102,10 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                   ],
                 ),
                 // BUILDING CONSTRUCTION DETAILS
-                sectionCard(
+                SectionCard(
                   title: 'Building Construction Details',
-                  textColor: AppColor.primary,
-                  bgColor: AppColor.lightBlue,
+                  headerBackgroundColor: AppColor.lightBlue,
+                  titleTextColor: AppColor.primary,
                   children: [
                     Row(
                       spacing: 10,
@@ -155,10 +156,10 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                   ],
                 ),
                 // BUILDING KEY CONTACT DETAILS
-                sectionCard(
+                SectionCard(
                   title: 'Building Key Contact Details',
-                  textColor: AppColor.primary,
-                  bgColor: AppColor.lightBlue,
+                  titleTextColor: AppColor.primary,
+                  headerBackgroundColor: AppColor.lightBlue,
                   children: [
                     ...carpetPlotDetails.buildingKeyContactDetailsData.map((
                       contact,

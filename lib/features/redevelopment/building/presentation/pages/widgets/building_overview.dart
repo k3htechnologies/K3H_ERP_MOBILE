@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
 import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 
 class BuildingOverview extends StatelessWidget {
   final RedevelopmentBuildingModel building;
@@ -17,10 +18,10 @@ class BuildingOverview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          sectionCard(
+          SectionCard(
             title: 'Building Details',
-            textColor: AppColor.primary,
-            bgColor: AppColor.lightBlue,
+            titleTextColor: AppColor.primary,
+            headerBackgroundColor: AppColor.lightBlue,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,10 +66,12 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // PROPERTY INFORMATION
-          sectionCard(
+          SectionCard(
             title: 'Property Information',
-            textColor: AppColor.orange,
-            bgColor: AppColor.lightOrangeBg.withValues(alpha: 0.5),
+            titleTextColor: AppColor.orange,
+            headerBackgroundColor: AppColor.lightOrangeBg.withValues(
+              alpha: 0.5,
+            ),
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,10 +111,10 @@ class BuildingOverview extends StatelessWidget {
           ),
 
           // LOCATION DETAILS
-          sectionCard(
+          SectionCard(
             title: 'Location Details',
-            textColor: AppColor.darkBlue29,
-            bgColor: AppColor.darkBlue29.withValues(alpha: 0.1),
+            titleTextColor: AppColor.darkBlue29,
+            headerBackgroundColor: AppColor.darkBlue29.withValues(alpha: 0.1),
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,10 +164,10 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // GARDEN INFORMATION
-          sectionCard(
+          SectionCard(
             title: 'Garden Information',
-            textColor: AppColor.purple700,
-            bgColor: AppColor.lightPurpleBg2,
+            titleTextColor: AppColor.purple700,
+            headerBackgroundColor: AppColor.lightPurpleBg2,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,10 +186,10 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // RELIGIOUS INFORMATION
-          sectionCard(
+          SectionCard(
             title: 'Religious Information',
-            textColor: Colors.blue,
-            bgColor: Colors.blue.shade100.withValues(alpha: 0.5),
+            titleTextColor: Colors.blue,
+            headerBackgroundColor: Colors.blue.shade100.withValues(alpha: 0.5),
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,10 +208,10 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // FSI/TDR INFORMATION
-          sectionCard(
+          SectionCard(
             title: 'FSI/TDR Information',
-            textColor: AppColor.brown,
-            bgColor: AppColor.lightYellow,
+            titleTextColor: AppColor.brown,
+            headerBackgroundColor: AppColor.lightYellow,
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -227,10 +230,10 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // LITIGATION INFORMATION
-          sectionCard(
+          SectionCard(
             title: 'Litigation Information',
-            textColor: AppColor.darkGreen10,
-            bgColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+            titleTextColor: AppColor.darkGreen10,
+            headerBackgroundColor: AppColor.darkGreen10.withValues(alpha: 0.1),
             children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,10 +252,10 @@ class BuildingOverview extends StatelessWidget {
             ],
           ),
           // ACTION DETAILS
-          sectionCard(
+          SectionCard(
             title: 'Action Details',
-            textColor: AppColor.black,
-            bgColor: AppColor.grey20,
+            titleTextColor: AppColor.black,
+            headerBackgroundColor: AppColor.grey20,
             children: [
               Row(
                 children: [

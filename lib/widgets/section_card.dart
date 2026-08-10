@@ -9,12 +9,20 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class SectionCard extends StatelessWidget {
   final String title;
   final IconData? icon;
+
   final TextStyle? titleTextStyle;
+
   final Color? titleTextColor;
-  final Color iconContainerColor;
+
+  final Color? iconContainerColor;
+
   final Color? iconColor;
-  final List<Widget> children;
+
+  final Color? headerBackgroundColor;
+
   final double? childSpacing;
+
+  final List<Widget> children;
 
   const SectionCard({
     super.key,
@@ -25,12 +33,59 @@ class SectionCard extends StatelessWidget {
     this.titleTextColor,
     this.iconContainerColor = AppColor.lightBlue,
     this.iconColor,
+    this.headerBackgroundColor,
     this.childSpacing,
   });
 
   @override
   Widget build(BuildContext context) {
+    return icon == null ? _buildViewCard() : _buildNormalCard();
+  }
+
+  Widget _buildViewCard() {
     return Container(
+      width: double.infinity,
+      margin: EdgeInsets.only(bottom: 16.h),
+      clipBehavior: Clip.antiAlias,
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [_buildViewHeader(), _buildViewContent()],
+      ),
+    );
+  }
+
+  Widget _buildViewHeader() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      color: headerBackgroundColor ?? const Color(0xFFDCE8F6),
+      child: Text(
+        title,
+        style: AppTextStyle.ts14SB(
+          color: titleTextColor ?? const Color(0xFF1F5CC4),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildViewContent() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: children.length,
+        separatorBuilder:
+            (_, __) => Divider(height: 20.h, color: AppColor.lightBlue),
+        itemBuilder: (context, index) => children[index],
+      ),
+    );
+  }
+
+  Widget _buildNormalCard() {
+    return Container(
+      width: double.infinity,
       padding: EdgeInsets.all(16.w),
       margin: EdgeInsets.only(bottom: 16.h),
       decoration: commonCardDecoration(),
@@ -40,27 +95,31 @@ class SectionCard extends StatelessWidget {
           CardHeaderTile(
             title: title,
             textStyle:
-                titleTextStyle ??
-                AppTextStyle.ts14SB().copyWith(color: titleTextColor),
+                titleTextStyle ?? AppTextStyle.ts14SB(color: titleTextColor),
             icon: icon,
-            backgroundColor: iconContainerColor,
+            backgroundColor: iconContainerColor ?? AppColor.lightBlue,
             iconColor: iconColor,
           ),
           verticalSpacing(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: List.generate(
-              children.length,
-              (index) => Padding(
-                padding: EdgeInsets.only(
-                  bottom: index == children.length - 1 ? 0 : childSpacing ?? 10,
-                ),
-                child: children[index],
-              ),
-            ),
-          ),
+          _buildNormalContent(),
         ],
       ),
+    );
+  }
+
+  Widget _buildNormalContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(children.length, (index) {
+        final isLastItem = index == children.length - 1;
+
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: isLastItem ? 0 : childSpacing ?? 10.h,
+          ),
+          child: children[index],
+        );
+      }),
     );
   }
 }

@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BuildingDetailsView extends StatelessWidget {
@@ -59,10 +60,10 @@ class BuildingDetailsView extends StatelessWidget {
               ),
               verticalSpacing(),
               // BUILDING PLOT AREA
-              sectionCard(
+              SectionCard(
                 title: 'Building Plot Area',
-                textColor: AppColor.primary,
-                bgColor: AppColor.lightBlue,
+                titleTextColor: AppColor.primary,
+                headerBackgroundColor: AppColor.lightBlue,
                 children: [
                   Row(
                     spacing: 10,
@@ -114,10 +115,10 @@ class BuildingDetailsView extends StatelessWidget {
                 ],
               ),
               // BUILDING CONSTRUCTION DETAILS
-              sectionCard(
+              SectionCard(
                 title: 'Building Construction Details',
-                textColor: AppColor.primary,
-                bgColor: AppColor.lightBlue,
+                titleTextColor: AppColor.primary,
+                headerBackgroundColor: AppColor.lightBlue,
                 children: [
                   Row(
                     spacing: 10,
@@ -172,10 +173,10 @@ class BuildingDetailsView extends StatelessWidget {
                 ],
               ),
               // BUILDING KEY CONTACT DETAILS
-              sectionCard(
+              SectionCard(
                 title: 'Building Key Contact Details',
-                textColor: AppColor.primary,
-                bgColor: AppColor.lightBlue,
+                titleTextColor: AppColor.primary,
+                headerBackgroundColor: AppColor.lightBlue,
                 children: [
                   ...state.buildingDetails!.buildingKeyContactDetailsData.map((
                     contact,
