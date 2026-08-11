@@ -1,29 +1,23 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gallery_saver_plus/files.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant_document.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/repository/tenant.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 part 'tenant_state.dart';
 
 class TenantCubit extends Cubit<TenantState> {
   TenantCubit() : super(TenantState.initial());
-
-  // BUILDING REPOSITORY
-  final BuildingRepository _buildingRepository =
-      serviceLocator<BuildingRepository>();
   // TENANT REPOSITORY
   final TenantRepository _tenantRepository = serviceLocator<TenantRepository>();
-
   // ON TAB CHANGED
   void onTabChanged(
     int index,
@@ -33,7 +27,6 @@ class TenantCubit extends Cubit<TenantState> {
     int tenantId,
   ) {
     emit(state.copyWith(currentTabIndex: index));
-
     if (index == 1) {
       // Document tab
       getTenantDocumentList(
@@ -73,35 +66,33 @@ class TenantCubit extends Cubit<TenantState> {
     required BuildContext context,
     required int projectId,
     required int buildingId,
-
-    required String filterFlatType,
-    required String filterFlatConfiguration,
-    String? filterFlatNumber,
-    String? filterApplicantName,
-    String? filterFlatCarpetAreaSqFt,
-    String? filterBuildingNumber,
-    String? filterWing,
-    String? filterFlat,
-    String? filterParkingNumber,
-
+    required String filterByFlatType,
+    required String filterByFlatConfiguration,
+    String? filterByFlatNumber,
+    String? filterByApplicantName,
+    String? filterByFlatCarpetAreaSqFt,
+    String? filterByBuildingNumber,
+    String? filterByWing,
+    String? filterByFlat,
+    String? filterByParkingNumber,
+    String? filterByTenantCode,
     String? sortColumn,
     String? sortDirection,
   }) async {
     emit(
       state.copyWith(
-        filterFlatType: filterFlatType,
-        filterFlatConfiguration: filterFlatConfiguration,
-        searchText: filterFlatNumber,
-        filterApplicantName: filterApplicantName ?? "",
-        filterFlatCarpetAreaSqFt: filterFlatCarpetAreaSqFt ?? "",
-        filterBuildingNumber: filterBuildingNumber ?? "",
-        filterWing: filterWing ?? "",
-        filterFlat: filterFlat ?? "",
-        filterParkingNumber: filterParkingNumber ?? "",
-
+        filterByFlatType: filterByFlatType,
+        filterByFlatConfiguration: filterByFlatConfiguration,
+        searchText: filterByFlatNumber,
+        filterByApplicantName: filterByApplicantName ?? "",
+        filterByFlatCarpetAreaSqFt: filterByFlatCarpetAreaSqFt ?? "",
+        filterByBuildingNumber: filterByBuildingNumber ?? "",
+        filterByWing: filterByWing ?? "",
+        filterByFlat: filterByFlat ?? "",
+        filterByParkingNumber: filterByParkingNumber ?? "",
+        filterByTenantCode: filterByTenantCode ?? "",
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
-
         buildingList: [],
         currentPage: 1,
       ),
@@ -115,82 +106,6 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
-  // GET BUILDING LIST
-  Future<List<RedevelopmentBuildingModel>> getBuildingList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-    int projectId, {
-    String? searchQuery,
-  }) async {
-    emit(state.copyWith(isLoading: true));
-    if (projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-      });
-      emit(state.copyWith(isLoading: false));
-      return [];
-    }
-    final result = await _buildingRepository.pullBuilding(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-      projectId: projectId,
-      queryParams:
-          searchQuery != null && searchQuery.isNotEmpty
-              ? {"BuildingName": searchQuery}
-              : null,
-    );
-
-    final buildingList = result.fold<List<RedevelopmentBuildingModel>>(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error", failure.message);
-        return state.buildingList;
-      },
-
-      (response) {
-        final newData = List<RedevelopmentBuildingModel>.from(response['data']);
-
-        List<RedevelopmentBuildingModel> updatedList;
-
-        if (pageNumber == 1) {
-          updatedList =
-              state.buildingList
-                  .where((b) => b.projectId != projectId)
-                  .toList();
-        } else {
-          updatedList = List.from(state.buildingList);
-        }
-
-        final Map<int, RedevelopmentBuildingModel> uniqueMap = {
-          for (var b in updatedList) b.buildingId: b,
-        };
-
-        for (final b in newData) {
-          if (b.projectId == projectId) {
-            uniqueMap[b.buildingId] = b;
-          }
-        }
-
-        updatedList = uniqueMap.values.toList();
-
-        final totalCount = response['totalNumberOfRecord'] ?? 0;
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            buildingList: updatedList,
-            buildingTotalCount: totalCount,
-          ),
-        );
-
-        return updatedList;
-      },
-    );
-
-    return buildingList;
-  }
-
   // GET TENANT LIST
   Future getTenantList({
     required BuildContext context,
@@ -199,21 +114,20 @@ class TenantCubit extends Cubit<TenantState> {
     required int pageNumber,
   }) async {
     emit(state.copyWith(isLoading: true));
-
     Map<String, dynamic> queryParams = {
-      "FlatType": state.filterFlatType,
-      "ApplicantName": state.filterApplicantName,
-      "FlatConfiguration": state.filterFlatConfiguration,
-      "FlatNumber": state.searchText,
-      "FlatCarpetAreaSqFt": state.filterFlatCarpetAreaSqFt,
-      "BuildingNumber": state.filterBuildingNumber,
-      "Wing": state.filterWing,
-      "Flat": state.filterFlat,
-      "ParkingNumber": state.filterParkingNumber,
+      "UnitType": state.filterByFlatType,
+      "ApplicantName": state.filterByApplicantName,
+      "UnitConfiguration": state.filterByFlatConfiguration,
+      "UnitAnnexureSurveyNumber": state.searchText,
+      "UnitCarpetAreaSqFt": state.filterByFlatCarpetAreaSqFt,
+      "BuildingNumber": state.filterByBuildingNumber,
+      "Wing": state.filterByWing,
+      "Flat": state.filterByFlat,
+      "ParkingNumber": state.filterByParkingNumber,
       "IsCheckPermission": false,
+      "SystemGeneratedCode": state.filterByTenantCode,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
-
     final result = await _tenantRepository.getTenantList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -221,7 +135,6 @@ class TenantCubit extends Cubit<TenantState> {
       buildingId: buildingId,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -231,7 +144,6 @@ class TenantCubit extends Cubit<TenantState> {
         final List<TenantModel> newData = List<TenantModel>.from(
           response['data'] ?? [],
         );
-
         final List<TenantModel> updatedList =
             pageNumber == 1 ? newData : [...state.tenantList, ...newData];
         emit(
@@ -246,6 +158,22 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
+  void searchTenantDocument({
+    required String value,
+    required int buildingId,
+    required int projectId,
+    required BuildContext context,
+    required int tenantId,
+  }) {
+    emit(state.copyWith(searchDocumentName: value));
+    getTenantDocumentList(
+      buildingId: buildingId,
+      context: context,
+      projectId: projectId,
+      tenantId: tenantId,
+    );
+  }
+
   // GET TENANT DOCUMENT LIST
   Future<void> getTenantDocumentList({
     required BuildContext context,
@@ -254,15 +182,17 @@ class TenantCubit extends Cubit<TenantState> {
     required int buildingId,
   }) async {
     emit(state.copyWith(isLoading: true));
-
     final result = await _tenantRepository.getTenantDocumentList(
       pageNumber: 1,
       pageSize: 100,
       projectId: projectId,
       buildingId: buildingId,
-      queryParams: {"IsCheckPermission": true, "TenantId": tenantId},
+      queryParams: {
+        "IsCheckPermission": true,
+        "TenantId": tenantId,
+        "DocumentName": state.searchDocumentName,
+      },
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -284,45 +214,68 @@ class TenantCubit extends Cubit<TenantState> {
   // ADD TENANT
   Future addTenant({
     required BuildContext context,
-    required String projectId,
-    required String buildingId,
-    required String flatNumber,
-    required String flatCarpetAreaSqFt,
-    required String facing,
-    required String flatType,
-    required String flatConfiguration,
-    required String freeAreaOfferedPercentage,
-    required String extraAreaPurchasedSqFt,
-    required String totalAreaSqFt,
+    required int projectId,
+    required int buildingId,
+    required String unitAnnexureSurveyNumber,
+    required String unitCarpetAreaSqFt,
+    required String unitFacing,
+    required String unitType,
+    required String unitConfiguration,
+    required double extraFreeCarpetAreaOfferedPercent,
+    required double freeMOFACarpetAreaSqFt,
+    required double newEligibilityMOFACarpetAreaSqFt,
+    required double newEligibilityRERACarpetAreaSqFt,
+    required double mofaCarpetAreaPurchasedSqFt,
+    required double reraCarpetAreaPurchasedSqFt,
+    required double totalNewMOFACarpetAreaSqFt,
+    required double totalNewRERACarpetAreaSqFt,
+    required double deckAreaSqFt,
+    required double existingTerraceAreaSqFt,
+    required double areaAgainstTerraceSqFt,
+    required double totalNewRERACarpetAreaWithDeckSqFt,
+    required String remark,
     required List<TenantApplicantData> addUpdateTenantApplicant,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
-    // ---------- Request Body ----------
+    // Build request
     Map<String, String> requestBody = {
       "TenantId": "0",
-      "ProjectId": projectId,
-      "BuildingId": buildingId,
-      "FlatNumber": flatNumber,
-      "FlatCarpetAreaSqFt": flatCarpetAreaSqFt,
-      "Facing": facing,
-      "FlatType": flatType,
-      "FlatConfiguration": flatConfiguration,
-      "FreeAreaOfferedPercent": freeAreaOfferedPercentage,
-      "ExtraAreaPurchasedSqFt": extraAreaPurchasedSqFt,
-      "TotalAreaSqFt": totalAreaSqFt,
+      "ProjectId": projectId.toString(),
+      "BuildingId": buildingId.toString(),
+      "UnitAnnexureSurveyNumber": unitAnnexureSurveyNumber,
+      "UnitType": unitType,
+      "UnitConfiguration": unitConfiguration,
+      "UnitCarpetAreaSqFt": unitCarpetAreaSqFt,
+      "UnitFacing": unitFacing,
+      "ExtraFreeCarpetAreaOfferedPercent":
+          extraFreeCarpetAreaOfferedPercent.toString(),
+      "FreeMOFACarpetAreaSqFt": freeMOFACarpetAreaSqFt.toString(),
+      "NewEligibilityMOFACarpetAreaSqFt":
+          newEligibilityMOFACarpetAreaSqFt.toString(),
+      "NewEligibilityRERACarpetAreaSqFt":
+          newEligibilityRERACarpetAreaSqFt.toString(),
+      "MOFACarpetAreaPurchasedSqFt": mofaCarpetAreaPurchasedSqFt.toString(),
+      "RERACarpetAreaPurchasedSqFt": reraCarpetAreaPurchasedSqFt.toString(),
+      "TotalNewMOFACarpetAreaSqFt": totalNewMOFACarpetAreaSqFt.toString(),
+      "TotalNewRERACarpetAreaSqFt": totalNewRERACarpetAreaSqFt.toString(),
+      "DeckAreaSqFt": deckAreaSqFt.toString(),
+      "ExistingTerraceAreaSqFt": existingTerraceAreaSqFt.toString(),
+      "AreaAgainstTerraceSqFt": areaAgainstTerraceSqFt.toString(),
+      "TotalNewRERACarpetAreaWithDeckSqFt":
+          totalNewRERACarpetAreaWithDeckSqFt.toString(),
+      "Remark": remark,
     };
-
     for (
       int applicantIndex = 0;
       applicantIndex < addUpdateTenantApplicant.length;
       applicantIndex++
     ) {
       var e = addUpdateTenantApplicant[applicantIndex];
-
       requestBody.addAll({
-        "AddUpdateTenantApplicants[$applicantIndex].BuildingId": buildingId,
-        "AddUpdateTenantApplicants[$applicantIndex].ProjectId": projectId,
+        "AddUpdateTenantApplicants[$applicantIndex].BuildingId":
+            buildingId.toString(),
+        "AddUpdateTenantApplicants[$applicantIndex].ProjectId":
+            projectId.toString(),
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantType":
             e.applicantType,
         "AddUpdateTenantApplicants[$applicantIndex].TenantId":
@@ -335,35 +288,44 @@ class TenantCubit extends Cubit<TenantState> {
             e.applicantMobileNumber,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantEmailId":
             e.applicantEmailId,
-
-        // Remove file URLs
+        // Keep original URLs, send deleted files separately
+        "AddUpdateTenantApplicants[$applicantIndex].PhotoURL": e.photoURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePhotoURL":
             e.profilePhotoImage.deletedFileList,
         "AddUpdateTenantApplicants[$applicantIndex].AadharCardNumber":
             e.aadharCardNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].AadharCardURL":
+            e.aadharCardURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveAadharCardURL":
             e.aadhaarImage.deletedFileList,
         "AddUpdateTenantApplicants[$applicantIndex].PanNumber": e.panNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].PanCardURL": e.panCardURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePanCardURL":
             e.panImage.deletedFileList,
         "AddUpdateTenantApplicants[$applicantIndex].PassportNumber":
             e.passportNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].PassportURL": e.passportURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePassportURL":
             e.passportImage.deletedFileList,
         "AddUpdateTenantApplicants[$applicantIndex].DrivingLicenseNumber":
             e.drivingLicenseNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].DrivingLicenseURL":
+            e.drivingLicenseURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveDrivingLicenseURL":
             e.drivingLicenseImage.deletedFileList,
+        "AddUpdateTenantApplicants[$applicantIndex].ChequeURL": e.chequeURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveChequeURL":
             e.chequeImage.deletedFileList,
         "AddUpdateTenantApplicants[$applicantIndex].VotingIdNumber":
             e.votingIdNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].VotingIdURL": e.votingIdURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveVotingIdURL":
             e.votingIdImage.deletedFileList,
         "AddUpdateTenantApplicants[$applicantIndex].GstNumber": e.gstNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].GstNumberURL":
+            e.gstNumberURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveGSTNumberURL":
             e.gstImage.deletedFileList,
-
         // Bank details
         "AddUpdateTenantApplicants[$applicantIndex].BankListMasterId":
             e.bankListMasterId.toString(),
@@ -372,94 +334,82 @@ class TenantCubit extends Cubit<TenantState> {
         "AddUpdateTenantApplicants[$applicantIndex].IFSCCode": e.ifscCode,
       });
     }
-
-    // ---------- File Uploads ----------
     List<Map<String, dynamic>> fileList = [];
-
     for (
       int applicantIndex = 0;
       applicantIndex < addUpdateTenantApplicant.length;
       applicantIndex++
     ) {
       var applicantData = addUpdateTenantApplicant[applicantIndex];
-
-      void addFiles(List<String> names, List<dynamic> bytes, String keyName) {
-        for (int fileIndex = 0; fileIndex < names.length; fileIndex++) {
-          if (names[fileIndex].contains("http")) continue;
-          fileList.add({
-            "key": "AddUpdateTenantApplicants[$applicantIndex].$keyName",
-            "value": bytes[fileIndex],
-            "fileName": names[fileIndex],
-          });
-        }
-      }
-
-      addFiles(
-        applicantData.profilePhotoImage.fileNameList,
-        applicantData.profilePhotoImage.fileBytesList,
-        "PhotoURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fieldName: "PhotoURL",
+        fileModel: applicantData.profilePhotoImage,
       );
-
-      addFiles(
-        applicantData.aadhaarImage.fileNameList,
-        applicantData.aadhaarImage.fileBytesList,
-        "AadharCardURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.aadhaarImage,
+        fieldName: "AadharCardURL",
       );
-
-      addFiles(
-        applicantData.panImage.fileNameList,
-        applicantData.panImage.fileBytesList,
-        "PanCardURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.panImage,
+        fieldName: "PanCardURL",
       );
-
-      addFiles(
-        applicantData.passportImage.fileNameList,
-        applicantData.passportImage.fileBytesList,
-        "PassportURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.passportImage,
+        fieldName: "PassportURL",
       );
-
-      addFiles(
-        applicantData.drivingLicenseImage.fileNameList,
-        applicantData.drivingLicenseImage.fileBytesList,
-        "DrivingLicenseURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.drivingLicenseImage,
+        fieldName: "DrivingLicenseURL",
       );
-
-      addFiles(
-        applicantData.votingIdImage.fileNameList,
-        applicantData.votingIdImage.fileBytesList,
-        "VotingIdURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.votingIdImage,
+        fieldName: "VotingIdURL",
       );
-
-      addFiles(
-        applicantData.gstImage.fileNameList,
-        applicantData.gstImage.fileBytesList,
-        "GstNumberURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.gstImage,
+        fieldName: "GstNumberURL",
       );
-
-      addFiles(
-        applicantData.chequeImage.fileNameList,
-        applicantData.chequeImage.fileBytesList,
-        "ChequeURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.chequeImage,
+        fieldName: "ChequeURL",
       );
     }
-
-    // ---------- API CALL ----------
-    var addResult = await _tenantRepository.addUpdateTenant(
+    var updateResult = await _tenantRepository.addUpdateTenant(
       body: requestBody,
       fileList: fileList,
     );
-
     goRouter.pop();
-
-    addResult.fold(
-      (failure) async {
+    updateResult.fold(
+      (failure) {
         emit(state.copyWith(isLoading: false));
-        await showErrorMessage(context, 'Error Message', failure.message);
+        showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
-        showSuccessMessage(context, subTitle: 'Tenant Added Successfully');
+        showSuccessMessage(context, subTitle: 'Tenant Updated Successfully');
+        getTenantList(
+          context: context,
+          projectId: projectId,
+          buildingId: buildingId,
+          pageNumber: 1,
+        );
       },
     );
   }
@@ -472,41 +422,62 @@ class TenantCubit extends Cubit<TenantState> {
     required String tenantId,
     required String uniqueKey,
     required String buildingId,
-    required String flatNumber,
-    required String flatCarpetAreaSqFt,
-    required String facing,
-    required String flatType,
-    required String flatConfiguration,
-    required String freeAreaOfferedPercentage,
-    required String extraAreaPurchasedSqFt,
-    required String totalAreaSqFt,
+    required String unitAnnexureSurveyNumber,
+    required String unitCarpetAreaSqFt,
+    required String unitFacing,
+    required String unitType,
+    required String unitConfiguration,
+    required double extraFreeCarpetAreaOfferedPercent,
+    required double freeMOFACarpetAreaSqFt,
+    required double newEligibilityMOFACarpetAreaSqFt,
+    required double newEligibilityRERACarpetAreaSqFt,
+    required double mofaCarpetAreaPurchasedSqFt,
+    required double reraCarpetAreaPurchasedSqFt,
+    required double totalNewMOFACarpetAreaSqFt,
+    required double totalNewRERACarpetAreaSqFt,
+    required double deckAreaSqFt,
+    required double existingTerraceAreaSqFt,
+    required double areaAgainstTerraceSqFt,
+    required double totalNewRERACarpetAreaWithDeckSqFt,
+    required String remark,
     required List<TenantApplicantData> addUpdateTenantApplicant,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     // Build request
     Map<String, String> requestBody = {
       "TenantId": tenantId,
       "Uniquekey": uniqueKey,
       "ProjectId": projectId,
       "BuildingId": buildingId,
-      "FlatNumber": flatNumber,
-      "FlatCarpetAreaSqFt": flatCarpetAreaSqFt,
-      "Facing": facing,
-      "FlatType": flatType,
-      "FlatConfiguration": flatConfiguration,
-      "FreeAreaOfferedPercent": freeAreaOfferedPercentage,
-      "ExtraAreaPurchasedSqFt": extraAreaPurchasedSqFt,
-      "TotalAreaSqFt": totalAreaSqFt,
+      "UnitAnnexureSurveyNumber": unitAnnexureSurveyNumber,
+      "UnitType": unitType,
+      "UnitConfiguration": unitConfiguration,
+      "UnitCarpetAreaSqFt": unitCarpetAreaSqFt,
+      "UnitFacing": unitFacing,
+      "ExtraFreeCarpetAreaOfferedPercent":
+          extraFreeCarpetAreaOfferedPercent.toString(),
+      "FreeMOFACarpetAreaSqFt": freeMOFACarpetAreaSqFt.toString(),
+      "NewEligibilityMOFACarpetAreaSqFt":
+          newEligibilityMOFACarpetAreaSqFt.toString(),
+      "NewEligibilityRERACarpetAreaSqFt":
+          newEligibilityRERACarpetAreaSqFt.toString(),
+      "MOFACarpetAreaPurchasedSqFt": mofaCarpetAreaPurchasedSqFt.toString(),
+      "RERACarpetAreaPurchasedSqFt": reraCarpetAreaPurchasedSqFt.toString(),
+      "TotalNewMOFACarpetAreaSqFt": totalNewMOFACarpetAreaSqFt.toString(),
+      "TotalNewRERACarpetAreaSqFt": totalNewRERACarpetAreaSqFt.toString(),
+      "DeckAreaSqFt": deckAreaSqFt.toString(),
+      "ExistingTerraceAreaSqFt": existingTerraceAreaSqFt.toString(),
+      "AreaAgainstTerraceSqFt": areaAgainstTerraceSqFt.toString(),
+      "TotalNewRERACarpetAreaWithDeckSqFt":
+          totalNewRERACarpetAreaWithDeckSqFt.toString(),
+      "Remark": remark,
     };
-
     for (
       int applicantIndex = 0;
       applicantIndex < addUpdateTenantApplicant.length;
       applicantIndex++
     ) {
       var e = addUpdateTenantApplicant[applicantIndex];
-
       requestBody.addAll({
         "AddUpdateTenantApplicants[$applicantIndex].BuildingId": buildingId,
         "AddUpdateTenantApplicants[$applicantIndex].ProjectId": projectId,
@@ -522,53 +493,44 @@ class TenantCubit extends Cubit<TenantState> {
             e.applicantMobileNumber,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantEmailId":
             e.applicantEmailId,
-
         // Keep original URLs, send deleted files separately
         "AddUpdateTenantApplicants[$applicantIndex].PhotoURL": e.photoURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePhotoURL":
             e.profilePhotoImage.deletedFileList,
-
         "AddUpdateTenantApplicants[$applicantIndex].AadharCardNumber":
             e.aadharCardNumber,
         "AddUpdateTenantApplicants[$applicantIndex].AadharCardURL":
             e.aadharCardURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveAadharCardURL":
             e.aadhaarImage.deletedFileList,
-
         "AddUpdateTenantApplicants[$applicantIndex].PanNumber": e.panNumber,
         "AddUpdateTenantApplicants[$applicantIndex].PanCardURL": e.panCardURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePanCardURL":
             e.panImage.deletedFileList,
-
         "AddUpdateTenantApplicants[$applicantIndex].PassportNumber":
             e.passportNumber,
         "AddUpdateTenantApplicants[$applicantIndex].PassportURL": e.passportURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePassportURL":
             e.passportImage.deletedFileList,
-
         "AddUpdateTenantApplicants[$applicantIndex].DrivingLicenseNumber":
             e.drivingLicenseNumber,
         "AddUpdateTenantApplicants[$applicantIndex].DrivingLicenseURL":
             e.drivingLicenseURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveDrivingLicenseURL":
             e.drivingLicenseImage.deletedFileList,
-
         "AddUpdateTenantApplicants[$applicantIndex].ChequeURL": e.chequeURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveChequeURL":
             e.chequeImage.deletedFileList,
-
         "AddUpdateTenantApplicants[$applicantIndex].VotingIdNumber":
             e.votingIdNumber,
         "AddUpdateTenantApplicants[$applicantIndex].VotingIdURL": e.votingIdURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveVotingIdURL":
             e.votingIdImage.deletedFileList,
-
         "AddUpdateTenantApplicants[$applicantIndex].GstNumber": e.gstNumber,
         "AddUpdateTenantApplicants[$applicantIndex].GstNumberURL":
             e.gstNumberURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveGSTNumberURL":
             e.gstImage.deletedFileList,
-
         // Bank details
         "AddUpdateTenantApplicants[$applicantIndex].BankListMasterId":
             e.bankListMasterId.toString(),
@@ -577,7 +539,6 @@ class TenantCubit extends Cubit<TenantState> {
         "AddUpdateTenantApplicants[$applicantIndex].IFSCCode": e.ifscCode,
       });
     }
-
     List<Map<String, dynamic>> fileList = [];
     for (
       int applicantIndex = 0;
@@ -585,69 +546,60 @@ class TenantCubit extends Cubit<TenantState> {
       applicantIndex++
     ) {
       var applicantData = addUpdateTenantApplicant[applicantIndex];
-
-      void addFiles(List<String> names, List<dynamic> bytes, String keyName) {
-        for (int fileIndex = 0; fileIndex < names.length; fileIndex++) {
-          if (names[fileIndex].contains("http")) {
-            continue;
-          }
-          fileList.add({
-            "key": "AddUpdateTenantApplicants[$applicantIndex].$keyName",
-            "value": bytes[fileIndex],
-            "fileName": names[fileIndex],
-          });
-        }
-      }
-
-      addFiles(
-        applicantData.profilePhotoImage.fileNameList,
-        applicantData.profilePhotoImage.fileBytesList,
-        "PhotoURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fieldName: "PhotoURL",
+        fileModel: applicantData.profilePhotoImage,
       );
-      addFiles(
-        applicantData.aadhaarImage.fileNameList,
-        applicantData.aadhaarImage.fileBytesList,
-        "AadharCardURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.aadhaarImage,
+        fieldName: "AadharCardURL",
       );
-      addFiles(
-        applicantData.panImage.fileNameList,
-        applicantData.panImage.fileBytesList,
-        "PanCardURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.panImage,
+        fieldName: "PanCardURL",
       );
-      addFiles(
-        applicantData.passportImage.fileNameList,
-        applicantData.passportImage.fileBytesList,
-        "PassportURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.passportImage,
+        fieldName: "PassportURL",
       );
-      addFiles(
-        applicantData.drivingLicenseImage.fileNameList,
-        applicantData.drivingLicenseImage.fileBytesList,
-        "DrivingLicenseURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.drivingLicenseImage,
+        fieldName: "DrivingLicenseURL",
       );
-      addFiles(
-        applicantData.votingIdImage.fileNameList,
-        applicantData.votingIdImage.fileBytesList,
-        "VotingIdURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.votingIdImage,
+        fieldName: "VotingIdURL",
       );
-      addFiles(
-        applicantData.gstImage.fileNameList,
-        applicantData.gstImage.fileBytesList,
-        "GstNumberURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.gstImage,
+        fieldName: "GstNumberURL",
       );
-      addFiles(
-        applicantData.chequeImage.fileNameList,
-        applicantData.chequeImage.fileBytesList,
-        "ChequeURL",
+      await _addFiles(
+        fileList: fileList,
+        applicantIndex: applicantIndex,
+        fileModel: applicantData.chequeImage,
+        fieldName: "ChequeURL",
       );
     }
-
     var updateResult = await _tenantRepository.addUpdateTenant(
       body: requestBody,
       fileList: fileList,
     );
-
     goRouter.pop();
-
     updateResult.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -657,7 +609,6 @@ class TenantCubit extends Cubit<TenantState> {
       (response) async {
         goRouter.pop();
         final updatedTenant = response['data'][0] as TenantModel;
-
         if (state.tenantList.isNotEmpty && index < state.tenantList.length) {
           final updatedList = List<TenantModel>.from(state.tenantList);
           updatedList[index] = updatedTenant;
@@ -666,6 +617,27 @@ class TenantCubit extends Cubit<TenantState> {
         showSuccessMessage(context, subTitle: 'Tenant Updated Successfully');
       },
     );
+  }
+
+  Future<void> _addFiles({
+    required List<Map<String, dynamic>> fileList,
+    required int applicantIndex,
+    required String fieldName,
+    required MultiFilePickerModel fileModel,
+  }) async {
+    for (int i = 0; i < fileModel.fileNameList.length; i++) {
+      final fileName = fileModel.fileNameList[i];
+      // skip already uploaded files
+      if (fileName.contains("http")) continue;
+      if (i >= fileModel.fileBytesList.length) continue;
+      final bytes = fileModel.fileBytesList[i];
+      final finalBytes = isImage(fileName) ? await compress(bytes) : bytes;
+      fileList.add({
+        "key": "AddUpdateTenantApplicants[$applicantIndex].$fieldName",
+        "value": finalBytes,
+        "fileName": fileName,
+      });
+    }
   }
 
   // DELETE TENANT
@@ -677,27 +649,22 @@ class TenantCubit extends Cubit<TenantState> {
     int? index,
   ) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _tenantRepository.deleteTenant(
       buildingId: tenantModel.buildingId,
       uniquekey: tenantModel.uniquekey,
       projectId: projectId,
       tenantId: tenantModel.tenantId,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
         showSuccessMessage(context, subTitle: "Tenant Deleted Successfully");
-
         if (index != null) {
           final updatedList = List<TenantModel>.from(state.tenantList);
           updatedList.removeAt(index);
-
           emit(
             state.copyWith(
               tenantList: updatedList,
@@ -727,7 +694,6 @@ class TenantCubit extends Cubit<TenantState> {
     int buildingId,
   ) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _tenantRepository.exportTenant(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
@@ -735,9 +701,7 @@ class TenantCubit extends Cubit<TenantState> {
       buildingId: buildingId,
       queryParams: {"ExportType": exportType, "FlatNumber": state.searchText},
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
@@ -766,8 +730,6 @@ class TenantCubit extends Cubit<TenantState> {
     required String documentName,
     required MultiFilePickerModel files,
   }) async {
-    if (isClosed) return;
-
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < files.fileNameList.length; i++) {
       if (files.fileNameList[i].contains("http")) {
@@ -781,9 +743,7 @@ class TenantCubit extends Cubit<TenantState> {
         });
       }
     }
-
     DialogHelper.showProcessingOverlay(context);
-
     final body = <String, String>{
       'TenantDocumentId': "0",
       'TenantId': tenantId.toString(),
@@ -791,20 +751,18 @@ class TenantCubit extends Cubit<TenantState> {
       'BuildingId': buildingId.toString(),
       'DocumentName': documentName,
     };
-
     var updateResult = await _tenantRepository.addUpdateTenantDocument(
       body: body,
       fileList: fileList,
     );
     goRouter.pop();
-
     updateResult.fold(
       (failure) {
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
       (response) async {
-        showSuccessMessage(context, subTitle: "Upload Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
         await getTenantDocumentList(
           context: context,
           projectId: projectId,
@@ -825,6 +783,7 @@ class TenantCubit extends Cubit<TenantState> {
     required int buildingId,
     required String documentName,
     required MultiFilePickerModel files,
+    required int index,
   }) async {
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < files.fileNameList.length; i++) {
@@ -839,41 +798,72 @@ class TenantCubit extends Cubit<TenantState> {
         });
       }
     }
-
     DialogHelper.showProcessingOverlay(context);
-
     final body = <String, String>{
       'TenantDocumentId': tenantDocumentId.toString(),
       'Uniquekey': uniqueKey,
-      'ProjectId': projectId.toString(),
+      'TenantId': tenantId.toString(),
       'BuildingId': buildingId.toString(),
+      'ProjectId': projectId.toString(),
       'DocumentName': documentName,
       'RemoveDocumentURL': files.deletedFileList,
     };
-
     var updateResult = await _tenantRepository.addUpdateTenantDocument(
       body: body,
       fileList: fileList,
     );
     goRouter.pop();
-
-    if (isClosed) return;
-
     updateResult.fold(
       (failure) {
-        if (isClosed) return;
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
       (response) async {
-        if (isClosed) return;
-        showSuccessMessage(context, subTitle: "Upload Successfully");
-        await getTenantDocumentList(
-          context: context,
-          projectId: projectId,
-          buildingId: buildingId,
-          tenantId: tenantId,
+        final updatedChannelPartner =
+            (response['data'] as List<TenantDocumentModel>).first;
+        if (state.tenantDocumentList.isNotEmpty &&
+            index < state.tenantDocumentList.length) {
+          final updatedList = List<TenantDocumentModel>.from(
+            state.tenantDocumentList,
+          );
+          updatedList[index] = updatedChannelPartner;
+          emit(
+            state.copyWith(isLoading: false, tenantDocumentList: updatedList),
+          );
+        }
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  void deleteTenantDocument({
+    required BuildContext context,
+    required int tenantDocumentId,
+    required String uniqueKey,
+    required int tenantId,
+    required int projectId,
+    required int buildingId,
+    required int index,
+  }) async {
+    final result = await _tenantRepository.deleteTenantDocument(
+      tenantDocumentId: tenantDocumentId,
+      uniquekey: uniqueKey,
+      projectId: projectId,
+      buildingId: buildingId,
+      tenantId: tenantId,
+    );
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) async {
+        final updatedList = List<TenantDocumentModel>.from(
+          state.tenantDocumentList,
         );
+        updatedList.removeAt(index);
+        emit(state.copyWith(tenantDocumentList: updatedList, isLoading: false));
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -883,17 +873,17 @@ class TenantCubit extends Cubit<TenantState> {
         state.currentSortColumn == "Applicant Name" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
-
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
-      state.filterApplicantName.trim().isNotEmpty,
-      state.filterFlatType.trim().isNotEmpty,
-      state.filterFlatConfiguration.trim().isNotEmpty,
-      state.filterFlatCarpetAreaSqFt.trim().isNotEmpty,
-      state.filterBuildingNumber.trim().isNotEmpty,
-      state.filterWing.trim().isNotEmpty,
-      state.filterFlat.trim().isNotEmpty,
-      state.filterParkingNumber.trim().isNotEmpty,
+      state.filterByTenantCode.trim().isNotEmpty,
+      state.filterByApplicantName.trim().isNotEmpty,
+      state.filterByFlatType.trim().isNotEmpty,
+      state.filterByFlatConfiguration.trim().isNotEmpty,
+      state.filterByFlatCarpetAreaSqFt.trim().isNotEmpty,
+      state.filterByBuildingNumber.trim().isNotEmpty,
+      state.filterByWing.trim().isNotEmpty,
+      state.filterByFlat.trim().isNotEmpty,
+      state.filterByParkingNumber.trim().isNotEmpty,
       hasSort,
     ]);
   }

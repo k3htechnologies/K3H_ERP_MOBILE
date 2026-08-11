@@ -182,6 +182,8 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                   headerBackgroundColor: AppColor.grey20,
                   children: [
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Created By",
@@ -197,6 +199,8 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                     ),
 
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Modified By",

@@ -166,7 +166,11 @@ class _TicketViewScreenState extends State<TicketViewScreen>
                         customValueWidget: CustomButton.documentOutline(
                           onPressed: () {
                             if (widget.ticket!.attachmentUrl.isNotEmpty) {
-                              showFilePreviewDialog(context, urls);
+                              showFilePreviewDialog(
+                                context,
+                                title: "Attachment",
+                                urls,
+                              );
                             }
                           },
                           isDisable: widget.ticket!.attachmentUrl.isEmpty,

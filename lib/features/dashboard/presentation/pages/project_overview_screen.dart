@@ -298,6 +298,7 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                                 CustomIconButton(
                                   onPressed: () {
                                     showFilePreviewDialog(
+                                      title: "Transaction / Cheque / DD",
                                       context,
                                       widget.project.tenderAmountChequeNumberUrl
                                           .split(","),
@@ -370,6 +371,7 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                                   CustomIconButton(
                                     onPressed: () {
                                       showFilePreviewDialog(
+                                        title: "Transaction / Cheque / DD No",
                                         context,
                                         widget.project.tenderEmdChequeNumberUrl
                                             .split(","),

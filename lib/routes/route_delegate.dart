@@ -379,7 +379,6 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.mode
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_update_tenant_document_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_screen.dart';
@@ -396,7 +395,6 @@ import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category
 import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/presentation/pages/channel_partner_category_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
-
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/pages/add_classification_parameter_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
@@ -2567,27 +2565,6 @@ final GoRouter goRouter = GoRouter(
                         : null;
 
                 return TenantViewScreen(tenant: tenant!);
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addUpdateTenantDoc,
-              path: AppRoutes.addUpdateTenantDoc,
-              builder: (context, state) {
-                final queryParameterTenant =
-                    state.uri.queryParameters['tenant'];
-
-                final TenantModel? tenant =
-                    queryParameterTenant != null
-                        ? TenantModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterTenant),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                return AddUpdateTenantDocumentScreen(tenant: tenant!);
               },
             ),
           ],

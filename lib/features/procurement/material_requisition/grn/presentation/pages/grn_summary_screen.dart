@@ -105,6 +105,7 @@ class _GrnSummaryScreenState extends State<GrnSummaryScreen> {
                                   if (grn.uploadChallanUrl.isNotEmpty) {
                                     showFilePreviewDialog(
                                       context,
+                                      title: "Challan Document",
                                       grn.uploadChallanUrl.split(","),
                                     );
                                   }

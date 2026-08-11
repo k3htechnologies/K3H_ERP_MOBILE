@@ -4,7 +4,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
 class ProposedOfferInfoCard extends StatelessWidget {
   final String? title;
   final String? tag;
@@ -15,7 +14,6 @@ class ProposedOfferInfoCard extends StatelessWidget {
   final bool disable;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
-
   const ProposedOfferInfoCard({
     super.key,
     this.title,
@@ -28,7 +26,6 @@ class ProposedOfferInfoCard extends StatelessWidget {
     this.onDelete,
     this.disable = false,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,7 +52,6 @@ class ProposedOfferInfoCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               if (leading != null) ...[leading!, const SizedBox(width: 8)],
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -65,7 +61,6 @@ class ProposedOfferInfoCard extends StatelessWidget {
                         title!,
                         style: AppTextStyle.ts14M(color: AppColor.darkBlue900),
                       ),
-
                     if (tag != null) ...[
                       const SizedBox(height: 6),
                       Container(
@@ -86,7 +81,6 @@ class ProposedOfferInfoCard extends StatelessWidget {
                   ],
                 ),
               ),
-
               if (trailing != null)
                 trailing!
               else
@@ -98,7 +92,6 @@ class ProposedOfferInfoCard extends StatelessWidget {
                         isDisabled: disable,
                         onPressed: onEdit!,
                       ),
-
                     if (onDelete != null)
                       CustomIconButton.delete(
                         isDisabled: disable,
@@ -108,9 +101,7 @@ class ProposedOfferInfoCard extends StatelessWidget {
                 ),
             ],
           ),
-
           verticalSpacing(height: 12),
-
           DottedDivider(
             height: 2,
             color: AppColor.grey2,
@@ -118,7 +109,6 @@ class ProposedOfferInfoCard extends StatelessWidget {
             dashSpace: 4,
           ),
           verticalSpacing(height: 12),
-
           /// Dynamic Content
           child,
         ],

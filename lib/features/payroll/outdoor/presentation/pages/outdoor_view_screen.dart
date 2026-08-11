@@ -284,6 +284,7 @@ class _OutdoorViewScreenState extends State<OutdoorViewScreen>
           onTap: () {
             if (widget.outdoorModel.visitingCardUrl.isNotEmpty) {
               showFilePreviewDialog(
+                title: 'Visiting Card',
                 context,
                 widget.outdoorModel.visitingCardUrl.split(","),
               );

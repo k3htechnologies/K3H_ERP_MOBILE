@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/redevelopment/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -26,44 +28,32 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TenantScreen extends StatefulWidget {
   const TenantScreen({super.key});
-
   @override
   State<TenantScreen> createState() => _TenantScreenState();
 }
 
 class _TenantScreenState extends State<TenantScreen> {
-  // CUBIT
   late TenantCubit _tenantCubit;
-
-  // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
-  // PROJECT
   late ProjectModel _project;
-
-  // BUILDING SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBuildingNotifier =
       ValueNotifier([]);
-
-  // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
   Timer? _debounce;
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
+      _filterTenantCodeC,
       _filterFlatTypeC,
       _filterFlatConfigurationC,
-      _filterApplicantNameC,
+      _filterByApplicantNameC,
       _filterFlatCarpetAreaSqFtC,
       _filterBuildingNumberC,
       _filterWingC,
       _filterFlatC,
       _filterParkingNumberC;
-
-  // FLAGS TO PREVENT INFINITE CALLS
   int? _lastFetchedBuildingId;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
+  final BuildingRepository _buildingRepository =
+      serviceLocator<BuildingRepository>();
   @override
   void initState() {
     super.initState();
@@ -74,12 +64,6 @@ class _TenantScreenState extends State<TenantScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _loadBuildingsForProject(_project.projectId);
-      }
-    });
   }
 
   @override
@@ -87,8 +71,9 @@ class _TenantScreenState extends State<TenantScreen> {
     _debounce?.cancel();
     scrollController.dispose();
     _searchC.dispose();
+    _filterTenantCodeC.dispose();
     _filterFlatTypeC.dispose();
-    _filterApplicantNameC.dispose();
+    _filterByApplicantNameC.dispose();
     _filterFlatCarpetAreaSqFtC.dispose();
     _filterBuildingNumberC.dispose();
     _filterWingC.dispose();
@@ -100,19 +85,6 @@ class _TenantScreenState extends State<TenantScreen> {
     super.dispose();
   }
 
-  // LOAD BUILDINGS FOR PROJECT
-  Future<void> _loadBuildingsForProject(int projectId) async {
-    if (_tenantCubit.state.buildingList.isEmpty ||
-        _tenantCubit.state.buildingList.any((b) => b.projectId != projectId)) {
-      await _tenantCubit.getBuildingList(context, 1, 15, projectId);
-    }
-    if (mounted) {
-      _selectedBuildingNotifier.value = [];
-      _lastFetchedBuildingId = null;
-    }
-  }
-
-  // DELETE TENANT
   Future<void> _showPopupToDeleteTenant(
     BuildContext context,
     TenantModel obj,
@@ -122,9 +94,8 @@ class _TenantScreenState extends State<TenantScreen> {
     final shouldDelete = await DialogHelper.deleteDialog(
       context,
       'You are about to delete a Tenant?',
-      'Deleting this Tenant will permanently remove its contents.',
+      'Deleting this tenant will permanently remove all associated data.',
     );
-
     if (shouldDelete &&
         context.mounted &&
         _selectedBuildingNotifier.value.isNotEmpty) {
@@ -138,12 +109,12 @@ class _TenantScreenState extends State<TenantScreen> {
     }
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterTenantCodeC = TextEditingController();
     _filterFlatTypeC = TextEditingController();
     _filterFlatConfigurationC = TextEditingController();
-    _filterApplicantNameC = TextEditingController();
+    _filterByApplicantNameC = TextEditingController();
     _filterFlatCarpetAreaSqFtC = TextEditingController();
     _filterBuildingNumberC = TextEditingController();
     _filterWingC = TextEditingController();
@@ -151,86 +122,43 @@ class _TenantScreenState extends State<TenantScreen> {
     _filterParkingNumberC = TextEditingController();
   }
 
-  // FETCH BUILDINGS — when [value] is set, calls API with search param; otherwise uses/paginates loaded list
   Future<Map<String, dynamic>> _fetchBuildings(
     int pageNumber, {
     String? value,
   }) async {
-    const pageSize = 12;
-
-    //  SEARCH MODE
-    if (value != null) {
-      await _tenantCubit.getBuildingList(
-        context,
-        pageNumber,
-        pageSize,
-        _project.projectId,
-        searchQuery: value,
-      );
-
-      final buildingList =
-          _tenantCubit.state.buildingList
-              .where((b) => b.projectId == _project.projectId)
-              .toList();
-      final totalCount = _tenantCubit.state.buildingTotalCount;
-
-      final Map<int, Map<String, dynamic>> uniqueFiltered = {};
-      for (final b in buildingList) {
-        uniqueFiltered[b.buildingId] = {
-          "zAttributesId": b.buildingId,
-          "DisplayName": b.buildingName,
+    final result = await _buildingRepository.pullBuilding(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      projectId: _project.projectId,
+      queryParams:
+          value != null && value.isNotEmpty
+              ? {"BuildingName": value, "isCheckPermission": false}
+              : {"isCheckPermission": false},
+    );
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final project = response['data'] as List<RedevelopmentBuildingModel>;
+        return {
+          "itemList":
+              project.map((pr) {
+                return {
+                  "zAttributesId": pr.buildingId,
+                  "DisplayName": pr.buildingName,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
-      }
-
-      return {
-        "itemList": uniqueFiltered.values.toList(),
-        "totalNumberOfRecord":
-            totalCount > 0 ? totalCount : uniqueFiltered.length,
-      };
-    }
-
-    // No search: use/paginate already loaded buildings
-    final buildingList =
-        _tenantCubit.state.buildingList
-            .where((b) => b.projectId == _project.projectId)
-            .toList();
-    final totalCount = _tenantCubit.state.buildingTotalCount;
-    final currentLoadedCount = buildingList.length;
-
-    if (currentLoadedCount < totalCount) {
-      await _tenantCubit.getBuildingList(
-        context,
-        pageNumber,
-        pageSize,
-        _project.projectId,
-      );
-    }
-
-    final updatedList =
-        _tenantCubit.state.buildingList
-            .where((b) => b.projectId == _project.projectId)
-            .toList();
-
-    final Map<int, Map<String, dynamic>> uniqueBuildings = {};
-    for (final b in updatedList) {
-      uniqueBuildings[b.buildingId] = {
-        "zAttributesId": b.buildingId,
-        "DisplayName": b.buildingName,
-      };
-    }
-
-    return {
-      "itemList": uniqueBuildings.values.toList(),
-      "totalNumberOfRecord":
-          totalCount > 0 ? totalCount : uniqueBuildings.length,
-    };
+      },
+    );
   }
 
-  // PAGINATION
   void _onScroll() {
     scrollController.addListener(() {
       if (!scrollController.hasClients) return;
-
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent &&
           !_tenantCubit.state.isLoading! &&
@@ -248,27 +176,25 @@ class _TenantScreenState extends State<TenantScreen> {
     });
   }
 
-  // BUILDING FILTER
   Future<void> _showBottomSheetToFilterTenant(BuildContext context) async {
     final state = _tenantCubit.state;
-
-    _filterFlatTypeC.text = state.filterFlatType;
-    _filterFlatConfigurationC.text = state.filterFlatConfiguration;
-    _filterApplicantNameC.text = state.filterApplicantName;
+    _filterTenantCodeC.text = state.filterByTenantCode;
+    _filterFlatTypeC.text = state.filterByFlatType;
+    _filterFlatConfigurationC.text = state.filterByFlatConfiguration;
+    _filterByApplicantNameC.text = state.filterByApplicantName;
     _searchC.text = state.searchText;
-    _filterFlatCarpetAreaSqFtC.text = state.filterFlatCarpetAreaSqFt;
-    _filterBuildingNumberC.text = state.filterBuildingNumber;
-    _filterWingC.text = state.filterWing;
-    _filterFlatC.text = state.filterFlat;
-    _filterParkingNumberC.text = state.filterParkingNumber;
-
+    _filterFlatCarpetAreaSqFtC.text = state.filterByFlatCarpetAreaSqFt;
+    _filterBuildingNumberC.text = state.filterByBuildingNumber;
+    _filterWingC.text = state.filterByWing;
+    _filterFlatC.text = state.filterByFlat;
+    _filterParkingNumberC.text = state.filterByParkingNumber;
     String? selectedDirection =
         state.currentSortColumn == "Applicant Name"
             ? state.currentSortDirection
             : null;
-
+    final String initialTenantCode = _filterTenantCodeC.text;
     final String initialFlatType = _filterFlatTypeC.text;
-    final String initialApplicantName = _filterApplicantNameC.text;
+    final String initialApplicantName = _filterByApplicantNameC.text;
     final String initialFlatConfiguration = _filterFlatConfigurationC.text;
     final String? initialDirection = selectedDirection;
     final String initialFlatNumber = _searchC.text;
@@ -280,12 +206,12 @@ class _TenantScreenState extends State<TenantScreen> {
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
+            (_filterTenantCodeC.text.trim() != initialTenantCode) ||
             (_filterFlatTypeC.text.trim() != initialFlatType) ||
-            (_filterApplicantNameC.text.trim() != initialApplicantName) ||
+            (_filterByApplicantNameC.text.trim() != initialApplicantName) ||
             (_filterFlatConfigurationC.text.trim() !=
                 initialFlatConfiguration) ||
             (_searchC.text.trim() != initialFlatNumber) ||
@@ -369,9 +295,15 @@ class _TenantScreenState extends State<TenantScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
+                  title: "Tenant Code",
+                  hint: "Enter Tenant Code",
+                  textController: _filterTenantCodeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "Applicant Name",
                   hint: "Enter Applicant Name",
-                  textController: _filterApplicantNameC,
+                  textController: _filterByApplicantNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -380,42 +312,36 @@ class _TenantScreenState extends State<TenantScreen> {
                   textController: _filterFlatTypeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Existing Configuration",
                   hint: "Enter Existing Configuration",
                   textController: _filterFlatConfigurationC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Existing Carpet Area (SqFt)",
                   hint: "Enter Existing Carpet Area (SqFt)",
                   textController: _filterFlatCarpetAreaSqFtC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Building Number",
                   hint: "Enter Building Number",
                   textController: _filterBuildingNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Wing",
                   hint: "Enter Wing",
                   textController: _filterWingC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "New Unit Number",
                   hint: "Enter New Unit Number",
                   textController: _filterFlatC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Parking Number",
                   hint: "Enter Parking Number",
@@ -437,17 +363,18 @@ class _TenantScreenState extends State<TenantScreen> {
                   ? _selectedBuildingNotifier.value.first["zAttributesId"]
                       as int
                   : 0,
-          filterFlatType: "",
-          filterFlatConfiguration: "",
+          filterByTenantCode: "",
+          filterByFlatType: "",
+          filterByFlatConfiguration: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
-          filterApplicantName: "",
-          filterFlatNumber: "",
-          filterFlatCarpetAreaSqFt: "",
-          filterBuildingNumber: "",
-          filterWing: "",
-          filterFlat: "",
-          filterParkingNumber: "",
+          filterByApplicantName: "",
+          filterByFlatNumber: "",
+          filterByFlatCarpetAreaSqFt: "",
+          filterByBuildingNumber: "",
+          filterByWing: "",
+          filterByFlat: "",
+          filterByParkingNumber: "",
         );
         _searchC.clear();
       },
@@ -455,8 +382,8 @@ class _TenantScreenState extends State<TenantScreen> {
         applied = true;
         _tenantCubit.applyFilterAndSort(
           context: context,
-          filterFlatType: _filterFlatTypeC.text,
-          filterFlatConfiguration: _filterFlatConfigurationC.text,
+          filterByFlatType: _filterFlatTypeC.text,
+          filterByFlatConfiguration: _filterFlatConfigurationC.text,
           projectId: _project.projectId,
           buildingId:
               _selectedBuildingNotifier.value.isNotEmpty
@@ -465,25 +392,25 @@ class _TenantScreenState extends State<TenantScreen> {
                   : 0,
           sortColumn: selectedDirection != null ? "Applicant Name" : null,
           sortDirection: selectedDirection,
-          filterApplicantName: _filterApplicantNameC.text.trim(),
-          filterFlatCarpetAreaSqFt: _filterFlatCarpetAreaSqFtC.text.trim(),
-          filterBuildingNumber: _filterBuildingNumberC.text.trim(),
-          filterWing: _filterWingC.text.trim(),
-          filterFlat: _filterFlatC.text.trim(),
-          filterParkingNumber: _filterParkingNumberC.text.trim(),
-          filterFlatNumber: _searchC.text.trim(),
+          filterByApplicantName: _filterByApplicantNameC.text.trim(),
+          filterByFlatCarpetAreaSqFt: _filterFlatCarpetAreaSqFtC.text.trim(),
+          filterByBuildingNumber: _filterBuildingNumberC.text.trim(),
+          filterByWing: _filterWingC.text.trim(),
+          filterByFlat: _filterFlatC.text.trim(),
+          filterByParkingNumber: _filterParkingNumberC.text.trim(),
+          filterByFlatNumber: _searchC.text.trim(),
+          filterByTenantCode: _filterTenantCodeC.text.trim(),
         );
       },
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
-    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
+      _filterTenantCodeC.clear();
       _filterFlatC.clear();
       _filterFlatTypeC.clear();
       _filterFlatConfigurationC.clear();
-      _filterApplicantNameC.clear();
+      _filterByApplicantNameC.clear();
       _filterFlatCarpetAreaSqFtC.clear();
       _filterBuildingNumberC.clear();
       _filterWingC.clear();
@@ -526,15 +453,6 @@ class _TenantScreenState extends State<TenantScreen> {
                           .toString(),
                 },
               );
-              if (context.mounted) {
-                _tenantCubit.getTenantList(
-                  context: context,
-                  projectId: _project.projectId,
-                  buildingId:
-                      _selectedBuildingNotifier.value.first["zAttributesId"],
-                  pageNumber: 1,
-                );
-              }
             } else {
               showErrorMessage(context, "Error", "Please select building");
             }
@@ -555,7 +473,6 @@ class _TenantScreenState extends State<TenantScreen> {
             _project = project;
             _selectedBuildingNotifier.value = [];
             _lastFetchedBuildingId = null;
-            _loadBuildingsForProject(_project.projectId);
           },
           isFilterOn: true,
           onFilterTap: () {
@@ -635,231 +552,245 @@ class _TenantScreenState extends State<TenantScreen> {
                         return Center(child: loader());
                       }
                       if (state.tenantList.isEmpty) {
-                        return Center(child: noDataWidget());
+                        return Center(
+                          child: noDataWidget(message: 'No Tenants Found'),
+                        );
                       }
-                      return ListView.builder(
-                        controller: scrollController,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        itemCount: state.tenantList.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == state.tenantList.length) {
-                            return state.tenantList.length <
-                                    state.totalNumberOfRecord
-                                ? const Padding(
-                                  padding: EdgeInsets.all(16),
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                )
-                                : const SizedBox.shrink();
-                          }
-                          var tenant = state.tenantList[index];
-                          final applicant = tenant.tenantApplicantData.where(
-                            (e) => e.applicantType.toLowerCase() == "applicant",
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          _searchC.clear();
+                          _tenantCubit.searchTenant(
+                            "",
+                            context,
+                            _project.projectId,
+                            _selectedBuildingNotifier
+                                    .value
+                                    .first["zAttributesId"]
+                                as int,
                           );
-
-                          final applicantName =
-                              applicant.isNotEmpty
-                                  ? applicant.first.applicantName
-                                  : '';
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(14),
-                            decoration: commonCardDecoration(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                /// Header
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                        },
+                        child: ListView.separated(
+                          controller: scrollController,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 10,
+                          ),
+                          itemCount: state.tenantList.length + 1,
+                          separatorBuilder:
+                              (context, index) => verticalSpacing(height: 12),
+                          itemBuilder: (context, index) {
+                            if (index == state.tenantList.length) {
+                              return state.tenantList.length <
+                                      state.totalNumberOfRecord
+                                  ? const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                  : const SizedBox.shrink();
+                            }
+                            var tenant = state.tenantList[index];
+                            final applicant = tenant.tenantApplicantData.where(
+                              (e) =>
+                                  e.applicantType.toLowerCase() == "applicant",
+                            );
+                            final applicantName =
+                                applicant.isNotEmpty
+                                    ? applicant.first.applicantName
+                                    : '';
+                            return Container(
+                              padding: const EdgeInsets.all(14),
+                              decoration: commonCardDecoration(),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration: BoxDecoration(
+                                                color: Colors.blue.shade50,
+                                                borderRadius:
+                                                    BorderRadius.circular(6),
+                                              ),
+                                              child: Text(
+                                                tenant.systemGeneratedCode,
+                                                style: AppTextStyle.ts12M(),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            GestureDetector(
+                                              onTap: () {
+                                                goRouter.pushNamed(
+                                                  AppRoutes.viewTenant,
+                                                  queryParameters: {
+                                                    "tenant":
+                                                        EncryptionManager.encryptData(
+                                                          jsonEncode(
+                                                            tenant.toJson(),
+                                                          ),
+                                                        ),
+                                                  },
+                                                );
+                                              },
+                                              child: Text(
+                                                tenant.unitAnnexureSurveyNumber,
+                                                style: AppTextStyle.ts16M(
+                                                  color: AppColor.primary,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            RichText(
+                                              text: TextSpan(
+                                                text: applicantName,
+                                                style: AppTextStyle.ts14M(),
+                                                children: [
+                                                  TextSpan(
+                                                    text:
+                                                        "\n • ${tenant.unitType}",
+                                                    style: AppTextStyle.ts12M(
+                                                      color: AppColor.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Row(
                                         children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: Colors.blue.shade50,
-                                              borderRadius:
-                                                  BorderRadius.circular(6),
-                                            ),
-                                            child: Text(
-                                              tenant.systemGeneratedCode,
-                                              style: AppTextStyle.ts12M(),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          GestureDetector(
-                                            onTap: () {
-                                              goRouter.pushNamed(
-                                                AppRoutes.viewTenant,
+                                          CustomIconButton.edit(
+                                            isDisabled:
+                                                !_routeAuthorizationModel
+                                                    .isAction,
+                                            onPressed: () async {
+                                              if (_selectedBuildingNotifier
+                                                  .value
+                                                  .isEmpty) {
+                                                showErrorMessage(
+                                                  context,
+                                                  'Error',
+                                                  'Please select a building',
+                                                );
+                                                return;
+                                              }
+                                              final buildingId =
+                                                  _selectedBuildingNotifier
+                                                          .value
+                                                          .first["zAttributesId"]
+                                                      as int;
+                                              await goRouter.pushNamed(
+                                                AppRoutes.addTenant,
                                                 queryParameters: {
                                                   "tenant":
-                                                      EncryptionManager.encryptData(
-                                                        jsonEncode(
-                                                          tenant.toJson(),
+                                                      Uri.encodeQueryComponent(
+                                                        EncryptionManager.encryptData(
+                                                          jsonEncode(
+                                                            tenant.toJson(),
+                                                          ),
                                                         ),
                                                       ),
+                                                  'index': index.toString(),
+                                                  'projectId':
+                                                      _project.projectId
+                                                          .toString(),
+                                                  'buildingId':
+                                                      buildingId.toString(),
                                                 },
                                               );
                                             },
-                                            child: Text(
-                                              tenant.unitAnnexureSurveyNumber,
-                                              style: AppTextStyle.ts16M(
-                                                color: AppColor.primary,
-                                              ),
-                                            ),
                                           ),
-                                          const SizedBox(height: 4),
-                                          RichText(
-                                            text: TextSpan(
-                                              text: applicantName,
-                                              style: AppTextStyle.ts14M(),
-                                              children: [
-                                                TextSpan(
-                                                  text:
-                                                      "\n • ${tenant.unitType}",
-                                                  style: AppTextStyle.ts12M(
-                                                    color: AppColor.grey,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
+                                          const SizedBox(width: 8),
+                                          CustomIconButton.delete(
+                                            isDisabled:
+                                                !_routeAuthorizationModel
+                                                    .isAction,
+                                            onPressed: () {
+                                              _showPopupToDeleteTenant(
+                                                context,
+                                                tenant,
+                                                state.currentPage,
+                                                index,
+                                              );
+                                            },
                                           ),
                                         ],
                                       ),
+                                    ],
+                                  ),
+                                  Divider(
+                                    height: 28,
+                                    color: AppColor.grey2.withValues(
+                                      alpha: 0.5,
                                     ),
-
-                                    Row(
-                                      children: [
-                                        CustomIconButton.edit(
-                                          onPressed: () async {
-                                            if (_selectedBuildingNotifier
-                                                .value
-                                                .isEmpty) {
-                                              showErrorMessage(
-                                                context,
-                                                'Error',
-                                                'Please select a building',
-                                              );
-                                              return;
-                                            }
-                                            final buildingId =
-                                                _selectedBuildingNotifier
-                                                        .value
-                                                        .first["zAttributesId"]
-                                                    as int;
-                                            await goRouter.pushNamed(
-                                              AppRoutes.addTenant,
-                                              queryParameters: {
-                                                "tenant": Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(tenant.toJson()),
-                                                  ),
-                                                ),
-                                                'index': index.toString(),
-                                                'projectId':
-                                                    _project.projectId
-                                                        .toString(),
-                                                'buildingId':
-                                                    buildingId.toString(),
-                                              },
-                                            );
-                                          },
-                                        ),
-                                        const SizedBox(width: 8),
-                                        CustomIconButton.delete(
-                                          onPressed: () {
-                                            _showPopupToDeleteTenant(
-                                              context,
-                                              tenant,
-                                              state.currentPage,
-                                              index,
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-
-                                Divider(
-                                  height: 28,
-                                  color: AppColor.grey2.withValues(alpha: 0.5),
-                                ),
-
-                                /// Eligibility Badge
-                                _sectionChip(
-                                  "ELIGIBILITY",
-                                  Colors.deepPurple.shade50,
-                                  Colors.deepPurple,
-                                ),
-
-                                const SizedBox(height: 10),
-
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: buildColumnTitleValue(
+                                  ),
+                                  _sectionChip(
+                                    "ELIGIBILITY",
+                                    Colors.deepPurple.shade50,
+                                    Colors.deepPurple,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
                                         title: "Free Offer Area",
                                         value:
                                             "${tenant.extraFreeCarpetAreaOfferedPercent}%",
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: buildColumnTitleValue(
-                                        title: "Free MOFA CA",
+                                      buildColumnTitleValue(
+                                        title: "Free MOFA",
                                         value:
-                                            "${tenant.freeMOFACarpetAreaSqFt} Sq.Ft",
+                                            "${tenant.freeMOFACarpetAreaSqFt} SqFt",
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                Divider(
-                                  height: 28,
-                                  color: AppColor.grey2.withValues(alpha: 0.5),
-                                ),
-                                buildRowWrapper(
-                                  child: buildColumnTitleValue(
-                                    title:
-                                        "Total New RERA CA With Deck & Terrace",
-                                    value:
-                                        "${tenant.totalNewRERACarpetAreaWithDeckSqFt} Sq.Ft",
+                                    ],
                                   ),
-                                ),
-
-                                Divider(
-                                  height: 28,
-                                  color: AppColor.grey2.withValues(alpha: 0.5),
-                                ),
-
-                                /// New Unit Badge
-                                _sectionChip(
-                                  "NEW UNIT",
-                                  Colors.green.shade50,
-                                  Colors.green,
-                                ),
-
-                                const SizedBox(height: 12),
-
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: buildColumnTitleValue(
+                                  Divider(
+                                    height: 28,
+                                    color: AppColor.grey2.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                  ),
+                                  buildRowWrapper(
+                                    child: buildColumnTitleValue(
+                                      title:
+                                          "Total New RERA CA With Deck & Terrace",
+                                      value:
+                                          "${tenant.totalNewRERACarpetAreaSqFt + tenant.deckAreaSqFt + tenant.areaAgainstTerraceSqFt} SqFt",
+                                    ),
+                                  ),
+                                  Divider(
+                                    height: 28,
+                                    color: AppColor.grey2.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                  ),
+                                  _sectionChip(
+                                    "NEW UNIT",
+                                    Colors.green.shade50,
+                                    Colors.green,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
                                         title: "Building",
                                         value: tenant.buildingNumber,
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: buildColumnTitleValue(
+                                      buildColumnTitleValue(
                                         title: "Wing | Floor",
                                         value:
                                             tenant.wing.isNotEmpty &&
@@ -867,34 +798,31 @@ class _TenantScreenState extends State<TenantScreen> {
                                                 ? "${tenant.wing} | ${tenant.floor}"
                                                 : '-',
                                       ),
+                                    ],
+                                  ),
+                                  Divider(
+                                    height: 28,
+                                    color: AppColor.grey2.withValues(
+                                      alpha: 0.5,
                                     ),
-                                  ],
-                                ),
-
-                                Divider(
-                                  height: 28,
-                                  color: AppColor.grey2.withValues(alpha: 0.5),
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: buildColumnTitleValue(
+                                  ),
+                                  Row(
+                                    children: [
+                                      buildColumnTitleValue(
                                         title: "Unit No.",
                                         value: tenant.inventoryFlatType,
                                       ),
-                                    ),
-                                    Expanded(
-                                      child: buildColumnTitleValue(
+                                      buildColumnTitleValue(
                                         title: "Unit Type",
-                                        value: tenant.unitType,
+                                        value: tenant.inventoryFlatType,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
                       );
                     },
                   );

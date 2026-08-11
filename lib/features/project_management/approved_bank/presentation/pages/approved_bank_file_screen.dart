@@ -357,6 +357,7 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                                         }
                                         showFilePreviewDialog(
                                           context,
+                                          title: 'Bank Document',
                                           files.approvedBankFileUrl.split(","),
                                         );
                                       },

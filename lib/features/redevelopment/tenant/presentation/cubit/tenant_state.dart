@@ -3,7 +3,6 @@ part of 'tenant_cubit.dart';
 class TenantState extends BaseState {
   final List<TenantModel> tenantList;
   final List<TenantDocumentModel> tenantDocumentList;
-  final List<RedevelopmentBuildingModel> buildingList;
   final int totalNumberOfRecord;
   final int buildingTotalCount;
   final int currentPage;
@@ -11,20 +10,21 @@ class TenantState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-  final String filterFlatType;
-  final String filterFlatConfiguration;
-  final String filterApplicantName;
-  final String filterFlatCarpetAreaSqFt;
-  final String filterBuildingNumber;
-  final String filterWing;
-  final String filterFlat;
-  final String filterParkingNumber;
+  final String filterByTenantCode;
+  final String filterByFlatType;
+  final String filterByFlatConfiguration;
+  final String filterByApplicantName;
+  final String filterByFlatCarpetAreaSqFt;
+  final String filterByBuildingNumber;
+  final String filterByWing;
+  final String filterByFlat;
+  final String filterByParkingNumber;
+  final String searchDocumentName;
 
   const TenantState({
     super.isLoading,
     required this.tenantList,
     required this.tenantDocumentList,
-    required this.buildingList,
     required this.totalNumberOfRecord,
     required this.buildingTotalCount,
     required this.currentPage,
@@ -32,22 +32,22 @@ class TenantState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
-    required this.filterFlatType,
-    required this.filterFlatConfiguration,
-
-    required this.filterApplicantName,
-    required this.filterFlatCarpetAreaSqFt,
-    required this.filterBuildingNumber,
-    required this.filterWing,
-    required this.filterFlat,
-    required this.filterParkingNumber,
+    required this.filterByTenantCode,
+    required this.filterByFlatType,
+    required this.filterByFlatConfiguration,
+    required this.filterByApplicantName,
+    required this.filterByFlatCarpetAreaSqFt,
+    required this.filterByBuildingNumber,
+    required this.filterByWing,
+    required this.filterByFlat,
+    required this.filterByParkingNumber,
+    required this.searchDocumentName,
   });
 
   factory TenantState.initial() => TenantState(
     isLoading: true,
     tenantList: [],
     tenantDocumentList: [],
-    buildingList: [],
     totalNumberOfRecord: 0,
     buildingTotalCount: 0,
     currentPage: 1,
@@ -55,17 +55,17 @@ class TenantState extends BaseState {
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
-    filterFlatType: "",
-    filterFlatConfiguration: "",
-
-    filterApplicantName: "",
-    filterFlatCarpetAreaSqFt: "",
-    filterBuildingNumber: "",
-    filterWing: "",
-    filterFlat: "",
-    filterParkingNumber: "",
+    filterByTenantCode: "",
+    filterByFlatType: "",
+    filterByFlatConfiguration: "",
+    filterByApplicantName: "",
+    filterByFlatCarpetAreaSqFt: "",
+    filterByBuildingNumber: "",
+    filterByWing: "",
+    filterByFlat: "",
+    filterByParkingNumber: "",
+    searchDocumentName: "",
   );
-
   TenantState copyWith({
     bool? isLoading,
     List<TenantModel>? tenantList,
@@ -78,21 +78,21 @@ class TenantState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
-    String? filterFlatType,
-    String? filterFlatConfiguration,
-
-    String? filterApplicantName,
-    String? filterFlatCarpetAreaSqFt,
-    String? filterBuildingNumber,
-    String? filterWing,
-    String? filterFlat,
-    String? filterParkingNumber,
+    String? filterByFlatType,
+    String? filterByFlatConfiguration,
+    String? filterByTenantCode,
+    String? filterByApplicantName,
+    String? filterByFlatCarpetAreaSqFt,
+    String? filterByBuildingNumber,
+    String? filterByWing,
+    String? filterByFlat,
+    String? filterByParkingNumber,
+    String? searchDocumentName,
   }) {
     return TenantState(
       isLoading: isLoading ?? this.isLoading,
       tenantList: tenantList ?? this.tenantList,
       tenantDocumentList: tenantDocumentList ?? this.tenantDocumentList,
-      buildingList: buildingList ?? this.buildingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       buildingTotalCount: buildingTotalCount ?? this.buildingTotalCount,
       currentPage: currentPage ?? this.currentPage,
@@ -100,17 +100,21 @@ class TenantState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
-      filterFlatType: filterFlatType ?? this.filterFlatType,
-      filterFlatConfiguration:
-          filterFlatConfiguration ?? this.filterFlatConfiguration,
-
-      filterApplicantName: filterApplicantName ?? this.filterApplicantName,
-      filterFlatCarpetAreaSqFt:
-          filterFlatCarpetAreaSqFt ?? this.filterFlatCarpetAreaSqFt,
-      filterBuildingNumber: filterBuildingNumber ?? this.filterBuildingNumber,
-      filterWing: filterWing ?? this.filterWing,
-      filterFlat: filterFlat ?? this.filterFlat,
-      filterParkingNumber: filterParkingNumber ?? this.filterParkingNumber,
+      filterByTenantCode: filterByTenantCode ?? this.filterByTenantCode,
+      filterByFlatType: filterByFlatType ?? this.filterByFlatType,
+      filterByFlatConfiguration:
+          filterByFlatConfiguration ?? this.filterByFlatConfiguration,
+      filterByApplicantName:
+          filterByApplicantName ?? this.filterByApplicantName,
+      filterByFlatCarpetAreaSqFt:
+          filterByFlatCarpetAreaSqFt ?? this.filterByFlatCarpetAreaSqFt,
+      filterByBuildingNumber:
+          filterByBuildingNumber ?? this.filterByBuildingNumber,
+      filterByWing: filterByWing ?? this.filterByWing,
+      filterByFlat: filterByFlat ?? this.filterByFlat,
+      filterByParkingNumber:
+          filterByParkingNumber ?? this.filterByParkingNumber,
+      searchDocumentName: searchDocumentName ?? this.searchDocumentName,
     );
   }
 
@@ -119,7 +123,6 @@ class TenantState extends BaseState {
     isLoading,
     tenantList,
     tenantDocumentList,
-    buildingList,
     totalNumberOfRecord,
     buildingTotalCount,
     currentPage,
@@ -127,14 +130,15 @@ class TenantState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
-    filterFlatType,
-    filterFlatConfiguration,
-
-    filterApplicantName,
-    filterFlatCarpetAreaSqFt,
-    filterBuildingNumber,
-    filterWing,
-    filterFlat,
-    filterParkingNumber,
+    filterByTenantCode,
+    filterByFlatType,
+    filterByFlatConfiguration,
+    filterByApplicantName,
+    filterByFlatCarpetAreaSqFt,
+    filterByBuildingNumber,
+    filterByWing,
+    filterByFlat,
+    filterByParkingNumber,
+    searchDocumentName,
   ];
 }

@@ -11,10 +11,8 @@ void registerContentDependencies(GetIt serviceLocator) {
       contentDatasource: serviceLocator<ContentDataSource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<ContentFolderCubit>(ContentFolderCubit());
-
   serviceLocator.registerSingleton<ContentDocumentCubit>(
     ContentDocumentCubit(),
   );

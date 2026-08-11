@@ -12,7 +12,6 @@ class ApprovalLogHistory {
   String approvalStatus;
   String remarks;
   DateTime? date;
-
   ApprovalLogHistory({
     required this.employeeCode,
     required this.fullName,
@@ -26,7 +25,6 @@ class ApprovalLogHistory {
     required this.remarks,
     required this.date,
   });
-
   factory ApprovalLogHistory.fromJson(Map<String, dynamic> json) =>
       ApprovalLogHistory(
         employeeCode: parseValue<String>(json, "EmployeeCode"),
@@ -41,7 +39,6 @@ class ApprovalLogHistory {
         remarks: parseValue<String>(json, "Remarks"),
         date: json["Date"] != null ? DateTime.parse(json["Date"]) : null,
       );
-
   Map<String, dynamic> toJson() => {
     "EmployeeCode": employeeCode,
     "FullName": fullName,

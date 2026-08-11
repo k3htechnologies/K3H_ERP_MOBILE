@@ -4,15 +4,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class LocalStorageManager {
   static final LocalStorageManager _instance = LocalStorageManager._internal();
   late SharedPreferences _preferences;
-
   // Private constructor
   LocalStorageManager._internal();
-
   // Factory constructor to return the singleton instance
   factory LocalStorageManager() {
     return _instance;
   }
-
   // Initialize SharedPreferences
   Future<void> init() async {
     _preferences = await SharedPreferences.getInstance();
@@ -41,7 +38,6 @@ class LocalStorageManager {
     return await _preferences.clear();
   }
 
-
   Future<bool> setRawString(String key, String value) async {
     return await _preferences.setString(key, value); // No encryption
   }
@@ -49,5 +45,4 @@ class LocalStorageManager {
   String? getRawString(String key) {
     return _preferences.getString(key); // No decryption
   }
-
 }

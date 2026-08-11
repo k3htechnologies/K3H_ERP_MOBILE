@@ -258,6 +258,8 @@ class BuildingOverview extends StatelessWidget {
             headerBackgroundColor: AppColor.grey20,
             children: [
               Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
                     title: "Created By",
@@ -271,6 +273,8 @@ class BuildingOverview extends StatelessWidget {
               ),
 
               Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
                     title: "Modified By",

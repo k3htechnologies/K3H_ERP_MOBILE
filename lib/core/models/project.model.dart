@@ -89,7 +89,6 @@ class ProjectModel {
   List<CompanyModel>? companyData;
   List<BankDetailsModel>? projectWithBankDetailsData;
   List<UserModel>? employeeData;
-
   ProjectModel({
     required this.projectId,
     required this.uniquekey,
@@ -177,7 +176,6 @@ class ProjectModel {
     this.projectWithBankDetailsData,
     this.employeeData,
   });
-
   factory ProjectModel.fromJson(Map<String, dynamic> json) => ProjectModel(
     projectId: parseValue<int>(json, "ProjectId"),
     uniquekey: parseValue<String>(json, "Uniquekey"),
@@ -271,36 +269,28 @@ class ProjectModel {
     googleLocation: parseValue<String>(json, "GoogleLocation"),
     notificationCount: parseValue<int>(json, "NotificationCount"),
     clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
-
     tenderAmountPaymentMode: parseValue<String>(
       json,
       "TenderAmountPaymentMode",
     ),
-
     tenderAmountChequeNumber: parseValue<String>(
       json,
       "TenderAmountChequeNumber",
     ),
-
     tenderAmountChequeNumberUrl: parseValue<String>(
       json,
       "TenderAmountChequeNumberURL",
     ),
-
     tenderAmountPayorderRemark: parseValue<String>(
       json,
       "TenderAmountPayorderRemark",
     ),
-
     tenderEmdPaymentMode: parseValue<String>(json, "TenderEMDPaymentMode"),
-
     tenderEmdChequeNumber: parseValue<String>(json, "TenderEMDChequeNumber"),
-
     tenderEmdChequeNumberUrl: parseValue<String>(
       json,
       "TenderEMDChequeNumberURL",
     ),
-
     tenderEmdPayorderRemark: parseValue<String>(
       json,
       "TenderEMDPayorderRemark",
@@ -335,26 +325,20 @@ class ProjectModel {
                 .toList()
             : null,
     siteContactDesignation: parseValue<String>(json, "SiteContactDesignation"),
-
     siteContact2MobileNumber: parseValue<String>(
       json,
       "SiteContact2MobileNumber",
     ),
-
     siteContact2Name: parseValue<String>(json, "SiteContact2Name"),
-
     siteContact2Designation: parseValue<String>(
       json,
       "SiteContact2Designation",
     ),
-
     siteContact3MobileNumber: parseValue<String>(
       json,
       "SiteContact3MobileNumber",
     ),
-
     siteContact3Name: parseValue<String>(json, "SiteContact3Name"),
-
     siteContact3Designation: parseValue<String>(
       json,
       "SiteContact3Designation",
@@ -364,10 +348,8 @@ class ProjectModel {
             ? DateTime.parse(json["RERAPossessionDate"])
             : null,
     isFederation: parseValue<bool>(json, "IsFederation"),
-
     federationAmount: parseValue<double>(json, "FederationAmount"),
   );
-
   Map<String, dynamic> toJson() => {
     "ProjectId": projectId,
     "Uniquekey": uniquekey,

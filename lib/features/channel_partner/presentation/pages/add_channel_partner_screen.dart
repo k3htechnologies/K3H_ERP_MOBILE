@@ -293,7 +293,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
           selectedFirmsType.value = firmTypeList.firstWhere(
             (e) => e['DisplayName'] == data.firmsType,
-            orElse: () => firmTypeList[0],
           );
           selectedGSTCertificateForPopUpFile.value = MultiFilePickerModel(
             fileBytesList: [],

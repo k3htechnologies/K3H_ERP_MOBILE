@@ -53,6 +53,7 @@ class HolidayMasterViewScreen extends StatelessWidget {
                             onPressed: () {
                               if (holidayMaster.holidayUrl.isNotEmpty) {
                                 showFilePreviewDialog(
+                                  title: "Holiday Document",
                                   context,
                                   holidayMaster.holidayUrl.split(","),
                                 );

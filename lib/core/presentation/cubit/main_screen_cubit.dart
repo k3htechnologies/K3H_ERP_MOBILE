@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 
 class MainScreenCubit extends Cubit<Key> {
   MainScreenCubit() : super(UniqueKey());
-
   void rebuildChild() {
     emit(UniqueKey());
   }
-
 }

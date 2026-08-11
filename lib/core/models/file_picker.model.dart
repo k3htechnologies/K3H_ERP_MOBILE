@@ -6,7 +6,6 @@ class FilePickerModel {
   final Uint8List fileBytes;
   final String fileName;
   final String deletedFile;
-
   FilePickerModel({
     this.title,
     this.documentId,
@@ -23,7 +22,6 @@ class MultiFilePickerModel {
   List<Uint8List> fileBytesList;
   List<String> fileNameList;
   String deletedFileList;
-
   MultiFilePickerModel({
     this.title,
     this.documentId,
@@ -32,7 +30,6 @@ class MultiFilePickerModel {
     required this.fileNameList,
     required this.deletedFileList,
   });
-
   factory MultiFilePickerModel.from(MultiFilePickerModel model) {
     return MultiFilePickerModel(
       fileBytesList: List.from(model.fileBytesList),

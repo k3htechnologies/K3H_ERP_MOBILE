@@ -35,7 +35,6 @@ import 'package:flutter/scheduler.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 String currentVersion = "";
-
 void main() async {
   // INITIAL SETUP
   await initialSetup();
@@ -46,7 +45,6 @@ void main() async {
 Future<void> requestPhonePermission() async {
   if (Platform.isAndroid) {
     final status = await Permission.phone.request();
-
     if (status.isGranted) {
       debugPrint("Phone permission granted");
     } else {
@@ -74,9 +72,7 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 Future initialSetup() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
-
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
@@ -88,9 +84,7 @@ Future initialSetup() async {
   // DEPENDENCY INJECTION
   initDependencies();
   HttpOverrides.global = MyHttpOverrides();
-
   SchedulerBinding.instance.addPostFrameCallback((_) {});
-
   // LOCK ORIENTATION
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -98,7 +92,6 @@ Future initialSetup() async {
   ]);
   final info = await PackageInfo.fromPlatform();
   currentVersion = info.version;
-
   await FlutterBackgroundService().configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
@@ -114,13 +107,11 @@ Future initialSetup() async {
       onBackground: onIosBackground,
     ),
   );
-
   final storage = LocalStorageManager();
   final storedVersion = storage.getString(StorageKey.appVersion);
   if (storedVersion != currentVersion) {
     await storage.setString(StorageKey.appVersion, currentVersion);
   }
-
   // MENU LIST
   var decodedMenuData = LocalStorageManager().getString(StorageKey.menu);
   if (decodedMenuData != null) {
@@ -129,7 +120,6 @@ Future initialSetup() async {
     );
     await updateRouteAuthorization(moduleData);
   }
-
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;
 }
@@ -159,13 +149,11 @@ void onStart(ServiceInstance service) async {
   });
   try {
     LocationPermission permission = await Geolocator.checkPermission();
-
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
       log("Location permission not granted");
       return;
     }
-
     Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
@@ -175,11 +163,8 @@ void onStart(ServiceInstance service) async {
       (position) async {
         try {
           final storage = LocalStorageManager();
-
           List points = jsonDecode(storage.getString("route_points") ?? "[]");
-
           points.add({"lat": position.latitude, "lng": position.longitude});
-
           await storage.setString("route_points", jsonEncode(points));
         } catch (e) {
           log("Storage error: $e");
@@ -201,7 +186,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -215,7 +199,6 @@ class MyApp extends StatelessWidget {
         initialData: true,
         builder: (context, snapshot) {
           final hasInternet = snapshot.data ?? true;
-
           if (!hasInternet) {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
@@ -237,12 +220,10 @@ class MyApp extends StatelessWidget {
               return MaterialApp.router(
                 title: "K3H ERP",
                 debugShowCheckedModeBanner: false,
-
                 // THEME
                 theme: AppTheme.lightTheme,
                 darkTheme: AppTheme.darkTheme,
                 themeMode: ThemeMode.light,
-
                 // LOCALIZATION (required by flutter_quill's toolbar)
                 localizationsDelegates: const [
                   FlutterQuillLocalizations.delegate,
@@ -251,7 +232,6 @@ class MyApp extends StatelessWidget {
                   GlobalCupertinoLocalizations.delegate,
                 ],
                 supportedLocales: const [Locale('en')],
-
                 // ROUTING
                 routeInformationParser: goRouter.routeInformationParser,
                 routerDelegate: goRouter.routerDelegate,

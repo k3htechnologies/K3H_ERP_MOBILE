@@ -1072,6 +1072,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                   onTap: () {
                     if (payment.transactionReceiptURL.isNotEmpty) {
                       showFilePreviewDialog(
+                        title: "Transaction/Cheque/Demand Draft",
                         context,
                         payment.transactionReceiptURL.split(","),
                       );

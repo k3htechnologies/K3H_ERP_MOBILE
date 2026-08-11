@@ -3,10 +3,12 @@ import 'dart:convert';
 import 'dart:developer' as developer;
 import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -492,4 +494,26 @@ Future<Map<String, dynamic>> filterDropdownList(
               .toList();
 
   return {"itemList": filtered, "totalNumberOfRecord": filtered.length};
+}
+
+Future<Uint8List> compress(Uint8List bytes) async {
+  return await FlutterImageCompress.compressWithList(bytes, quality: 50);
+}
+
+// FOR MERGING FILES IN APPLICANT FORM
+MultiFilePickerModel mergeFile(
+  MultiFilePickerModel updated,
+  MultiFilePickerModel old,
+) {
+  return MultiFilePickerModel(
+    fileBytesList:
+        updated.fileBytesList.isNotEmpty
+            ? updated.fileBytesList
+            : old.fileBytesList,
+    fileNameList:
+        updated.fileNameList.isNotEmpty
+            ? updated.fileNameList
+            : old.fileNameList,
+    deletedFileList: updated.deletedFileList,
+  );
 }

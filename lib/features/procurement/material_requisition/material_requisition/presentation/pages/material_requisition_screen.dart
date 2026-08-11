@@ -661,6 +661,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                                   .isNotEmpty) {
                                 showFilePreviewDialog(
                                   context,
+                                  title: "Purchase Order",
                                   materialRequisition.purchaseOrderURL.split(
                                     ",",
                                   ),

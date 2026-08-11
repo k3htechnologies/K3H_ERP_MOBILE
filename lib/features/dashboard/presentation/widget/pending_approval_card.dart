@@ -282,6 +282,7 @@ Widget _approvalTile({
                       icon,
                       height: 20,
                       width: 20,
+                      // ignore: deprecated_member_use
                       color: iconColor,
                     )
                     : Icon(iconData, size: 20, color: iconColor),

@@ -37,7 +37,6 @@ class CompanyModel {
   List<CompanyPartnerModel> companyPartnerData;
   bool isSelected;
   // VARIABLE USED IN PROJECT MASTER FOR HANDLING THE STATE OF SELECTED EMPLOYEE
-
   CompanyModel({
     required this.companyId,
     required this.uniquekey,
@@ -72,61 +71,59 @@ class CompanyModel {
     required this.modifiedBy,
     required this.modifiedDate,
     required this.companyPartnerData,
-    this.isSelected = false
+    this.isSelected = false,
   });
-
   factory CompanyModel.fromJson(Map<String, dynamic> json) => CompanyModel(
-      companyId: parseValue<int>(json, "CompanyId"),
-      uniquekey: parseValue<String>(json, "Uniquekey"),
-      companyName: parseValue<String>(json, "CompanyName"),
-      firmsType: parseValue<String>(json, "FirmsType"),
-      contactPerson: parseValue<String>(json, "ContactPerson"),
-      mobileNumber: parseValue<String>(json, "MobileNumber"),
-      landLineNumber: parseValue<String>(json, "LandLineNumber"),
-      gstNumber: parseValue<String>(json, "GSTNumber"),
-      gstCertificateURL: parseValue<String>(json, "GSTCertificateURL"),
-      cinNumber: parseValue<String>(json, "CINNumber"),
-      cinURL: parseValue<String>(json, "CINURL"),
-      panNumber: parseValue<String>(json, "PANNumber"),
-      panCardURL: parseValue<String>(json, "PanCardURL"),
-      tanNumber: parseValue<String>(json, "TANNumber"),
-      tanURL: parseValue<String>(json, "TANURL"),
-      emailId: parseValue<String>(json, "EmailId"),
-      countryMasterId: parseValue<int>(json, "CountryMasterId"),
-      countryName: parseValue<String>(json, "CountryName"),
-      stateMasterId: parseValue<int>(json, "StateMasterId"),
-      stateName: parseValue<String>(json, "StateName"),
-      districtMasterId: parseValue<int>(json, "DistrictMasterId"),
-      districtName: parseValue<String>(json, "DistrictName"),
-      cityMasterId: parseValue<int>(json, "CityMasterId"),
-      cityName: parseValue<String>(json, "CityName"),
-      companyLetterheadHeaderURL: parseValue<String>(
-        json,
-        "CompanyLetterheadHeaderURL",
-      ),
-      companyLetterheadFooterURL: parseValue<String>(
-        json,
-        "CompanyLetterheadFooterURL",
-      ),
-      createdById: parseValue<int>(json, "CreatedById"),
-      createdBy: parseValue<String>(json, "CreatedBy"),
-      createdDate: parseValue<DateTime>(json, "CreatedDate"),
-      modifiedById: parseValue<int>(json, "ModifiedById"),
-      modifiedBy: parseValue<String>(json, "ModifiedBy"),
-      modifiedDate:
-      json["ModifiedDate"] == null
-          ? null
-          : parseValue<DateTime>(json, "ModifiedDate"),
-      companyPartnerData:
-      (json["CompanyPartnerData"] as List<dynamic>?)
-          ?.map(
-            (e) => CompanyPartnerModel.fromJson(e as Map<String, dynamic>),
-      )
-          .toList() ??
-          [],
-      isSelected: false
+    companyId: parseValue<int>(json, "CompanyId"),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    companyName: parseValue<String>(json, "CompanyName"),
+    firmsType: parseValue<String>(json, "FirmsType"),
+    contactPerson: parseValue<String>(json, "ContactPerson"),
+    mobileNumber: parseValue<String>(json, "MobileNumber"),
+    landLineNumber: parseValue<String>(json, "LandLineNumber"),
+    gstNumber: parseValue<String>(json, "GSTNumber"),
+    gstCertificateURL: parseValue<String>(json, "GSTCertificateURL"),
+    cinNumber: parseValue<String>(json, "CINNumber"),
+    cinURL: parseValue<String>(json, "CINURL"),
+    panNumber: parseValue<String>(json, "PANNumber"),
+    panCardURL: parseValue<String>(json, "PanCardURL"),
+    tanNumber: parseValue<String>(json, "TANNumber"),
+    tanURL: parseValue<String>(json, "TANURL"),
+    emailId: parseValue<String>(json, "EmailId"),
+    countryMasterId: parseValue<int>(json, "CountryMasterId"),
+    countryName: parseValue<String>(json, "CountryName"),
+    stateMasterId: parseValue<int>(json, "StateMasterId"),
+    stateName: parseValue<String>(json, "StateName"),
+    districtMasterId: parseValue<int>(json, "DistrictMasterId"),
+    districtName: parseValue<String>(json, "DistrictName"),
+    cityMasterId: parseValue<int>(json, "CityMasterId"),
+    cityName: parseValue<String>(json, "CityName"),
+    companyLetterheadHeaderURL: parseValue<String>(
+      json,
+      "CompanyLetterheadHeaderURL",
+    ),
+    companyLetterheadFooterURL: parseValue<String>(
+      json,
+      "CompanyLetterheadFooterURL",
+    ),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
+    companyPartnerData:
+        (json["CompanyPartnerData"] as List<dynamic>?)
+            ?.map(
+              (e) => CompanyPartnerModel.fromJson(e as Map<String, dynamic>),
+            )
+            .toList() ??
+        [],
+    isSelected: false,
   );
-
   Map<String, dynamic> toJson() => {
     "CompanyId": companyId,
     "Uniquekey": uniquekey,
@@ -192,7 +189,6 @@ class CompanyPartnerModel {
   MultiFilePickerModel? aadharCardFile;
   MultiFilePickerModel? panCardFile;
   MultiFilePickerModel? photoFile;
-
   CompanyPartnerModel({
     required this.companyPartnerId,
     required this.uniquekey,
@@ -221,7 +217,6 @@ class CompanyPartnerModel {
     this.panCardFile,
     this.photoFile,
   });
-
   factory CompanyPartnerModel.fromJson(Map<String, dynamic> json) =>
       CompanyPartnerModel(
         companyPartnerId: parseValue<int>(json, "CompanyPartnerId"),
@@ -247,11 +242,10 @@ class CompanyPartnerModel {
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
       );
-
   Map<String, dynamic> toJson() => {
     "CompanyPartnerId": companyPartnerId,
     "Uniquekey": uniquekey,

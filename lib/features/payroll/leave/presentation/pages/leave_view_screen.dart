@@ -206,6 +206,7 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
           onTap: () {
             if (widget.leaveModel.leaveDocumentUrl.isNotEmpty) {
               showFilePreviewDialog(
+                title: 'Leave Documents',
                 context,
                 widget.leaveModel.leaveDocumentUrl.split(","),
               );

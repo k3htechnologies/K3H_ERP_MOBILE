@@ -14,7 +14,6 @@ class BranchModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   BranchModel({
     required this.branchMasterId,
     required this.uniquekey,
@@ -30,7 +29,6 @@ class BranchModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory BranchModel.fromJson(Map<String, dynamic> json) => BranchModel(
     branchMasterId: parseValue<int>(json, "BranchMasterId"),
     uniquekey: parseValue<String>(json, "Uniquekey"),
@@ -45,11 +43,10 @@ class BranchModel {
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
-    json["ModifiedDate"] == null
-        ? null
-        : DateTime.parse(json["ModifiedDate"]),
+        json["ModifiedDate"] == null
+            ? null
+            : DateTime.parse(json["ModifiedDate"]),
   );
-
   Map<String, dynamic> toJson() => {
     "BranchMasterId": branchMasterId,
     "Uniquekey": uniquekey,

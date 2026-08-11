@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
@@ -10,13 +9,11 @@ import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-
 import 'local_storage_manager.dart';
 
 abstract interface class UtilsDatasource {
   Future<Map<String, dynamic>> apicallPullAppVersion();
   Future<Map<String, dynamic>> apicallPullMenu({required int employeeId});
-
   Future<Map<String, dynamic>> apicallExcelImport({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
@@ -46,6 +43,7 @@ abstract interface class UtilsDatasource {
     String? projectName,
     String? source,
   });
+
   Future<Map<String, dynamic>> apiCallUpdateModulesWorkflowApproval({
     required String moduleName,
     required int id,
@@ -64,6 +62,7 @@ abstract interface class UtilsDatasource {
     required int subModulesMasterId,
     required int subSubModulesMasterId,
   });
+
   Future<Map<String, dynamic>> apiCallPullModuleApprovalStatus({
     required String moduleName,
     required int id,
@@ -86,6 +85,7 @@ abstract interface class UtilsDatasource {
     required int subModulesMasterId,
     required int subSubModulesMasterId,
   });
+
   Future<Map<String, dynamic>> apiCallPullPaginationProjectWithEmployee({
     required int projectId,
     required int pageNumber,
@@ -94,6 +94,7 @@ abstract interface class UtilsDatasource {
   });
 
   Future<Map<String, dynamic>> pullCountryStateCityDistrictVillage();
+
   Future<Map<String, dynamic>> apiCallPullVillage({
     required int pageNumber,
     required int pageSize,
@@ -281,7 +282,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
       }) {
         String url =
             "/Authentication/SendOTPMobileNumberAndModule?MobileNumber=$mobileNumber&Module=$module";
-
         var queryParams = {
           "Name": name,
           "CompanyName": companyName,
@@ -302,7 +302,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           source: source,
         ),
       );
-
       return {
         'data': networkResponse["data"],
         'message': networkResponse['message'] ?? 'OTP sent successfully',
@@ -327,7 +326,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     try {
       final String url =
           "ModulesWorkflowApproval/UpdateModulesWorkflowApproval";
-
       final payload = {
         "ModuleName": moduleName,
         "Id": id,
@@ -338,12 +336,10 @@ class UtilsDatasourceImpl implements UtilsDatasource {
         if (subSubId != null) "SubSubId": subSubId,
         if (subSubSubId != null) "SubSubSubId": subSubSubId,
       };
-
       var networkResponse = await client.postRequestWithAuthentication(
         url,
         payload,
       );
-
       return {
         'data': networkResponse["data"],
         'message': networkResponse['message'],
@@ -365,7 +361,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     try {
       final String url =
           "ModulesWorkflowApproval/AddUpdateModulesWorkflowApproval";
-
       final payload = {
         "EmployeeId": employeeId,
         "ProjectId": projectId,
@@ -373,12 +368,10 @@ class UtilsDatasourceImpl implements UtilsDatasource {
         "SubModulesMasterId": subModulesMasterId,
         "SubSubModulesMasterId": subSubModulesMasterId,
       };
-
       var networkResponse = await client.postRequestWithAuthentication(
         url,
         payload,
       );
-
       return {
         'data': networkResponse["data"],
         'message': networkResponse['message'],
@@ -406,11 +399,9 @@ class UtilsDatasourceImpl implements UtilsDatasource {
       }) {
         String url =
             "ModulesWorkflowApproval/PullModuleApprovalStatus?ModuleName=$moduleName&Id=$id&ProjectId=$projectId";
-
         if (subId != null) url += "&SubId=$subId";
         if (subSubId != null) url += "&SubSubId=$subSubId";
         if (subSubSubId != null) url += "&SubSubSubId=$subSubSubId";
-
         return url;
       }
 
@@ -421,7 +412,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           projectId: projectId,
         ),
       );
-
       return {
         'data': List<ApprovalLogHistory>.from(
           networkResponse["data"].map((e) => ApprovalLogHistory.fromJson(e)),
@@ -462,7 +452,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           queryParams: queryParams,
         ),
       );
-
       return {
         'data': List<ModulesWorkflowApprovalModel>.from(
           networkResponse["data"].map(
@@ -498,7 +487,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
             "&ModulesMasterId=$modulesMasterId"
             "&SubModulesMasterId=$subModulesMasterId"
             "&SubSubModulesMasterId=$subSubModulesMasterId";
-
         return url;
       }
 
@@ -509,7 +497,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           modulesMasterId: modulesMasterId,
         ),
       );
-
       return {
         'message': networkResponse['message'],
         'success': networkResponse['success'] ?? true,
@@ -533,11 +520,8 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           "ProjectId=$projectId"
           "&PageNumber=$pageNumber"
           "&PageSize=$pageSize";
-
       queryParams?.forEach((key, value) => url += "&$key=$value");
-
       final networkResponse = await client.getRequestWithAuthentication(url);
-
       return {
         'data': List<ModulesApprovalEmployeeDataModel>.from(
           networkResponse["data"].map(
@@ -554,9 +538,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
   @override
   Future<Map<String, dynamic>> pullCountryStateCityDistrictVillage() async {
     const String url = 'Static/PullCountryStateCityDistrictVillage';
-
     final response = await client.getRequestWithAuthentication(url);
-
     final data = response['data']['CountryStateCityDistrictVillageData'];
 
     /// STORE IN CACHE
@@ -564,7 +546,6 @@ class UtilsDatasourceImpl implements UtilsDatasource {
       StorageKey.addressMasterData,
       jsonEncode(data),
     );
-
     return response;
   }
 

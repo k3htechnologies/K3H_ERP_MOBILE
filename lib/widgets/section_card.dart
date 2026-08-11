@@ -59,12 +59,10 @@ class SectionCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      color: headerBackgroundColor ?? const Color(0xFFDCE8F6),
+      color: headerBackgroundColor ?? AppColor.lightBlue,
       child: Text(
         title,
-        style: AppTextStyle.ts14SB(
-          color: titleTextColor ?? const Color(0xFF1F5CC4),
-        ),
+        style: AppTextStyle.ts14SB(color: titleTextColor ?? AppColor.primary),
       ),
     );
   }

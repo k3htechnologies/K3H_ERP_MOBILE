@@ -6,7 +6,6 @@ class ModuleModel {
   String icon;
   List<SubModuleModel> subModuleData;
   bool isSelected;
-
   ModuleModel({
     required this.modulesMasterId,
     required this.moduleName,
@@ -14,7 +13,6 @@ class ModuleModel {
     required this.subModuleData,
     this.isSelected = false,
   });
-
   factory ModuleModel.fromJson(Map<String, dynamic> json) => ModuleModel(
     modulesMasterId: parseValue<int>(json, "ModulesMasterId"),
     moduleName: parseValue<String>(json, "ModuleName"),
@@ -23,7 +21,6 @@ class ModuleModel {
       json["SubModuleData"].map((x) => SubModuleModel.fromJson(x)),
     ),
   );
-
   Map<String, dynamic> toJson() => {
     "ModulesMasterId": modulesMasterId,
     "ModuleName": moduleName,
@@ -42,7 +39,6 @@ class SubModuleModel {
   bool isExport;
   bool isSelected;
   List<SubSubModuleModel> subSubModuleData;
-
   SubModuleModel({
     required this.subModulesMasterId,
     required this.subModuleName,
@@ -54,7 +50,6 @@ class SubModuleModel {
     this.isSelected = false,
     required this.subSubModuleData,
   });
-
   factory SubModuleModel.fromJson(Map<String, dynamic> json) => SubModuleModel(
     subModulesMasterId: parseValue<int>(json, "SubModulesMasterId"),
     subModuleName: parseValue<String>(json, "SubModuleName"),
@@ -64,15 +59,14 @@ class SubModuleModel {
     isView: parseValue<bool>(json, "IsView"),
     isExport: parseValue<bool>(json, "IsExport"),
     subSubModuleData:
-    json["SubSubModuleData"] == null
-        ? []
-        : List<SubSubModuleModel>.from(
-      json["SubSubModuleData"]!.map(
-            (x) => SubSubModuleModel.fromJson(x),
-      ),
-    ),
+        json["SubSubModuleData"] == null
+            ? []
+            : List<SubSubModuleModel>.from(
+              json["SubSubModuleData"]!.map(
+                (x) => SubSubModuleModel.fromJson(x),
+              ),
+            ),
   );
-
   Map<String, dynamic> toJson() => {
     "SubModulesMasterId": subModulesMasterId,
     "SubModuleName": subModuleName,
@@ -96,7 +90,6 @@ class SubSubModuleModel {
   bool isAction;
   bool isView;
   bool isExport;
-
   SubSubModuleModel({
     required this.subSubModulesMasterId,
     required this.subSubModuleName,
@@ -107,7 +100,6 @@ class SubSubModuleModel {
     this.isView = false,
     this.isExport = false,
   });
-
   factory SubSubModuleModel.fromJson(Map<String, dynamic> json) =>
       SubSubModuleModel(
         subSubModulesMasterId: parseValue(json, "SubSubModulesMasterId"),
@@ -119,7 +111,6 @@ class SubSubModuleModel {
         isView: parseValue<bool>(json, "IsView"),
         isExport: parseValue<bool>(json, "IsExport"),
       );
-
   Map<String, dynamic> toJson() => {
     "SubSubModulesMasterId": subSubModulesMasterId,
     "SubSubModuleName": subSubModuleName,

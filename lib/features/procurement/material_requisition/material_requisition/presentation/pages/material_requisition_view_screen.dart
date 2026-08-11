@@ -426,6 +426,7 @@ class _MaterialRequisitionViewScreenState
                         onPressed: () {
                           if (materialRequisition.attachmentsURL.isNotEmpty) {
                             showFilePreviewDialog(
+                              title: "Attachment",
                               context,
                               materialRequisition.attachmentsURL.split(","),
                             );
@@ -741,6 +742,7 @@ class _MaterialRequisitionViewScreenState
                         onPressed: () {
                           if (materialRequisition.attachmentsURL.isNotEmpty) {
                             showFilePreviewDialog(
+                              title: "Attachment",
                               context,
                               materialRequisition.attachmentsURL.split(","),
                             );

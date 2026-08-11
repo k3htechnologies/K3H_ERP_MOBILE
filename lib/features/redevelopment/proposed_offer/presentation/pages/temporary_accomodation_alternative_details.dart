@@ -8,7 +8,7 @@ import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/widgets/proposed_offer_info_card.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -79,7 +79,6 @@ class _TemporaryAccommodationAlternativeDetailsState
     super.dispose();
   }
 
-  // DIALOGUE TO DELETE RENT DETAILS
   Future<void> _showPopupToDeleteTemporaryAlternateAccommodationDetails(
     BuildContext context,
     TemporaryAlternativeAccommodationDetailsModel obj,
@@ -229,7 +228,7 @@ class _TemporaryAccommodationAlternativeDetailsState
                   return Column(
                     children: [
                       if (_tabController != null)
-                        ChipStyleTabBar(  
+                        ChipStyleTabBar(
                           controller: _tabController!,
                           tabs: tenures,
                           margin: EdgeInsets.zero,

@@ -325,7 +325,11 @@ class _ViewApprovalDocumentScreenState
                       onPressed: () {
                         final url = document.approvalDocumentURL;
                         if (url.isNotEmpty) {
-                          showFilePreviewDialog(context, url.split(","));
+                          showFilePreviewDialog(
+                            title: document.approvalDocumentName,
+                            context,
+                            url.split(","),
+                          );
                         }
                       },
                     ),

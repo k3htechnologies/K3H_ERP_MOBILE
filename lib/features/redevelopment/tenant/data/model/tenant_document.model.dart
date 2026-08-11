@@ -14,7 +14,6 @@ class TenantDocumentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   TenantDocumentModel({
     required this.tenantDocumentId,
     required this.uniquekey,
@@ -30,7 +29,6 @@ class TenantDocumentModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory TenantDocumentModel.fromJson(Map<String, dynamic> json) =>
       TenantDocumentModel(
         tenantDocumentId: parseValue<int>(json, "TenantDocumentId"),
@@ -45,11 +43,11 @@ class TenantDocumentModel {
         createdDate: DateTime.parse(json["CreatedDate"]),
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
       );
-
   Map<String, dynamic> toJson() => {
     "TenantDocumentId": tenantDocumentId,
     "Uniquekey": uniquekey,

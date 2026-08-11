@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/widgets/common_redevelopment_widgets.dart';
+import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/widgets/proposed_offer_info_card.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -606,6 +606,8 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                   headerBackgroundColor: AppColor.grey20,
                   children: [
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Created By",
@@ -621,6 +623,8 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                     ),
 
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Modified By",

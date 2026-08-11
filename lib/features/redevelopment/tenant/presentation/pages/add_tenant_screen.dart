@@ -1,16 +1,22 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_applicant_screen.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -20,7 +26,6 @@ class AddTenantScreen extends StatefulWidget {
   final int index;
   final int projectId;
   final int buildingId;
-
   const AddTenantScreen({
     super.key,
     this.tenant,
@@ -28,132 +33,94 @@ class AddTenantScreen extends StatefulWidget {
     required this.projectId,
     required this.buildingId,
   });
-
   @override
   State<AddTenantScreen> createState() => _AddTenantScreenState();
 }
 
 class _AddTenantScreenState extends State<AddTenantScreen> {
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // AUTHORIZATION
+  late TenantCubit _cubit;
   late AuthorizationModel _routeAuthorizationModel;
-
-  // APPLICANT LIST
   final ValueNotifier<List<TenantApplicantData>> _applicants =
       ValueNotifier<List<TenantApplicantData>>([]);
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _unitNumberC,
       _flatCarpetAreaC,
-      _freeAreaOfferedPercentageC,
-      _extraAreaPurchasedSqFtC,
-      _totalAreaSqFtC;
-
-  // STATIC FLAT TYPE LIST
-  List<Map<String, dynamic>> flatTypeList = [
-    {'zAttributesId': 1, 'DisplayName': 'Residential'},
-    {'zAttributesId': 2, 'DisplayName': 'Commercial'},
-    {'zAttributesId': 3, 'DisplayName': 'Void'},
-    {'zAttributesId': 4, 'DisplayName': 'Gym'},
-  ];
-
-  // STATIC FLAT CONFIGURATION LIST
-  List<Map<String, dynamic>> commercialFlatList = [
-    {'zAttributesId': 1, 'DisplayName': 'Shop'},
-    {'zAttributesId': 2, 'DisplayName': 'Office'},
-  ];
-
-  // STATIC FLAT CONFIGURATION LIST
-  List<Map<String, dynamic>> residentialFlatList = [
-    {'zAttributesId': 1, 'DisplayName': '1 BHK'},
-    {'zAttributesId': 2, 'DisplayName': '2 BHK'},
-    {'zAttributesId': 3, 'DisplayName': '3 BHK'},
-    {'zAttributesId': 4, 'DisplayName': '4 BHK'},
-    {'zAttributesId': 5, 'DisplayName': '5 BHK'},
-    {'zAttributesId': 6, 'DisplayName': '1 Rk'},
-    {'zAttributesId': 7, 'DisplayName': 'DUPLEX'},
-  ];
-
-  // STATIC FLAT FACING LIST
-  List<Map<String, dynamic>> flatFacingList = [
-    {'zAttributesId': 1, 'DisplayName': 'North'},
-    {'zAttributesId': 2, 'DisplayName': 'South'},
-    {'zAttributesId': 3, 'DisplayName': 'East'},
-    {'zAttributesId': 4, 'DisplayName': 'West'},
-    {'zAttributesId': 5, 'DisplayName': 'Road'},
-    {'zAttributesId': 6, 'DisplayName': 'Garden'},
-    {'zAttributesId': 7, 'DisplayName': 'Front'},
-    {'zAttributesId': 8, 'DisplayName': 'Park'},
-  ];
-
-  // SELECTED FLAT TYPE
+      _extraFreeCarpetAreaOffered,
+      _freeMofaCarpetArea,
+      _existingTerraceArea,
+      _newEligibilityMofaCarpetArea,
+      _newEligibilityReraCarpetArea,
+      _areaAgainstTerrace,
+      _mofaCarpetAreaPurchased,
+      _reraCarpetAreaPurchased,
+      _deckArea,
+      _totalNewMofaCarpetArea,
+      _totalNewReraCarpetArea,
+      _totalAreaAgainstTerraceDeckRera,
+      _remarkController;
   ValueNotifier<Map<String, dynamic>?> selectedFlatType = ValueNotifier(null);
-
-  // SELECTED DROPDOWN VALUES (reactive, without setState)
-  ValueNotifier<Map<String, dynamic>?> selectedFlatFacing = ValueNotifier(null);
+  ValueNotifier<Map<String, dynamic>?> selectedUnitFacing = ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedFlatConfiguration =
       ValueNotifier(null);
-
-  // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
       type.toLowerCase().trim() == 'applicant';
-
   bool _hasPrimaryApplicant(List<TenantApplicantData> applicants) =>
       applicants.any((e) => _isApplicantType(e.applicantType));
-
   bool get _isEditMode => widget.tenant != null;
-
   @override
   void initState() {
     super.initState();
+    _cubit = context.read<TenantCubit>();
     _routeAuthorizationModel = AuthorizationModel();
     _initialisedTextController();
     _initApplicants();
     _prefillTenantDetails(widget.tenant);
+    _areaAgainstTerrace.addListener(_calculateTotalArea);
+    _deckArea.addListener(_calculateTotalArea);
+    _totalNewReraCarpetArea.addListener(_calculateTotalArea);
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initialisedTextController() {
     _unitNumberC = TextEditingController();
     _flatCarpetAreaC = TextEditingController();
-    _freeAreaOfferedPercentageC = TextEditingController();
-    _extraAreaPurchasedSqFtC = TextEditingController();
-    _totalAreaSqFtC = TextEditingController();
+    _extraFreeCarpetAreaOffered = TextEditingController();
+    _freeMofaCarpetArea = TextEditingController();
+    _existingTerraceArea = TextEditingController();
+    _newEligibilityMofaCarpetArea = TextEditingController();
+    _newEligibilityReraCarpetArea = TextEditingController();
+    _areaAgainstTerrace = TextEditingController();
+    _mofaCarpetAreaPurchased = TextEditingController();
+    _reraCarpetAreaPurchased = TextEditingController();
+    _deckArea = TextEditingController();
+    _totalNewMofaCarpetArea = TextEditingController();
+    _totalNewReraCarpetArea = TextEditingController();
+    _totalAreaAgainstTerraceDeckRera = TextEditingController();
+    _remarkController = TextEditingController();
   }
 
-  // PREFILL TENANT DETAILS
   void _prefillTenantDetails(TenantModel? tenant) {
     if (tenant == null) return;
-
-    _unitNumberC.text = tenant.flatNumber;
-    _flatCarpetAreaC.text = tenant.flatCarpetAreaSqFt.toString();
-    _freeAreaOfferedPercentageC.text =
-        tenant.freeAreaOfferedPercentage == 0
+    _unitNumberC.text = tenant.unitAnnexureSurveyNumber;
+    _flatCarpetAreaC.text = tenant.unitCarpetAreaSqFt.toString();
+    _extraFreeCarpetAreaOffered.text =
+        tenant.freeMOFACarpetAreaSqFt == 0
             ? ""
-            : tenant.freeAreaOfferedPercentage.toString();
-    _extraAreaPurchasedSqFtC.text = tenant.extraAreaPurchasedSqFt.toString();
-    _totalAreaSqFtC.text = tenant.totalAreaSqFt.toString();
-
-    selectedFlatFacing.value = flatFacingList.firstWhere(
+            : tenant.freeMOFACarpetAreaSqFt.toString();
+    selectedUnitFacing.value = flatFacingList.firstWhereOrNull(
       (e) =>
           e['DisplayName'].toString().toLowerCase() ==
-          tenant.facing.toLowerCase(),
-      orElse: () => flatFacingList.first,
+          tenant.unitFacing.toLowerCase(),
     );
-
-    final flatTypeMatch = flatTypeList.firstWhere(
-      (e) => e['DisplayName'] == tenant.flatType,
-      orElse: () => flatTypeList.first,
+    final flatTypeMatch = propertyTypeList.firstWhereOrNull(
+      (e) => e['DisplayName'] == tenant.unitType,
     );
-
-    final isResidential = tenant.flatType.toLowerCase() == 'residential';
+    final isResidential =
+        tenant.inventoryFlatType.toLowerCase() == 'residential';
     final configList = isResidential ? residentialFlatList : commercialFlatList;
     final configMatch = configList.firstWhere(
       (e) =>
           e['DisplayName'].toString().toLowerCase() ==
-          tenant.flatConfiguration.toLowerCase(),
+          tenant.unitConfiguration.toLowerCase(),
       orElse: () => configList.first,
     );
     selectedFlatType.value = flatTypeMatch;
@@ -162,9 +129,26 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         selectedFlatConfiguration.value = configMatch;
       }
     });
+    _extraFreeCarpetAreaOffered.text =
+        tenant.extraFreeCarpetAreaOfferedPercent.toString();
+    _freeMofaCarpetArea.text = tenant.freeMOFACarpetAreaSqFt.toString();
+    _existingTerraceArea.text = tenant.existingTerraceAreaSqFt.toString();
+    _newEligibilityMofaCarpetArea.text =
+        tenant.newEligibilityMOFACarpetAreaSqFt.toString();
+    _newEligibilityReraCarpetArea.text =
+        tenant.newEligibilityRERACarpetAreaSqFt.toString();
+    _areaAgainstTerrace.text = tenant.areaAgainstTerraceSqFt.toString();
+    _mofaCarpetAreaPurchased.text =
+        tenant.mofaCarpetAreaPurchasedSqFt.toString();
+    _reraCarpetAreaPurchased.text =
+        tenant.reraCarpetAreaPurchasedSqFt.toString();
+    _deckArea.text = tenant.deckAreaSqFt.toString();
+    _totalNewMofaCarpetArea.text = tenant.totalNewMOFACarpetAreaSqFt.toString();
+    _totalNewReraCarpetArea.text = tenant.totalNewRERACarpetAreaSqFt.toString();
+    _remarkController.text = tenant.remark;
+    _calculateTotalArea();
   }
 
-  // INITIALIZE APPLICANTS
   void _initApplicants() {
     final incomingApplicants = widget.tenant?.tenantApplicantData ?? [];
     _applicants.value =
@@ -173,7 +157,6 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             .toList();
   }
 
-  // OPEN APPLICANT FORM
   Future<void> _openApplicantForm({
     TenantApplicantData? applicant,
     int? index,
@@ -189,37 +172,68 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             ),
       ),
     );
-
     if (result == null || result['applicant'] == null) return;
-
     final TenantApplicantData updatedApplicant = result['applicant'];
     final int? updatedIndex = result['index'] as int?;
-
     final currentApplicants = List<TenantApplicantData>.from(_applicants.value);
-    final existingApplicantIndex = currentApplicants.indexWhere(
-      (e) => _isApplicantType(e.applicantType),
-    );
     final bool isUpdatingExisting =
         updatedIndex != null && updatedIndex < currentApplicants.length;
-    if (_isApplicantType(updatedApplicant.applicantType) &&
-        existingApplicantIndex != -1 &&
-        (!isUpdatingExisting || existingApplicantIndex != updatedIndex) &&
-        mounted) {
-      await showErrorMessage(
-        context,
-        'Error',
-        'Only one Applicant type is allowed.',
-      );
-      return;
-    }
-
+    TenantApplicantData finalApplicant = updatedApplicant;
     if (isUpdatingExisting) {
-      final int targetIndex = updatedIndex;
-      currentApplicants[targetIndex] = updatedApplicant;
+      final old = currentApplicants[updatedIndex];
+      finalApplicant.profilePhotoImage = mergeFile(
+        updatedApplicant.profilePhotoImage,
+        old.profilePhotoImage,
+      );
+      finalApplicant.aadhaarImage = mergeFile(
+        updatedApplicant.aadhaarImage,
+        old.aadhaarImage,
+      );
+      finalApplicant.panImage = mergeFile(
+        updatedApplicant.panImage,
+        old.panImage,
+      );
+      finalApplicant.passportImage = mergeFile(
+        updatedApplicant.passportImage,
+        old.passportImage,
+      );
+      finalApplicant.drivingLicenseImage = mergeFile(
+        updatedApplicant.drivingLicenseImage,
+        old.drivingLicenseImage,
+      );
+      finalApplicant.votingIdImage = mergeFile(
+        updatedApplicant.votingIdImage,
+        old.votingIdImage,
+      );
+      finalApplicant.gstImage = mergeFile(
+        updatedApplicant.gstImage,
+        old.gstImage,
+      );
+      finalApplicant.chequeImage = mergeFile(
+        updatedApplicant.chequeImage,
+        old.chequeImage,
+      );
+    }
+    if (isUpdatingExisting) {
+      currentApplicants[updatedIndex] = finalApplicant;
     } else {
-      currentApplicants.add(updatedApplicant);
+      currentApplicants.add(finalApplicant);
     }
     _applicants.value = currentApplicants;
+  }
+
+  Future<void> _showPopupToDeleteApplicant(
+    BuildContext context,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a applicant ?',
+      'Deleting this applicant will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      _deleteApplicant(index);
+    }
   }
 
   void _deleteApplicant(int index) {
@@ -229,80 +243,104 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _applicants.value = currentApplicants;
   }
 
-  // HANDLE SUBMIT
+  void _calculateTotalArea() {
+    final a = double.tryParse(_areaAgainstTerrace.text) ?? 0;
+    final b = double.tryParse(_deckArea.text) ?? 0;
+    final c = double.tryParse(_totalNewReraCarpetArea.text) ?? 0;
+    _totalAreaAgainstTerraceDeckRera.text = (a + b + c).toStringAsFixed(2);
+  }
+
   void _handleSubmit() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-
     final currentApplicants = _applicants.value;
     if (currentApplicants.isEmpty) {
-      showErrorMessage(
-        context,
-        'Error',
-        'Please add at least one Applicant before saving.',
-      );
+      showErrorMessage(context, 'Error', 'Atleast one applicant is required');
       return;
     }
-
     if (!_hasPrimaryApplicant(currentApplicants)) {
       showErrorMessage(
         context,
         'Error',
-        'Please ensure one Applicant has type "Applicant".',
+        'In Applicant List - One Applicant is required',
       );
       return;
     }
-
-    final cubit = context.read<TenantCubit>();
-
     final flatType = selectedFlatType.value!['DisplayName'].toString();
     final flatConfiguration =
         selectedFlatConfiguration.value?['DisplayName']?.toString() ?? '';
-    final facing = selectedFlatFacing.value?['DisplayName']?.toString() ?? '';
-
-    final freeArea =
-        _freeAreaOfferedPercentageC.text.trim().isEmpty
-            ? '0'
-            : _freeAreaOfferedPercentageC.text.trim();
-    final extraArea =
-        _extraAreaPurchasedSqFtC.text.trim().isEmpty
-            ? '0'
-            : _extraAreaPurchasedSqFtC.text.trim();
-    final totalArea =
-        _totalAreaSqFtC.text.trim().isEmpty ? '0' : _totalAreaSqFtC.text.trim();
+    final facing = selectedUnitFacing.value?['DisplayName']?.toString() ?? '';
 
     if (_isEditMode && widget.tenant != null) {
       final tenant = widget.tenant!;
-      cubit.updateTenant(
+      _cubit.updateTenant(
         context: context,
         projectId: tenant.projectId.toString(),
         index: widget.index,
         tenantId: tenant.tenantId.toString(),
         uniqueKey: tenant.uniquekey,
         buildingId: tenant.buildingId.toString(),
-        flatNumber: _unitNumberC.text.trim(),
-        flatCarpetAreaSqFt: _flatCarpetAreaC.text.trim(),
-        facing: facing,
-        flatType: flatType,
-        flatConfiguration: flatConfiguration,
-        freeAreaOfferedPercentage: freeArea,
-        extraAreaPurchasedSqFt: extraArea,
-        totalAreaSqFt: totalArea,
+        unitAnnexureSurveyNumber: _unitNumberC.text.trim(),
+        unitCarpetAreaSqFt: _flatCarpetAreaC.text.trim(),
+        unitFacing: facing,
+        unitType: flatType,
+        unitConfiguration: flatConfiguration,
         addUpdateTenantApplicant: currentApplicants,
+        extraFreeCarpetAreaOfferedPercent:
+            double.tryParse(_extraFreeCarpetAreaOffered.text) ?? 0,
+        freeMOFACarpetAreaSqFt: double.tryParse(_freeMofaCarpetArea.text) ?? 0,
+        newEligibilityMOFACarpetAreaSqFt:
+            double.tryParse(_newEligibilityMofaCarpetArea.text) ?? 0,
+        newEligibilityRERACarpetAreaSqFt:
+            double.tryParse(_newEligibilityReraCarpetArea.text) ?? 0,
+        mofaCarpetAreaPurchasedSqFt:
+            double.tryParse(_mofaCarpetAreaPurchased.text) ?? 0,
+        reraCarpetAreaPurchasedSqFt:
+            double.tryParse(_reraCarpetAreaPurchased.text) ?? 0,
+        totalNewMOFACarpetAreaSqFt:
+            double.tryParse(_totalNewMofaCarpetArea.text) ?? 0,
+        totalNewRERACarpetAreaSqFt:
+            double.tryParse(_totalNewReraCarpetArea.text) ?? 0,
+        deckAreaSqFt: double.tryParse(_deckArea.text) ?? 0,
+        existingTerraceAreaSqFt:
+            double.tryParse(_existingTerraceArea.text) ?? 0,
+        areaAgainstTerraceSqFt: double.tryParse(_areaAgainstTerrace.text) ?? 0,
+        totalNewRERACarpetAreaWithDeckSqFt:
+            double.tryParse(_areaAgainstTerrace.text) ?? 0,
+        remark: _remarkController.text.trim(),
       );
     } else {
-      cubit.addTenant(
+      _cubit.addTenant(
         context: context,
-        projectId: widget.projectId.toString(),
-        buildingId: widget.buildingId.toString(),
-        flatNumber: _unitNumberC.text.trim(),
-        flatCarpetAreaSqFt: _flatCarpetAreaC.text.trim(),
-        facing: facing,
-        flatType: flatType,
-        flatConfiguration: flatConfiguration,
-        freeAreaOfferedPercentage: freeArea,
-        extraAreaPurchasedSqFt: extraArea,
-        totalAreaSqFt: totalArea,
+        projectId: widget.projectId,
+        buildingId: widget.buildingId,
+        unitAnnexureSurveyNumber: _unitNumberC.text.trim(),
+        unitCarpetAreaSqFt: _flatCarpetAreaC.text.trim(),
+        unitFacing: facing,
+        unitType: flatType,
+        unitConfiguration: flatConfiguration,
         addUpdateTenantApplicant: currentApplicants,
+        extraFreeCarpetAreaOfferedPercent:
+            double.tryParse(_extraFreeCarpetAreaOffered.text) ?? 0,
+        freeMOFACarpetAreaSqFt: double.tryParse(_freeMofaCarpetArea.text) ?? 0,
+        newEligibilityMOFACarpetAreaSqFt:
+            double.tryParse(_newEligibilityMofaCarpetArea.text) ?? 0,
+        newEligibilityRERACarpetAreaSqFt:
+            double.tryParse(_newEligibilityReraCarpetArea.text) ?? 0,
+        mofaCarpetAreaPurchasedSqFt:
+            double.tryParse(_mofaCarpetAreaPurchased.text) ?? 0,
+        reraCarpetAreaPurchasedSqFt:
+            double.tryParse(_reraCarpetAreaPurchased.text) ?? 0,
+        totalNewMOFACarpetAreaSqFt:
+            double.tryParse(_totalNewMofaCarpetArea.text) ?? 0,
+        totalNewRERACarpetAreaSqFt:
+            double.tryParse(_totalNewReraCarpetArea.text) ?? 0,
+        deckAreaSqFt: double.tryParse(_deckArea.text) ?? 0,
+        existingTerraceAreaSqFt:
+            double.tryParse(_existingTerraceArea.text) ?? 0,
+        areaAgainstTerraceSqFt: double.tryParse(_areaAgainstTerrace.text) ?? 0,
+        totalNewRERACarpetAreaWithDeckSqFt:
+            double.tryParse(_areaAgainstTerrace.text) ?? 0,
+        remark: _remarkController.text.trim(),
       );
     }
   }
@@ -311,13 +349,23 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   void dispose() {
     _applicants.dispose();
     selectedFlatType.dispose();
-    selectedFlatFacing.dispose();
+    selectedUnitFacing.dispose();
     selectedFlatConfiguration.dispose();
     _unitNumberC.dispose();
     _flatCarpetAreaC.dispose();
-    _freeAreaOfferedPercentageC.dispose();
-    _extraAreaPurchasedSqFtC.dispose();
-    _totalAreaSqFtC.dispose();
+    _extraFreeCarpetAreaOffered.dispose();
+    _freeMofaCarpetArea.dispose();
+    _existingTerraceArea.dispose();
+    _newEligibilityMofaCarpetArea.dispose();
+    _newEligibilityReraCarpetArea.dispose();
+    _areaAgainstTerrace.dispose();
+    _mofaCarpetAreaPurchased.dispose();
+    _reraCarpetAreaPurchased.dispose();
+    _deckArea.dispose();
+    _totalNewMofaCarpetArea.dispose();
+    _totalNewReraCarpetArea.dispose();
+    _totalAreaAgainstTerraceDeckRera.dispose();
+    _remarkController.dispose();
     super.dispose();
   }
 
@@ -337,7 +385,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             children: [
               Text(
                 _isEditMode ? "Update Tenant" : "Add Tenant",
-                style: AppTextStyle.ts16SB(),
+                style: AppTextStyle.ts14M(),
               ),
               verticalSpacing(),
               Container(
@@ -346,19 +394,19 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Applicant Details",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
                     Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          "Add Applicant Details",
-                          style: AppTextStyle.ts14M(),
+                          "Applicant Details",
+                          style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
-                        Spacer(),
                         CustomButton(
+                          leading: Icon(
+                            Icons.add,
+                            size: 18,
+                            color: AppColor.white,
+                          ),
                           text: "Add Applicant",
                           onPressed: () async => _openApplicantForm(),
                           backgroundColor: AppColor.primary,
@@ -380,23 +428,16 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             ),
                           );
                         }
-                        return SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Row(
-                            children:
-                                applicants
-                                    .asMap()
-                                    .entries
-                                    .map(
-                                      (entry) => SizedBox(
-                                        width: 320,
-                                        child: _buildApplicantCard(
-                                          entry.value,
-                                          entry.key,
-                                        ),
-                                      ),
-                                    )
-                                    .toList(),
+                        return SizedBox(
+                          height: 450,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            itemCount: applicants.length,
+                            itemBuilder: (context, index) {
+                              final applicant = applicants[index];
+                              return _buildApplicantCard(applicant, index);
+                            },
                           ),
                         );
                       },
@@ -420,22 +461,13 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       title: 'Unit / Annexure / Survey Number',
                       hint: "Enter Unit Number",
                       isRequired: true,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        15,
+                      ),
                       textController: _unitNumberC,
                       validator: (value) {
-                        if (value == null) {
+                        if (value == null || value.isEmpty) {
                           return "Unit Number is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Carpet Area SqFt',
-                      hint: "Enter Carpet Area",
-                      isRequired: true,
-                      textController: _flatCarpetAreaC,
-                      validator: (value) {
-                        if (value == null) {
-                          return "Carpet Area is required";
                         }
                         return null;
                       },
@@ -449,11 +481,10 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                           ),
                           title: 'Unit Type',
                           hintText: "Select Unit Type",
-                          dataList: flatTypeList,
+                          dataList: propertyTypeList,
                           isRequired: true,
                           initialValue: flatTypeValue,
                           onSelected: (value) {
-                            // Only clear configuration if flat type actually changed
                             if (selectedFlatType.value?['zAttributesId'] !=
                                 value['zAttributesId']) {
                               selectedFlatConfiguration.value = null;
@@ -491,8 +522,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                       selectedValue;
                                 },
                                 validator: (val) {
-                                  if (val == null ||
-                                      val["zAttributesId"] == -1) {
+                                  if (selectedFlatConfiguration.value == null) {
                                     return 'Flat Configuration is required';
                                   }
                                   return null;
@@ -537,28 +567,44 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                         return SizedBox();
                       },
                     ),
+                    CustomTextField(
+                      title: 'Carpet Area SqFt',
+                      hint: "Enter Carpet Area",
+                      isRequired: true,
+                      textController: _flatCarpetAreaC,
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Carpet Area is required";
+                        }
+                        return null;
+                      },
+                    ),
                     ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: selectedFlatFacing,
+                      valueListenable: selectedUnitFacing,
                       builder: (context, facingValue, child) {
                         return CustomDropDownWidget(
                           key: ValueKey(
                             'facing_${facingValue?['zAttributesId'] ?? 'null'}',
                           ),
-                          title: 'Facing',
-                          hintText: "Select Facing",
+                          title: 'Unit Facing',
+                          hintText: "Select Unit Facing",
                           isRequired: true,
                           dataList: flatFacingList,
                           initialValue: facingValue,
                           onSelected: (value) {
-                            selectedFlatFacing.value = value;
+                            selectedUnitFacing.value = value;
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Facing is required';
+                              return 'Unit Facing is required';
                             }
                             return null;
                           },
-                          onValueClear: () => selectedFlatFacing.value = null,
+                          onValueClear: () => selectedUnitFacing.value = null,
                         );
                       },
                     ),
@@ -567,59 +613,135 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
               ),
               verticalSpacing(),
               Container(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 decoration: commonCardDecoration(),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Offer',
+                      'New Details',
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'Free Area Offered Percentage',
-                      hint: "Enter Free Area Offered Percentage",
+                      title: 'Extra Free Carpet Area Offered (%)',
+                      hint: 'Enter Extra Free Carpet Area Offered',
                       inputFormatterList: InputValidator.percentage(),
-                      textController: _freeAreaOfferedPercentageC,
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _extraFreeCarpetAreaOffered,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return null;
                         }
-                        final intVal = int.tryParse(value);
-                        if (intVal == null || intVal <= 0 || intVal > 100) {
-                          return "Invalid Percentage";
-                        }
-
                         return null;
                       },
                     ),
                     CustomTextField(
-                      title: 'Total Area SqFt ',
-                      hint: "Enter Total Area SqFt",
-                      inputFormatterList: InputValidator.digit(10),
-                      textController: _totalAreaSqFtC,
+                      title: 'Free MOFA Carpet Area (SqFt)',
+                      hint: 'Enter Free MOFA CA',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _freeMofaCarpetArea,
                     ),
-                  ],
-                ),
-              ),
-              verticalSpacing(),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Extra Area Purchased',
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
                     CustomTextField(
-                      title: 'Extra Area Purchased SqFt ',
-                      hint: "Enter Extra Area Purchased SqFt",
-                      inputFormatterList: InputValidator.digit(10),
-                      textController: _extraAreaPurchasedSqFtC,
+                      title: 'Existing Terrace Area (SqFt)',
+                      hint: 'Enter Existing Terrace Area',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _existingTerraceArea,
+                    ),
+                    CustomTextField(
+                      title: 'New Eligibility MOFA Carpet Area (SqFt)',
+                      hint: 'Enter New Eligibility MOFA CA',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _newEligibilityMofaCarpetArea,
+                    ),
+                    CustomTextField(
+                      title: 'New Eligibility RERA Carpet Area (SqFt)',
+                      hint: 'Enter New Eligibility RERA CA',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _newEligibilityReraCarpetArea,
+                    ),
+                    CustomTextField(
+                      title: '(A) Area Against Terrace (SqFt)',
+                      hint: 'Enter Area Against Terrace',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _areaAgainstTerrace,
+                    ),
+                    CustomTextField(
+                      title: 'MOFA Carpet Area Purchased (SqFt)',
+                      hint: 'Enter MOFA CA Purchased',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _mofaCarpetAreaPurchased,
+                    ),
+                    CustomTextField(
+                      title: 'RERA Carpet Area Purchased (SqFt)',
+                      hint: 'Enter RERA CA Purchased',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _reraCarpetAreaPurchased,
+                    ),
+                    CustomTextField(
+                      title: '(B) Deck Area (SqFt)',
+                      hint: 'Enter Deck Area',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _deckArea,
+                    ),
+                    CustomTextField(
+                      title: 'Total New MOFA Carpet Area (SqFt)',
+                      hint: 'Enter Total New MOFA CA',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _totalNewMofaCarpetArea,
+                    ),
+                    CustomTextField(
+                      title: '(C) Total New RERA Carpet Area (SqFt)',
+                      hint: 'Enter Total New RERA CA',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _totalNewReraCarpetArea,
+                    ),
+                    CustomTextField(
+                      title:
+                          'Area Against Terrace + Deck Area + Total New RERA Carpet Area (SqFt) (A + B + C)',
+                      hint: '0.00',
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 7,
+                      ),
+                      keyboardType: TextInputType.numberWithOptions(),
+                      textController: _totalAreaAgainstTerraceDeckRera,
+                      readOnly: true,
+                    ),
+                    CustomTextField(
+                      title: 'Remark',
+                      hint: 'Enter Remark',
+                      textController: _remarkController,
+                      maxLines: 4,
                     ),
                   ],
                 ),
@@ -647,18 +769,18 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     );
   }
 
-  // BUILD APPLICANT CARD
   Widget _buildApplicantCard(TenantApplicantData applicant, int index) {
     return Container(
-      margin: const EdgeInsets.only(right: 10),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
       decoration: BoxDecoration(
         color: AppColor.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColor.lightBlue),
+        border: Border.all(color: AppColor.primary, width: .3),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12.h,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -667,15 +789,20 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(applicant.applicantName, style: AppTextStyle.ts14M()),
-                    verticalSpacing(height: 4),
+                    Text(
+                      applicant.applicantName,
+                      style: AppTextStyle.ts14M(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     Text(
                       applicant.applicantType,
-                      style: AppTextStyle.ts12R(color: AppColor.grey),
+                      style: AppTextStyle.ts12M(color: AppColor.grey),
                     ),
                   ],
                 ),
               ),
+              horizontalSpacing(width: 5),
               Row(
                 children: [
                   CustomIconButton.edit(
@@ -687,55 +814,268 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                   ),
                   horizontalSpacing(width: 8),
                   CustomIconButton.delete(
-                    onPressed: () => _deleteApplicant(index),
+                    onPressed:
+                        () => _showPopupToDeleteApplicant(context, index),
                   ),
                 ],
               ),
             ],
           ),
-          verticalSpacing(height: 8),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _buildDetailField(
-                  "Contact No.",
-                  applicant.applicantMobileNumber,
+              buildColumnTitleValue(
+                title: "Mobile Number",
+                value:
+                    applicant.applicantMobileNumber.isEmpty
+                        ? "-"
+                        : applicant.applicantMobileNumber,
+                customValueWidget: CustomClickToContactText(
+                  countryCode: applicant.applicantMobileNumberCountryCode,
+                  value: applicant.applicantMobileNumber,
                 ),
               ),
-              Expanded(
-                child: _buildDetailField("Email", applicant.applicantEmailId),
+              buildColumnTitleValue(
+                title: "Email ID",
+                value:
+                    applicant.applicantEmailId.isEmpty
+                        ? "-"
+                        : applicant.applicantEmailId,
+                customValueWidget: CustomClickToContactText(
+                  value: applicant.applicantEmailId,
+                  type: ContactType.email,
+                ),
               ),
             ],
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _buildDetailField("Bank", applicant.bankName)),
-              Expanded(
-                child: _buildDetailField(
-                  "Account No.",
-                  applicant.accountNumber,
+              buildColumnTitleValue(
+                title: "Aadhaar Card No.",
+                value:
+                    applicant.aadharCardNumber.isEmpty
+                        ? "-"
+                        : applicant.aadharCardNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Aadhaar Card",
+                value:
+                    applicant.aadharCardURL.isEmpty
+                        ? "-"
+                        : applicant.aadharCardURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.aadharCardURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "Aadhaar Card",
+                        context,
+                        applicant.aadharCardURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.aadharCardURL.isEmpty,
                 ),
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD DETAIL FIELD
-  Widget _buildDetailField(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: AppTextStyle.ts12R(color: AppColor.grey)),
-          Text(
-            value.isEmpty ? "-" : value,
-            style: AppTextStyle.ts14R(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "PAN Card No.",
+                value: applicant.panNumber.isEmpty ? "-" : applicant.panNumber,
+              ),
+              buildColumnTitleValue(
+                title: "PAN Card",
+                value:
+                    applicant.panCardURL.isEmpty ? "-" : applicant.panCardURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.panCardURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "PAN Card",
+                        context,
+                        applicant.panCardURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.panCardURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Driving License",
+                value:
+                    applicant.drivingLicenseNumber.isEmpty
+                        ? "-"
+                        : applicant.drivingLicenseNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Driving License",
+                value:
+                    applicant.drivingLicenseURL.isEmpty
+                        ? "-"
+                        : applicant.drivingLicenseURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.drivingLicenseURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "Driving License",
+                        context,
+                        applicant.drivingLicenseURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.drivingLicenseURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Voting ID No.",
+                value:
+                    applicant.votingIdNumber.isEmpty
+                        ? "-"
+                        : applicant.votingIdNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Voting ID",
+                value:
+                    applicant.votingIdURL.isEmpty ? "-" : applicant.votingIdURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.votingIdURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "Voting ID",
+                        context,
+                        applicant.votingIdURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.votingIdURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Passport No.",
+                value:
+                    applicant.passportNumber.isEmpty
+                        ? "-"
+                        : applicant.passportNumber,
+              ),
+              buildColumnTitleValue(
+                title: "Passport",
+                value:
+                    applicant.passportURL.isEmpty ? "-" : applicant.passportURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.passportURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "Passport",
+                        context,
+                        applicant.passportURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.passportURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "GST No.",
+                value: applicant.gstNumber.isEmpty ? "-" : applicant.gstNumber,
+              ),
+              buildColumnTitleValue(
+                title: "GST Certificate",
+                value:
+                    applicant.gstNumberURL.isEmpty
+                        ? "-"
+                        : applicant.gstNumberURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.gstNumberURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "GST Certificate",
+                        context,
+                        applicant.gstNumberURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.gstNumberURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Profile Photo",
+                value: applicant.photoURL.isEmpty ? "-" : applicant.photoURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.photoURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "Profile Photo",
+                        context,
+                        applicant.photoURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.photoURL.isEmpty,
+                ),
+              ),
+              buildColumnTitleValue(
+                title: "Cheque / Cancelled Cheque",
+                value: applicant.chequeURL.isEmpty ? "-" : applicant.chequeURL,
+                customValueWidget: CustomButton.documentOutline(
+                  onPressed: () {
+                    if (applicant.chequeURL.isNotEmpty) {
+                      showFilePreviewDialog(
+                        title: "Cheque / Cancelled Cheque",
+                        context,
+                        applicant.chequeURL.split(","),
+                      );
+                    }
+                  },
+                  isDisable: applicant.chequeURL.isEmpty,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(title: "Bank", value: applicant.bankName),
+              buildColumnTitleValue(
+                title: "Account Number",
+                value: applicant.accountNumber,
+              ),
+            ],
+          ),
+          buildRowWrapper(
+            child: buildColumnTitleValue(
+              title: "IFSC",
+              value: applicant.ifscCode,
+            ),
           ),
         ],
       ),

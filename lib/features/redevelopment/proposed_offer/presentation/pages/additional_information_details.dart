@@ -229,6 +229,8 @@ class _AdditionalInformationDetailsState
                   headerBackgroundColor: AppColor.grey20,
                   children: [
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Created By",
@@ -244,6 +246,8 @@ class _AdditionalInformationDetailsState
                     ),
 
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Modified By",

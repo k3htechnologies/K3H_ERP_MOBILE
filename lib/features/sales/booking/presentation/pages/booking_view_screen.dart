@@ -505,6 +505,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.aadharCardURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Aadhaar Card",
                                     applicant.aadharCardURL.split(","),
                                   );
                                 }
@@ -524,6 +525,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.panCardURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "PAN Card.",
                                     applicant.panCardURL.split(","),
                                   );
                                 }
@@ -543,6 +545,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.drivingLicenseURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Driving License",
                                     applicant.drivingLicenseURL.split(","),
                                   );
                                 }
@@ -562,6 +565,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.votingIdURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Voting ID",
                                     applicant.votingIdURL.split(","),
                                   );
                                 }
@@ -581,6 +585,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.passportURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Passport",
                                     applicant.passportURL.split(","),
                                   );
                                 }
@@ -597,6 +602,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.gstNumberURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "GST Certificate",
                                     applicant.gstNumberURL.split(","),
                                   );
                                 }
@@ -612,6 +618,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.cancelledChequeUrl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Cancelled Cheque",
                                     applicant.cancelledChequeUrl.split(","),
                                   );
                                 }
@@ -627,6 +634,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.poaurl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "POA (if NRI Execution)",
                                     applicant.poaurl.split(","),
                                   );
                                 }
@@ -642,6 +650,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.incomeForm16Itrurl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Income Docs (Form 16 / ITR)",
                                     applicant.incomeForm16Itrurl.split(","),
                                   );
                                 }
@@ -657,6 +666,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "NRE / NRO Bank Details",
                                     applicant.nreNroBankDetailsUrl.split(","),
                                   );
                                 }
@@ -672,6 +682,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.nomineeFormUrl.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Nominee Form",
                                     applicant.nomineeFormUrl.split(","),
                                   );
                                 }
@@ -689,6 +700,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                     .isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Statement Of Source Of Funds",
                                     applicant.statementOfSourceOfFundsURL.split(
                                       ",",
                                     ),
@@ -708,6 +720,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.paymentProofURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Payment Proof",
                                     applicant.paymentProofURL.split(","),
                                   );
                                 }
@@ -723,6 +736,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                                 if (applicant.photoURL.isNotEmpty) {
                                   showFilePreviewDialog(
                                     context,
+                                    title: "Profile Photo",
                                     applicant.photoURL.split(","),
                                   );
                                 }
@@ -1680,6 +1694,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.aadharCardURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Aadhaar Card",
                       applicant.aadharCardURL.split(","),
                     );
                   }
@@ -1696,6 +1711,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.panCardURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "PAN Card.",
                       applicant.panCardURL.split(","),
                     );
                   }
@@ -1715,6 +1731,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.drivingLicenseURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Driving License",
                       applicant.drivingLicenseURL.split(","),
                     );
                   }
@@ -1731,6 +1748,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.votingIdURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Voting ID",
                       applicant.votingIdURL.split(","),
                     );
                   }
@@ -1747,6 +1765,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.passportURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Passport",
                       applicant.passportURL.split(","),
                     );
                   }
@@ -1763,6 +1782,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.gstNumberURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "GST Certificate",
                       applicant.gstNumberURL.split(","),
                     );
                   }
@@ -1778,6 +1798,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.cancelledChequeUrl.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Cancelled Cheque",
                       applicant.cancelledChequeUrl.split(","),
                     );
                   }
@@ -1791,7 +1812,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               "widget": CustomButton.documentOutline(
                 onPressed: () {
                   if (applicant.poaurl.isNotEmpty) {
-                    showFilePreviewDialog(context, applicant.poaurl.split(","));
+                    showFilePreviewDialog(
+                      context,
+                      title: "POA (if NRI Execution)",
+                      applicant.poaurl.split(","),
+                    );
                   }
                 },
                 isDisable: applicant.poaurl.isEmpty,
@@ -1805,6 +1830,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.incomeForm16Itrurl.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Income Docs (Form 16 / ITR)",
                       applicant.incomeForm16Itrurl.split(","),
                     );
                   }
@@ -1820,6 +1846,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "NRE / NRO Bank Details",
                       applicant.nreNroBankDetailsUrl.split(","),
                     );
                   }
@@ -1835,6 +1862,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.nomineeFormUrl.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Nominee Form",
                       applicant.nomineeFormUrl.split(","),
                     );
                   }
@@ -1850,6 +1878,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.statementOfSourceOfFundsURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Statement Of Source Of Funds",
                       applicant.statementOfSourceOfFundsURL.split(","),
                     );
                   }
@@ -1866,6 +1895,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.paymentProofURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Payment Proof",
                       applicant.paymentProofURL.split(","),
                     );
                   }
@@ -1881,6 +1911,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   if (applicant.photoURL.isNotEmpty) {
                     showFilePreviewDialog(
                       context,
+                      title: "Profile Photo",
                       applicant.photoURL.split(","),
                     );
                   }

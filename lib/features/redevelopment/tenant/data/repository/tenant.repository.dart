@@ -42,6 +42,7 @@ abstract interface class TenantRepository {
     required String uniquekey,
     required int projectId,
     required int buildingId,
+    required int tenantId,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> exportTenant({
@@ -55,9 +56,7 @@ abstract interface class TenantRepository {
 
 class TenantRepositoryImpl implements TenantRepository {
   final TenantDatasource tenantDatasource;
-
   TenantRepositoryImpl({required this.tenantDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getTenantList({
     required int pageNumber,
@@ -74,9 +73,9 @@ class TenantRepositoryImpl implements TenantRepository {
         buildingId: buildingId,
         queryParams: queryParams,
       );
-      return Right(result);
+      return right(result);
     } catch (e) {
-      return Left(Failure(message: e.toString()));
+      return left(Failure(message: ErrorHandler.getErrorMessage(e)));
     }
   }
 
@@ -96,9 +95,9 @@ class TenantRepositoryImpl implements TenantRepository {
         buildingId: buildingId,
         queryParams: queryParams,
       );
-      return Right(result);
+      return right(result);
     } catch (e) {
-      return Left(Failure(message: e.toString()));
+      return left(Failure(message: ErrorHandler.getErrorMessage(e)));
     }
   }
 
@@ -112,9 +111,9 @@ class TenantRepositoryImpl implements TenantRepository {
         body: body,
         fileList: fileList,
       );
-      return Right(result);
+      return right(result);
     } catch (e) {
-      return Left(Failure(message: e.toString()));
+      return left(Failure(message: ErrorHandler.getErrorMessage(e)));
     }
   }
 
@@ -128,9 +127,9 @@ class TenantRepositoryImpl implements TenantRepository {
         body: body,
         fileList: fileList,
       );
-      return Right(result);
+      return right(result);
     } catch (e) {
-      return Left(Failure(message: e.toString()));
+      return left(Failure(message: ErrorHandler.getErrorMessage(e)));
     }
   }
 
@@ -148,9 +147,9 @@ class TenantRepositoryImpl implements TenantRepository {
         projectId: projectId,
         buildingId: buildingId,
       );
-      return Right(result);
+      return right(result);
     } catch (e) {
-      return Left(Failure(message: e.toString()));
+      return left(Failure(message: ErrorHandler.getErrorMessage(e)));
     }
   }
 
@@ -160,6 +159,7 @@ class TenantRepositoryImpl implements TenantRepository {
     required String uniquekey,
     required int projectId,
     required int buildingId,
+    required int tenantId,
   }) async {
     try {
       var result = await tenantDatasource.apicallDeleteTenantDocument(
@@ -167,10 +167,11 @@ class TenantRepositoryImpl implements TenantRepository {
         uniqueKey: uniquekey,
         projectId: projectId,
         buildingId: buildingId,
+        tenantId: tenantId,
       );
-      return Right(result);
+      return right(result);
     } catch (e) {
-      return Left(Failure(message: e.toString()));
+      return left(Failure(message: ErrorHandler.getErrorMessage(e)));
     }
   }
 

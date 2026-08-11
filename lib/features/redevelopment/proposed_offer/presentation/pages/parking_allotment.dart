@@ -197,6 +197,8 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                   headerBackgroundColor: AppColor.grey20,
                   children: [
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Created By",
@@ -212,6 +214,8 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                     ),
 
                     Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
                           title: "Modified By",

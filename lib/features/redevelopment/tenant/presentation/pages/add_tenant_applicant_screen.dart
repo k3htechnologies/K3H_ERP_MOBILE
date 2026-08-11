@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
@@ -24,14 +25,12 @@ class AddTenantApplicantScreen extends StatefulWidget {
   final TenantApplicantData? applicant;
   final int? index;
   final bool hasPrimaryApplicant;
-
   const AddTenantApplicantScreen({
     super.key,
     this.applicant,
     this.index,
     this.hasPrimaryApplicant = false,
   });
-
   @override
   State<AddTenantApplicantScreen> createState() =>
       _AddTenantApplicantScreenState();
@@ -40,7 +39,6 @@ class AddTenantApplicantScreen extends StatefulWidget {
 class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
-
   final _formKey = GlobalKey<FormState>();
   ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
@@ -57,34 +55,24 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
       _gstC,
       _accountNumberC,
       _ifscCodeC;
-
-  // APPLICANT TYPE LIST
-  final List<Map<String, dynamic>> applicantTypeList = const [
-    {"zAttributesId": 1, "DisplayName": "Applicant"},
-    {"zAttributesId": 2, "DisplayName": "Co-Applicant"},
-  ];
-
   // SELECTED APPLICANT TYPE
   // Map<String, dynamic>? selectedApplicantType;
   ValueNotifier<Map<String, dynamic>?> selectedApplicantType = ValueNotifier(
     null,
   );
-
   // METHODS TO CHECK IF APPLICANT TYPE IS PRIMARY
   bool _isApplicantType(String type) =>
       type.toLowerCase().trim() == 'applicant';
-
   // CHECK IF APPLICANT IS EDITING
   bool get _isEditingApplicantType =>
       widget.applicant != null &&
       _isApplicantType(widget.applicant!.applicantType);
-
   // APPLICANT TYPE OPTIONS
   List<Map<String, dynamic>> get _applicantTypeOptions => applicantTypeList;
-
   // SELECTED BANK
-  List<Map<String, dynamic>> _selectedBank = [];
-
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedBank = ValueNotifier(
+    [],
+  );
   // FILE PICKERS
   MultiFilePickerModel profilePhotoFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -126,19 +114,16 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-
   MultiFilePickerModel statementOfSourceOfFundsFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
   MultiFilePickerModel paymentProofFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
   @override
   void initState() {
     super.initState();
@@ -188,14 +173,12 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
           applicant.applicantType.toLowerCase(),
       orElse: () => applicantTypeList.first,
     );
-
     void setFileLists(MultiFilePickerModel target, String url) {
       if (url.isEmpty) {
         target.fileNameList = [];
         target.fileBytesList = [];
       } else {
         target.fileNameList = url.split(",");
-        target.fileBytesList = [];
       }
     }
 
@@ -207,9 +190,8 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     setFileLists(votingIdFile, applicant.votingIdURL);
     setFileLists(gstFile, applicant.gstNumberURL);
     setFileLists(chequeFile, applicant.chequeURL);
-
     if (applicant.bankListMasterId != 0 || applicant.bankName.isNotEmpty) {
-      _selectedBank = [
+      _selectedBank.value = [
         {
           "zAttributesId": applicant.bankListMasterId,
           "DisplayName": applicant.bankName,
@@ -218,7 +200,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     }
   }
 
-  // FETCH BANKS
+  // FETCH BANK
   Future<Map<String, dynamic>> _fetchBank(
     int pageNumber, {
     String? value,
@@ -228,21 +210,13 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
       pageSize: 15,
       query: value != null && value.isNotEmpty ? {"BankName": value} : {},
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
         "totalNumberOfRecord": 0,
       },
       (response) {
-        final banks =
-            (response['data'] as List)
-                .map(
-                  (e) =>
-                      BankListMasterModel.fromJson(e as Map<String, dynamic>),
-                )
-                .toList();
-
+        final banks = response['data'] as List<BankListMasterModel>;
         return {
           "itemList":
               banks.map((bank) {
@@ -260,84 +234,86 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   // SAVE
   void _submitForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-
     final selectedType = selectedApplicantType.value!['DisplayName'].toString();
     if (widget.hasPrimaryApplicant &&
         !_isEditingApplicantType &&
         _isApplicantType(selectedType)) {
-      showErrorMessage(
-        context,
-        'Error',
-        'Only one Applicant type is allowed. Edit the existing Applicant to make changes.',
-      );
+      showErrorMessage(context, "", "Primary Applicant already exists");
       return;
     }
-
     final int bankListMasterId =
-        _selectedBank.isNotEmpty
-            ? _selectedBank.first['zAttributesId'] as int
+        _selectedBank.value.isNotEmpty
+            ? _selectedBank.value.first['zAttributesId'] as int
             : 0;
     final String bankName =
-        _selectedBank.isNotEmpty
-            ? _selectedBank.first['DisplayName'].toString()
+        _selectedBank.value.isNotEmpty
+            ? _selectedBank.value.first['DisplayName'].toString()
             : '';
-
-    final applicant =
-        TenantApplicantData(
-            tenantApplicantId: widget.applicant?.tenantApplicantId ?? 0,
-            tenantId: widget.applicant?.tenantId ?? 0,
-            buildingId: widget.applicant?.buildingId ?? 0,
-            projectId: widget.applicant?.projectId ?? 0,
-            bookingApplicantId: widget.applicant?.bookingApplicantId ?? 0,
-            applicantType: selectedApplicantType.value!['DisplayName'],
-            applicantName: _applicantNameC.text.trim(),
-            applicantMobileNumber: _mobileC.text,
-            applicantMobileNumberCountryCode:
-                selectedMobileNoCountry.value.code,
-            applicantEmailId: _emailC.text.trim(),
-            photoURL: widget.applicant?.photoURL ?? '',
-            aadharCardNumber: _aadharC.text.trim(),
-            aadharCardURL: widget.applicant?.aadharCardURL ?? '',
-            panNumber: _panC.text.trim(),
-            panCardURL: widget.applicant?.panCardURL ?? '',
-            passportNumber: _passportC.text.trim(),
-            passportURL: widget.applicant?.passportURL ?? '',
-            drivingLicenseNumber: _drivingLicenseC.text.trim(),
-            drivingLicenseURL: widget.applicant?.drivingLicenseURL ?? '',
-            votingIdNumber: _votingIdC.text.trim(),
-            votingIdURL: widget.applicant?.votingIdURL ?? '',
-            gstNumber: _gstC.text.trim(),
-            gstNumberURL: widget.applicant?.gstNumberURL ?? '',
-            cancelledChequeUrl: widget.applicant?.cancelledChequeUrl ?? '',
-            poaurl: widget.applicant?.photoURL ?? '',
-            incomeForm16Itrurl: widget.applicant?.incomeForm16Itrurl ?? '',
-            nreNroBankDetailsUrl: widget.applicant?.nreNroBankDetailsUrl ?? '',
-            nomineeFormUrl: widget.applicant?.nomineeFormUrl ?? '',
-            bankListMasterId: bankListMasterId,
-            bankName: bankName,
-            accountNumber: _accountNumberC.text.trim(),
-            ifscCode: _ifscCodeC.text.trim(),
-            chequeURL: widget.applicant?.chequeURL ?? '',
-            createdById: widget.applicant?.createdById ?? -1,
-            createdBy: widget.applicant?.createdBy ?? '',
-            createdDate: widget.applicant?.createdDate ?? DateTime.now(),
-            modifiedById: widget.applicant?.modifiedById ?? -1,
-            modifiedBy: widget.applicant?.modifiedBy ?? '',
-            modifiedDate: DateTime.now(),
-            statementOfSourceOfFundsURL: '',
-            paymentProofURL: '',
-          )
-          ..profilePhotoImage = profilePhotoFile
-          ..aadhaarImage = aadhaarFile
-          ..panImage = panFile
-          ..passportImage = passportFile
-          ..drivingLicenseImage = drivingLicenseFile
-          ..votingIdImage = votingIdFile
-          ..gstImage = gstFile
-          ..chequeImage = chequeFile
-          ..statementOfSourceOfFundsImage = statementOfSourceOfFundsFile
-          ..paymentProofImage = paymentProofFile;
-
+    final applicant = TenantApplicantData(
+      tenantApplicantId: widget.applicant?.tenantApplicantId ?? 0,
+      tenantId: widget.applicant?.tenantId ?? 0,
+      buildingId: widget.applicant?.buildingId ?? 0,
+      projectId: widget.applicant?.projectId ?? 0,
+      applicantType: selectedApplicantType.value!['DisplayName'],
+      applicantName: _applicantNameC.text.trim(),
+      applicantMobileNumber: _mobileC.text,
+      applicantMobileNumberCountryCode: selectedMobileNoCountry.value.code,
+      applicantEmailId: _emailC.text.trim(),
+      photoURL:
+          profilePhotoFile.fileNameList.isNotEmpty
+              ? profilePhotoFile.fileNameList.join(",")
+              : '',
+      aadharCardURL:
+          aadhaarFile.fileNameList.isNotEmpty
+              ? aadhaarFile.fileNameList.join(",")
+              : '',
+      aadharCardNumber: _aadharC.text.trim(),
+      panNumber: _panC.text.trim(),
+      panCardURL:
+          panFile.fileNameList.isNotEmpty ? panFile.fileNameList.join(",") : '',
+      passportNumber: _passportC.text.trim(),
+      passportURL:
+          passportFile.fileNameList.isNotEmpty
+              ? passportFile.fileNameList.join(",")
+              : '',
+      drivingLicenseNumber: _drivingLicenseC.text.trim(),
+      drivingLicenseURL:
+          drivingLicenseFile.fileNameList.isNotEmpty
+              ? drivingLicenseFile.fileNameList.join(",")
+              : '',
+      votingIdNumber: _votingIdC.text.trim(),
+      votingIdURL:
+          votingIdFile.fileNameList.isNotEmpty
+              ? votingIdFile.fileNameList.join(",")
+              : '',
+      gstNumber: _gstC.text.trim(),
+      gstNumberURL:
+          gstFile.fileNameList.isNotEmpty ? gstFile.fileNameList.join(",") : '',
+      chequeURL:
+          chequeFile.fileNameList.isNotEmpty
+              ? chequeFile.fileNameList.join(",")
+              : '',
+      bankListMasterId: bankListMasterId,
+      bankName: bankName,
+      accountNumber: _accountNumberC.text.trim(),
+      ifscCode: _ifscCodeC.text.trim(),
+      createdById: widget.applicant?.createdById ?? -1,
+      createdBy: widget.applicant?.createdBy ?? '',
+      createdDate: widget.applicant?.createdDate ?? DateTime.now(),
+      modifiedById: widget.applicant?.modifiedById ?? -1,
+      modifiedBy: widget.applicant?.modifiedBy ?? '',
+      modifiedDate: DateTime.now(),
+      lastModifiedBy: '',
+      lastModifiedDate: null,
+    );
+    applicant.profilePhotoImage = profilePhotoFile;
+    applicant.aadhaarImage = aadhaarFile;
+    applicant.panImage = panFile;
+    applicant.passportImage = passportFile;
+    applicant.drivingLicenseImage = drivingLicenseFile;
+    applicant.votingIdImage = votingIdFile;
+    applicant.gstImage = gstFile;
+    applicant.chequeImage = chequeFile;
     goRouter.pop({"applicant": applicant, "index": widget.index});
   }
 
@@ -421,7 +397,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                         selectedCountry: value,
                         onCountryChanged: (country) {
                           if (country == null) return;
-
                           selectedMobileNoCountry.value = country;
                         },
                         inputFormatterList: [
@@ -442,7 +417,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                               return "Invalid Mobile Number";
                             }
                           }
-
                           return null;
                         },
                       );
@@ -450,25 +424,15 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   ),
                   CustomTextField(
                     title: 'Email Id',
-                    isRequired: true,
                     hint: "Enter Email Id",
                     textController: _emailC,
                     inputFormatterList: InputValidator.emailInputFormatters(),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Email Id is required";
-                      }
-                      if (!InputValidator.isValidEmail(value)) {
-                        return "Invalid email address";
-                      }
-                      return null;
-                    },
                   ),
                   CustomMultiFilePicker(
                     title: "Profile Photo",
-                    isRequired: true,
                     filePickType: FilePickType.image,
                     initialFileList: profilePhotoFile.fileNameList,
+                    initialFileBytes: profilePhotoFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       profilePhotoFile.fileNameList = fileNameList;
                       profilePhotoFile.fileBytesList = bytesList;
@@ -482,22 +446,20 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       profilePhotoFile.fileNameList = fileNameList;
                       profilePhotoFile.deletedFileList = deleted;
                     },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Profile Photo is required";
-                      }
-                      return null;
-                    },
                   ),
                   CustomTextField(
                     title: 'Aadhaar Card Number',
-                    textController: _aadharC,
                     hint: "Enter Aadhaar Card Number",
+                    isRequired: true,
+                    textController: _aadharC,
+                    keyboardType: TextInputType.number,
                     inputFormatterList:
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
-                      if (value != null &&
-                          value.trim().isNotEmpty &&
+                      if (value == null || value.isEmpty) {
+                        return "Aadhaar Card Number is required";
+                      }
+                      if (value.trim().isNotEmpty &&
                           !InputValidator.isValidAadharNumber(value.trim())) {
                         return "Invalid Aadhaar Card Number";
                       }
@@ -505,9 +467,11 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload Aadhaar Card",
+                    title: "Aadhaar Card",
                     filePickType: FilePickType.kycDocument,
+                    isRequired: true,
                     initialFileList: aadhaarFile.fileNameList,
+                    initialFileBytes: aadhaarFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       aadhaarFile.fileNameList = fileNameList;
                       aadhaarFile.fileBytesList = bytesList;
@@ -521,25 +485,35 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       aadhaarFile.fileNameList = fileNameList;
                       aadhaarFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (fileList == null || fileList.isEmpty) {
+                        return "Aadhaar Card document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'PAN Number',
-                    textController: _panC,
                     hint: "Enter PAN Number",
+                    isRequired: true,
+                    textController: _panC,
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
-                      if (value != null &&
-                          value.trim().isNotEmpty &&
-                          !InputValidator.isValidPAN(value.trim())) {
-                        return "Invalid PAN Number";
+                      if (value == null || value.isEmpty) {
+                        return "PAN Number is required";
+                      }
+                      if (!InputValidator.isValidPAN(value)) {
+                        return "PAN Number is invalid";
                       }
                       return null;
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Upload PAN",
+                    title: "PAN Card",
+                    isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
+                    initialFileBytes: panFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       panFile.fileNameList = fileNameList;
                       panFile.fileBytesList = bytesList;
@@ -553,17 +527,47 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       panFile.fileNameList = fileNameList;
                       panFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (fileList == null || fileList.isEmpty) {
+                        return "PAN Card document is required";
+                      }
+                      if (_panC.text.isNotEmpty &&
+                          InputValidator.isValidPAN(_panC.text.trim()) &&
+                          (fileList.isEmpty)) {
+                        return "PAN Card document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'Passport Number',
-                    textController: _passportC,
                     hint: "Enter Passport Number",
-                    inputFormatterList: [LengthLimitingTextInputFormatter(20)],
+                    textController: _passportC,
+                    inputFormatterList:
+                        InputValidator.passportInputFormatters(),
+                    validator: (value) {
+                      if (passportFile.fileNameList.isNotEmpty) {
+                        if (value == null || value.isEmpty) {
+                          return "Passport Number is required";
+                        }
+                        if (!InputValidator.isValidPassport(value)) {
+                          return "Passport Number is invalid";
+                        }
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            !InputValidator.isValidPassport(value)) {
+                          return "Passport Number is invalid";
+                        }
+                      }
+                      return null;
+                    },
                   ),
                   CustomMultiFilePicker(
-                    title: "Passport",
-                    initialFileList: passportFile.fileNameList,
+                    title: "Passport Document",
                     filePickType: FilePickType.kycDocument,
+                    initialFileList: passportFile.fileNameList,
+                    initialFileBytes: passportFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       passportFile.fileNameList = fileNameList;
                       passportFile.fileBytesList = bytesList;
@@ -577,30 +581,45 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       passportFile.fileNameList = fileNameList;
                       passportFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (_passportC.text.isNotEmpty &&
+                          InputValidator.isValidPassport(
+                            _passportC.text.trim(),
+                          ) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "Passport document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'Driving License Number',
-                    textController: _drivingLicenseC,
                     hint: "Enter Driving License Number",
-                    inputFormatterList: InputValidator.textDigit(20),
+                    textController: _drivingLicenseC,
+                    inputFormatterList:
+                        InputValidator.drivingLicenceInputFormatters(),
                     validator: (value) {
-                      if (drivingLicenseFile.fileNameList.isEmpty) {
-                        return null;
+                      if (drivingLicenseFile.fileNameList.isNotEmpty) {
+                        if (value == null || value.isEmpty) {
+                          return "Driving License Number is required";
+                        }
+                        if (!InputValidator.isValidDrivingLicence(value)) {
+                          return "Driving License Number invalid";
+                        }
+                      } else {
+                        if (value != null &&
+                            value.isNotEmpty &&
+                            !InputValidator.isValidDrivingLicence(value)) {
+                          return "Driving License Number is invalid";
+                        }
                       }
-                      if (value == null || value.isEmpty) {
-                        return "Driving License is required";
-                      }
-
-                      if (InputValidator.isValidDrivingLicence(value)) {
-                        return "Driving License Number is invalid";
-                      }
-
                       return null;
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Driving License",
+                    title: "Driving License Document",
                     filePickType: FilePickType.kycDocument,
+                    initialFileBytes: drivingLicenseFile.fileBytesList,
                     initialFileList: drivingLicenseFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       drivingLicenseFile.fileNameList = fileNameList;
@@ -615,12 +634,22 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       drivingLicenseFile.fileNameList = fileNameList;
                       drivingLicenseFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (_drivingLicenseC.text.isNotEmpty &&
+                          InputValidator.isValidDrivingLicence(
+                            _drivingLicenseC.text.trim(),
+                          ) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "Driving License document is required";
+                      }
+                      return null;
+                    },
                   ),
                   CustomTextField(
                     title: 'Voting ID Number',
                     textController: _votingIdC,
                     hint: "Enter Voting ID Number",
-                    inputFormatterList: InputValidator.textDigit(20),
+                    inputFormatterList: InputValidator.voterIdInputFormatters(),
                     validator: (value) {
                       if (votingIdFile.fileNameList.isNotEmpty) {
                         if (value == null || value.isEmpty) {
@@ -640,8 +669,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Voting ID",
+                    title: "Voting ID Document",
                     filePickType: FilePickType.kycDocument,
+                    initialFileBytes: votingIdFile.fileBytesList,
                     initialFileList: votingIdFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       votingIdFile.fileNameList = fileNameList;
@@ -655,6 +685,16 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       votingIdFile.fileBytesList = fileBytesList;
                       votingIdFile.fileNameList = fileNameList;
                       votingIdFile.deletedFileList = deleted;
+                    },
+                    validator: (fileList) {
+                      if (_votingIdC.text.isNotEmpty &&
+                          InputValidator.isValidVoterId(
+                            _votingIdC.text.trim(),
+                          ) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "Voting Id document is required";
+                      }
+                      return null;
                     },
                   ),
                   CustomTextField(
@@ -681,9 +721,10 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "GST Document",
+                    title: "GST Certificate",
                     filePickType: FilePickType.kycDocument,
                     initialFileList: gstFile.fileNameList,
+                    initialFileBytes: gstFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
                       gstFile.fileNameList = fileNameList;
                       gstFile.fileBytesList = bytesList;
@@ -697,20 +738,26 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       gstFile.fileNameList = fileNameList;
                       gstFile.deletedFileList = deleted;
                     },
+                    validator: (fileList) {
+                      if (_gstC.text.isNotEmpty &&
+                          InputValidator.isValidGST(_gstC.text.trim()) &&
+                          (fileList == null || fileList.isEmpty)) {
+                        return "GST Certificate document is required";
+                      }
+                      return null;
+                    },
                   ),
-                  StatefulBuilder(
-                    builder: (context, innerState) {
+                  ValueListenableBuilder(
+                    valueListenable: _selectedBank,
+                    builder: (context, bank, child) {
                       return CustomMultipleSelectPopup(
                         title: 'Bank',
                         hintText: "Select Bank",
-                        isRequired: true,
                         isMultiSelect: false,
-                        initialValue: _selectedBank,
+                        initialValue: bank,
                         dataList: const [],
                         onSelected: (value) {
-                          innerState(() {
-                            _selectedBank = value;
-                          });
+                          _selectedBank.value = value;
                         },
                         dataFetchCallBack: _fetchBank,
                       );
@@ -731,11 +778,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       if (value == null || value.isEmpty) {
                         return null;
                       }
-
                       if (!InputValidator.isValidIFSC(value)) {
                         return 'Enter a valid IFSC Code';
                       }
-
                       return null;
                     },
                   ),

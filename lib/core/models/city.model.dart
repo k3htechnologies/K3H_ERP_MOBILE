@@ -1,5 +1,4 @@
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
-
 class CityModel {
   final int countryMasterId;
   final String countryName;
@@ -13,7 +12,6 @@ class CityModel {
   final String villageName;
   final int wardMasterId;
   final String wardName;
-
   CityModel({
     required this.countryMasterId,
     required this.countryName,
@@ -28,7 +26,6 @@ class CityModel {
     required this.wardMasterId,
     required this.wardName,
   });
-
   factory CityModel.fromJson(Map<String, dynamic> json) {
     return CityModel(
       countryMasterId: parseValue<int>(json, "CountryMasterId"),
@@ -45,7 +42,6 @@ class CityModel {
       wardName: parseValue<String>(json, "WardName"),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       'CountryMasterId': countryMasterId,

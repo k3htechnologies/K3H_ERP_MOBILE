@@ -472,4 +472,42 @@ const tenderPaymentModeValues = [
   'UPI',
 ];
 
+const tenantDocumentTypeValues = [
+  "33 (38) Notice",
+  "79 / A Consent",
+  "Additional Document (If Any)",
+  "Affidavit",
+  "Assessment Bill",
+  "Consent For Cluster (If Applicable)",
+  "Developer Format Consent",
+  "Electric NOC",
+  "Electricity Bill",
+  "Eligible / Non Eligible (Form 3 & 4)",
+  "Extra Area Purchase Letter",
+  "Extra Purchase Payment Schedule",
+  "Gas Bill",
+  "Maintenance Bill",
+  "MGL NOC",
+  "MHADA Verified Consent",
+  "Notarized Kararnama",
+  "PAAA Floor Plan",
+  "Photo Pass",
+  "Photo Pass Receipt",
+  "POA (Admission)",
+  "Ration Card (If Applicable)",
+  "Registered PAAA",
+  "Rent Receipt (If Applicable)",
+  "Repossession Letter",
+  "Repossession Undertaking",
+  "Sales Agreement",
+  "Share Certificate",
+  "Transfer Documents",
+  "Unit Plan",
+  "Vacant Possession Letter",
+  "Vacating Consent Letter",
+  "Yadi Slip",
+];
+
 const aopStatusValues = ['AOP', 'NON - AOP', 'EXPIRED', 'EXPIRE SOON'];
+
+const applicantTypeValues = ['Applicant', 'Co - Applicant'];

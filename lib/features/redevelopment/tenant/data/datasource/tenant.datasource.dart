@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.mode
 import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant_document.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class TenantDatasource {
   Future<Map<String, dynamic>> apicallPullTenant({
@@ -42,6 +43,7 @@ abstract interface class TenantDatasource {
     required String uniqueKey,
     required int projectId,
     required int buildingId,
+    required int tenantId,
   });
 
   Future<Map<String, dynamic>> apicallPullTenantForExport({
@@ -73,7 +75,7 @@ class TenantDataSourceImpl implements TenantDatasource {
     }) {
       String url =
           "Tenant/PullTenant?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BuildingId=$buildingId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -124,7 +126,7 @@ class TenantDataSourceImpl implements TenantDatasource {
     }) {
       String url =
           "Tenant/PullTenantDocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BuildingId=$buildingId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -204,6 +206,7 @@ class TenantDataSourceImpl implements TenantDatasource {
         'data': List<TenantDocumentModel>.from(
           networkResponse["data"].map((e) => TenantDocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -262,14 +265,16 @@ class TenantDataSourceImpl implements TenantDatasource {
     required String uniqueKey,
     required int projectId,
     required int buildingId,
+    required int tenantId,
   }) async {
     String deleteTenantDocumentUrl({
       required int tenantDocumentId,
       required String uniqueKey,
       required int buildingId,
       required int projectId,
+      required int tenantId,
     }) {
-      return "Tenant/DeleteTenantDocument?TenantDocumentId=$tenantDocumentId&Uniquekey=$uniqueKey&BuildingId=$buildingId&ProjectId=$projectId";
+      return "Tenant/DeleteTenantDocument?TenantDocumentId=$tenantDocumentId&Uniquekey=$uniqueKey&BuildingId=$buildingId&ProjectId=$projectId&TenantId=$tenantId";
     }
 
     try {
@@ -279,10 +284,12 @@ class TenantDataSourceImpl implements TenantDatasource {
           uniqueKey: uniqueKey,
           buildingId: buildingId,
           projectId: projectId,
+          tenantId: tenantId,
         ),
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -292,6 +299,7 @@ class TenantDataSourceImpl implements TenantDatasource {
           uniqueKey: uniqueKey,
           projectId: projectId,
           buildingId: buildingId,
+          tenantId: tenantId,
         );
       }
       rethrow;

@@ -331,6 +331,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                       onPressed: () {
                         showFilePreviewDialog(
                           context,
+                          title: document.projectDocumentName,
                           document.projectDocumentURL.split(","),
                         );
                       },

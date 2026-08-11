@@ -237,7 +237,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
             child: Column(
               spacing: 10,
               children: [
-                /// ================= CASE DETAILS =================
                 Container(
                   padding: EdgeInsets.all(16),
                   decoration: commonCardDecoration(),
@@ -503,7 +502,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 CustomIconButton.edit(
                   isDisabled: !_routeAuthorizationModel.isAction,
                   onPressed: () {
-                    _prefillClosureDate(closure: closure);
+                    _prefillClosureData(closure: closure);
                     _showClosurePopup(closure: closure, index: index);
                   },
                 ),
@@ -530,6 +529,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                 onPressed: () {
                   if (closure.closureAttachementUrl.isNotEmpty) {
                     showFilePreviewDialog(
+                      title: 'Closure Document',
                       context,
                       closure.closureAttachementUrl.split(","),
                     );
@@ -543,7 +543,6 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     );
   }
 
-  // ===================== HEARING TAB =====================
   Widget _buildHearingTab() {
     return BlocBuilder<LitigationCubit, LitigationState>(
       builder: (context, state) {
@@ -1203,8 +1202,8 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
     litigationDocument.deletedFileList = "";
   }
 
-  // PREFILL CLOSURE DATE
-  Future<void> _prefillClosureDate({LitigationClosureModel? closure}) async {
+  // PREFILL CLOSURE DATA
+  Future<void> _prefillClosureData({LitigationClosureModel? closure}) async {
     if (closure != null) {
       closureDate = closure.closureDate;
       _remarkC.text = closure.remark;
@@ -1338,7 +1337,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                       children: [
                         Expanded(
                           child: CustomButton.cancelOutline(
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => goRouter.pop(),
                           ),
                         ),
                         horizontalSpacing(),

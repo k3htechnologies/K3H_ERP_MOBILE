@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -240,8 +241,7 @@ class _AddBookingPaymentScheduleScreenState
 
     /// UPDATE CUBIT
     _bookingCubit.updatePaymentScheduleList(schedules);
-
-    Navigator.pop(context);
+    goRouter.pop();
   }
 
   /// FETCH STAGES

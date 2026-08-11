@@ -40,6 +40,7 @@ class DocumentsViewVendorScreen extends StatelessWidget {
                   return;
                 }
                 showFilePreviewDialog(
+                  title: "Aadhaar Card",
                   context,
                   vendorModel.aadharCardUrl.split(","),
                 );
@@ -57,6 +58,7 @@ class DocumentsViewVendorScreen extends StatelessWidget {
                   return;
                 }
                 showFilePreviewDialog(
+                  title: "PAN Card",
                   context,
                   vendorModel.panCardUrl.split(","),
                 );
@@ -74,6 +76,7 @@ class DocumentsViewVendorScreen extends StatelessWidget {
                   return;
                 }
                 showFilePreviewDialog(
+                  title: "GST Certificate",
                   context,
                   vendorModel.gstCertificateUrl.split(","),
                 );

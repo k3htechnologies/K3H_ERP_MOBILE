@@ -189,6 +189,7 @@ class _AssetMasterViewScreenState extends State<AssetMasterViewScreen>
                         onPressed: () {
                           if (widget.assetMaster.assetInvoiceURL.isNotEmpty) {
                             showFilePreviewDialog(
+                              title: 'Invoice Document',
                               context,
                               widget.assetMaster.assetInvoiceURL.split(","),
                             );

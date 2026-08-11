@@ -78,6 +78,7 @@ class _ViewGrnScreenState extends State<ViewGrnScreen> {
                           onPressed: () {
                             if (grn.uploadChallanUrl.isNotEmpty) {
                               showFilePreviewDialog(
+                                title: "Challan Document",
                                 context,
                                 grn.uploadChallanUrl.split(","),
                               );

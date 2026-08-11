@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
@@ -15,28 +14,22 @@ abstract interface class UtilsRepository {
   Future<Either<Failure, Map<String, dynamic>>> getMenu({
     required int employeeId,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> excelImport({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>>
   getMaterialMasterSubMaterialMasterUOMMaster({
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> pullExcelSample({
     required String tableName,
   });
-
   Future<Either<Failure, UserModel>> pullEmployeeWithMenuList();
-
   Future<Either<Failure, Map<String, dynamic>>> getProjectSummery({
     required int projectId,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> sendOTPModuleBased({
     required String mobileNumber,
     required String module,
@@ -63,7 +56,6 @@ abstract interface class UtilsRepository {
     int? subSubId,
     int? subSubSubId,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> pullModulesWorkflowApproval({
     int? employeeId,
     required int projectId,
@@ -91,9 +83,7 @@ abstract interface class UtilsRepository {
     required int subModulesMasterId,
     required int subSubModulesMasterId,
   });
-
   Future<Either<Failure, AddressParsedResult>> getAddressMaster();
-
   Future<Either<Failure, Map<String, dynamic>>> getVillageList({
     required int pageNumber,
     required int pageSize,
@@ -103,7 +93,6 @@ abstract interface class UtilsRepository {
 
 class UtilsRepositoryImpl implements UtilsRepository {
   final UtilsDatasource _utilsDatasource;
-
   UtilsRepositoryImpl(this._utilsDatasource);
   @override
   Future<Either<Failure, Map<String, dynamic>>> getAppVersion() async {
@@ -255,7 +244,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
         subSubId: subSubId,
         subSubSubId: subSubSubId,
       );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -281,7 +269,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
             subModulesMasterId: subModulesMasterId,
             subSubModulesMasterId: subSubModulesMasterId,
           );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -307,7 +294,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
         subSubId: subSubId,
         subSubSubId: subSubSubId,
       );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -327,7 +313,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
         projectId: projectId,
         queryParams: queryParams,
       );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -351,7 +336,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
         subModulesMasterId: subModulesMasterId,
         subSubModulesMasterId: subSubModulesMasterId,
       );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -375,7 +359,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
             pageSize: pageSize,
             queryParams: queryParams,
           );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -387,12 +370,10 @@ class UtilsRepositoryImpl implements UtilsRepository {
     bool forceRefresh = false,
   }) async {
     final storage = LocalStorageManager();
-
     try {
       /// ---------------- CACHE ----------------
       if (!forceRefresh) {
         final cachedData = storage.getRawString(StorageKey.addressMasterData);
-
         if (cachedData != null && cachedData.isNotEmpty) {
           final parsed = processAddressData(cachedData);
           return right(parsed);
@@ -402,16 +383,12 @@ class UtilsRepositoryImpl implements UtilsRepository {
       /// ---------------- API ----------------
       final result =
           await _utilsDatasource.pullCountryStateCityDistrictVillage();
-
       final data = result["data"]["CountryStateCityDistrictVillageData"];
 
       /// Encode in isolate
       final encodedData = jsonEncode(data);
-
       await storage.setRawString(StorageKey.addressMasterData, encodedData);
-
       final parsed = await compute(processAddressData, encodedData);
-
       return right(parsed);
     } catch (e) {
       return left(Failure(message: e.toString()));

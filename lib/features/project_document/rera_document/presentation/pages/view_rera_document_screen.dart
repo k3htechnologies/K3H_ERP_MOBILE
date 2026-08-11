@@ -321,6 +321,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                       onPressed: () {
                         showFilePreviewDialog(
                           context,
+                          title: "Screenshot",
                           document.reraPortalScreenShotURL!.split(","),
                         );
                       },
@@ -338,6 +339,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                       onPressed: () {
                         showFilePreviewDialog(
                           context,
+                          title: document.projectRERADocumentName,
                           document.projectRERADocumentURL.split(","),
                         );
                       },

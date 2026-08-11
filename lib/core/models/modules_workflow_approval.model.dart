@@ -7,7 +7,6 @@ class ModulesWorkflowApprovalModel {
   int subSubModulesMasterId;
   String subSubModuleName;
   List<ModulesApprovalEmployeeDataModel> employeeData;
-
   ModulesWorkflowApprovalModel({
     required this.moduleName,
     required this.modulesMasterId,
@@ -16,7 +15,6 @@ class ModulesWorkflowApprovalModel {
     required this.subSubModuleName,
     required this.employeeData,
   });
-
   factory ModulesWorkflowApprovalModel.fromJson(Map<String, dynamic> json) =>
       ModulesWorkflowApprovalModel(
         moduleName: parseValue<String>(json, "ModuleName"),
@@ -30,7 +28,6 @@ class ModulesWorkflowApprovalModel {
           ),
         ),
       );
-
   Map<String, dynamic> toJson() => {
     "ModuleName": moduleName,
     "ModulesMasterId": modulesMasterId,
@@ -54,7 +51,6 @@ class ModulesApprovalEmployeeDataModel {
   String? approvalStatus;
   String? remarks;
   DateTime? date;
-
   ModulesApprovalEmployeeDataModel({
     required this.employeeId,
     required this.employeeCode,
@@ -69,7 +65,6 @@ class ModulesApprovalEmployeeDataModel {
     this.remarks,
     this.date,
   });
-
   factory ModulesApprovalEmployeeDataModel.fromJson(
     Map<String, dynamic> json,
   ) => ModulesApprovalEmployeeDataModel(
@@ -86,7 +81,6 @@ class ModulesApprovalEmployeeDataModel {
     remarks: parseValue<String>(json, "Remarks"),
     date: json["Date"] == null ? null : parseValue<DateTime>(json, "Date"),
   );
-
   Map<String, dynamic> toJson() => {
     "EmployeeId": employeeId,
     "EmployeeCode": employeeCode,

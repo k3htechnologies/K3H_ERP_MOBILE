@@ -364,7 +364,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                             }
                             return GestureDetector(
                               onTap: () {
-                                showFilePreviewDialog(context, [
+                                showFilePreviewDialog(context, title: '', [
                                   projectImages[index],
                                 ]);
                               },
@@ -647,6 +647,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                     onPressed: () {
                                       showFilePreviewDialog(
                                         context,
+                                        title: "Transaction / Cheque / DD",
                                         widget
                                             .project
                                             .tenderAmountChequeNumberUrl
@@ -724,6 +725,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                     CustomIconButton(
                                       onPressed: () {
                                         showFilePreviewDialog(
+                                          title: "Transaction / Cheque / DD",
                                           context,
                                           widget
                                               .project
@@ -1776,6 +1778,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                     company.panCardURL.isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
+                                                    title: 'PAN Card',
                                                     context,
                                                     company.panCardURL.split(
                                                       ",",
@@ -1826,6 +1829,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                         .isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
+                                                    title: 'GST Certificate',
                                                     context,
                                                     company.gstCertificateURL
                                                         .split(","),
@@ -1878,6 +1882,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                     company.cinURL.isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
+                                                    title: 'CIN Document',
                                                     context,
                                                     company.cinURL.split(","),
                                                   );
@@ -1921,6 +1926,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                                     company.tanURL.isEmpty,
                                                 onPressed: () {
                                                   showFilePreviewDialog(
+                                                    title: 'TAN Document',
                                                     context,
                                                     company.tanURL.split(","),
                                                   );
