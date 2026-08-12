@@ -45,20 +45,13 @@ class AddChannelPartnerScreen extends StatefulWidget {
 }
 
 class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
-  // CUBIT
   late ChannelPartnerCubit _channelPartnerCubit;
   late UtilsCubit _utilsCubit;
-
-  //EDIT MODE
   bool get _isEditMode => widget.channelPartnerModel != null;
-
-  // REPOSITORY
   final ChannelPartnerRepository _channelPartnerRepository =
       serviceLocator<ChannelPartnerRepository>();
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
-
-  // TEXT EDITING CONTROLLER
   late TextEditingController _nameC,
       _emailC,
       _mobileNumberC,
@@ -73,12 +66,8 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       _otpController,
       _websiteC;
 
-  // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  // SELECT EARNING
   late ValueNotifier<Map<String, dynamic>?> selectedDesignation;
-
   late ValueNotifier<bool> aadhaarTrigger;
   late ValueNotifier<bool> panTrigger;
   late ValueNotifier<bool> gstTrigger;
@@ -86,8 +75,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   _selectedPrimaryProjectNotifier = ValueNotifier([]);
   final ValueNotifier<List<Map<String, dynamic>>>
   _selectedSecondaryProjectNotifier = ValueNotifier([]);
-
-  // FILE VARIABLES
   MultiFilePickerModel selectedPANForPopUpFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -107,15 +94,11 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
   bool get isNewCompany => selectedCompanyType.value?['zAttributesId'] == 1;
-
-  // SELECTION VARIABLE
-
   Map<String, dynamic>? selectedSpeciality;
   late Map<String, dynamic> selectedSpecialityFilter;
   late ValueNotifier<Map<String, dynamic>?> selectedCompanyType;
   late ValueNotifier<Map<String, dynamic>?> selectedFirmsType;
   late ValueNotifier<Map<String, dynamic>?> selectedType;
-  // MULTI SELECT FOR PROJECTS, SINGLE SELECT FOR COMPANY
   late ValueNotifier<List<Map<String, dynamic>>> selectedCompany;
   late ValueNotifier<bool> hasReraNumber;
 
@@ -177,7 +160,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
   @override
   void dispose() {
-    // CONTROLLERS
     _nameC.dispose();
     _emailC.dispose();
     _mobileNumberC.dispose();
@@ -191,8 +173,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _filterLocalityC.dispose();
     _otpController.dispose();
     _websiteC.dispose();
-
-    // VALUE NOTIFIERS
     selectedCompanyType.dispose();
     selectedFirmsType.dispose();
     selectedCompany.dispose();
@@ -207,7 +187,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     super.dispose();
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
     _nameC = TextEditingController();
     _emailC = TextEditingController();
@@ -224,7 +203,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _websiteC = TextEditingController();
   }
 
-  // FETCH COMPANY LIST FOR EXISTING COMPANY FLOW
   Future<Map<String, dynamic>> _fetchChannelPartnerList(
     int pageNumber, {
     String? value,
@@ -268,7 +246,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
   }
 
-  // PULL CHANNEL PARTNER MASTER
   Future<void> _pullChannelPartnerMaster(int channelPartnerId) async {
     try {
       final result = await _channelPartnerRepository.getChannelPartnerList(
@@ -332,7 +309,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
   }
 
-  // PREFILL DIALOG TO ADD UPDATE CHANNEL PARTNER
   void _prefillChannelPartner(ChannelPartnerModel channelPartnerMasterModel) {
     _nameC.text = channelPartnerMasterModel.name;
     _emailC.text = channelPartnerMasterModel.emailId;
@@ -364,7 +340,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     hasReraNumber.value = channelPartnerMasterModel.reraNumber.isNotEmpty;
 
     if (channelPartnerMasterModel.companyName.isNotEmpty) {
-      // EXISTING COMPANY FLOW
       selectedCompanyType.value = companyTypeList[1];
 
       selectedCompany.value = [
@@ -380,7 +355,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
       );
     } else {
-      // NEW COMPANY FLOW
       selectedCompanyType.value = companyTypeList[1];
     }
 
@@ -408,7 +382,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       orElse: () => type.first,
     );
 
-    // FILES
     selectedPANForPopUpFile.fileNameList =
         channelPartnerMasterModel.panCardUrl.isEmpty
             ? []
@@ -484,7 +457,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     _aopToDate = channelPartnerMasterModel.aopToDate;
   }
 
-  //  FETCH PROJECTS
   Future<Map<String, dynamic>> _fetchProjects(
     int pageNumber, {
     String? value,
@@ -520,7 +492,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     );
   }
 
-  // SUBMIT FORM BY OTP VARIFICATION
   void _verifyAndSubmitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
@@ -577,7 +548,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     }
   }
 
-  // ON SAVE BUTTON
   void _submitForm() {
     final companyTypeId = selectedCompanyType.value?['zAttributesId'];
 
@@ -691,7 +661,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
         .join(",");
   }
 
-  // RESET FIELDS RELATED TO COMPANY SELECTION
   void _resetCompanyFields() {
     selectedCompany.value = [];
     _companyNameC.clear();
@@ -800,7 +769,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           return "Mobile Number is required";
                         }
                         if (mobile.isNotEmpty) {
-                          // LENGTH AND REGEX VALIDATION
                           if ((mobile.length != country.mobileLength) ||
                               country.regex != null &&
                                   !country.regex!.hasMatch(mobile)) {
@@ -1576,7 +1544,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     );
   }
 
-  // HELPER
   Widget _card(String title, List<Widget> children) {
     return Container(
       padding: const EdgeInsets.all(12),

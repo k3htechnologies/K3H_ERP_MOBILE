@@ -132,13 +132,10 @@ class _ChannelPartnerDashboardScreenState
                       borderColor: AppColor.missingInformationRed,
                     ),
                     verticalSpacing(height: 16.0),
-                    // CHANNEL PARTNER DISTRIBUTION WIDGET
                     _buildChannelPartnerDistributionWidget(context),
                     verticalSpacing(height: 16.0),
-                    // RECENTLY ADDED CHANNEL PARTNER WIDGET
                     _buildRecentlyAddedChannelPartnerWidget(context),
                     verticalSpacing(height: 16.0),
-                    // MISSING DETAILS WIDGET
                     _buildMissingDetailsWidget(context),
                   ],
                 ),
@@ -375,7 +372,6 @@ class _ChannelPartnerDashboardScreenState
                               final valueText =
                                   item.totalChannelPartner.toString();
 
-                              // Show text inside only if the bar is actually wide enough
                               final showInside = calculatedWidth >= 60;
 
                               const outsideTextWidth = 32.0;
@@ -392,12 +388,10 @@ class _ChannelPartnerDashboardScreenState
                                   availableBarWidth *
                                   widthFactor.clamp(0.0, 1.0);
 
-                              // Ensure small non-zero values are still visible
                               if (item.totalChannelPartner > 0) {
                                 barWidth = math.max(barWidth, 12.0);
                               }
 
-                              // Prevent overflow
                               barWidth = barWidth.clamp(0.0, availableBarWidth);
 
                               return SizedBox(

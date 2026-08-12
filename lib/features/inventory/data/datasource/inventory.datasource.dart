@@ -550,7 +550,7 @@ class InventoryDatasourceImpl implements InventoryDatasource {
     }
   }
 
-  // ------------------ GET PROJECT INVENTORY ------------------
+  // GET PROJECT INVENTORY
   @override
   Future<Map<String, dynamic>> apicallPullProjectInventoryStructure({
     required int pageNumber,

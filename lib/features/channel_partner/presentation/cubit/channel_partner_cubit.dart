@@ -249,7 +249,6 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
 
     List<Map<String, dynamic>> fileList = [];
 
-    // PAN
     for (int i = 0; i < panCardURL.fileNameList.length; i++) {
       if (panCardURL.fileNameList[i].contains("http")) continue;
 
@@ -260,7 +259,6 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       });
     }
 
-    // AADHAAR
     for (int i = 0; i < aadhaarCardURL.fileNameList.length; i++) {
       if (aadhaarCardURL.fileNameList[i].contains("http")) continue;
 
@@ -271,7 +269,6 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       });
     }
 
-    // GST Certificate
     for (int i = 0; i < gstCertificateURL.fileNameList.length; i++) {
       if (gstCertificateURL.fileNameList[i].contains("http")) continue;
 
@@ -282,7 +279,6 @@ class ChannelPartnerCubit extends Cubit<ChannelPartnerState> {
       });
     }
 
-    // AOP DOCUMENT
     for (int i = 0; i < aopDocumentURL.fileNameList.length; i++) {
       if (aopDocumentURL.fileNameList[i].contains("http")) continue;
 

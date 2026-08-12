@@ -371,7 +371,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
   }) async {
     final storage = LocalStorageManager();
     try {
-      /// ---------------- CACHE ----------------
       if (!forceRefresh) {
         final cachedData = storage.getRawString(StorageKey.addressMasterData);
         if (cachedData != null && cachedData.isNotEmpty) {
@@ -380,7 +379,6 @@ class UtilsRepositoryImpl implements UtilsRepository {
         }
       }
 
-      /// ---------------- API ----------------
       final result =
           await _utilsDatasource.pullCountryStateCityDistrictVillage();
       final data = result["data"]["CountryStateCityDistrictVillageData"];

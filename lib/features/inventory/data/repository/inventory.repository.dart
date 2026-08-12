@@ -322,7 +322,7 @@ class InventoryRepositoryImpl implements InventoryRepository {
     }
   }
 
-  // ------------------ GET PROJECT INVENTORY ------------------
+  // GET PROJECT INVENTORY
   @override
   Future<Either<Failure, Map<String, dynamic>>> getProjectInventoryStructure({
     required int pageNumber,

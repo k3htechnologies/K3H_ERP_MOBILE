@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/m
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
@@ -55,10 +56,7 @@ class _AddApplicantDetailsRequestsScreenState
     return applicantTypeList;
   }
 
-  final List<Map<String, dynamic>> applicantTypeList = const [
-    {"zAttributesId": 1, "DisplayName": "Applicant"},
-    {"zAttributesId": 2, "DisplayName": "Co - Applicant"},
-  ];
+ 
   late TextEditingController _applicantNameC,
       _mobileC,
       _emailC,

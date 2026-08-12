@@ -31,27 +31,21 @@ class AddBrokeragePayment extends StatefulWidget {
 }
 
 class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
-  // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
   late BrokerageCubit _brokerageCubit;
-
-  // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _pendingAmountC,
       _amountC,
       _tdsAmountC,
       _transactionNumberC;
 
-  // DROPDOWNS
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentTypeNotifier;
 
-  // FILE VARIABLES
   MultiFilePickerModel selectedTransactionOrChequeFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -83,7 +77,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
     _selectedPaymentTypeNotifier.dispose();
   }
 
-  // INITIALISING TEXT CONTROLLERS
   void _initializeTextEditingControllers() {
     _pendingAmountC = TextEditingController();
     _amountC = TextEditingController();
@@ -91,7 +84,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
     _transactionNumberC = TextEditingController();
   }
 
-  // FETCH BANK
   Future<Map<String, dynamic>> _fetchBanks(
     int pageNumber, {
     String? value,

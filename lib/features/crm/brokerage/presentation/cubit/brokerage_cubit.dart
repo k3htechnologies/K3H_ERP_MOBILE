@@ -16,7 +16,6 @@ part 'brokerage_state.dart';
 class BrokerageCubit extends Cubit<BrokerageState> {
   BrokerageCubit() : super(BrokerageState.initial());
 
-  // REPOSITORIES
   final BrokerageRepository _brokerageRepository =
       serviceLocator<BrokerageRepository>();
 
@@ -465,7 +464,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     );
   }
 
-  // CURRENTLY USED
   Future updateBrokeragePayment({
     required BuildContext context,
     required String paidBrokerageBookingId,
