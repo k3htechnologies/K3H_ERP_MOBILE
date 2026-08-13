@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/data/model/flat_handover_checklist.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/presentation/cubit/flat_handover_checklist_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -17,10 +19,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class FlatHandoverChecklistScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? bookingApprovalStatus;
   const FlatHandoverChecklistScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.bookingApprovalStatus,
   });
 
   @override
@@ -33,6 +37,9 @@ class _FlatHandoverChecklistScreenState
     with TickerProviderStateMixin {
   late FlatHandoverChecklistCubit _flatHandoverChecklistCubit;
   late TabController _tabController;
+  late AuthorizationModel _flatHandoverChecklistAuthorization;
+  final TextEditingController _sectionC = TextEditingController();
+  final TextEditingController _itemsC = TextEditingController();
   final TextEditingController _remarkC = TextEditingController();
   final GlobalKey<FormState> _statusFormKey = GlobalKey<FormState>();
   // DROPDOWNS
@@ -46,6 +53,9 @@ class _FlatHandoverChecklistScreenState
   @override
   void initState() {
     super.initState();
+    _flatHandoverChecklistAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.flatHandoverChecklist] ??
+        AuthorizationModel();
     _flatHandoverChecklistCubit = context.read<FlatHandoverChecklistCubit>();
     _selectedStatusNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _tabController = TabController(length: 1, vsync: this);
@@ -63,18 +73,24 @@ class _FlatHandoverChecklistScreenState
 
   @override
   void dispose() {
-    super.dispose();
     _tabController.dispose();
+    _remarkC.dispose();
+    _sectionC.dispose();
+    _itemsC.dispose();
     _selectedStatusNotifier.dispose();
+    super.dispose();
   }
 
-  Future<void> _showAddUpdateEnquiryFollowUpBottomSheet(
+  Future<void> _showAddUpdateFlatHandoverChecklistBottomSheet(
     BuildContext context, {
     FlatHandoverChecklistModel? flatHandoverChecklistModel,
     int? index,
   }) async {
     if (flatHandoverChecklistModel != null) {
+      _sectionC.text = flatHandoverChecklistModel.section;
+      _itemsC.text = flatHandoverChecklistModel.items;
       _remarkC.text = flatHandoverChecklistModel.remark;
+
       final selectedStatus = _statusList.firstWhere(
         (e) =>
             e['DisplayName'].toString().toLowerCase() ==
@@ -89,7 +105,7 @@ class _FlatHandoverChecklistScreenState
 
     await DialogHelper.showCustomBottomSheet(
       context,
-      index != null ? "Update Follow Up" : "Add Follow Up",
+      "Handover Checklist",
       contentWidget: StatefulBuilder(
         builder: (context, innerBottomsheetState) {
           return Form(
@@ -98,6 +114,21 @@ class _FlatHandoverChecklistScreenState
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
+                CustomTextField(
+                  title: "Section",
+                  hint: "Section",
+                  textController: _sectionC,
+                  readOnly: true,
+                  isRequired: true,
+                ),
+                CustomTextField(
+                  title: "Items",
+                  hint: "Items",
+                  textController: _itemsC,
+                  readOnly: true,
+                  isRequired: true,
+                ),
+                verticalSpacing(),
                 ValueListenableBuilder(
                   valueListenable: _selectedStatusNotifier,
                   builder: (context, selectedStatus, child) {
@@ -125,32 +156,46 @@ class _FlatHandoverChecklistScreenState
                     );
                   },
                 ),
-                CustomTextField(
-                  title: 'Remark',
-                  hint: "Enter remark",
-                  isRequired: true,
-                  textController: _remarkC,
-                  maxLines: 10,
-                  minLines: 3,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Remark is required";
-                    }
-                    return null;
-                  },
-                ),
-                CustomButton(
-                  padding: EdgeInsets.symmetric(vertical: 10),
-                  text: index != null ? "Update" : "Save",
-                  onPressed: () {
-                    if (!_statusFormKey.currentState!.validate()) return;
+                ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedStatusNotifier,
+                  builder: (context, selectedStatus, child) {
+                    final isPending =
+                        selectedStatus.isNotEmpty &&
+                        selectedStatus.first['DisplayName']
+                                .toString()
+                                .toLowerCase() ==
+                            'pending';
 
-                    _submitForm(
-                      flatHandoverChecklistModel: flatHandoverChecklistModel,
-                      index: index,
+                    return CustomTextField(
+                      title: 'Remark',
+                      hint: "Enter remark",
+                      isRequired: isPending,
+                      textController: _remarkC,
+                      maxLines: 10,
+                      minLines: 3,
+                      validator: (value) {
+                        if (isPending &&
+                            (value == null || value.trim().isEmpty)) {
+                          return "Remark is required";
+                        }
+                        return null;
+                      },
                     );
                   },
                 ),
+                if (_flatHandoverChecklistAuthorization.isAction)
+                  CustomButton(
+                    padding: EdgeInsets.symmetric(vertical: 10),
+                    text: index != null ? "Update" : "Save",
+                    onPressed: () {
+                      if (!_statusFormKey.currentState!.validate()) return;
+
+                      _submitForm(
+                        flatHandoverChecklistModel: flatHandoverChecklistModel,
+                        index: index,
+                      );
+                    },
+                  ),
               ],
             ),
           );
@@ -198,7 +243,10 @@ class _FlatHandoverChecklistScreenState
   }
 
   void _clearStatusSheet() {
+    _sectionC.clear();
+    _itemsC.clear();
     _remarkC.clear();
+    _selectedStatusNotifier.value = [];
   }
 
   @override
@@ -209,7 +257,8 @@ class _FlatHandoverChecklistScreenState
           return const Center(child: CircularProgressIndicator());
         }
         final sections =
-            state.flatHandoverCheckList.map((e) => e.section).toSet().toList();
+            state.flatHandoverCheckList.map((e) => e.section).toSet().toList()
+              ..sort((a, b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
         if (_tabController.length != sections.length) {
           _tabController.dispose();
@@ -218,7 +267,9 @@ class _FlatHandoverChecklistScreenState
 
           _tabController.addListener(_handleTabChange);
         }
-
+        final bool isBookingCancelledOrRefund =
+            widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
+            widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -236,10 +287,7 @@ class _FlatHandoverChecklistScreenState
                                   e.status.toLowerCase() == "pending",
                             )
                             .length;
-
-                    return pendingCount > 0
-                        ? "$section ($pendingCount)"
-                        : section;
+                    return "$section ($pendingCount)";
                   }).toList(),
             ),
             Expanded(
@@ -313,44 +361,90 @@ class _FlatHandoverChecklistScreenState
                                       ),
                                     ),
                                     horizontalSpacing(),
-                                    CustomIconButton.edit(
-                                      onPressed: () {
-                                        _showAddUpdateEnquiryFollowUpBottomSheet(
-                                          context,
-                                          flatHandoverChecklistModel: item,
-                                          index: index,
-                                        );
-                                      },
+                                    if (_flatHandoverChecklistAuthorization
+                                            .isAction &&
+                                        !isBookingCancelledOrRefund)
+                                      CustomIconButton.edit(
+                                        onPressed: () {
+                                          _showAddUpdateFlatHandoverChecklistBottomSheet(
+                                            context,
+                                            flatHandoverChecklistModel: item,
+                                            index: index,
+                                          );
+                                        },
+                                      ),
+                                  ],
+                                ),
+                                verticalSpacing(),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: buildColumnTitleValueNormal(
+                                        title: "Status",
+                                        value: item.status,
+                                        customValueWidget: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4.0,
+                                            horizontal: 10.0,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              6.0,
+                                            ),
+                                            color: getStatusBackgroundColor(
+                                              item.status,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            item.status.trim().isEmpty
+                                                ? "-"
+                                                : item.status,
+                                            style: AppTextStyle.ts12M(
+                                              color: getStatusTextColor(
+                                                item.status,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    horizontalSpacing(),
+                                    Expanded(
+                                      child: buildColumnTitleValueNormal(
+                                        title: "Remark",
+                                        value: item.remark,
+                                      ),
                                     ),
                                   ],
                                 ),
                                 verticalSpacing(),
-                                buildColumnTitleValueNormal(
-                                  title: "Status",
-                                  value: item.status,
-                                  customValueWidget: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 4.0,
-                                      horizontal: 10.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(6.0),
-                                      color: getStatusBackgroundColor(
-                                        item.status,
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: buildColumnTitleValueNormal(
+                                        title: "Last Modified By",
+                                        value:
+                                            item.modifiedBy.trim().isEmpty
+                                                ? item.createdBy
+                                                : item.modifiedBy,
                                       ),
                                     ),
-                                    child: Text(
-                                      item.status.isEmpty ? "N/A" : item.status,
-                                      style: AppTextStyle.ts12M(
-                                        color: getStatusTextColor(item.status),
+                                    horizontalSpacing(),
+                                    Expanded(
+                                      child: buildColumnTitleValueNormal(
+                                        title: "Last Modified Date",
+                                        value: formatDate(
+                                          item.modifiedDate ?? item.createdDate,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                verticalSpacing(),
-                                buildColumnTitleValueNormal(
-                                  title: "Remark",
-                                  value: item.remark,
+                                  ],
                                 ),
                               ],
                             ),

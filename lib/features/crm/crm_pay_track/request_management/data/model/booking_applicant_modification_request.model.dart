@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class BookingApplicantModificationRequestModel {
@@ -28,6 +29,95 @@ class BookingApplicantModificationRequestModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String applicantMobileNumberCountryCode;
+  String cancelledChequeUrl;
+  String poaurl;
+  String incomeForm16Itrurl;
+  String nreNroBankDetailsUrl;
+  String nomineeFormUrl;
+  String statementOfSourceOfFundsUrl;
+  String paymentProofUrl;
+  String proofOfDocumentUrl;
+  MultiFilePickerModel proofOfDocumentFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel panFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel aadhaarFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel photoFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel drivingLicenseFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel chequeFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel votingIdFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel gstFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel passportFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel poaFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel incomeForm16ItrFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nreNroBankDetailsFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nomineeFormFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel statementOfSourceOfFundFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel paymentProofURLFundFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
 
   BookingApplicantModificationRequestModel({
     required this.bookingApplicantModificationRequestId,
@@ -57,6 +147,15 @@ class BookingApplicantModificationRequestModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.applicantMobileNumberCountryCode,
+    required this.cancelledChequeUrl,
+    required this.poaurl,
+    required this.incomeForm16Itrurl,
+    required this.nreNroBankDetailsUrl,
+    required this.nomineeFormUrl,
+    required this.statementOfSourceOfFundsUrl,
+    required this.paymentProofUrl,
+    required this.proofOfDocumentUrl,
   });
 
   factory BookingApplicantModificationRequestModel.fromJson(
@@ -98,6 +197,21 @@ class BookingApplicantModificationRequestModel {
         json["ModifiedDate"] == null
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
+    cancelledChequeUrl: parseValue<String>(json, "CancelledChequeURL"),
+    poaurl: parseValue<String>(json, "POAURL"),
+    incomeForm16Itrurl: parseValue<String>(json, "IncomeForm16ITRURL"),
+    nreNroBankDetailsUrl: parseValue<String>(json, "NreNroBankDetailsURL"),
+    nomineeFormUrl: parseValue<String>(json, "NomineeFormURL"),
+    statementOfSourceOfFundsUrl: parseValue<String>(
+      json,
+      "StatementOfSourceOfFundsURL",
+    ),
+    paymentProofUrl: parseValue<String>(json, "PaymentProofURL"),
+    proofOfDocumentUrl: parseValue<String>(json, "ProofOfDocumentURL"),
+    applicantMobileNumberCountryCode: parseValue<String>(
+      json,
+      "ApplicantMobileNumberCountryCode",
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -129,5 +243,14 @@ class BookingApplicantModificationRequestModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
+    "CancelledChequeURL": cancelledChequeUrl,
+    "POAURL": poaurl,
+    "IncomeForm16ITRURL": incomeForm16Itrurl,
+    "NreNroBankDetailsURL": nreNroBankDetailsUrl,
+    "NomineeFormURL": nomineeFormUrl,
+    "StatementOfSourceOfFundsURL": statementOfSourceOfFundsUrl,
+    "PaymentProofURL": paymentProofUrl,
+    "ProofOfDocumentURL": proofOfDocumentUrl,
   };
 }

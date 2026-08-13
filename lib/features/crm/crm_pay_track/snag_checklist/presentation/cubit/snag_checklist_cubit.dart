@@ -23,7 +23,13 @@ class SnagChecklistCubit extends Cubit<SnagChecklistState> {
     required int bookingId,
     required String categoryName,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        snagChecklist: [],
+        currentCategory: categoryName,
+      ),
+    );
 
     var result = await _snagChecklistRepository.getBookingLoanDetailsList(
       bookingId: bookingId,
@@ -40,7 +46,22 @@ class SnagChecklistCubit extends Cubit<SnagChecklistState> {
         final List<SnagChecklistModel> list = List<SnagChecklistModel>.from(
           response['data'] ?? [],
         );
-        emit(state.copyWith(snagChecklist: list, isLoading: false));
+        final Map<String, int> pendingCounts = {};
+        for (final item in list) {
+          final key = "${item.subCategoryName}__${item.title}__${item.tags}";
+          if (!item.isCheck) {
+            pendingCounts[key] = (pendingCounts[key] ?? 0) + 1;
+          }
+        }
+
+        emit(
+          state.copyWith(
+            snagChecklist: list,
+            isLoading: false,
+            currentCategory: categoryName,
+            categoryPendingCounts: pendingCounts,
+          ),
+        );
       },
     );
   }
@@ -78,11 +99,14 @@ class SnagChecklistCubit extends Cubit<SnagChecklistState> {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
-      (response) {
-        emit(state.copyWith(isLoading: false));
-        showSuccessMessage(
+      (response) async {
+        showSuccessMessage(context, subTitle: response["message"]);
+
+        await getSnagCheckList(
           context,
-          subTitle: response["message"] ?? "Checklist updated successfully",
+          projectId: projectId,
+          bookingId: bookingId,
+          categoryName: state.currentCategory,
         );
       },
     );

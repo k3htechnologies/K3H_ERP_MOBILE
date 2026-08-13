@@ -4,14 +4,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/model/loan_details.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/cubit/loan_details_state.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -23,10 +28,14 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class LoanDetailsScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? approvalStatus;
+  final String? bookingApprovalStatus;
   const LoanDetailsScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    required this.approvalStatus,
+    required this.bookingApprovalStatus,
   });
 
   @override
@@ -39,10 +48,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
   late TabController _tabController;
   late LoanDetailsCubit _loanDetailsCubit;
   late ValueNotifier<Map<int, bool>> closeAccountNotifier;
+  late AuthorizationModel _bankLoanAuthorization;
 
   @override
   void initState() {
     super.initState();
+    _bankLoanAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
+        AuthorizationModel();
     closeAccountNotifier = ValueNotifier({});
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -91,6 +104,52 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
     _tabController.dispose();
   }
 
+  // DELETE BANK DIALOG
+  void _showPopUpToDeletdBank(
+    BuildContext context,
+    BookingLoanDetailsModel bankDetail,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      "You are about to delete a Bank Loan Details ?",
+      "Deleting this Bank Loan Details will permanently remove all associated data.",
+    );
+    if (result && context.mounted) {
+      _loanDetailsCubit.deleteBankDetails(
+        index,
+        bankDetail.bookingLoanDetailsId,
+        bankDetail.uniquekey,
+        widget.projectId,
+        widget.bookingId,
+        context,
+      );
+    }
+  }
+
+  // DELETE DOCUMENT DIALOG
+  void _showPopUpToDeletdBankDocument(
+    BuildContext context,
+    BookingLoanDetailsModel document,
+    int docIndex,
+    PayTrackBookingFilesModel file,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      "You are about to delete a Bank Loan Document ?",
+      "Deleting this Bank Loan Document will permanently remove all associated data.",
+    );
+
+    if (result && context.mounted) {
+      _loanDetailsCubit.deleteBankDocument(
+        docIndex,
+        document.bookingLoanDetailsId,
+        file,
+        context,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -118,6 +177,25 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
         final hasActiveBank = state.bankDetailsList.any(
           (e) => e.bankStatusClosedActive.toLowerCase() == "active",
         );
+        final bookingStatus = widget.bookingApprovalStatus?.toUpperCase() ?? "";
+
+        final canShowAddBankButton =
+            !hasActiveBank &&
+            _bankLoanAuthorization.isAction &&
+            widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+            !["CANCEL", "REFUND"].contains(bookingStatus);
+        final activeBanks =
+            state.bankDetailsList
+                .where(
+                  (e) => e.bankStatusClosedActive.toLowerCase() == "active",
+                )
+                .toList();
+        final closedBanks =
+            state.bankDetailsList
+                .where(
+                  (e) => e.bankStatusClosedActive.toLowerCase() == "closed",
+                )
+                .toList();
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -135,368 +213,536 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        "No Active Bank",
+                        "No Active Bank Found",
                         style: AppTextStyle.ts14M(
                           color: AppColor.black.withValues(alpha: 0.5),
                         ),
                       ),
                       horizontalSpacing(),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: CustomButton(
-                          text: "Add Bank Details ",
-                          onPressed: () {
-                            goRouter.pushNamed(
-                              AppRoutes.addActiveBank,
-                              queryParameters: {
-                                'bookingId': Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.bookingId.toString(),
-                                  ),
-                                ),
+                      if (canShowAddBankButton)
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: CustomButton(
+                            text: "Add Bank Details ",
+                            isDisable: !_bankLoanAuthorization.isAction,
+                            onPressed: () {
+                              context
+                                  .read<PaymentCubit>()
+                                  .getPaymentScheduleList(
+                                    context,
+                                    widget.projectId,
+                                    widget.bookingId,
+                                  );
 
-                                'projectId': Uri.encodeComponent(
-                                  EncryptionManager.encryptData(
-                                    widget.projectId.toString(),
+                              goRouter.pushNamed(
+                                AppRoutes.addActiveBank,
+                                queryParameters: {
+                                  'bookingId': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.bookingId.toString(),
+                                    ),
                                   ),
-                                ),
-                              },
-                            );
-                          },
+
+                                  'projectId': Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      widget.projectId.toString(),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ),
                     ],
                   ),
                 ),
+
               Expanded(
-                child: ListView.builder(
-                  itemCount: state.bankDetailsList.length,
-                  shrinkWrap: false,
-                  physics: const ClampingScrollPhysics(),
-                  itemBuilder: (context, index) {
-                    final bankDetail = state.bankDetailsList[index];
+                child: ListView(
+                  children: [
+                    // Active Banks
+                    ...activeBanks.asMap().entries.map((entry) {
+                      final index = entry.key;
+                      final bank = entry.value;
 
-                    final status =
-                        bankDetail.bankStatusClosedActive.toLowerCase();
+                      return _buildActiveBank(bank, index);
+                    }),
 
-                    final title =
-                        status == "active"
-                            ? "Active Bank"
-                            : status == "closed"
-                            ? "Closed Bank"
-                            : bankDetail.bankStatusClosedActive;
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10.0),
-                      decoration: commonCardDecoration(),
-                      child: Material(
-                        color: Colors.transparent,
-                        child: ExpansionTile(
-                          childrenPadding: EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 12,
-                          ),
-                          tilePadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 6,
-                          ),
-                          iconColor: AppColor.black,
-                          collapsedIconColor: AppColor.black,
-                          shape: const Border(),
-                          collapsedShape: const Border(),
-                          title:
-                              status == 'active'
-                                  ? Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          title,
-                                          style: AppTextStyle.ts14M(),
-                                        ),
-                                      ),
-                                      bankDetail.noOfBankDocument == 0
-                                          ? SizedBox.shrink()
-                                          : horizontalSpacing(),
-                                      bankDetail.noOfBankDocument == 0
-                                          ? Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              CustomIconButton.edit(
-                                                onPressed: () {
-                                                  goRouter.pushNamed(
-                                                    AppRoutes.addActiveBank,
-                                                    queryParameters: {
-                                                      'bookingId':
-                                                          Uri.encodeComponent(
-                                                            EncryptionManager.encryptData(
-                                                              widget.bookingId
-                                                                  .toString(),
-                                                            ),
-                                                          ),
-
-                                                      'projectId':
-                                                          Uri.encodeComponent(
-                                                            EncryptionManager.encryptData(
-                                                              widget.projectId
-                                                                  .toString(),
-                                                            ),
-                                                          ),
-
-                                                      'document':
-                                                          Uri.encodeComponent(
-                                                            EncryptionManager.encryptData(
-                                                              jsonEncode(
-                                                                bankDetail
-                                                                    .toJson(),
-                                                              ),
-                                                            ),
-                                                          ),
-
-                                                      'index': index.toString(),
-                                                    },
-                                                  );
-                                                },
-                                              ),
-                                              horizontalSpacing(),
-                                              CustomIconButton.delete(
-                                                onPressed: () {
-                                                  _loanDetailsCubit
-                                                      .deleteBankDetails(
-                                                        index,
-                                                        bankDetail
-                                                            .bookingLoanDetailsId,
-                                                        bankDetail.uniquekey,
-                                                        widget.projectId,
-                                                        widget.bookingId,
-                                                        context,
-                                                      );
-                                                },
-                                              ),
-                                            ],
-                                          )
-                                          : SizedBox.shrink(),
-                                    ],
-                                  )
-                                  : Text(title, style: AppTextStyle.ts14M()),
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 16,
-                                horizontal: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color:
-                                    status == 'active'
-                                        ? AppColor.lightGreyBackground
-                                        : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  width: 0.8,
-                                  color:
-                                      status == 'active'
-                                          ? AppColor.black.withValues(
-                                            alpha: 0.1,
-                                          )
-                                          : Colors.transparent,
-                                ),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: 10.0,
-                                children: [
-                                  buildColumnTitleValueNormal(
-                                    title: "Bank Name",
-                                    value: bankDetail.bankName,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Branch Name",
-                                          value: bankDetail.bankBranchName,
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Account Number",
-                                          value: bankDetail.loanAccountNumber,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Loan Sanction Amount",
-                                          value:
-                                              bankDetail.loanSanctionAmount
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Loan Sanction Date",
-                                          value: formatDateTimeAsDDMMMYYYY(
-                                            bankDetail.loanSanctionDate!,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Address",
-                                          value: bankDetail.address,
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "No of Bank Documents",
-                                          value:
-                                              bankDetail.noOfBankDocument
-                                                  .toString(),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Created By",
-                                          value: bankDetail.createdBy,
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Created Date",
-                                          value: formatDate(
-                                            bankDetail.createdDate,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Modified By",
-                                          value: bankDetail.modifiedBy,
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: buildColumnTitleValueNormal(
-                                          title: "Modified Date",
-                                          value:
-                                              bankDetail.modifiedDate != null
-                                                  ? formatDate(
-                                                    bankDetail.modifiedDate!,
-                                                  )
-                                                  : '-',
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (bankDetail.noOfBankDocument > 0 &&
-                                      status != "closed")
-                                    ValueListenableBuilder<Map<int, bool>>(
-                                      valueListenable: closeAccountNotifier,
-                                      builder: (context, selectedMap, child) {
-                                        final isChecked =
-                                            selectedMap[bankDetail
-                                                .bookingLoanDetailsId] ??
-                                            false;
-
-                                        return Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: CustomCheckBox(
-                                                isSelected: isChecked,
-                                                title:
-                                                    "Do you want to close this account",
-                                                onChanged: (value) {
-                                                  final updatedMap =
-                                                      Map<int, bool>.from(
-                                                        selectedMap,
-                                                      );
-
-                                                  updatedMap[bankDetail
-                                                          .bookingLoanDetailsId] =
-                                                      !isChecked;
-
-                                                  closeAccountNotifier.value =
-                                                      updatedMap;
-                                                },
-                                              ),
-                                            ),
-
-                                            if (isChecked)
-                                              CustomButton(
-                                                text: "Close Account",
-                                                onPressed: () {
-                                                  _loanDetailsCubit.closeAccount(
-                                                    context: context,
-                                                    bookingLoanDetailsId:
-                                                        bankDetail
-                                                            .bookingLoanDetailsId,
-                                                    uniqueKey:
-                                                        bankDetail.uniquekey,
-                                                    projectId: widget.projectId,
-                                                    bookingId: widget.bookingId,
-                                                  );
-                                                },
-                                              ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+                    // Closed Banks
+                    if (closedBanks.isNotEmpty) _buildClosedBanks(closedBanks),
+                  ],
                 ),
               ),
             ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildActiveBank(BookingLoanDetailsModel bankDetail, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: Material(
+        color: Colors.transparent,
+        child: ExpansionTile(
+          childrenPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+          tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          iconColor: AppColor.black,
+          collapsedIconColor: AppColor.black,
+          shape: const Border(),
+          collapsedShape: const Border(),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Text("Active Bank", style: AppTextStyle.ts14M())),
+              bankDetail.noOfBankDocument == 0
+                  ? SizedBox.shrink()
+                  : horizontalSpacing(),
+              _bankLoanAuthorization.isAction &&
+                      bankDetail.noOfBankDocument == 0
+                  ? Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      CustomIconButton.edit(
+                        onPressed: () {
+                          goRouter.pushNamed(
+                            AppRoutes.addActiveBank,
+                            queryParameters: {
+                              'bookingId': Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  widget.bookingId.toString(),
+                                ),
+                              ),
+
+                              'projectId': Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  widget.projectId.toString(),
+                                ),
+                              ),
+
+                              'document': Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(bankDetail.toJson()),
+                                ),
+                              ),
+
+                              'index': index.toString(),
+                            },
+                          );
+                        },
+                      ),
+                      horizontalSpacing(),
+                      CustomIconButton.delete(
+                        onPressed: () {
+                          _showPopUpToDeletdBank(context, bankDetail, index);
+                        },
+                      ),
+                    ],
+                  )
+                  : SizedBox.shrink(),
+            ],
+          ),
+
+          children: [_buildBankDetails(bankDetail, index)],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBankDetails(BookingLoanDetailsModel bankDetail, int index) {
+    final status = bankDetail.bankStatusClosedActive.toLowerCase();
+
+    final bookingStatus = widget.bookingApprovalStatus?.toUpperCase() ?? "";
+
+    final canShowAccountOpenOrClose =
+        _bankLoanAuthorization.isAction &&
+        widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+        !["CANCEL", "REFUND"].contains(bookingStatus) &&
+        bankDetail.noOfBankDocument > 0 &&
+        status != "closed";
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+      decoration: BoxDecoration(
+        color: AppColor.lightGreyBackground,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          width: 0.8,
+          color: AppColor.black.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10.0,
+        children: [
+          buildColumnTitleValueNormal(
+            title: "Bank Name",
+            value: bankDetail.bankName,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Branch Name",
+                  value: bankDetail.bankBranchName,
+                ),
+              ),
+              horizontalSpacing(),
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Account Number",
+                  value: bankDetail.loanAccountNumber,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Loan Sanction Amount",
+                  value: bankDetail.loanSanctionAmount.toIndianCurrency(),
+                ),
+              ),
+              horizontalSpacing(),
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Loan Sanction Date",
+                  value: formatDateTimeAsDDMMMYYYY(
+                    bankDetail.loanSanctionDate!,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Address",
+                  value: bankDetail.address,
+                ),
+              ),
+              horizontalSpacing(),
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "No of Bank Documents",
+                  value: bankDetail.noOfBankDocument.toString(),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Created By",
+                  value: bankDetail.createdBy,
+                ),
+              ),
+              horizontalSpacing(),
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Created Date",
+                  value: formatDate(bankDetail.createdDate),
+                ),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Modified By",
+                  value: bankDetail.modifiedBy,
+                ),
+              ),
+              horizontalSpacing(),
+              Expanded(
+                child: buildColumnTitleValueNormal(
+                  title: "Modified Date",
+                  value:
+                      bankDetail.modifiedDate != null
+                          ? formatDate(bankDetail.modifiedDate!)
+                          : '-',
+                ),
+              ),
+            ],
+          ),
+          if (canShowAccountOpenOrClose)
+            ValueListenableBuilder<Map<int, bool>>(
+              valueListenable: closeAccountNotifier,
+              builder: (context, selectedMap, child) {
+                final isChecked =
+                    selectedMap[bankDetail.bookingLoanDetailsId] ?? false;
+
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: CustomCheckBox(
+                        isSelected: isChecked,
+                        title: "Do you want to close this account",
+                        onChanged: (value) {
+                          final updatedMap = Map<int, bool>.from(selectedMap);
+
+                          updatedMap[bankDetail.bookingLoanDetailsId] =
+                              !isChecked;
+
+                          closeAccountNotifier.value = updatedMap;
+                        },
+                      ),
+                    ),
+
+                    if (isChecked)
+                      CustomButton(
+                        text: "Close Account",
+                        onPressed: () {
+                          _loanDetailsCubit.closeAccount(
+                            context: context,
+                            bookingLoanDetailsId:
+                                bankDetail.bookingLoanDetailsId,
+                            uniqueKey: bankDetail.uniquekey,
+                            projectId: widget.projectId,
+                            bookingId: widget.bookingId,
+                          );
+                        },
+                      ),
+                  ],
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClosedBanks(List<BookingLoanDetailsModel> closedBanks) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: commonCardDecoration(),
+      child: ExpansionTile(
+        childrenPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        iconColor: AppColor.black,
+        collapsedIconColor: AppColor.black,
+        shape: const Border(),
+        collapsedShape: const Border(),
+        title: Text("Closed Bank", style: AppTextStyle.ts14M()),
+        children: [
+          ListView.separated(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: closedBanks.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
+            itemBuilder: (_, index) {
+              final bank = closedBanks[index];
+
+              return _buildClosedBankCard(bank);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildClosedBankCard(BookingLoanDetailsModel bankDetail) {
+    return BlocBuilder<LoanDetailsCubit, LoanDetailsState>(
+      builder: (context, state) {
+        final status = bankDetail.bankStatusClosedActive.toLowerCase();
+
+        final bookingStatus = widget.bookingApprovalStatus?.toUpperCase() ?? "";
+
+        final canShowAccountOpenOrClose =
+            _bankLoanAuthorization.isAction &&
+            widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+            !["CANCEL", "REFUND"].contains(bookingStatus) &&
+            bankDetail.noOfBankDocument > 0 &&
+            status != "closed";
+        return Container(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColor.lightGreyBackground,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Container(
+            margin: EdgeInsets.only(bottom: 10.0),
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(width: 0.8, color: Colors.transparent),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10.0,
+              children: [
+                buildColumnTitleValueNormal(
+                  title: "Bank Name",
+                  value: bankDetail.bankName,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Branch Name",
+                        value: bankDetail.bankBranchName,
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Account Number",
+                        value: bankDetail.loanAccountNumber,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Loan Sanction Amount",
+                        value: bankDetail.loanSanctionAmount.toIndianCurrency(),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Loan Sanction Date",
+                        value: formatDateTimeAsDDMMMYYYY(
+                          bankDetail.loanSanctionDate!,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Address",
+                        value: bankDetail.address,
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "No of Bank Documents",
+                        value: bankDetail.noOfBankDocument.toString(),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Created By",
+                        value: bankDetail.createdBy,
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Created Date",
+                        value: formatDate(bankDetail.createdDate),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Modified By",
+                        value: bankDetail.modifiedBy,
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    Expanded(
+                      child: buildColumnTitleValueNormal(
+                        title: "Modified Date",
+                        value:
+                            bankDetail.modifiedDate != null
+                                ? formatDate(bankDetail.modifiedDate!)
+                                : '-',
+                      ),
+                    ),
+                  ],
+                ),
+                if (canShowAccountOpenOrClose)
+                  ValueListenableBuilder<Map<int, bool>>(
+                    valueListenable: closeAccountNotifier,
+                    builder: (context, selectedMap, child) {
+                      final isChecked =
+                          selectedMap[bankDetail.bookingLoanDetailsId] ?? false;
+
+                      return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: CustomCheckBox(
+                              isSelected: isChecked,
+                              title: "Do you want to close this account",
+                              onChanged: (value) {
+                                final updatedMap = Map<int, bool>.from(
+                                  selectedMap,
+                                );
+
+                                updatedMap[bankDetail.bookingLoanDetailsId] =
+                                    !isChecked;
+
+                                closeAccountNotifier.value = updatedMap;
+                              },
+                            ),
+                          ),
+
+                          if (isChecked)
+                            CustomButton(
+                              text: "Close Account",
+                              onPressed: () {
+                                _loanDetailsCubit.closeAccount(
+                                  context: context,
+                                  bookingLoanDetailsId:
+                                      bankDetail.bookingLoanDetailsId,
+                                  uniqueKey: bankDetail.uniquekey,
+                                  projectId: widget.projectId,
+                                  bookingId: widget.bookingId,
+                                );
+                              },
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+              ],
+            ),
           ),
         );
       },
@@ -515,7 +761,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
             child: noDataWidget(message: "No Bank Loan Found", iconSize: 180),
           );
         }
-
+        final isApproved = widget.approvalStatus?.toLowerCase() == "approved";
         return ListView.builder(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           itemCount: state.bankDetailsList.length,
@@ -540,34 +786,36 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                         ),
                       ),
                       horizontalSpacing(),
-                      document.bankStatusClosedActive.toLowerCase() == "closed"
-                          ? SizedBox.shrink()
-                          : CustomIconButton.add(
-                            onPressed: () {
-                              goRouter.pushNamed(
-                                AppRoutes.addBankLoanDocument,
-                                queryParameters: {
-                                  'bookingId': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      widget.bookingId.toString(),
-                                    ),
+                      if (_bankLoanAuthorization.isAction)
+                        CustomIconButton.add(
+                          isDisabled:
+                              document.bankStatusClosedActive.toLowerCase() ==
+                              "closed",
+                          onPressed: () {
+                            goRouter.pushNamed(
+                              AppRoutes.addBankLoanDocument,
+                              queryParameters: {
+                                'bookingId': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    widget.bookingId.toString(),
                                   ),
+                                ),
 
-                                  'projectId': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      widget.projectId.toString(),
-                                    ),
+                                'projectId': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    widget.projectId.toString(),
                                   ),
+                                ),
 
-                                  'bookingLoanDetailsId': Uri.encodeComponent(
-                                    EncryptionManager.encryptData(
-                                      document.bookingLoanDetailsId.toString(),
-                                    ),
+                                'bookingLoanDetailsId': Uri.encodeComponent(
+                                  EncryptionManager.encryptData(
+                                    document.bookingLoanDetailsId.toString(),
                                   ),
-                                },
-                              );
-                            },
-                          ),
+                                ),
+                              },
+                            );
+                          },
+                        ),
                     ],
                   ),
                   Row(
@@ -612,9 +860,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      buildColumnTitleValueNormal(
-                        title: "Branch Name",
-                        value: document.bankBranchName,
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Branch Name",
+                          value: document.bankBranchName,
+                        ),
                       ),
                     ],
                   ),
@@ -717,10 +967,10 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                           children: [
                                             CustomIconButton.edit(
                                               isDisabled:
-                                                  document
-                                                      .bankStatusClosedActive
-                                                      .toLowerCase() ==
-                                                  "closed",
+                                                  document.bankStatusClosedActive
+                                                          .toLowerCase() ==
+                                                      "closed" ||
+                                                  !isApproved,
                                               onPressed: () {
                                                 goRouter.pushNamed(
                                                   AppRoutes.addBankLoanDocument,
@@ -755,17 +1005,17 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                             horizontalSpacing(width: 12),
                                             CustomIconButton.delete(
                                               isDisabled:
-                                                  document
-                                                      .bankStatusClosedActive
-                                                      .toLowerCase() ==
-                                                  "closed",
+                                                  document.bankStatusClosedActive
+                                                          .toLowerCase() ==
+                                                      "closed" ||
+                                                  !isApproved,
                                               onPressed: () {
-                                                _loanDetailsCubit
-                                                    .deleteBankDocument(
-                                                      docIndex,
-                                                      file,
-                                                      context,
-                                                    );
+                                                _showPopUpToDeletdBankDocument(
+                                                  context,
+                                                  document,
+                                                  docIndex,
+                                                  file,
+                                                );
                                               },
                                             ),
                                           ],

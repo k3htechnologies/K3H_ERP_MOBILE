@@ -12,10 +12,11 @@ class ParkingModificationRequestModel {
   String versionNumber;
   int createdById;
   String createdBy;
-  DateTime createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String proofOfDocumentUrl;
 
   ParkingModificationRequestModel({
     required this.parkingModificationRequestId,
@@ -33,26 +34,34 @@ class ParkingModificationRequestModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.proofOfDocumentUrl,
   });
 
   factory ParkingModificationRequestModel.fromJson(Map<String, dynamic> json) =>
       ParkingModificationRequestModel(
-        parkingModificationRequestId: json["ParkingModificationRequestId"],
-        uniqueKey: json["UniqueKey"],
-        bookingId: json["BookingId"],
-        projectId: json["ProjectId"],
-        parkingId: json["ParkingId"],
+        parkingModificationRequestId: parseValue<int>(
+          json,
+          "ParkingModificationRequestId",
+        ),
+        uniqueKey: parseValue<String>(json, "UniqueKey"),
+        bookingId: parseValue<int>(json, "BookingId"),
+        projectId: parseValue<int>(json, "ProjectId"),
+        parkingId: parseValue<String>(json, "ParkingId"),
         parkingData: List<ParkingDatum>.from(
           json["parkingData"].map((x) => ParkingDatum.fromJson(x)),
         ),
-        isApproval: json["IsApproval"],
-        approvalStatus: json["ApprovalStatus"],
-        versionNumber: json["VersionNumber"],
-        createdById: json["CreatedById"],
-        createdBy: json["CreatedBy"],
-        createdDate: DateTime.parse(json["CreatedDate"]),
-        modifiedById: json["ModifiedById"],
-        modifiedBy: json["ModifiedBy"],
+        isApproval: parseValue<bool>(json, "IsApproval"),
+        approvalStatus: parseValue<String>(json, "ApprovalStatus"),
+        proofOfDocumentUrl: parseValue<String>(json, "ProofOfDocumentURL"),
+        versionNumber: parseValue<String>(json, "VersionNumber"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate:
+            json["CreatedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "CreatedDate"),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate:
             json["ModifiedDate"] == null
                 ? null
@@ -68,10 +77,11 @@ class ParkingModificationRequestModel {
     "parkingData": List<dynamic>.from(parkingData.map((x) => x.toJson())),
     "IsApproval": isApproval,
     "ApprovalStatus": approvalStatus,
+    "ProofOfDocumentURL": proofOfDocumentUrl,
     "VersionNumber": versionNumber,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),

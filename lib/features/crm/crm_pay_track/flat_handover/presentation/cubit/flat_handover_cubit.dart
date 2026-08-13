@@ -29,6 +29,10 @@ class FlatHandoverCubit extends Cubit<FlatHandoverState> {
     );
   }
 
+  void clearSearch() {
+    emit(state.copyWith(searchText: "", flatHandoverFileList: []));
+  }
+
   Future getFlatHandoverFilesList({
     required BuildContext context,
     required int pageNumber,
@@ -37,7 +41,11 @@ class FlatHandoverCubit extends Cubit<FlatHandoverState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {"ApplicantName": state.searchText};
+    Map<String, dynamic> queryParams = {};
+
+    if (state.searchText.trim().isNotEmpty) {
+      queryParams["FileName"] = state.searchText.trim();
+    }
 
     var result = await _payTrackBookingFilesRepository
         .getPayTrackBookingFilesList(
@@ -86,7 +94,7 @@ class FlatHandoverCubit extends Cubit<FlatHandoverState> {
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < flatHandoverDocuments.fileNameList.length; i++) {
       if (flatHandoverDocuments.fileNameList[i].contains("http")) {
-        continue; // Skip already uploaded files
+        continue;
       }
       fileList.add({
         "key": "PayTrackBookingFilesURL",
@@ -143,7 +151,7 @@ class FlatHandoverCubit extends Cubit<FlatHandoverState> {
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < flatHandoverDocuments.fileNameList.length; i++) {
       if (flatHandoverDocuments.fileNameList[i].contains("http")) {
-        continue; // Skip already uploaded files
+        continue;
       }
       fileList.add({
         "key": "PayTrackBookingFilesURL",

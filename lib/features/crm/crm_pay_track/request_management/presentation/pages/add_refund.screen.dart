@@ -74,7 +74,8 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
           final addRefundData = state.payTrackOverview;
           final totalReceived =
               addRefundData?.totalAmountReceivedAgainstBooking ?? 0.0;
-          return Padding(
+          return SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.all(20.0),
             child: Form(
               key: _formKey,
@@ -265,18 +266,24 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
           height: 70,
           color: AppColor.white,
           padding: EdgeInsets.all(16),
-          child: CustomButton(
-            text: "Save",
-            onPressed: () {
-              if (!_formKey.currentState!.validate()) {
-                return;
-              }
-              _requestManagementCubit.initiateRefund(
-                context,
-                uniquekey: widget.booking.uniquekey,
-                projectId: widget.booking.projectId,
-                bookingId: widget.booking.bookingId,
-                totalRefundAmountAgainstBooking: _refundAmountC.text,
+          child: ValueListenableBuilder<bool>(
+            valueListenable: finalizeRefundAmountNotifier,
+            builder: (context, isChecked, child) {
+              return CustomButton(
+                isDisable: !isChecked,
+                text: "Save",
+                onPressed: () {
+                  if (!_formKey.currentState!.validate()) {
+                    return;
+                  }
+                  _requestManagementCubit.initiateRefund(
+                    context,
+                    uniquekey: widget.booking.uniquekey,
+                    projectId: widget.booking.projectId,
+                    bookingId: widget.booking.bookingId,
+                    totalRefundAmountAgainstBooking: _refundAmountC.text,
+                  );
+                },
               );
             },
           ),

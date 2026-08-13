@@ -17,6 +17,15 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/business_development/building/data/model/building_document.model.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_update_document_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/offer_hardship_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_hardship_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
@@ -24,9 +33,24 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_sales_matrics_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/flat_handover_details.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/update_registration_date_parking.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_schedule_demand_letter_summary.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/parking_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_booking_applicant_history.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_parking_history.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_internal_tab/view_unit_modulation_customization_history.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/cancel_booking.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/cubit/collection_report_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report_overall.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -34,20 +58,8 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
-import 'package:k3h_erp_app/features/business_development/building/data/model/building_document.model.dart';
-import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_update_document_screen.dart';
-import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_screen.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/offer_hardship_details.model.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_hardship_details.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
-import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
-import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/more/otp_logs/presentation/cubit/otp_logs_cubit.dart';
+import 'package:k3h_erp_app/features/more/otp_logs/presentation/pages/otp_logs.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
@@ -6692,6 +6704,7 @@ final GoRouter goRouter = GoRouter(
                   create: (_) => FlatHandoverChecklistCubit(),
                   child: child,
                 ),
+                BlocProvider(create: (_) => FlatHandoverCubit(), child: child),
               ],
               child: child,
             );
@@ -6707,7 +6720,9 @@ final GoRouter goRouter = GoRouter(
             GoRoute(
               path: AppRoutes.payTrackMaster,
               name: AppRoutes.payTrackMaster,
-              builder: (context, state) => PayTrackScreen(),
+              builder: (context, state) {
+                return PayTrackScreen();
+              },
             ),
             GoRoute(
               name: AppRoutes.viewPayTrackMaster,
@@ -6725,6 +6740,7 @@ final GoRouter goRouter = GoRouter(
                     state.uri.queryParameters['bookingStatus'];
                 final queryParameterApprovalStatus =
                     state.uri.queryParameters['approvalStatus'];
+                final queryParameterFlat = state.uri.queryParameters['flat'];
 
                 final projectId =
                     queryParameterProjectId != null &&
@@ -6774,6 +6790,13 @@ final GoRouter goRouter = GoRouter(
                           Uri.decodeComponent(queryParameterApprovalStatus),
                         )
                         : "";
+                final flat =
+                    queryParameterFlat != null && queryParameterFlat.isNotEmpty
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterFlat),
+                        )
+                        : "";
+
                 return PayTrackViewScreen(
                   applicantName: applicantName,
                   projectId: projectId,
@@ -6781,6 +6804,19 @@ final GoRouter goRouter = GoRouter(
                   enquiryId: enquiryId,
                   bookingApprovalStatus: bookingStatus,
                   approvalStatus: approvalStatus,
+                  flat: flat,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.updateRegistrationDateAndParking,
+              name: AppRoutes.updateRegistrationDateAndParking,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return UpdateRegistrationDateParkingScreen(
+                  projectId: data["projectId"] as int,
+                  bookingId: data["bookingId"] as int,
                 );
               },
             ),
@@ -6896,7 +6932,6 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
-
             GoRoute(
               path: AppRoutes.paymentScheduleDemandSummary,
               name: AppRoutes.paymentScheduleDemandSummary,
@@ -6940,9 +6975,23 @@ final GoRouter goRouter = GoRouter(
                       );
                 }
 
+                List<OtherChargeModel> bookingOtherChargesList = [];
+
+                final otherChargesParam =
+                    state.uri.queryParameters["bookingOtherCharges"];
+
+                if (otherChargesParam != null && otherChargesParam.isNotEmpty) {
+                  bookingOtherChargesList =
+                      (jsonDecode(Uri.decodeComponent(otherChargesParam))
+                              as List)
+                          .map((e) => OtherChargeModel.fromJson(e))
+                          .toList();
+                }
+
                 return AddPaymentLedgerScreen(
                   paymentLedger: paymentLedger,
                   editPaymentLedger: editPaymentLedger,
+                  bookingOtherChargesList: bookingOtherChargesList,
                 );
               },
             ),
@@ -6952,6 +7001,9 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final paymentLedgerSummaryParam =
                     state.uri.queryParameters['paymentLedgerSummary'];
+
+                final paymentLedgerFlatParam =
+                    state.uri.queryParameters['flat'];
 
                 PayTrackPaymentLedgerSummaryModel? summary;
 
@@ -6965,7 +7017,10 @@ final GoRouter goRouter = GoRouter(
                     decodedData,
                   );
                 }
-
+                final flat =
+                    paymentLedgerFlatParam != null
+                        ? Uri.decodeComponent(paymentLedgerFlatParam)
+                        : "";
                 return ViewPaymentLedgerScreen(
                   summary:
                       summary ??
@@ -7006,6 +7061,47 @@ final GoRouter goRouter = GoRouter(
                         projectNatureOfAccount: '',
                         projectAcType: '',
                       ),
+                  flat: flat,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewVersionWiseBookingApplicantHistory,
+              name: AppRoutes.viewVersionWiseBookingApplicantHistory,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ViewBookingApplicantHistoryScreen(
+                  version: extra["version"] as String,
+                  applicants:
+                      (extra["applicants"]
+                          as List<BookingApplicantModificationRequestModel>),
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewVersionWiseParkingHistory,
+              name: AppRoutes.viewVersionWiseParkingHistory,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ViewParkingHistoryScreen(
+                  parkingDetail:
+                      extra["parking"] as ParkingModificationRequestModel,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.viewUnitModulationCustomizationHistory,
+              name: AppRoutes.viewUnitModulationCustomizationHistory,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return ViewUnitModulationCustomizationHistoryScreen(
+                  version: extra["version"] as String,
+                  unitModulationDetails:
+                      extra["unitModulationCustomization"]
+                          as List<FlatAlterationRequestsModel>,
                 );
               },
             ),
@@ -7037,6 +7133,9 @@ final GoRouter goRouter = GoRouter(
                 return AddApplicantDetailsRequestsScreen(
                   bookingId: extra['bookingId'],
                   projectId: extra['projectId'],
+                  applicant: extra["applicant"],
+                  index: extra["index"],
+                  isEdit: extra["isEdit"] ?? false,
                 );
               },
             ),
@@ -7044,14 +7143,18 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.swapBookedParking,
               name: AppRoutes.swapBookedParking,
               builder: (context, state) {
-                return AddParkingDetailsScreen();
+                return AddParkingDetailsScreen(
+                  parking: state.extra as ParkingModificationRequestModel?,
+                );
               },
             ),
             GoRoute(
               path: AppRoutes.addFlatSpecificationRemarkScreen,
               name: AppRoutes.addFlatSpecificationRemarkScreen,
               builder: (context, state) {
-                return AddFlatSpecificationRemarkScreen();
+                return AddFlatSpecificationRemarkScreen(
+                  remark: state.extra as FlatAlterationRequestsModel?,
+                );
               },
             ),
             GoRoute(
@@ -7059,11 +7162,12 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.modifiedRequestsMakePayment,
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>;
+
                 return ModifiedRequestsMakePaymentScreen(
-                  uniquekey: extra["uniquekey"],
-                  bookingId: extra["bookingId"],
-                  projectId: extra["projectId"],
-                  refundData: extra["refundData"],
+                  uniquekey: extra["uniquekey"] as String,
+                  bookingId: extra["bookingId"] as int,
+                  projectId: extra["projectId"] as int,
+                  refundData: extra["refundData"] as RefundedAmountLedgerModel?,
                 );
               },
             ),
@@ -7071,7 +7175,25 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addFlatHandoverDocuments,
               name: AppRoutes.addFlatHandoverDocuments,
               builder: (context, state) {
-                return AddFlatHandoverScreen();
+                final extra = state.extra as Map<String, dynamic>?;
+                return AddFlatHandoverScreen(
+                  flatHandoverDocument: extra?['document'],
+                  index: extra?["index"],
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.flatHandoverApprovalDetails,
+              name: AppRoutes.flatHandoverApprovalDetails,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return FlatHandoverDetailsScreen(
+                  flatHandoverDocument:
+                      extra["document"] as PayTrackBookingFilesModel,
+                  bookingModel: extra["booking"] as BookingModel?,
+                  isApprove: extra["isApprove"] as bool,
+                );
               },
             ),
             GoRoute(
@@ -7080,11 +7202,11 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return AddFilesScreen(
-                  projectId: extra['projectId'],
-                  bookingId: extra['bookingId'],
-                  filesModel: extra['file'],
-                  index: extra['index'],
-                  isEdit: extra['isEdit'] ?? false,
+                  projectId: extra['projectId'] as int,
+                  bookingId: extra['bookingId'] as int,
+                  filesModel: extra['file'] as PayTrackBookingFilesModel?,
+                  index: extra['index'] as int? ?? 0,
+                  isEdit: extra['isEdit'] as bool? ?? false,
                 );
               },
             ),
@@ -7217,6 +7339,57 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // CRM REPORT
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => DcrCubit(), child: child),
+                BlocProvider(
+                  create: (_) => CollectionReportCubit(),
+                  child: child,
+                ),
+              ],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.dailyCollectionReport,
+              path: AppRoutes.dailyCollectionReport,
+              builder: (context, state) {
+                return DCRScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.collectionReport,
+              path: AppRoutes.collectionReport,
+              builder: (context, state) {
+                return CollectionReportScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.collectionReportOverview,
+              path: AppRoutes.collectionReportOverview,
+              builder: (context, state) {
+                final projectName = EncryptionManager.decryptData(
+                  state.uri.queryParameters['projectName'] ?? '',
+                );
+
+                final projectId =
+                    int.tryParse(
+                      state.uri.queryParameters['projectId'] ?? '0',
+                    ) ??
+                    0;
+
+                return CollectionReportOverallScreen(
+                  projectId: projectId,
+                  projectName: projectName,
+                );
+              },
+            ),
+          ],
+        ),
       ],
     ),
     // TAX TRACKER
@@ -7246,7 +7419,21 @@ final GoRouter goRouter = GoRouter(
             return const AddTaxTrackerScreen();
           },
         ),
-
+      ],
+    ),
+    // TAX TRACKER
+    ShellRoute(
+      builder: (context, state, child) {
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => TaxTrackerCubit()),
+            BlocProvider(create: (_) => EmployeeMasterCubit()),
+            BlocProvider(create: (_) => CompanyMasterCubit()),
+          ],
+          child: child,
+        );
+      },
+      routes: [
         GoRoute(
           name: AppRoutes.viewTaxTracker,
           path: AppRoutes.viewTaxTracker,
@@ -7255,6 +7442,16 @@ final GoRouter goRouter = GoRouter(
           },
         ),
       ],
+    ),
+    GoRoute(
+      name: AppRoutes.otpLogs,
+      path: AppRoutes.otpLogs,
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => OtpLogsCubit(),
+          child: OtpLogsScreen(),
+        );
+      },
     ),
   ],
 );

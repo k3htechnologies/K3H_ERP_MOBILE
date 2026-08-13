@@ -176,7 +176,9 @@ class _AddAssetMappingMasterScreenState
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"EmployeeName": value} : {},
+          value != null && value.isNotEmpty
+              ? {"EmployeeName": value, "IsCheckPermission": false}
+              : {"IsCheckPermission": false},
     );
 
     return result.fold(

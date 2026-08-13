@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/parking_modification_request.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddParkingDetailsScreen extends StatefulWidget {
-  const AddParkingDetailsScreen({super.key});
+  final ParkingModificationRequestModel? parking;
+  const AddParkingDetailsScreen({super.key, this.parking});
 
   @override
   State<AddParkingDetailsScreen> createState() =>
@@ -29,6 +34,12 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
   late RequestManagementCubit _requestManagementCubit;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   late ProjectModel _selectedProject;
+  MultiFilePickerModel prrofOfDocumentFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
   @override
   void initState() {
     super.initState();
@@ -36,6 +47,29 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
     _selectedBankNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     _requestManagementCubit = context.read<RequestManagementCubit>();
     _selectedProject = getProject();
+    if (widget.parking != null) {
+      if (widget.parking!.proofOfDocumentUrl.isNotEmpty) {
+        prrofOfDocumentFile.fileNameList = widget.parking!.proofOfDocumentUrl
+            .split(",");
+      }
+
+      if (widget.parking != null) {
+        if (widget.parking!.proofOfDocumentUrl.isNotEmpty) {
+          prrofOfDocumentFile.fileNameList = widget.parking!.proofOfDocumentUrl
+              .split(",");
+        }
+
+        _selectedBankNotifier.value =
+            widget.parking!.parkingData
+                .map(
+                  (e) => {
+                    "zAttributesId": e.parkingId,
+                    "DisplayName": e.parkingNumber,
+                  },
+                )
+                .toList();
+      }
+    }
   }
 
   @override
@@ -53,6 +87,7 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: _selectedProject.projectId,
+      queryParams: {"ParkingNumber": value},
     );
     return result.fold(
       (failure) => {
@@ -78,17 +113,20 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Swap Parking",
-        authorization: AuthorizationModel(),
-      ),
-      body: BlocBuilder<RequestManagementCubit, RequestManagementState>(
-        builder: (context, state) {
-          if (state.isLoading ?? false) {
-            return Center(child: CircularProgressIndicator());
-          }
-          return Column(
+    return BlocBuilder<RequestManagementCubit, RequestManagementState>(
+      builder: (context, state) {
+        if (state.isLoading ?? false) {
+          return Center(child: loader());
+        }
+        return Scaffold(
+          appBar: CustomAppBarWithBackButton(
+            screenTitle:
+                widget.parking == null
+                    ? "Add Parking Modification Request"
+                    : "Update Parking Modification Request",
+            authorization: AuthorizationModel(),
+          ),
+          body: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
@@ -107,12 +145,39 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                           hint: "Parking Number",
                           readOnly: true,
                         ),
+                        CustomMultiFilePicker(
+                          isRequired: true,
+                          title: "Proof Of Document",
+                          filePickType: FilePickType.kycDocument,
+                          initialFileList: prrofOfDocumentFile.fileNameList,
+                          initialFileBytes: prrofOfDocumentFile.fileBytesList,
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            prrofOfDocumentFile.fileNameList = fileNameList;
+                            prrofOfDocumentFile.fileBytesList = bytesList;
+                          },
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deleted,
+                          ) {
+                            prrofOfDocumentFile.fileBytesList = fileBytesList;
+                            prrofOfDocumentFile.fileNameList = fileNameList;
+                            prrofOfDocumentFile.deletedFileList = deleted;
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Proof Of Document is required";
+                            }
+                            return null;
+                          },
+                        ),
+
                         ValueListenableBuilder(
                           valueListenable: _selectedBankNotifier,
                           builder: (context, selectedParking, child) {
                             return CustomMultipleSelectPopup(
-                              hintText: "Select Parking Type",
-                              title: "Parking Type",
+                              hintText: "Select Parking",
+                              title: "Parking",
                               isRequired: true,
                               isMultiSelect: true,
                               dataList: [],
@@ -123,7 +188,7 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                               dataFetchCallBack: _fetchParking,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Parking Type is required";
+                                  return "Parking is required";
                                 }
                                 return null;
                               },
@@ -138,37 +203,48 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    CustomButton(
-                      text: "Add",
-                      onPressed: () {
-                        if (!(_formKey.currentState?.validate() ?? false)) {
-                          return;
-                        }
-
-                        final selectedParking =
-                            _selectedBankNotifier.value.first;
-                        _requestManagementCubit.addParkingModificationRequest(
-                          context,
-                          bookingId: state.bookingData?.bookingId ?? 0,
-                          projectId: state.bookingData?.projectId ?? 0,
-                          parkingId:
-                              selectedParking['zAttributesId'].toString(),
-                          uniquekey: state.bookingData!.uniquekey,
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
             ],
-          );
-        },
-      ),
+          ),
+          bottomNavigationBar: SafeArea(
+            child: Container(
+              height: 70.0,
+              padding: const EdgeInsets.all(16.0),
+              child: CustomButton(
+                text: widget.parking == null ? "Add" : "Update",
+                onPressed: () {
+                  if (!(_formKey.currentState?.validate() ?? false)) {
+                    return;
+                  }
+
+                  final parkingIds = _selectedBankNotifier.value
+                      .map((e) => e["zAttributesId"].toString())
+                      .join(",");
+                  if (widget.parking == null) {
+                    _requestManagementCubit.addParkingModificationRequest(
+                      context,
+                      bookingId: state.bookingData!.bookingId,
+                      projectId: state.bookingData!.projectId,
+                      parkingId: parkingIds,
+                      proofDocumentFile: prrofOfDocumentFile,
+                    );
+                  } else {
+                    _requestManagementCubit.updateParkingModificationRequest(
+                      context,
+                      parkingModificationRequestId:
+                          widget.parking!.parkingModificationRequestId,
+                      bookingId: widget.parking!.bookingId,
+                      projectId: widget.parking!.projectId,
+                      uniquekey: widget.parking!.uniqueKey,
+                      parkingId: parkingIds,
+                      proofDocumentFile: prrofOfDocumentFile,
+                    );
+                  }
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

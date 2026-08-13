@@ -230,11 +230,20 @@ class AppRoutes {
   /// PAY TRACK
   static String payTrackMaster = "/payTrack";
   static String viewPayTrackMaster = "/viewPayTrackMaster";
+  static String updateRegistrationDateAndParking =
+      "/updateRegistrationDateAndParking";
   static String addBankLoanDocument = "/addBankLoanDocument";
   static String addActiveBank = "/addActiveBank";
+  static String crmPaymentSchedule = "/paymentSchedule";
   static String paymentScheduleDemandSummary = "/paymentScheduleDemandSummary";
   static String addPaymentLedger = "/addPaymentLedger";
   static String viewPaymentLedger = "/viewPaymentLedger";
+  static String viewVersionWiseBookingApplicantHistory =
+      "/viewVersionWiseBookingApplicantHistory";
+  static String viewVersionWiseParkingHistory =
+      "/viewVersionWiseParkingHistory";
+  static String viewUnitModulationCustomizationHistory =
+      "/viewUnitModulationCustomizationHistory";
   static String addRefundScreen = "/addRefundScreen";
   static String cancelBookingScreen = "/cancelBookingScreen";
   static String addApplicantDetailsRequests = "/addApplicantDetailsRequests";
@@ -246,6 +255,19 @@ class AppRoutes {
   static String addFiles = "/addFiles";
   static String crmDashbaord = "/crmDashboard";
 
+  // TAB ACCESS ROUTES (PAY TRACK VIEW TABS)
+  static String bookingPayTrack = "/bookingPayTrack";
+  static String bankLoans = '/bankLoan';
+  static String paymentLedger = '/paymentLedger';
+  static String modificationRequest = '/modificationRequest';
+  static String paymentSchedules = '/paymentSchedule';
+  static String flatHandover = '/flatHandover';
+  static String flatHandoverApprovalDetails = "/flatHandoverApprovalDetails";
+  static String files = '/files';
+  static String payTrackCallLog = "/payTrackCallLog";
+  static String snagChecklist = "/snagChecklist";
+  static String flatHandoverChecklist = "/flatHandoverChecklist";
+
   /// BROKERAGE
   static String brokerage = "/brokerage";
   static String bookingBrokerage = "/bookingBrokerage";
@@ -256,6 +278,11 @@ class AppRoutes {
   // TAB ACCESS
   static String brokerageInvoice = '/invoice';
   static String brokerageMakePayment = '/makePayment';
+
+  // CRM REPORT
+  static String dailyCollectionReport = "/dailyCollectionReport";
+  static String collectionReport = "/collectionReport";
+  static String collectionReportOverview = "/collectionReportOverview";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER
@@ -498,4 +525,7 @@ class AppRoutes {
   static String taxTracker = "/taxTracker";
   static String addTaxTracker = "/addTaxTracker";
   static String viewTaxTracker = "/viewTaxTracker";
+
+  // otp LOGS
+  static String otpLogs = "/otpLogs";
 }

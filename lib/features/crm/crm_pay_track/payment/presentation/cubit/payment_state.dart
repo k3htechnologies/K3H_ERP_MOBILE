@@ -3,6 +3,8 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_tr
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_schedule.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_schedule_demand_summary.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 
 class PaymentState extends BaseState {
   final List<PayTrackPaymentLedgerModel> paymentLedger;
@@ -11,8 +13,9 @@ class PaymentState extends BaseState {
   payTrackPaymentLedgerSummaryList;
   final List<PayTrackPaymentScheduleDemandSummaryModel>
   payTrackPaymentScheduleDemandSummaryModel;
+  final BookingModel? bookingData;
+  final List<OtherChargeModel> otherChargesList;
   final String searchText;
-  
 
   const PaymentState({
     super.isLoading,
@@ -21,7 +24,8 @@ class PaymentState extends BaseState {
     required this.payTrackPaymentLedgerSummaryList,
     required this.searchText,
     required this.payTrackPaymentScheduleDemandSummaryModel,
-   
+    required this.bookingData,
+    required this.otherChargesList,
   });
 
   factory PaymentState.initial() => PaymentState(
@@ -31,6 +35,8 @@ class PaymentState extends BaseState {
     payTrackPaymentLedgerSummaryList: [],
     searchText: "",
     payTrackPaymentScheduleDemandSummaryModel: [],
+    bookingData: null,
+    otherChargesList: [],
   );
 
   PaymentState copyWith({
@@ -41,6 +47,8 @@ class PaymentState extends BaseState {
     String? searchText,
     List<PayTrackPaymentScheduleDemandSummaryModel>?
     payTrackPaymentScheduleDemandSummaryModel,
+    BookingModel? bookingData,
+    List<OtherChargeModel>? otherChargesList,
   }) {
     return PaymentState(
       isLoading: isLoading ?? this.isLoading,
@@ -53,7 +61,9 @@ class PaymentState extends BaseState {
       payTrackPaymentScheduleDemandSummaryModel:
           payTrackPaymentScheduleDemandSummaryModel ??
           this.payTrackPaymentScheduleDemandSummaryModel,
+      bookingData: bookingData ?? this.bookingData,
       searchText: searchText ?? this.searchText,
+      otherChargesList: otherChargesList ?? this.otherChargesList,
     );
   }
 
@@ -64,6 +74,8 @@ class PaymentState extends BaseState {
     payTrackPaymentScheduleList,
     payTrackPaymentLedgerSummaryList,
     payTrackPaymentScheduleDemandSummaryModel,
+    bookingData,
     searchText,
+    otherChargesList,
   ];
 }

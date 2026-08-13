@@ -14,6 +14,8 @@ class StorageKey {
   /// App-initiated call logs (from CustomClickToContact). Not device call history.
   static String appInitiatedCallLogs = "APP_INITIATED_CALL_LOGS";
 
+  static const String payTrackCallLogs = "PAYTRACK_CALL_LOGS";
+
   /// Last date when app-initiated call logs were synced to backend (for nightly sync).
   static String appInitiatedCallLogsLastSyncDate =
       "APP_INITIATED_CALL_LOGS_LAST_SYNC_DATE";

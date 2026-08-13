@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
@@ -10,6 +11,7 @@ import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repos
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
@@ -27,6 +29,25 @@ class PayTrackCubit extends Cubit<PayTrackState> {
 
   Future resetOverview() async {
     emit(state.copyWith(payTrackOverview: null));
+  }
+
+  // TAB CHANGED
+  void onTabChanged(
+    BuildContext context,
+    PayTrackTab tab, {
+    int? projectId,
+    int? employeeId,
+  }) {
+    if (tab == PayTrackTab.bankLoan && projectId != null) {
+      emit(
+        state.copyWith(
+          payTrackList: [],
+          currentPage: 1,
+          totalNumberOfRecord: 0,
+        ),
+      );
+      getPayTrackList(context, 1, projectId);
+    }
   }
 
   Future getPayTrackList(
@@ -113,6 +134,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         emit(
           state.copyWith(
             payTrackList: updatedList,
+            payTrackOverview: newList.isNotEmpty ? newList.first : null,
             currentPage: pageNumber,
             totalNumberOfRecord: response['totalNumberOfRecord'],
             isLoading: false,
@@ -137,6 +159,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       });
       return;
     }
+
     Map<String, dynamic> queryParams = {"IsCheckPermission": false};
     var result = await _payTrackRepository.getPayTrackListById(
       pageSize: 10,
@@ -159,7 +182,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         emit(
           state.copyWith(
             payTrackOverview: model,
-            payTrackList: list,
             currentPage: pageNumber,
             totalNumberOfRecord: response['totalNumberOfRecord'],
             isLoading: false,
@@ -167,6 +189,10 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         );
       },
     );
+  }
+
+  void clearSearch() {
+    emit(state.copyWith(searchText: "", payTrackList: [], currentPage: 1));
   }
 
   Future searchPayTrack(
@@ -178,7 +204,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     await getPayTrackList(context, 1, projectId);
   }
 
-  Future applyChannelPartnerFilterAndSort({
+  Future applyPaytrackFilterAndSort({
     required BuildContext context,
     String? applicantName,
     String? mobileNumber,
@@ -269,15 +295,24 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     BuildContext context,
     int pageNumber,
     int projectId,
-    int bookingId,
-  ) async {
+    int bookingId, {
+    String? exportType,
+  }) async {
     emit(state.copyWith(isLoading: true));
 
-    Map<String, dynamic> queryParams = {"BookingId": bookingId};
+    Map<String, dynamic> queryParams = {
+      "BookingId": bookingId,
+      "IsCheckPermission": false,
+    };
+
+    if (exportType != null) {
+      queryParams["IsCheckPermission"] = false;
+      queryParams["ExportType"] = exportType;
+    }
 
     final result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 1,
       projectId: projectId,
       queryParams: queryParams,
     );
@@ -309,7 +344,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
   }) async {
     emit(state.copyWith(isFetchingEnquiryDetails: true));
 
-    final queryParams = {"EnquiryId": enquiryId};
+    final queryParams = {"EnquiryId": enquiryId, "IsCheckPermission": false};
 
     final result = await _enquiryRepository.getEnquiryList(
       pageNumber: 1,
@@ -353,43 +388,217 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     );
   }
 
-  Future getPayTrackCallLog(
+  Future applyCallLogsFilter({
+    required int bookingId,
+    required BuildContext context,
+    String? callLogApplicantName,
+    String? callLogApplicantMobileNumber,
+    String? callLogStatus,
+    String? callLogPurpose,
+    DateTime? fromDate,
+    DateTime? toDate,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          searchText: "",
+          filterByCallLogApplicantName: "",
+          filterCallLogApplicantMobileNumber: "",
+          filterCallStatus: "",
+          filterCallPurpose: "",
+          filterCallLogFromDate: null,
+          filterCallLogToDate: null,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterByCallLogApplicantName:
+              callLogApplicantName ?? state.filterByCallLogApplicantName,
+          filterCallLogApplicantMobileNumber:
+              callLogApplicantMobileNumber ??
+              state.filterCallLogApplicantMobileNumber,
+          filterCallStatus: callLogStatus ?? state.filterCallStatus,
+          filterCallPurpose: callLogPurpose ?? state.filterCallPurpose,
+          filterCallLogFromDate: fromDate,
+          filterCallLogToDate: toDate,
+        ),
+      );
+    }
+    await getPayTrackCallLog(context, 1, getProject().projectId, bookingId);
+  }
+
+  int updatePayTrackFilterCount(PayTrackState state) {
+    return getActiveFilterCount([
+      state.filterByApplicantName.trim().isNotEmpty,
+      state.filterByMobileNumber.trim().isNotEmpty,
+      state.filterByWing.trim().isNotEmpty,
+      state.filterByWing.trim().isNotEmpty,
+      state.filterByUnit.trim().isNotEmpty,
+      state.filterByFloor.trim().isNotEmpty,
+      state.filterByFromDate != null,
+      state.filterByToDate != null,
+    ]);
+  }
+
+  int updateFilterCount(PayTrackState state) {
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterCallStatus.trim().isNotEmpty,
+      state.filterCallPurpose.trim().isNotEmpty,
+      state.filterByCallLogApplicantName.trim().isNotEmpty,
+      state.filterCallLogApplicantMobileNumber.trim().isNotEmpty,
+      state.filterCallLogFromDate != null,
+      state.filterCallLogToDate != null,
+    ]);
+  }
+
+  Future<void> getPayTrackCallLog(
     BuildContext context,
     int pageNumber,
     int projectId,
     int bookingId,
   ) async {
     emit(state.copyWith(isLoading: true));
+
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
-        PayTrackCubit();
-        emit(state.copyWith(isLoading: false, payTrackList: []));
       });
+
+      emit(state.copyWith(isLoading: false, payTrackCallLogList: []));
       return;
     }
-    Map<String, dynamic> queryParams = {"BookingId": bookingId};
 
-    var result = await _payTrackRepository.getPayTrackCallLog(
-      pageSize: 10,
-      pageNumber: pageNumber,
-      projectId: projectId,
-      queryParams: queryParams,
-    );
+    if (bookingId == 0) {
+      emit(state.copyWith(isLoading: false, payTrackCallLogList: []));
+      return;
+    }
+
+    final Map<String, dynamic> queryParams = {
+      "BookingId": bookingId,
+      "IsCheckPermission": false,
+    };
+
+    if (state.filterByCallLogApplicantName.isNotEmpty) {
+      queryParams["ApplicantName"] = state.filterByCallLogApplicantName;
+    }
+
+    if (state.filterCallLogApplicantMobileNumber.isNotEmpty) {
+      queryParams["ApplicantMobileNumber"] =
+          state.filterCallLogApplicantMobileNumber;
+    }
+
+    if (state.filterCallStatus.isNotEmpty) {
+      queryParams["CallStatus"] = state.filterCallStatus;
+    }
+
+    if (state.filterCallPurpose.isNotEmpty) {
+      queryParams["CallPurpose"] = state.filterCallPurpose;
+    }
+
+    if (state.filterCallLogFromDate != null) {
+      queryParams["RescheduleDateFromDate"] =
+          state.filterCallLogFromDate!.toIso8601String();
+    }
+
+    if (state.filterCallLogToDate != null) {
+      queryParams["RescheduleDateToDate"] =
+          state.filterCallLogToDate!.toIso8601String();
+    }
+
+    try {
+      final result = await _payTrackRepository.getPayTrackCallLog(
+        pageSize: 10,
+        pageNumber: pageNumber,
+        projectId: projectId,
+        queryParams: queryParams,
+      );
+
+      result.fold(
+        (failure) {
+          emit(state.copyWith(isLoading: false));
+
+          showErrorMessage(context, "Error", failure.message);
+        },
+        (response) {
+          final logs = response['data'] as List<PayTrackCallLogModel>;
+
+          emit(
+            state.copyWith(
+              payTrackCallLogList: logs,
+              totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
+              isLoading: false,
+            ),
+          );
+        },
+      );
+    } catch (e, stackTrace) {
+      debugPrint("Get PayTrack Call Log Error => $e");
+      debugPrintStack(stackTrace: stackTrace);
+
+      emit(state.copyWith(isLoading: false));
+    }
+  }
+
+  Future updateRegistrationDateAndParking(
+    BuildContext context, {
+    required int projectId,
+    required int bookingId,
+    required String uniquekey,
+    DateTime? finalRegistrationDate,
+    required String parkingId,
+    required bool isFinalRegistrationCompleted,
+    required MultiFilePickerModel finalRegistrationDocument,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final Map<String, String> requestBody = {
+      "BookingId": bookingId.toString(),
+      "ProjectId": projectId.toString(),
+      "Uniquekey": uniquekey,
+      "ParkingId": parkingId,
+      "IsFinalRegistrationCompleted": isFinalRegistrationCompleted.toString(),
+      "RemoveProofOfDocumentURL": finalRegistrationDocument.deletedFileList,
+    };
+
+    if (finalRegistrationDate != null) {
+      requestBody["FinalRegistrationDate"] =
+          finalRegistrationDate.toIso8601String();
+    }
+
+    final List<Map<String, dynamic>> fileList = [];
+
+    for (int i = 0; i < finalRegistrationDocument.fileNameList.length; i++) {
+      if (finalRegistrationDocument.fileNameList[i].contains("http")) {
+        continue;
+      }
+
+      fileList.add({
+        "key": "FinalRegistrationURL",
+        "value": finalRegistrationDocument.fileBytesList[i],
+        "fileName": finalRegistrationDocument.fileNameList[i],
+      });
+    }
+
+    final result = await _payTrackRepository
+        .updatePayTrackBookingRegistrationDateParking(
+          body: requestBody,
+          fileList: fileList,
+        );
+
+    goRouter.pop();
 
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
-      (response) {
-        emit(
-          state.copyWith(
-            payTrackCallLogList: response['data'] as List<PayTrackCallLogModel>,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-            isLoading: false,
-          ),
-        );
+      (response) async {
+        showSuccessMessage(context, subTitle: response["message"]);
+        getBookingById(context, 1, projectId, bookingId);
+        await getPayTrackListByBookingId(context, 1, projectId, bookingId);
+        goRouter.pop();
       },
     );
   }

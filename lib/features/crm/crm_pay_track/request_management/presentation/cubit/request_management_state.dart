@@ -11,6 +11,12 @@ class RequestManagementState extends BaseState {
   final List<BookingModel> refundRequestList;
   final bool showRefundPaymentLedgerTab;
   final List<RefundedAmountLedgerModel> refundAmountLedgerList;
+  final int totalNumberOfRecord;
+  final bool isActivityLoading;
+  final int currentPage;
+  final bool isSavingApplicantRequest;
+  final bool hasUnsavedApplicantChanges;
+  final bool showRefundPaymentSuccessMessage;
   const RequestManagementState({
     super.isLoading,
     required this.bookingData,
@@ -22,6 +28,12 @@ class RequestManagementState extends BaseState {
     required this.refundRequestList,
     required this.showRefundPaymentLedgerTab,
     required this.refundAmountLedgerList,
+    required this.totalNumberOfRecord,
+    required this.isActivityLoading,
+    required this.currentPage,
+    required this.isSavingApplicantRequest,
+    required this.hasUnsavedApplicantChanges,
+    required this.showRefundPaymentSuccessMessage,
   });
 
   factory RequestManagementState.initial() => RequestManagementState(
@@ -35,6 +47,12 @@ class RequestManagementState extends BaseState {
     refundRequestList: [],
     showRefundPaymentLedgerTab: false,
     refundAmountLedgerList: [],
+    totalNumberOfRecord: 0,
+    isActivityLoading: false,
+    currentPage: 1,
+    isSavingApplicantRequest: false,
+    hasUnsavedApplicantChanges: false,
+    showRefundPaymentSuccessMessage: false,
   );
 
   RequestManagementState copyWith({
@@ -49,6 +67,12 @@ class RequestManagementState extends BaseState {
     List<BookingModel>? refundRequestList,
     bool? showRefundPaymentLedgerTab,
     List<RefundedAmountLedgerModel>? refundAmountLedgerList,
+    int? totalNumberOfRecord,
+    bool? isActivityLoading,
+    int? currentPage,
+    bool? isSavingApplicantRequest,
+    bool? hasUnsavedApplicantChanges,
+    bool? showRefundPaymentSuccessMessage,
   }) {
     return RequestManagementState(
       isLoading: isLoading ?? this.isLoading,
@@ -69,6 +93,16 @@ class RequestManagementState extends BaseState {
           showRefundPaymentLedgerTab ?? this.showRefundPaymentLedgerTab,
       refundAmountLedgerList:
           refundAmountLedgerList ?? this.refundAmountLedgerList,
+      totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
+      isActivityLoading: isActivityLoading ?? this.isActivityLoading,
+      currentPage: currentPage ?? this.currentPage,
+      isSavingApplicantRequest:
+          isSavingApplicantRequest ?? this.isSavingApplicantRequest,
+      hasUnsavedApplicantChanges:
+          hasUnsavedApplicantChanges ?? this.hasUnsavedApplicantChanges,
+      showRefundPaymentSuccessMessage:
+          showRefundPaymentSuccessMessage ??
+          this.showRefundPaymentSuccessMessage,
     );
   }
 
@@ -84,5 +118,11 @@ class RequestManagementState extends BaseState {
     refundRequestList,
     showRefundPaymentLedgerTab,
     refundAmountLedgerList,
+    totalNumberOfRecord,
+    isActivityLoading,
+    currentPage,
+    isSavingApplicantRequest,
+    hasUnsavedApplicantChanges,
+    showRefundPaymentSuccessMessage,
   ];
 }

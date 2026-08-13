@@ -19,17 +19,17 @@ class PayTrackPaymentLedgerSummaryModel {
   double receivedAmount;
   String transactionChequeDemandDraftNumber;
   String transactionChequeDemandDraftUrl;
-  DateTime transactionChequeDemandDraftDate;
+  DateTime? transactionChequeDemandDraftDate;
   bool isBookingAmount;
   String approvalStatus;
   bool isApproval;
   String paymentReceiptUrl;
   int createdById;
   String createdBy;
-  DateTime createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
-  DateTime modifiedDate;
+  DateTime? modifiedDate;
   String projectName;
   String applicantName;
   String applicantMobileNumber;
@@ -105,7 +105,7 @@ class PayTrackPaymentLedgerSummaryModel {
     transactionChequeDemandDraftDate:
         json["TransactionChequeDemandDraftDate"] != null
             ? DateTime.parse(json["TransactionChequeDemandDraftDate"])
-            : DateTime.now(),
+            : null,
     isBookingAmount: parseValue<bool>(json, "IsBookingAmount"),
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     isApproval: parseValue<bool>(json, "IsApproval"),
@@ -115,13 +115,13 @@ class PayTrackPaymentLedgerSummaryModel {
     createdDate:
         json["CreatedDate"] != null
             ? DateTime.parse(json["CreatedDate"])
-            : DateTime.now(),
+            : null,
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
     modifiedDate:
         json["ModifiedDate"] != null
             ? DateTime.parse(json["ModifiedDate"])
-            : DateTime.now(),
+            : null,
     projectName: parseValue<String>(json, "ProjectName"),
     applicantName: parseValue<String>(json, "ApplicantName"),
     applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
@@ -150,17 +150,17 @@ class PayTrackPaymentLedgerSummaryModel {
     "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
     "TransactionChequeDemandDraftURL": transactionChequeDemandDraftUrl,
     "TransactionChequeDemandDraftDate":
-        transactionChequeDemandDraftDate.toIso8601String(),
+        transactionChequeDemandDraftDate?.toIso8601String(),
     "IsBookingAmount": isBookingAmount,
     "ApprovalStatus": approvalStatus,
     "IsApproval": isApproval,
     "PaymentReceiptURL": paymentReceiptUrl,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate.toIso8601String(),
+    "ModifiedDate": modifiedDate?.toIso8601String(),
     "ProjectName": projectName,
     "ApplicantName": applicantName,
     "ApplicantMobileNumber": applicantMobileNumber,

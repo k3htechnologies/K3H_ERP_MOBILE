@@ -32,6 +32,7 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
+
 class DashboardScreen extends StatefulWidget {
   final AttendanceModel? data;
   const DashboardScreen({super.key, this.data});
@@ -217,17 +218,28 @@ class _DashboardScreenState extends State<DashboardScreen>
   LatLng? lastPoint;
   double totalDistance = 0.0;
 
-  Future<void> punchIn(BuildContext context) async {
+  Future<bool> punchIn(BuildContext context) async {
     try {
       Position pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
 
+      if (pos.isMocked) {
+        if (context.mounted) {
+          showErrorMessage(
+            context,
+            "Mock Location Detected",
+            "Please disable Fake GPS / Mock Location before punching in.",
+          );
+        }
+        return false;
+      }
+
       final address = await _getAddressFromGPS();
 
       if (address == null) {
         showErrorMessage(context, "Error", "Unable to fetch location");
-        return;
+        return false;
       }
 
       await storage.setString(
@@ -261,8 +273,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         currentAttendanceId = result['AttendanceId'];
         currentUniquekey = result['Uniquekey'];
       }
+      return true;
     } catch (e) {
       debugPrint("Punch In GPS Error: $e");
+      return false;
     }
   }
 
@@ -364,6 +378,10 @@ class _DashboardScreenState extends State<DashboardScreen>
         distanceFilter: 5,
       ),
     ).listen((Position position) async {
+      if (position.isMocked) {
+        debugPrint("Mock location detected");
+        return;
+      }
       if (position.accuracy > 30) return;
 
       final currentPoint = LatLng(position.latitude, position.longitude);
@@ -777,16 +795,38 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                         ),
                                                       );
 
-                                                      isPunchedInNotifier
-                                                          .value = true;
+                                                      /// COMMENTING THIS IF THE NEWER VERSION WILL NOT WORK THIS IS THE STABLE CODE
 
-                                                      if (context.mounted) {
-                                                        await punchIn(context);
+                                                      // isPunchedInNotifier
+                                                      //     .value = true;
+
+                                                      // if (context.mounted) {
+                                                      //   await punchIn(context);
+                                                      // }
+
+                                                      // _startTimerFrom(
+                                                      //   DateTime.now(),
+                                                      // );
+                                                      final success =
+                                                          await punchIn(
+                                                            context,
+                                                          );
+
+                                                      if (success) {
+                                                        isPunchedInNotifier
+                                                            .value = true;
+                                                        _startTimerFrom(
+                                                          DateTime.now(),
+                                                        );
+                                                        dragPositionNotifier
+                                                            .value = maxWidth;
+                                                        HapticFeedback.mediumImpact();
+                                                      } else {
+                                                        isPunchedInNotifier
+                                                            .value = false;
+                                                        dragPositionNotifier
+                                                            .value = 0;
                                                       }
-
-                                                      _startTimerFrom(
-                                                        DateTime.now(),
-                                                      );
 
                                                       HapticFeedback.mediumImpact();
 

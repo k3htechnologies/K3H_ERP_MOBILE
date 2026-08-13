@@ -674,7 +674,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Address Details'),
+          _buildSectionHeader('Address'),
           CustomTextField(
             textController: addressC,
             title: "Address",

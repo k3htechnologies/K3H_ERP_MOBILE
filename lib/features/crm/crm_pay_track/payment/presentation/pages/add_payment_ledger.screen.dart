@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously, unnecessary_null_comparison
+
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
@@ -8,9 +12,13 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_tr
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
+import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -26,9 +34,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddPaymentLedgerScreen extends StatefulWidget {
   final List<PayTrackPaymentLedgerModel> paymentLedger;
   final PayTrackPaymentLedgerSummaryModel? editPaymentLedger;
+  final List<OtherChargeModel> bookingOtherChargesList;
   const AddPaymentLedgerScreen({
     super.key,
     required this.paymentLedger,
+    required this.bookingOtherChargesList,
     this.editPaymentLedger,
   });
 
@@ -52,13 +62,15 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
   late ValueNotifier<double> pendingAmountVN;
   late ValueNotifier<List<Map<String, dynamic>>>
   _selectedProjectBankNameNotifier;
+  late ValueNotifier<Map<String, dynamic>?> selectedOtherCharge;
 
   late TextEditingController _receivedAmountC,
       _transactionOrChequeNumberC,
       _accountNumberC,
       _ifscCodeC,
       _branchC,
-      _accountTypeC;
+      _accountTypeC,
+      _natureOfAccountC;
 
   MultiFilePickerModel selectedChequeForPopUpFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -66,10 +78,34 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     deletedFileList: "",
   );
 
-  DateTime? transactionDate;
+  // DateTime? transactionDate;
 
+  late ValueNotifier<DateTime?> transactionDateNotifier;
+  late ValueNotifier<MultiFilePickerModel?> selectedImageNotifier;
   //EDIT MODE
   bool get _isEditMode => widget.editPaymentLedger != null;
+
+  List<Map<String, dynamic>> _projectBankList = [];
+
+  // PROJECT MASTER REPO
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
+
+  bool get _isDeveloperBankRequired {
+    final paymentFor =
+        selectedPaymentFor.value?["DisplayName"]
+            ?.toString()
+            .trim()
+            .toLowerCase() ??
+        "";
+
+    return ![
+      "stamp duty",
+      "registration fees",
+      "agreement value tds",
+    ].contains(paymentFor);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -80,20 +116,34 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _selectedPaymentreceivedFromNotifier = ValueNotifier<Map<String, dynamic>?>(
       null,
     );
+    transactionDateNotifier = ValueNotifier(null);
+    selectedImageNotifier = ValueNotifier<MultiFilePickerModel?>(
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      ),
+    );
+
     totalAmountVN = ValueNotifier(0);
     paidAmountVN = ValueNotifier(0);
     pendingAmountVN = ValueNotifier(0);
     _selectedProjectBankNameNotifier =
         ValueNotifier<List<Map<String, dynamic>>>([]);
+    selectedOtherCharge = ValueNotifier(null);
     _initializeControllers();
+
     if (_isEditMode) {
-      _prefillPaymentLedger(widget.editPaymentLedger!);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await getProjectWithBankDropdown(1);
+
+        _prefillPaymentLedger(widget.editPaymentLedger!);
+      });
     }
   }
 
   @override
   void dispose() {
-    super.dispose();
     selectedPaymentFor.dispose();
     totalAmountVN.dispose();
     paidAmountVN.dispose();
@@ -108,6 +158,11 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _ifscCodeC.dispose();
     _branchC.dispose();
     _accountTypeC.dispose();
+    _natureOfAccountC.dispose();
+    selectedOtherCharge.dispose();
+    transactionDateNotifier.dispose();
+    selectedImageNotifier.dispose();
+    super.dispose();
   }
 
   void _initializeControllers() {
@@ -117,40 +172,63 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     _ifscCodeC = TextEditingController();
     _branchC = TextEditingController();
     _accountTypeC = TextEditingController();
+    _natureOfAccountC = TextEditingController();
   }
 
   void _prefillPaymentLedger(PayTrackPaymentLedgerSummaryModel list) {
     if (!_isEditMode) return;
     final item = list;
-    final paymentFor = paymentForList.firstWhere(
-      (e) => e['DisplayName'] == item.paymentFor,
-      orElse: () => paymentForList.first,
+
+    final paymentFor = paymentForList.firstWhereOrNull(
+      (e) =>
+          (e['DisplayName']?.toString().trim().toLowerCase()) ==
+          item.paymentFor.trim().toLowerCase(),
     );
 
     selectedPaymentFor.value = paymentFor;
+    final paymentForName = item.paymentFor.trim().toLowerCase();
 
-    totalAmountVN.value = item.receivedAmount;
+    if (paymentForName == "other charges value" ||
+        paymentForName == "other charges gst") {
+      final otherCharge =
+          widget.bookingOtherChargesList.firstWhereOrNull(
+            (e) => e.bookingOtherChargesId == item.bookingOtherChargesId,
+          ) ??
+          widget.bookingOtherChargesList.firstWhereOrNull(
+            (e) =>
+                e.chargeName.trim().toLowerCase() ==
+                item.chargeName.trim().toLowerCase(),
+          );
 
-    paidAmountVN.value = item.receivedAmount;
+      if (otherCharge != null) {
+        selectedOtherCharge.value = {
+          "zAttributesId": otherCharge.bookingOtherChargesId,
+          "DisplayName": otherCharge.chargeName,
+          "Value": otherCharge.value,
+          "GSTValue": otherCharge.gstValue,
+        };
+      }
 
-    pendingAmountVN.value = totalAmountVN.value - paidAmountVN.value;
-    final paymentMode = paymentForList.firstWhere(
-      (e) => e['DisplayName'] == item.paymentMode,
-      orElse: () => paymentForList.first,
-    );
+      final matchedLedger = widget.paymentLedger.firstWhereOrNull(
+        (e) =>
+            e.paymentFor.trim().toLowerCase() ==
+            item.paymentFor.trim().toLowerCase(),
+      );
 
-    _selectedPaymentModeNotifier.value = paymentMode;
-
-    _selectedBankNotifier.value = [
-      {"zAttributesId": item.bankListMasterId, "DisplayName": item.bankName},
-    ];
-
-    _selectedProjectBankNameNotifier.value = [
-      {
-        "zAttributesId": item.projectBankListMasterId,
-        "DisplayName": item.projectBankName,
-      },
-    ];
+      if (matchedLedger != null) {
+        totalAmountVN.value = matchedLedger.totalAmount;
+        paidAmountVN.value = matchedLedger.receivedAmount;
+        pendingAmountVN.value =
+            matchedLedger.totalAmount - matchedLedger.receivedAmount;
+      }
+    }
+    if (item.bankListMasterId != 0) {
+      _selectedBankNotifier.value = [
+        {"zAttributesId": item.bankListMasterId, "DisplayName": item.bankName},
+      ];
+    } else {
+      _selectedBankNotifier.value = [];
+    }
 
     final paymentReceivedFrom = paymentReceivedFormList.firstWhere(
       (e) => e['DisplayName'] == item.paymentReceivedFrom,
@@ -162,30 +240,68 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
     _transactionOrChequeNumberC.text = item.transactionChequeDemandDraftNumber;
 
-    transactionDate = item.transactionChequeDemandDraftDate;
+    transactionDateNotifier.value = item.transactionChequeDemandDraftDate;
 
-    _selectedPaymentModeNotifier.value = paymentModeList.firstWhere(
-      (e) => (e['DisplayName'] as String?) == item.paymentMode,
-      orElse: () => paymentModeList.first,
+    _selectedPaymentModeNotifier.value = paymentModeList.firstWhereOrNull(
+      (e) => (e['DisplayName']) == item.paymentMode,
     );
-    selectedChequeForPopUpFile.fileNameList =
-        item.paymentReceiptUrl.isEmpty ? [] : item.paymentReceiptUrl.split(",");
 
-    _selectedProjectBankNameNotifier.value = [
-      {
-        "zAttributesId": item.projectBankListMasterId,
-        "BankListMasterId": item.projectBankListMasterId,
-        "DisplayName": item.bankName,
-        "AccountNumber": item.projectAccountNumber,
-        "IFSCCode": item.projectIfscCode,
-        "Branch": item.bankName,
-        "AcType": "",
-      },
-    ];
-    _accountNumberC.text = item.projectAccountNumber;
-    _ifscCodeC.text = item.projectIfscCode;
-    _branchC.text = item.bankName;
-    _accountTypeC.text = "";
+    selectedImageNotifier.value = MultiFilePickerModel(
+      fileBytesList: [],
+      fileNameList: item.transactionChequeDemandDraftUrl.split(","),
+      deletedFileList: "",
+    );
+    if (item.transactionChequeDemandDraftUrl.isNotEmpty) {
+      selectedChequeForPopUpFile = selectedImageNotifier.value!;
+    }
+    if (item.projectBankListMasterId != 0 &&
+        item.projectBankName.trim().isNotEmpty) {
+      _selectedProjectBankNameNotifier.value = [
+        {
+          "zAttributesId": item.projectBankListMasterId,
+          "ProjectWithBankDetailsId": item.projectBankListMasterId,
+          "BankListMasterId": item.bankListMasterId,
+          "DisplayName":
+              "${item.projectBankName} - ${item.projectNatureOfAccount}",
+          "AccountNumber": item.projectAccountNumber,
+          "IFSCCode": item.projectIfscCode,
+          "AcType": item.projectAcType,
+          "NatureOfAccount": item.projectNatureOfAccount,
+        },
+      ];
+    } else {
+      _selectedProjectBankNameNotifier.value = [];
+
+      _accountNumberC.clear();
+      _ifscCodeC.clear();
+      _branchC.clear();
+      _accountTypeC.clear();
+      _natureOfAccountC.clear();
+    }
+
+    final matchedProjectBank = _projectBankList.firstWhereOrNull(
+      (e) => e["ProjectWithBankDetailsId"] == item.projectBankListMasterId,
+    );
+
+    if (matchedProjectBank != null) {
+      _accountNumberC.text =
+          matchedProjectBank["AccountNumber"]?.toString() ?? "";
+      _ifscCodeC.text = matchedProjectBank["IFSCCode"]?.toString() ?? "";
+      _accountTypeC.text = matchedProjectBank["AcType"]?.toString() ?? "";
+      _natureOfAccountC.text =
+          matchedProjectBank["NatureOfAccount"]?.toString() ?? "";
+      _branchC.text = matchedProjectBank["Branch"]?.toString() ?? "";
+    }
+
+    if (matchedProjectBank != null) {
+      _accountNumberC.text =
+          matchedProjectBank["AccountNumber"]?.toString() ?? "";
+      _ifscCodeC.text = matchedProjectBank["IFSCCode"]?.toString() ?? "";
+      _accountTypeC.text = matchedProjectBank["AcType"]?.toString() ?? "";
+      _natureOfAccountC.text =
+          matchedProjectBank["NatureOfAccount"]?.toString() ?? "";
+      _branchC.text = matchedProjectBank["Branch"]?.toString() ?? "";
+    }
   }
 
   // FETCH BANK
@@ -221,50 +337,146 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     );
   }
 
+  // PROJECT WISE BANK DROPDOWN
+  Future<Map<String, dynamic>> getProjectWithBankDropdown(
+    int pageNumber, {
+    String? value,
+  }) async {
+    ProjectModel project = getProject();
+
+    final result = await _projectMasterRepository.getProjectWithBankDetails(
+      projectId: project.projectId,
+      queryParams: {"BankName": value ?? "", "IsCheckPermission": false},
+    );
+
+    return result.fold(
+      (failure) {
+        _projectBankList = [];
+        return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
+      },
+      (response) {
+        final data = response["data"] as List<ProjectWithBankDetailsModel>;
+
+        List<Map<String, dynamic>> items =
+            data.map((e) {
+              return {
+                "zAttributesId": e.projectWithBankDetailsId,
+                "ProjectWithBankDetailsId": e.projectWithBankDetailsId,
+                "BankListMasterId": e.bankListMasterId,
+                "DisplayName": "${e.bankName} - ${e.natureOfAccount}",
+                "AccountHolderName": e.beneficiaryAccountHolderName,
+                "AccountNumber": e.accountNumber,
+                "Branch": e.branch,
+                "IFSCCode": e.ifscCode,
+                "AcType": e.acType,
+                "NatureOfAccount": e.natureOfAccount,
+              };
+            }).toList();
+        if (value != null && value.trim().isNotEmpty) {
+          items =
+              items.where((e) {
+                return e["DisplayName"].toString().toLowerCase().contains(
+                  value.toLowerCase(),
+                );
+              }).toList();
+        }
+        _projectBankList = items;
+
+        return {"itemList": items, "totalNumberOfRecord": items.length};
+      },
+    );
+  }
+
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    _paymentCubit.addPaymentLedgerMaster(
-      context: context,
+    if (_isEditMode) {
+      _paymentCubit.updatePaymentLedgerMaster(
+        context: context,
+        payTrackPaymentLedgerId:
+            widget.editPaymentLedger!.payTrackPaymentLedgerId.toString(),
 
-      bookingId: widget.paymentLedger.first.bookingId.toString(),
+        bookingId: widget.paymentLedger.first.bookingId,
 
-      projectId: widget.paymentLedger.first.projectId.toString(),
+        projectId: widget.paymentLedger.first.projectId,
 
-      bookingOtherChargesId: "0",
+        bookingOtherChargesId:
+            selectedOtherCharge.value?["zAttributesId"].toString() ?? "0",
+        paymentFor: selectedPaymentFor.value?["DisplayName"]?.toString() ?? "",
 
-      paymentFor: selectedPaymentFor.value?["DisplayName"]?.toString() ?? "",
+        paymentMode:
+            _selectedPaymentModeNotifier.value!["DisplayName"].toString(),
 
-      paymentMode:
-          _selectedPaymentModeNotifier.value!["DisplayName"].toString(),
+        paymentReceivedFrom:
+            _selectedPaymentreceivedFromNotifier.value!["DisplayName"]
+                .toString(),
 
-      paymentReceivedFrom:
-          _selectedPaymentreceivedFromNotifier.value!["DisplayName"].toString(),
+        bankListMasterId:
+            _selectedBankNotifier.value.isNotEmpty
+                ? _selectedBankNotifier.value.first["zAttributesId"].toString()
+                : "0",
 
-      bankListMasterId:
-          _selectedBankNotifier.value.isNotEmpty
-              ? _selectedBankNotifier.value.first["zAttributesId"].toString()
-              : "0",
+        projectBankListMasterId:
+            _selectedProjectBankNameNotifier.value.isNotEmpty
+                ? _selectedProjectBankNameNotifier.value.first["zAttributesId"]
+                    .toString()
+                : "0",
+        receivedAmount: _receivedAmountC.text.trim(),
 
-      projectBankListMasterId:
-          _selectedProjectBankNameNotifier.value.isNotEmpty
-              ? _selectedProjectBankNameNotifier
-                  .value
-                  .first["ProjectWithBankDetailsId"]
-                  .toString()
-              : "0",
-      receivedAmount: _receivedAmountC.text.trim(),
+        transactionChequeDemandDraftNumber:
+            _transactionOrChequeNumberC.text.trim(),
 
-      transactionChequeDemandDraftNumber:
-          _transactionOrChequeNumberC.text.trim(),
+        transactionChequeDemandDraftDate:
+            transactionDateNotifier.value?.toIso8601String().split("T").first ??
+            "",
 
-      transactionChequeDemandDraftDate:
-          transactionDate?.toIso8601String().split("T").first ?? "",
+        selectedChequeUrl: selectedChequeForPopUpFile,
+        uniquekey: widget.editPaymentLedger!.uniquekey.toString(),
+      );
+    } else {
+      _paymentCubit.addPaymentLedgerMaster(
+        context: context,
 
-      selectedChequeUrl: selectedChequeForPopUpFile,
-    );
+        bookingId: widget.paymentLedger.first.bookingId,
+
+        projectId: widget.paymentLedger.first.projectId,
+
+        bookingOtherChargesId:
+            selectedOtherCharge.value?["zAttributesId"]?.toString() ?? "0",
+
+        paymentFor: selectedPaymentFor.value?["DisplayName"]?.toString() ?? "",
+
+        paymentMode:
+            _selectedPaymentModeNotifier.value!["DisplayName"].toString(),
+
+        paymentReceivedFrom:
+            _selectedPaymentreceivedFromNotifier.value!["DisplayName"]
+                .toString(),
+
+        bankListMasterId:
+            _selectedBankNotifier.value.isNotEmpty
+                ? _selectedBankNotifier.value.first["zAttributesId"].toString()
+                : "0",
+
+        projectBankListMasterId:
+            _selectedProjectBankNameNotifier.value.isNotEmpty
+                ? _selectedProjectBankNameNotifier.value.first["zAttributesId"]
+                    .toString()
+                : "0",
+        receivedAmount: _receivedAmountC.text.trim(),
+
+        transactionChequeDemandDraftNumber:
+            _transactionOrChequeNumberC.text.trim(),
+
+        transactionChequeDemandDraftDate:
+            transactionDateNotifier.value?.toIso8601String().split("T").first ??
+            "",
+
+        selectedChequeUrl: selectedChequeForPopUpFile,
+      );
+    }
   }
 
   @override
@@ -290,7 +502,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Add Payment Ledger",
+                      _isEditMode
+                          ? "Update Payment Ledger"
+                          : "Add Payment Ledger",
                       style: AppTextStyle.ts14M(
                         color: AppColor.black.withValues(alpha: 0.5),
                       ),
@@ -307,28 +521,51 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           onSelected: (value) {
                             selectedPaymentFor.value = value;
 
-                            final selectedName = value["DisplayName"];
+                            final paymentFor =
+                                value["DisplayName"].toString().trim();
 
+                            if (paymentFor == "Other Charges Value" ||
+                                paymentFor == "Other Charges GST") {
+                              final matchedLedger = widget.paymentLedger
+                                  .firstWhereOrNull(
+                                    (e) =>
+                                        e.paymentFor.trim().toLowerCase() ==
+                                        paymentFor.trim().toLowerCase(),
+                                  );
+
+                              if (matchedLedger != null) {
+                                totalAmountVN.value = matchedLedger.totalAmount;
+                                paidAmountVN.value =
+                                    matchedLedger.receivedAmount;
+                                pendingAmountVN.value =
+                                    matchedLedger.totalAmount -
+                                    matchedLedger.receivedAmount;
+                              } else {
+                                totalAmountVN.value = 0;
+                                paidAmountVN.value = 0;
+                                pendingAmountVN.value = 0;
+                              }
+
+                              return;
+                            }
                             final matchedLedger = widget.paymentLedger
-                                .firstWhere(
-                                  (e) => e.paymentFor == selectedName,
-                                  orElse:
-                                      () => PayTrackPaymentLedgerModel(
-                                        bookingId: 0,
-                                        projectId: 0,
-                                        paymentFor: '',
-                                        totalAmount: 0,
-                                        receivedAmount: 0,
-                                        uploadedPaymentLedgerCount: 0,
-                                        approvalPendingPaymentLedgerCount: 0,
-                                      ),
+                                .firstWhereOrNull(
+                                  (e) =>
+                                      e.paymentFor.trim().toLowerCase() ==
+                                      paymentFor.trim().toLowerCase(),
                                 );
 
-                            totalAmountVN.value = matchedLedger.totalAmount;
-                            paidAmountVN.value = matchedLedger.receivedAmount;
-                            pendingAmountVN.value =
-                                matchedLedger.totalAmount -
-                                matchedLedger.receivedAmount;
+                            if (matchedLedger != null) {
+                              totalAmountVN.value = matchedLedger.totalAmount;
+                              paidAmountVN.value = matchedLedger.receivedAmount;
+                              pendingAmountVN.value =
+                                  matchedLedger.totalAmount -
+                                  matchedLedger.receivedAmount;
+                            } else {
+                              totalAmountVN.value = 0;
+                              paidAmountVN.value = 0;
+                              pendingAmountVN.value = 0;
+                            }
                           },
                           onValueClear: () {
                             selectedPaymentFor.value = null;
@@ -336,6 +573,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                             totalAmountVN.value = 0;
                             paidAmountVN.value = 0;
                             pendingAmountVN.value = 0;
+                            selectedOtherCharge.value = null;
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -410,14 +648,131 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       },
                     ),
                     ValueListenableBuilder(
+                      valueListenable: selectedPaymentFor,
+                      builder: (_, value, __) {
+                        if (value?["DisplayName"] != "Other Charges Value") {
+                          return const SizedBox.shrink();
+                        }
+                        debugPrint(widget.bookingOtherChargesList.toString());
+
+                        for (final e in widget.bookingOtherChargesList) {
+                          debugPrint(
+                            "id=${e.bookingOtherChargesId}, "
+                            "charge=${e.chargeName}, "
+                            "value=${e.value}, "
+                            "gst=${e.gstValue}",
+                          );
+                        }
+                        return CustomDropDownWidget(
+                          isRequired: true,
+                          title: "Other Charges",
+                          hintText: "Select Other Charge",
+                          initialValue: selectedOtherCharge.value,
+                          dataList:
+                              widget.bookingOtherChargesList.map((e) {
+                                return {
+                                  "zAttributesId": e.bookingOtherChargesId,
+                                  "DisplayName": e.chargeName,
+                                  "Value": e.value,
+                                  "GSTValue": e.gstValue,
+                                };
+                              }).toList(),
+                          onSelected: (value) {
+                            selectedOtherCharge.value = value;
+
+                            final model = widget.bookingOtherChargesList
+                                .firstWhere(
+                                  (e) =>
+                                      e.bookingOtherChargesId ==
+                                      value["zAttributesId"],
+                                );
+
+                            totalAmountVN.value = model.value;
+                            paidAmountVN.value = 0;
+                            pendingAmountVN.value = model.value;
+                          },
+                          validator: (value) {
+                            if (selectedOtherCharge.value == null ||
+                                selectedOtherCharge.value!.isEmpty) {
+                              return "Other Charge is required";
+                            }
+
+                            return null;
+                          },
+                          onValueClear: () {
+                            selectedOtherCharge.value = null;
+                          },
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: selectedPaymentFor,
+                      builder: (_, value, __) {
+                        if (value?["DisplayName"] != "Other Charges GST") {
+                          return const SizedBox.shrink();
+                        }
+
+                        return CustomDropDownWidget(
+                          isRequired: true,
+                          title: "Other Charges",
+                          hintText: "Select Other Charge",
+
+                          // This will now contain Balcony during edit
+                          initialValue: selectedOtherCharge.value,
+
+                          dataList:
+                              widget.bookingOtherChargesList.map((e) {
+                                return {
+                                  "zAttributesId": e.bookingOtherChargesId,
+                                  "DisplayName": e.chargeName,
+                                  "Value": e.value,
+                                  "GSTValue": e.gstValue,
+                                };
+                              }).toList(),
+
+                          onSelected: (value) {
+                            selectedOtherCharge.value = value;
+
+                            final model = widget.bookingOtherChargesList
+                                .firstWhere(
+                                  (e) =>
+                                      e.bookingOtherChargesId ==
+                                      value["zAttributesId"],
+                                );
+
+                            totalAmountVN.value = model.gstValue;
+                            paidAmountVN.value = 0;
+                            pendingAmountVN.value = model.gstValue;
+                          },
+
+                          validator: (value) {
+                            if (selectedOtherCharge.value == null ||
+                                selectedOtherCharge.value!.isEmpty) {
+                              return "Other Charge is required";
+                            }
+
+                            return null;
+                          },
+
+                          onValueClear: () {
+                            selectedOtherCharge.value = null;
+                          },
+                        );
+                      },
+                    ),
+                    ValueListenableBuilder(
                       valueListenable: _selectedPaymentModeNotifier,
                       builder: (context, selectedPaymentMode, _) {
                         return CustomDropDownWidget(
                           title: "Payment Mode",
                           hintText: "Select Payment Mode",
                           isRequired: true,
-                          initialValue: selectedPaymentMode,
+                          initialValue:
+                              paymentModeList.contains(selectedPaymentMode)
+                                  ? selectedPaymentMode
+                                  : null,
                           dataList: paymentModeList,
+
                           onSelected: (value) {
                             _selectedPaymentModeNotifier.value = value;
                           },
@@ -433,7 +788,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                         );
                       },
                     ),
-                    ValueListenableBuilder(
+                    ValueListenableBuilder<List<Map<String, dynamic>>>(
                       valueListenable: _selectedBankNotifier,
                       builder: (context, selectedBank, _) {
                         return CustomMultipleSelectPopup(
@@ -441,7 +796,8 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           hintText: "Select Bank Name",
                           isRequired: true,
                           isMultiSelect: false,
-                          initialValue: selectedBank,
+                          initialValue:
+                              selectedBank.isNotEmpty ? selectedBank : null,
                           dataList: const [],
                           onSelected: (value) {
                             _selectedBankNotifier.value = value;
@@ -497,7 +853,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
                         final receivedAmount = double.tryParse(value) ?? 0;
                         final remainingAmount = pendingAmountVN.value;
-
+                        if (receivedAmount <= 0) {
+                          return "Received Amount cannot be zero or negative";
+                        }
                         if (receivedAmount > remainingAmount) {
                           return "Amount cannot exceed remaining ${remainingAmount.toIndianCurrency()}";
                         }
@@ -511,7 +869,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       title: "Transaction / Cheque / Demand Draft No.",
                       isRequired: true,
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(6),
+                      inputFormatterList: InputValidator.digit(25),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Transaction / Cheque / Demand Draft No. is required";
@@ -519,45 +877,61 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                         return null;
                       },
                     ),
-                    CustomMultiFilePicker(
-                      title: "Transaction / Cheque / Demand Draft Image",
-                      isRequired: true,
-                      filePickType: FilePickType.both,
-                      initialFileList: selectedChequeForPopUpFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedChequeForPopUpFile.fileNameList = fileNameList;
-                        selectedChequeForPopUpFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        selectedChequeForPopUpFile.fileNameList = fileNameList;
-                        selectedChequeForPopUpFile.fileBytesList =
-                            fileBytesList;
-                        selectedChequeForPopUpFile.deletedFileList =
-                            deletedFile;
-                      },
-                      validator: (fileList) {
-                        if (fileList == null || fileList.isEmpty) {
-                          return "Transaction / Cheque / Demand Draft Image is required";
-                        }
-
-                        return null;
+                    ValueListenableBuilder<MultiFilePickerModel?>(
+                      valueListenable: selectedImageNotifier,
+                      builder: (context, value, child) {
+                        return CustomMultiFilePicker(
+                          key: ValueKey(value?.fileNameList.join(",")),
+                          title: "Transaction / Cheque / Demand Draft Image",
+                          isRequired: true,
+                          filePickType: FilePickType.both,
+                          initialFileList: value?.fileNameList ?? [],
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            selectedChequeForPopUpFile.fileNameList =
+                                fileNameList;
+                            selectedChequeForPopUpFile.fileBytesList =
+                                bytesList;
+                          },
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            selectedChequeForPopUpFile.fileNameList =
+                                fileNameList;
+                            selectedChequeForPopUpFile.fileBytesList =
+                                fileBytesList;
+                            selectedChequeForPopUpFile.deletedFileList =
+                                deletedFile;
+                          },
+                          validator: (fileList) {
+                            if (fileList == null || fileList.isEmpty) {
+                              return "Transaction / Cheque / Demand Draft Image is required";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
-                    CustomDatePicker(
-                      title: "Transaction / Cheque / Demand Draft Date",
-                      hint: "Transaction / Cheque / Demand Draft Date",
-                      isRequired: true,
-                      initialDate: transactionDate,
-                      setValue: (value) => transactionDate = value,
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Date Of Filing is required';
-                        }
-                        return null;
+
+                    ValueListenableBuilder<DateTime?>(
+                      valueListenable: transactionDateNotifier,
+                      builder: (context, value, child) {
+                        return CustomDatePicker(
+                          title: "Transaction / Cheque / Demand Draft Date",
+                          hint: "Transaction / Cheque / Demand Draft Date",
+                          isRequired: true,
+                          initialDate: value,
+                          setValue: (value) {
+                            transactionDateNotifier.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Transaction / Cheque / Demand Draft Date is required';
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
                   ],
@@ -577,60 +951,65 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                     ),
                     verticalSpacing(),
                     ValueListenableBuilder(
-                      valueListenable: _selectedProjectBankNameNotifier,
-                      builder: (context, selectedProjectBank, _) {
-                        return CustomMultipleSelectPopup(
-                          key: ValueKey(
-                            selectedProjectBank.isEmpty
-                                ? 'project_bank_empty'
-                                : selectedProjectBank.first['zAttributesId'],
-                          ),
+                      valueListenable: selectedPaymentFor,
+                      builder: (_, __, ___) {
+                        return ValueListenableBuilder(
+                          valueListenable: _selectedProjectBankNameNotifier,
+                          builder: (context, selectedProjectBank, _) {
+                            return CustomMultipleSelectPopup(
+                              title: 'Project Bank Name',
+                              hintText: "Select Project Bank Name",
+                              isRequired: _isDeveloperBankRequired,
+                              isMultiSelect: false,
+                              initialValue:
+                                  selectedProjectBank.isNotEmpty
+                                      ? selectedProjectBank
+                                      : null,
+                              dataList: const [],
 
-                          title: 'Project Bank Name',
-                          hintText: "Select Project Bank Name",
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedProjectBank,
-                          dataList: const [],
+                              onSelected: (value) {
+                                _selectedProjectBankNameNotifier.value = value;
 
-                          onSelected: (value) {
-                            debugPrint("PROJECT BANK VALUE => $value");
+                                if (value.isNotEmpty) {
+                                  final item = value.first;
 
-                            _selectedProjectBankNameNotifier.value = value;
+                                  _accountNumberC.text =
+                                      (item["AccountNumber"] ?? "").toString();
 
-                            if (value.isNotEmpty) {
-                              final item = value.first;
+                                  _ifscCodeC.text =
+                                      (item["IFSCCode"] ?? "").toString();
 
-                              _accountNumberC.text =
-                                  (item["AccountNumber"] ?? "").toString();
+                                  _branchC.text =
+                                      (item["Branch"] ?? "").toString();
 
-                              _ifscCodeC.text =
-                                  (item["IFSCCode"] ?? "").toString();
+                                  _accountTypeC.text =
+                                      (item["AcType"] ?? "").toString();
 
-                              _branchC.text = (item["Branch"] ?? "").toString();
+                                  _natureOfAccountC.text =
+                                      (item["NatureOfAccount"] ?? "")
+                                          .toString();
+                                }
+                              },
 
-                              _accountTypeC.text =
-                                  (item["AcType"] ?? "").toString();
-                            }
-                          },
+                              dataFetchCallBack: getProjectWithBankDropdown,
 
-                          dataFetchCallBack:
-                              _paymentCubit.getProjectWithBankDropdown,
+                              validator: (value) {
+                                if (_isDeveloperBankRequired &&
+                                    (value == null || value.isEmpty)) {
+                                  return "Project Bank Name is required";
+                                }
+                                return null;
+                              },
 
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Project Bank Name is required";
-                            }
-                            return null;
-                          },
-
-                          onClear: () {
-                            _selectedProjectBankNameNotifier.value = [];
-
-                            _accountNumberC.clear();
-                            _ifscCodeC.clear();
-                            _branchC.clear();
-                            _accountTypeC.clear();
+                              onClear: () {
+                                _selectedProjectBankNameNotifier.value = [];
+                                _accountNumberC.clear();
+                                _ifscCodeC.clear();
+                                _branchC.clear();
+                                _accountTypeC.clear();
+                                _natureOfAccountC.clear();
+                              },
+                            );
                           },
                         );
                       },
@@ -691,6 +1070,21 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                       readOnly: true,
                                     ),
                                   ),
+                                ],
+                              ),
+                              verticalSpacing(),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomTextField(
+                                      textController: _natureOfAccountC,
+                                      title: "Nature Of Account",
+                                      hint: "Nature Of Account",
+                                      readOnly: true,
+                                    ),
+                                  ),
+                                  horizontalSpacing(),
                                 ],
                               ),
                             ],

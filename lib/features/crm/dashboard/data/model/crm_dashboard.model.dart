@@ -263,9 +263,9 @@ class Table3 {
 
 class Table4 {
   String label;
-  int agreement;
-  int gst;
-  int tds;
+  double agreement;
+  double gst;
+  double tds;
 
   Table4({
     required this.label,
@@ -276,9 +276,9 @@ class Table4 {
 
   factory Table4.fromJson(Map<String, dynamic> json) => Table4(
     label: parseValue<String>(json, "Label"),
-    agreement: parseValue<int>(json, "Agreement"),
-    gst: parseValue<int>(json, "GST"),
-    tds: parseValue<int>(json, "TDS"),
+    agreement: parseValue<double>(json, "Agreement"),
+    gst: parseValue<double>(json, "GST"),
+    tds: parseValue<double>(json, "TDS"),
   );
 
   Map<String, dynamic> toJson() => {

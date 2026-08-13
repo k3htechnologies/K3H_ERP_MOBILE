@@ -1,6 +1,9 @@
 import 'package:get_it/get_it.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/dashboard/crm_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track_call_log.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/collection_report.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/reports.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/inventory/inventory_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation/litigation.dependencies.dart';
@@ -20,6 +23,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/invoice
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/material_requisition.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/material_requisition/purchase_order.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/more/inward_outward/inward_outward.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/more/otp_logs/otp_logs.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/more/ticket/ticket.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/notification/notification.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/payroll/resignation/resignation.dependencies.dart';
@@ -261,4 +265,10 @@ void initDependencies() {
   // CRM DASHBOARD
   registerCrmDashboardDependencies(serviceLocator);
   registerTaxTrackerDependencies(serviceLocator);
+  registerCrmReportsDependencies(serviceLocator);
+  registerCrmReportsCollectionReportDependencies(serviceLocator);
+
+  registerOtpLogsDependencies(serviceLocator);
+
+  registerPaytrackCallTrackerDependencies(serviceLocator);
 }

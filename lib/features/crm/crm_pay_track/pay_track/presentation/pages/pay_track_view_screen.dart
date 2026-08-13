@@ -11,9 +11,13 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cu
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_management_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/presentation/pages/snag_checklist.screen.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -29,6 +33,7 @@ class PayTrackViewScreen extends StatefulWidget {
   final int enquiryId;
   final String bookingApprovalStatus;
   final String approvalStatus;
+  final String flat;
   const PayTrackViewScreen({
     super.key,
     required this.applicantName,
@@ -37,6 +42,7 @@ class PayTrackViewScreen extends StatefulWidget {
     required this.enquiryId,
     required this.bookingApprovalStatus,
     required this.approvalStatus,
+    required this.flat,
   });
 
   @override
@@ -49,14 +55,80 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   late TabController _tabController;
   late PayTrackCubit _payTrackCubit;
   late ValueNotifier<bool> isExpanded;
+  late AuthorizationModel _bookingPayTrackRouteAuthorizationModel,
+      _bankLoansRouteAuthorizationModel,
+      _paymentLedgerAuthorization,
+      _paymentScheduleAuthorization,
+      _modifiedRequestsAuthorizationModel,
+      _snagChecklistAuthorizationModel,
+      _flatHandoverChecklistAuthorizationModel,
+      _flatHandoverAuthoriationModel,
+      _filesAuthorizationModel,
+      _callLogsAuthorizationModel;
+
+  late List<PayTrackTab> _tabs;
+
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 9, vsync: this);
+    _initAuth();
+    _tabs = [
+      if (_bookingPayTrackRouteAuthorizationModel.isView)
+        PayTrackTab.bookingPayTrack,
+      if (_bankLoansRouteAuthorizationModel.isView) PayTrackTab.bankLoan,
+
+      if (_paymentLedgerAuthorization.isView ||
+          _paymentScheduleAuthorization.isView)
+        PayTrackTab.paymentLedger,
+      if (_modifiedRequestsAuthorizationModel.isView)
+        PayTrackTab.modificationRequest,
+      if (_snagChecklistAuthorizationModel.isView) PayTrackTab.snagChecklist,
+      if (_flatHandoverChecklistAuthorizationModel.isView)
+        PayTrackTab.flatHandoverChecklist,
+      if (_flatHandoverAuthoriationModel.isView) PayTrackTab.flatHandover,
+      if (_filesAuthorizationModel.isView) PayTrackTab.files,
+      if (_callLogsAuthorizationModel.isView) PayTrackTab.payTrackCallLog,
+    ];
+
+    _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
     _payTrackCubit = context.read<PayTrackCubit>();
     isExpanded = ValueNotifier(false);
     initOverview();
+  }
+
+  void _initAuth() {
+    _bookingPayTrackRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.bookingPayTrack] ??
+        AuthorizationModel();
+    _bankLoansRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.bankLoans] ??
+        AuthorizationModel();
+    _paymentLedgerAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.paymentLedger] ??
+        AuthorizationModel();
+
+    _paymentScheduleAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.crmPaymentSchedule] ??
+        AuthorizationModel();
+    _modifiedRequestsAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.modificationRequest] ??
+        AuthorizationModel();
+    _snagChecklistAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.snagChecklist] ??
+        AuthorizationModel();
+    _flatHandoverChecklistAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.flatHandoverChecklist] ??
+        AuthorizationModel();
+    _flatHandoverAuthoriationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.flatHandover] ??
+        AuthorizationModel();
+    _filesAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.files] ??
+        AuthorizationModel();
+    _callLogsAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.payTrackCallLog] ??
+        AuthorizationModel();
   }
 
   void initOverview() async {
@@ -85,13 +157,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
   // HANDLE TAB CHANGE
   void _handleTabChange() async {
-    if (!_tabController.indexIsChanging) {
-      switch (_tabController.index) {
-        case 0:
-          initOverview();
-          break;
-      }
-    }
+    final index = _tabController.index;
+    final selectedTab = _tabs[index];
+    context.read<PayTrackCubit>().onTabChanged(
+      context,
+      selectedTab,
+      projectId: widget.projectId,
+      employeeId: 0,
+    );
   }
 
   @override
@@ -105,69 +178,88 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Pay Tarck",
+        screenTitle: "Pay Track",
         authorization: AuthorizationModel(),
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: showSiteSelectedWidget(),
+          ),
           ChipStyleTabBar(
             controller: _tabController,
             style: ChipTabBarStyle.underline,
-            tabs: [
-              'Overview',
-              'Bank Loans',
-              'Account',
-              'Modified Request',
-              'Flat Handover',
-              'Files',
-              'Call Logs',
-              'Snag Cheklist',
-              'Flat Handover Checklist',
-            ],
+            tabs: _tabs.map((m) => m.title).toList(),
           ),
           BlocBuilder<PayTrackCubit, PayTrackState>(
             builder: (context, state) {
+              if (state.bookingData == null) {
+                return Expanded(child: Center(child: loader()));
+              }
               return Expanded(
                 child: TabBarView(
                   controller: _tabController,
                   physics: NeverScrollableScrollPhysics(),
                   children: [
-                    _buildOverviewTab(state),
-                    LoanDetailsScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    PaymentScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                      applicantName: widget.applicantName,
-                      bookingApprovalStatus: widget.bookingApprovalStatus,
-                      approvalStatus: widget.approvalStatus,
-                    ),
-                    RequestManagementScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    FlatHandoverScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    FilesScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    CallLogsScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    SnagCheckListScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
-                    FlatHandoverChecklistScreen(
-                      projectId: widget.projectId,
-                      bookingId: widget.bookingId,
-                    ),
+                    if (_bookingPayTrackRouteAuthorizationModel.isView)
+                      _buildOverviewTab(state, context),
+                    if (_bankLoansRouteAuthorizationModel.isView) ...{
+                      LoanDetailsScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        approvalStatus: "Approved",
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
+                      ),
+                    },
+                    if (_paymentLedgerAuthorization.isView ||
+                        _paymentScheduleAuthorization.isView) ...{
+                      PaymentScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        applicantName: widget.applicantName,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
+                        approvalStatus: widget.approvalStatus,
+                        flat: widget.flat,
+                        bookingOtherChargesList:
+                            state.bookingData!.bookingOtherChargesData,
+                      ),
+                    },
+                    if (_modifiedRequestsAuthorizationModel.isView)
+                      RequestManagementScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        approvalStatus: widget.bookingApprovalStatus,
+                      ),
+                    if (_snagChecklistAuthorizationModel.isView)
+                      SnagCheckListScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
+                      ),
+                    if (_flatHandoverChecklistAuthorizationModel.isView)
+                      FlatHandoverChecklistScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
+                      ),
+                    if (_flatHandoverAuthoriationModel.isView)
+                      FlatHandoverScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
+                      ),
+                    if (_filesAuthorizationModel.isView)
+                      FilesScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
+                      ),
+                    if (_callLogsAuthorizationModel.isView)
+                      CallLogsScreen(
+                        projectId: widget.projectId,
+                        bookingId: widget.bookingId,
+                      ),
                   ],
                 ),
               );
@@ -178,18 +270,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     );
   }
 
-  Widget _buildOverviewTab(PayTrackState state) {
-    if ((state.isLoading ?? false)) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
+  Widget _buildOverviewTab(PayTrackState state, BuildContext context) {
     final booking = state.bookingData;
-    if (booking == null) {
-      return const Center(child: CircularProgressIndicator());
-    }
     final enquiry = state.currentEnquiryDetails;
-    if (enquiry == null) {
-      return const Center(child: CircularProgressIndicator());
+
+    if (booking == null || enquiry == null) {
+      return Center(child: loader());
     }
     final bool isDirectWalking = enquiry.source == "Direct Walkin";
     final source = enquiry.source.toLowerCase().replaceAll("-", "").trim();
@@ -204,6 +290,15 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     final pendingAmount =
         booking.totalAmountRefundedAgainstBooking -
         booking.refundedAmountOnTillDate;
+    final bool isEmployeeReference =
+        enquiry.subSource.trim().toLowerCase() == "employee reference";
+
+    final bool showUpdateRegistrationButton =
+        _bookingPayTrackRouteAuthorizationModel.isAction &&
+        !booking.isFinalRegistrationCompleted &&
+        widget.bookingApprovalStatus.trim().toUpperCase() == "APPROVED";
+    final approvalStatus = booking.approvalStatus.trim().toUpperCase();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
       child: Column(
@@ -215,16 +310,60 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             widget.applicantName,
             style: AppTextStyle.ts16M(color: AppColor.primary),
           ),
-          Row(
-            children: [
-              Expanded(child: CustomButton(text: "Message", onPressed: () {})),
-              horizontalSpacing(),
-              CustomButton(
-                text: "Update Registration Date & Parking",
-                onPressed: () {},
-              ),
-            ],
-          ),
+          if (showUpdateRegistrationButton)
+            Row(
+              children: [
+                Expanded(
+                  child: CustomMessageButton(
+                    onWelcome: () async {
+                      final result = await _payTrackCubit.getBookingById(
+                        context,
+                        1,
+                        widget.projectId,
+                        widget.bookingId,
+                        exportType: "WELCOME MESSAGE",
+                      );
+
+                      if (result != null && context.mounted) {
+                        showSuccessMessage(
+                          context,
+                          subTitle: "Message sent successfully.",
+                        );
+                      }
+                    },
+                    onEmail: () async {
+                      final result = await _payTrackCubit.getBookingById(
+                        context,
+                        1,
+                        widget.projectId,
+                        widget.bookingId,
+                        exportType: "WELCOME MESSAGE ON MAIL",
+                      );
+
+                      if (result != null && context.mounted) {
+                        showSuccessMessage(
+                          context,
+                          subTitle: "Email sent successfully.",
+                        );
+                      }
+                    },
+                  ),
+                ),
+                horizontalSpacing(),
+                CustomButton(
+                  text: "Update Registration Date & Parking",
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.updateRegistrationDateAndParking,
+                      extra: {
+                        "projectId": widget.projectId,
+                        "bookingId": widget.bookingId,
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
 
           Container(
             decoration: BoxDecoration(
@@ -244,7 +383,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Unique Code",
+                      title: "Enquiry Code",
                       value: enquiry.systemGeneratedCode,
                     ),
                   ],
@@ -260,6 +399,24 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                         countryCode: enquiry.mobileNumberCountryCode,
                         value: enquiry.mobileNumber,
                       ),
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "E-Mail ID",
+                      value: enquiry.emailId,
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: enquiry.emailId,
+                        value: enquiry.emailId,
+                        type: ContactType.email,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Current Location",
+                      value: enquiry.currentLocation,
                     ),
                   ],
                 ),
@@ -299,15 +456,30 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     ),
                   ],
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Current Location",
-                      value: enquiry.currentLocation,
-                    ),
-                  ],
-                ),
+                if (isEmployeeReference)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Employee Name",
+                          value: enquiry.employeeReferenceName,
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Employee Mobile Number",
+                          value: enquiry.employeeReferenceMobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode: "+91",
+                            value: enquiry.employeeReferenceMobileNumber,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -409,7 +581,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     itemCount: booking.bookingApplicantData.length,
                     itemBuilder: (_, index) {
                       final applicant = booking.bookingApplicantData[index];
-
                       return infoCard(
                         bgColor: AppColor.white,
                         borderColor: AppColor.primary,
@@ -711,6 +882,28 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               ],
             ),
           ),
+          // ADDRESS DETAILS SECTION
+          Container(
+            width: double.infinity,
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10),
+            padding: EdgeInsets.all(16),
+            child: Column(
+              spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Addess Details", style: AppTextStyle.ts16SB()),
+                buildColumnTitleValueNormal(
+                  title: "Communication Address",
+                  value: booking.communicationAddress,
+                ),
+                buildColumnTitleValueNormal(
+                  title: "Permanent Address",
+                  value: booking.permanentAddress,
+                ),
+              ],
+            ),
+          ),
           // PROJECT DETAILS SECTION
           Container(
             decoration: commonCardDecoration(),
@@ -789,137 +982,139 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // PARKING SECTION
-          Container(
-            height: 350,
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Parking Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Expanded(
-                  child:
-                      booking.parkingData.isEmpty
-                          ? Center(
-                            child: noDataWidget(
-                              message: 'No Parking Data Found',
-                            ),
-                          )
-                          : ListView.builder(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 10,
-                            ),
-                            shrinkWrap: true,
-                            itemCount: booking.parkingData.length,
-                            itemBuilder: (_, index) {
-                              final parking = booking.parkingData[index];
-                              return Container(
-                                margin: EdgeInsets.only(bottom: 10),
-                                padding: EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColor.primary,
-                                    width: .3,
+          if (booking.parkingData.isNotEmpty)
+            Container(
+              height: 350,
+              margin: EdgeInsets.only(bottom: 10),
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Parking Details", style: AppTextStyle.ts16SB()),
+                  verticalSpacing(),
+                  Expanded(
+                    child:
+                        booking.parkingData.isEmpty
+                            ? Center(
+                              child: noDataWidget(
+                                message: 'No Parking Data Found',
+                              ),
+                            )
+                            : ListView.builder(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 2,
+                                vertical: 10,
+                              ),
+                              shrinkWrap: true,
+                              itemCount: booking.parkingData.length,
+                              itemBuilder: (_, index) {
+                                final parking = booking.parkingData[index];
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  padding: EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: AppColor.primary,
+                                      width: .3,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 10,
-                                  children: [
-                                    Text(
-                                      "Parking ${index + 1}",
-                                      style: AppTextStyle.ts14SB(
-                                        color: AppColor.greyTitleAndValueColor
-                                            .withValues(alpha: 0.4),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    spacing: 10,
+                                    children: [
+                                      Text(
+                                        "Parking ${index + 1}",
+                                        style: AppTextStyle.ts14SB(
+                                          color: AppColor.greyTitleAndValueColor
+                                              .withValues(alpha: 0.4),
+                                        ),
                                       ),
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Parking Number",
-                                          value: parking.parkingNumber,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Building",
-                                          value: parking.buildingNumber,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Wing",
-                                          value: parking.wing,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Floor",
-                                          value: parking.floor,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Category",
-                                          value: parking.parkingCategory,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Type",
-                                          value: parking.parkingType,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Size",
-                                          value: parking.parkingSubType,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Dimensions",
-                                          value: parking.parkingDimensions,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      spacing: 5,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "EV Charging",
-                                          value:
-                                              parking.isEVChargingAvailable
-                                                  ? "Yes"
-                                                  : "No",
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ),
-                ),
-              ],
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Parking Number",
+                                            value: parking.parkingNumber,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Building",
+                                            value: parking.buildingNumber,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Wing",
+                                            value: parking.wing,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Floor",
+                                            value: parking.floor,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Category",
+                                            value: parking.parkingCategory,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Type",
+                                            value: parking.parkingType,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Size",
+                                            value: parking.parkingSubType,
+                                          ),
+                                          buildColumnTitleValue(
+                                            title: "Dimensions",
+                                            value: parking.parkingDimensions,
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        spacing: 5,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "EV Charging",
+                                            value:
+                                                parking.isEVChargingAvailable
+                                                    ? "Yes"
+                                                    : "No",
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
+                  ),
+                ],
+              ),
             ),
-          ),
           // BOOKING DETAILS SECTION
           Container(
             decoration: commonCardDecoration(),
@@ -956,6 +1151,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       title: "Final Registration Completed",
                       value:
                           booking.isFinalRegistrationCompleted ? "Yes" : "No",
+                      customValueWidget: DocumentPreviewText(
+                        title: "Final Registration Completed",
+                        text:
+                            booking.isFinalRegistrationCompleted ? "Yes" : "No",
+                        fileUrl: booking.finalRegistrationUrl,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "Handover Type",
@@ -1189,7 +1390,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                     Row(
                                       children: [
                                         buildColumnTitleValue(
-                                          title: "Name",
+                                          title: "Charges",
                                           value: extraCharge.chargeName,
                                         ),
                                         buildColumnTitleValue(
@@ -1285,7 +1486,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     itemBuilder: (context, index) {
                       final payment = booking.bookingPaymentScheduleData[index];
                       final totalAmountWithTDS =
-                          payment.paymentScheduleAmount -
+                          payment.paymentScheduleAmount +
                           payment.paymentScheduleTDSAmount;
                       return Container(
                         decoration: BoxDecoration(
@@ -1300,14 +1501,16 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                         child: Column(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Row(
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 payment.type.contains("Date")
                                     ? buildColumnTitleValue(
-                                      title: "Date / Type",
+                                      title: "Date / Stage (Milestone)",
                                       value:
                                           payment.date != null
                                               ? formatDateTimeAsDDMMMYYYY(
@@ -1316,7 +1519,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                               : "-",
                                     )
                                     : buildColumnTitleValue(
-                                      title: "Stage",
+                                      title: "Date / Stage (Milestone)",
                                       value: payment.name,
                                     ),
                               ],
@@ -1324,6 +1527,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                             Row(
                               spacing: 10,
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 buildColumnTitleValue(
                                   title: "Percentage (%)",
@@ -1361,7 +1565,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 buildColumnTitleValue(
-                                  title: "Amount With TDS (₹)",
+                                  title: "Total Amount With TDS (₹)",
                                   value: totalAmountWithTDS.toIndianCurrency(),
                                 ),
                               ],
@@ -1384,7 +1588,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Flat Alteration Remarks", style: AppTextStyle.ts16SB()),
+                Text(
+                  "Unit / Modulation / Customization Remark",
+                  style: AppTextStyle.ts16SB(),
+                ),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1454,6 +1661,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               builder: (context, value, child) {
                 final hasData =
                     booking.termsAndConditionsDescription.trim().isNotEmpty;
+
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -1512,126 +1720,136 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // CANCELLATION SUMMARY
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Cancellation Summary", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Cancelled Date",
-                        value: formatDateTimeAsDDMMMYYYY(booking.cancelledDate),
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Cancelled By",
-                        value: booking.cancelledBy,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Remark",
-                        value: booking.cancelRemark,
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Proof Of Document",
-                        value: booking.cancelledBy,
-                        customValueWidget: CustomButton.documentOutline(
-                          onPressed: () {
-                            if (booking.proofOfDocumentUrl.isNotEmpty) {
-                              showFilePreviewDialog(
-                                context,
-                                title: "Proof Of Document",
-                                booking.proofOfDocumentUrl.split(","),
-                              );
-                            }
-                          },
-                          isDisable: booking.proofOfDocumentUrl.isEmpty,
+          if (approvalStatus == "CANCEL" ||
+              booking.cancelRemark.trim().isNotEmpty)
+            Container(
+              decoration: commonCardDecoration(),
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Cancellation Summary", style: AppTextStyle.ts16SB()),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Cancelled Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            booking.cancelledDate,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Cancelled By",
+                          value: booking.cancelledBy,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Remark",
+                          value: booking.cancelRemark,
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Proof Of Document",
+                          value: booking.cancelledBy,
+                          customValueWidget: CustomButton.documentOutline(
+                            onPressed: () {
+                              if (booking.proofOfDocumentUrl.isNotEmpty) {
+                                showFilePreviewDialog(
+                                  context,
+                                  title: "Proof Of Document",
+                                  booking.proofOfDocumentUrl.split(","),
+                                );
+                              }
+                            },
+                            isDisable: booking.proofOfDocumentUrl.isEmpty,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  buildColumnTitleValueNormal(
+                    title: "Status",
+                    value: booking.cancelBookingApprovalStatus,
+                  ),
+                ],
+              ),
             ),
-          ),
           // REFUND AMOUNT DETAILS
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Refund Amount Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Total Refunded",
-                        value:
-                            booking.totalAmountRefundedAgainstBooking
-                                .toIndianCurrency(),
+          if (approvalStatus == "REFUND")
+            Container(
+              decoration: commonCardDecoration(),
+              margin: EdgeInsets.only(bottom: 10),
+              padding: EdgeInsets.all(16),
+              child: Column(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Refund Amount Details", style: AppTextStyle.ts16SB()),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Total Refunded",
+                          value:
+                              booking.totalAmountRefundedAgainstBooking
+                                  .toIndianCurrency(),
+                        ),
                       ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Paid",
-                        value:
-                            booking.refundedAmountOnTillDate.toIndianCurrency(),
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Paid",
+                          value:
+                              booking.refundedAmountOnTillDate
+                                  .toIndianCurrency(),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Pending",
-                        value: pendingAmount.toIndianCurrency(),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Pending",
+                          value: pendingAmount.toIndianCurrency(),
+                        ),
                       ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Refund Status",
-                        value: booking.approvalStatus,
+                      horizontalSpacing(),
+                      Expanded(
+                        child: buildColumnTitleValueNormal(
+                          title: "Refund Status",
+                          value: booking.approvalStatus,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
 
           Container(
             decoration: commonCardDecoration(),
@@ -1918,6 +2136,159 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   ? AppColor.primary
                   : AppColor.purple,
         ),
+      ),
+    );
+  }
+}
+
+class CustomMessageButton extends StatefulWidget {
+  final bool isDisabled;
+  final VoidCallback onWelcome;
+  final VoidCallback onEmail;
+
+  const CustomMessageButton({
+    super.key,
+    required this.onWelcome,
+    required this.onEmail,
+    this.isDisabled = false,
+  });
+
+  @override
+  State<CustomMessageButton> createState() => _CustomMessageButtonState();
+}
+
+class _CustomMessageButtonState extends State<CustomMessageButton> {
+  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _buttonKey = GlobalKey();
+
+  OverlayEntry? _overlayEntry;
+
+  void _toggleOverlay() {
+    if (_overlayEntry != null) {
+      _removeOverlay();
+    } else {
+      _showOverlay();
+    }
+  }
+
+  void _showOverlay() {
+    const double dropdownWidth = 160.0;
+
+    final RenderBox buttonBox =
+        _buttonKey.currentContext!.findRenderObject() as RenderBox;
+
+    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
+
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    double shiftX = 0;
+
+    final overflowRight = buttonPosition.dx + dropdownWidth - screenWidth;
+
+    if (overflowRight > 0) {
+      shiftX = -overflowRight - 8;
+    }
+
+    _overlayEntry = OverlayEntry(
+      builder: (_) {
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: _removeOverlay,
+              ),
+            ),
+            CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: Offset(shiftX, 42),
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  width: dropdownWidth,
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    borderRadius: BorderRadius.circular(6),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: .12),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildItem(
+                        icon: Icons.message_outlined,
+                        label: "Send Message",
+                        onTap: () {
+                          _removeOverlay();
+                          widget.onWelcome();
+                        },
+                      ),
+                      _buildItem(
+                        icon: Icons.email_outlined,
+                        label: "Send e-mail",
+                        onTap: () {
+                          _removeOverlay();
+                          widget.onEmail();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+
+    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
+  }
+
+  Widget _buildItem({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Text(
+          label,
+          style: AppTextStyle.ts14R(
+            color: AppColor.black.withValues(alpha: 0.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: CustomButton(
+        key: _buttonKey,
+        text: "Welcome",
+        isDisable: widget.isDisabled,
+        onPressed: _toggleOverlay,
       ),
     );
   }

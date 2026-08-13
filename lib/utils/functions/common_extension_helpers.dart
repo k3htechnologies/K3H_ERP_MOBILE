@@ -1,3 +1,5 @@
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_summary.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:intl/intl.dart';
 
@@ -71,5 +73,66 @@ extension DateFormattingExtension on DateTime? {
   String? get apiDate {
     if (this == null) return "";
     return DateFormat('yyyy-MM-dd').format(this!);
+  }
+}
+
+extension PayTrackExtension on PayTrackModel {
+  PayTrackSummary get summary {
+    final items = [
+      PayTrackSummaryItem(
+        type: "Stamp Duty",
+        total: stampDutyAmount,
+        paid: receivedStampDutyAmount,
+      ),
+      PayTrackSummaryItem(
+        type: "Registration Fees",
+        total: registrationFees,
+        paid: receivedRegistrationFees,
+      ),
+      PayTrackSummaryItem(
+        type: "Agreement Value (Without TDS)",
+        total: agreementValue - agreementValueTds,
+        paid: receivedAgreementValue - receivedAgreementValueTds,
+      ),
+      PayTrackSummaryItem(
+        type: "Agreement Value GST",
+        total: agreementValueGstAmount,
+        paid: receivedAgreementValueGstAmount,
+      ),
+      PayTrackSummaryItem(
+        type: "Agreement Value TDS",
+        total: agreementValueTds,
+        paid: receivedAgreementValueTds,
+      ),
+      PayTrackSummaryItem(
+        type: "Other Charges Value",
+        total: otherChargesAmount,
+        paid: receivedOtherChargesAmount,
+      ),
+      PayTrackSummaryItem(
+        type: "Other Charges GST",
+        total: otherChargesGstAmount,
+        paid: receivedOtherChargesGstAmount,
+      ),
+    ];
+
+    final totalAmount = items.fold<double>(0, (sum, item) => sum + item.total);
+
+    final totalPaidAmount = items.fold<double>(
+      0,
+      (sum, item) => sum + item.paid,
+    );
+
+    final totalPendingAmount = items.fold<double>(
+      0,
+      (sum, item) => sum + item.pending,
+    );
+
+    return PayTrackSummary(
+      items: items,
+      totalAmount: totalAmount,
+      totalPaidAmount: totalPaidAmount,
+      totalPendingAmount: totalPendingAmount,
+    );
   }
 }

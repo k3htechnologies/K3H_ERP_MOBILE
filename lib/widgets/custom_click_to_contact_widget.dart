@@ -23,6 +23,8 @@ class CustomClickToContactText extends StatelessWidget {
   final double iconSize;
   final String countryCode;
 
+  final Future<void> Function(String phoneNumber)? onCall;
+
   const CustomClickToContactText({
     super.key,
     required this.value,
@@ -31,6 +33,7 @@ class CustomClickToContactText extends StatelessWidget {
     this.iconColor = AppColor.mediumBlue,
     this.iconSize = 15,
     this.countryCode = '+91',
+    this.onCall,
   });
 
   String _getFormattedPhoneNumber() {
@@ -64,12 +67,10 @@ class CustomClickToContactText extends StatelessWidget {
       PermissionStatus status = await Permission.phone.status;
 
       if (Platform.isAndroid) {
-        // REQUEST EVERY CLICK IF NOT GRANTED
         if (!status.isGranted) {
           status = await Permission.phone.request();
         }
 
-        // PERMISSION DENIED
         if (status.isDenied) {
           if (context.mounted) {
             showErrorMessage(
@@ -78,12 +79,9 @@ class CustomClickToContactText extends StatelessWidget {
               "Phone permission is required to make a call.",
             );
           }
-          await Future.delayed(const Duration(seconds: 1));
-          await openAppSettings();
           return;
         }
 
-        // PERMANENTLY DENIED
         if (status.isPermanentlyDenied) {
           if (context.mounted) {
             showErrorMessage(
@@ -93,20 +91,26 @@ class CustomClickToContactText extends StatelessWidget {
             );
           }
 
-          await Future.delayed(const Duration(seconds: 1));
           await openAppSettings();
           return;
         }
       }
 
       final phoneNumber = _getFormattedPhoneNumber();
-      uri = Uri(scheme: 'tel', path: phoneNumber);
 
-      try {
-        final service = serviceLocator<AppCallTrackerService>();
-        service.setPendingCall(phoneNumber);
-        service.forceStartCall(phoneNumber);
-      } catch (_) {}
+      if (phoneNumber.isEmpty) return;
+
+      // Tell parent screen that a call is starting
+      if (onCall != null) {
+        await onCall!(phoneNumber);
+      } else {
+        try {
+          final service = serviceLocator<AppCallTrackerService>();
+          service.setPendingCall(phoneNumber);
+        } catch (_) {}
+      }
+
+      uri = Uri(scheme: 'tel', path: phoneNumber.replaceAll(' ', ''));
     } else if (type == ContactType.email) {
       uri = Uri(scheme: 'mailto', path: value.trim());
     } else {

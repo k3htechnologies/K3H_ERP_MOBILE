@@ -158,21 +158,27 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
           height: 70,
           color: AppColor.white,
           padding: EdgeInsets.all(16),
-          child: CustomButton(
-            text: "Cancel Booking",
-            onPressed: () {
-              if (_formKey.currentState!.validate()) {
-                _requestManagementCubit.cancelBooking(
-                  context,
-                  uniquekey: widget.booking.uniquekey,
-                  projectId: widget.booking.projectId,
-                  bookingId: widget.booking.bookingId,
-                  inventoryFlatId: widget.booking.inventoryFlatId,
-                  parkingId: widget.booking.parkingId,
-                  cancelRemark: _remarkC.text.trim(),
-                  proofDocument: selectedProofOfDocumentFile,
-                );
-              }
+          child: ValueListenableBuilder<bool>(
+            valueListenable: cancelBookingNotifier,
+            builder: (context, isChecked, child) {
+              return CustomButton(
+                text: "Cancel Booking",
+                isDisable: !isChecked,
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _requestManagementCubit.cancelBooking(
+                      context,
+                      uniquekey: widget.booking.uniquekey,
+                      projectId: widget.booking.projectId,
+                      bookingId: widget.booking.bookingId,
+                      inventoryFlatId: widget.booking.inventoryFlatId,
+                      parkingId: widget.booking.parkingId,
+                      cancelRemark: _remarkC.text.trim(),
+                      proofDocument: selectedProofOfDocumentFile,
+                    );
+                  }
+                },
+              );
             },
           ),
         ),

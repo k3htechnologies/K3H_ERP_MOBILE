@@ -1,20 +1,24 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/cubit/payment_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -57,9 +61,9 @@ class _ModifiedRequestsMakePaymentScreenState
       serviceLocator<EmployeeMasterRepository>();
   late TextEditingController _accountNumberC,
       _ifscCodeC,
-      _developerBankBranchNameC,
+      _branchC,
       _accountTypeC,
-      _natureOfAccC,
+      _natureOfAccountC,
       _accountHolderNameC,
       _customersIFSCCodeC,
       _customersAccountNumberC,
@@ -67,7 +71,7 @@ class _ModifiedRequestsMakePaymentScreenState
       _refundableAmountC,
       _transactionOrChequeNumberC;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
-  late PaymentCubit _paymentCubit;
+
   late ValueNotifier<List<Map<String, dynamic>>>
   _selectedProjectBankNameNotifier;
   late ValueNotifier<Map<String, dynamic>?> _selectedPaymentModeNotifier;
@@ -81,10 +85,14 @@ class _ModifiedRequestsMakePaymentScreenState
 
   DateTime? transactionDate;
   bool get isEdit => widget.refundData != null;
+  List<Map<String, dynamic>> projectBankList = [];
+
+  // PROJECT MASTER REPO
+  final ProjectMasterRepository _projectMasterRepository =
+      serviceLocator<ProjectMasterRepository>();
   @override
   void initState() {
     super.initState();
-    _paymentCubit = context.read<PaymentCubit>();
     _payTrackCubit = context.read<PayTrackCubit>();
     _requestManagementCubit = context.read<RequestManagementCubit>();
     _selectedBankNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
@@ -106,32 +114,82 @@ class _ModifiedRequestsMakePaymentScreenState
       widget.bookingId,
     );
     if (isEdit) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await getProjectWithBankDropdown(1);
+
+        _prefillPayment(widget.refundData!);
+      });
+    }
+  }
+
+  void _prefillPayment(RefundedAmountLedgerModel list) {
+    if (isEdit) {
       final data = widget.refundData!;
 
+      _selectedProjectBankNameNotifier.value = [
+        {
+          "zAttributesId": data.projectBankListMasterId,
+          "ProjectWithBankDetailsId": data.projectBankListMasterId,
+          "BankListMasterId": data.bankListMasterId,
+          "DisplayName": data.projectBankName,
+          "AccountNumber": data.projectAccountNumber,
+          "IFSCCode": data.projectIfscCode,
+          "AcType": data.projectAcType,
+          "NatureOfAccount": data.projectNatureOfAccount,
+          "Branch": data.projectBankName,
+        },
+      ];
+      _accountNumberC.text = data.projectAccountNumber;
+      _ifscCodeC.text = data.projectIfscCode;
+      _accountTypeC.text = data.projectAcType;
+      _natureOfAccountC.text = data.projectNatureOfAccount;
+      _branchC.text = data.projectBankName;
+
+      _selectedBankNotifier.value = [
+        {"zAttributesId": data.bankListMasterId, "DisplayName": data.bankName},
+      ];
+      _selectedPaymentModeNotifier.value = paymentModeList.firstWhereOrNull(
+        (e) => e["DisplayName"] == data.paymentMode,
+      );
       _accountHolderNameC.text = data.accountHolderName;
       _customersAccountNumberC.text = data.accountNumber;
       _customersIFSCCodeC.text = data.ifscCode;
       _refundableAmountC.text = data.refundedAmount.toString();
       _transactionOrChequeNumberC.text =
           data.transactionChequeDemandDraftNumber;
-
       transactionDate = data.transactionChequeDemandDraftDate;
 
-      selectedChequeForPopUpFile.fileNameList = [
-        data.transactionChequeDemandDraftUrl,
-      ];
+      if (data.transactionChequeDemandDraftUrl.isNotEmpty) {
+        selectedChequeForPopUpFile.fileNameList = [
+          data.transactionChequeDemandDraftUrl,
+        ];
+      }
     }
+  }
+
+  void _initializeControllers() {
+    _accountNumberC = TextEditingController();
+    _accountTypeC = TextEditingController();
+    _ifscCodeC = TextEditingController();
+    _accountHolderNameC = TextEditingController();
+    _branchC = TextEditingController();
+    _natureOfAccountC = TextEditingController();
+    _customersIFSCCodeC = TextEditingController();
+    _customersAccountNumberC = TextEditingController();
+    _paymentForC = TextEditingController();
+    _refundableAmountC = TextEditingController();
+    _transactionOrChequeNumberC = TextEditingController();
   }
 
   @override
   void dispose() {
     super.dispose();
     _selectedBankNotifier.dispose();
-    _developerBankBranchNameC.dispose();
     _accountTypeC.dispose();
-    _natureOfAccC.dispose();
     _accountNumberC.dispose();
     _ifscCodeC.dispose();
+    _branchC.dispose();
+    _natureOfAccountC.dispose();
     _accountHolderNameC.dispose();
     _customersIFSCCodeC.dispose();
     _customersAccountNumberC.dispose();
@@ -141,20 +199,6 @@ class _ModifiedRequestsMakePaymentScreenState
     _selectedAmountTypeNotifier.dispose();
     _refundableAmountC.dispose();
     _transactionOrChequeNumberC.dispose();
-  }
-
-  void _initializeControllers() {
-    _accountNumberC = TextEditingController();
-    _developerBankBranchNameC = TextEditingController();
-    _accountTypeC = TextEditingController();
-    _natureOfAccC = TextEditingController();
-    _ifscCodeC = TextEditingController();
-    _accountHolderNameC = TextEditingController();
-    _customersIFSCCodeC = TextEditingController();
-    _customersAccountNumberC = TextEditingController();
-    _paymentForC = TextEditingController();
-    _refundableAmountC = TextEditingController();
-    _transactionOrChequeNumberC = TextEditingController();
   }
 
   // FETCH BANK
@@ -190,11 +234,60 @@ class _ModifiedRequestsMakePaymentScreenState
     );
   }
 
+  Future<Map<String, dynamic>> getProjectWithBankDropdown(
+    int pageNumber, {
+    String? value,
+  }) async {
+    ProjectModel project = getProject();
+
+    final result = await _projectMasterRepository.getProjectWithBankDetails(
+      projectId: project.projectId,
+      queryParams: {"BankName": value ?? "", "IsCheckPermission": false},
+    );
+
+    return result.fold(
+      (failure) {
+        projectBankList = [];
+        return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
+      },
+      (response) {
+        final data = response["data"] as List<ProjectWithBankDetailsModel>;
+
+        List<Map<String, dynamic>> items =
+            data.map((e) {
+              return {
+                "zAttributesId": e.projectWithBankDetailsId,
+                "ProjectWithBankDetailsId": e.projectWithBankDetailsId,
+                "BankListMasterId": e.bankListMasterId,
+                "DisplayName": e.bankName,
+                "AccountHolderName": e.beneficiaryAccountHolderName,
+                "AccountNumber": e.accountNumber,
+                "Branch": e.branch,
+                "IFSCCode": e.ifscCode,
+                "AcType": e.acType,
+                "NatureOfAccount": e.natureOfAccount,
+              };
+            }).toList();
+        if (value != null && value.trim().isNotEmpty) {
+          items =
+              items.where((e) {
+                return e["DisplayName"].toString().toLowerCase().contains(
+                  value.toLowerCase(),
+                );
+              }).toList();
+        }
+        projectBankList = items;
+
+        return {"itemList": items, "totalNumberOfRecord": items.length};
+      },
+    );
+  }
+
   void _submitForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    debugPrint(_selectedProjectBankNameNotifier.value.toString());
+
     _requestManagementCubit.refundAmountPaymentLedger(
       context: context,
       refundedAmountLedgerId: widget.refundData?.refundedAmountLedgerId ?? 0,
@@ -204,12 +297,8 @@ class _ModifiedRequestsMakePaymentScreenState
       paymentMode:
           _selectedPaymentModeNotifier.value!["DisplayName"].toString(),
       projectBankListMasterId:
-          _selectedProjectBankNameNotifier.value.isNotEmpty
-              ? _selectedProjectBankNameNotifier
-                  .value
-                  .first["ProjectWithBankDetailsId"]
-                  .toString()
-              : "0",
+          _selectedProjectBankNameNotifier.value.first["zAttributesId"]
+              .toString(),
       accountHolderName: _accountHolderNameC.text.trim(),
       bankListMasterId:
           _selectedBankNotifier.value.isNotEmpty
@@ -230,7 +319,7 @@ class _ModifiedRequestsMakePaymentScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: isEdit ? "Edit Payment" : "Make Payment",
+        screenTitle: isEdit ? "Update Payment" : "Make Payment",
         authorization: AuthorizationModel(),
       ),
       body: BlocBuilder<RequestManagementCubit, RequestManagementState>(
@@ -244,8 +333,6 @@ class _ModifiedRequestsMakePaymentScreenState
           if (payTrack == null) {
             return const Center(child: CircularProgressIndicator());
           }
-          final maxRefundableAmount =
-              state.bookingData?.totalAmountReceivedAgainstBooking ?? 0.0;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -308,6 +395,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                       onSelected: (value) {
                                         _selectedProjectBankNameNotifier.value =
                                             value;
+
                                         if (value.isNotEmpty) {
                                           final item = value.first;
 
@@ -318,22 +406,24 @@ class _ModifiedRequestsMakePaymentScreenState
                                           _ifscCodeC.text =
                                               (item["IFSCCode"] ?? "")
                                                   .toString();
-                                          _developerBankBranchNameC.text =
+
+                                          _branchC.text =
                                               (item["Branch"] ?? "").toString();
+
                                           _accountTypeC.text =
                                               (item["AcType"] ?? "").toString();
-                                          _natureOfAccC.text =
+
+                                          _natureOfAccountC.text =
                                               (item["NatureOfAccount"] ?? "")
                                                   .toString();
                                         }
                                       },
                                       dataFetchCallBack:
-                                          _paymentCubit
-                                              .getProjectWithBankDropdown,
+                                          getProjectWithBankDropdown,
 
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return "Bank Name is required";
+                                          return "Project Bank Name is required";
                                         }
                                         return null;
                                       },
@@ -343,9 +433,9 @@ class _ModifiedRequestsMakePaymentScreenState
                                             [];
                                         _accountNumberC.clear();
                                         _ifscCodeC.clear();
-                                        _developerBankBranchNameC.clear();
+                                        _branchC.clear();
                                         _accountTypeC.clear();
-                                        _natureOfAccC.clear();
+                                        _natureOfAccountC.clear();
                                       },
                                     );
                                   },
@@ -395,8 +485,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                           children: [
                                             Expanded(
                                               child: CustomTextField(
-                                                textController:
-                                                    _developerBankBranchNameC,
+                                                textController: _branchC,
                                                 title: "Branch",
                                                 hint: "Branch",
                                                 readOnly: true,
@@ -421,7 +510,8 @@ class _ModifiedRequestsMakePaymentScreenState
                                           children: [
                                             Expanded(
                                               child: CustomTextField(
-                                                textController: _natureOfAccC,
+                                                textController:
+                                                    _natureOfAccountC,
                                                 title: "Nature Of Account",
                                                 hint: "Nature Of Account",
                                                 readOnly: true,
@@ -500,7 +590,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   title: "Account Number",
                                   isRequired: true,
                                   keyboardType: TextInputType.number,
-                                  inputFormatterList: InputValidator.digit(20),
+                                  inputFormatterList: InputValidator.digit(18),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return "Account Number is required";
@@ -577,24 +667,40 @@ class _ModifiedRequestsMakePaymentScreenState
                                   hint: "Enter Refundable Amount",
                                   title: "Refundable Amount",
                                   isRequired: true,
+                                  keyboardType:
+                                      TextInputType.numberWithOptions(),
+                                  inputFormatterList: InputValidator.decimal(2),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return "Refundable Amount is required";
                                     }
 
                                     final enteredAmount =
-                                        double.tryParse(value.trim()) ?? 0.0;
+                                        double.tryParse(value) ?? 0;
 
-                                    final maxRefundableAmount =
+                                    final overview =
                                         context
                                             .read<PayTrackCubit>()
                                             .state
-                                            .payTrackOverview
-                                            ?.totalAmountRefundedAgainstBooking ??
-                                        0.0;
+                                            .payTrackOverview!;
 
-                                    if (enteredAmount > maxRefundableAmount) {
-                                      return "Refundable Amount cannot be greater than ${maxRefundableAmount.toIndianCurrency()}.";
+                                    final refundableLimit =
+                                        overview
+                                            .totalAmountRefundedAgainstBooking -
+                                        overview.refundedAmountOnTillDate;
+
+                                    final totalReceived =
+                                        overview
+                                            .totalAmountReceivedAgainstBooking;
+
+                                    if (enteredAmount > refundableLimit) {
+                                      return "Refundable Amount cannot be greater than "
+                                          "${refundableLimit.toIndianCurrency()}.";
+                                    }
+
+                                    if (enteredAmount > totalReceived) {
+                                      return "Refundable Amount cannot be greater than "
+                                          "${totalReceived.toIndianCurrency()}.";
                                     }
 
                                     return null;
@@ -603,15 +709,15 @@ class _ModifiedRequestsMakePaymentScreenState
                                 CustomTextField(
                                   textController: _transactionOrChequeNumberC,
                                   hint:
-                                      "Enter Transaction No. / Cheque No. / Demand Draft Number",
+                                      "Enter Transaction No. / Cheque No. / Demand Draft No.",
                                   title:
-                                      "Transaction No. / Cheque No. / Demand Draft Number",
+                                      "Transaction No. / Cheque No. / Demand Draft No.",
                                   isRequired: true,
                                   keyboardType: TextInputType.number,
-                                  inputFormatterList: InputValidator.digit(6),
+                                  inputFormatterList: InputValidator.digit(25),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return "Transaction No. / Cheque No. / Demand Draft Number is required";
+                                      return "Transaction No. / Cheque No. / Demand Draft No. is required";
                                     }
                                     return null;
                                   },
@@ -646,7 +752,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   },
                                   validator: (fileList) {
                                     if (fileList == null || fileList.isEmpty) {
-                                      return "ITransaction / Cheque / Demand Draft Image is required";
+                                      return "Transaction / Cheque / Demand Draft Image is required";
                                     }
                                     return null;
                                   },
@@ -684,7 +790,11 @@ class _ModifiedRequestsMakePaymentScreenState
           height: 70,
           color: AppColor.white,
           padding: EdgeInsets.all(16),
-          child: CustomButton(text: "Save", onPressed: _submitForm),
+          child: CustomButton(
+            text: isEdit ? "Update" : "Add",
+
+            onPressed: _submitForm,
+          ),
         ),
       ),
     );
@@ -716,6 +826,10 @@ class _ModifiedRequestsMakePaymentScreenState
   }
 
   Widget buildReceivedAmountCard(PayTrackModel data) {
+    final double otherChargesOutstandingGST =
+        data.receivedOtherChargesAmount == 0
+            ? 0
+            : (data.otherChargesAmount - data.receivedOtherChargesGstAmount);
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: EdgeInsets.all(12.0),
@@ -798,15 +912,14 @@ class _ModifiedRequestsMakePaymentScreenState
               Expanded(
                 child: buildColumnTitleValueNormal(
                   title: "Other Charges GST",
-                  value: data.otherChargesGstAmount.toIndianCurrency(),
+                  value: otherChargesOutstandingGST.toIndianCurrency(),
                 ),
               ),
               horizontalSpacing(width: 20.0),
               Expanded(
                 child: buildColumnTitleValueNormal(
                   title: "Total Received",
-                  value:
-                      data.totalAmountReceivedAgainstBooking.toIndianCurrency(),
+                  value: data.refundedAmountOnTillDate.toIndianCurrency(),
                 ),
               ),
             ],
@@ -932,7 +1045,7 @@ class _ModifiedRequestsMakePaymentScreenState
     );
   }
 
-  Widget buildApplicantAndCoApplicantDetailsCard(BookingModel data) {
+  Widget buildApplicantAndCoApplicantDetailsCard(BookingModel booking) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -954,78 +1067,81 @@ class _ModifiedRequestsMakePaymentScreenState
               border: Border(bottom: BorderSide(color: Colors.grey.shade300)),
             ),
             child: Text(
-              "Applicant & Co - Applicant Details",
-              style: AppTextStyle.ts14M(color: Color(0xffc2410c)),
+              "Applicant & Co-Applicant Details",
+              style: AppTextStyle.ts14M(color: const Color(0xffc2410c)),
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 2,
-                        horizontal: 6.0,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6.0),
-                        color: AppColor.lightBlue,
-                      ),
-                      child: Text(
-                        data.bookingApplicantData.first.applicantType,
-                        style: AppTextStyle.ts14M(color: AppColor.primary),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(booking.bookingApplicantData.length, (
+                index,
+              ) {
+                final applicant = booking.bookingApplicantData[index];
+
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Applicant Name",
-                        value: data.bookingApplicantData.first.applicantName,
+                    if (index != 0)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Divider(color: Colors.grey.shade300),
+                      ),
 
-                        customValueWidget: DocumentPreviewText(
-                          title: "Profile Photo",
-                          text: data.bookingApplicantData.first.applicantName,
-                          fileUrl: data.bookingApplicantData.first.photoURL,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.lightBlue,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          applicant.applicantType,
+                          style: AppTextStyle.ts14M(color: AppColor.primary),
                         ),
                       ),
                     ),
-                    horizontalSpacing(width: 20.0),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Mobile Number",
-                        value:
-                            data
-                                .bookingApplicantData
-                                .first
-                                .applicantMobileNumber,
 
-                        customValueWidget: CustomClickToContactText(
-                          countryCode:
-                              data
-                                  .bookingApplicantData
-                                  .first
-                                  .applicantMobileNumberCountryCode,
-                          value:
-                              data
-                                  .bookingApplicantData
-                                  .first
-                                  .applicantMobileNumber,
+                    const SizedBox(height: 10),
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Applicant Name",
+                            value: applicant.applicantName,
+                            customValueWidget: DocumentPreviewText(
+                              title: "Profile Photo",
+                              text: applicant.applicantName,
+                              fileUrl: applicant.photoURL,
+                            ),
+                          ),
                         ),
-                      ),
+
+                        horizontalSpacing(width: 20),
+
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Mobile Number",
+                            value: applicant.applicantMobileNumber,
+                            customValueWidget: CustomClickToContactText(
+                              countryCode:
+                                  applicant.applicantMobileNumberCountryCode,
+                              value: applicant.applicantMobileNumber,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
-                ),
-              ],
+                );
+              }),
             ),
           ),
         ],

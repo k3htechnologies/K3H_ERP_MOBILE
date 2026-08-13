@@ -170,6 +170,10 @@ final List<Map<String, dynamic>> callStatus = createAttributeList(
   callStatusValues,
 );
 
+final List<Map<String, dynamic>> callPurpose = createAttributeList(
+  callPurposeValues,
+);
+
 final List<Map<String, dynamic>> statusModeList = createAttributeList(
   statusModeValues,
 );

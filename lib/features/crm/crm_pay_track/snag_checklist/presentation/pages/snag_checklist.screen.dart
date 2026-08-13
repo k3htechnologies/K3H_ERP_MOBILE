@@ -10,10 +10,13 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class SnagCheckListScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? bookingApprovalStatus;
+
   const SnagCheckListScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.bookingApprovalStatus,
   });
 
   @override
@@ -75,35 +78,49 @@ class _SnagCheckListScreenState extends State<SnagCheckListScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        verticalSpacing(),
-        ChipStyleTabBar(
-          controller: _tabController,
-          tabs: ['Civil', 'Electrical', 'Plumbing'],
-        ),
-        Expanded(
-          child: TabBarView(
-            controller: _tabController,
-            physics: NeverScrollableScrollPhysics(),
-            children: [
-              CivilTabChecklistScreen(
-                projectId: widget.projectId,
-                bookingId: widget.bookingId,
+    return BlocBuilder<SnagChecklistCubit, SnagChecklistState>(
+      builder: (context, state) {
+        if (state.isLoading ?? true) {
+          return Center(child: loader());
+        }
+        final bookingStatus = widget.bookingApprovalStatus?.toUpperCase() ?? "";
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            verticalSpacing(),
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: ['Civil', 'Electrical', 'Plumbing'],
+            ),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  CivilTabChecklistScreen(
+                    projectId: widget.projectId,
+                    bookingId: widget.bookingId,
+                    categoryName: "Civil",
+                    bookingApprovalStatus: bookingStatus,
+                  ),
+                  ElectricalTabChecklistScreen(
+                    projectId: widget.projectId,
+                    bookingId: widget.bookingId,
+                    categoryName: "Electrical",
+                    bookingApprovalStatus: bookingStatus,
+                  ),
+                  PlumbingTabChecklistScreen(
+                    projectId: widget.projectId,
+                    bookingId: widget.bookingId,
+                    categoryName: "Plumbing",
+                    bookingApprovalStatus: bookingStatus,
+                  ),
+                ],
               ),
-              ElectricalTabChecklistScreen(
-                projectId: widget.projectId,
-                bookingId: widget.bookingId,
-              ),
-              PlumbingTabChecklistScreen(
-                projectId: widget.projectId,
-                bookingId: widget.bookingId,
-              ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -158,6 +158,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         return;
       },
       (response) {
+        goRouter.pop();
         emit(
           state.copyWith(
             bankLoanDetails: response['data'][0],
@@ -418,17 +419,17 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
 
   Future deleteBankDocument(
     int index,
-    PayTrackBookingFilesModel payTrackBookingFilesModel,
+    int bookingLoanDetailsId,
+    PayTrackBookingFilesModel file,
     BuildContext context,
   ) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _payTrackBookingFilesRepository
         .deletePayTrackBookingFilesBookingFiles(
-          payTrackBookingFilesId:
-              payTrackBookingFilesModel.payTrackBookingFilesId,
-          uniqueKey: payTrackBookingFilesModel.uniquekey,
-          projectId: payTrackBookingFilesModel.projectId,
-          bookingId: payTrackBookingFilesModel.bookingId,
+          payTrackBookingFilesId: file.payTrackBookingFilesId,
+          uniqueKey: file.uniquekey,
+          projectId: file.projectId,
+          bookingId: file.bookingId,
         );
     goRouter.pop();
     result.fold(
@@ -437,14 +438,20 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         return;
       },
       (response) {
-        final updatedList = List<PayTrackBookingFilesModel>.from(
-          state.bankDocumentList,
+        final updatedMap = Map<int, List<PayTrackBookingFilesModel>>.from(
+          state.bankDocumentMap,
         );
-        updatedList.removeAt(index);
+
+        final docs = List<PayTrackBookingFilesModel>.from(
+          updatedMap[bookingLoanDetailsId] ?? [],
+        );
+
+        docs.removeAt(index);
+
+        updatedMap[bookingLoanDetailsId] = docs;
         emit(
           state.copyWith(
-            bankDocumentList: updatedList,
-            isLoading: false,
+            bankDocumentMap: updatedMap,
             totalNumberOfRecord:
                 state.totalNumberOfRecord > 0
                     ? state.totalNumberOfRecord - 1
@@ -481,7 +488,6 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
         return;
       },
       (response) async {
-        goRouter.pop();
         emit(
           state.copyWith(
             bankLoanDetails: response['data'][0],
