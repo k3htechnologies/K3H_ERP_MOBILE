@@ -18,7 +18,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -50,9 +50,9 @@ class _TemporaryAlternateAccommodationScreenState
   Timer? _debounce;
   // STATIC TAB LIST
   final List<String> tabTitles = [
-    'Additional Rent',
-    'Rent',
-    'Corpus',
+    'Additional TAA',
+    'TAA',
+    'Hardship',
     'Brokerage',
     'Shifting',
   ];
@@ -241,144 +241,161 @@ class _TemporaryAlternateAccommodationScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Temporary Alternate Accommodation",
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Temporary Alternate\nAccommodation",
         authorization: AuthorizationModel(),
+        isMenuButton: true,
         onProjectChangeCallback: (project) {
           _project = project;
         },
-        extraHeight: 70,
-        widgets: BlocBuilder<
-          TemporaryAlternateAccommodationCubit,
-          TemporaryAlternateAccommodationState
-        >(
-          bloc: _temporaryAlternateAccommodationCubit,
-          builder: (context, state) {
-            return ValueListenableBuilder<List<Map<String, dynamic>>>(
-              valueListenable: _selectedBuildingNotifier,
-              builder: (context, selectedBuilding, child) {
-                return CustomMultipleSelectPopup(
-                  title: "Building",
-                  isRequired: true,
-                  isMultiSelect: false,
-                  initialValue: selectedBuilding,
-                  dataList: const [],
-                  onSelected: (value) async {
-                    _selectedBuildingNotifier.value = value;
-                    if (value.isNotEmpty &&
-                        value.first['zAttributesId'] != null &&
-                        mounted) {
-                      final int buildingId = value.first['zAttributesId'];
-                      final int projectId = _project.projectId;
-                      await _temporaryAlternateAccommodationCubit
-                          .pullTemporaryAccommodationAlternativeDetails(
-                            context: context,
-                            projectId: projectId,
-                            buildingId: buildingId,
-                          );
-                      final int tabIndex = _tabController.index;
-                      final String tabName = tabTitles[tabIndex];
-                      if (context.mounted) {
-                        _temporaryAlternateAccommodationCubit.onTabChanged(
-                          tabIndex,
-                          context,
-                          projectId: projectId,
-                          buildingId: buildingId,
-                          tabName: tabName,
-                          tenure: "",
-                        );
-                      }
-                      _updateTenureTabController(0);
-                    }
-                  },
-                  dataFetchCallBack: _fetchBuildings,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return "Building is required";
-                    }
-                    return null;
+      ),
+      body: Column(
+        children: [
+          verticalSpacing(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: BlocBuilder<
+              TemporaryAlternateAccommodationCubit,
+              TemporaryAlternateAccommodationState
+            >(
+              bloc: _temporaryAlternateAccommodationCubit,
+              builder: (context, state) {
+                return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                  valueListenable: _selectedBuildingNotifier,
+                  builder: (context, selectedBuilding, child) {
+                    return CustomMultipleSelectPopup(
+                      title: "Building",
+                      isRequired: true,
+                      isMultiSelect: false,
+                      initialValue: selectedBuilding,
+                      dataList: const [],
+                      onSelected: (value) async {
+                        _selectedBuildingNotifier.value = value;
+                        if (value.isNotEmpty &&
+                            value.first['zAttributesId'] != null &&
+                            mounted) {
+                          final int buildingId = value.first['zAttributesId'];
+                          final int projectId = _project.projectId;
+                          await _temporaryAlternateAccommodationCubit
+                              .pullTemporaryAccommodationAlternativeDetails(
+                                context: context,
+                                projectId: projectId,
+                                buildingId: buildingId,
+                              );
+                          final int tabIndex = _tabController.index;
+                          final String tabName = tabTitles[tabIndex];
+                          if (context.mounted) {
+                            _temporaryAlternateAccommodationCubit.onTabChanged(
+                              tabIndex,
+                              context,
+                              projectId: projectId,
+                              buildingId: buildingId,
+                              tabName: tabName,
+                              tenure: "",
+                            );
+                          }
+                          _updateTenureTabController(0);
+                        }
+                      },
+                      dataFetchCallBack: _fetchBuildings,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Building is required";
+                        }
+                        return null;
+                      },
+                    );
                   },
                 );
               },
-            );
-          },
-        ),
-      ),
-      body: ValueListenableBuilder<List<Map<String, dynamic>>>(
-        valueListenable: _selectedBuildingNotifier,
-        builder: (context, selectedBuilding, child) {
-          final bool isBuildingSelected = selectedBuilding.isNotEmpty;
-          if (!isBuildingSelected) {
-            return Center(
-              child: Text(
-                'Please select a building',
-                style: AppTextStyle.ts14R(color: AppColor.grey),
-              ),
-            );
-          }
-          return Column(
-            children: [
-              // MAIN TAB BAR
-              ChipStyleTabBar(controller: _tabController, tabs: tabTitles),
-              // TENURE TAB BAR
-              BlocBuilder<
-                TemporaryAlternateAccommodationCubit,
-                TemporaryAlternateAccommodationState
-              >(
-                bloc: _temporaryAlternateAccommodationCubit,
-                builder: (context, state) {
-                  final int currentTabIndex = _tabController.index;
-                  final bool showTenureTabs =
-                      currentTabIndex == 1 || currentTabIndex == 3;
-                  final List<String> tenureList = state.tenureList;
-                  if (showTenureTabs && tenureList.isNotEmpty) {
-                    if (_tenureTabController.length != tenureList.length) {
-                      _updateTenureTabController(
-                        tenureList.length,
-                        initialIndex:
-                            state.selectedTenureIndex >= 0 &&
-                                    state.selectedTenureIndex <
-                                        tenureList.length
-                                ? state.selectedTenureIndex
-                                : 0,
-                      );
-                    }
-                  } else {
-                    if (_tenureTabController.length != 0) {
-                      _updateTenureTabController(0);
-                    }
-                  }
-                  if (showTenureTabs &&
-                      tenureList.isNotEmpty &&
-                      _tenureTabController.length == tenureList.length &&
-                      _tenureTabController.length > 0) {
-                    return ChipStyleTabBar(
-                      controller: _tenureTabController,
-                      style: ChipTabBarStyle.underline,
-                      tabs:
-                          tenureList.map((tenure) => "Tenure $tenure").toList(),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-              // TAB CONTENT
-              Expanded(
-                child: TabBarView(
-                  physics: NeverScrollableScrollPhysics(),
-                  controller: _tabController,
+            ),
+          ),
+
+          Expanded(
+            child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+              valueListenable: _selectedBuildingNotifier,
+              builder: (context, selectedBuilding, child) {
+                final bool isBuildingSelected = selectedBuilding.isNotEmpty;
+                if (!isBuildingSelected) {
+                  return Center(
+                    child: Text(
+                      'Please select a building',
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
+                  );
+                }
+                return Column(
                   children: [
-                    _buildRentListWidget(), // Additional Rent
-                    _buildRentListWidget(), // Rent
-                    _buildRentListWidget(), // Corpus
-                    _buildRentListWidget(), // Brokerage
-                    _buildRentListWidget(), // Shifting
+                    // MAIN TAB BAR
+                    ChipStyleTabBar(
+                      controller: _tabController,
+                      tabs: tabTitles,
+                    ),
+                    // TENURE TAB BAR
+                    BlocBuilder<
+                      TemporaryAlternateAccommodationCubit,
+                      TemporaryAlternateAccommodationState
+                    >(
+                      bloc: _temporaryAlternateAccommodationCubit,
+                      builder: (context, state) {
+                        final int currentTabIndex = _tabController.index;
+                        final bool showTenureTabs =
+                            currentTabIndex == 1 || currentTabIndex == 3;
+                        final List<String> tenureList = state.tenureList;
+                        if (showTenureTabs && tenureList.isNotEmpty) {
+                          if (_tenureTabController.length !=
+                              tenureList.length) {
+                            _updateTenureTabController(
+                              tenureList.length,
+                              initialIndex:
+                                  state.selectedTenureIndex >= 0 &&
+                                          state.selectedTenureIndex <
+                                              tenureList.length
+                                      ? state.selectedTenureIndex
+                                      : 0,
+                            );
+                          }
+                        } else {
+                          if (_tenureTabController.length != 0) {
+                            _updateTenureTabController(0);
+                          }
+                        }
+                        if (showTenureTabs &&
+                            tenureList.isNotEmpty &&
+                            _tenureTabController.length == tenureList.length &&
+                            _tenureTabController.length > 0) {
+                          return ChipStyleTabBar(
+                            controller: _tenureTabController,
+                            style: ChipTabBarStyle.underline,
+                            tabs:
+                                tenureList
+                                    .map((tenure) => "Tenure $tenure")
+                                    .toList(),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    // TAB CONTENT
+                    Expanded(
+                      child: TabBarView(
+                        physics: NeverScrollableScrollPhysics(),
+                        controller: _tabController,
+                        children: [
+                          _buildRentListWidget(), // Additional Rent
+                          _buildRentListWidget(), // Rent
+                          _buildRentListWidget(), // Corpus
+                          _buildRentListWidget(), // Brokerage
+                          _buildRentListWidget(), // Shifting
+                        ],
+                      ),
+                    ),
                   ],
-                ),
-              ),
-            ],
-          );
-        },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -540,15 +557,15 @@ class _TemporaryAlternateAccommodationScreenState
             final tenantRecords = entry.value;
             // BUILD CARD BASED ON TAB NAME
             switch (tabName) {
-              case 'Rent':
-                return _buildRentCard(tenantRecords, state, tabName);
-              case 'Corpus':
+              case 'TAA':
+                return _buildTAACard(tenantRecords, state, tabName);
+              case 'Hardship':
                 return _buildCorpusCard(tenantRecords);
               case 'Brokerage':
                 return _buildBrokerageCard(tenantRecords);
               case 'Shifting':
                 return _buildShiftingCard(tenantRecords);
-              case 'Additional Rent':
+              case 'Additional TAA':
               default:
                 return _buildAdditionalRentCard(tenantRecords);
             }
@@ -653,8 +670,8 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // BUILD RENT LIST WIDGET
-  Widget _buildRentCard(
+  // BUILD TAA LIST WIDGET
+  Widget _buildTAACard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
     TemporaryAlternateAccommodationState state,
     String tabName,

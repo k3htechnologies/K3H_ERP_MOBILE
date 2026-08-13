@@ -2363,8 +2363,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.building,
               path: AppRoutes.building,
               builder: (context, state) {
-                return const BuildingScreen();
-                // return const ComingSoonScreen(title: "Building");
+                // return const BuildingScreen();
+                return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
@@ -2501,8 +2501,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.tenant,
               path: AppRoutes.tenant,
               builder: (context, state) {
-                return const TenantScreen();
-                // return const ComingSoonScreen(title: "Tenant");
+                // return const TenantScreen();
+                return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2582,8 +2582,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                return TemporaryAlternateAccommodationScreen();
-                // return const ComingSoonScreen(title: "TAA");
+                // return TemporaryAlternateAccommodationScreen();
+                return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2682,8 +2682,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedPlan,
               path: AppRoutes.proposedPlan,
               builder: (context, state) {
-                return const ProposedPlansScreen();
-                // return const ComingSoonScreen(title: "Proposed Plan");
+                // return const ProposedPlansScreen();
+                return const ComingSoonScreen(title: "Proposed Plan");
               },
             ),
             GoRoute(
@@ -2726,8 +2726,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedOffer,
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
-                return const ProposedOfferScreen();
-                // return const ComingSoonScreen(title: "Proposed Offer");
+                // return const ProposedOfferScreen();
+                return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(

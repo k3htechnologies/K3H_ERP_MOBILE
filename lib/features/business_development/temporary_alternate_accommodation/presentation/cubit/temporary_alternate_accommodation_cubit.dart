@@ -103,33 +103,27 @@ class TemporaryAlternateAccommodationCubit
     int pageNumber, {
     String? value,
   }) async {
-    var result = await _employeeMasterRepository.getBankList(
+    final result = await _employeeMasterRepository.getBankList(
       pageNumber: pageNumber,
-      pageSize: 10,
-      query: {'BankName': value ?? ''},
+      pageSize: 15,
+      query: value != null && value.isNotEmpty ? {"BankName": value} : {},
     );
     return result.fold(
-      (failure) {
-        return {
-          "itemList": <Map<String, dynamic>>[
-            {'zAttributesId': -1, 'DisplayName': 'Select Bank'},
-          ],
-          "totalNumberOfRecord": 0,
-        };
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
       },
       (response) {
-        final List<Map<String, dynamic>> banks =
-            List<Map<String, dynamic>>.from(
-              (response['data'] as List<dynamic>).map(
-                (e) => {
-                  "zAttributesId": e["BankListMasterId"],
-                  "DisplayName": e["BankNameWithCode"],
-                },
-              ),
-            );
+        final banks = response['data'] as List<BankListMasterModel>;
         return {
-          "itemList": [...banks],
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
+          "itemList":
+              banks.map((bank) {
+                return {
+                  "zAttributesId": bank.bankListMasterId,
+                  "DisplayName": bank.bankNameWithCode,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
     );
@@ -236,7 +230,7 @@ class TemporaryAlternateAccommodationCubit
     final result = await _temporaryAlternateAccommodationRepository
         .pullTenantApplicantCharges(
           pageNumber: pageNumber,
-          pageSize: 5,
+          pageSize: 10,
           projectId: projectId,
           buildingId: buildingId,
           queryParams: queryParams,
