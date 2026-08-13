@@ -265,20 +265,3 @@ bool isDateWithinPastDays(DateTime? date, int pastDays) {
           inputDate.isAfter(minAllowedDate)) &&
       (inputDate.isAtSameMomentAs(today) || inputDate.isBefore(today));
 }
-
-String getApiMobileNumber(String phoneNumber) {
-  // Remove everything except digits
-  String digits = phoneNumber.replaceAll(RegExp(r'\D'), '');
-
-  // Remove India country code if present
-  if (digits.startsWith('91') && digits.length == 12) {
-    digits = digits.substring(2);
-  }
-
-  // Keep only the last 10 digits as a safety measure
-  if (digits.length > 10) {
-    digits = digits.substring(digits.length - 10);
-  }
-
-  return digits;
-}
