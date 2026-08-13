@@ -21,7 +21,6 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class SourcingViewScreen extends StatefulWidget {
   final ChannelPartnerModel channelPartner;
@@ -572,33 +571,9 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     buildColumnTitleValue(
                       title: "Website URL",
                       value: widget.channelPartner.websiteURL,
-                      customValueWidget: GestureDetector(
-                        onTap: () async {
-                          final url = widget.channelPartner.websiteURL;
-
-                          if (url.isNotEmpty) {
-                            final Uri uri = Uri.parse(url);
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            } else {
-                              debugPrint("Could not launch URL: $url");
-                            }
-                          }
-                        },
-                        child: Text(
-                          widget.channelPartner.websiteURL.isEmpty
-                              ? "-"
-                              : widget.channelPartner.websiteURL,
-                          style: AppTextStyle.ts14M(
-                            color: AppColor.primary,
-                          ).copyWith(
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColor.primary,
-                          ),
-                        ),
+                      customValueWidget: CustomClickToContactText(
+                        value: widget.channelPartner.websiteURL,
+                        type: ContactType.url,
                       ),
                     ),
                     Spacer(),
@@ -845,15 +820,15 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                           final item = displayList[index];
 
                           final isLast = index == displayList.length - 1;
-                          final isModifiedInLast2Days =
-                              !DateUtils.dateOnly(
-                                item.modifiedDate ?? item.createdDate!,
-                              ).isBefore(
-                                DateUtils.dateOnly(
-                                  DateTime.now(),
-                                ).subtract(const Duration(days: 2)),
-                              );
+                          final isWithin2Days = isDateWithinPastDays(
+                            item.modifiedDate ?? item.createdDate,
+                            2,
+                          );
 
+                          final isDisable =
+                              !(item.isAction &&
+                                  _routeAuthorizationModel.isAction) ||
+                              !isWithin2Days;
                           return IntrinsicHeight(
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -902,7 +877,10 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                           children: [
                                             Flexible(
                                               child: Text(
-                                                formatDate(item.createdDate),
+                                                formatDate(
+                                                  item.modifiedDate ??
+                                                      item.createdDate,
+                                                ),
                                                 style: AppTextStyle.ts14M(),
                                               ),
                                             ),
@@ -911,11 +889,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
                                                 CustomIconButton.edit(
-                                                  isDisabled:
-                                                      !(item.isAction &&
-                                                          _routeAuthorizationModel
-                                                              .isAction &&
-                                                          isModifiedInLast2Days),
+                                                  isDisabled: isDisable,
                                                   onPressed: () {
                                                     _showBottomSheetToUpdateRemark(
                                                       context,
@@ -925,11 +899,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                                 ),
                                                 horizontalSpacing(),
                                                 CustomIconButton.delete(
-                                                  isDisabled:
-                                                      !(item.isAction &&
-                                                          _routeAuthorizationModel
-                                                              .isAction &&
-                                                          isModifiedInLast2Days),
+                                                  isDisabled: isDisable,
                                                   onPressed: () {
                                                     _showPopupToDeleteRemark(
                                                       context,
@@ -1149,6 +1119,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                             ? first['number']!
                             : "-",
                     url: first['url'] ?? "-",
+                    title: first['title']!,
                   ),
                 ),
                 second != null
@@ -1167,6 +1138,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                                 ? second['number']!
                                 : "-",
                         url: second['url'] ?? "-",
+                        title: second['title']!,
                       ),
                     )
                     : SizedBox.shrink(),

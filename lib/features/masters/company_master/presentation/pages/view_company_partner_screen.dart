@@ -135,6 +135,7 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
                                           return;
                                         }
                                         showFilePreviewDialog(
+                                          title: "Aadhaar Card",
                                           context,
                                           p.aadharCardURL.split(","),
                                         );
@@ -174,6 +175,7 @@ class ViewCompanyPartnerScreen extends StatelessWidget {
                                           return;
                                         }
                                         showFilePreviewDialog(
+                                          title: "PAN Card",
                                           context,
                                           p.panCardURL.split(","),
                                         );

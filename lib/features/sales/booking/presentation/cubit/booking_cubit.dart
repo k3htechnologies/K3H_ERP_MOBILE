@@ -1,10 +1,7 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:gallery_saver_plus/files.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -266,7 +263,7 @@ class BookingCubit extends Cubit<BookingState> {
         final calculatedList =
             rawList.map((oc) {
               final baseAmount =
-                  oc.calculatedOn == "Per Sq Ft"
+                  oc.calculatedOn == "Per SqFt"
                       ? oc.value * reraArea
                       : oc.value;
 
@@ -397,10 +394,6 @@ class BookingCubit extends Cubit<BookingState> {
         "fileName": fileName,
       });
     }
-  }
-
-  Future<Uint8List> compress(Uint8List bytes) async {
-    return await FlutterImageCompress.compressWithList(bytes, quality: 50);
   }
 
   //  ADD BOOKING

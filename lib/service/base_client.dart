@@ -716,7 +716,7 @@ class BaseClient {
     switch (ext) {
       case "png":
         return "png";
-      case "jpg":
+      case "jpg": 
       case "jpeg":
         return "jpeg";
       case "pdf":

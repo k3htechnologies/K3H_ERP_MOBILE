@@ -20,8 +20,7 @@ import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/wi
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/project_achievement_widget.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/recent_booking_widget.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/sales_filter_widget.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
+
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -110,7 +109,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
     _selectedFilterType.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -250,66 +248,6 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
               ),
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-class DashboardFilterTabs extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onChanged;
-
-  const DashboardFilterTabs({
-    super.key,
-    required this.selectedIndex,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final tabs = ["Today", "Weekly", "Monthly", "Datewise", "Overall"];
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 6.0, vertical: 6.0),
-      decoration: BoxDecoration(
-        color: const Color(0xffEDEDF6),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xffC3C6D5), width: 0.5),
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          spacing: 10.0,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(tabs.length, (index) {
-            final selected = selectedIndex == index;
-            return GestureDetector(
-              onTap: () => onChanged(index),
-              child: AnimatedContainer(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 3.0,
-                  horizontal: 9,
-                ),
-                duration: const Duration(milliseconds: 200),
-                decoration: BoxDecoration(
-                  color: selected ? AppColor.primary : Colors.transparent,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Center(
-                  child: Text(
-                    tabs[index],
-                    style:
-                        selected
-                            ? AppTextStyle.ts14SB(color: AppColor.white)
-                            : AppTextStyle.ts12R(
-                              color: AppColor.black.withValues(alpha: 0.5),
-                            ),
-                  ),
-                ),
-              ),
-            );
-          }),
         ),
       ),
     );

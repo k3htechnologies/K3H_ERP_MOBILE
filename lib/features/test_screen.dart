@@ -87,7 +87,7 @@ class TestScreen extends StatelessWidget {
               Text(formatDateTimeAsDDMMMYYYY(DateTime.now())),
               GestureDetector(
                 onTap: () {
-                  showFilePreviewDialog(context, [
+                  showFilePreviewDialog(context, title: "Test", [
                     "https://www.shutterstock.com/image-photo/portrait-fake-doublecross-betray-85500217?dd_referrer=https%3A%2F%2Fwww.google.com%2F",
                   ]);
                 },

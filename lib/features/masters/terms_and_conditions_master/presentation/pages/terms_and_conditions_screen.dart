@@ -450,10 +450,7 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen>
                   },
                   child: Text(
                     termsAndCondition.title,
-                    style: AppTextStyle.ts16M(color: AppColor.primary).copyWith(
-                      decoration: TextDecoration.underline,
-                      decorationColor: AppColor.primary,
-                    ),
+                    style: AppTextStyle.ts16M(color: AppColor.primary),
                   ),
                 ),
               ),

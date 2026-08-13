@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class DocumentDatasource {
   Future<Map<String, dynamic>> apicallPullProjectDocument({
@@ -40,7 +41,7 @@ class DocumentDatasourceImpl implements DocumentDatasource {
     }) {
       String url =
           "ProjectDocument/PullProjectDocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

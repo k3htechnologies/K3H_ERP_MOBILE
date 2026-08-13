@@ -21,7 +21,6 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
 import '../../../../../core/country_code.dart';
 
 class AddInwardOutwardScreen extends StatefulWidget {
@@ -32,7 +31,6 @@ class AddInwardOutwardScreen extends StatefulWidget {
     this.inwardOutwardModel,
     this.index,
   });
-
   @override
   State<AddInwardOutwardScreen> createState() => _AddInwardOutwardScreenState();
 }
@@ -41,7 +39,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   late InwardOutwardCubit _inwardOutwardCubit;
   late AuthorizationModel _routeAuthorizationModel;
   bool get _isEditMode => widget.inwardOutwardModel != null;
-
   late TextEditingController _documentTitleC,
       _invoiceNoC,
       _amountC,
@@ -58,18 +55,13 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
       _receivedByC,
       _handoverToC,
       _remarkC;
-
   final ValueNotifier<String> _deliveryType = ValueNotifier("Others");
-
   final ValueNotifier<Map<String, dynamic>?> _selectedDocumentType =
       ValueNotifier(null);
-
   final ValueNotifier<Map<String, dynamic>?> _selectedDeliveryMode =
       ValueNotifier(null);
-
   final ValueNotifier<Map<String, dynamic>?> _selectedDeliveryStatus =
       ValueNotifier(null);
-
   final ValueNotifier<CountryCode> _selectedSenderCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
@@ -77,7 +69,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     countryList.firstWhere((e) => e.code == "+91"),
   );
   DateTime? _date, _invoiceDate, _handoverDate;
-
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -89,7 +80,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         fileNameList: [],
         deletedFileList: "",
       );
-
   MultiFilePickerModel selectedAcknowledgementFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -97,32 +87,25 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   );
   late final ValueNotifier<List<Map<String, dynamic>>>
   _selectedEmployeeNotifier;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   String get selectedEmployees => _selectedEmployeeNotifier.value
       .map((v) => v["zAttributesId"].toString())
       .toSet()
       .join(",");
-
   @override
   void initState() {
     _inwardOutwardCubit = context.read<InwardOutwardCubit>();
-
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
             .inwardOutwardAcknowledgement] ??
         AuthorizationModel();
     _initializeTextEditingControllers();
-
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
-
     if (_isEditMode) {
       _populateFormFields();
     } else {
       _date = DateTime.now();
     }
-
     super.initState();
   }
 
@@ -144,7 +127,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _receivedByC.dispose();
     _handoverToC.dispose();
     _remarkC.dispose();
-
     _deliveryType.dispose();
     _selectedDocumentType.dispose();
     _selectedDeliveryMode.dispose();
@@ -152,7 +134,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _selectedSenderCountry.dispose();
     _selectedReceiverCountry.dispose();
     _selectedEmployeeNotifier.dispose();
-
     super.dispose();
   }
 
@@ -161,17 +142,14 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _invoiceNoC = TextEditingController();
     _amountC = TextEditingController();
     _chequeNumberC = TextEditingController();
-
     _senderMobileNumberC = TextEditingController();
     _senderNameC = TextEditingController();
     _senderEmailIdC = TextEditingController();
     _senderAddressC = TextEditingController();
-
     _receiverMobileNumberC = TextEditingController();
     _receiverNameC = TextEditingController();
     _receiverEmailIdC = TextEditingController();
     _receiverAddressC = TextEditingController();
-
     _documentDescC = TextEditingController();
     _receivedByC = TextEditingController();
     _handoverToC = TextEditingController();
@@ -180,49 +158,34 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
 
   void _populateFormFields() {
     final data = widget.inwardOutwardModel!;
-
-    // DETAILS
     _deliveryType.value =
         data.deliveryType.isNotEmpty ? data.deliveryType : "Others";
-
     _selectedDocumentType.value = inwardOutwardDocumentType.firstWhere(
       (e) => e["DisplayName"] == data.documentType,
       orElse: () => <String, dynamic>{},
     );
-
     _documentTitleC.text = data.documentTitle;
     _date = data.inwardOutwardDate;
     if (data.invoiceNumber != "0") _invoiceNoC.text = data.invoiceNumber;
     _invoiceDate = data.invoiceDate;
     _amountC.text = data.amount != 0 ? data.amount.toString() : "";
-
     if (data.chequeNumber.isNotEmpty) {
       _chequeNumberC.text = data.chequeNumber;
     }
-
-    // SENDER
     _senderMobileNumberC.text = data.senderMobileNumber;
     _senderNameC.text = data.senderName;
     _senderEmailIdC.text = data.senderEmailId;
     _senderAddressC.text = data.senderAddress;
-
-    // RECEIVER
     _receiverMobileNumberC.text = data.receiverMobileNumber;
     _receiverNameC.text = data.receiverName;
     _receiverEmailIdC.text = data.receiverEmailId;
     _receiverAddressC.text = data.receiverAddress;
-
-    // DOCUMENT
     _documentDescC.text = data.documentDescription;
-
     selectedDocumentFile.fileNameList =
         data.documentURL.isNotEmpty ? data.documentURL.split(",") : [];
-
-    // ASSIGN EMPLOYEE
     if (data.employeeId.toString().isNotEmpty) {
       final employeeIdsRaw = data.employeeId.toString();
       final employeeNamesRaw = data.employeeNames;
-
       final employeeIds =
           employeeIdsRaw
               .split(',')
@@ -230,19 +193,16 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
               .where((e) => e.isNotEmpty)
               .map((e) => int.parse(e))
               .toList();
-
       final employeeNames =
           employeeNamesRaw
               .split(',')
               .map((e) => e.trim())
               .where((e) => e.isNotEmpty)
               .toList();
-
       final maxLength =
           employeeIds.length < employeeNames.length
               ? employeeIds.length
               : employeeNames.length;
-
       _selectedEmployeeNotifier.value = List.generate(maxLength, (index) {
         return {
           "zAttributesId": employeeIds[index],
@@ -250,34 +210,26 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         };
       });
     }
-
-    // DELIVERY
     _selectedDeliveryMode.value = inwardOutwardDeliveryMode.firstWhere(
       (e) => e["DisplayName"] == data.deliveryMode,
       orElse: () => <String, dynamic>{},
     );
-
     _selectedDeliveryStatus.value = inwardOutwardDeliveryStatus.firstWhere(
       (e) => e["DisplayName"] == data.deliveryStatus,
       orElse: () => <String, dynamic>{},
     );
-
-    // ACKNOWLEDGEMENT
     _receivedByC.text = data.acknowledgementBy;
     _handoverToC.text = data.handOverTo;
     _handoverDate = data.handOverDate;
     _remarkC.text = data.acknowledgementRemark;
-
     selectedAcknowlegementSignatureFile.fileNameList =
         data.acknowledgementSignatureURL.isNotEmpty
             ? data.acknowledgementSignatureURL.split(",")
             : [];
-
     selectedAcknowledgementFile.fileNameList =
         data.acknowledgementURL.isNotEmpty
             ? data.acknowledgementURL.split(",")
             : [];
-
     if (data.senderMobileNumberCountryCode.isNotEmpty) {
       _selectedSenderCountry.value = countryList.firstWhere(
         (e) => e.code == data.senderMobileNumberCountryCode,
@@ -310,10 +262,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
     if (_isEditMode) {
       final inwardOutward = widget.inwardOutwardModel!;
-
       _inwardOutwardCubit.updateInwardOutward(
         context: context,
         inwardOutwardId: inwardOutward.inwardOutwardId,
@@ -427,9 +377,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           },
                         ),
                         Text("Others", style: AppTextStyle.ts14M()),
-
-                        const SizedBox(width: 16),
-
+                        horizontalSpacing(width: 16),
                         Radio<String>(
                           value: 'Cheque',
                           // ignore: deprecated_member_use
@@ -504,8 +452,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           title: "Invoice Number",
                           isRequired: !isOther,
                           hint: "Enter Invoice Number",
-                          inputFormatterList: InputValidator.digit(15),
-                          keyboardType: TextInputType.number,
+                          inputFormatterList:
+                              InputValidator.digitAndCharacterOnly(15),
                           validator: (value) {
                             if (value != null &&
                                 value.trim().isNotEmpty &&
@@ -515,11 +463,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                               return "Invoice Number cannot be zero.";
                             }
                             if (isOther) return null;
-
                             if (value == null || value.trim().isEmpty) {
                               return "Invoice Number is required";
                             }
-
                             return null;
                           },
                         ),
@@ -551,7 +497,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           ),
                           validator: (value) {
                             if (isOther) return null;
-
                             if (value == null || value.trim().isEmpty) {
                               return "Amount is required";
                             }
@@ -620,7 +565,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       },
                       onCountryChanged: (country) {
                         if (country == null) return;
-
                         _selectedSenderCountry.value = country;
                       },
                       inputFormatterList: [
@@ -634,7 +578,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           return "Sender Mobile Number is required";
                         }
                         if (mobile.isNotEmpty) {
-                          // LENGTH AND REGEX VALIDATION
                           if ((mobile.length != country.mobileLength) ||
                               country.regex != null &&
                                   !country.regex!.hasMatch(mobile)) {
@@ -644,7 +587,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                             return "Sender and Receiver mobile numbers should not be the same.";
                           }
                         }
-
                         return null;
                       },
                     );
@@ -750,7 +692,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           return "Receiver Mobile Number is required";
                         }
                         if (mobile.isNotEmpty) {
-                          // LENGTH AND REGEX VALIDATION
                           if ((mobile.length != country.mobileLength) ||
                               country.regex != null &&
                                   !country.regex!.hasMatch(mobile)) {
@@ -827,12 +768,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   maxFiles: 5,
                   filePickType: FilePickType.both,
                   initialFileList: selectedDocumentFile.fileNameList,
-
                   onFilePickedCallback: (bytesList, fileNameList) {
                     selectedDocumentFile.fileNameList = fileNameList;
                     selectedDocumentFile.fileBytesList = bytesList;
                   },
-
                   onFileDeleteCallback: (
                     fileBytesList,
                     fileNameList,
@@ -842,12 +781,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                     selectedDocumentFile.fileBytesList = fileBytesList;
                     selectedDocumentFile.deletedFileList = deletedFile;
                   },
-
                   validator: (fileList) {
                     if (fileList == null || fileList.isEmpty) {
                       return "Document is required";
                     }
-
                     return null;
                   },
                 ),
@@ -960,12 +897,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                     title: "Attachment",
                     filePickType: FilePickType.both,
                     initialFileList: selectedAcknowledgementFile.fileNameList,
-
                     onFilePickedCallback: (bytesList, fileNameList) {
                       selectedAcknowledgementFile.fileNameList = fileNameList;
                       selectedAcknowledgementFile.fileBytesList = bytesList;
                     },
-
                     onFileDeleteCallback: (
                       fileBytesList,
                       fileNameList,
@@ -985,6 +920,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   CustomDatePicker(
                     title: "Handover Date",
                     initialDate: _handoverDate,
+                    startDate: DateTime.now(),
                     setValue: (value) {
                       _handoverDate = value;
                     },
@@ -1022,7 +958,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     );
   }
 
-  // HELPER
   Widget _card(String title, List<Widget> children) {
     return Container(
       padding: const EdgeInsets.all(12),

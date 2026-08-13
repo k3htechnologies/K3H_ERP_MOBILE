@@ -338,7 +338,7 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
                             Flexible(
                               child: Text(
                                 designation.designationName,
-                                style: AppTextStyle.ts14R(),
+                                style: AppTextStyle.ts16M(),
                               ),
                             ),
                             horizontalSpacing(),

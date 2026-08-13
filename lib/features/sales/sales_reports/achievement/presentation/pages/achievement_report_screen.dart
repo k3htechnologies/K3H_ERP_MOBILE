@@ -12,7 +12,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/static/static_tab_values.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
@@ -62,6 +61,14 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   late ScrollController _sourcingScrollController;
   Timer? _sourcingDebounce;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
+  List<String> achievementTimelineTabs = const [
+    'Today',
+    'Weekly',
+    'Monthly',
+    'Datewise',
+    'Overall',
+  ];
+  List<String> achievementTabs = const ['Project', 'Closing', 'Sourcing'];
 
   @override
   void initState() {
@@ -437,7 +444,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Achievement",
+        screenTitle: "Achievement Report",
         authorization: _routeAuthorizationModel,
         isMenuButton: true,
       ),
@@ -487,7 +494,7 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
           ChipStyleTabBar(
             controller: _secondaryTabController!,
             tabs: achievementTabs,
-            isSecondaryStyle: true,
+            style: ChipTabBarStyle.underline,
           ),
           Expanded(
             child: TabBarView(
@@ -581,6 +588,8 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                     children: [
                                       CustomButton(
                                         text: "CM",
+                                        backgroundColor: AppColor.lightBlue,
+                                        textColor: AppColor.primary,
                                         onPressed: () async {
                                           await _achievementCubit
                                               .resetManagerAchievementReportState();
@@ -624,8 +633,6 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                       ),
                                       CustomButton(
                                         text: "SM",
-                                        backgroundColor: AppColor.lightBlue,
-                                        textColor: AppColor.primary,
                                         onPressed: () async {
                                           await _achievementCubit
                                               .resetManagerAchievementReportState();
@@ -674,7 +681,6 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
                               /// WALKINS
                               ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
                                 title: buildRowTitleCount(
                                   title: "Total Walkins",
                                   value: achievement.totalWalkins.toString(),
@@ -688,7 +694,14 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                       ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                childrenPadding: EdgeInsets.zero,
+                                backgroundColor: AppColor.lightBlueBg2
+                                    .withValues(alpha: 0.5),
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
+                                childrenPadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 children: [
                                   buildRowTitleCount(
                                     title: "By CP",
@@ -745,7 +758,9 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
                               /// BOOKINGS
                               ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 title: buildRowTitleCount(
                                   title: "Total Booking",
                                   value: achievement.totalBooking.toString(),
@@ -759,7 +774,10 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                       ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                childrenPadding: EdgeInsets.zero,
+                                backgroundColor: AppColor.lightRed2,
+                                childrenPadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 children: [
                                   buildRowTitleCount(
                                     title: "By CP",
@@ -792,7 +810,9 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
                               /// IBM + OBM
                               ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 title: buildRowTitleCount(
                                   title: "IBM + OBM",
                                   singleLine: false,
@@ -811,7 +831,11 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                       ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                childrenPadding: EdgeInsets.zero,
+                                backgroundColor: AppColor.lightGreenBg
+                                    .withValues(alpha: 0.2),
+                                childrenPadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 children: [
                                   buildRowTitleCount(
                                     title: "IBM",
@@ -845,9 +869,13 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                               Divider(height: 1, color: AppColor.grey50),
 
                               /// TOTAL REVENUE
-                              Padding(
-                                padding: EdgeInsets.only(top: 10),
-                                child: buildRowTitleCount(
+                              ExpansionTile(
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
+                                enabled: false,
+                                showTrailingIcon: false,
+                                title: buildRowTitleCount(
                                   title: "Total Revenue (₹)",
                                   singleLine: false,
                                   value: (achievement.totalRevenue).toString(),
@@ -956,7 +984,6 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
                               /// WALKINS
                               ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
                                 title: buildRowTitleCount(
                                   title: "Total Walkins",
                                   value: achievement.totalWalkins.toString(),
@@ -970,7 +997,14 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                       ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                childrenPadding: EdgeInsets.zero,
+                                backgroundColor: AppColor.lightBlueBg2
+                                    .withValues(alpha: 0.5),
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
+                                childrenPadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 children: [
                                   buildRowTitleCount(
                                     title: "By CP",
@@ -1031,7 +1065,6 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
                               /// BOOKINGS
                               ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
                                 title: buildRowTitleCount(
                                   title: "Total Booking",
                                   value: achievement.totalBooking.toString(),
@@ -1045,7 +1078,13 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                                       ),
                                 ),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
-                                childrenPadding: EdgeInsets.zero,
+                                backgroundColor: AppColor.lightRed2,
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
+                                childrenPadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 children: [
                                   buildRowTitleCount(
                                     title: "By CP",
@@ -1191,11 +1230,17 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
                               /// WALKINS
                               ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
-                                childrenPadding: EdgeInsets.zero,
                                 shape: const Border(),
                                 collapsedShape: const Border(),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
+                                backgroundColor: AppColor.lightBlueBg2
+                                    .withValues(alpha: 0.5),
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
+                                childrenPadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 title: buildRowTitleCount(
                                   title: "Walkins",
                                   value:
@@ -1259,11 +1304,17 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
 
                               /// MEETINGS
                               ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
-                                childrenPadding: EdgeInsets.zero,
                                 shape: const Border(),
                                 collapsedShape: const Border(),
                                 trailing: const Icon(Icons.keyboard_arrow_down),
+                                backgroundColor: AppColor.lightGreenBg
+                                    .withValues(alpha: 0.2),
+                                tilePadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
+                                childrenPadding: EdgeInsets.symmetric(
+                                  horizontal: 5.w,
+                                ),
                                 title: buildRowTitleCount(
                                   title: "Total Meetings",
                                   value: achievement.totalMeetings.toString(),
@@ -1450,6 +1501,8 @@ class _AchievementReportScreenState extends State<AchievementReportScreen>
                         v,
                         filterType: _filterTypeNotifier.value,
                         secondTabIndex: _secondaryTabController?.index,
+                        fromDate: _fromDateNotifier.value,
+                        toDate: _toDateNotifier.value,
                       );
                     },
                   ),

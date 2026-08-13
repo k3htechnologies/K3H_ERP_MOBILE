@@ -239,9 +239,6 @@ class _RERADocumentCategoryScreenState
                                 reraCategory.projectRERADocumentCategoryName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -30,27 +31,21 @@ class AddBrokeragePayment extends StatefulWidget {
 }
 
 class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
-  // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
   late BrokerageCubit _brokerageCubit;
-
-  // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _pendingAmountC,
       _amountC,
       _tdsAmountC,
       _transactionNumberC;
 
-  // DROPDOWNS
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentTypeNotifier;
 
-  // FILE VARIABLES
   MultiFilePickerModel selectedTransactionOrChequeFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -82,7 +77,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
     _selectedPaymentTypeNotifier.dispose();
   }
 
-  // INITIALISING TEXT CONTROLLERS
   void _initializeTextEditingControllers() {
     _pendingAmountC = TextEditingController();
     _amountC = TextEditingController();
@@ -90,7 +84,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
     _transactionNumberC = TextEditingController();
   }
 
-  // FETCH BANK
   Future<Map<String, dynamic>> _fetchBanks(
     int pageNumber, {
     String? value,
@@ -257,8 +250,8 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           value.isEmpty
                               ? false
                               : value.first['DisplayName'] == 'Full',
-                      title: "Amount",
-                      hint: "Enter Amount",
+                      title: "Brokerage Amount",
+                      hint: "Enter Brokerage Amount",
                       onChangeFunction: (v) {
                         final enteredAmount = double.tryParse(v) ?? 0.0;
 
@@ -277,7 +270,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
 
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Amount is required";
+                          return "Brokerage Amount is required";
                         }
                         return null;
                       },
@@ -290,21 +283,25 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                   hint: "Enter TDS Amount",
                   keyboardType: TextInputType.numberWithOptions(),
                   inputFormatterList: InputValidator.decimal(2),
-                ),  
+                ),
                 CustomTextField(
                   textController: _transactionNumberC,
                   isRequired: true,
-                  title: "Transaction/Cheque Number",
-                  hint: "Enter Transaction/Cheque Number",
+                  inputFormatterList: [
+                    LengthLimitingTextInputFormatter(25),
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+                  ],
+                  title: "Transaction/Cheque/Demand Draft No.",
+                  hint: "Enter Transaction/Cheque/Demand Draft No.",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Transaction/Cheque Number is required";
+                      return "Transaction/Cheque/Demand Draft No.is required";
                     }
                     return null;
                   },
                 ),
                 CustomMultiFilePicker(
-                  title: 'Transaction/Cheque Receipt',
+                  title: 'Transaction/Cheque/Demand Draft Image',
                   filePickType: FilePickType.both,
                   maxFiles: 1,
                   isRequired: true,
@@ -315,7 +312,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Transaction/Cheque Receipt is required";
+                      return "Transaction/Cheque/Demand Draft Image is required";
                     }
                     return null;
                   },

@@ -177,6 +177,7 @@ class _CompanyMasterViewMobileScreenState
                         ? "-"
                         : widget.company!.panNumber,
                 customValueWidget: buildDocumentRow(
+                  title: "PAN Card",
                   context: context,
                   docNumber:
                       widget.company!.panNumber.isEmpty
@@ -192,6 +193,7 @@ class _CompanyMasterViewMobileScreenState
                         ? "-"
                         : widget.company!.gstNumber,
                 customValueWidget: buildDocumentRow(
+                  title: "GST Document",
                   context: context,
                   docNumber:
                       widget.company!.gstNumber.isEmpty
@@ -214,6 +216,7 @@ class _CompanyMasterViewMobileScreenState
                         ? "-"
                         : widget.company!.cinNumber,
                 customValueWidget: buildDocumentRow(
+                  title: "CIN Document",
                   context: context,
                   docNumber:
                       widget.company!.cinNumber.isEmpty
@@ -229,6 +232,7 @@ class _CompanyMasterViewMobileScreenState
                         ? "-"
                         : widget.company!.tanNumber,
                 customValueWidget: buildDocumentRow(
+                  title: "TAN Document",
                   context: context,
                   docNumber:
                       widget.company!.tanNumber.isEmpty
@@ -248,6 +252,7 @@ class _CompanyMasterViewMobileScreenState
                 title: "Company Letter Head",
                 value: "",
                 customValueWidget: buildDocumentRow(
+                  title: "Company Letter Head",
                   context: context,
                   docNumber: "View Letter Head",
                   url: widget.company!.companyLetterheadHeaderURL,
@@ -257,6 +262,7 @@ class _CompanyMasterViewMobileScreenState
                 title: "Company Letter Footer",
                 value: "",
                 customValueWidget: buildDocumentRow(
+                  title: "Company Letter Footer",
                   context: context,
                   docNumber: "View Letter Footer",
                   url: widget.company!.companyLetterheadFooterURL,

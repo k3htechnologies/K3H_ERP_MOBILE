@@ -45,10 +45,10 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
 
   // SELECTED VALUES
   final ValueNotifier<Map<String, dynamic>?> _selectedCalculatedOnNotifier =
-  ValueNotifier(null);
+      ValueNotifier(null);
 
   List<Map<String, dynamic>> calculatedOnList = [
-    {"zAttributesId": 1, "DisplayName": "Per Sq Ft"},
+    {"zAttributesId": 1, "DisplayName": "Per SqFt"},
     {"zAttributesId": 2, "DisplayName": "Lumpsum"},
   ];
 
@@ -110,7 +110,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
     _gstPercentageC.text = otherChargeModel.gstPercentage.toString();
     _gstValueC.text = otherChargeModel.gstValue.toString();
     _selectedCalculatedOnNotifier.value = calculatedOnList.firstWhere(
-          (item) => item['DisplayName'] == otherChargeModel.calculatedOn,
+      (item) => item['DisplayName'] == otherChargeModel.calculatedOn,
       orElse: () => calculatedOnList.first,
     );
   }
@@ -258,7 +258,9 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                     uniqueKey: widget.otherChargeModel!.uniquekey,
                     projectId: widget.projectId,
                     chargeName: _chargeNameC.text,
-                    calculatedOn: _selectedCalculatedOnNotifier.value?['DisplayName']??"",
+                    calculatedOn:
+                        _selectedCalculatedOnNotifier.value?['DisplayName'] ??
+                        "",
                     value: double.parse(_valueC.text),
                     gstPercentage: double.parse(_gstPercentageC.text),
                     gstValue: double.parse(_gstValueC.text),
@@ -269,7 +271,9 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                     context: context,
                     projectId: widget.projectId,
                     chargeName: _chargeNameC.text,
-                    calculatedOn: _selectedCalculatedOnNotifier.value?['DisplayName']??"",
+                    calculatedOn:
+                        _selectedCalculatedOnNotifier.value?['DisplayName'] ??
+                        "",
                     value: double.parse(_valueC.text),
                     gstPercentage: double.parse(_gstPercentageC.text),
                     gstValue: double.parse(_gstValueC.text),

@@ -27,7 +27,7 @@ Widget noDataWidget({String? message, double? iconSize}) => Container(
       ),
       Text(
         textAlign: TextAlign.center,
-        message ?? "No Data Available!",
+        message ?? "No Data Found.",
         style: AppTextStyle.ts14B(color: AppColor.grey),
       ),
     ],

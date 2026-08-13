@@ -274,7 +274,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
           _filterCount.value = _performanceCubit.updateFilterCount(state);
           return Scaffold(
             appBar: CustomAppBar(
-              screenTitle: "Performance",
+              screenTitle: "Performance Report",
               authorization: _routeAuthorizationModel,
               textController: _searchC,
               searchHintText: "Search by Name",
@@ -348,7 +348,7 @@ class _PerformanceScreenState extends State<PerformanceScreen>
                 ChipStyleTabBar(
                   controller: _tabControllerSecond,
                   tabs: ["Sourcing Target", "Closing Target"],
-                  isSecondaryStyle: true,
+                  style: ChipTabBarStyle.underline,
                 ),
                 verticalSpacing(),
                 Expanded(

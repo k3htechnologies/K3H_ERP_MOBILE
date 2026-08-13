@@ -37,6 +37,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
 
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC,
+      _filterCpCode,
       _filterCompanyNameC,
       _filterDesignationC,
       _filterFirmTypeC,
@@ -60,6 +61,9 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedNoOfOBM = ValueNotifier(
     null,
   );
+  final ValueNotifier<Map<String, dynamic>?> _selectedAopStatus = ValueNotifier(
+    null,
+  );
 
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
@@ -77,6 +81,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
   @override
   void dispose() {
     _searchC.dispose();
+    _filterCpCode.dispose();
     _filterCompanyNameC.dispose();
     _filterDesignationC.dispose();
     _filterFirmTypeC.dispose();
@@ -94,13 +99,16 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     _filterCount.dispose();
     scrollController.dispose();
     _debounce?.cancel();
-
+    _selectedAopStatus.dispose();
+    _selectedNoOfIBM.dispose();
+    _selectedNoOfOBM.dispose();
     super.dispose();
   }
 
   // INITIALIZE CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterCpCode = TextEditingController();
     _filterCompanyNameC = TextEditingController();
     _filterDesignationC = TextEditingController();
     _filterFirmTypeC = TextEditingController();
@@ -144,6 +152,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     final state = _channelPartnerCubit.state;
 
     _searchC.text = state.searchText;
+    _filterCpCode.text = state.filterByCpCode;
     _filterCompanyNameC.text = state.filterByCompanyName;
     _filterDesignationC.text = state.filterByDesignation;
     _filterFirmTypeC.text = state.filterByFirmType;
@@ -164,6 +173,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
             : null;
 
     final String initialFullNameName = _searchC.text;
+    final String initialCpCode = _filterCpCode.text;
     final String initialCompanyName = _filterCompanyNameC.text;
     final String initialDesignation = _filterDesignationC.text;
     final String initialFirmType = _filterFirmTypeC.text;
@@ -180,6 +190,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
     final String? initialDirection = selectedDirection;
     final initialNoOfIBM = state.filterByNoOfIBM;
     final initialNoOfOBM = state.filterByNoOfOBM;
+    final initialAopStatus = state.filterByAopStatus;
 
     if (initialNoOfIBM.isNotEmpty) {
       _selectedNoOfIBM.value = ibmObmRangeFilter.firstWhere(
@@ -201,10 +212,12 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
       final currentNoOfIBM = _selectedNoOfIBM.value?['DisplayName'] ?? '';
 
       final currentNoOfOBM = _selectedNoOfOBM.value?['DisplayName'] ?? '';
+      final currentAopStatus = _selectedAopStatus.value?['DisplayName'] ?? '';
 
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialFullNameName) ||
+            (_filterCpCode.text.trim() != initialCpCode) ||
             (_filterCompanyNameC.text.trim() != initialCompanyName) ||
             (_filterDesignationC.text.trim() != initialDesignation) ||
             (_filterFirmTypeC.text.trim() != initialFirmType) ||
@@ -220,6 +233,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
             (_filterVillageC.text.trim() != initialVillage) ||
             (currentNoOfIBM != initialNoOfIBM) ||
             (currentNoOfOBM != initialNoOfOBM) ||
+            (currentAopStatus != initialAopStatus) ||
             (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
@@ -296,6 +310,12 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                   title: "Full Name",
                   hint: "Enter Full Name",
                   textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "CP Code",
+                  hint: "Enter CP Code",
+                  textController: _filterCpCode,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -427,6 +447,25 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                     );
                   },
                 ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedAopStatus,
+                  builder: (context, aopStatus, child) {
+                    return CustomDropDownWidget(
+                      title: 'AOP Status',
+                      hintText: 'Select AOP Status',
+                      initialValue: aopStatus,
+                      dataList: aopStatusList,
+                      onSelected: (v) {
+                        _selectedAopStatus.value = v;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        _selectedAopStatus.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           );
@@ -448,8 +487,10 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
         _filterCityC.clear();
         _filterVillageC.clear();
         _searchC.clear();
+        _filterCpCode.clear();
         _selectedNoOfIBM.value = null;
         _selectedNoOfOBM.value = null;
+        _selectedAopStatus.value = null;
         selectedDirection = null;
         _channelPartnerCubit.applyChannelPartnerFilterAndSort(
           context: context,
@@ -480,6 +521,8 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
           sortDirection: selectedDirection,
           noOfIBM: _selectedNoOfIBM.value?['DisplayName'] ?? "",
           noOfOBM: _selectedNoOfOBM.value?['DisplayName'] ?? "",
+          aopStatus: _selectedAopStatus.value?['DisplayName'] ?? "",
+          cpCode: _filterCpCode.text.trim(),
         );
       },
 
@@ -503,6 +546,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
       _filterSpecialityC.clear();
       _filterCityC.clear();
       _filterVillageC.clear();
+      _filterCpCode.clear();
     }
   }
 
@@ -597,7 +641,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                           children: [
                             Flexible(
                               child: GestureDetector(
-                                onTap: () async {
+                                onTap: () {
                                   goRouter.pushNamed(
                                     AppRoutes.channelPartnerView,
                                     queryParameters: {
@@ -614,9 +658,6 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                   channelPartner.name,
                                   style: AppTextStyle.ts16M(
                                     color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
                                   ),
                                 ),
                               ),

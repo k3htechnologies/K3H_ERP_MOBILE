@@ -257,6 +257,33 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
   }
 
+  void showNoteDialog(BuildContext context, {required String note}) {
+    final ScrollController controller = ScrollController();
+
+    DialogHelper.showCustomDialogue(
+      context,
+      title: "Note",
+      childContent: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.5,
+        ),
+        child: RawScrollbar(
+          controller: controller,
+          thumbVisibility: true,
+          thumbColor: AppColor.lightBlue,
+          radius: const Radius.circular(8),
+          child: SingleChildScrollView(
+            controller: controller,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Text(note, style: AppTextStyle.ts14R()),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -725,6 +752,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                             parkingCount:
                                                                 floor
                                                                     .parkingCount,
+                                                            note: "",
                                                             flat: "",
                                                             reraCarpetAreaSqFt:
                                                                 0,
@@ -906,7 +934,7 @@ class _InventoryScreenState extends State<InventoryScreen>
 
     return ChipStyleTabBar(
       controller: _wingTabController!,
-      isSecondaryStyle: true,
+      style: ChipTabBarStyle.underline,
       tabs: wingList.map((w) => w.wing.toString()).toList(),
     );
   }
@@ -997,7 +1025,31 @@ class _InventoryScreenState extends State<InventoryScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Unit No. : ${flat.flat}", style: AppTextStyle.ts14M()),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  "Unit No. : ${flat.flat}",
+                  style: AppTextStyle.ts14M(),
+                ),
+              ),
+              if (flat.note.isNotEmpty)
+                InkWell(
+                  onTap: () {
+                    showNoteDialog(context, note: flat.note);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 10.w),
+                    child: Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: AppColor.primary,
+                    ),
+                  ),
+                ),
+            ],
+          ),
           verticalSpacing(height: 5),
           buildRowTitleValue(title: "Type", value: flat.flatType),
           buildRowTitleValue(
@@ -1143,10 +1195,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               },
               child: Text(
                 "Owner : ${flat.ownerName}",
-                style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColor.primary,
-                ),
+                style: AppTextStyle.ts14M(color: AppColor.primary),
               ),
             ),
           ],

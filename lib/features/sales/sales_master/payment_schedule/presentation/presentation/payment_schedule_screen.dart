@@ -323,9 +323,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                                             item.stage,
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
-                                            style: AppTextStyle.ts16M(
-                                              color: AppColor.primary,
-                                            ),
+                                            style: AppTextStyle.ts16M(),
                                           ),
                                         ),
 

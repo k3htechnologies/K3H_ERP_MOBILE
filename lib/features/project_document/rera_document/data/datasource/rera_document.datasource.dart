@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class RERADocumentDatasource {
   Future<Map<String, dynamic>> apicallPullProjectRERADocument({
@@ -40,7 +41,7 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
     }) {
       String url =
           "ProjectRERADocument/PullProjectRERADocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

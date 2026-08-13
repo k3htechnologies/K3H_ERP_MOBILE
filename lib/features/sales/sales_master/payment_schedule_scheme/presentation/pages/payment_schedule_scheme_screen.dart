@@ -207,9 +207,7 @@ class _PaymentScheduleSchemeScreenState
                                   Expanded(
                                     child: Text(
                                       scheme.paymentScheduleSchemeName,
-                                      style: AppTextStyle.ts16M(
-                                        color: AppColor.primary,
-                                      ),
+                                      style: AppTextStyle.ts16M(),
                                     ),
                                   ),
                                   if (_routeAuthorizationModel.isAction) ...[

@@ -1,5 +1,4 @@
 // ignore_for_file: unused_local_variable
-
 import 'dart:developer';
 import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -17,7 +16,6 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   final LocalStorageManager localStorage = LocalStorageManager();
   final baseClient = BaseClient();
-
   Future requestNotificationPermission() async {
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
@@ -29,7 +27,6 @@ class NotificationService {
       carPlay: true,
       providesAppNotificationSettings: true,
     );
-
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       return true;
     } else if (settings.authorizationStatus ==
@@ -43,9 +40,7 @@ class NotificationService {
   Future<void> debugFCM() async {
     try {
       String? apns = await messaging.getAPNSToken();
-
       await Future.delayed(const Duration(seconds: 3));
-
       String? token = await messaging.getToken();
     } catch (e) {
       log("ERROR => $e");
@@ -56,26 +51,19 @@ class NotificationService {
     try {
       String? newToken = await messaging.getToken();
       debugPrint("FCM Token: $newToken");
-
       if (newToken == null) return "";
-
       final oldToken = localStorage.getString(StorageKey.fcmToken);
-
       if (oldToken != null && oldToken != newToken) {
         localStorage.setString(StorageKey.oldFcmToken, oldToken);
       }
-
       localStorage.setString(StorageKey.fcmToken, newToken);
-
       var teamMemberId = localStorage.getRawString('ProjectMemberDetailsId');
-
       if (teamMemberId != null && oldToken != newToken) {
         await baseClient.postRequestWithAuthentication(
           "DeviceToken/RegisterDeviceToken",
           {"OldDeviceToken": oldToken ?? "", "LatestDeviceToken": newToken},
         );
       }
-
       return newToken;
     } catch (e) {
       debugPrint("Token error: $e");
@@ -86,16 +74,12 @@ class NotificationService {
   void isDeviceTokenRefresh() {
     messaging.onTokenRefresh.listen((token) async {
       final oldToken = localStorage.getString(StorageKey.fcmToken);
-
       if (oldToken != null) {
         localStorage.setString(StorageKey.oldFcmToken, oldToken);
       }
-
       localStorage.setString(StorageKey.fcmToken, token);
-
       try {
         var teamMemberId = localStorage.getString('ProjectMemberDetailsId');
-
         if (teamMemberId != null) {
           await baseClient.postRequestWithAuthentication(
             "DeviceToken/RegisterDeviceToken",
@@ -117,10 +101,8 @@ class NotificationService {
           handleNotificationTap(message);
         });
       }
-
       if (Platform.isIOS) {
         foregroundMessage();
-
         showNotification(message);
         FirebaseMessaging.onMessageOpenedApp.listen((message) {
           handleNotificationTap(message);
@@ -158,7 +140,6 @@ class NotificationService {
             .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin
             >();
-
     await androidPlugin?.createNotificationChannel(channel);
   }
 
@@ -172,19 +153,16 @@ class NotificationService {
           playSound: true,
           enableVibration: true,
         );
-
     DarwinNotificationDetails iosDetails = const DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
       sound: 'default',
     );
-
     NotificationDetails details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
-
     await _flutterLocalNotificationsPlugin.show(
       id: 0,
       title: message.notification?.title ?? "No Title",
@@ -205,7 +183,6 @@ class NotificationService {
 
   void handleNotificationTap(RemoteMessage message) {
     final route = message.data['route'];
-
     if (route != null && route.isNotEmpty) {
       goRouter.push(route);
     } else {
@@ -216,7 +193,6 @@ class NotificationService {
   Future<void> setupInteractedMessage() async {
     RemoteMessage? initialMessage =
         await FirebaseMessaging.instance.getInitialMessage();
-
     if (initialMessage != null) {
       handleNotificationTap(initialMessage);
     }

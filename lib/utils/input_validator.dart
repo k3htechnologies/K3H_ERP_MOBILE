@@ -15,8 +15,11 @@ class InputValidator {
     ];
   }
 
-  static TextInputFormatter digitAndCharacterOnly() {
-    return FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]'));
+  static List<TextInputFormatter> digitAndCharacterOnly(int? length) {
+    return [
+      if (length != null) LengthLimitingTextInputFormatter(length),
+      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9]')),
+    ];
   }
 
   static List<TextInputFormatter> textOnly(int length) {

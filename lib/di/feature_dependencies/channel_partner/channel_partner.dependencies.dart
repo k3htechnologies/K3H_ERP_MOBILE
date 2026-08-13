@@ -12,7 +12,6 @@ void registerChannelPartnerDependencies(GetIt serviceLocator) {
       channelPartnerDatasource: serviceLocator<ChannelPartnerDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<ChannelPartnerCubit>(ChannelPartnerCubit());
 }

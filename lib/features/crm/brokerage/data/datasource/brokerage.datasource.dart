@@ -59,6 +59,21 @@ abstract interface class BrokerageDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallPullBrokerageInvoiceForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> pullPaidBrokerageBookingForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class BrokerageDatasourceImpl extends BrokerageDatasource {
@@ -375,7 +390,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     }) {
       String url =
           "Brokerage/PullBrokerageBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -398,6 +413,110 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           pageNumber: pageNumber,
           pageSize: pageSize,
           projectId: projectId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullBrokerageInvoiceForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullBrokerageInvoiceUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int bookingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Brokerage/PullBrokerageInvoice?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
+
+      url += queryParamsFormatter(queryParams: queryParams);
+
+      return url;
+    }
+
+    try {
+      final networkResponse = await baseClient.getRequestWithAuthentication(
+        pullBrokerageInvoiceUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullBrokerageInvoiceForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> pullPaidBrokerageBookingForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullPaidBrokerageBookingUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int bookingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Brokerage/PullPaidBrokerageBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
+
+      url += queryParamsFormatter(queryParams: queryParams);
+
+      return url;
+    }
+
+    try {
+      final networkResponse = await baseClient.getRequestWithAuthentication(
+        pullPaidBrokerageBookingUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          bookingId: bookingId,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return pullPaidBrokerageBookingForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          bookingId: bookingId,
           queryParams: queryParams,
         );
       }

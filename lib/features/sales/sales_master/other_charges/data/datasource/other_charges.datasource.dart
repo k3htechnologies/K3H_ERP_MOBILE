@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class OtherChargesDatasource {
   Future<Map<String, dynamic>> apicallPullOtherCharges({
@@ -46,7 +47,7 @@ class OtherChargesDatasourceImpl extends OtherChargesDatasource {
     }) {
       String url =
           "OtherCharges/PullOtherCharges?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -156,7 +157,7 @@ class OtherChargesDatasourceImpl extends OtherChargesDatasource {
     }) {
       String url =
           "OtherCharges/PullOtherCharges?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

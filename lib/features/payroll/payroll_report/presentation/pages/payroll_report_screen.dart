@@ -1229,12 +1229,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      employeeName,
-                      style: AppTextStyle.ts16M(color: AppColor.primary),
-                    ),
-                  ],
+                  children: [Text(employeeName, style: AppTextStyle.ts16M())],
                 ),
               ),
             ],
@@ -1495,7 +1490,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
             // INNER TAB BAR
             ChipStyleTabBar(
               controller: _regularizationTabController,
-              isSecondaryStyle: true,
+              style: ChipTabBarStyle.underline,
               tabs: ['Report', 'Approval'],
             ),
 
@@ -1950,7 +1945,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           children: [
             ChipStyleTabBar(
               controller: _compOffTabController,
-              isSecondaryStyle: true,
+              style: ChipTabBarStyle.underline,
               tabs: ['Report', 'Approval'],
             ),
             Expanded(
@@ -2366,7 +2361,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           children: [
             ChipStyleTabBar(
               controller: _leaveTabController,
-              isSecondaryStyle: true,
+              style: ChipTabBarStyle.underline,
               tabs: ['Report', 'Approval'],
             ),
             Expanded(
@@ -2792,7 +2787,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           children: [
             ChipStyleTabBar(
               controller: _outdoorTabController,
-              isSecondaryStyle: true,
+              style: ChipTabBarStyle.underline,
               tabs: ['Report', 'Approval'],
             ),
             Expanded(
@@ -3245,7 +3240,7 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
           children: [
             ChipStyleTabBar(
               controller: _resignationTabController,
-              isSecondaryStyle: true,
+              style: ChipTabBarStyle.underline,
               tabs: ['Report', 'Approval'],
             ),
             Expanded(

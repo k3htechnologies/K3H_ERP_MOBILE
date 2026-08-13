@@ -5,13 +5,11 @@ import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outwa
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
-import 'package:k3h_erp_app/utils/static/static_tab_values.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
 import '../../../../../widgets/app_bar/custom_app_bar_with_back_button.dart';
 
 class InwardOutwardViewScreen extends StatefulWidget {
@@ -27,6 +25,7 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   final ScrollController _employeeScrollController = ScrollController();
+  List<String> inwardOutwardViewTabs = const ['Overview', 'Document', 'Revert'];
 
   @override
   void initState() {
@@ -59,7 +58,7 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
             ),
           ),
           ChipStyleTabBar(
-            isSecondaryStyle: true,
+            style: ChipTabBarStyle.underline,
             controller: _tabController,
             tabs: inwardOutwardViewTabs,
           ),

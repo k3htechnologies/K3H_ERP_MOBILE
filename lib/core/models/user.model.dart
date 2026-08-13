@@ -74,7 +74,6 @@ class UserModel {
   List<Map<String, dynamic>> employeeReportingCycleData;
   bool isSelected;
   // VARIABLE USED IN PROJECT MASTER FOR HANDLING THE STATE OF SELECTED EMPLOYEE
-
   UserModel({
     required this.employeeId,
     required this.uniqueKey,
@@ -147,7 +146,6 @@ class UserModel {
     required this.employeeReportingCycleData,
     this.isSelected = false,
   });
-
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
     employeeId: parseValue<int>(json, "EmployeeId"),
     uniqueKey: parseValue<String>(json, "UniqueKey"),
@@ -255,7 +253,6 @@ class UserModel {
             : [],
     isSelected: false,
   );
-
   Map<String, dynamic> toJson() => {
     "EmployeeId": employeeId,
     "UniqueKey": uniqueKey,
@@ -327,8 +324,6 @@ class UserModel {
     "ProjectData": List<dynamic>.from(projectData.map((x) => x.toJson())),
     "EmployeeReportingCycleData": employeeReportingCycleData,
   };
-
-
   UserModel copyWith({
     int? employeeId,
     String? uniqueKey,
@@ -411,8 +406,7 @@ class UserModel {
       fullName: fullName ?? this.fullName,
       departmentMasterId: departmentMasterId ?? this.departmentMasterId,
       department: department ?? this.department,
-      designationMasterId:
-      designationMasterId ?? this.designationMasterId,
+      designationMasterId: designationMasterId ?? this.designationMasterId,
       designation: designation ?? this.designation,
       branchMasterId: branchMasterId ?? this.branchMasterId,
       branch: branch ?? this.branch,
@@ -423,62 +417,48 @@ class UserModel {
       probationDate: probationDate ?? this.probationDate,
       idCardIssuedDate: idCardIssuedDate ?? this.idCardIssuedDate,
       resignationDate: resignationDate ?? this.resignationDate,
-      isGeoFenceLocation:
-      isGeoFenceLocation ?? this.isGeoFenceLocation,
+      isGeoFenceLocation: isGeoFenceLocation ?? this.isGeoFenceLocation,
       emailId: emailId ?? this.emailId,
       officeEmailId: officeEmailId ?? this.officeEmailId,
       reportPersonId: reportPersonId ?? this.reportPersonId,
-      reportPersonName:
-      reportPersonName ?? this.reportPersonName,
-      personalMobileNumber:
-      personalMobileNumber ?? this.personalMobileNumber,
-      officeMobileNumber:
-      officeMobileNumber ?? this.officeMobileNumber,
-      bankListMasterId:
-      bankListMasterId ?? this.bankListMasterId,
+      reportPersonName: reportPersonName ?? this.reportPersonName,
+      personalMobileNumber: personalMobileNumber ?? this.personalMobileNumber,
+      officeMobileNumber: officeMobileNumber ?? this.officeMobileNumber,
+      bankListMasterId: bankListMasterId ?? this.bankListMasterId,
       bankName: bankName ?? this.bankName,
-      bankBranchName:
-      bankBranchName ?? this.bankBranchName,
+      bankBranchName: bankBranchName ?? this.bankBranchName,
       ifscCode: ifscCode ?? this.ifscCode,
       accountNo: accountNo ?? this.accountNo,
       employeeType: employeeType ?? this.employeeType,
       emergencyMobileNumber:
-      emergencyMobileNumber ?? this.emergencyMobileNumber,
+          emergencyMobileNumber ?? this.emergencyMobileNumber,
       emergencyContactPersonRelationship:
-      emergencyContactPersonRelationship ??
+          emergencyContactPersonRelationship ??
           this.emergencyContactPersonRelationship,
-      isUpdateEmployee:
-      isUpdateEmployee ?? this.isUpdateEmployee,
-      communicationAddress:
-      communicationAddress ?? this.communicationAddress,
-      permanentAddress:
-      permanentAddress ?? this.permanentAddress,
+      isUpdateEmployee: isUpdateEmployee ?? this.isUpdateEmployee,
+      communicationAddress: communicationAddress ?? this.communicationAddress,
+      permanentAddress: permanentAddress ?? this.permanentAddress,
       bloodGroup: bloodGroup ?? this.bloodGroup,
       companyId: companyId ?? this.companyId,
       companyName: companyName ?? this.companyName,
       lastLogin: lastLogin ?? this.lastLogin,
-      countryMasterId:
-      countryMasterId ?? this.countryMasterId,
+      countryMasterId: countryMasterId ?? this.countryMasterId,
       countryName: countryName ?? this.countryName,
       stateMasterId: stateMasterId ?? this.stateMasterId,
       stateName: stateName ?? this.stateName,
-      districtMasterId:
-      districtMasterId ?? this.districtMasterId,
+      districtMasterId: districtMasterId ?? this.districtMasterId,
       districtName: districtName ?? this.districtName,
       cityMasterId: cityMasterId ?? this.cityMasterId,
       cityName: cityName ?? this.cityName,
       villageMasterId: villageMasterId ?? this.villageMasterId,
       villageName: villageName ?? this.villageName,
-      aadharCardNumber:
-      aadharCardNumber ?? this.aadharCardNumber,
+      aadharCardNumber: aadharCardNumber ?? this.aadharCardNumber,
       passportNumber: passportNumber ?? this.passportNumber,
       panCardNumber: panCardNumber ?? this.panCardNumber,
-      drivingLicenceNumber:
-      drivingLicenceNumber ?? this.drivingLicenceNumber,
+      drivingLicenceNumber: drivingLicenceNumber ?? this.drivingLicenceNumber,
       voterCardNumber: voterCardNumber ?? this.voterCardNumber,
       profilePhotoURL: profilePhotoURL ?? this.profilePhotoURL,
-      clientRegistrationId:
-      clientRegistrationId ?? this.clientRegistrationId,
+      clientRegistrationId: clientRegistrationId ?? this.clientRegistrationId,
       createdById: createdById ?? this.createdById,
       createdBy: createdBy ?? this.createdBy,
       createdDate: createdDate ?? this.createdDate,
@@ -489,8 +469,7 @@ class UserModel {
       moduleData: moduleData ?? this.moduleData,
       projectData: projectData ?? this.projectData,
       employeeReportingCycleData:
-      employeeReportingCycleData ??
-          this.employeeReportingCycleData,
+          employeeReportingCycleData ?? this.employeeReportingCycleData,
       isSelected: isSelected ?? this.isSelected,
     );
   }

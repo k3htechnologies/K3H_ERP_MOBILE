@@ -375,6 +375,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
                                         }
                                         showFilePreviewDialog(
                                           context,
+                                          title: files.title,
                                           files.marketingContentURL.split(","),
                                         );
                                       },

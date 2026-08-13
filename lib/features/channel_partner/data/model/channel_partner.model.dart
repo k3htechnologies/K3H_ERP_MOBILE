@@ -53,6 +53,10 @@ class ChannelPartnerModel {
   final String secondaryProjectPortfolio;
   final String micromarketProximity;
   final String verifiedNonVerified;
+  final String aopDocumentUrl;
+  final DateTime? aopFromDate;
+  final DateTime? aopToDate;
+  final String aopStatus;
 
   ChannelPartnerModel({
     required this.channelPartnerId,
@@ -107,6 +111,10 @@ class ChannelPartnerModel {
     required this.secondaryProjectPortfolio,
     required this.micromarketProximity,
     required this.verifiedNonVerified,
+    required this.aopDocumentUrl,
+    required this.aopFromDate,
+    required this.aopToDate,
+    required this.aopStatus,
   });
 
   factory ChannelPartnerModel.fromJson(Map<String, dynamic> json) =>
@@ -188,6 +196,16 @@ class ChannelPartnerModel {
         ),
         micromarketProximity: parseValue<String>(json, "MicromarketProximity"),
         verifiedNonVerified: parseValue<String>(json, "VerifiedNonVerified"),
+        aopDocumentUrl: parseValue<String>(json, "AOPDocumentURL"),
+        aopFromDate:
+            json["AOPFromDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "AOPFromDate"),
+        aopToDate:
+            json["AOPToDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "AOPToDate"),
+        aopStatus: parseValue<String>(json, "AOPStatus"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -243,5 +261,9 @@ class ChannelPartnerModel {
     "SecondaryProjectPortfolio": secondaryProjectPortfolio,
     "MicromarketProximity": micromarketProximity,
     "VerifiedNonVerified": verifiedNonVerified,
+    "AOPDocumentURL": aopDocumentUrl,
+    "AOPFromDate": aopFromDate?.toIso8601String(),
+    "AOPToDate": aopToDate?.toIso8601String(),
+    "AOPStatus": aopStatus,
   };
 }

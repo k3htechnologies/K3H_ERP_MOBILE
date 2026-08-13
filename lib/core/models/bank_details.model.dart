@@ -19,7 +19,6 @@ class BankDetailsModel {
   int modifiedById;
   String modifiedBy;
   dynamic modifiedDate;
-
   BankDetailsModel({
     required this.projectWithBankDetailsId,
     required this.uniquekey,
@@ -40,7 +39,6 @@ class BankDetailsModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory BankDetailsModel.fromJson(Map<String, dynamic> json) =>
       BankDetailsModel(
         projectWithBankDetailsId: parseValue<int>(
@@ -71,7 +69,6 @@ class BankDetailsModel {
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
         modifiedDate: json["ModifiedDate"],
       );
-
   Map<String, dynamic> toJson() => {
     "ProjectWithBankDetailsId": projectWithBankDetailsId,
     "Uniquekey": uniquekey,

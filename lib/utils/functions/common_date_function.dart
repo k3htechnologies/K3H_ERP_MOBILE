@@ -254,6 +254,18 @@ DateTime? parseApiDate(String? value) {
   );
 }
 
+bool isDateWithinPastDays(DateTime? date, int pastDays) {
+  if (date == null) return false;
+
+  final inputDate = DateUtils.dateOnly(date);
+  final today = DateUtils.dateOnly(DateTime.now());
+  final minAllowedDate = today.subtract(Duration(days: pastDays));
+
+  return (inputDate.isAtSameMomentAs(minAllowedDate) ||
+          inputDate.isAfter(minAllowedDate)) &&
+      (inputDate.isAtSameMomentAs(today) || inputDate.isBefore(today));
+}
+
 String getApiMobileNumber(String phoneNumber) {
   // Remove everything except digits
   String digits = phoneNumber.replaceAll(RegExp(r'\D'), '');

@@ -62,7 +62,17 @@ class CustomButton extends StatelessWidget {
       child: Ink(
         decoration: BoxDecoration(
           // FOR GRADIENT BUTTONS
-          gradient: gradient,
+          gradient:
+              isDisable
+                  ? LinearGradient(
+                    colors: [
+                      AppColor.grey2.withValues(alpha: 0.2),
+                      AppColor.grey2.withValues(alpha: 0.2),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
+                  : gradient,
 
           // FOR NORMAL BUTTONS (NOT GRADIENT)
           color:
@@ -75,7 +85,7 @@ class CustomButton extends StatelessWidget {
           // FOR OUTLINE BUTTONS
           border:
               borderColor != null
-                  ? Border.all(color: isDisable ? AppColor.grey : borderColor!)
+                  ? Border.all(color: isDisable ? AppColor.grey2 : borderColor!)
                   : null,
 
           borderRadius: BorderRadius.circular(borderRadius),
@@ -150,7 +160,7 @@ class CustomButton extends StatelessWidget {
         text: 'Add',
         leading: Icon(Icons.add, color: AppColor.white),
         gradient: LinearGradient(
-          colors: [AppColor.green, AppColor.darkGreen],
+          colors: [AppColor.primary, AppColor.primary],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -199,18 +209,21 @@ class CustomButton extends StatelessWidget {
   // ---------------- OUTLINE BUTTONS ----------------
 
   // CANCEL (OUTLINE)
-  CustomButton.cancelOutline({Key? key, required VoidCallback onPressed})
-    : this(
-        key: key,
-        onPressed: onPressed,
-        text: 'Cancel',
-        backgroundColor: Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        textColor: AppColor.grey,
-        borderColor: AppColor.grey,
-        elevation: 0,
-        boxShadow: [],
-      );
+  CustomButton.cancelOutline({
+    Key? key,
+    required VoidCallback onPressed,
+    String cancelText = 'Cancel',
+  }) : this(
+         key: key,
+         onPressed: onPressed,
+         text: cancelText,
+         backgroundColor: Colors.transparent,
+         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+         textColor: AppColor.grey,
+         borderColor: AppColor.grey,
+         elevation: 0,
+         boxShadow: [],
+       );
 
   // RESET (OUTLINE)
   CustomButton.clearOutline({Key? key, required VoidCallback onPressed})
@@ -232,8 +245,12 @@ class CustomButton extends StatelessWidget {
     bool isDisable = false,
   }) : this(
          key: key,
-         trailing: Icon(Icons.remove_red_eye_outlined, size: 18),
-         onPressed: onPressed,
+         trailing: Icon(
+           Icons.remove_red_eye_outlined,
+           color: isDisable ? AppColor.grey2 : AppColor.primary,
+           size: 18,
+         ),
+         onPressed: isDisable ? () {} : onPressed,
          isDisable: isDisable,
          text: 'Document',
          backgroundColor: Colors.transparent,

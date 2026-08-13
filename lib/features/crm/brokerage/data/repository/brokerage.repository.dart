@@ -57,6 +57,22 @@ abstract interface class BrokerageRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> exportBrokerageInvoice({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> exportPaidBrokerageBooking({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class BrokerageRepositoryImp extends BrokerageRepository {
@@ -215,6 +231,54 @@ class BrokerageRepositoryImp extends BrokerageRepository {
             projectId: projectId,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportBrokerageInvoice({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      final result = await brokerageDatasource
+          .apicallPullBrokerageInvoiceForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            bookingId: bookingId,
+            queryParams: queryParams,
+          );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportPaidBrokerageBooking({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int bookingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      final result = await brokerageDatasource
+          .pullPaidBrokerageBookingForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            bookingId: bookingId,
+            queryParams: queryParams,
+          );
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

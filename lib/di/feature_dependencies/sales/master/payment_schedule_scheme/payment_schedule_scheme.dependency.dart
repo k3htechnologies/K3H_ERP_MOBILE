@@ -4,20 +4,15 @@ import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/presentation/cubit/payment_schedule_scheme_cubit.dart';
 
 void registerPaymentScheduleSchemeDependencies(GetIt serviceLocator) {
-  // ---------------- DATASOURCE ----------------
   serviceLocator.registerSingleton<PaymentScheduleSchemeDatasource>(
     PaymentScheduleSchemeDatasourceImpl(),
   );
-
-  // ---------------- REPOSITORY ----------------
   serviceLocator.registerSingleton<PaymentScheduleSchemeRepository>(
     PaymentScheduleSchemeRepositoryImpl(
       paymentScheduleSchemeDatasource:
           serviceLocator<PaymentScheduleSchemeDatasource>(),
     ),
   );
-
-  // ---------------- CUBIT ----------------
   serviceLocator.registerSingleton<PaymentScheduleSchemeCubit>(
     PaymentScheduleSchemeCubit(),
   );

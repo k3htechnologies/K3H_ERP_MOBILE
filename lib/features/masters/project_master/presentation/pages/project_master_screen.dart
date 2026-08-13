@@ -559,9 +559,6 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                                   project.projectName,
                                   style: AppTextStyle.ts16M(
                                     color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
                                   ),
                                 ),
                               ),
@@ -619,6 +616,10 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                         buildRowTitleValue(
                           title: "CTS Number",
                           value: project.ctsNumber,
+                        ),
+                        buildRowTitleValue(
+                          title: "Category",
+                          value: project.category,
                         ),
                         buildRowTitleValue(
                           title: "Business Category",

@@ -421,33 +421,103 @@ const yearValues = [
 ];
 
 const supportValues = [
-  "Below The Line (BTL)",
-  "Paper Insert",
-  "Standee Require",
-  "Video Recording",
+  'Below The Line (BTL)',
+  'Paper Insert',
+  'Standee Require',
+  'Video Recording',
 ];
 
 const paymentModeValues = [
-  "Cheque",
-  "Demand Draft",
-  "IMPS",
-  "NEFT",
-  "Online Transfer",
-  "RTGS",
-  "UPI",
+  'Cheque',
+  'Demand Draft',
+  'IMPS',
+  'NEFT',
+  'Online Transfer',
+  'RTGS',
+  'UPI',
 ];
 
-const paymentTypeValues = ["Full", "Partial"];
+const paymentTypeValues = ['Full', 'Partial'];
 
-const financialYearValues = ["2025-26", "2026-27", "2027-28"];
+const financialYearValues = ['2025-26', '2026-27', '2027-28'];
 
-const paymentReceivedFormValues = ["Bank", "Owner"];
+const paymentReceivedFormValues = ['Bank', 'Owner'];
 const paymentForValues = [
-  "Stamp Duty",
-  "Registration Fees",
-  "Agreement Value (Without TDS)",
-  "Agreement Value GST",
-  "Agreement Value TDS",
-  "Other Charges Value",
-  "Other Charges GST",
+  'Stamp Duty',
+  'Registration Fees',
+  'Agreement Value (Without TDS)',
+  'Agreement Value GST',
+  'Agreement Value TDS',
+  'Other Charges Value',
+  'Other Charges GST',
 ];
+
+const unitSqFtLumsumValues = ['Per SqFt', 'Lump Sum'];
+
+const propertyTypeValues = ['Residential', 'Commercial'];
+const tenureValues = [
+  'Tenure 1',
+  'Tenure 2',
+  'Tenure 3',
+  'Tenure 4',
+  'Tenure 5',
+  'Tenure 6',
+  'Tenure 7',
+  'Tenure 8',
+  'Tenure 9',
+  'Tenure 10',
+  'Tenure 11',
+  'Tenure 12',
+  'Tenure 13',
+  'Tenure 14',
+];
+const tenderPaymentModeValues = [
+  'Cheque',
+  'Cash',
+  'Demand Draft',
+  'IMPS',
+  'NEFT',
+  'Pay Order',
+  'RTGS',
+  'UPI',
+];
+
+const tenantDocumentTypeValues = [
+  "33 (38) Notice",
+  "79 / A Consent",
+  "Additional Document (If Any)",
+  "Affidavit",
+  "Assessment Bill",
+  "Consent For Cluster (If Applicable)",
+  "Developer Format Consent",
+  "Electric NOC",
+  "Electricity Bill",
+  "Eligible / Non Eligible (Form 3 & 4)",
+  "Extra Area Purchase Letter",
+  "Extra Purchase Payment Schedule",
+  "Gas Bill",
+  "Maintenance Bill",
+  "MGL NOC",
+  "MHADA Verified Consent",
+  "Notarized Kararnama",
+  "PAAA Floor Plan",
+  "Photo Pass",
+  "Photo Pass Receipt",
+  "POA (Admission)",
+  "Ration Card (If Applicable)",
+  "Registered PAAA",
+  "Rent Receipt (If Applicable)",
+  "Repossession Letter",
+  "Repossession Undertaking",
+  "Sales Agreement",
+  "Share Certificate",
+  "Transfer Documents",
+  "Unit Plan",
+  "Vacant Possession Letter",
+  "Vacating Consent Letter",
+  "Yadi Slip",
+];
+
+const aopStatusValues = ['AOP', 'NON - AOP', 'EXPIRED', 'EXPIRE SOON'];
+
+const applicantTypeValues = ['Applicant', 'Co - Applicant'];

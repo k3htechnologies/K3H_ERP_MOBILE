@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ApprovalCategoryDatasource {
   Future<Map<String, dynamic>> apicallPullProjectApprovalDocumentCategory({
@@ -45,7 +46,7 @@ class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
     }) {
       String url =
           "ApprovalDocumentCategory/PullApprovalDocumentCategory?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -160,7 +161,7 @@ class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
     }) {
       String url =
           "ApprovalDocumentCategory/PullApprovalDocumentCategory?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

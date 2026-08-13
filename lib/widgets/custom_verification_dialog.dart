@@ -34,7 +34,7 @@ Future<void> showCompleteVerificationDialog(
         if (otpController != null) ...[
           verticalSpacing(height: 10),
 
-          Text("Verify Otp", style: AppTextStyle.ts14R()),
+          Text("Verify OTP", style: AppTextStyle.ts14R()),
           verticalSpacing(height: 5),
 
           TextFormField(

@@ -6,13 +6,11 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 import 'utils_state.dart';
 
 class UtilsCubit extends Cubit<UtilsState> {
   UtilsCubit() : super(UtilsState.initial());
   final utilsRepository = serviceLocator<UtilsRepository>();
-
   // SEND MODULE BASED OTP FOR VERIFICATION
   Future<void> sendOTPModuleBased({
     required BuildContext context,
@@ -31,7 +29,6 @@ class UtilsCubit extends Cubit<UtilsState> {
       projectName: projectName,
       source: source,
     );
-
     result.fold(
       (failure) {
         showErrorMessage(context, 'OTP Error', failure.message);
@@ -58,7 +55,6 @@ class UtilsCubit extends Cubit<UtilsState> {
     int? subSubSubId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await utilsRepository.updateModulesWorkflowApproval(
       moduleName: moduleName,
       id: id,
@@ -69,9 +65,7 @@ class UtilsCubit extends Cubit<UtilsState> {
       subSubId: subSubId,
       subSubSubId: subSubSubId,
     );
-
     goRouter.pop();
-
     final isSuccess = result.fold(
       (failure) {
         showErrorMessage(context, "Approval Failed", failure.message);
@@ -85,7 +79,6 @@ class UtilsCubit extends Cubit<UtilsState> {
         return true;
       },
     );
-
     return isSuccess;
   }
 
@@ -101,7 +94,6 @@ class UtilsCubit extends Cubit<UtilsState> {
   }) async {
     DialogHelper.showProcessingOverlay(context);
     emit(state.copyWith(isLoading: true));
-
     var result = await utilsRepository.pullModuleApprovalStatus(
       projectId: projectId,
       moduleName: moduleName,
@@ -110,9 +102,7 @@ class UtilsCubit extends Cubit<UtilsState> {
       subSubId: subSubId,
       subSubSubId: subSubSubId,
     );
-
     goRouter.pop();
-
     return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -123,9 +113,7 @@ class UtilsCubit extends Cubit<UtilsState> {
         final List<ApprovalLogHistory> newData = List<ApprovalLogHistory>.from(
           response['data'] ?? [],
         );
-
         emit(state.copyWith(isLoading: false));
-
         return newData;
       },
     );

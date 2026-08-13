@@ -5,7 +5,6 @@ class AuthorizationModel {
   final bool isAction;
   final bool isExport;
   final bool isView;
-
   AuthorizationModel({
     this.isAccess = false,
     this.isAction = false,
@@ -39,7 +38,6 @@ class Authorization {
     // INVENTORY
     AppRoutes.inventory: AuthorizationModel(),
     AppRoutes.parking: AuthorizationModel(),
-
     // REDEVELOPMENT
     AppRoutes.building: AuthorizationModel(),
     AppRoutes.proposedOffer: AuthorizationModel(),
@@ -53,7 +51,6 @@ class Authorization {
     AppRoutes.classificationParameter: AuthorizationModel(),
     // CHANNEL PARTNER
     AppRoutes.channelPartner: AuthorizationModel(),
-
     // HRM
     AppRoutes.assetMaster: AuthorizationModel(),
     AppRoutes.assetMappingMaster: AuthorizationModel(),
@@ -66,11 +63,9 @@ class Authorization {
     AppRoutes.weekOffMappingMaster: AuthorizationModel(),
     AppRoutes.leaveEncashmentMaster: AuthorizationModel(),
   };
-
   static Map<String, AuthorizationModel> getDefaultAuthorizationMap() {
     return {
       AppRoutes.dashboardScreen: AuthorizationModel(isAccess: true),
-
       // MASTERS
       AppRoutes.departmentMaster: AuthorizationModel(),
       AppRoutes.companyMaster: AuthorizationModel(),
@@ -79,17 +74,14 @@ class Authorization {
       AppRoutes.projectMaster: AuthorizationModel(),
       AppRoutes.employeeMaster: AuthorizationModel(),
       AppRoutes.employeeModuleAccess: AuthorizationModel(isAccess: true),
-
       // PROCUREMENT
       AppRoutes.materialMaster: AuthorizationModel(),
       AppRoutes.activityMaster: AuthorizationModel(),
       AppRoutes.contractMaster: AuthorizationModel(),
       AppRoutes.subMaterialMaster: AuthorizationModel(),
       AppRoutes.materialRequisition: AuthorizationModel(),
-
       // VENDOR
       AppRoutes.vendor: AuthorizationModel(),
-
       // INVENTORY
       AppRoutes.inventory: AuthorizationModel(),
       AppRoutes.parking: AuthorizationModel(),
@@ -98,17 +90,14 @@ class Authorization {
       AppRoutes.proposedOffer: AuthorizationModel(),
       AppRoutes.rent: AuthorizationModel(),
       AppRoutes.tenant: AuthorizationModel(),
-
       // SALES
       AppRoutes.callTracker: AuthorizationModel(),
       AppRoutes.enquiry: AuthorizationModel(),
       AppRoutes.booking: AuthorizationModel(),
       AppRoutes.otherCharges: AuthorizationModel(),
       AppRoutes.classificationParameter: AuthorizationModel(),
-
       // CHANNEL PARTNER
       AppRoutes.channelPartner: AuthorizationModel(),
-
       // HRM
       AppRoutes.assetMaster: AuthorizationModel(),
       AppRoutes.assetMappingMaster: AuthorizationModel(),

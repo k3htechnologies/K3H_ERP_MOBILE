@@ -101,7 +101,7 @@ class _CollectionReportOverallScreenState
               verticalSpacing(),
               ChipStyleTabBar(
                 controller: _tabController!,
-                isSecondaryStyle: false,
+                style: ChipTabBarStyle.outlined,
                 tabs: types,
               ),
               Expanded(

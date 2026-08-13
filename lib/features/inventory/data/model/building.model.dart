@@ -383,6 +383,7 @@ class FlatModel {
   int bookingCreatedById;
   String bookingCreatedBy;
   DateTime? bookingCreatedDate;
+  String note;
   List<FlatSpecificationModel> specificationList;
 
   FlatModel({
@@ -414,6 +415,7 @@ class FlatModel {
     required this.bookingCreatedBy,
     required this.bookingCreatedDate,
     required this.specificationList,
+    required this.note,
   });
 
   factory FlatModel.fromJson(Map<String, dynamic> json) => FlatModel(
@@ -437,6 +439,7 @@ class FlatModel {
     flatStatus: parseValue<String>(json, "FlatStatus"),
     ownerName: parseValue<String>(json, "OwnerName"),
     flatFacing: parseValue<String>(json, "FlatFacing"),
+    note: parseValue<String>(json, "Note"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -479,6 +482,7 @@ class FlatModel {
     "FlatStatus": flatStatus,
     "OwnerName": ownerName,
     "FlatFacing": flatFacing,
+    "Note": note,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
@@ -522,6 +526,7 @@ class FlatModel {
     int? bookingCreatedById,
     String? bookingCreatedBy,
     DateTime? bookingCreatedDate,
+    String? note,
     List<FlatSpecificationModel>? specificationList,
   }) {
     return FlatModel(
@@ -555,6 +560,7 @@ class FlatModel {
       bookingCreatedBy: bookingCreatedBy ?? this.bookingCreatedBy,
       bookingCreatedDate: bookingCreatedDate ?? this.bookingCreatedDate,
       specificationList: specificationList ?? this.specificationList,
+      note: note ?? this.note,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_aop.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner_dashboard.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
@@ -27,6 +28,11 @@ abstract interface class ChannelPartnerDatasource {
     Map<String, dynamic>? queryParams,
   });
   Future<Map<String, dynamic>> apicallPullChannelPartnerDashboard({
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apicallPullChannelPartnerAOP({
+    required int pageNumber,
+    required int pageSize,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -119,7 +125,7 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     }) {
       String url =
           "ChannelPartner/PullChannelPartner?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -160,13 +166,7 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     }) {
       String url =
           "ChannelPartner/PullChannelPartnerCompany?PageSize=$pageSize&PageNumber=$pageNumber";
-
-      queryParams?.forEach((key, value) {
-        if (value != null && value.toString().isNotEmpty) {
-          url += "&$key=$value";
-        }
-      });
-
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -202,7 +202,7 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     String pullChannelPartnerDashboardUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "SalesChannelPartnerDashboard/PullSalesChannelPartnerDashboard";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -225,6 +225,51 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apicallPullChannelPartnerDashboard(queryParams: queryParams);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullChannelPartnerAOP({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullChannelPartnerAOPUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ChannelPartner/PullChannelPartnerAOP?PageSize=$pageSize&PageNumber=$pageNumber";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullChannelPartnerAOPUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<ChannelPartnerAopModel>.from(
+          networkResponse["data"].map(
+            (e) => ChannelPartnerAopModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullChannelPartnerAOP(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

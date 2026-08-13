@@ -29,6 +29,9 @@ AddressParsedResult processAddressData(String rawJson) {
   final dataList = (list as List).map((e) => CityModel.fromJson(e)).toList();
 
   // 4-level tree: country → state → district → city → [villages]
+  // NOTE: the leaf list can contain multiple rows per village (one per ward),
+  // so village/ward dropdowns are derived from this list rather than the
+  // tree growing a 5th level.
   final Map<int, Map<int, Map<int, Map<int, List<CityModel>>>>> tree = {};
 
   for (final item in dataList) {
@@ -68,12 +71,14 @@ class AddressWidget extends StatefulWidget {
   final int? incomingDistrictId;
   final int? incomingCityId;
   final int? incomingVillageId;
+  final int? incomingWardId;
 
-  final Function(Map<String, dynamic>) countryChange; // ← new
+  final Function(Map<String, dynamic>) countryChange;
   final Function(Map<String, dynamic>) stateChange;
   final Function(Map<String, dynamic>) districtChange;
   final Function(Map<String, dynamic>) cityChange;
   final Function(Map<String, dynamic>)? villageChange;
+  final Function(Map<String, dynamic>)? wardChange;
 
   final GlobalKey<FormState> formKey;
 
@@ -90,6 +95,8 @@ class AddressWidget extends StatefulWidget {
     required this.cityChange,
     this.villageChange,
     required this.formKey,
+    this.incomingWardId,
+    this.wardChange,
   });
 
   @override
@@ -109,7 +116,9 @@ class _AddressWidgetState extends State<AddressWidget> {
   final ValueNotifier<List<Map<String, dynamic>>> villageList = ValueNotifier(
     [],
   );
+  final ValueNotifier<List<Map<String, dynamic>>> wardList = ValueNotifier([]);
 
+  final ValueNotifier<int?> wardId = ValueNotifier(null);
   final ValueNotifier<int?> countryId = ValueNotifier(null);
   final ValueNotifier<int?> stateId = ValueNotifier(null);
   final ValueNotifier<int?> districtId = ValueNotifier(null);
@@ -120,6 +129,11 @@ class _AddressWidgetState extends State<AddressWidget> {
   final ValueNotifier<int> _districtReset = ValueNotifier(0);
   final ValueNotifier<int> _cityReset = ValueNotifier(0);
   final ValueNotifier<int> _villageReset = ValueNotifier(0);
+  final ValueNotifier<int> _wardReset = ValueNotifier(0);
+
+  // Raw rows for the currently selected city — kept around so ward options
+  // can be re-derived whenever the village selection changes.
+  List<CityModel> _cityRows = [];
 
   @override
   void initState() {
@@ -142,6 +156,9 @@ class _AddressWidgetState extends State<AddressWidget> {
     _districtReset.dispose();
     _cityReset.dispose();
     _villageReset.dispose();
+    wardList.dispose();
+    wardId.dispose();
+    _wardReset.dispose();
     super.dispose();
   }
 
@@ -164,11 +181,14 @@ class _AddressWidgetState extends State<AddressWidget> {
     _districtReset.value++;
     _cityReset.value++;
     _villageReset.value++;
+    _wardReset.value++;
+    _cityRows = [];
     if (states == null) {
       stateList.value = [];
       districtList.value = [];
       cityList.value = [];
       villageList.value = [];
+      wardList.value = [];
       return;
     }
     stateList.value =
@@ -179,6 +199,7 @@ class _AddressWidgetState extends State<AddressWidget> {
     districtList.value = [];
     cityList.value = [];
     villageList.value = [];
+    wardList.value = [];
   }
 
   void handleStateChange(int sId) {
@@ -186,10 +207,13 @@ class _AddressWidgetState extends State<AddressWidget> {
     _districtReset.value++;
     _cityReset.value++;
     _villageReset.value++;
+    _wardReset.value++;
+    _cityRows = [];
     if (districts == null) {
       districtList.value = [];
       cityList.value = [];
       villageList.value = [];
+      wardList.value = [];
       return;
     }
     districtList.value =
@@ -199,15 +223,19 @@ class _AddressWidgetState extends State<AddressWidget> {
         }).toList();
     cityList.value = [];
     villageList.value = [];
+    wardList.value = [];
   }
 
   void handleDistrictChange(int dId) {
     final cities = addressTree[countryId.value]?[stateId.value]?[dId];
     _cityReset.value++;
     _villageReset.value++;
+    _wardReset.value++;
+    _cityRows = [];
     if (cities == null) {
       cityList.value = [];
       villageList.value = [];
+      wardList.value = [];
       return;
     }
     cityList.value =
@@ -216,22 +244,53 @@ class _AddressWidgetState extends State<AddressWidget> {
           return {'zAttributesId': e.key, 'DisplayName': first.cityName};
         }).toList();
     villageList.value = [];
+    wardList.value = [];
   }
 
   void handleCityChange(int cId) {
     final villages =
         addressTree[countryId.value]?[stateId.value]?[districtId.value]?[cId];
     _villageReset.value++;
+    _wardReset.value++;
     if (villages == null) {
+      _cityRows = [];
       villageList.value = [];
+      wardList.value = [];
       return;
     }
+    _cityRows = villages;
+    // A village can appear multiple times in this list (once per ward),
+    // so dedupe by villageMasterId for the dropdown options.
+    final seenVillages = <int>{};
     villageList.value =
         villages
+            .where((e) => seenVillages.add(e.villageMasterId))
             .map(
               (e) => {
                 'zAttributesId': e.villageMasterId,
                 'DisplayName': e.villageName,
+              },
+            )
+            .toList();
+    wardList.value = [];
+  }
+
+  void handleVillageChange(int vId) {
+    _wardReset.value++;
+    final rowsForVillage =
+        _cityRows.where((e) => e.villageMasterId == vId).toList();
+    if (rowsForVillage.isEmpty) {
+      wardList.value = [];
+      return;
+    }
+    final seenWards = <int>{};
+    wardList.value =
+        rowsForVillage
+            .where((e) => seenWards.add(e.wardMasterId))
+            .map(
+              (e) => {
+                'zAttributesId': e.wardMasterId,
+                'DisplayName': e.wardName,
               },
             )
             .toList();
@@ -243,6 +302,7 @@ class _AddressWidgetState extends State<AddressWidget> {
     final dId = widget.incomingDistrictId;
     final cId = widget.incomingCityId;
     final vId = widget.incomingVillageId;
+    final wId = widget.incomingWardId;
 
     if (cntId == null) return;
     if (!countryList.any((e) => e['zAttributesId'] == cntId)) return;
@@ -284,7 +344,14 @@ class _AddressWidgetState extends State<AddressWidget> {
       handleCityChange(cId);
     }
 
-    if (vId != null) villageId.value = vId;
+    if (vId != null) {
+      villageId.value = vId;
+      handleVillageChange(vId);
+    }
+
+    if (wId != null) {
+      wardId.value = wId;
+    }
   }
 
   @override
@@ -313,6 +380,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                 districtId.value = null;
                 cityId.value = null;
                 villageId.value = null;
+                wardId.value = null;
                 handleCountryChange(countryId.value!);
                 widget.countryChange(map);
               },
@@ -324,6 +392,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                 districtId.value = null;
                 cityId.value = null;
                 villageId.value = null;
+                wardId.value = null;
               },
             );
           },
@@ -356,6 +425,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         districtId.value = null;
                         cityId.value = null;
                         villageId.value = null;
+                        wardId.value = null;
                         handleStateChange(stateId.value!);
                         widget.stateChange(map);
                       },
@@ -366,6 +436,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         districtId.value = null;
                         cityId.value = null;
                         villageId.value = null;
+                        wardId.value = null;
                       },
                     );
                   },
@@ -402,6 +473,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         districtId.value = map['zAttributesId'];
                         cityId.value = null;
                         villageId.value = null;
+                        wardId.value = null;
                         handleDistrictChange(districtId.value!);
                         widget.districtChange(map);
                       },
@@ -412,6 +484,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         districtId.value = null;
                         cityId.value = null;
                         villageId.value = null;
+                        wardId.value = null;
                       },
                     );
                   },
@@ -447,6 +520,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       onSelected: (map) {
                         cityId.value = map['zAttributesId'];
                         villageId.value = null;
+                        wardId.value = null;
                         handleCityChange(cityId.value!);
                         widget.cityChange(map);
                       },
@@ -455,6 +529,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       onValueClear: () {
                         cityId.value = null;
                         villageId.value = null;
+                        wardId.value = null;
                       },
                     );
                   },
@@ -492,6 +567,8 @@ class _AddressWidgetState extends State<AddressWidget> {
                         dataList: list,
                         onSelected: (map) {
                           villageId.value = map['zAttributesId'];
+                          wardId.value = null;
+                          handleVillageChange(villageId.value!);
                           widget.villageChange!(map);
                         },
                         validator:
@@ -499,6 +576,49 @@ class _AddressWidgetState extends State<AddressWidget> {
                                 value == null ? 'Village is required' : null,
                         onValueClear: () {
                           villageId.value = null;
+                          wardId.value = null;
+                        },
+                      );
+                    },
+                  );
+                },
+              );
+            },
+          ),
+
+        // Ward (optional)
+        if (widget.wardChange != null)
+          ValueListenableBuilder<int>(
+            valueListenable: _wardReset,
+            builder: (_, resetVal, __) {
+              return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: wardList,
+                builder: (_, list, __) {
+                  return ValueListenableBuilder<int?>(
+                    valueListenable: wardId,
+                    builder: (_, val, __) {
+                      return CustomDropDownWidget(
+                        isDisabled: (villageId.value == null),
+                        key: ValueKey('ward_${val}_${list.length}_$resetVal'),
+                        initialValue:
+                            val == null
+                                ? null
+                                : list.firstWhereOrNull(
+                                  (e) => e['zAttributesId'] == val,
+                                ),
+                        title: 'Ward',
+                        isRequired: true,
+                        hintText: 'Select Ward',
+                        validator:
+                            (value) =>
+                                value == null ? 'Ward is required' : null,
+                        dataList: list,
+                        onSelected: (map) {
+                          wardId.value = map['zAttributesId'];
+                          widget.wardChange!(map);
+                        },
+                        onValueClear: () {
+                          wardId.value = null;
                         },
                       );
                     },

@@ -635,9 +635,10 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                     state.employeeMasterList.isEmpty) {
                   return Center(child: loader());
                 }
+
                 if (state.employeeMasterList.isEmpty) {
                   return ListView(
-                    physics: AlwaysScrollableScrollPhysics(),
+                    physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
                         height: getActualHeight(context) * .7,
@@ -649,92 +650,50 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                   );
                 }
 
-                final listView = ListView.builder(
-                  padding: EdgeInsets.symmetric(
-                    vertical: 8.0,
-                    horizontal: 16.0,
-                  ),
-                  controller: _scrollController,
-                  itemCount:
-                      _employeeMasterCubit.state.employeeMasterList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index ==
-                        _employeeMasterCubit.state.employeeMasterList.length) {
-                      return state.employeeMasterList.length <
-                              state.totalNumberOfRecord
-                          ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    var employee = state.employeeMasterList[index];
-                    return Container(
-                      padding: EdgeInsets.all(16),
-                      margin: EdgeInsets.only(bottom: 10),
-                      clipBehavior: Clip.hardEdge,
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            spacing: 10,
-                            children: [
-                              Flexible(
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    await goRouter.pushNamed(
-                                      AppRoutes.employeeViewDetails,
-                                      queryParameters: {
-                                        "employee": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(employee),
-                                          ),
-                                        ),
-                                      },
-                                    );
-                                  },
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          employee.fullName,
-                                          style: AppTextStyle.ts16M(
-                                            color: AppColor.primary,
-                                          ).copyWith(
-                                            decoration:
-                                                TextDecoration.underline,
-                                            decorationColor: AppColor.primary,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8.0,
+                        horizontal: 16.0,
+                      ),
+                      controller: _scrollController,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      itemCount: state.employeeMasterList.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == state.employeeMasterList.length) {
+                          return state.employeeMasterList.length <
+                                  state.totalNumberOfRecord
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
                                 ),
-                              ),
+                              )
+                              : const SizedBox.shrink();
+                        }
+
+                        final employee = state.employeeMasterList[index];
+
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          clipBehavior: Clip.hardEdge,
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 spacing: 10,
                                 children: [
-                                  if (checkValidEmployeeDetails(employee) ==
-                                      false) ...[
-                                    CustomIconButton(
-                                      onPressed: () {},
-                                      icon: Icon(
-                                        Icons.warning_amber_outlined,
-                                        color: AppColor.yellow,
-                                        size: 16,
-                                      ),
-                                      backgroundColor: AppColor.yellow
-                                          .withValues(alpha: .2),
-                                    ),
-                                  ],
-                                  if (_routeAuthorizationModel.isAction) ...[
-                                    CustomIconButton.edit(
-                                      onPressed: () async {
+                                  Flexible(
+                                    child: GestureDetector(
+                                      onTap: () async {
                                         await goRouter.pushNamed(
-                                          AppRoutes.addUpdateEmployee,
+                                          AppRoutes.employeeViewDetails,
                                           queryParameters: {
                                             "employee":
                                                 Uri.encodeQueryComponent(
@@ -742,123 +701,141 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                                     jsonEncode(employee),
                                                   ),
                                                 ),
-                                            'index': index.toString(),
                                           },
                                         );
                                       },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Flexible(
+                                            child: Text(
+                                              employee.fullName,
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                              style: AppTextStyle.ts16M(
+                                                color: AppColor.primary,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ],
+                                  ),
+
+                                  Row(
+                                    spacing: 10,
+                                    children: [
+                                      // Warning icon
+                                      if (checkValidEmployeeDetails(employee) ==
+                                          false)
+                                        CustomIconButton(
+                                          onPressed: () {},
+                                          icon: const Icon(
+                                            Icons.warning_amber_outlined,
+                                            color: AppColor.yellow,
+                                            size: 16,
+                                          ),
+                                          backgroundColor: AppColor.yellow
+                                              .withValues(alpha: .2),
+                                        ),
+
+                                      // Edit button
+                                      if (_routeAuthorizationModel.isAction)
+                                        CustomIconButton.edit(
+                                          onPressed: () async {
+                                            await goRouter.pushNamed(
+                                              AppRoutes.addUpdateEmployee,
+                                              queryParameters: {
+                                                "employee":
+                                                    Uri.encodeQueryComponent(
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(employee),
+                                                      ),
+                                                    ),
+                                                "index": index.toString(),
+                                              },
+                                            );
+                                          },
+                                        ),
+                                    ],
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
-                          verticalSpacing(),
-                          Row(
-                            children: [
-                              // TITLE
-                              SizedBox(
-                                width: 130,
-                                child: Text(
-                                  "Employee Code",
-                                  style: AppTextStyle.ts14R(
-                                    color: AppColor.grey,
+
+                              verticalSpacing(),
+
+                              Row(
+                                children: [
+                                  SizedBox(
+                                    width: 130,
+                                    child: Text(
+                                      "Employee Code",
+                                      style: AppTextStyle.ts14R(
+                                        color: AppColor.grey,
+                                      ),
+                                    ),
                                   ),
-                                ),
+
+                                  SizedBox(
+                                    width: 20,
+                                    child: Text(
+                                      ":",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: AppColor.grey),
+                                    ),
+                                  ),
+
+                                  Flexible(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 5,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        color: AppColor.purple.withValues(
+                                          alpha: .15,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        employee.employeeCode,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.purple,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
 
-                              // COLON
-                              SizedBox(
-                                width: 20,
-                                child: Text(
-                                  ":",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(color: AppColor.grey),
-                                ),
+                              verticalSpacing(),
+                              buildRowTitleValue(
+                                title: "Designation",
+                                value: employee.designation,
                               ),
-
-                              // VALUE
-                              Flexible(
-                                child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 5),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    color: AppColor.purple.withValues(
-                                      alpha: .15,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    employee.employeeCode,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyle.ts14R(
-                                      color: AppColor.purple,
-                                    ),
-                                  ),
-                                ),
+                              buildRowTitleValue(
+                                title: "Department",
+                                value: employee.department,
+                                singleLine: false,
                               ),
-                            ],
-                          ),
-                          verticalSpacing(),
-                          buildRowTitleValue(
-                            title: "Designation",
-                            value: employee.designation,
-                          ),
-                          buildRowTitleValue(
-                            title: "Department",
-                            value: employee.department,
-                            singleLine: false,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 6),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                  width: 130,
-                                  child: Text(
-                                    "Personal Mobile Number",
-                                    style: AppTextStyle.ts14R(
-                                      color: AppColor.grey,
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                  child: Text(
-                                    ":",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: AppColor.grey),
-                                  ),
-                                ),
-                                CustomClickToContactText(
+                              buildRowTitleValue(
+                                title: "Personal Mobile Number",
+                                value: employee.personalMobileNumber,
+                                customValueWidget: CustomClickToContactText(
                                   countryCode: "+91",
                                   value: employee.personalMobileNumber,
                                 ),
-                              ],
-                            ),
+                              ),
+                              buildRowTitleValue(
+                                title: "Reporting Person",
+                                value: employee.reportPersonName,
+                              ),
+                            ],
                           ),
-
-                          buildRowTitleValue(
-                            title: "Reporting Person",
-                            value: employee.reportPersonName,
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-
-                return Stack(
-                  children: [
-                    listView,
-                    if (state.isLoading ?? false)
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: Container(
-                            color: Colors.transparent,
-                            child: Center(child: loader()),
-                          ),
-                        ),
-                      ),
+                        );
+                      },
+                    ),
                   ],
                 );
               },

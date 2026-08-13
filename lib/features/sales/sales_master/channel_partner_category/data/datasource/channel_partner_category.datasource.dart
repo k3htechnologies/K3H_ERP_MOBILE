@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/data/model/channel_partner_category.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ChannelPartnerCategoryDatasource {
   Future<Map<String, dynamic>> apicallPullChannelPartnerCategory({
@@ -33,10 +34,7 @@ class ChannelPartnerCategoryDatasourceImpl
     }) {
       String url =
           "ChannelPartnerCategory/PullChannelPartnerCategory?ProjectId=$projectId";
-
-      queryParams?.forEach((key, value) {
-        url += "&$key=$value";
-      });
+      url += queryParamsFormatter(queryParams: queryParams);
 
       return url;
     }
@@ -108,11 +106,7 @@ class ChannelPartnerCategoryDatasourceImpl
     }) {
       String url =
           "ChannelPartnerCategory/PullChannelPartnerCategory?ProjectId=$projectId";
-
-      queryParams?.forEach((key, value) {
-        url += "&$key=$value";
-      });
-
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

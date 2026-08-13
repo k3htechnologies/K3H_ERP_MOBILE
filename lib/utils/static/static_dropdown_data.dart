@@ -228,3 +228,29 @@ final List<Map<String, dynamic>> paymentReceivedFormList = createAttributeList(
 final List<Map<String, dynamic>> paymentForList = createAttributeList(
   paymentForValues,
 );
+
+final List<Map<String, dynamic>> unitSqFtLumsumList = createAttributeList(
+  unitSqFtLumsumValues,
+);
+
+final List<Map<String, dynamic>> propertyTypeList = createAttributeList(
+  propertyTypeValues,
+);
+
+final List<Map<String, dynamic>> tenureList = createAttributeList(tenureValues);
+
+final List<Map<String, dynamic>> tenurePaymentModeList = createAttributeList(
+  tenderPaymentModeValues,
+);
+
+final List<Map<String, dynamic>> aopStatusList = createAttributeList(
+  aopStatusValues,
+);
+
+final List<Map<String, dynamic>> tenantDocumentTypesList = createAttributeList(
+  tenantDocumentTypeValues,
+);
+
+final List<Map<String, dynamic>> applicantTypeList = createAttributeList(
+  applicantTypeValues,
+);

@@ -17,10 +17,20 @@ import 'package:k3h_erp_app/core/presentation/cubit/main_screen_cubit.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/business_development/building/data/model/building_document.model.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_update_document_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/offer_hardship_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_hardship_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
+import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_sales_matrics_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
@@ -57,6 +67,9 @@ import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentatio
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_booking_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/presentation/widget/achievement_drill_down_report_for_enquiry_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/cubit/aop_achievement_report_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/pages/aop_achievement_drill_down_report_screen.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/aop_achievement/presentation/pages/aop_achievement_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
@@ -217,8 +230,8 @@ import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_mas
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/add_sub_material_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/sub_material_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/presentation/pages/sub_material_master_view_screen.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/cubit/umo_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/procurement_master/umo_master/presentation/pages/umo_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/presentation/cubit/uom_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/presentation/pages/uom_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/add_project_screen.dart';
@@ -357,34 +370,27 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/presentati
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_bank_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_details.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_update_document_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/edit_building_details_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/pages/redevelopment_dashboard_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/rent_details.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/add_payment_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/rent_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/view_payment_summary_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_update_tenant_document_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/business_development/building/data/model/building_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/cubit/building_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_building_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_view_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/update_building_details_screen.dart';
+import 'package:k3h_erp_app/features/business_development/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/dashboard/presentation/pages/redevelopment_dashboard_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/temporary_alternate_accommodation.model.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/add_payment_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/view_payment_summary_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/cubit/tenant_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/add_tenant_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_screen.dart';
@@ -401,7 +407,6 @@ import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category
 import 'package:k3h_erp_app/features/sales/sales_master/channel_partner_category/presentation/pages/channel_partner_category_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/cubit/classification_parameters_cubit.dart';
-
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/presentation/pages/add_classification_parameter_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
@@ -492,7 +497,8 @@ double? _readDouble(dynamic extraVal, String? queryVal) {
   return null;
 }
 
-RentModel? _rentModelFromQuery(String? encoded) {
+TemporaryAlternativeAccommodationModel?
+_temporaryAlternateAccommodationModelFromQuery(String? encoded) {
   if (encoded == null || encoded.isEmpty) return null;
   try {
     final json =
@@ -500,13 +506,14 @@ RentModel? _rentModelFromQuery(String? encoded) {
               EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
             )
             as Map<String, dynamic>;
-    return RentModel.fromJson(json);
+    return TemporaryAlternativeAccommodationModel.fromJson(json);
   } catch (_) {
     return null;
   }
 }
 
-List<RentDetailsModel> _rentDetailsFromQuery(String? encoded) {
+List<TemporaryAlternativeAccommodationDetailsModel>
+_temporaryAlternateAccommodationDetailsFromQuery(String? encoded) {
   if (encoded == null || encoded.isEmpty) return [];
   try {
     final list =
@@ -515,7 +522,11 @@ List<RentDetailsModel> _rentDetailsFromQuery(String? encoded) {
             )
             as List<dynamic>;
     return list
-        .map((e) => RentDetailsModel.fromJson(e as Map<String, dynamic>))
+        .map(
+          (e) => TemporaryAlternativeAccommodationDetailsModel.fromJson(
+            e as Map<String, dynamic>,
+          ),
+        )
         .toList();
   } catch (_) {
     return [];
@@ -533,6 +544,9 @@ final GoRouter goRouter = GoRouter(
     }
     return authenticateAndAuthorizeRoute(state);
   },
+  errorPageBuilder:
+      (context, state) =>
+          MaterialPage(child: ComingSoonScreen(title: "Coming Soon")),
   routes: [
     // SPLASH SCREEN
     GoRoute(
@@ -2361,28 +2375,44 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.building,
               path: AppRoutes.building,
               builder: (context, state) {
-                return const BuildingScreen();
+                // return const BuildingScreen();
+                return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
               name: AppRoutes.addUpdateBuildingDoc,
               path: AppRoutes.addUpdateBuildingDoc,
               builder: (context, state) {
-                final queryParameterBuilding =
-                    state.uri.queryParameters['building'];
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+                final queryParameterSubDocument =
+                    state.uri.queryParameters['subDocument'];
 
-                final RedevelopmentBuildingModel? building =
-                    queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
+                final BuildingDocumentModel? document =
+                    queryParameterDocument != null
+                        ? BuildingDocumentModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterBuilding),
+                              Uri.decodeComponent(queryParameterDocument),
                             ),
                           ),
                         )
                         : null;
 
-                return AddUpdateDocumentScreen(building: building!);
+                final BuildingDocumentModel? subDocument =
+                    queryParameterSubDocument != null
+                        ? BuildingDocumentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterSubDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+                return AddUpdateDocumentScreen(
+                  documentModel: document!,
+                  subDocumentModel: subDocument,
+                );
               },
             ),
             GoRoute(
@@ -2392,9 +2422,9 @@ final GoRouter goRouter = GoRouter(
                 final queryParameterBuilding =
                     state.uri.queryParameters['building'];
 
-                final RedevelopmentBuildingModel? building =
+                final BusinessDevelopmentBuildingModel? building =
                     queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
+                        ? BusinessDevelopmentBuildingModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(queryParameterBuilding),
@@ -2424,9 +2454,9 @@ final GoRouter goRouter = GoRouter(
                 final queryParameterBuilding =
                     state.uri.queryParameters['building'];
 
-                final RedevelopmentBuildingModel? building =
+                final BusinessDevelopmentBuildingModel? building =
                     queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
+                        ? BusinessDevelopmentBuildingModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(queryParameterBuilding),
@@ -2466,7 +2496,7 @@ final GoRouter goRouter = GoRouter(
                       ),
                     );
 
-                return EditBuildingDetailsScreen(
+                return UpdateBuildingDetailsScreen(
                   buildingDetailsModel: buildingDetail,
                 );
               },
@@ -2483,7 +2513,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.tenant,
               path: AppRoutes.tenant,
               builder: (context, state) {
-                return const TenantScreen();
+                // return const TenantScreen();
+                return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2548,40 +2579,23 @@ final GoRouter goRouter = GoRouter(
                 return TenantViewScreen(tenant: tenant!);
               },
             ),
-            GoRoute(
-              name: AppRoutes.addUpdateTenantDoc,
-              path: AppRoutes.addUpdateTenantDoc,
-              builder: (context, state) {
-                final queryParameterTenant =
-                    state.uri.queryParameters['tenant'];
-
-                final TenantModel? tenant =
-                    queryParameterTenant != null
-                        ? TenantModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterTenant),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                return AddUpdateTenantDocumentScreen(tenant: tenant!);
-              },
-            ),
           ],
         ),
         // RENT
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(create: (_) => RentCubit(), child: child);
+            return BlocProvider(
+              create: (_) => TemporaryAlternateAccommodationCubit(),
+              child: child,
+            );
           },
           routes: [
             GoRoute(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                return RentScreen();
+                // return TemporaryAlternateAccommodationScreen();
+                return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2595,13 +2609,25 @@ final GoRouter goRouter = GoRouter(
                     extra['buildingId'] as int? ??
                     int.tryParse(query['buildingId'] ?? '') ??
                     0;
-                List<RentDetailsModel> rentDetails =
-                    (extra['rentDetails'] as List<RentDetailsModel>?) ?? [];
+                List<TemporaryAlternativeAccommodationDetailsModel>
+                rentDetails =
+                    (extra['rentDetails']
+                        as List<
+                          TemporaryAlternativeAccommodationDetailsModel
+                        >?) ??
+                    [];
                 if (rentDetails.isEmpty) {
-                  rentDetails = _rentDetailsFromQuery(query['rentDetails']);
+                  rentDetails =
+                      _temporaryAlternateAccommodationDetailsFromQuery(
+                        query['rentDetails'],
+                      );
                 }
-                RentModel? rentModel = extra['rentModel'] as RentModel?;
-                rentModel ??= _rentModelFromQuery(query['rentModel']);
+                TemporaryAlternativeAccommodationModel? rentModel =
+                    extra['rentModel']
+                        as TemporaryAlternativeAccommodationModel?;
+                rentModel ??= _temporaryAlternateAccommodationModelFromQuery(
+                  query['rentModel'],
+                );
                 final totalAmount =
                     _readDouble(extra['totalAmount'], query['totalAmount']) ??
                     0.0;
@@ -2638,8 +2664,10 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewSummary,
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
-                RentModel? rentModel = extra['rentModel'] as RentModel?;
-                rentModel ??= _rentModelFromQuery(
+                TemporaryAlternativeAccommodationModel? rentModel =
+                    extra['rentModel']
+                        as TemporaryAlternativeAccommodationModel?;
+                rentModel ??= _temporaryAlternateAccommodationModelFromQuery(
                   state.uri.queryParameters['rentModel'],
                 );
                 if (rentModel == null) {
@@ -2663,10 +2691,36 @@ final GoRouter goRouter = GoRouter(
           },
           routes: [
             GoRoute(
-              name: AppRoutes.proposedPlans,
-              path: AppRoutes.proposedPlans,
+              name: AppRoutes.proposedPlan,
+              path: AppRoutes.proposedPlan,
               builder: (context, state) {
-                return const ProposedPlansScreen();
+                // return const ProposedPlansScreen();
+                return const ComingSoonScreen(title: "Proposed Plan");
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.wingDetails,
+              path: AppRoutes.wingDetails,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return AddWingDetailsScreen(
+                  wingIndex: data["index"],
+                  wing: data["wing"],
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.duplicateBuildingProposedPlan,
+              path: AppRoutes.duplicateBuildingProposedPlan,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return DuplicateBuildingProposedPlanScreen(
+                  projectId: data["projectId"],
+                  selectedBuildingIndex: data["selectedBuildingIndex"],
+                  buildingName: data["buildingName"],
+                );
               },
             ),
           ],
@@ -2684,7 +2738,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedOffer,
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
-                return const ProposedOfferScreen();
+                // return const ProposedOfferScreen();
+                return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(
@@ -2712,6 +2767,199 @@ final GoRouter goRouter = GoRouter(
                   buildingId: buildingId,
                   buildingName: buildingName,
                   type: type,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addUpdateHardshipDetails,
+              path: AppRoutes.addUpdateHardshipDetails,
+              builder: (context, state) {
+                final hardshipList =
+                    (state.extra
+                        as List<
+                          ProposedOfferHardshipDetailsWithPaymentStageData
+                        >?) ??
+                    [];
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final queryParameterHardship =
+                    state.uri.queryParameters['hardship'];
+
+                final ProposedOfferHardshipDetailsWithPaymentStageData?
+                hardship =
+                    queryParameterHardship != null
+                        ? ProposedOfferHardshipDetailsWithPaymentStageData.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterHardship),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final projectId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final buildingId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['buildingId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final residentialAmount =
+                    double.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['residentialAmount'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0.0;
+
+                final commercialAmount =
+                    double.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['commercialAmount'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0.0;
+                final buildingName = EncryptionManager.decryptData(
+                  Uri.decodeComponent(
+                    state.uri.queryParameters['buildingName'] ?? "",
+                  ),
+                );
+                return AddHardshipDetails(
+                  hardshipList: hardshipList,
+                  index: hardship == null ? null : index,
+                  hardship: hardship,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                  residentialAmount: residentialAmount,
+                  commercialAmount: commercialAmount,
+                  buildingName: buildingName,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addUpdateTemporaryAccommodationAlternativeDetails,
+              path: AppRoutes.addUpdateTemporaryAccommodationAlternativeDetails,
+              builder: (context, state) {
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final queryParameterRent = state.uri.queryParameters['rent'];
+
+                final TemporaryAlternativeAccommodationDetailsModel? rent =
+                    queryParameterRent != null
+                        ? TemporaryAlternativeAccommodationDetailsModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterRent),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final projectId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final buildingId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['buildingId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+                final buildingName = EncryptionManager.decryptData(
+                  Uri.decodeComponent(
+                    state.uri.queryParameters['buildingName'] ?? "",
+                  ),
+                );
+
+                return AddTemporaryAccommodationAlternativeDetails(
+                  index: rent == null ? null : index,
+                  taaDetailsModel: rent,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                  buildingName: buildingName,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addUpdateReadyReckonerDetails,
+              path: AppRoutes.addUpdateReadyReckonerDetails,
+              builder: (context, state) {
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final queryParameterReadyReckoner =
+                    state.uri.queryParameters['readyReckoner'];
+
+                final ReadyReckonerRateDetailsModel? readyReckoner =
+                    queryParameterReadyReckoner != null
+                        ? ReadyReckonerRateDetailsModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterReadyReckoner),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final projectId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['projectId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final buildingId =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['buildingId'] ?? '',
+                        ),
+                      ),
+                    ) ??
+                    0;
+                final buildingName = EncryptionManager.decryptData(
+                  Uri.decodeComponent(
+                    state.uri.queryParameters['buildingName'] ?? "",
+                  ),
+                );
+                return AddReadyReckonerDetails(
+                  index: readyReckoner == null ? null : index,
+                  readyReckonerRateDetails: readyReckoner,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -3534,6 +3782,37 @@ final GoRouter goRouter = GoRouter(
 
                 return ChannelPartnerViewScreen(
                   channelPartnerModel: channelPartner!,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.channelPartnerSalesMatrics,
+              name: AppRoutes.channelPartnerSalesMatrics,
+              builder: (context, state) {
+                final channelPartnerId =
+                    state.uri.queryParameters['channelPartnerId'] != null
+                        ? int.tryParse(
+                              EncryptionManager.decryptData(
+                                Uri.decodeComponent(
+                                  state
+                                      .uri
+                                      .queryParameters['channelPartnerId']!,
+                                ),
+                              ),
+                            ) ??
+                            0
+                        : 0;
+                final channelPartnerName =
+                    state.uri.queryParameters['channelPartnerName'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeComponent(
+                            state.uri.queryParameters['channelPartnerName']!,
+                          ),
+                        )
+                        : "";
+                return ChannelPartnerSalesMatricsScreen(
+                  channelPartnerId: channelPartnerId,
+                  channelPartnerName: channelPartnerName,
                 );
               },
             ),
@@ -4486,6 +4765,7 @@ final GoRouter goRouter = GoRouter(
                     BlocProvider(create: (_) => PerformanceCubit()),
                     BlocProvider(create: (_) => AchievementReportCubit()),
                     BlocProvider(create: (_) => IbmObmReportCubit()),
+                    BlocProvider(create: (_) => AopAchievementReportCubit()),
                   ],
                   child: child,
                 );
@@ -4778,7 +5058,7 @@ final GoRouter goRouter = GoRouter(
                                     state.uri.queryParameters['tabName']!,
                                   ),
                                 )
-                                : '';
+                                : null;
 
                         final columnName =
                             state.uri.queryParameters['columnName'] != null
@@ -4843,7 +5123,7 @@ final GoRouter goRouter = GoRouter(
                                     state.uri.queryParameters['tabName']!,
                                   ),
                                 )
-                                : '';
+                                : null;
 
                         final columnName =
                             state.uri.queryParameters['columnName'] != null
@@ -4905,7 +5185,7 @@ final GoRouter goRouter = GoRouter(
                                     state.uri.queryParameters['tabName']!,
                                   ),
                                 )
-                                : '';
+                                : null;
 
                         final columnName =
                             state.uri.queryParameters['columnName'] != null
@@ -4971,6 +5251,98 @@ final GoRouter goRouter = GoRouter(
                         return IbmObmReportViewScreen(
                           employeeId: employeeId,
                           employeeName: employeeName,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                GoRoute(
+                  path: AppRoutes.aopAchievement,
+                  name: AppRoutes.aopAchievement,
+                  builder: (context, state) {
+                    return AopAchievementReportScreen();
+                  },
+                  routes: [
+                    GoRoute(
+                      name: AppRoutes.aopAchievementDrillDownReport,
+                      path: AppRoutes.aopAchievementDrillDownReport,
+                      builder: (context, state) {
+                        final employeeId =
+                            state.uri.queryParameters['employeeId'] != null
+                                ? int.tryParse(
+                                      EncryptionManager.decryptData(
+                                        Uri.decodeComponent(
+                                          state
+                                              .uri
+                                              .queryParameters['employeeId']!,
+                                        ),
+                                      ),
+                                    ) ??
+                                    0
+                                : null;
+                        final employeeName =
+                            state.uri.queryParameters['employeeName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['employeeName']!,
+                                  ),
+                                )
+                                : '';
+                        final tabName =
+                            state.uri.queryParameters['tabName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['tabName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final columnName =
+                            state.uri.queryParameters['columnName'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['columnName']!,
+                                  ),
+                                )
+                                : '';
+
+                        final filterType =
+                            state.uri.queryParameters['filterType'] != null
+                                ? EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    state.uri.queryParameters['filterType']!,
+                                  ),
+                                )
+                                : '';
+
+                        final fromDate =
+                            state.uri.queryParameters['fromDate'] ?? '';
+                        final toDate =
+                            state.uri.queryParameters['toDate'] ?? '';
+                        final parseFromDate =
+                            fromDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(fromDate),
+                                  ),
+                                )
+                                : null;
+                        final parseToDate =
+                            toDate.isNotEmpty
+                                ? DateTime.parse(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(toDate),
+                                  ),
+                                )
+                                : null;
+                        return AopAchievementDrillDownReportScreen(
+                          employeeId: employeeId,
+                          employeeName: employeeName,
+                          tabName: tabName,
+                          columnName: columnName,
+                          filterType: filterType,
+                          fromDate: parseFromDate,
+                          toDate: parseToDate,
                         );
                       },
                     ),

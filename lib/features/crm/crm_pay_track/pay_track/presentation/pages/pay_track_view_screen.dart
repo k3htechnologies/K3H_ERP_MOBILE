@@ -189,7 +189,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           ),
           ChipStyleTabBar(
             controller: _tabController,
-            isSecondaryStyle: true,
+            style: ChipTabBarStyle.underline,
             tabs: _tabs.map((m) => m.title).toList(),
           ),
           BlocBuilder<PayTrackCubit, PayTrackState>(

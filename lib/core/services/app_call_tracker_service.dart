@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:call_state_listener/call_state_listener.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
@@ -16,7 +15,6 @@ class AppInitiatedCallEntry {
   final DateTime endedAt;
   final int durationSeconds;
   final bool isSynced;
-
   AppInitiatedCallEntry({
     required this.phoneNumber,
     required this.startedAt,
@@ -24,7 +22,6 @@ class AppInitiatedCallEntry {
     required this.durationSeconds,
     this.isSynced = false,
   });
-
   Map<String, dynamic> toJson() => {
     'phoneNumber': phoneNumber,
     'startedAt': startedAt.toIso8601String(),
@@ -32,7 +29,6 @@ class AppInitiatedCallEntry {
     'durationSeconds': durationSeconds,
     'isSynced': isSynced,
   };
-
   factory AppInitiatedCallEntry.fromJson(Map<String, dynamic> json) {
     return AppInitiatedCallEntry(
       phoneNumber: json['phoneNumber'] as String,
@@ -42,7 +38,6 @@ class AppInitiatedCallEntry {
       isSynced: json['isSynced'] ?? false,
     );
   }
-
   AppInitiatedCallEntry copyWith({
     String? phoneNumber,
     DateTime? startedAt,
@@ -66,16 +61,12 @@ class AppCallTrackerService {
       _startListening();
     }
   }
-
   static const int _maxStoredLogs = 100;
-
   final ValueNotifier<int> logsUpdated = ValueNotifier(0);
-
   String? _pendingCallNumber;
   String? _currentCallNumber;
   DateTime? _callStartTime;
   StreamSubscription<String>? _subscription;
-
   void _startListening() {
     try {
       _subscription = CallStateListener.callStateStream
@@ -88,7 +79,6 @@ class AppCallTrackerService {
             debugPrint('Call state => $state');
             debugPrint('Pending => $_pendingCallNumber');
             debugPrint('Current => $_currentCallNumber');
-
             switch (state) {
               case 'OFFHOOK':
                 if (_pendingCallNumber != null) {
@@ -100,13 +90,11 @@ class AppCallTrackerService {
                   );
                 }
                 break;
-
               case 'IDLE':
                 if (_callStartTime != null && _currentCallNumber != null) {
                   final endedAt = DateTime.now();
                   final durationSeconds =
                       endedAt.difference(_callStartTime!).inSeconds;
-
                   final entry = AppInitiatedCallEntry(
                     phoneNumber: _currentCallNumber!,
                     startedAt: _callStartTime!,
@@ -114,22 +102,17 @@ class AppCallTrackerService {
                     durationSeconds: durationSeconds,
                     isSynced: false,
                   );
-
                   debugPrint(
                     'Saving call log => ${entry.phoneNumber}, duration => ${entry.durationSeconds}',
                   );
-
                   _saveLog(entry);
-
                   final savedLogs = getAppInitiatedCallLogs();
                   debugPrint('Total local logs => ${savedLogs.length}');
-
                   _currentCallNumber = null;
                   _callStartTime = null;
                   logsUpdated.value++;
                 }
                 break;
-
               default:
                 break;
             }
@@ -166,9 +149,7 @@ class AppCallTrackerService {
     final raw = LocalStorageManager().getString(
       StorageKey.appInitiatedCallLogs,
     );
-
     if (raw == null || raw.isEmpty) return [];
-
     try {
       final list = jsonDecode(raw) as List<dynamic>;
       return list
@@ -182,14 +163,11 @@ class AppCallTrackerService {
   void forceStartCall(String number) {
     _currentCallNumber = number;
     _callStartTime = DateTime.now();
-
     debugPrint("Force call start => $number");
-
     // fallback save after delay
     Future.delayed(const Duration(seconds: 10), () {
       if (_currentCallNumber != null && _callStartTime != null) {
         final endedAt = DateTime.now();
-
         final entry = AppInitiatedCallEntry(
           phoneNumber: _currentCallNumber!,
           startedAt: _callStartTime!,
@@ -197,11 +175,8 @@ class AppCallTrackerService {
           durationSeconds: endedAt.difference(_callStartTime!).inSeconds,
           isSynced: false,
         );
-
         _saveLog(entry);
-
         debugPrint("Fallback log saved");
-
         _currentCallNumber = null;
         _callStartTime = null;
         logsUpdated.value++;
@@ -212,15 +187,12 @@ class AppCallTrackerService {
   Future<bool> syncTodayCallLogsToApi() async {
     final logs = getAppInitiatedCallLogs();
     final now = DateTime.now();
-
     final todayLogs =
         logs.where((log) {
           final d = log.startedAt;
           return d.year == now.year && d.month == now.month && d.day == now.day;
         }).toList();
-
     if (todayLogs.isEmpty) return true;
-
     final payload =
         todayLogs
             .map(
@@ -232,12 +204,10 @@ class AppCallTrackerService {
               },
             )
             .toList();
-
     final wrapper = {
       "ProjectId": getProject().projectId,
       "CallLogJSON": jsonEncode(payload),
     };
-
     try {
       final client = BaseClient();
       await client.postRequestWithAuthentication("CallLog/AddCallLog", wrapper);
@@ -247,9 +217,7 @@ class AppCallTrackerService {
         StorageKey.appInitiatedCallLogs,
         jsonEncode([]),
       );
-
       logsUpdated.value++;
-
       return true;
     } catch (e, st) {
       debugPrint("Call log sync failed: $e");
@@ -262,7 +230,6 @@ class AppCallTrackerService {
     final h = seconds ~/ 3600;
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
-
     String two(int v) => v.toString().padLeft(2, '0');
     return '${two(h)}:${two(m)}:${two(s)}';
   }

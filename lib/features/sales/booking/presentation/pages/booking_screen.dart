@@ -23,6 +23,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -630,13 +631,8 @@ class _BookingScreenState extends State<BookingScreen> {
                                               },
                                               child: Text(
                                                 booking.applicantName,
-                                                style: AppTextStyle.ts14M(
+                                                style: AppTextStyle.ts16M(
                                                   color: AppColor.primary,
-                                                ).copyWith(
-                                                  decoration:
-                                                      TextDecoration.underline,
-                                                  decorationColor:
-                                                      AppColor.primary,
                                                 ),
                                               ),
                                             ),

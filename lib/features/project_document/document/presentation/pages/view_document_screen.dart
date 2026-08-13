@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewDocumentScreen extends StatefulWidget {
@@ -330,6 +331,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                       onPressed: () {
                         showFilePreviewDialog(
                           context,
+                          title: document.projectDocumentName,
                           document.projectDocumentURL.split(","),
                         );
                       },

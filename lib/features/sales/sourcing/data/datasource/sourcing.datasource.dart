@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class SourcingDatasource {
   Future<Map<String, dynamic>> apicallPullSourcing({
@@ -35,7 +36,7 @@ class SourcingDatasourceImpl extends SourcingDatasource {
     }) {
       String url =
           "ChannelPartnerSourcing/PullChannelPartnerSourcing?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

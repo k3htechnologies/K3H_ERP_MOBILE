@@ -145,6 +145,9 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _startDateNotifier.value = s.filterByFromDate;
     _endDateNotifier.value = s.filterByToDate;
 
+    String? selectedDirection =
+        s.currentSortColumn == "CP Name" ? s.currentSortDirection : null;
+    final String? initialDirection = selectedDirection;
     bool manualClose = false;
     bool applied = false;
 
@@ -167,7 +170,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                 s.filterAgreementValue ||
             _filterBookingTypeC.text.trim() != s.filterBookingType ||
             _startDateNotifier.value != s.filterByFromDate ||
-            _endDateNotifier.value != s.filterByToDate;
+            _endDateNotifier.value != s.filterByToDate ||
+            (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
       });
@@ -178,11 +182,64 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
       title: "Filter Brokerage",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
           return SingleChildScrollView(
             padding: EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text("Sort By Full Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+
+                    horizontalSpacing(),
+
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
                 verticalSpacing(),
 
                 CustomTextField(
@@ -357,6 +414,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           filterFlat: '',
           filterAgreementValue: 0,
           filterBookingType: '',
+          sortColumn: '',
+          sortDirection: '',
         );
       },
 
@@ -401,6 +460,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           filterAgreementValue:
               double.tryParse(_filterAgreementValueC.text.trim()) ?? 0,
           filterBookingType: _filterBookingTypeC.text.trim(),
+          sortColumn: selectedDirection != null ? "CP Name" : null,
+          sortDirection: selectedDirection,
         );
       },
 
@@ -528,10 +589,11 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                       Expanded(
                                         child: GestureDetector(
                                           onTap: () async {
-                                            await _brokerageCubit.resetSearch();
+                                            await _brokerageCubit
+                                                .resetViewSearch();
                                             await _brokerageCubit
                                                 .clearInvoiceAndPayment();
-                                            goRouter.pushNamed(
+                                            await goRouter.pushNamed(
                                               AppRoutes.viewBrokerage,
                                               queryParameters: {
                                                 "brokerage":
@@ -549,10 +611,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                             brokerage.channelPartnerName,
                                             style: AppTextStyle.ts16M(
                                               color: AppColor.primary,
-                                            ).copyWith(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationColor: AppColor.primary,
                                             ),
                                           ),
                                         ),
@@ -610,6 +668,12 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                     ),
                                   ),
                                   buildRowTitleValue(
+                                    title: "Agreement Amount (₹)",
+                                    value:
+                                        brokerage.agreementValue
+                                            .toIndianCurrency(),
+                                  ),
+                                  buildRowTitleValue(
                                     title: "Brokerage Amount",
                                     value:
                                         brokerage.brokerageAmount
@@ -629,10 +693,16 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                             .toIndianCurrency(),
                                   ),
                                   buildRowTitleValue(
-                                    title: "Agreement Amount (₹)",
+                                    title: "Outstanding Amount",
                                     value:
-                                        brokerage.agreementValue
+                                        (brokerage.brokerageAmount -
+                                                brokerage.paymentPaidAmount)
                                             .toIndianCurrency(),
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "TDS Amount",
+                                    value:
+                                        brokerage.tdsAmount.toIndianCurrency(),
                                   ),
                                   verticalSpacing(height: 10),
                                   ExpansionTile(
@@ -662,14 +732,12 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            /// UNIT
                                             Row(
                                               children: [
-                                                Expanded(
-                                                  child: _titleValue(
-                                                    "Applicant Name",
-                                                    brokerage.applicantName,
-                                                  ),
+                                                buildColumnTitleValue(
+                                                  title: "Applicant Name",
+                                                  value:
+                                                      brokerage.applicantName,
                                                 ),
                                               ],
                                             ),
@@ -678,20 +746,15 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
                                             Row(
                                               children: [
-                                                Expanded(
-                                                  child: _titleValue(
-                                                    "Building",
-                                                    brokerage.buildingNumber,
-                                                  ),
+                                                buildColumnTitleValue(
+                                                  title: "Booking Type",
+                                                  value: brokerage.bookingType,
                                                 ),
                                                 horizontalSpacing(),
-                                                Expanded(
-                                                  child: _titleValue(
-                                                    "Wing",
-                                                    brokerage.wing.isEmpty
-                                                        ? "-"
-                                                        : brokerage.wing,
-                                                  ),
+                                                buildColumnTitleValue(
+                                                  title: "Building",
+                                                  value:
+                                                      brokerage.buildingNumber,
                                                 ),
                                               ],
                                             ),
@@ -699,18 +762,17 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
                                             Row(
                                               children: [
-                                                Expanded(
-                                                  child: _titleValue(
-                                                    "Flat",
-                                                    brokerage.flat,
-                                                  ),
+                                                buildColumnTitleValue(
+                                                  title: "Wing",
+                                                  value:
+                                                      brokerage.wing.isEmpty
+                                                          ? "-"
+                                                          : brokerage.wing,
                                                 ),
                                                 horizontalSpacing(),
-                                                Expanded(
-                                                  child: _titleValue(
-                                                    "Type",
-                                                    brokerage.flatType,
-                                                  ),
+                                                buildColumnTitleValue(
+                                                  title: "Flat",
+                                                  value: brokerage.flat,
                                                 ),
                                               ],
                                             ),
@@ -718,19 +780,28 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
                                             Row(
                                               children: [
-                                                Expanded(
-                                                  child: _titleValue(
-                                                    "Configuration",
-                                                    brokerage.flatConfiguration,
-                                                  ),
+                                                buildColumnTitleValue(
+                                                  title: "Type",
+                                                  value: brokerage.flatType,
                                                 ),
                                                 horizontalSpacing(),
-                                                Expanded(
-                                                  child: _titleValue(
-                                                    "RERA Carpet Area (Sq FT)",
-                                                    brokerage.reraCarpetAreaSqFt
-                                                        .toString(),
-                                                  ),
+                                                buildColumnTitleValue(
+                                                  title: "Configuration",
+                                                  value:
+                                                      brokerage
+                                                          .flatConfiguration,
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                buildColumnTitleValue(
+                                                  title:
+                                                      "RERA Carpet Area (Sq FT)",
+                                                  value:
+                                                      brokerage
+                                                          .reraCarpetAreaSqFt
+                                                          .toString(),
                                                 ),
                                               ],
                                             ),
@@ -754,22 +825,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _titleValue(String title, String value) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: AppTextStyle.ts12M(
-            color: AppColor.black.withValues(alpha: 0.5),
-          ),
-        ),
-        verticalSpacing(height: 6),
-        Text(value, style: AppTextStyle.ts14M()),
-      ],
     );
   }
 }

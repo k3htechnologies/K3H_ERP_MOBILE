@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -131,6 +132,7 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
   void initState() {
     super.initState();
     _searchC = TextEditingController();
+    selectedProject = getProject().projectId == 0 ? null : getProject();
     _fetchProjects();
 
     _controller = AnimationController(
@@ -211,7 +213,9 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          if (selectedProject == null)
+                          if (selectedProject == null ||
+                              selectedProject?.projectName ==
+                                  '"No Project Selected"')
                             Text(
                               "Select Project",
                               style: AppTextStyle.ts14M(color: AppColor.grey),
@@ -310,7 +314,6 @@ class _ProjectSelectorOverlayState extends State<ProjectSelectorOverlay>
                                         child: Text(
                                           project.projectName,
                                           style: AppTextStyle.ts16M(),
-                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ],

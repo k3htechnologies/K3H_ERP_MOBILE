@@ -9,6 +9,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+// ignore: depend_on_referenced_packages
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart'
+    show FlutterQuillLocalizations;
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
@@ -18,9 +22,11 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/register/presentation/cubit/register_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/service/internet_connection_service.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/widgets/no_internet_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/scheduler.dart';
@@ -29,7 +35,6 @@ import 'package:flutter/scheduler.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 String currentVersion = "";
-
 void main() async {
   // INITIAL SETUP
   await initialSetup();
@@ -40,7 +45,6 @@ void main() async {
 Future<void> requestPhonePermission() async {
   if (Platform.isAndroid) {
     final status = await Permission.phone.request();
-
     if (status.isGranted) {
       debugPrint("Phone permission granted");
     } else {
@@ -68,9 +72,7 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 Future initialSetup() async {
   WidgetsFlutterBinding.ensureInitialized();
-
   await Firebase.initializeApp();
-
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
     badge: true,
@@ -82,9 +84,7 @@ Future initialSetup() async {
   // DEPENDENCY INJECTION
   initDependencies();
   HttpOverrides.global = MyHttpOverrides();
-
   SchedulerBinding.instance.addPostFrameCallback((_) {});
-
   // LOCK ORIENTATION
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -92,7 +92,6 @@ Future initialSetup() async {
   ]);
   final info = await PackageInfo.fromPlatform();
   currentVersion = info.version;
-
   await FlutterBackgroundService().configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
@@ -108,13 +107,11 @@ Future initialSetup() async {
       onBackground: onIosBackground,
     ),
   );
-
   final storage = LocalStorageManager();
   final storedVersion = storage.getString(StorageKey.appVersion);
   if (storedVersion != currentVersion) {
     await storage.setString(StorageKey.appVersion, currentVersion);
   }
-
   // MENU LIST
   var decodedMenuData = LocalStorageManager().getString(StorageKey.menu);
   if (decodedMenuData != null) {
@@ -123,7 +120,6 @@ Future initialSetup() async {
     );
     await updateRouteAuthorization(moduleData);
   }
-
   // ROUTING
   GoRouter.optionURLReflectsImperativeAPIs = true;
 }
@@ -153,13 +149,11 @@ void onStart(ServiceInstance service) async {
   });
   try {
     LocationPermission permission = await Geolocator.checkPermission();
-
     if (permission == LocationPermission.denied ||
         permission == LocationPermission.deniedForever) {
       log("Location permission not granted");
       return;
     }
-
     Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
         accuracy: LocationAccuracy.high,
@@ -169,11 +163,8 @@ void onStart(ServiceInstance service) async {
       (position) async {
         try {
           final storage = LocalStorageManager();
-
           List points = jsonDecode(storage.getString("route_points") ?? "[]");
-
           points.add({"lat": position.latitude, "lng": position.longitude});
-
           await storage.setString("route_points", jsonEncode(points));
         } catch (e) {
           log("Storage error: $e");
@@ -195,7 +186,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -204,24 +194,50 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => LoginCubit()),
         BlocProvider(create: (context) => RegisterCubit()),
       ],
-      child: ScreenUtilInit(
-        designSize: const Size(375, 812),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        builder: (context, child) {
-          return MaterialApp.router(
-            title: "K3H ERP",
-            debugShowCheckedModeBanner: false,
-
-            // THEME
-            theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: ThemeMode.light,
-
-            // ROUTING
-            routeInformationParser: goRouter.routeInformationParser,
-            routerDelegate: goRouter.routerDelegate,
-            routeInformationProvider: goRouter.routeInformationProvider,
+      child: StreamBuilder<bool>(
+        stream: ConnectivityService.instance.connectionStream,
+        initialData: true,
+        builder: (context, snapshot) {
+          final hasInternet = snapshot.data ?? true;
+          if (!hasInternet) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              localizationsDelegates: const [
+                FlutterQuillLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('en')],
+              home: const NoInternetScreen(),
+            );
+          }
+          return ScreenUtilInit(
+            designSize: const Size(375, 812),
+            minTextAdapt: true,
+            splitScreenMode: true,
+            builder: (context, child) {
+              return MaterialApp.router(
+                title: "K3H ERP",
+                debugShowCheckedModeBanner: false,
+                // THEME
+                theme: AppTheme.lightTheme,
+                darkTheme: AppTheme.darkTheme,
+                themeMode: ThemeMode.light,
+                // LOCALIZATION (required by flutter_quill's toolbar)
+                localizationsDelegates: const [
+                  FlutterQuillLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [Locale('en')],
+                // ROUTING
+                routeInformationParser: goRouter.routeInformationParser,
+                routerDelegate: goRouter.routerDelegate,
+                routeInformationProvider: goRouter.routeInformationProvider,
+              );
+            },
           );
         },
       ),

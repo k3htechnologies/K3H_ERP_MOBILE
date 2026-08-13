@@ -18,7 +18,7 @@ class ComingSoonScreen extends StatefulWidget {
 class _ComingSoonScreenState extends State<ComingSoonScreen> {
   void _closeDialog() {
     Navigator.of(context, rootNavigator: true).pop();
-    goRouter.replaceNamed(AppRoutes.dashboardScreen);
+    goRouter.goNamed(AppRoutes.dashboardScreen);
   }
 
   void _showComingSoonDialog(BuildContext context) {
@@ -30,7 +30,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen> {
           canPop: true,
           onPopInvokedWithResult: (didPop, result) {
             if (didPop) {
-              goRouter.replaceNamed(AppRoutes.dashboardScreen);
+              goRouter.goNamed(AppRoutes.dashboardScreen);
             }
           },
           child: Dialog(
@@ -120,7 +120,7 @@ class _ComingSoonScreenState extends State<ComingSoonScreen> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
 
-        goRouter.replaceNamed(AppRoutes.dashboardScreen);
+        goRouter.goNamed(AppRoutes.dashboardScreen);
       },
       child: Scaffold(
         appBar: CustomAppBar(

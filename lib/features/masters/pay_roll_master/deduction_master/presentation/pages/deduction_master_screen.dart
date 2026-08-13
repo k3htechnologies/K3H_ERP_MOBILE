@@ -294,9 +294,6 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                                 deduction.name,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,

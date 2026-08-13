@@ -133,7 +133,7 @@ class _InventoryOverallReportOverviewScreenState
 
               /// BUILDING TAB
               ChipStyleTabBar(
-                isSecondaryStyle: false,
+                style: ChipTabBarStyle.underline,
                 controller: _tabController!,
                 tabs: buildings.map((building) => building).toList(),
               ),
@@ -182,7 +182,7 @@ class _InventoryOverallReportOverviewScreenState
                             children: [
                               /// WING TAB
                               ChipStyleTabBar(
-                                isSecondaryStyle: true,
+                                style: ChipTabBarStyle.underline,
                                 controller: wingTabController,
                                 tabs: wings.map((wing) => wing).toList(),
                               ),

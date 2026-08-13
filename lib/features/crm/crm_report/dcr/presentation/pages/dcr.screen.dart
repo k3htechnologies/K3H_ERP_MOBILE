@@ -185,7 +185,7 @@ class _DCRScreenState extends State<DCRScreen> with TickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               ChipStyleTabBar(
-                isSecondaryStyle: false,
+                style: ChipTabBarStyle.outlined,
                 controller: _tabController,
                 tabs: ["Today", "Weekly", "Monthly", "Datewise", "Overall"],
               ),

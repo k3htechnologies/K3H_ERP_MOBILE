@@ -160,6 +160,7 @@ class AppRoutes {
   static String channelPartner = "/channelPartner";
   static String addChannelPartner = "/addChannelPartner";
   static String channelPartnerView = "/channelPartnerView";
+  static String channelPartnerSalesMatrics = "/channelPartnerSalesMatrics";
   static String cpUniverse = "/cpUniverse";
 
   // SALES OTHER CHARGES
@@ -189,11 +190,12 @@ class AppRoutes {
   static String addPaymentScheduleScheme = "/addPaymentScheduleScheme";
 
   // SALES REPORT
-  // PERFORMANCE
+  // PERFORMANCE REPORT
   static String performanceReport = "/performance";
   static String salesPerformanceReport = "/salesPerformance";
   static String viewPerformanceReport = "/viewPerformance";
-  // ACHIEVEMENT
+
+  // ACHIEVEMENT REPORT
   static String incentiveReport = "/incentiveReport";
   static String enquiryReport = "/enquiryReport";
   static String cpEnquiryReport = "/cpEnquiryReport";
@@ -205,12 +207,16 @@ class AppRoutes {
       "/achievementDrillDownReportForBooking";
   static String achievementDrillDownReportForChannelPartner =
       "/achievementDrillDownReportForChannelPartner";
-
   static String managerAchievementReport = "/managerAchievementReport";
 
+  // IBM OBM REPORT
   static String ibmObmReport = "/ibmObmReport";
   static String viewIbmObmReport = "/viewIbmObmReport";
 
+  // AOP REPORT
+  static String aopAchievement = "/aopAchievement";
+  static String aopAchievementDrillDownReport =
+      "/aopAchievementDrillDownReport";
   // SALES CLASSIFICATION PARAMETERS
   static String classificationParameter = "/classificationParameter";
   static String addClassificationParameter = "/addClassificationParameter";
@@ -374,10 +380,17 @@ class AppRoutes {
   // PROPOSED OFFER
   static String proposedOffer = "/proposedOffer";
   static String proposedOfferSecondaryScreen = "/proposedOfferSecondaryScreen";
+  static String addUpdateHardshipDetails = "/addUpdateHardshipDetails";
+  static String addUpdateTemporaryAccommodationAlternativeDetails =
+      "/addUpdateTemporaryAccommodationAlternativeDetails";
+  static String addUpdateReadyReckonerDetails =
+      "/addUpdateReadyReckonerDetails";
 
   // PROPOSED PLANS
-  static String proposedPlans = "/proposedPlan";
-
+  static String proposedPlan = "/proposedPlan";
+  static const String wingDetails = "/wingDetails";
+  static const String duplicateBuildingProposedPlan =
+      "/duplicateBuildingProposedPlan";
   // RENT
   static String rent = "/rent";
   static String addPayment = "/addPayment";
@@ -387,7 +400,6 @@ class AppRoutes {
   static String tenant = "/tenant";
   static String addTenant = "/addTenant";
   static String viewTenant = "/viewTenant";
-  static String addUpdateTenantDoc = "/addUpdateTenantDoc";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 
@@ -485,6 +497,9 @@ class AppRoutes {
   // INWARD - OUTWARD
   static String inwardOutward = "/inwardOutward";
   static String inwardOutwardAcknowledgement = "/inwardOutwardAcknowledgement";
+  // TODO:
+  static String inwarOutwarAdministrativeAccess =
+      "/inwarOutwarAdministrativeAccess";
   static String revertInwardOutward = "/revertInwardOutward";
   static String addInwardOutward = "/addInwardOutward";
   static String viewInwardOutward = "/viewInwardOutward";

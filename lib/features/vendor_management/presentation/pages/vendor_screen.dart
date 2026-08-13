@@ -442,9 +442,6 @@ class _VendorScreenState extends State<VendorScreen> {
                                   vendor.vendorName,
                                   style: AppTextStyle.ts16M(
                                     color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
                                   ),
                                 ),
                               ),

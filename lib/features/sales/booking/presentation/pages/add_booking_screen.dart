@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
@@ -505,24 +504,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     _registrationFeesNotifier.value = fees;
     _registrationFeesC.text = fees.toStringAsFixed(2);
-  }
-
-  // FOR MERGING FILES IN APPLICANT FORM
-  MultiFilePickerModel mergeFile(
-    MultiFilePickerModel updated,
-    MultiFilePickerModel old,
-  ) {
-    return MultiFilePickerModel(
-      fileBytesList:
-          updated.fileBytesList.isNotEmpty
-              ? updated.fileBytesList
-              : old.fileBytesList,
-      fileNameList:
-          updated.fileNameList.isNotEmpty
-              ? updated.fileNameList
-              : old.fileNameList,
-      deletedFileList: updated.deletedFileList,
-    );
   }
 
   // OPEN APPLICANT FORM
@@ -1607,14 +1588,13 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Applicant Details",
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
-                  ),
-                  verticalSpacing(),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Spacer(),
+                      Text(
+                        "Applicant Details",
+                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      ),
                       CustomButton(
                         leading: Icon(
                           Icons.add,
@@ -1684,6 +1664,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       if (value == null || value.trim().isEmpty) {
                         return "Permanent Address is required";
                       }
+                      if (value.trim().length < 25) {
+                        return "Permanent Address must be at least 25 characters";
+                      }
                       return null;
                     },
                   ),
@@ -1696,6 +1679,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Communication Address is required";
+                      }
+                      if (value.trim().length < 25) {
+                        return "Communication Address must be at least 25 characters";
                       }
                       return null;
                     },
@@ -2428,7 +2414,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 Expanded(
                   child: Builder(
                     builder: (context) {
-                      if (state.isLoading! && list.isEmpty) {
+                      if ((state.isLoading ?? false) &&
+                          list.isEmpty &&
+                          _agreementValueNotifier.value > 0) {
                         return const Center(child: CircularProgressIndicator());
                       }
 
@@ -3069,6 +3057,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   onPressed: () {
                     if (applicant.aadharCardURL.isNotEmpty) {
                       showFilePreviewDialog(
+                        title: "Aadhaar Card",
                         context,
                         applicant.aadharCardURL.split(","),
                       );
@@ -3095,6 +3084,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.panCardURL.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "PAN Card",
                         applicant.panCardURL.split(","),
                       );
                     }
@@ -3125,6 +3115,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.drivingLicenseURL.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Driving License",
                         applicant.drivingLicenseURL.split(","),
                       );
                     }
@@ -3153,6 +3144,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.votingIdURL.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Voting ID",
                         applicant.votingIdURL.split(","),
                       );
                     }
@@ -3181,6 +3173,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.passportURL.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Passport",
                         applicant.passportURL.split(","),
                       );
                     }
@@ -3207,6 +3200,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   onPressed: () {
                     if (applicant.gstNumberURL.isNotEmpty) {
                       showFilePreviewDialog(
+                        title: "GST Certificate",
                         context,
                         applicant.gstNumberURL.split(","),
                       );
@@ -3232,6 +3226,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.cancelledChequeUrl.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Cancelled Cheque",
                         applicant.cancelledChequeUrl.split(","),
                       );
                     }
@@ -3247,6 +3242,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.poaurl.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "POA (if NRI Execution)",
                         applicant.poaurl.split(","),
                       );
                     }
@@ -3271,6 +3267,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.incomeForm16Itrurl.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Income Docs (Form 16 / ITR)",
                         applicant.incomeForm16Itrurl.split(","),
                       );
                     }
@@ -3289,6 +3286,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "NRE / NRO Bank Details",
                         applicant.nreNroBankDetailsUrl.split(","),
                       );
                     }
@@ -3313,6 +3311,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.nomineeFormUrl.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Nominee Form",
                         applicant.nomineeFormUrl.split(","),
                       );
                     }
@@ -3331,6 +3330,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.statementOfSourceOfFundsURL.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Statement of Source of Funds",
                         applicant.statementOfSourceOfFundsURL.split(","),
                       );
                     }
@@ -3355,6 +3355,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.paymentProofURL.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Payment Proof",
                         applicant.paymentProofURL.split(","),
                       );
                     }
@@ -3370,6 +3371,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     if (applicant.photoURL.isNotEmpty) {
                       showFilePreviewDialog(
                         context,
+                        title: "Profile Photo",
                         applicant.photoURL.split(","),
                       );
                     }

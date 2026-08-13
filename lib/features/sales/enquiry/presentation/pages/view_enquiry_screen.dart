@@ -1033,7 +1033,11 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                       itemBuilder: (context, index) {
                         final isExtraDot = index == items.length;
                         final item = !isExtraDot ? items[index] : items[0];
-                        final isdisabled =
+                        final isWithin2Days = isDateWithinPastDays(
+                          item.modifiedDate ?? item.createdDate,
+                          2,
+                        );
+                        final isDisabled =
                             closedStatuses.contains(
                               item.status.toLowerCase(),
                             ) ||
@@ -1042,8 +1046,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                   state.currentEnquiryDetails!.finalStage
                                       .toLowerCase(),
                                 )) ||
-                            !_routeAuthorizationModel.isAction;
-
+                            !_routeAuthorizationModel.isAction ||
+                            !isWithin2Days;
                         return IntrinsicHeight(
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1177,7 +1181,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                       children: [
                                                         CustomIconButton.edit(
                                                           isDisabled:
-                                                              isdisabled,
+                                                              isDisabled,
                                                           onPressed: () {
                                                             _showAddUpdateEnquiryFollowUpBottomSheet(
                                                               context,
@@ -1189,7 +1193,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                                                         ),
                                                         CustomIconButton.delete(
                                                           isDisabled:
-                                                              isdisabled,
+                                                              isDisabled,
                                                           onPressed: () {
                                                             _showPopupToDeleteFollowUp(
                                                               index: index,

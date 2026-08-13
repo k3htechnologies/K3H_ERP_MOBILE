@@ -18,12 +18,8 @@ class AppTheme {
         fontWeight: FontWeight.w600,
       ),
     ),
-    colorScheme: ColorScheme.light(
-      primary: AppColor.primary,
-    ),
-    textTheme: const TextTheme(
-      bodyMedium: TextStyle(color: AppColor.black),
-    ),
+    colorScheme: ColorScheme.light(primary: AppColor.primary),
+    textTheme: const TextTheme(bodyMedium: TextStyle(color: AppColor.black)),
   );
 
   /// 🌙 DARK THEME
@@ -42,11 +38,7 @@ class AppTheme {
         fontWeight: FontWeight.w600,
       ),
     ),
-    colorScheme: ColorScheme.dark(
-      primary: AppColor.primary,
-    ),
-    textTheme: const TextTheme(
-      bodyMedium: TextStyle(color: AppColor.white),
-    ),
+    colorScheme: ColorScheme.dark(primary: AppColor.primary),
+    textTheme: const TextTheme(bodyMedium: TextStyle(color: AppColor.white)),
   );
 }

@@ -206,9 +206,6 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                                 subMaterial.subMaterialName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),

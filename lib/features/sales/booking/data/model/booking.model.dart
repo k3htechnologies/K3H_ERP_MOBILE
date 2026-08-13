@@ -9,8 +9,6 @@ class BookingModel {
   String uniquekey;
   String applicantName;
   List<BookingApplicantData> bookingApplicantData;
-  String applicantMobileNumber;
-  String applicantMobileNumberCountryCode;
   String permanentAddress;
   String systemGeneratedCode;
   int inventoryFlatFloorBasementPodiumWingId;
@@ -57,6 +55,7 @@ class BookingModel {
   String handoverType;
   DateTime registrationDate;
   DateTime? finalRegistrationDate;
+  bool isFinalRegistrationCompleted;
   String modeOfPayment;
   double bookingAmount;
   String chequeRTGSNumber;
@@ -91,6 +90,8 @@ class BookingModel {
   String bookingApplicantModificationRequestApprovalStatus;
   int numberOfParking;
   bool isApplicableOtherCharge;
+  String applicantMobileNumberCountryCode;
+  String applicantMobileNumber;
   String channelPartnerMobileNumberCountryCode;
   double referralPercentage;
   double referralAmount;
@@ -107,15 +108,12 @@ class BookingModel {
   String proofOfDocumentUrl;
   String cancelBookingApprovalStatus;
   int refundedPaymentLedgerCount;
-  bool isFinalRegistrationCompleted;
 
   BookingModel({
     required this.bookingId,
     required this.uniquekey,
     required this.applicantName,
     required this.bookingApplicantData,
-    required this.applicantMobileNumber,
-    required this.applicantMobileNumberCountryCode,
     required this.permanentAddress,
     required this.systemGeneratedCode,
     required this.inventoryFlatFloorBasementPodiumWingId,
@@ -129,6 +127,7 @@ class BookingModel {
     required this.paymentScheduleScheme,
     required this.communicationAddress,
     required this.sourceOfFunding,
+
     required this.source,
     required this.subSource,
     required this.channelPartnerName,
@@ -162,6 +161,7 @@ class BookingModel {
     required this.handoverType,
     required this.registrationDate,
     this.finalRegistrationDate,
+    required this.isFinalRegistrationCompleted,
     required this.modeOfPayment,
     required this.bookingAmount,
     required this.chequeRTGSNumber,
@@ -196,6 +196,8 @@ class BookingModel {
     required this.bookingApplicantModificationRequestApprovalStatus,
     required this.numberOfParking,
     required this.isApplicableOtherCharge,
+    required this.applicantMobileNumberCountryCode,
+    required this.applicantMobileNumber,
     required this.channelPartnerMobileNumberCountryCode,
     required this.referralPercentage,
     required this.referralAmount,
@@ -212,7 +214,6 @@ class BookingModel {
     required this.proofOfDocumentUrl,
     required this.cancelBookingApprovalStatus,
     required this.refundedPaymentLedgerCount,
-    required this.isFinalRegistrationCompleted,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -227,11 +228,6 @@ class BookingModel {
               (e) => BookingApplicantData.fromJson(e as Map<String, dynamic>),
             )
             .toList(),
-    applicantMobileNumberCountryCode: parseValue<String>(
-      json,
-      "ApplicantMobileNumberCountryCode",
-    ),
-    applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
     permanentAddress: parseValue<String>(json, "PermanentAddress"),
     communicationAddress: parseValue<String>(json, "CommunicationAddress"),
     source: parseValue<String>(json, "Source"),
@@ -302,6 +298,10 @@ class BookingModel {
         json['FinalRegistrationDate'] != null
             ? parseValue<DateTime>(json, "FinalRegistrationDate")
             : null,
+    isFinalRegistrationCompleted: parseValue<bool>(
+      json,
+      "IsFinalRegistrationCompleted",
+    ),
     modeOfPayment: parseValue<String>(json, "ModeOfPayment"),
     bookingAmount: parseValue<double>(json, "BookingAmount"),
     chequeRTGSNumber: parseValue<String>(json, "ChequeRTGSNumber"),
@@ -389,6 +389,11 @@ class BookingModel {
       "BookingApplicantModificationRequestApprovalStatus",
     ),
     numberOfParking: parseValue<int>(json, "NumberOfParking"),
+    applicantMobileNumberCountryCode: parseValue<String>(
+      json,
+      "ApplicantMobileNumberCountryCode",
+    ),
+    applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
     channelPartnerMobileNumberCountryCode: parseValue<String>(
       json,
       "ChannelPartnerMobileNumberCountryCode",
@@ -426,18 +431,12 @@ class BookingModel {
       json,
       "RefundedPaymentLedgerCount",
     ),
-    isFinalRegistrationCompleted: parseValue(
-      json,
-      "IsFinalRegistrationCompleted",
-    ),
   );
 
   Map<String, dynamic> toJson() => {
     "BookingId": bookingId,
     "Uniquekey": uniquekey,
     "ApplicantName": applicantName,
-    "ApplicantMobileNumber": applicantMobileNumber,
-    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
     "BookingApplicantData":
         bookingApplicantData.map((e) => e.toJson()).toList(),
     "PermanentAddress": permanentAddress,
@@ -526,8 +525,10 @@ class BookingModel {
     "BookingApplicantModificationRequestApprovalStatus":
         bookingApplicantModificationRequestApprovalStatus,
     "NumberOfParking": numberOfParking,
-    "FinalRegistrationDate": finalRegistrationDate,
+    "FinalRegistrationDate": finalRegistrationDate?.toIso8601String(),
     "IsFinalRegistrationCompleted": isFinalRegistrationCompleted,
+    "ApplicantMobileNumberCountryCode": applicantMobileNumberCountryCode,
+    "ApplicantMobileNumber": applicantMobileNumber,
     "ChannelPartnerMobileNumberCountryCode":
         channelPartnerMobileNumberCountryCode,
     "ReferralPercentage": referralPercentage,

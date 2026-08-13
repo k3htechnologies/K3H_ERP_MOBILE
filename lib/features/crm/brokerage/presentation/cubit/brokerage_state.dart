@@ -5,6 +5,7 @@ class BrokerageState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
+  final String viewSearchText;
   final List<BrokerageInvoiceModel> brokerageInvoiceList;
   final int totalNumberOfRecordInvoice;
   final int currentPageInvoice;
@@ -21,6 +22,8 @@ class BrokerageState extends BaseState {
   final String filterBookingType;
   final DateTime? filterByFromDate;
   final DateTime? filterByToDate;
+  final String currentSortColumn;
+  final String currentSortDirection;
 
   const BrokerageState({
     super.isLoading,
@@ -44,6 +47,9 @@ class BrokerageState extends BaseState {
     required this.filterBookingType,
     required this.filterByFromDate,
     required this.filterByToDate,
+    required this.viewSearchText,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory BrokerageState.initial() => BrokerageState(
@@ -68,6 +74,9 @@ class BrokerageState extends BaseState {
     filterBookingType: '',
     filterByFromDate: null,
     filterByToDate: null,
+    viewSearchText: '',
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
   static const _noChange = Object();
 
@@ -77,6 +86,7 @@ class BrokerageState extends BaseState {
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
+    String? viewSearchText,
     List<BrokerageInvoiceModel>? brokerageInvoiceList,
     int? totalNumberOfRecordInvoice,
     int? currentPageInvoice,
@@ -93,6 +103,8 @@ class BrokerageState extends BaseState {
     Object? filterBookingType = _noChange,
     Object? filterByFromDate = _noChange,
     Object? filterByToDate = _noChange,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return BrokerageState(
       isLoading: isLoading ?? this.isLoading,
@@ -100,7 +112,7 @@ class BrokerageState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
-
+      viewSearchText: viewSearchText ?? this.viewSearchText,
       brokerageInvoiceList: brokerageInvoiceList ?? this.brokerageInvoiceList,
 
       totalNumberOfRecordInvoice:
@@ -160,6 +172,8 @@ class BrokerageState extends BaseState {
           filterByToDate == _noChange
               ? this.filterByToDate
               : filterByToDate as DateTime?,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -186,5 +200,8 @@ class BrokerageState extends BaseState {
     filterBookingType,
     filterByFromDate,
     filterByToDate,
+    viewSearchText,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

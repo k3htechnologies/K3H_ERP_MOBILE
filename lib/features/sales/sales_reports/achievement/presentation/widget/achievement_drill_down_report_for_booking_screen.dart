@@ -12,7 +12,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AchievementDrillDownReportForBookingScreen extends StatelessWidget {
   final BookingModel bookingModel;
-  final String tabName;
+  final String? tabName;
   final String columnName;
   final String projectName;
   final String? employeeName;
@@ -40,27 +40,30 @@ class AchievementDrillDownReportForBookingScreen extends StatelessWidget {
           children: [
             if (projectName.isNotEmpty) ...[
               showSiteSelectedWidget(projectName: projectName),
-              verticalSpacing(),
+              verticalSpacing(height: 12),
             ],
             if (employeeName != null && employeeName!.isNotEmpty) ...[
               Text(employeeName!, style: AppTextStyle.ts14M()),
-              verticalSpacing(),
+              verticalSpacing(height: 12),
             ],
             RichText(
               text: TextSpan(
                 style: AppTextStyle.ts14R(),
                 children: [
-                  TextSpan(
-                    text: "Tab: ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
+                  if (tabName != null)
+                    TextSpan(
+                      text: "Tab: ",
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
 
-                  TextSpan(text: tabName, style: AppTextStyle.ts14M()),
+                  if (tabName != null)
+                    TextSpan(text: tabName, style: AppTextStyle.ts14M()),
 
-                  TextSpan(
-                    text: " | ",
-                    style: AppTextStyle.ts14R(color: AppColor.grey),
-                  ),
+                  if (tabName != null)
+                    TextSpan(
+                      text: " | ",
+                      style: AppTextStyle.ts14R(color: AppColor.grey),
+                    ),
 
                   TextSpan(
                     text: "Column: ",

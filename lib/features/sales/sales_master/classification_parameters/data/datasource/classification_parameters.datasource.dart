@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/sales/sales_master/classification_parameters/data/model/classification_paramerter.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ClassificationParametersDatasource {
   Future<Map<String, dynamic>> apiCallPullClassificationParameter({
@@ -45,7 +46,7 @@ class ClassificationParametersDatasourceImpl
     }) {
       String url =
           "ClassificationParameter/PullClassificationParameter?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -157,7 +158,7 @@ class ClassificationParametersDatasourceImpl
     }) {
       String url =
           "ClassificationParameter/PullClassificationParameter?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

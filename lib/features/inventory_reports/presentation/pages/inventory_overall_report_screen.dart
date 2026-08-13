@@ -163,9 +163,6 @@ class _InventoryOverallReportScreenState
                                   report.projectName,
                                   style: AppTextStyle.ts16M(
                                     color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
                                   ),
                                 ),
                               ),

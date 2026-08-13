@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class DocumentCategoryDatasource {
   Future<Map<String, dynamic>> apicallPullProjectDocumentCategory({
@@ -46,7 +47,7 @@ class DocumentCategoryDatasourceImpl implements DocumentCategoryDatasource {
     }) {
       String url =
           "ProjectDocumentCategory/PullProjectDocumentCategory?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -157,7 +158,7 @@ class DocumentCategoryDatasourceImpl implements DocumentCategoryDatasource {
     }) {
       String url =
           "ProjectDocumentCategory/PullProjectDocumentCategory?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

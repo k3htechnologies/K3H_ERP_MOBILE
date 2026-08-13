@@ -460,9 +460,6 @@ class _LeaveCreditConfigurationMasterScreenState
                                   leaveCreditConfigurationMaster.departmentName,
                                   style: AppTextStyle.ts16M(
                                     color: AppColor.primary,
-                                  ).copyWith(
-                                    decorationColor: AppColor.primary,
-                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                               ),

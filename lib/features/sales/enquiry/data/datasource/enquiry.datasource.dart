@@ -142,7 +142,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }) {
       String url =
           "Enquiry/PullEnquiry?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -191,7 +191,7 @@ class EnquiryDatasourceImpl extends EnquiryDatasource {
     }) {
       String url =
           "EnquiryFollowUp/PullEnquiryFollowUp?PageSize=$pageSize&PageNumber=$pageNumber&EnquiryId=$enquiryId&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

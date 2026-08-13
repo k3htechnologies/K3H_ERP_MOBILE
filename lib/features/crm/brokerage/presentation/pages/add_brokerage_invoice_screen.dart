@@ -41,14 +41,11 @@ class AddBrokerageInvoiceScreen extends StatefulWidget {
 }
 
 class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
-  // REPOSITORY
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
-  // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _invoiceNumberC,
       _accountNameC,
       _accountNumberC,
@@ -56,11 +53,9 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
       _invoiceAmountC,
       _remarkC;
 
-  // INVOICE DATE
   DateTime? invoiceDate;
   DateTime? dueDate;
 
-  // DROPDOWN NOTIFIERS
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   final MultiFilePickerModel _invoiceDocument = MultiFilePickerModel(
     fileBytesList: [],
@@ -69,7 +64,6 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
   );
 
   late BrokerageCubit _brokerageCubit;
-  // EDIT MODE
   bool get _isEditMode => widget.brokerageInvoiceModel != null;
 
   @override
@@ -93,7 +87,6 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
     _selectedBankNotifier.dispose();
   }
 
-  // INITIALISING TEXT CONTROLLERS
   void _initializeTextEditingControllers() {
     _invoiceNumberC = TextEditingController();
     _accountNameC = TextEditingController();
@@ -103,7 +96,6 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
     _remarkC = TextEditingController();
   }
 
-  // FETCH BANK
   Future<Map<String, dynamic>> _fetchBanks(
     int pageNumber, {
     String? value,
@@ -182,8 +174,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   title: "Invoice Number",
                   hint: "Enter Invoice Number",
                   isRequired: true,
-                  inputFormatterList: InputValidator.digit(15),
-                  keyboardType: TextInputType.number,
+                  inputFormatterList: InputValidator.digitAndCharacterOnly(15),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Invoice Number is required";

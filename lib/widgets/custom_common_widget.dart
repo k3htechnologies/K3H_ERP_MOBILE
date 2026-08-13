@@ -5,7 +5,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
-import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 // BUILD ROW TITLE VALUE
@@ -77,7 +76,7 @@ Widget buildRowTitleCount({
           overflow: singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
           style: AppTextStyle.ts14SB(
             color:
-                (double.tryParse(value) ?? 0) > 0
+                ((double.tryParse(value) ?? 0) > 0 && onValueTap != null)
                     ? AppColor.primary
                     : AppColor.grey,
           ),
@@ -194,6 +193,8 @@ Widget buildDocumentRow({
   required BuildContext context,
   required String docNumber,
   required String url,
+  required String title,
+  bool? iconWithoutBg,
 }) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,58 +207,36 @@ Widget buildDocumentRow({
       ),
       horizontalSpacing(),
       if (url.isNotEmpty && url != "-")
-        CustomIconButton(
-          onPressed: () {
-            if (url.isNotEmpty && url != "-") {
-              showFilePreviewDialog(context, url.split(","));
-            }
-          },
-          icon: Icon(
-            Icons.remove_red_eye_outlined,
-            size: 16,
-            color: AppColor.primary,
-          ),
-        ),
+        (iconWithoutBg != null && iconWithoutBg == true)
+            ? GestureDetector(
+              onTap: () {
+                if (url.isNotEmpty && url != "-") {
+                  showFilePreviewDialog(context, url.split(","), title: title);
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: Icon(
+                  Icons.remove_red_eye_outlined,
+                  size: 16,
+                  color: AppColor.primary,
+                ),
+              ),
+            )
+            : CustomIconButton(
+              onPressed: () {
+                if (url.isNotEmpty && url != "-") {
+                  showFilePreviewDialog(context, url.split(","), title: title);
+                }
+              },
+              icon: Icon(
+                Icons.remove_red_eye_outlined,
+                size: 16,
+                color: AppColor.primary,
+              ),
+            ),
     ],
   );
-}
-
-Widget approvalStatusWidget(String status) {
-  final trimmed = status.trim();
-  final formatted = formattedStatus(trimmed);
-
-  switch (trimmed.toLowerCase()) {
-    case 'approved':
-      return statusChip(formatted, Color(0xffDCFCE7), AppColor.green20);
-
-    case 'rejected':
-      return statusChip(
-        formatted,
-        AppColor.lightRed,
-        AppColor.missingInformationRed,
-      );
-
-    case 'pending':
-      return statusChip(formatted, AppColor.lightYellow, AppColor.brown);
-
-    case 'partial approved':
-      return statusChip(formatted, AppColor.lightPurple, Color(0xff561F64));
-
-    default:
-      return statusChip(
-        formatted,
-        AppColor.lightGreyBackground,
-        AppColor.black,
-      );
-  }
-}
-
-String formattedStatus(String status) {
-  return status
-      .toLowerCase()
-      .split(' ')
-      .map((e) => e.isEmpty ? e : '${e[0].toUpperCase()}${e.substring(1)}')
-      .join(' ');
 }
 
 Widget showSiteSelectedWidget({String? projectName}) {
@@ -466,4 +445,41 @@ Widget titleValue(String title, String value) {
       Text(value, style: AppTextStyle.ts14M()),
     ],
   );
+}
+
+class DottedDivider extends StatelessWidget {
+  final double height;
+  final Color color;
+  final double dashWidth;
+  final double dashSpace;
+
+  const DottedDivider({
+    super.key,
+    this.height = 1,
+    this.color = Colors.grey,
+    this.dashWidth = 5,
+    this.dashSpace = 3,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        final boxWidth = constraints.constrainWidth();
+        final dashCount = (boxWidth / (dashWidth + dashSpace)).floor();
+
+        return Flex(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          direction: Axis.horizontal,
+          children: List.generate(dashCount, (_) {
+            return SizedBox(
+              width: dashWidth,
+              height: height,
+              child: DecoratedBox(decoration: BoxDecoration(color: color)),
+            );
+          }),
+        );
+      },
+    );
+  }
 }

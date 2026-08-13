@@ -200,9 +200,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                                 material.materialName,
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
-                                ).copyWith(
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),

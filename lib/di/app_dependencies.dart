@@ -41,6 +41,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/sales/enquiry/enquiry.depend
 import 'package:k3h_erp_app/di/feature_dependencies/sales/master/other_charges/other_charges.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/master/payment_schedule/payment_schedule.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/master/payment_schedule_scheme/payment_schedule_scheme.dependency.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/sales/report/aop_achievement_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/report/ibm_obm_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/report/performance_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/sales_dashboard/sales_dashboard.dependencies.dart';
@@ -48,7 +49,6 @@ import 'package:k3h_erp_app/di/feature_dependencies/setting_dashboard/setting_da
 import 'package:k3h_erp_app/di/feature_dependencies/stock_management/stock_management.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/tax_tracker/tax_tracker.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
-
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
 import 'feature_dependencies/channel_partner/channel_partner.dependencies.dart';
 import 'feature_dependencies/crm/brokerage/brokerage.dependencies.dart';
@@ -93,7 +93,6 @@ import 'feature_dependencies/sales/target/target.dependencies.dart';
 import 'feature_dependencies/vendor_management/vendor_management.dependencies.dart';
 
 final GetIt serviceLocator = GetIt.instance;
-
 void initDependencies() {
   // UTILS
   registerUtilsDependencies(serviceLocator);
@@ -173,12 +172,12 @@ void initDependencies() {
   registerTenantMasterDependencies(serviceLocator);
   // PROPOSED PLAN DEPENDENCIES
   registerProposedPlansDependencies(serviceLocator);
+  // INVENTORY DEPENDENCIES (must be before PROPOSED OFFER MASTER as ProposedOfferCubit depends on it)
+  registerInventoryDependencies(serviceLocator);
   // PROPOSED OFFER DEPENDENCIES
   registerProposedOfferDependencies(serviceLocator);
   // RENT DEPENDENCIES
   registerRentDependencies(serviceLocator);
-  // INVENTORY DEPENDENCIES
-  registerInventoryDependencies(serviceLocator);
   registerInventoryReportReportDependencies(serviceLocator);
   // PARKING DEPENDENCIES
   registerParkingDependencies(serviceLocator);
@@ -248,11 +247,12 @@ void initDependencies() {
   registerAchievementReportDependencies(serviceLocator);
   //IBM OBM REPORT DEPENDENCIES
   registerIbmObmReportDependencies(serviceLocator);
+  //AOP ACHIEVEMENT REPORT DEPENDENCIES
+  registerAopAchievementReportDependencies(serviceLocator);
   // PROCUREMENT
   registerMaterialRequisitionFinalizeVendorDependencies(serviceLocator);
   registerMaterialRequisitionInvoiceDependencies(serviceLocator);
   registerMaterialRequisitionDependencies(serviceLocator);
-
   //CRM
   // CRM PAY TRACK
   registerCRMPayTrackDependencies(serviceLocator);

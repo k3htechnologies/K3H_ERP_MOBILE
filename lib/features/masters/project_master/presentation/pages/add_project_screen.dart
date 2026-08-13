@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -40,9 +41,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
   // DROPDOWN VALUES
   Map<String, dynamic>? selectedBusinessCategory;
-  ValueNotifier<Map<String, dynamic>?> selectedProjectSubScheme = ValueNotifier(
-    null,
-  );
+  final ValueNotifier<List<Map<String, dynamic>>?> _selectedProjectSubScheme =
+      ValueNotifier(null);
+  final ValueNotifier<bool> _isFederation = ValueNotifier(false);
+
   late final ValueNotifier<Map<String, dynamic>?>
   _selectedProjectStatusNotifier;
 
@@ -57,7 +59,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       ValueNotifier(null);
 
   // DATE PICKER VARIABLE
-  DateTime? reraCompletionDate;
+  DateTime? reraPossessionDate;
   DateTime? reraCertificateDate;
   DateTime? surveyDate;
   DateTime? expectedStartDate;
@@ -70,14 +72,15 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _ctsNumberC,
       _fileNumberC,
       _tenderAmountC,
-      _tendorEMDAmountC,
-      _chequeNumberC,
-      _payOrderTrackC,
+      _tendorEmdAmountC,
+      _tenantAmountTransactionNumberC,
+      _tenantEmdTransactionNumberC,
+      _tenderEmdPayOrderRemarkC,
       _liasoningNameC,
       _liasoningMobileNumberC,
       _designingNameC,
       _designingMobileNumberC,
-      _rccConsultantgNameC,
+      _rccConsultantNameC,
       _rccConsultantMobileNumberC,
       _projectSubSchemeC,
       _pinCodeC,
@@ -88,14 +91,25 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _googleLocationC,
       _reraNumberC,
       _apfNumberC,
-      _siteContactNameC,
-      _siteContactMobileNumberC;
+      _siteContact1NameC,
+      _siteContact1MobileNumberC,
+      _siteContact1DesignationC,
+      _siteContact2NameC,
+      _siteContact2MobileNumberC,
+      _siteContact2DesignationC,
+      _siteContact3NameC,
+      _siteContact3MobileNumberC,
+      _siteContact3DesignationC,
+      _tenderAmountPayOrderRemarkC,
+      _federationAmountC;
 
   final ValueNotifier<DateTime?> purchaseStartDate = ValueNotifier(null);
   final ValueNotifier<DateTime?> purchaseEndDate = ValueNotifier(null);
   final ValueNotifier<DateTime?> submissionDate = ValueNotifier(null);
-  final ValueNotifier<DateTime?> issueDate = ValueNotifier(null);
-
+  final ValueNotifier<Map<String, dynamic>?>
+  _selectedTenantAmountPaymentModeNotifier = ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?>
+  _selectedTenantEmdPaymentModeNotifier = ValueNotifier(null);
   // CHECKBOX FOR REDEVELOPMENT
   final ValueNotifier<bool> isRedevelopmentNotifier = ValueNotifier(false);
   late ValueNotifier<Map<String, dynamic>?> selectedCategoryType;
@@ -106,7 +120,12 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-  MultiFilePickerModel chequePhotoFile = MultiFilePickerModel(
+  MultiFilePickerModel tenderAmountTransactionFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel tenderEmdTransactionFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
@@ -199,23 +218,35 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectAreaSqMtC.dispose();
     _googleLocationC.dispose();
     _reraNumberC.dispose();
-    _siteContactNameC.dispose();
-    _siteContactMobileNumberC.dispose();
+    _siteContact1NameC.dispose();
+    _siteContact1MobileNumberC.dispose();
+    _siteContact1DesignationC.dispose();
+    _siteContact2NameC.dispose();
+    _siteContact2MobileNumberC.dispose();
+    _siteContact2DesignationC.dispose();
+    _siteContact3NameC.dispose();
+    _siteContact3MobileNumberC.dispose();
+    _siteContact3DesignationC.dispose();
     isRedevelopmentNotifier.dispose();
     projectSchemeNotifier.dispose();
     _selectedProjectStatusNotifier.dispose();
     selectedCategoryType.dispose();
     _tenderAmountC.dispose();
-    _tendorEMDAmountC.dispose();
-    _chequeNumberC.dispose();
-    _payOrderTrackC.dispose();
+    _tendorEmdAmountC.dispose();
+    _tenantAmountTransactionNumberC.dispose();
+    _tenderEmdPayOrderRemarkC.dispose();
     _liasoningNameC.dispose();
     _liasoningMobileNumberC.dispose();
     _designingNameC.dispose();
     _designingMobileNumberC.dispose();
-    _rccConsultantgNameC.dispose();
+    _rccConsultantNameC.dispose();
     _rccConsultantMobileNumberC.dispose();
     _apfNumberC.dispose();
+    _selectedTenantAmountPaymentModeNotifier.dispose();
+    _selectedTenantEmdPaymentModeNotifier.dispose();
+    _tenderAmountPayOrderRemarkC.dispose();
+    _tenantEmdTransactionNumberC.dispose();
+    _federationAmountC.dispose();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLER
@@ -233,19 +264,30 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectAreaSqMtC = TextEditingController();
     _googleLocationC = TextEditingController();
     _reraNumberC = TextEditingController();
-    _siteContactNameC = TextEditingController();
-    _siteContactMobileNumberC = TextEditingController();
+    _siteContact1NameC = TextEditingController();
+    _siteContact1MobileNumberC = TextEditingController();
+    _siteContact1DesignationC = TextEditingController();
+    _siteContact2NameC = TextEditingController();
+    _siteContact2MobileNumberC = TextEditingController();
+    _siteContact2DesignationC = TextEditingController();
+    _siteContact3NameC = TextEditingController();
+    _siteContact3MobileNumberC = TextEditingController();
+    _siteContact3DesignationC = TextEditingController();
     _tenderAmountC = TextEditingController();
-    _tendorEMDAmountC = TextEditingController();
-    _chequeNumberC = TextEditingController();
-    _payOrderTrackC = TextEditingController();
+    _tendorEmdAmountC = TextEditingController();
+    _tenantAmountTransactionNumberC = TextEditingController();
+    _tenderEmdPayOrderRemarkC = TextEditingController();
     _liasoningNameC = TextEditingController();
     _liasoningMobileNumberC = TextEditingController();
     _designingNameC = TextEditingController();
     _designingMobileNumberC = TextEditingController();
-    _rccConsultantgNameC = TextEditingController();
+    _rccConsultantNameC = TextEditingController();
     _rccConsultantMobileNumberC = TextEditingController();
     _apfNumberC = TextEditingController();
+    _tenderAmountPayOrderRemarkC = TextEditingController();
+    _tenderEmdPayOrderRemarkC = TextEditingController();
+    _tenantEmdTransactionNumberC = TextEditingController();
+    _federationAmountC = TextEditingController();
   }
 
   // PREFILL DIALOGUE TO ADD/UPDATE PROJECT MASTER
@@ -260,7 +302,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _designingNameC.text = widget.project!.designingArchitectName;
     _designingMobileNumberC.text =
         widget.project!.designingArchitectMobileNumber;
-    _rccConsultantgNameC.text = widget.project!.rccConsultantName;
+    _rccConsultantNameC.text = widget.project!.rccConsultantName;
     _rccConsultantMobileNumberC.text =
         widget.project!.rccConsultantMobileNumber;
     selectedCategoryType.value = categoryList.firstWhere(
@@ -270,19 +312,58 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     final isTender = selectedCategoryType.value?["zAttributesId"] == 2;
     if (isTender) {
       _tenderAmountC.text = widget.project!.tenderAmount.toString();
-      _tendorEMDAmountC.text = widget.project!.tenderEmdAmount.toString();
+      _tendorEmdAmountC.text = widget.project!.tenderEmdAmount.toString();
       purchaseStartDate.value = widget.project!.tenderPurchaseStartDate;
       purchaseEndDate.value = widget.project!.tenderPurchaseEndDate;
-      _chequeNumberC.text = widget.project!.tenderChequeNumber ?? "";
-      chequePhotoFile.fileNameList =
-          widget.project!.tenderChequeNumberUrl!
-              .split(",")
-              .map((e) => e.trim())
-              .where((e) => e.isNotEmpty)
-              .toList();
+      _tenantAmountTransactionNumberC.text =
+          widget.project!.tenderAmountChequeNumber;
+      tenderAmountTransactionFile.fileNameList =
+          widget.project!.tenderAmountChequeNumberUrl.isEmpty
+              ? []
+              : widget.project!.tenderAmountChequeNumberUrl
+                  .split(",")
+                  .map((e) => e.trim())
+                  .where((e) => e.isNotEmpty)
+                  .toList();
+      tenderEmdTransactionFile.fileNameList =
+          widget.project!.tenderEmdChequeNumberUrl.isEmpty
+              ? []
+              : widget.project!.tenderEmdChequeNumberUrl
+                  .split(",")
+                  .map((e) => e.trim())
+                  .where((e) => e.isNotEmpty)
+                  .toList();
       submissionDate.value = widget.project!.tenderSubmissionDate;
-      issueDate.value = widget.project!.tenderIssueDate;
-      _payOrderTrackC.text = widget.project!.tenderPayorderRemark ?? "";
+      _tenderEmdPayOrderRemarkC.text =
+          widget.project!.tenderPayorderRemark ?? "";
+      _selectedTenantEmdPaymentModeNotifier
+          .value = tenurePaymentModeList.firstWhereOrNull(
+        (item) => item["DisplayName"] == widget.project!.tenderEmdPaymentMode,
+      );
+      _selectedTenantAmountPaymentModeNotifier.value = tenurePaymentModeList
+          .firstWhereOrNull(
+            (item) =>
+                item["DisplayName"] == widget.project!.tenderAmountPaymentMode,
+          );
+      _tenantEmdTransactionNumberC.text = widget.project!.tenderEmdChequeNumber;
+      _tenderAmountPayOrderRemarkC.text =
+          widget.project!.tenderAmountPayorderRemark;
+      _tenderEmdPayOrderRemarkC.text = widget.project!.tenderEmdPayorderRemark;
+    } else {
+      _tenderAmountC.text = '';
+      _tendorEmdAmountC.text = '';
+      purchaseStartDate.value = null;
+      purchaseEndDate.value = null;
+      _tenantAmountTransactionNumberC.text = '';
+      tenderAmountTransactionFile.fileNameList = [];
+      tenderEmdTransactionFile.fileNameList = [];
+      submissionDate.value = null;
+      _tenderEmdPayOrderRemarkC.text = '';
+      _selectedTenantEmdPaymentModeNotifier.value = null;
+      _selectedTenantAmountPaymentModeNotifier.value = null;
+      _tenantAmountTransactionNumberC.text = '';
+      _tenantEmdTransactionNumberC.text = '';
+      _tenderAmountPayOrderRemarkC.text = '';
     }
     _projectScopeC.text = widget.project!.projectScope;
 
@@ -294,14 +375,21 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _projectAreaSqMtC.text = widget.project!.projectAreaInSqmt.toString();
     _apfNumberC.text = widget.project!.apfNumber ?? "";
     _reraNumberC.text = widget.project!.reraNumber;
-    _siteContactNameC.text = widget.project!.siteContactName;
-    _siteContactMobileNumberC.text = widget.project!.siteContactMobileNumber;
+    _siteContact1NameC.text = widget.project!.siteContactName;
+    _siteContact1MobileNumberC.text = widget.project!.siteContactMobileNumber;
+    _siteContact1DesignationC.text = widget.project!.siteContactDesignation;
 
+    _siteContact2NameC.text = widget.project!.siteContact2Name;
+    _siteContact2MobileNumberC.text = widget.project!.siteContact2MobileNumber;
+    _siteContact2DesignationC.text = widget.project!.siteContact2Designation;
+    _siteContact3NameC.text = widget.project!.siteContact3Name;
+    _siteContact3MobileNumberC.text = widget.project!.siteContact3MobileNumber;
+    _siteContact3DesignationC.text = widget.project!.siteContact3Designation;
     surveyDate = widget.project!.surveyDate;
     expectedStartDate = widget.project!.expectedStartDate;
     executionStartDate = widget.project!.executionStartDate;
     reraCertificateDate = widget.project!.reraCertificateDate;
-    reraCompletionDate = widget.project!.reraComplitionDate;
+    reraPossessionDate = widget.project!.reraPossessionDate;
 
     if (widget.project!.bussinessCategory.isNotEmpty) {
       selectedBusinessCategory = businessCategoryList.firstWhere(
@@ -322,13 +410,17 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
         orElse: () => projectSchemeList.first,
       );
       final subList = _currentSubSchemeList;
-      selectedProjectSubScheme.value = subList.firstWhere(
-        (item) => item["DisplayName"] == widget.project!.projectSubScheme,
-        orElse: () => subList.first,
-      );
+      _selectedProjectSubScheme.value =
+          subList
+              .where(
+                (item) => widget.project!.projectSubScheme
+                    .split(",")
+                    .contains(item["DisplayName"]),
+              )
+              .toList();
     } else {
       projectSchemeNotifier.value = null;
-      selectedProjectSubScheme.value = null;
+      _selectedProjectSubScheme.value = null;
     }
 
     projectPhotoImage.fileNameList =
@@ -339,12 +431,22 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             .toList();
 
     isRedevelopmentNotifier.value = widget.project!.isRedevelopment;
+    _isFederation.value = widget.project!.isFederation;
+    _federationAmountC.text = widget.project!.federationAmount.toString();
     _countryMasterId = projectModel.countryMasterId;
     _stateMasterId = projectModel.stateMasterId;
     _districtMasterId = projectModel.districtMasterId;
     _cityMasterId = projectModel.cityMasterId;
     _villageMasterId = projectModel.villageMasterId;
   }
+
+  String get selectedProjectSubScheme =>
+      _selectedProjectSubScheme.value != null
+          ? _selectedProjectSubScheme.value!
+              .map((v) => v["DisplayName"].toString())
+              .toSet()
+              .join(",")
+          : "";
 
   // API CALL TO ADD/UPDATE PROJECT MASTER
   Future<void> _addUpdateProject(ProjectModel? project) async {
@@ -366,8 +468,8 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             liasoningArchitectMobileNumber: _liasoningMobileNumberC.text,
             designingArchitectName: _designingNameC.text,
             designingArchitectMobileNumber: _designingMobileNumberC.text,
-            rccMobileNumber: _rccConsultantgNameC.text,
-            rccArchitectName: _rccConsultantMobileNumberC.text,
+            rccMobileNumber: _rccConsultantMobileNumberC.text,
+            rccConsulantName: _rccConsultantNameC.text,
             category:
                 selectedCategoryType.value != null
                     ? selectedCategoryType.value!["DisplayName"].toString()
@@ -377,18 +479,18 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? _tenderAmountC.text
                     : "0.0",
             tenderEMDAmount:
-                _tendorEMDAmountC.text.trim().isNotEmpty
-                    ? _tendorEMDAmountC.text
+                _tendorEmdAmountC.text.trim().isNotEmpty
+                    ? _tendorEmdAmountC.text
                     : "0.0",
             tenderPurchaseStartDate:
                 purchaseStartDate.value?.toIso8601String() ?? '',
             tenderPurchaseEndDate:
                 purchaseEndDate.value?.toIso8601String() ?? "",
-            tenderChequeNumber: _chequeNumberC.text,
-            tenderChequeNumberURL: chequePhotoFile,
+            tenderChequeNumber: _tenantAmountTransactionNumberC.text,
+            tenderChequeNumberFile: tenderAmountTransactionFile,
+            tenderEmdChequeNumberFile: tenderEmdTransactionFile,
             tenderSubmissionDate: submissionDate.value?.toIso8601String() ?? "",
-            tenderIssueDate: issueDate.value?.toIso8601String() ?? "",
-            tenderPayorderRemark: _payOrderTrackC.text,
+            tenderPayorderRemark: _tenderAmountPayOrderRemarkC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             countryMasterId: _countryMasterId?.toString() ?? "1",
             districtMasterId: _districtMasterId.toString(),
@@ -422,17 +524,43 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             projectScope: _projectScopeC.text,
             projectStatus:
                 _selectedProjectStatusNotifier.value?["DisplayName"] ?? "",
-            projectSubScheme:
-                selectedProjectSubScheme.value != null
-                    ? selectedProjectSubScheme.value!["DisplayName"].toString()
-                    : "",
+            projectSubScheme: selectedProjectSubScheme,
             apfNumber: _apfNumberC.text,
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
-            reraComplitionDate: reraCompletionDate?.toIso8601String() ?? "",
-            siteContactMobileNumber: _siteContactMobileNumberC.text,
-            siteContactName: _siteContactNameC.text,
+            reraPossessionDate: reraPossessionDate?.toIso8601String() ?? "",
+            siteContact1MobileNumber: _siteContact1MobileNumberC.text.trim(),
+            siteContact1Name: _siteContact1NameC.text.trim(),
+            siteContact1Designation: _siteContact1DesignationC.text.trim(),
+            siteContact2MobileNumber: _siteContact2MobileNumberC.text.trim(),
+            siteContact2Name: _siteContact2NameC.text.trim(),
+            siteContact2Designation: _siteContact2DesignationC.text.trim(),
+            siteContact3MobileNumber: _siteContact3MobileNumberC.text.trim(),
+            siteContact3Name: _siteContact3NameC.text.trim(),
+            siteContact3Designation: _siteContact3DesignationC.text.trim(),
             surveyDate: surveyDate?.toIso8601String() ?? '',
+            tenderAmountPaymentMode:
+                _selectedTenantAmountPaymentModeNotifier
+                    .value?["DisplayName"] ??
+                '',
+            tenderAmountChequeNumber:
+                _tenantAmountTransactionNumberC.text.trim(),
+            tenderAmountPayorderRemark:
+                _tenderAmountPayOrderRemarkC.text.trim(),
+            tenderEmdPaymentMode:
+                _selectedTenantEmdPaymentModeNotifier.value?["DisplayName"] ??
+                '',
+            tenderEmdChequeNumber: _tenantEmdTransactionNumberC.text.trim(),
+            tenderEmdPayorderRemark: _tenderEmdPayOrderRemarkC.text.trim(),
+            projectShortName:
+                _projectNameC.text.trim().isNotEmpty
+                    ? _projectNameC.text.trim().substring(0, 3).toUpperCase()
+                    : "",
+            isFederation: _isFederation.value,
+            federationAmount:
+                _federationAmountC.text.trim().isNotEmpty
+                    ? _federationAmountC.text
+                    : "0.0",
           )
           : _projectMasterCubit.addProject(
             context: context,
@@ -447,7 +575,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             liasoningArchitectMobileNumber: _liasoningMobileNumberC.text,
             designingArchitectName: _designingNameC.text,
             designingArchitectMobileNumber: _designingMobileNumberC.text,
-            rccArchitectName: _rccConsultantgNameC.text,
+            rccConsulantName: _rccConsultantNameC.text,
             rccMobileNumber: _rccConsultantMobileNumberC.text,
             category:
                 selectedCategoryType.value != null
@@ -458,18 +586,18 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     ? _tenderAmountC.text
                     : "0.0",
             tenderEMDAmount:
-                _tendorEMDAmountC.text.trim().isNotEmpty
-                    ? _tendorEMDAmountC.text
+                _tendorEmdAmountC.text.trim().isNotEmpty
+                    ? _tendorEmdAmountC.text
                     : "0.0",
             tenderPurchaseStartDate:
                 purchaseStartDate.value?.toIso8601String() ?? '',
             tenderPurchaseEndDate:
                 purchaseEndDate.value?.toIso8601String() ?? "",
-            tenderChequeNumber: _chequeNumberC.text,
-            tenderChequeNumberURL: chequePhotoFile,
+            tenderChequeNumber: _tenantAmountTransactionNumberC.text,
+            tenderChequeNumberFile: tenderAmountTransactionFile,
+            tenderEmdChequeNumberFile: tenderEmdTransactionFile,
             tenderSubmissionDate: submissionDate.value?.toIso8601String() ?? "",
-            tenderIssueDate: issueDate.value?.toIso8601String() ?? "",
-            tenderPayorderRemark: _payOrderTrackC.text,
+            tenderPayorderRemark: _tenderAmountPayOrderRemarkC.text,
             isRedevelopment: isRedevelopmentNotifier.value,
             countryMasterId: _countryMasterId?.toString() ?? "1",
             districtMasterId: _districtMasterId.toString(),
@@ -499,10 +627,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             projectScope: _projectScopeC.text,
             projectStatus:
                 _selectedProjectStatusNotifier.value?["DisplayName"] ?? "",
-            projectSubScheme:
-                selectedProjectSubScheme.value != null
-                    ? selectedProjectSubScheme.value!["DisplayName"].toString()
-                    : "",
+            projectSubScheme: selectedProjectSubScheme,
             projectAreaInSqmt:
                 _projectAreaSqMtC.text.trim().isNotEmpty
                     ? _projectAreaSqMtC.text
@@ -510,10 +635,39 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
             apfNumber: _apfNumberC.text,
             reraNumber: _reraNumberC.text,
             reraCertificateDate: reraCertificateDate?.toIso8601String() ?? "",
-            reraComplitionDate: reraCompletionDate?.toIso8601String() ?? "",
-            siteContactMobileNumber: _siteContactMobileNumberC.text,
-            siteContactName: _siteContactNameC.text,
+            reraPossessionDate: reraPossessionDate?.toIso8601String() ?? "",
+            siteContact1MobileNumber: _siteContact1MobileNumberC.text.trim(),
+            siteContact1Name: _siteContact1NameC.text.trim(),
+            siteContact1Designation: _siteContact1DesignationC.text.trim(),
+            siteContact2MobileNumber: _siteContact2MobileNumberC.text.trim(),
+            siteContact2Name: _siteContact2NameC.text.trim(),
+            siteContact2Designation: _siteContact2DesignationC.text.trim(),
+            siteContact3MobileNumber: _siteContact3MobileNumberC.text.trim(),
+            siteContact3Name: _siteContact3NameC.text.trim(),
+            siteContact3Designation: _siteContact3DesignationC.text.trim(),
             surveyDate: surveyDate?.toIso8601String() ?? '',
+            tenderAmountPaymentMode:
+                _selectedTenantAmountPaymentModeNotifier
+                    .value?["DisplayName"] ??
+                '',
+            tenderAmountChequeNumber:
+                _tenantAmountTransactionNumberC.text.trim(),
+            tenderAmountPayorderRemark:
+                _tenderAmountPayOrderRemarkC.text.trim(),
+            tenderEmdPaymentMode:
+                _selectedTenantEmdPaymentModeNotifier.value?["DisplayName"] ??
+                '',
+            tenderEmdChequeNumber: _tenantEmdTransactionNumberC.text.trim(),
+            tenderEmdPayorderRemark: _tenderEmdPayOrderRemarkC.text.trim(),
+            projectShortName:
+                _projectNameC.text.trim().isNotEmpty
+                    ? _projectNameC.text.trim().substring(0, 3).toUpperCase()
+                    : "",
+            isFederation: _isFederation.value,
+            federationAmount:
+                _federationAmountC.text.trim().isNotEmpty
+                    ? _federationAmountC.text
+                    : "0.0",
           );
     }
   }
@@ -561,14 +715,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CustomCheckbox(
-                                  value: isRedevelopment,
+                                CustomCheckBox(
+                                  isSelected: isRedevelopment,
                                   onChanged: (check) {
-                                    isRedevelopmentNotifier.value = check!;
-
-                                    if (check) {
-                                      _ctsNumberC.clear();
-                                    }
+                                    isRedevelopmentNotifier.value = check;
                                   },
                                 ),
                                 horizontalSpacing(),
@@ -596,7 +746,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           return null;
                         },
                       ),
-                      verticalSpacing(),
                       ValueListenableBuilder<bool>(
                         valueListenable: isRedevelopmentNotifier,
                         builder: (context, isRedevelopment, child) {
@@ -702,18 +851,31 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
 
                                 if (isDirect) {
                                   _tenderAmountC.clear();
-                                  _tendorEMDAmountC.clear();
                                   purchaseStartDate.value = null;
                                   purchaseEndDate.value = null;
-                                  _chequeNumberC.clear();
-                                  chequePhotoFile = MultiFilePickerModel(
-                                    fileBytesList: [],
-                                    fileNameList: [],
-                                    deletedFileList: "",
-                                  );
-                                  _payOrderTrackC.clear();
+                                  _selectedTenantAmountPaymentModeNotifier
+                                      .value = null;
+                                  _tenantAmountTransactionNumberC.clear();
+                                  tenderAmountTransactionFile =
+                                      MultiFilePickerModel(
+                                        fileBytesList: [],
+                                        fileNameList: [],
+                                        deletedFileList: "",
+                                      );
+                                  _tenderAmountPayOrderRemarkC.clear();
+                                  _tenderEmdPayOrderRemarkC.clear();
+                                  _tendorEmdAmountC.clear();
                                   submissionDate.value = null;
-                                  issueDate.value = null;
+                                  _selectedTenantEmdPaymentModeNotifier.value =
+                                      null;
+                                  _tenantEmdTransactionNumberC.clear();
+                                  tenderEmdTransactionFile =
+                                      MultiFilePickerModel(
+                                        fileBytesList: [],
+                                        fileNameList: [],
+                                        deletedFileList: "",
+                                      );
+                                  _tenderEmdPayOrderRemarkC.clear();
                                 }
                               }
                             },
@@ -726,135 +888,340 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                           );
                         },
                       ),
-                      ValueListenableBuilder(
-                        valueListenable: selectedCategoryType,
-                        builder: (context, value, child) {
-                          final isTender =
-                              value?["DisplayName"]?.toString().toLowerCase() ==
-                              "tender";
-
-                          if (!isTender) return SizedBox.shrink();
-
-                          return Column(
-                            children: [
-                              CustomTextField(
-                                title: 'Tender Amount (₹)',
-                                textController: _tenderAmountC,
-                                hint: "Enter Tender Amount",
-                                keyboardType: TextInputType.numberWithOptions(),
-                                inputFormatterList: InputValidator.decimal(2),
-                              ),
-                              CustomTextField(
-                                title: 'Tender EMD Amount (₹)',
-                                textController: _tendorEMDAmountC,
-                                keyboardType: TextInputType.numberWithOptions(),
-                                hint: "Enter Tender EMD Amount",
-                                inputFormatterList: InputValidator.decimal(2),
-                              ),
-                              ValueListenableBuilder(
-                                valueListenable: purchaseStartDate,
-                                builder: (context, purchaseStartDt, child) {
-                                  return CustomDatePicker(
-                                    title: "Purchase Start Date",
-                                    initialDate: purchaseStartDt,
-                                    setValue:
-                                        (value) =>
-                                            purchaseStartDate.value = value,
-                                  );
-                                },
-                              ),
-                              ValueListenableBuilder(
-                                valueListenable: purchaseEndDate,
-                                builder: (context, purchaseEndDt, child) {
-                                  return CustomDatePicker(
-                                    title: "Purchase End Date",
-                                    initialDate: purchaseEndDt,
-                                    setValue:
-                                        (value) =>
-                                            purchaseEndDate.value = value,
-                                  );
-                                },
-                              ),
-                              CustomTextField(
-                                title: 'Cheque Number',
-                                textController: _chequeNumberC,
-                                hint: "Enter Cheque Number",
-                                validator: (value) {
-                                  final hasFile =
-                                      chequePhotoFile.fileNameList.isNotEmpty;
-                                  if (hasFile &&
-                                      (value == null || value.isEmpty)) {
-                                    return "Cheque Number is required";
-                                  }
-                                  return null;
-                                },
-                              ),
-                              CustomMultiFilePicker(
-                                title: "Cheque Photo",
-                                filePickType: FilePickType.image,
-                                initialFileList: chequePhotoFile.fileNameList,
-                                initialFileBytes: chequePhotoFile.fileBytesList,
-                                onFilePickedCallback: (
-                                  bytesList,
-                                  fileNameList,
-                                ) {
-                                  chequePhotoFile.fileNameList = fileNameList;
-                                  chequePhotoFile.fileBytesList = bytesList;
-                                },
-                                onFileDeleteCallback: (
-                                  fileBytesList,
-                                  fileNameList,
-                                  deleted,
-                                ) {
-                                  chequePhotoFile.fileBytesList = fileBytesList;
-                                  chequePhotoFile.fileNameList = fileNameList;
-                                  chequePhotoFile.deletedFileList = deleted;
-                                },
-                                validator: (value) {
-                                  final hasChequeNumber =
-                                      _chequeNumberC.text.trim().isNotEmpty;
-                                  if (hasChequeNumber &&
-                                      (value == null || value.isEmpty)) {
-                                    return "Cheque Photo is required";
-                                  }
-                                  return null;
-                                },
-                              ),
-                              ValueListenableBuilder(
-                                valueListenable: submissionDate,
-                                builder: (context, submissionDt, child) {
-                                  return CustomDatePicker(
-                                    title: "Submission Date",
-                                    initialDate: submissionDt,
-                                    setValue:
-                                        (value) => submissionDate.value = value,
-                                  );
-                                },
-                              ),
-                              ValueListenableBuilder(
-                                valueListenable: issueDate,
-                                builder: (context, issueDt, child) {
-                                  return CustomDatePicker(
-                                    title: "Issue Date",
-                                    initialDate: issueDt,
-                                    setValue:
-                                        (value) => issueDate.value = value,
-                                  );
-                                },
-                              ),
-                              CustomTextField(
-                                title: 'Payorder Remark',
-                                textController: _payOrderTrackC,
-                                hint: "Enter Payorder Remark",
-                                minLines: 3,
-                                maxLines: 10,
-                              ),
-                            ],
-                          );
-                        },
-                      ),
                     ],
                   ),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: selectedCategoryType,
+                  builder: (context, value, child) {
+                    if (selectedCategoryType.value == null ||
+                        selectedCategoryType.value?['DisplayName'] ==
+                            'Direct') {
+                      return SizedBox.shrink();
+                    }
+                    return Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.all(12.0),
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Tender Amount Details",
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.black.withValues(alpha: 0.5),
+                                ),
+                              ),
+                              verticalSpacing(),
+                              ValueListenableBuilder(
+                                valueListenable: selectedCategoryType,
+                                builder: (context, value, child) {
+                                  final isTender =
+                                      value?["DisplayName"]
+                                          ?.toString()
+                                          .toLowerCase() ==
+                                      "tender";
+
+                                  if (!isTender) return SizedBox.shrink();
+
+                                  return Column(
+                                    children: [
+                                      CustomTextField(
+                                        title: 'Amount (₹)',
+                                        textController: _tenderAmountC,
+                                        hint: "Enter Amount",
+                                        isRequired: true,
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(),
+                                        inputFormatterList:
+                                            InputValidator.decimal(2),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Amount is required.";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+
+                                      ValueListenableBuilder(
+                                        valueListenable: purchaseStartDate,
+                                        builder: (
+                                          context,
+                                          purchaseStartDt,
+                                          child,
+                                        ) {
+                                          return CustomDatePicker(
+                                            title: "Purchase Start Date",
+                                            isRequired: true,
+                                            initialDate: purchaseStartDt,
+                                            setValue:
+                                                (value) =>
+                                                    purchaseStartDate.value =
+                                                        value,
+                                            validator: (value) {
+                                              if (value == null) {
+                                                return 'Purchase Start Date is required.';
+                                              }
+
+                                              return null;
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      ValueListenableBuilder(
+                                        valueListenable: purchaseEndDate,
+                                        builder: (
+                                          context,
+                                          purchaseEndDt,
+                                          child,
+                                        ) {
+                                          return CustomDatePicker(
+                                            title: "Purchase End Date",
+                                            initialDate: purchaseEndDt,
+                                            isRequired: true,
+                                            setValue:
+                                                (value) =>
+                                                    purchaseEndDate.value =
+                                                        value,
+                                            validator: (value) {
+                                              if (value == null) {
+                                                return 'Purchase End Date is required.';
+                                              }
+
+                                              return null;
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      ValueListenableBuilder(
+                                        valueListenable:
+                                            _selectedTenantAmountPaymentModeNotifier,
+                                        builder: (
+                                          context,
+                                          selectedPaymentMode,
+                                          _,
+                                        ) {
+                                          return CustomDropDownWidget(
+                                            title: "Payment Mode",
+                                            hintText: "Select Payment Mode",
+                                            initialValue: selectedPaymentMode,
+                                            dataList: tenurePaymentModeList,
+                                            onSelected: (value) {
+                                              _selectedTenantAmountPaymentModeNotifier
+                                                  .value = value;
+                                            },
+
+                                            onValueClear: () {
+                                              _selectedTenantAmountPaymentModeNotifier
+                                                  .value = null;
+                                            },
+                                          );
+                                        },
+                                      ),
+
+                                      CustomTextField(
+                                        title:
+                                            'Transaction / Cheque / Demand Draft No',
+                                        textController:
+                                            _tenantAmountTransactionNumberC,
+                                        hint:
+                                            "Enter Transaction / Cheque / Demand Draft No",
+                                        inputFormatterList:
+                                            InputValidator.digitAndCharacterOnly(
+                                              15,
+                                            ),
+                                      ),
+                                      CustomMultiFilePicker(
+                                        title:
+                                            "Transaction / Cheque / Demand Draft Image",
+                                        filePickType: FilePickType.image,
+                                        initialFileList:
+                                            tenderAmountTransactionFile
+                                                .fileNameList,
+                                        initialFileBytes:
+                                            tenderAmountTransactionFile
+                                                .fileBytesList,
+                                        onFilePickedCallback: (
+                                          bytesList,
+                                          fileNameList,
+                                        ) {
+                                          tenderAmountTransactionFile
+                                              .fileNameList = fileNameList;
+                                          tenderAmountTransactionFile
+                                              .fileBytesList = bytesList;
+                                        },
+                                        onFileDeleteCallback: (
+                                          fileBytesList,
+                                          fileNameList,
+                                          deleted,
+                                        ) {
+                                          tenderAmountTransactionFile
+                                              .fileBytesList = fileBytesList;
+                                          tenderAmountTransactionFile
+                                              .fileNameList = fileNameList;
+                                          tenderAmountTransactionFile
+                                              .deletedFileList = deleted;
+                                        },
+                                      ),
+                                      CustomTextField(
+                                        title: 'Payorder Remark',
+                                        textController:
+                                            _tenderAmountPayOrderRemarkC,
+                                        hint: "Enter Payorder Remark",
+                                        minLines: 3,
+                                        maxLines: 3,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(12.0),
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Tender EMD Details",
+                                style: AppTextStyle.ts14M(
+                                  color: AppColor.black.withValues(alpha: 0.5),
+                                ),
+                              ),
+                              verticalSpacing(),
+                              ValueListenableBuilder(
+                                valueListenable: selectedCategoryType,
+                                builder: (context, value, child) {
+                                  final isTender =
+                                      value?["DisplayName"]
+                                          ?.toString()
+                                          .toLowerCase() ==
+                                      "tender";
+
+                                  if (!isTender) return SizedBox.shrink();
+
+                                  return Column(
+                                    children: [
+                                      CustomTextField(
+                                        title: 'EMD Amount (₹)',
+                                        textController: _tendorEmdAmountC,
+                                        keyboardType:
+                                            TextInputType.numberWithOptions(),
+                                        hint: "Enter EMD Amount",
+                                        inputFormatterList:
+                                            InputValidator.decimal(2),
+                                      ),
+                                      ValueListenableBuilder(
+                                        valueListenable: submissionDate,
+                                        builder: (
+                                          context,
+                                          submissionDt,
+                                          child,
+                                        ) {
+                                          return CustomDatePicker(
+                                            title: "Submission Date",
+                                            initialDate: submissionDt,
+                                            setValue:
+                                                (value) =>
+                                                    submissionDate.value =
+                                                        value,
+                                          );
+                                        },
+                                      ),
+                                      ValueListenableBuilder(
+                                        valueListenable:
+                                            _selectedTenantEmdPaymentModeNotifier,
+                                        builder: (
+                                          context,
+                                          selectedPaymentMode,
+                                          _,
+                                        ) {
+                                          return CustomDropDownWidget(
+                                            title: "Payment Mode",
+                                            hintText: "Select Payment Mode",
+                                            initialValue: selectedPaymentMode,
+                                            dataList: tenurePaymentModeList,
+                                            onSelected: (value) {
+                                              _selectedTenantEmdPaymentModeNotifier
+                                                  .value = value;
+                                            },
+
+                                            onValueClear: () {
+                                              _selectedTenantEmdPaymentModeNotifier
+                                                  .value = null;
+                                            },
+                                          );
+                                        },
+                                      ),
+
+                                      CustomTextField(
+                                        title:
+                                            'Transaction / Cheque / Demand Draft No',
+                                        textController:
+                                            _tenantEmdTransactionNumberC,
+                                        hint:
+                                            "Enter Transaction / Cheque / Demand Draft No",
+                                        inputFormatterList:
+                                            InputValidator.digitAndCharacterOnly(
+                                              15,
+                                            ),
+                                      ),
+                                      CustomMultiFilePicker(
+                                        title:
+                                            "Transaction / Cheque / Demand Draft Image",
+                                        filePickType: FilePickType.image,
+                                        initialFileList:
+                                            tenderEmdTransactionFile
+                                                .fileNameList,
+                                        initialFileBytes:
+                                            tenderEmdTransactionFile
+                                                .fileBytesList,
+                                        onFilePickedCallback: (
+                                          bytesList,
+                                          fileNameList,
+                                        ) {
+                                          tenderEmdTransactionFile
+                                              .fileNameList = fileNameList;
+                                          tenderEmdTransactionFile
+                                              .fileBytesList = bytesList;
+                                        },
+                                        onFileDeleteCallback: (
+                                          fileBytesList,
+                                          fileNameList,
+                                          deleted,
+                                        ) {
+                                          tenderEmdTransactionFile
+                                              .fileBytesList = fileBytesList;
+                                          tenderEmdTransactionFile
+                                              .fileNameList = fileNameList;
+                                          tenderEmdTransactionFile
+                                              .deletedFileList = deleted;
+                                        },
+                                      ),
+
+                                      CustomTextField(
+                                        title: 'Payorder Remark',
+                                        textController:
+                                            _tenderEmdPayOrderRemarkC,
+                                        hint: "Enter Payorder Remark",
+                                        minLines: 3,
+                                        maxLines: 3,
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 // LIASONING ARCHITECT
                 Container(
@@ -966,7 +1333,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       verticalSpacing(),
                       CustomTextField(
                         title: 'Name',
-                        textController: _rccConsultantgNameC,
+                        textController: _rccConsultantNameC,
                         hint: "Enter Name",
                       ),
                       CustomTextField(
@@ -1131,7 +1498,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             },
                             onValueClear: () {
                               projectSchemeNotifier.value = null;
-                              selectedProjectSubScheme.value = null;
+                              _selectedProjectSubScheme.value = null;
                             },
                           );
                         },
@@ -1140,20 +1507,27 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         valueListenable: projectSchemeNotifier,
                         builder: (context, selectedProjectScheme, _) {
                           return ValueListenableBuilder(
-                            valueListenable: selectedProjectSubScheme,
+                            valueListenable: _selectedProjectSubScheme,
                             builder: (context, value, child) {
-                              return CustomDropDownWidget(
+                              return CustomMultipleSelectPopup(
                                 title: 'Project Sub Scheme',
                                 hintText: "Select Project Sub Scheme",
                                 initialValue: value,
+
                                 dataList: _currentSubSchemeList,
-                                isDisabled: projectSchemeNotifier.value == null,
+                                isReadOnly: projectSchemeNotifier.value == null,
                                 onSelected: (value) {
-                                  selectedProjectSubScheme.value = value;
+                                  _selectedProjectSubScheme.value = value;
                                 },
-                                onValueClear: () {
-                                  selectedProjectSubScheme.value = null;
+                                onClear: () {
+                                  _selectedProjectSubScheme.value = null;
                                 },
+                                dataFetchCallBack:
+                                    (pageNumber, {value}) => filterDropdownList(
+                                      pageNumber,
+                                      value: value,
+                                      list: _currentSubSchemeList,
+                                    ),
                               );
                             },
                           );
@@ -1198,10 +1572,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         },
                       ),
                       CustomDatePicker(
-                        title: 'RERA Completion Date',
-                        initialDate: reraCompletionDate,
+                        title: 'RERA Possession Date',
+                        initialDate: reraPossessionDate,
                         setValue: (value) {
-                          reraCompletionDate = value;
+                          reraPossessionDate = value;
                         },
                         validator: (value) {
                           if (value != null &&
@@ -1283,6 +1657,50 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         textController: _projectAreaSqMtC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
+                      ValueListenableBuilder(
+                        valueListenable: _isFederation,
+                        builder: (context, isPayTAA, child) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 12,
+                            children: [
+                              CustomCheckBox(
+                                isSelected: isPayTAA,
+                                onChanged: (val) {
+                                  _isFederation.value = val;
+                                },
+                                title: "Is This Project a Federation?",
+                              ),
+                              CustomTextField(
+                                title: 'Project Project Federation Amount',
+                                isRequired: isPayTAA,
+                                readOnly: !isPayTAA,
+                                prefixWidget: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      right: BorderSide(
+                                        color: AppColor.grey,
+                                        width: .5,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.currency_rupee,
+                                    color: AppColor.grey,
+                                    size: 18,
+                                  ),
+                                ),
+                                hint:
+                                    isPayTAA
+                                        ? "Enter Project Federation Amount"
+                                        : "0",
+                                textController: _federationAmountC,
+                                inputFormatterList: InputValidator.decimal(2),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -1332,23 +1750,113 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Contact Information",
+                        "Site Contact Information",
                         style: AppTextStyle.ts14M(
                           color: AppColor.black.withValues(alpha: 0.5),
                         ),
                       ),
                       verticalSpacing(),
                       CustomTextField(
-                        title: 'Site Contact Name',
+                        title: 'Name',
                         hint: "Enter Site Contact Name",
-                        textController: _siteContactNameC,
+                        textController: _siteContact1NameC,
                         inputFormatterList: InputValidator.textOnly(100),
                       ),
                       CustomTextField(
-                        title: 'Site Contact Mobile Number',
-                        hint: "Enter Site Contact Mobile Number",
-                        textController: _siteContactMobileNumberC,
+                        title: 'Mobile Number',
+                        hint: "Enter Mobile Number",
+                        textController: _siteContact1MobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      CustomTextField(
+                        title: 'Designation',
+                        hint: "Enter Designation",
+                        textController: _siteContact1DesignationC,
+                        inputFormatterList: InputValidator.textOnly(100),
+                      ),
+                      CustomTextField(
+                        title: 'Name 2',
+                        hint: "Enter Site Contact2 Name",
+                        textController: _siteContact2NameC,
+                        inputFormatterList: InputValidator.textOnly(100),
+                      ),
+                      CustomTextField(
+                        title: 'Mobile Number 2',
+                        hint: "Enter Mobile Number",
+                        textController: _siteContact2MobileNumberC,
+                        inputFormatterList: InputValidator.digit(10),
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      CustomTextField(
+                        title: 'Designation 2',
+                        hint: "Enter Designation",
+                        textController: _siteContact2DesignationC,
+                        inputFormatterList: InputValidator.textOnly(100),
+                      ),
+                      CustomTextField(
+                        title: 'Name 3',
+                        hint: "Enter Site Contact3 Name",
+                        textController: _siteContact3NameC,
+                        inputFormatterList: InputValidator.textOnly(100),
+                      ),
+                      CustomTextField(
+                        title: 'Mobile Number 3',
+                        hint: "Enter Mobile Number",
+                        textController: _siteContact3MobileNumberC,
+                        inputFormatterList: InputValidator.digit(10),
+                        prefixWidget: IntrinsicHeight(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              SizedBox(width: 10),
+                              Text("+91"),
+                              VerticalDivider(
+                                color: AppColor.black,
+                                thickness: 0.5,
+                                width: 15,
+                                indent: 5,
+                                endIndent: 5,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      CustomTextField(
+                        title: 'Designation 3',
+                        hint: "Enter Designation",
+                        textController: _siteContact3DesignationC,
+                        inputFormatterList: InputValidator.textOnly(100),
                       ),
                       ValueListenableBuilder<Map<String, dynamic>?>(
                         valueListenable: _selectedProjectStatusNotifier,

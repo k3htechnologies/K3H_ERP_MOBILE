@@ -147,6 +147,7 @@ class _ViewPaymentScreenState extends State<ViewPaymentScreen> {
                                                 .transactionReceiptUrl
                                                 .isNotEmpty) {
                                               showFilePreviewDialog(
+                                                title: "Transaction Receipt",
                                                 context,
                                                 payment.transactionReceiptUrl
                                                     .split(","),
