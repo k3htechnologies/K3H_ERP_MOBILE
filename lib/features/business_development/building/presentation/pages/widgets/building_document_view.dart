@@ -150,7 +150,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
     );
 
     if (result && context.mounted) {
-      _buildingCubit.deleteBuildingDocument(
+      await _buildingCubit.deleteBuildingDocument(
         document: document,
         context: context,
       );

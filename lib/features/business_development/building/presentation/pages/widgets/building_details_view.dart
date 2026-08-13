@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -72,13 +73,14 @@ class BuildingDetailsView extends StatelessWidget {
                       buildColumnTitleValue(
                         title: "Gross Plot Area (Sq. ft)",
                         value:
-                            state.buildingDetails!.grossPlotAreaSqFt.toString(),
+                            state.buildingDetails!.grossPlotAreaSqFt
+                                .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "PR Card Area(Sq. ft)",
                         value:
                             state.buildingDetails!.plotAreaPRCardSqFt
-                                .toString(),
+                                .addCommas(),
                       ),
                     ],
                   ),
@@ -90,13 +92,13 @@ class BuildingDetailsView extends StatelessWidget {
                         title: "Old Approved Plan Area (Sq. ft)",
                         value:
                             state.buildingDetails!.plotAreaOldApprovedPlanSqFt
-                                .toString(),
+                                .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Conveyance Area (Sq. ft)",
                         value:
                             state.buildingDetails!.plotAreaConveyanceSqFt
-                                .toString(),
+                                .addCommas(),
                       ),
                     ],
                   ),
@@ -107,7 +109,7 @@ class BuildingDetailsView extends StatelessWidget {
                         title: "Physical Survey Area (Sq. ft)",
                         value:
                             state.buildingDetails!.plotAreaPhysicalSurveySqFt
-                                .toString(),
+                                .addCommas(),
                       ),
                       Expanded(child: SizedBox()),
                     ],
@@ -128,13 +130,13 @@ class BuildingDetailsView extends StatelessWidget {
                         title: "Total Carpet Area (SqFt)",
                         value:
                             state.buildingDetails!.totalCarpetAreaSqFt
-                                .toString(),
+                                .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Total Residential Units",
                         value:
                             state.buildingDetails!.totalResidentialUnits
-                                .toString(),
+                                .addCommas(),
                       ),
                     ],
                   ),
@@ -148,13 +150,13 @@ class BuildingDetailsView extends StatelessWidget {
                             state
                                 .buildingDetails!
                                 .totalResidentialCarpetAreaSqFt
-                                .toString(),
+                                .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Total Commercial Units",
                         value:
                             state.buildingDetails!.totalCommercialUnits
-                                .toString(),
+                                .addCommas(),
                       ),
                     ],
                   ),
@@ -165,10 +167,23 @@ class BuildingDetailsView extends StatelessWidget {
                         title: "Commercial Carpet Area (Sq. ft)",
                         value:
                             state.buildingDetails!.totalCommercialCarpetAreaSqFt
-                                .toString(),
+                                .addCommas(),
                       ),
-                      Expanded(child: SizedBox()),
+                      buildColumnTitleValue(
+                        title: "Garage Carpet Area (SqFt)",
+                        value:
+                            state.buildingDetails!.garageCarpetAreaSqFt
+                                .addCommas(),
+                      ),
                     ],
+                  ),
+                  buildRowWrapper(
+                    child: buildColumnTitleValue(
+                      title: "Terrace Carpet Area (SqFt)",
+                      value:
+                          state.buildingDetails!.terraceCarpetAreaSqFt
+                              .addCommas(),
+                    ),
                   ),
                 ],
               ),
