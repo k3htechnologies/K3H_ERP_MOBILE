@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class PaymentScheduleSchemeDatasource {
   Future<Map<String, dynamic>> apicallPullPaymentScheduleScheme({
@@ -46,11 +47,7 @@ class PaymentScheduleSchemeDatasourceImpl
     }) {
       String url =
           "PaymentScheduleSchemeMaster/PullPaymentScheduleSchemeMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-
-      queryParams?.forEach((key, value) {
-        url += "&$key=$value";
-      });
-
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -171,9 +168,7 @@ class PaymentScheduleSchemeDatasourceImpl
       String url =
           "PaymentScheduleSchemeMaster/PullPaymentScheduleSchemeMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
 
-      queryParams?.forEach((key, value) {
-        url += "&$key=$value";
-      });
+      url += queryParamsFormatter(queryParams: queryParams);
 
       return url;
     }

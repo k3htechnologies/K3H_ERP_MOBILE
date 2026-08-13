@@ -16,7 +16,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/static/static_tab_values.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -55,6 +54,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   Timer? _inwardOutwardDebounce;
 
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
+List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
 
   @override
   void initState() {

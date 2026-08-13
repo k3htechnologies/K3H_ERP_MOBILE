@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class BookingDatasource {
   Future<Map<String, dynamic>> apiCallPullBooking({
@@ -53,7 +54,7 @@ class BookingDatasourceImpl extends BookingDatasource {
     }) {
       String url =
           "Booking/PullBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -141,7 +142,7 @@ class BookingDatasourceImpl extends BookingDatasource {
           "&InventoryBuildingId=$inventoryBuildingId"
           "&InventoryFlatFloorBasementPodiumWingId=$inventoryFlatFloorBasementPodiumWingId";
 
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -217,7 +218,7 @@ class BookingDatasourceImpl extends BookingDatasource {
     }) {
       String url =
           "Booking/PullBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

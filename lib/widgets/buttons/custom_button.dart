@@ -245,8 +245,12 @@ class CustomButton extends StatelessWidget {
     bool isDisable = false,
   }) : this(
          key: key,
-         trailing: Icon(Icons.remove_red_eye_outlined, size: 18),
-         onPressed: onPressed,
+         trailing: Icon(
+           Icons.remove_red_eye_outlined,
+           color: isDisable ? AppColor.grey2 : AppColor.primary,
+           size: 18,
+         ),
+         onPressed: isDisable ? () {} : onPressed,
          isDisable: isDisable,
          text: 'Document',
          backgroundColor: Colors.transparent,

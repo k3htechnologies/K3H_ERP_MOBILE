@@ -206,7 +206,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }) {
       String url =
           "Litigation/PullLitigation?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -252,7 +252,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
           "Litigation/PullLitigationHearing?PageSize=$pageSize&PageNumber=$pageNumber"
           "&ProjectId=$projectId&LitigationId=$litigationId";
 
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -376,7 +376,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
           "Litigation/PullLitigationClosure?PageSize=$pageSize&PageNumber=$pageNumber"
           "&ProjectId=$projectId&LitigationId=$litigationId";
 
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -454,7 +454,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     }) {
       String url =
           "LitigationDocument/PullLitigationDocument?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&LitigationId=$litigationId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/
 import 'package:k3h_erp_app/features/sales/sales_reports/performance/data/model/performance_report_closing.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class PerformanceReportDatasource {
   Future<Map<String, dynamic>> apiCallPullPerformanceSourcingReport({
@@ -44,11 +45,7 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
     }) {
       String url =
           "PerformanceReport/PullPerformanceReport?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&ReportType=$reportType";
-      queryParams?.forEach((key, value) {
-        if (value != null && value.toString().trim().isNotEmpty) {
-          url += "&$key=$value";
-        }
-      });
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -99,11 +96,7 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
     }) {
       String url =
           "PerformanceReport/PullPerformanceReport?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&ReportType=$reportType";
-      queryParams?.forEach((key, value) {
-        if (value != null && value.toString().trim().isNotEmpty) {
-          url += "&$key=$value";
-        }
-      });
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -152,11 +145,7 @@ class PerformanceReportDatasourceImpl extends PerformanceReportDatasource {
     String pullPerformanceReportExportUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "PerformanceReport/PullPerformanceReport?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&ReportType=$reportType";
-      queryParams?.forEach((key, value) {
-        if (value != null && value.toString().trim().isNotEmpty) {
-          url += "&$key=$value";
-        }
-      });
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

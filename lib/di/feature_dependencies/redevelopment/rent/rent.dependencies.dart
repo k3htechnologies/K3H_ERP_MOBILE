@@ -1,15 +1,22 @@
 import 'package:get_it/get_it.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/data/datasource/rent.datasource.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/data/repository/rent.repository.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/datasource/temporary_alternate_accommodation.datasource.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/repository/temporary_alternate_accommodation.repository.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
 
 void registerRentDependencies(GetIt serviceLocator) {
-  serviceLocator.registerSingleton<RentDatasource>(RentDatasourceImpl());
+  serviceLocator.registerSingleton<TemporaryAlternateAccommodationDatasource>(
+    TemporaryAlternateAccommodationDatasourceImpl(),
+  );
 
-  serviceLocator.registerSingleton<RentRepository>(
-    RentRepositoryImpl(rentDatasource: serviceLocator<RentDatasource>()),
+  serviceLocator.registerSingleton<TemporaryAlternateAccommodationRepository>(
+    RentRepositoryImpl(
+      rentDatasource:
+          serviceLocator<TemporaryAlternateAccommodationDatasource>(),
+    ),
   );
 
   //- CUBITS -
-  serviceLocator.registerSingleton<RentCubit>(RentCubit());
+  serviceLocator.registerSingleton<TemporaryAlternateAccommodationCubit>(
+    TemporaryAlternateAccommodationCubit(),
+  );
 }

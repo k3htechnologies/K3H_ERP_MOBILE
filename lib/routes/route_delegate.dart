@@ -34,20 +34,20 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_document.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_update_document_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/corpus_details.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/ready_reckover_details.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_hardship_details.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/add_wing_details_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/pages/proposed_plans_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/rent_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/data/model/building_document.model.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_update_document_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/offer_hardship_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_hardship_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/achivement_drill_down_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/achievement/data/model/channel_partner_sourcing.model.dart';
@@ -358,27 +358,27 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/presentati
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_bank_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/data/model/building.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/data/model/building_details.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/cubit/building_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/add_building_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/building_view_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/building/presentation/pages/update_building_details_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/dashboard/presentation/pages/redevelopment_dashboard_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/data/model/payment_ledger.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/data/model/rent.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/cubit/rent_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/add_payment_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/rent/presentation/pages/view_payment_summary_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/data/model/tenant.model.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/cubit/tenant_cubit.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/add_tenant_screen.dart';
-import 'package:k3h_erp_app/features/redevelopment/tenant/presentation/pages/tenant_view_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/business_development/building/data/model/building_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/cubit/building_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_building_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_view_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/update_building_details_screen.dart';
+import 'package:k3h_erp_app/features/business_development/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/dashboard/presentation/pages/redevelopment_dashboard_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_secondary_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/cubit/proposed_plans_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/payment_ledger.model.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/temporary_alternate_accommodation.model.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/add_payment_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/view_payment_summary_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/cubit/tenant_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/add_tenant_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_view_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_screen.dart';
@@ -485,7 +485,8 @@ double? _readDouble(dynamic extraVal, String? queryVal) {
   return null;
 }
 
-RentModel? _rentModelFromQuery(String? encoded) {
+TemporaryAlternativeAccommodationModel?
+_temporaryAlternateAccommodationModelFromQuery(String? encoded) {
   if (encoded == null || encoded.isEmpty) return null;
   try {
     final json =
@@ -493,15 +494,14 @@ RentModel? _rentModelFromQuery(String? encoded) {
               EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
             )
             as Map<String, dynamic>;
-    return RentModel.fromJson(json);
+    return TemporaryAlternativeAccommodationModel.fromJson(json);
   } catch (_) {
     return null;
   }
 }
 
-List<TemporaryAlternativeAccommodationDetailsModel> _rentDetailsFromQuery(
-  String? encoded,
-) {
+List<TemporaryAlternativeAccommodationDetailsModel>
+_temporaryAlternateAccommodationDetailsFromQuery(String? encoded) {
   if (encoded == null || encoded.isEmpty) return [];
   try {
     final list =
@@ -2410,9 +2410,9 @@ final GoRouter goRouter = GoRouter(
                 final queryParameterBuilding =
                     state.uri.queryParameters['building'];
 
-                final RedevelopmentBuildingModel? building =
+                final BusinessDevelopmentBuildingModel? building =
                     queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
+                        ? BusinessDevelopmentBuildingModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(queryParameterBuilding),
@@ -2442,9 +2442,9 @@ final GoRouter goRouter = GoRouter(
                 final queryParameterBuilding =
                     state.uri.queryParameters['building'];
 
-                final RedevelopmentBuildingModel? building =
+                final BusinessDevelopmentBuildingModel? building =
                     queryParameterBuilding != null
-                        ? RedevelopmentBuildingModel.fromJson(
+                        ? BusinessDevelopmentBuildingModel.fromJson(
                           jsonDecode(
                             EncryptionManager.decryptData(
                               Uri.decodeComponent(queryParameterBuilding),
@@ -2572,14 +2572,17 @@ final GoRouter goRouter = GoRouter(
         // RENT
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(create: (_) => RentCubit(), child: child);
+            return BlocProvider(
+              create: (_) => TemporaryAlternateAccommodationCubit(),
+              child: child,
+            );
           },
           routes: [
             GoRoute(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                return RentScreen();
+                return TemporaryAlternateAccommodationScreen();
                 // return const ComingSoonScreen(title: "TAA");
               },
             ),
@@ -2602,10 +2605,17 @@ final GoRouter goRouter = GoRouter(
                         >?) ??
                     [];
                 if (rentDetails.isEmpty) {
-                  rentDetails = _rentDetailsFromQuery(query['rentDetails']);
+                  rentDetails =
+                      _temporaryAlternateAccommodationDetailsFromQuery(
+                        query['rentDetails'],
+                      );
                 }
-                RentModel? rentModel = extra['rentModel'] as RentModel?;
-                rentModel ??= _rentModelFromQuery(query['rentModel']);
+                TemporaryAlternativeAccommodationModel? rentModel =
+                    extra['rentModel']
+                        as TemporaryAlternativeAccommodationModel?;
+                rentModel ??= _temporaryAlternateAccommodationModelFromQuery(
+                  query['rentModel'],
+                );
                 final totalAmount =
                     _readDouble(extra['totalAmount'], query['totalAmount']) ??
                     0.0;
@@ -2642,8 +2652,10 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewSummary,
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
-                RentModel? rentModel = extra['rentModel'] as RentModel?;
-                rentModel ??= _rentModelFromQuery(
+                TemporaryAlternativeAccommodationModel? rentModel =
+                    extra['rentModel']
+                        as TemporaryAlternativeAccommodationModel?;
+                rentModel ??= _temporaryAlternateAccommodationModelFromQuery(
                   state.uri.queryParameters['rentModel'],
                 );
                 if (rentModel == null) {
@@ -2878,7 +2890,7 @@ final GoRouter goRouter = GoRouter(
 
                 return AddTemporaryAccommodationAlternativeDetails(
                   index: rent == null ? null : index,
-                  rentDetailsModel: rent,
+                  taaDetailsModel: rent,
                   projectId: projectId,
                   buildingId: buildingId,
                   buildingName: buildingName,

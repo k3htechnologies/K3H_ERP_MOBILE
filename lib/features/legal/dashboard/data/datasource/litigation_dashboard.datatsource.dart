@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/legal/dashboard/data/model/litigation_dashboard.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class LitigationDashboardDatasource {
   Future<Map<String, dynamic>> apiCallPullLitigationDashboard({
@@ -21,7 +22,7 @@ class LitigationDashboardDatasourceImpl
     String pullLitigationDashboardUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "LitigationDashboard/PullLitigationDashboard?ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

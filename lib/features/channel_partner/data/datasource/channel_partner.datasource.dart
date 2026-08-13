@@ -125,7 +125,7 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     }) {
       String url =
           "ChannelPartner/PullChannelPartner?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -166,13 +166,7 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     }) {
       String url =
           "ChannelPartner/PullChannelPartnerCompany?PageSize=$pageSize&PageNumber=$pageNumber";
-
-      queryParams?.forEach((key, value) {
-        if (value != null && value.toString().isNotEmpty) {
-          url += "&$key=$value";
-        }
-      });
-
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -208,7 +202,7 @@ class ChannelPartnerDatasourceImpl implements ChannelPartnerDatasource {
     String pullChannelPartnerDashboardUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "SalesChannelPartnerDashboard/PullSalesChannelPartnerDashboard";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
