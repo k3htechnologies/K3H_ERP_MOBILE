@@ -350,9 +350,6 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
             child: SearchWidget(
               hintText: "Search by File Name",
               onSubmit: (value) {
-                _searchTextC.clear();
-                _flatHandoverCubit.clearSearch();
-
                 _flatHandoverCubit.searchFlatHandoverFiles(
                   context,
                   widget.projectId,

@@ -8,10 +8,12 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewUnitModulationCustomizationHistoryScreen extends StatefulWidget {
-  final FlatAlterationRequestsModel unitModulationDetail;
+  final String version;
+  final List<FlatAlterationRequestsModel> unitModulationDetails;
   const ViewUnitModulationCustomizationHistoryScreen({
     super.key,
-    required this.unitModulationDetail,
+    required this.unitModulationDetails,
+    required this.version,
   });
 
   @override
@@ -25,80 +27,80 @@ class _ViewUnitModulationCustomizationHistoryScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            "Modified Requests > Activity > Version ${widget.unitModulationDetail.versionNumber}",
+        screenTitle: "Modified Requests > Activity > Version ${widget.version}",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColor.lightGreyBackground,
-            border: Border.all(color: AppColor.grey50),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
+        child: Column(
+          children: [
+            ...widget.unitModulationDetails.map((unitModulationDetail) {
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColor.lightGreyBackground,
+                  border: Border.all(color: AppColor.grey50),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValueNormal(
                       title: "Unit / Modulation / Customization Remark",
-                      value: widget.unitModulationDetail.flatAlterationRemark,
+                      value: unitModulationDetail.flatAlterationRemark,
                     ),
-                  ),
-                ],
-              ),
-              verticalSpacing(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "Created By",
-                      value: widget.unitModulationDetail.createdBy,
+
+                    verticalSpacing(),
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Created By",
+                            value: unitModulationDetail.createdBy,
+                          ),
+                        ),
+                        horizontalSpacing(),
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Created Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              unitModulationDetail.createdDate,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "Created Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        widget.unitModulationDetail.createdDate,
-                      ),
+
+                    verticalSpacing(),
+
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Modified By",
+                            value: unitModulationDetail.modifiedBy,
+                          ),
+                        ),
+                        horizontalSpacing(),
+                        Expanded(
+                          child: buildColumnTitleValueNormal(
+                            title: "Modified Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              unitModulationDetail.modifiedDate,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              verticalSpacing(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "Modified By",
-                      value: widget.unitModulationDetail.modifiedBy,
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "Modified Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        widget.unitModulationDetail.modifiedDate,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  ],
+                ),
+              );
+            }),
+          ],
         ),
       ),
     );

@@ -21,6 +21,21 @@ class AddApplicantDetailsRequestsScreen extends StatefulWidget {
   final int projectId;
   final int? index;
   final bool isEdit;
+  final MultiFilePickerModel? aadhaarFile;
+  final MultiFilePickerModel? panFile;
+  final MultiFilePickerModel? passportFile;
+  final MultiFilePickerModel? photoFile;
+  final MultiFilePickerModel? gstFile;
+  final MultiFilePickerModel? votingFile;
+  final MultiFilePickerModel? drivingFile;
+  final MultiFilePickerModel? poaFile;
+  final MultiFilePickerModel? paymentProofFile;
+  final MultiFilePickerModel? proofDocumentFile;
+  final MultiFilePickerModel? statementFile;
+  final MultiFilePickerModel? incomeFile;
+  final MultiFilePickerModel? nomineeFile;
+  final MultiFilePickerModel? cancelledChequeFile;
+  final MultiFilePickerModel? nreFile;
   const AddApplicantDetailsRequestsScreen({
     super.key,
     required this.bookingId,
@@ -28,6 +43,21 @@ class AddApplicantDetailsRequestsScreen extends StatefulWidget {
     this.index,
     this.isEdit = false,
     this.applicant,
+    this.aadhaarFile,
+    this.panFile,
+    this.passportFile,
+    this.photoFile,
+    this.gstFile,
+    this.votingFile,
+    this.drivingFile,
+    this.poaFile,
+    this.paymentProofFile,
+    this.proofDocumentFile,
+    this.statementFile,
+    this.incomeFile,
+    this.nomineeFile,
+    this.cancelledChequeFile,
+    this.nreFile,
   });
 
   @override
@@ -67,6 +97,7 @@ class _AddApplicantDetailsRequestsScreenState
     {"zAttributesId": 1, "DisplayName": "Applicant"},
     {"zAttributesId": 2, "DisplayName": "Co - Applicant"},
   ];
+
   late TextEditingController _applicantNameC,
       _mobileC,
       _emailC,
@@ -125,11 +156,6 @@ class _AddApplicantDetailsRequestsScreenState
     deletedFileList: "",
   );
 
-  MultiFilePickerModel paymentProofFile = MultiFilePickerModel(
-    fileBytesList: [],
-    fileNameList: [],
-    deletedFileList: "",
-  );
   MultiFilePickerModel poaFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -161,14 +187,49 @@ class _AddApplicantDetailsRequestsScreenState
     fileNameList: [],
     deletedFileList: "",
   );
+
   ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
   @override
   void initState() {
     super.initState();
+
     _initControllers();
+
+    if (widget.isEdit && widget.index != null) {
+      _loadApplicantFromCubit();
+    }
+
     _prefillData();
+  }
+
+  void _loadApplicantFromCubit() {
+    final cubit = context.read<RequestManagementCubit>();
+
+    final applicants = cubit.state.bookingApplicantModificationRequestModel;
+
+    final index = widget.index!;
+
+    final applicant = applicants[index];
+
+    profilePhotoFile = _copyFileModel(applicant.photoFile);
+    aadhaarFile = _copyFileModel(applicant.aadhaarFile);
+    panFile = _copyFileModel(applicant.panFile);
+    passportFile = _copyFileModel(applicant.passportFile);
+    drivingLicenseFile = _copyFileModel(applicant.drivingLicenseFile);
+    votingIdFile = _copyFileModel(applicant.votingIdFile);
+    gstFile = _copyFileModel(applicant.gstFile);
+    chequeFile = _copyFileModel(applicant.chequeFile);
+    poaFile = _copyFileModel(applicant.poaFile);
+    paymentProofURLFundFile = _copyFileModel(applicant.paymentProofURLFundFile);
+    proofOfDocumentFile = _copyFileModel(applicant.proofOfDocumentFile);
+    statementOfSourceOfFundsFile = _copyFileModel(
+      applicant.statementOfSourceOfFundFile,
+    );
+    incomeForm16ItrFile = _copyFileModel(applicant.incomeForm16ItrFile);
+    nomineeFormFile = _copyFileModel(applicant.nomineeFormFile);
+    nreNroBankDetailsFile = _copyFileModel(applicant.nreNroBankDetailsFile);
   }
 
   void _initControllers() {
@@ -202,62 +263,102 @@ class _AddApplicantDetailsRequestsScreenState
   }
 
   void _prefillData() {
-    if (widget.isEdit && widget.applicant != null) {
-      final a = widget.applicant!;
+    if (!widget.isEdit || widget.index == null) {
+      return;
+    }
 
-      _applicantNameC.text = a.applicantName;
-      _mobileC.text = a.applicantMobileNumber;
-      if (a.applicantMobileNumberCountryCode.isNotEmpty) {
-        selectedMobileNoCountry.value = countryList.firstWhere(
-          (e) => e.code == a.applicantMobileNumberCountryCode,
-          orElse: () => countryList.firstWhere((e) => e.code == "+91"),
-        );
-      }
-      _emailC.text = a.applicantEmailId;
-      _aadharC.text = a.aadharCardNumber;
-      _panC.text = a.panNumber;
-      _passportC.text = a.passportNumber;
-      _drivingLicenseC.text = a.drivingLicenseNumber;
-      _votingIdC.text = a.votingIdNumber;
-      _gstC.text = a.gstNumber;
+    final cubit = context.read<RequestManagementCubit>();
 
-      selectedApplicantType.value = applicantTypeList.firstWhere(
-        (e) => e["DisplayName"] == a.applicantType,
+    final applicants = cubit.state.bookingApplicantModificationRequestModel;
+
+    final index = widget.index!;
+
+    if (index < 0 || index >= applicants.length) {
+      return;
+    }
+
+    final a = applicants[index];
+
+    _applicantNameC.text = a.applicantName;
+    _mobileC.text = a.applicantMobileNumber;
+    if (a.applicantMobileNumberCountryCode.isNotEmpty) {
+      selectedMobileNoCountry.value = countryList.firstWhere(
+        (e) => e.code == a.applicantMobileNumberCountryCode,
+        orElse: () => countryList.firstWhere((e) => e.code == "+91"),
       );
+    }
+    _emailC.text = a.applicantEmailId;
+    _aadharC.text = a.aadharCardNumber;
+    _panC.text = a.panNumber;
+    _passportC.text = a.passportNumber;
+    _drivingLicenseC.text = a.drivingLicenseNumber;
+    _votingIdC.text = a.votingIdNumber;
+    _gstC.text = a.gstNumber;
+
+    selectedApplicantType.value = applicantTypeList.firstWhere(
+      (e) => e["DisplayName"] == a.applicantType,
+    );
+    if (proofOfDocumentFile.fileNameList.isEmpty) {
       proofOfDocumentFile.fileNameList =
           a.proofOfDocumentUrl.isEmpty ? [] : a.proofOfDocumentUrl.split(",");
+    }
+    if (profilePhotoFile.fileNameList.isEmpty) {
       profilePhotoFile.fileNameList =
           a.photoUrl.isEmpty ? [] : a.photoUrl.split(",");
+    }
+    if (aadhaarFile.fileNameList.isEmpty) {
       aadhaarFile.fileNameList =
           a.aadharCardUrl.isEmpty ? [] : a.aadharCardUrl.split(",");
+    }
+    if (panFile.fileNameList.isEmpty) {
       panFile.fileNameList =
           a.panCardUrl.isEmpty ? [] : a.panCardUrl.split(",");
+    }
+
+    if (passportFile.fileNameList.isEmpty) {
       passportFile.fileNameList =
           a.passportUrl.isEmpty ? [] : a.passportUrl.split(",");
+    }
+    if (drivingLicenseFile.fileNameList.isEmpty) {
       drivingLicenseFile.fileNameList =
           a.drivingLicenseUrl.isEmpty ? [] : a.drivingLicenseUrl.split(",");
+    }
+    if (votingIdFile.fileNameList.isEmpty) {
       votingIdFile.fileNameList =
           a.votingIdUrl.isEmpty ? [] : a.votingIdUrl.split(",");
+    }
+    if (gstFile.fileNameList.isEmpty) {
       gstFile.fileNameList =
           a.gstNumberUrl.isEmpty ? [] : a.gstNumberUrl.split(",");
+    }
+    if (chequeFile.fileNameList.isEmpty) {
       chequeFile.fileNameList =
           a.cancelledChequeUrl.isEmpty ? [] : a.cancelledChequeUrl.split(",");
+    }
+    if (poaFile.fileNameList.isEmpty) {
       poaFile.fileNameList = a.poaurl.isEmpty ? [] : a.poaurl.split(",");
+    }
+    if (incomeForm16ItrFile.fileNameList.isEmpty) {
       incomeForm16ItrFile.fileNameList =
           a.incomeForm16Itrurl.isEmpty ? [] : a.incomeForm16Itrurl.split(",");
-
+    }
+    if (nreNroBankDetailsFile.fileNameList.isEmpty) {
       nreNroBankDetailsFile.fileNameList =
           a.nreNroBankDetailsUrl.isEmpty
               ? []
               : a.nreNroBankDetailsUrl.split(",");
-
+    }
+    if (nomineeFormFile.fileNameList.isEmpty) {
       nomineeFormFile.fileNameList =
           a.nomineeFormUrl.isEmpty ? [] : a.nomineeFormUrl.split(",");
+    }
+    if (statementOfSourceOfFundsFile.fileNameList.isEmpty) {
       statementOfSourceOfFundsFile.fileNameList =
           a.statementOfSourceOfFundsUrl.isEmpty
               ? []
               : a.statementOfSourceOfFundsUrl.split(",");
-
+    }
+    if (paymentProofURLFundFile.fileNameList.isEmpty) {
       paymentProofURLFundFile.fileNameList =
           a.paymentProofUrl.isEmpty ? [] : a.paymentProofUrl.split(",");
     }
@@ -273,7 +374,10 @@ class _AddApplicantDetailsRequestsScreenState
         .fold(0, (a, b) => a > b ? a : b);
 
     final applicant = BookingApplicantModificationRequestModel(
-      bookingApplicantModificationRequestId: 0,
+      bookingApplicantModificationRequestId:
+          widget.isEdit
+              ? widget.applicant?.bookingApplicantModificationRequestId ?? 0
+              : 0,
       applicantType:
           selectedApplicantType.value?["DisplayName"]?.toString() ?? "",
 
@@ -322,22 +426,22 @@ class _AddApplicantDetailsRequestsScreenState
           .join(","),
       paymentProofUrl: paymentProofURLFundFile.fileNameList.join(","),
       proofOfDocumentUrl: proofOfDocumentFile.fileNameList.join(","),
-
-      proofOfDocumentFile: proofOfDocumentFile,
-      aadhaarFile: aadhaarFile,
-      panFile: panFile,
-      photoFile: profilePhotoFile,
-      drivingLicenseFile: drivingLicenseFile,
-      votingIdFile: votingIdFile,
-      gstFile: gstFile,
-      chequeFile: chequeFile,
-      poaFile: poaFile,
-      incomeForm16ItrFile: incomeForm16ItrFile,
-      nreNroBankDetailsFile: nreNroBankDetailsFile,
-      nomineeFormFile: nomineeFormFile,
-      statementOfSourceOfFundFile: statementOfSourceOfFundsFile,
-      paymentProofURLFundFile: paymentProofFile,
     );
+    applicant.proofOfDocumentFile = proofOfDocumentFile;
+    applicant.aadhaarFile = aadhaarFile;
+    applicant.panFile = panFile;
+    applicant.photoFile = profilePhotoFile;
+    applicant.drivingLicenseFile = drivingLicenseFile;
+    applicant.chequeFile = chequeFile;
+    applicant.votingIdFile = votingIdFile;
+    applicant.gstFile = gstFile;
+    applicant.passportFile = passportFile;
+    applicant.poaFile = poaFile;
+    applicant.incomeForm16ItrFile = incomeForm16ItrFile;
+    applicant.nreNroBankDetailsFile = nreNroBankDetailsFile;
+    applicant.nomineeFormFile = nomineeFormFile;
+    applicant.statementOfSourceOfFundFile = statementOfSourceOfFundsFile;
+    applicant.paymentProofURLFundFile = paymentProofURLFundFile;
 
     if (context.mounted) {
       goRouter.pop({
@@ -362,6 +466,22 @@ class _AddApplicantDetailsRequestsScreenState
         "nreFile": nreNroBankDetailsFile,
       });
     }
+  }
+
+  MultiFilePickerModel _copyFileModel(MultiFilePickerModel? source) {
+    if (source == null) {
+      return MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      );
+    }
+
+    return MultiFilePickerModel(
+      fileBytesList: List<Uint8List>.from(source.fileBytesList),
+      fileNameList: List<String>.from(source.fileNameList),
+      deletedFileList: source.deletedFileList,
+    );
   }
 
   @override
@@ -389,9 +509,13 @@ class _AddApplicantDetailsRequestsScreenState
                       initialFileList: proofOfDocumentFile.fileNameList,
                       initialFileBytes: proofOfDocumentFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        proofOfDocumentFile.fileNameList = fileNameList;
-                        proofOfDocumentFile.fileBytesList = bytesList;
+                        proofOfDocumentFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        proofOfDocumentFile
+                            .fileBytesList = List<Uint8List>.from(bytesList);
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -510,10 +634,16 @@ class _AddApplicantDetailsRequestsScreenState
                       isRequired: true,
                       filePickType: FilePickType.image,
                       initialFileList: profilePhotoFile.fileNameList,
+                      initialFileBytes: profilePhotoFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        profilePhotoFile.fileNameList = fileNameList;
-                        profilePhotoFile.fileBytesList = bytesList;
+                        profilePhotoFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        profilePhotoFile.fileBytesList = List<Uint8List>.from(
+                          bytesList,
+                        );
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -554,10 +684,17 @@ class _AddApplicantDetailsRequestsScreenState
                       isRequired: true,
                       filePickType: FilePickType.kycDocument,
                       initialFileList: aadhaarFile.fileNameList,
+                      initialFileBytes: aadhaarFile.fileBytesList,
+
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        aadhaarFile.fileNameList = fileNameList;
-                        aadhaarFile.fileBytesList = bytesList;
+                        aadhaarFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        aadhaarFile.fileBytesList = List<Uint8List>.from(
+                          bytesList,
+                        );
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -597,10 +734,12 @@ class _AddApplicantDetailsRequestsScreenState
                       isRequired: true,
                       filePickType: FilePickType.kycDocument,
                       initialFileList: panFile.fileNameList,
+                      initialFileBytes: panFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        panFile.fileNameList = fileNameList;
-                        panFile.fileBytesList = bytesList;
+                        panFile.fileNameList = List<String>.from(fileNameList);
+                        panFile.fileBytesList = List<Uint8List>.from(bytesList);
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -621,32 +760,40 @@ class _AddApplicantDetailsRequestsScreenState
                       title: 'Passport Number',
                       textController: _passportC,
                       hint: "Enter Passport Number",
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(20),
-                      ],
+                      inputFormatterList:
+                          InputValidator.passportInputFormatters(),
                       validator: (value) {
-                        if (drivingLicenseFile.fileNameList.isEmpty) {
-                          return null;
+                        if (passportFile.fileNameList.isNotEmpty) {
+                          if (value == null || value.isEmpty) {
+                            return "Passport Number is required";
+                          }
+                          if (!InputValidator.isValidPassport(value)) {
+                            return "Enter a valid Passport Number";
+                          }
+                        } else {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !InputValidator.isValidPassport(value)) {
+                            return "Enter a valid Passport Number";
+                          }
                         }
-                        if (value == null || value.isEmpty) {
-                          return "Passport Number is required";
-                        }
-
-                        if (InputValidator.isValidPassport(value)) {
-                          return "Passport Number is invalid";
-                        }
-
                         return null;
                       },
                     ),
                     CustomMultiFilePicker(
                       title: "Passport",
                       initialFileList: passportFile.fileNameList,
+                      initialFileBytes: passportFile.fileBytesList,
                       filePickType: FilePickType.kycDocument,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        passportFile.fileNameList = fileNameList;
-                        passportFile.fileBytesList = bytesList;
+                        passportFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        passportFile.fileBytesList = List<Uint8List>.from(
+                          bytesList,
+                        );
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -656,24 +803,36 @@ class _AddApplicantDetailsRequestsScreenState
                         passportFile.fileNameList = fileNameList;
                         passportFile.deletedFileList = deleted;
                       },
+                      validator: (value) {
+                        if (_passportC.text.trim().isNotEmpty &&
+                            passportFile.fileNameList.isEmpty) {
+                          return "Passport document is required";
+                        }
+
+                        return null;
+                      },
                     ),
                     CustomTextField(
                       title: 'Driving License Number',
                       textController: _drivingLicenseC,
                       hint: "Enter Driving License Number",
-                      inputFormatterList: InputValidator.textDigit(20),
+                      inputFormatterList:
+                          InputValidator.drivingLicenceInputFormatters(),
                       validator: (value) {
-                        if (drivingLicenseFile.fileNameList.isEmpty) {
-                          return null;
+                        if (drivingLicenseFile.fileNameList.isNotEmpty) {
+                          if (value == null || value.isEmpty) {
+                            return "Driving License Number is required";
+                          }
+                          if (!InputValidator.isValidDrivingLicence(value)) {
+                            return "Enter a valid Driving License Number";
+                          }
+                        } else {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !InputValidator.isValidDrivingLicence(value)) {
+                            return "Enter a valid Driving License Number";
+                          }
                         }
-                        if (value == null || value.isEmpty) {
-                          return "Driving License is required";
-                        }
-
-                        if (InputValidator.isValidDrivingLicence(value)) {
-                          return "Driving License Number is invalid";
-                        }
-
                         return null;
                       },
                     ),
@@ -681,10 +840,16 @@ class _AddApplicantDetailsRequestsScreenState
                       title: "Driving License",
                       filePickType: FilePickType.kycDocument,
                       initialFileList: drivingLicenseFile.fileNameList,
+                      initialFileBytes: drivingLicenseFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        drivingLicenseFile.fileNameList = fileNameList;
-                        drivingLicenseFile.fileBytesList = bytesList;
+                        drivingLicenseFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        drivingLicenseFile.fileBytesList = List<Uint8List>.from(
+                          bytesList,
+                        );
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -694,26 +859,36 @@ class _AddApplicantDetailsRequestsScreenState
                         drivingLicenseFile.fileNameList = fileNameList;
                         drivingLicenseFile.deletedFileList = deleted;
                       },
+                      validator: (value) {
+                        if (_drivingLicenseC.text.trim().isNotEmpty &&
+                            drivingLicenseFile.fileNameList.isEmpty) {
+                          return "Driving License document is required";
+                        }
+
+                        return null;
+                      },
                     ),
                     CustomTextField(
                       title: 'Voting ID Number',
                       textController: _votingIdC,
                       hint: "Enter Voting ID Number",
-                      inputFormatterList: InputValidator.textDigit(20),
+                      inputFormatterList:
+                          InputValidator.voterIdInputFormatters(),
                       validator: (value) {
-                        final hasNumber = value?.trim().isNotEmpty ?? false;
-                        final hasDocument =
-                            votingIdFile.fileNameList.isNotEmpty;
-
-                        if (hasDocument && !hasNumber) {
-                          return "Voting ID Number is required";
+                        if (votingIdFile.fileNameList.isNotEmpty) {
+                          if (value == null || value.isEmpty) {
+                            return "Voting ID Number is required";
+                          }
+                          if (!InputValidator.isValidVoterId(value)) {
+                            return "Enter a valid Voting Id Number";
+                          }
+                        } else {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !InputValidator.isValidGST(value)) {
+                            return "Enter a valid Voting Id Number";
+                          }
                         }
-
-                        if (hasNumber &&
-                            !InputValidator.isValidVoterId(value!.trim())) {
-                          return "Voting ID Number is invalid";
-                        }
-
                         return null;
                       },
                     ),
@@ -721,10 +896,16 @@ class _AddApplicantDetailsRequestsScreenState
                       title: "Voting ID",
                       filePickType: FilePickType.kycDocument,
                       initialFileList: votingIdFile.fileNameList,
+                      initialFileBytes: votingIdFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        votingIdFile.fileNameList = fileNameList;
-                        votingIdFile.fileBytesList = bytesList;
+                        votingIdFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        votingIdFile.fileBytesList = List<Uint8List>.from(
+                          bytesList,
+                        );
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -733,6 +914,14 @@ class _AddApplicantDetailsRequestsScreenState
                         votingIdFile.fileBytesList = fileBytesList;
                         votingIdFile.fileNameList = fileNameList;
                         votingIdFile.deletedFileList = deleted;
+                      },
+                      validator: (value) {
+                        if (_votingIdC.text.trim().isNotEmpty &&
+                            votingIdFile.fileNameList.isEmpty) {
+                          return "Voting ID document is required";
+                        }
+
+                        return null;
                       },
                     ),
                     CustomTextField(
@@ -746,13 +935,13 @@ class _AddApplicantDetailsRequestsScreenState
                             return "GST Number is required";
                           }
                           if (!InputValidator.isValidGST(value)) {
-                            return "GST Number is invalid";
+                            return "Enter a valid GST Number";
                           }
                         } else {
                           if (value != null &&
                               value.isNotEmpty &&
                               !InputValidator.isValidGST(value)) {
-                            return "GST Number is invalid";
+                            return "Enter a valid GST Number";
                           }
                         }
                         return null;
@@ -762,10 +951,12 @@ class _AddApplicantDetailsRequestsScreenState
                       title: "GST Document",
                       filePickType: FilePickType.kycDocument,
                       initialFileList: gstFile.fileNameList,
+                      initialFileBytes: gstFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        gstFile.fileNameList = fileNameList;
-                        gstFile.fileBytesList = bytesList;
+                        gstFile.fileNameList = List<String>.from(fileNameList);
+                        gstFile.fileBytesList = List<Uint8List>.from(bytesList);
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -775,15 +966,29 @@ class _AddApplicantDetailsRequestsScreenState
                         gstFile.fileNameList = fileNameList;
                         gstFile.deletedFileList = deleted;
                       },
+                      validator: (value) {
+                        if (_gstC.text.trim().isNotEmpty &&
+                            gstFile.fileNameList.isEmpty) {
+                          return "GST document is required";
+                        }
+
+                        return null;
+                      },
                     ),
                     CustomMultiFilePicker(
                       title: "Cancelled Cheque",
                       filePickType: FilePickType.kycDocument,
                       initialFileList: chequeFile.fileNameList,
+                      initialFileBytes: chequeFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        chequeFile.fileNameList = fileNameList;
-                        chequeFile.fileBytesList = bytesList;
+                        chequeFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        chequeFile.fileBytesList = List<Uint8List>.from(
+                          bytesList,
+                        );
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -800,8 +1005,8 @@ class _AddApplicantDetailsRequestsScreenState
                       initialFileList: poaFile.fileNameList,
                       initialFileBytes: poaFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        poaFile.fileNameList = fileNameList;
-                        poaFile.fileBytesList = bytesList;
+                        poaFile.fileNameList = List<String>.from(fileNameList);
+                        poaFile.fileBytesList = List<Uint8List>.from(bytesList);
                       },
                       onFileDeleteCallback: (
                         fileBytesList,
@@ -819,9 +1024,13 @@ class _AddApplicantDetailsRequestsScreenState
                       initialFileList: incomeForm16ItrFile.fileNameList,
                       initialFileBytes: incomeForm16ItrFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        incomeForm16ItrFile.fileNameList = fileNameList;
-                        incomeForm16ItrFile.fileBytesList = bytesList;
+                        incomeForm16ItrFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        incomeForm16ItrFile
+                            .fileBytesList = List<Uint8List>.from(bytesList);
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -838,9 +1047,13 @@ class _AddApplicantDetailsRequestsScreenState
                       initialFileList: nreNroBankDetailsFile.fileNameList,
                       initialFileBytes: nreNroBankDetailsFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        nreNroBankDetailsFile.fileNameList = fileNameList;
-                        nreNroBankDetailsFile.fileBytesList = bytesList;
+                        nreNroBankDetailsFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        nreNroBankDetailsFile
+                            .fileBytesList = List<Uint8List>.from(bytesList);
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -857,9 +1070,14 @@ class _AddApplicantDetailsRequestsScreenState
                       initialFileList: nomineeFormFile.fileNameList,
                       initialFileBytes: nomineeFormFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        nomineeFormFile.fileNameList = fileNameList;
-                        nomineeFormFile.fileBytesList = bytesList;
+                        nomineeFormFile.fileNameList = List<String>.from(
+                          fileNameList,
+                        );
+                        nomineeFormFile.fileBytesList = List<Uint8List>.from(
+                          bytesList,
+                        );
                       },
+
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -879,9 +1097,10 @@ class _AddApplicantDetailsRequestsScreenState
                       initialFileBytes:
                           statementOfSourceOfFundsFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        statementOfSourceOfFundsFile.fileNameList =
-                            fileNameList;
-                        statementOfSourceOfFundsFile.fileBytesList = bytesList;
+                        statementOfSourceOfFundsFile
+                            .fileNameList = List<String>.from(fileNameList);
+                        statementOfSourceOfFundsFile
+                            .fileBytesList = List<Uint8List>.from(bytesList);
                       },
                       onFileDeleteCallback: (
                         fileBytesList,
@@ -901,8 +1120,10 @@ class _AddApplicantDetailsRequestsScreenState
                       initialFileList: paymentProofURLFundFile.fileNameList,
                       initialFileBytes: paymentProofURLFundFile.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        paymentProofURLFundFile.fileNameList = fileNameList;
-                        paymentProofURLFundFile.fileBytesList = bytesList;
+                        paymentProofURLFundFile
+                            .fileNameList = List<String>.from(fileNameList);
+                        paymentProofURLFundFile
+                            .fileBytesList = List<Uint8List>.from(bytesList);
                       },
                       onFileDeleteCallback: (
                         fileBytesList,

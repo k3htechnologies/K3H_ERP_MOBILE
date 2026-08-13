@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cu
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_management_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/presentation/pages/snag_checklist.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -270,10 +271,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   }
 
   Widget _buildOverviewTab(PayTrackState state, BuildContext context) {
-    if ((state.isLoading ?? false)) {
-      return Center(child: loader());
-    }
-
     final booking = state.bookingData;
     final enquiry = state.currentEnquiryDetails;
 
@@ -414,6 +411,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       customValueWidget: CustomClickToContactText(
                         countryCode: enquiry.emailId,
                         value: enquiry.emailId,
+                        type: ContactType.email,
                       ),
                     ),
                     buildColumnTitleValue(
@@ -886,6 +884,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           ),
           // ADDRESS DETAILS SECTION
           Container(
+            width: double.infinity,
             decoration: commonCardDecoration(),
             margin: EdgeInsets.only(bottom: 10),
             padding: EdgeInsets.all(16),
@@ -1152,6 +1151,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       title: "Final Registration Completed",
                       value:
                           booking.isFinalRegistrationCompleted ? "Yes" : "No",
+                      customValueWidget: DocumentPreviewText(
+                        title: "Final Registration Completed",
+                        text:
+                            booking.isFinalRegistrationCompleted ? "Yes" : "No",
+                        fileUrl: booking.finalRegistrationUrl,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "Handover Type",

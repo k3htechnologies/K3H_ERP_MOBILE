@@ -408,13 +408,19 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Email Id",
-                                                    value:
-                                                        applicantDetails
-                                                            .applicantEmailId,
-                                                  ),
+                                              child: buildColumnTitleValueNormal(
+                                                title: "Email Id",
+                                                value:
+                                                    applicantDetails
+                                                        .applicantEmailId,
+                                                customValueWidget:
+                                                    CustomClickToContactText(
+                                                      value:
+                                                          applicantDetails
+                                                              .applicantEmailId,
+                                                      type: ContactType.email,
+                                                    ),
+                                              ),
                                             ),
                                             horizontalSpacing(),
                                             Expanded(
@@ -761,36 +767,24 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                             ],
                           ),
                         ),
-                      if (bookingData.parkingData.isEmpty)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          margin: const EdgeInsets.only(bottom: 10),
-                          decoration: commonCardDecoration(),
-                          child: Center(
-                            child: Text(
-                              "No Parking Details Found",
-                              style: AppTextStyle.ts14M(),
+
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10.0),
+                        padding: EdgeInsets.all(16.0),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Parking Details",
+                              style: AppTextStyle.ts14SB(),
                             ),
-                          ),
-                        )
-                      else
-                        Container(
-                          margin: EdgeInsets.only(bottom: 10.0),
-                          padding: EdgeInsets.all(16.0),
-                          decoration: commonCardDecoration(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Parking Details",
-                                style: AppTextStyle.ts14SB(),
-                              ),
-                              verticalSpacing(),
-                              Column(
-                                children: List.generate(
-                                  booking.parkingData.length,
-                                  (index) {
+                            verticalSpacing(),
+                            bookingData.parkingData.isNotEmpty
+                                ? Column(
+                                  children: List.generate(booking.parkingData.length, (
+                                    index,
+                                  ) {
                                     final parking = booking.parkingData[index];
 
                                     return Container(
@@ -928,12 +922,17 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                         ],
                                       ),
                                     );
-                                  },
+                                  }),
+                                )
+                                : Center(
+                                  child: noDataWidget(
+                                    message: "No Parking Data Found",
+                                    iconSize: 160.0,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
+                      ),
                       Container(
                         margin: EdgeInsets.only(bottom: 10.0),
                         padding: EdgeInsets.all(16.0),

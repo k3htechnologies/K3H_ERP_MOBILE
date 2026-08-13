@@ -117,7 +117,14 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
       null,
     );
     transactionDateNotifier = ValueNotifier(null);
-    selectedImageNotifier = ValueNotifier(null);
+    selectedImageNotifier = ValueNotifier<MultiFilePickerModel?>(
+      MultiFilePickerModel(
+        fileBytesList: [],
+        fileNameList: [],
+        deletedFileList: "",
+      ),
+    );
+
     totalAmountVN = ValueNotifier(0);
     paidAmountVN = ValueNotifier(0);
     pendingAmountVN = ValueNotifier(0);
@@ -131,15 +138,6 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
         await getProjectWithBankDropdown(1);
 
         _prefillPaymentLedger(widget.editPaymentLedger!);
-
-        if (context.mounted) {
-          _paymentCubit.getPaymentLedgerSummaryList(
-            context,
-            widget.editPaymentLedger!.bookingId,
-            widget.editPaymentLedger!.projectId,
-            widget.editPaymentLedger!.paymentFor,
-          );
-        }
       });
     }
   }
@@ -180,11 +178,6 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
   void _prefillPaymentLedger(PayTrackPaymentLedgerSummaryModel list) {
     if (!_isEditMode) return;
     final item = list;
-    final matchedLedger = widget.paymentLedger.firstWhereOrNull(
-      (e) =>
-          e.paymentFor.trim().toLowerCase() ==
-          item.paymentFor.trim().toLowerCase(),
-    );
 
     final paymentFor = paymentForList.firstWhereOrNull(
       (e) =>
@@ -194,28 +187,41 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
 
     selectedPaymentFor.value = paymentFor;
     final paymentForName = item.paymentFor.trim().toLowerCase();
+
     if (paymentForName == "other charges value" ||
         paymentForName == "other charges gst") {
-      final otherCharge = widget.bookingOtherChargesList.firstWhereOrNull(
-        (e) => e.bookingOtherChargesId == item.bookingOtherChargesId,
-      );
+      final otherCharge =
+          widget.bookingOtherChargesList.firstWhereOrNull(
+            (e) => e.bookingOtherChargesId == item.bookingOtherChargesId,
+          ) ??
+          widget.bookingOtherChargesList.firstWhereOrNull(
+            (e) =>
+                e.chargeName.trim().toLowerCase() ==
+                item.chargeName.trim().toLowerCase(),
+          );
 
       if (otherCharge != null) {
-        totalAmountVN.value =
-            paymentForName == "other charges gst"
-                ? otherCharge.gstValue
-                : otherCharge.value;
-
-        paidAmountVN.value = 0;
-        pendingAmountVN.value = totalAmountVN.value;
+        selectedOtherCharge.value = {
+          "zAttributesId": otherCharge.bookingOtherChargesId,
+          "DisplayName": otherCharge.chargeName,
+          "Value": otherCharge.value,
+          "GSTValue": otherCharge.gstValue,
+        };
       }
-    } else if (matchedLedger != null) {
-      totalAmountVN.value = matchedLedger.totalAmount;
-      paidAmountVN.value = matchedLedger.receivedAmount;
-      pendingAmountVN.value =
-          matchedLedger.totalAmount - matchedLedger.receivedAmount;
-    }
 
+      final matchedLedger = widget.paymentLedger.firstWhereOrNull(
+        (e) =>
+            e.paymentFor.trim().toLowerCase() ==
+            item.paymentFor.trim().toLowerCase(),
+      );
+
+      if (matchedLedger != null) {
+        totalAmountVN.value = matchedLedger.totalAmount;
+        paidAmountVN.value = matchedLedger.receivedAmount;
+        pendingAmountVN.value =
+            matchedLedger.totalAmount - matchedLedger.receivedAmount;
+      }
+    }
     if (item.bankListMasterId != 0) {
       _selectedBankNotifier.value = [
         {"zAttributesId": item.bankListMasterId, "DisplayName": item.bankName},
@@ -515,52 +521,50 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           onSelected: (value) {
                             selectedPaymentFor.value = value;
 
-                            final paymentFor = value["DisplayName"].toString();
-                            if (paymentFor == "Other Charges Value") {
-                              selectedOtherCharge.value = null;
+                            final paymentFor =
+                                value["DisplayName"].toString().trim();
 
-                              final total = widget.bookingOtherChargesList
-                                  .fold<double>(
-                                    0,
-                                    (sum, item) => sum + item.value,
-                                  );
-
-                              totalAmountVN.value = total;
-                              paidAmountVN.value = 0;
-                              pendingAmountVN.value = total;
-                            } else if (paymentFor == "Other Charges GST") {
-                              selectedOtherCharge.value = null;
-
-                              final totalGst = widget.bookingOtherChargesList
-                                  .fold<double>(
-                                    0,
-                                    (sum, item) => sum + item.gstValue,
-                                  );
-
-                              totalAmountVN.value = totalGst;
-                              paidAmountVN.value = 0;
-                              pendingAmountVN.value = totalGst;
-                            } else {
+                            if (paymentFor == "Other Charges Value" ||
+                                paymentFor == "Other Charges GST") {
                               final matchedLedger = widget.paymentLedger
-                                  .firstWhere(
-                                    (e) => e.paymentFor == paymentFor,
-                                    orElse:
-                                        () => PayTrackPaymentLedgerModel(
-                                          bookingId: 0,
-                                          projectId: 0,
-                                          paymentFor: "",
-                                          totalAmount: 0,
-                                          receivedAmount: 0,
-                                          uploadedPaymentLedgerCount: 0,
-                                          approvalPendingPaymentLedgerCount: 0,
-                                        ),
+                                  .firstWhereOrNull(
+                                    (e) =>
+                                        e.paymentFor.trim().toLowerCase() ==
+                                        paymentFor.trim().toLowerCase(),
                                   );
 
+                              if (matchedLedger != null) {
+                                totalAmountVN.value = matchedLedger.totalAmount;
+                                paidAmountVN.value =
+                                    matchedLedger.receivedAmount;
+                                pendingAmountVN.value =
+                                    matchedLedger.totalAmount -
+                                    matchedLedger.receivedAmount;
+                              } else {
+                                totalAmountVN.value = 0;
+                                paidAmountVN.value = 0;
+                                pendingAmountVN.value = 0;
+                              }
+
+                              return;
+                            }
+                            final matchedLedger = widget.paymentLedger
+                                .firstWhereOrNull(
+                                  (e) =>
+                                      e.paymentFor.trim().toLowerCase() ==
+                                      paymentFor.trim().toLowerCase(),
+                                );
+
+                            if (matchedLedger != null) {
                               totalAmountVN.value = matchedLedger.totalAmount;
                               paidAmountVN.value = matchedLedger.receivedAmount;
                               pendingAmountVN.value =
                                   matchedLedger.totalAmount -
                                   matchedLedger.receivedAmount;
+                            } else {
+                              totalAmountVN.value = 0;
+                              paidAmountVN.value = 0;
+                              pendingAmountVN.value = 0;
                             }
                           },
                           onValueClear: () {
@@ -670,6 +674,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                   "zAttributesId": e.bookingOtherChargesId,
                                   "DisplayName": e.chargeName,
                                   "Value": e.value,
+                                  "GSTValue": e.gstValue,
                                 };
                               }).toList(),
                           onSelected: (value) {
@@ -687,9 +692,11 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                             pendingAmountVN.value = model.value;
                           },
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (selectedOtherCharge.value == null ||
+                                selectedOtherCharge.value!.isEmpty) {
                               return "Other Charge is required";
                             }
+
                             return null;
                           },
                           onValueClear: () {
@@ -709,17 +716,23 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           isRequired: true,
                           title: "Other Charges",
                           hintText: "Select Other Charge",
+
+                          // This will now contain Balcony during edit
                           initialValue: selectedOtherCharge.value,
+
                           dataList:
                               widget.bookingOtherChargesList.map((e) {
                                 return {
                                   "zAttributesId": e.bookingOtherChargesId,
                                   "DisplayName": e.chargeName,
                                   "Value": e.value,
+                                  "GSTValue": e.gstValue,
                                 };
                               }).toList(),
+
                           onSelected: (value) {
                             selectedOtherCharge.value = value;
+
                             final model = widget.bookingOtherChargesList
                                 .firstWhere(
                                   (e) =>
@@ -731,19 +744,22 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                             paidAmountVN.value = 0;
                             pendingAmountVN.value = model.gstValue;
                           },
+
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
+                            if (selectedOtherCharge.value == null ||
+                                selectedOtherCharge.value!.isEmpty) {
                               return "Other Charge is required";
                             }
+
                             return null;
                           },
+
                           onValueClear: () {
                             selectedOtherCharge.value = null;
                           },
                         );
                       },
                     ),
-
                     ValueListenableBuilder(
                       valueListenable: _selectedPaymentModeNotifier,
                       builder: (context, selectedPaymentMode, _) {
@@ -897,6 +913,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                         );
                       },
                     ),
+
                     ValueListenableBuilder<DateTime?>(
                       valueListenable: transactionDateNotifier,
                       builder: (context, value, child) {

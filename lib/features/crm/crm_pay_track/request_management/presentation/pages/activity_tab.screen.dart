@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/booking_applicant_modification_request.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -279,6 +280,19 @@ class _ActivityTabScreenState extends State<ActivityTabScreen> {
   Widget _buildUnitModulationCustomizationHistoryWidget(
     RequestManagementState state,
   ) {
+    final groupedHistory = <String, List<FlatAlterationRequestsModel>>{};
+
+    for (final item in state.flatAlterationRequestsModel) {
+      groupedHistory.putIfAbsent(item.versionNumber, () => []).add(item);
+    }
+
+    final versions =
+        groupedHistory.entries.toList()..sort((a, b) {
+          final versionA = int.tryParse(a.key) ?? 0;
+          final versionB = int.tryParse(b.key) ?? 0;
+
+          return versionB.compareTo(versionA);
+        });
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -293,22 +307,23 @@ class _ActivityTabScreenState extends State<ActivityTabScreen> {
           ListView.builder(
             shrinkWrap: true,
             physics: NeverScrollableScrollPhysics(),
-            itemCount: state.flatAlterationRequestsModel.length,
+            itemCount: versions.length,
             itemBuilder: (context, index) {
-              final unitModulationDetail =
-                  state.flatAlterationRequestsModel[index];
+              final version = versions[index];
+
               return GestureDetector(
                 onTap: () {
                   goRouter.pushNamed(
                     AppRoutes.viewUnitModulationCustomizationHistory,
                     extra: {
-                      "unitModulationCustomization": unitModulationDetail,
+                      "unitModulationCustomization": version.value,
+                      "version": version.key,
                     },
                   );
                 },
                 child: ListTile(
                   title: Text(
-                    "Version ${unitModulationDetail.versionNumber}",
+                    "Version ${version.key}",
                     style: AppTextStyle.ts14M(color: AppColor.primary).copyWith(
                       decoration: TextDecoration.underline,
                       decorationColor: AppColor.primary,

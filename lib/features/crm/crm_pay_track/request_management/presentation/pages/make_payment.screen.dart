@@ -667,6 +667,9 @@ class _ModifiedRequestsMakePaymentScreenState
                                   hint: "Enter Refundable Amount",
                                   title: "Refundable Amount",
                                   isRequired: true,
+                                  keyboardType:
+                                      TextInputType.numberWithOptions(),
+                                  inputFormatterList: InputValidator.decimal(2),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return "Refundable Amount is required";

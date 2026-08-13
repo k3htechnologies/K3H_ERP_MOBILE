@@ -175,7 +175,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        debugPrint("Booking API Count = ${response['data'].length}");
         final List<PayTrackModel> list =
             response['data'] as List<PayTrackModel>;
 
@@ -455,22 +454,29 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     ]);
   }
 
-  Future getPayTrackCallLog(
+  Future<void> getPayTrackCallLog(
     BuildContext context,
     int pageNumber,
     int projectId,
     int bookingId,
   ) async {
     emit(state.copyWith(isLoading: true));
+
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
-        PayTrackCubit();
-        emit(state.copyWith(isLoading: false, payTrackList: []));
       });
+
+      emit(state.copyWith(isLoading: false, payTrackCallLogList: []));
       return;
     }
-    Map<String, dynamic> queryParams = {
+
+    if (bookingId == 0) {
+      emit(state.copyWith(isLoading: false, payTrackCallLogList: []));
+      return;
+    }
+
+    final Map<String, dynamic> queryParams = {
       "BookingId": bookingId,
       "IsCheckPermission": false,
     };
@@ -502,28 +508,38 @@ class PayTrackCubit extends Cubit<PayTrackState> {
           state.filterCallLogToDate!.toIso8601String();
     }
 
-    var result = await _payTrackRepository.getPayTrackCallLog(
-      pageSize: 10,
-      pageNumber: pageNumber,
-      projectId: projectId,
-      queryParams: queryParams,
-    );
+    try {
+      final result = await _payTrackRepository.getPayTrackCallLog(
+        pageSize: 10,
+        pageNumber: pageNumber,
+        projectId: projectId,
+        queryParams: queryParams,
+      );
 
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error", failure.message);
-      },
-      (response) {
-        emit(
-          state.copyWith(
-            payTrackCallLogList: response['data'] as List<PayTrackCallLogModel>,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-            isLoading: false,
-          ),
-        );
-      },
-    );
+      result.fold(
+        (failure) {
+          emit(state.copyWith(isLoading: false));
+
+          showErrorMessage(context, "Error", failure.message);
+        },
+        (response) {
+          final logs = response['data'] as List<PayTrackCallLogModel>;
+
+          emit(
+            state.copyWith(
+              payTrackCallLogList: logs,
+              totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
+              isLoading: false,
+            ),
+          );
+        },
+      );
+    } catch (e, stackTrace) {
+      debugPrint("Get PayTrack Call Log Error => $e");
+      debugPrintStack(stackTrace: stackTrace);
+
+      emit(state.copyWith(isLoading: false));
+    }
   }
 
   Future updateRegistrationDateAndParking(
@@ -531,7 +547,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     required int projectId,
     required int bookingId,
     required String uniquekey,
-    required DateTime finalRegistrationDate,
+    DateTime? finalRegistrationDate,
     required String parkingId,
     required bool isFinalRegistrationCompleted,
     required MultiFilePickerModel finalRegistrationDocument,
@@ -542,11 +558,15 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       "BookingId": bookingId.toString(),
       "ProjectId": projectId.toString(),
       "Uniquekey": uniquekey,
-      "FinalRegistrationDate": finalRegistrationDate.toIso8601String(),
       "ParkingId": parkingId,
       "IsFinalRegistrationCompleted": isFinalRegistrationCompleted.toString(),
       "RemoveProofOfDocumentURL": finalRegistrationDocument.deletedFileList,
     };
+
+    if (finalRegistrationDate != null) {
+      requestBody["FinalRegistrationDate"] =
+          finalRegistrationDate.toIso8601String();
+    }
 
     final List<Map<String, dynamic>> fileList = [];
 
@@ -575,14 +595,10 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
-        showSuccessMessage(
-          context,
-          subTitle: response["message"] ?? "Registration updated successfully",
-        );
-
+        showSuccessMessage(context, subTitle: response["message"]);
+        getBookingById(context, 1, projectId, bookingId);
+        await getPayTrackListByBookingId(context, 1, projectId, bookingId);
         goRouter.pop();
-
-        await getPayTrackList(context, 1, projectId);
       },
     );
   }

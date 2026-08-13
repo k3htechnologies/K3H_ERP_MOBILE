@@ -6348,7 +6348,9 @@ final GoRouter goRouter = GoRouter(
             GoRoute(
               path: AppRoutes.payTrackMaster,
               name: AppRoutes.payTrackMaster,
-              builder: (context, state) => PayTrackScreen(),
+              builder: (context, state) {
+                return PayTrackScreen();
+              },
             ),
             GoRoute(
               name: AppRoutes.viewPayTrackMaster,
@@ -6724,9 +6726,10 @@ final GoRouter goRouter = GoRouter(
                 final extra = state.extra as Map<String, dynamic>;
 
                 return ViewUnitModulationCustomizationHistoryScreen(
-                  unitModulationDetail:
+                  version: extra["version"] as String,
+                  unitModulationDetails:
                       extra["unitModulationCustomization"]
-                          as FlatAlterationRequestsModel,
+                          as List<FlatAlterationRequestsModel>,
                 );
               },
             ),

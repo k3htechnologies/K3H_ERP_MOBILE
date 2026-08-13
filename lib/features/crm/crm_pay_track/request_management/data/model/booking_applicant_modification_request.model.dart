@@ -38,22 +38,86 @@ class BookingApplicantModificationRequestModel {
   String statementOfSourceOfFundsUrl;
   String paymentProofUrl;
   String proofOfDocumentUrl;
+  MultiFilePickerModel proofOfDocumentFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel panFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel aadhaarFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
 
-  MultiFilePickerModel? proofOfDocumentFile;
-  MultiFilePickerModel? panFile;
-  MultiFilePickerModel? aadhaarFile;
-  MultiFilePickerModel? photoFile;
-  MultiFilePickerModel? drivingLicenseFile;
-  MultiFilePickerModel? chequeFile;
-  MultiFilePickerModel? votingIdFile;
-  MultiFilePickerModel? gstFile;
-  MultiFilePickerModel? passportFile;
-  MultiFilePickerModel? poaFile;
-  MultiFilePickerModel? incomeForm16ItrFile;
-  MultiFilePickerModel? nreNroBankDetailsFile;
-  MultiFilePickerModel? nomineeFormFile;
-  MultiFilePickerModel? statementOfSourceOfFundFile;
-  MultiFilePickerModel? paymentProofURLFundFile;
+  MultiFilePickerModel photoFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel drivingLicenseFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel chequeFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel votingIdFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel gstFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel passportFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel poaFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel incomeForm16ItrFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nreNroBankDetailsFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+  MultiFilePickerModel nomineeFormFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel statementOfSourceOfFundFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
+
+  MultiFilePickerModel paymentProofURLFundFile = MultiFilePickerModel(
+    fileBytesList: [],
+    fileNameList: [],
+    deletedFileList: "",
+  );
 
   BookingApplicantModificationRequestModel({
     required this.bookingApplicantModificationRequestId,
@@ -92,22 +156,6 @@ class BookingApplicantModificationRequestModel {
     required this.statementOfSourceOfFundsUrl,
     required this.paymentProofUrl,
     required this.proofOfDocumentUrl,
-
-    this.proofOfDocumentFile,
-    this.panFile,
-    this.aadhaarFile,
-    this.photoFile,
-    this.drivingLicenseFile,
-    this.passportFile,
-    this.votingIdFile,
-    this.gstFile,
-    this.chequeFile,
-    this.poaFile,
-    this.incomeForm16ItrFile,
-    this.nreNroBankDetailsFile,
-    this.nomineeFormFile,
-    this.statementOfSourceOfFundFile,
-    this.paymentProofURLFundFile,
   });
 
   factory BookingApplicantModificationRequestModel.fromJson(

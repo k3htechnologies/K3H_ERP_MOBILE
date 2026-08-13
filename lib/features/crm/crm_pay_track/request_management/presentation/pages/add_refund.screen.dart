@@ -74,7 +74,8 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
           final addRefundData = state.payTrackOverview;
           final totalReceived =
               addRefundData?.totalAmountReceivedAgainstBooking ?? 0.0;
-          return Padding(
+          return SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.all(20.0),
             child: Form(
               key: _formKey,

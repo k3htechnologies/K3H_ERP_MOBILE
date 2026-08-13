@@ -455,7 +455,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           Expanded(
                                             child: buildColumnTitleValueNormal(
                                               title: "Created Date",
-                                              value: formatDateTimeAsDDMMMYYYY(
+                                              value: formatDate(
                                                 summary.createdDate,
                                               ),
                                             ),
@@ -478,7 +478,7 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           Expanded(
                                             child: buildColumnTitleValueNormal(
                                               title: "Modified Date",
-                                              value: formatDateTimeAsDDMMMYYYY(
+                                              value: formatDate(
                                                 summary.modifiedDate,
                                               ),
                                             ),

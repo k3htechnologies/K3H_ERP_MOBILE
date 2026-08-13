@@ -471,39 +471,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                                         "projectId": widget.projectId,
                                         "index": index,
                                         "isEdit": true,
-                                        "applicant": applicant,
-
-                                        "aadharFile":
-                                            selectedAadhaarForPopUpFile,
-                                        "panFile": selectedPANForPopUpFile,
-                                        "passportFile":
-                                            selectedPassportPhotoForPopUpFile,
-                                        "photoFile":
-                                            selectedPhotoPhotoForPopUpFile,
-                                        "gstFile":
-                                            selectedGstNumberPhotForPopUpFile,
-                                        "votingFile":
-                                            selectedVotingForPopUpFile,
-                                        "drivingFile":
-                                            selectedDrivingLicenseForPopUpFile,
-                                        "poaFile": selectedPOAForPopUpFile,
-                                        "paymentProofFile":
-                                            selectedPaymentProofForPopUpFile,
-                                        "proofDocumentFile":
-                                            selectedProofOfDocumentForPopUpFile,
-                                        "statementFile":
-                                            selectedStatementOfSourceOfFundsForPopUpFile,
-                                        "incomeFile":
-                                            selectedIncomeForm16ITRForPopUpFile,
-                                        "nomineeFile":
-                                            selectedNomineeFormPhotoForPopUpFile,
-                                        "cancelledChequeFile":
-                                            selectedCancelledChequePhotoForPopUpFile,
-                                        "nreFile":
-                                            selectedNreNroBankDetailsForPopUpFile,
                                       },
                                     );
-
                                     if (result is Map &&
                                         result["isSuccess"] == true &&
                                         result["applicant"] != null) {
@@ -614,6 +583,11 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       title: "E-mail ID",
                       value: applicant.applicantEmailId,
                       singleLine: false,
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: applicant.applicantEmailId,
+                        value: applicant.applicantEmailId,
+                        type: ContactType.email,
+                      ),
                     ),
                     if (applicant.proofOfDocumentUrl.isNotEmpty)
                       buildRowTitleValue(

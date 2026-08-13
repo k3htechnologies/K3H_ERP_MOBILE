@@ -6,6 +6,8 @@ import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/services/paytrack_call_log_service.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_summary.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
@@ -26,7 +28,7 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PayTrackScreen extends StatefulWidget {
-  const PayTrackScreen({super.key});
+  const PayTrackScreen({super.key,});
 
   @override
   State<PayTrackScreen> createState() => _PayTrackScreenState();
@@ -62,17 +64,23 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
 
   // FILTER COUNT
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
+  late PayTrackCallLogService _payTrackCallLogService;
   @override
   void initState() {
     super.initState();
     _payTrackCubit = context.read<PayTrackCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.payTrackMaster]!;
+    _payTrackCallLogService = serviceLocator<PayTrackCallLogService>();
+
     _selectedProject = getProject();
     initializeControllers();
 
     _payTrackCubit.getPayTrackList(context, 1, _selectedProject.projectId);
     _onScroll();
+
+    _syncAndLoadCallingData();
   }
 
   @override
@@ -409,6 +417,22 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
     }
   }
 
+  Future<void> _syncAndLoadCallingData() async {
+    debugPrint("_syncAndLoadCallingData called");
+
+    final isSynced = await _payTrackCallLogService.syncPayTrackCallLogsToApi();
+    debugPrint("syncTodayCallLogsToApi result => $isSynced");
+
+    if (!mounted) return;
+
+    await _payTrackCubit.getPayTrackCallLog(
+      context,
+      1,
+      _selectedProject.projectId,
+      _payTrackCubit.state.bookingData?.bookingId ?? 0,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<PayTrackCubit, PayTrackState>(
@@ -420,7 +444,9 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           screenTitle: 'Pay Track',
           authorization: _routeAuthorizationModel,
           onProjectChangeCallback: (value) {
-            _selectedProject = value;
+            setState(() {
+              _selectedProject = value;
+            });
 
             _searchC.clear();
             _payTrackCubit.clearSearch();
@@ -463,6 +489,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
+                  await _syncAndLoadCallingData();
                   _searchC.clear();
                   _payTrackCubit.searchPayTrack(
                     context,
@@ -631,7 +658,8 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                 child: GestureDetector(
                   onTap: () async {
                     await _payTrackCubit.resetOverview();
-                    await goRouter.pushNamed(
+
+                    final result = await goRouter.pushNamed(
                       AppRoutes.viewPayTrackMaster,
                       queryParameters: {
                         "applicantName": Uri.encodeQueryComponent(
@@ -667,6 +695,15 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                         ),
                       },
                     );
+
+                    // User returned from View Pay Track
+                    if (result == true && mounted) {
+                      await _payTrackCubit.getPayTrackList(
+                        context,
+                        1,
+                        _selectedProject.projectId,
+                      );
+                    }
                   },
                   child: Text(
                     payTrack.applicantName.isNotEmpty
@@ -701,6 +738,13 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
             customValueWidget: CustomClickToContactText(
               countryCode: payTrack.applicantMobileNumberCountryCode,
               value: payTrack.applicantMobileNumber,
+              onCall: (phoneNumber) async {
+                _payTrackCallLogService.startCallTracking(
+                  phoneNumber: phoneNumber,
+                  projectId: payTrack.projectId,
+                  bookingId: payTrack.bookingId,
+                );
+              },
             ),
           ),
           verticalSpacing(),

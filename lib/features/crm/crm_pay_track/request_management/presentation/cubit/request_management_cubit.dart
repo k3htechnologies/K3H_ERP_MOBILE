@@ -1,4 +1,4 @@
-import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
@@ -323,6 +323,124 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
       state.bookingApplicantModificationRequestModel,
     );
 
+    final oldApplicant = list[index];
+    if (applicant.aadhaarFile.fileBytesList.isEmpty &&
+        oldApplicant.aadhaarFile.fileBytesList.isNotEmpty &&
+        applicant.aadhaarFile.fileNameList.isNotEmpty) {
+      applicant.aadhaarFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.aadhaarFile.fileBytesList,
+      );
+    }
+
+    if (applicant.panFile.fileBytesList.isEmpty &&
+        oldApplicant.panFile.fileBytesList.isNotEmpty &&
+        applicant.panFile.fileNameList.isNotEmpty) {
+      applicant.panFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.panFile.fileBytesList,
+      );
+    }
+
+    if (applicant.photoFile.fileBytesList.isEmpty &&
+        oldApplicant.photoFile.fileBytesList.isNotEmpty &&
+        applicant.photoFile.fileNameList.isNotEmpty) {
+      applicant.photoFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.photoFile.fileBytesList,
+      );
+    }
+    if (applicant.proofOfDocumentFile.fileBytesList.isEmpty &&
+        oldApplicant.proofOfDocumentFile.fileBytesList.isNotEmpty &&
+        applicant.proofOfDocumentFile.fileNameList.isNotEmpty) {
+      applicant.proofOfDocumentFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.proofOfDocumentFile.fileBytesList,
+      );
+    }
+
+    if (applicant.passportFile.fileBytesList.isEmpty &&
+        oldApplicant.passportFile.fileBytesList.isNotEmpty &&
+        applicant.passportFile.fileNameList.isNotEmpty) {
+      applicant.passportFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.passportFile.fileBytesList,
+      );
+    }
+    if (applicant.drivingLicenseFile.fileBytesList.isEmpty &&
+        oldApplicant.drivingLicenseFile.fileBytesList.isNotEmpty &&
+        applicant.drivingLicenseFile.fileNameList.isNotEmpty) {
+      applicant.drivingLicenseFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.drivingLicenseFile.fileBytesList,
+      );
+    }
+    if (applicant.drivingLicenseFile.fileBytesList.isEmpty &&
+        oldApplicant.drivingLicenseFile.fileBytesList.isNotEmpty &&
+        applicant.drivingLicenseFile.fileNameList.isNotEmpty) {
+      applicant.drivingLicenseFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.drivingLicenseFile.fileBytesList,
+      );
+    }
+    if (applicant.votingIdFile.fileBytesList.isEmpty &&
+        oldApplicant.votingIdFile.fileBytesList.isNotEmpty &&
+        applicant.votingIdFile.fileNameList.isNotEmpty) {
+      applicant.votingIdFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.votingIdFile.fileBytesList,
+      );
+    }
+    if (applicant.gstFile.fileBytesList.isEmpty &&
+        oldApplicant.gstFile.fileBytesList.isNotEmpty &&
+        applicant.gstFile.fileNameList.isNotEmpty) {
+      applicant.gstFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.gstFile.fileBytesList,
+      );
+    }
+    if (applicant.poaFile.fileBytesList.isEmpty &&
+        oldApplicant.poaFile.fileBytesList.isNotEmpty &&
+        applicant.poaFile.fileNameList.isNotEmpty) {
+      applicant.poaFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.poaFile.fileBytesList,
+      );
+    }
+    if (applicant.nreNroBankDetailsFile.fileBytesList.isEmpty &&
+        oldApplicant.nreNroBankDetailsFile.fileBytesList.isNotEmpty &&
+        applicant.nreNroBankDetailsFile.fileNameList.isNotEmpty) {
+      applicant.nreNroBankDetailsFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.nreNroBankDetailsFile.fileBytesList,
+      );
+    }
+    if (applicant.statementOfSourceOfFundFile.fileBytesList.isEmpty &&
+        oldApplicant.statementOfSourceOfFundFile.fileBytesList.isNotEmpty &&
+        applicant.statementOfSourceOfFundFile.fileNameList.isNotEmpty) {
+      applicant
+          .statementOfSourceOfFundFile
+          .fileBytesList = List<Uint8List>.from(
+        oldApplicant.statementOfSourceOfFundFile.fileBytesList,
+      );
+    }
+    if (applicant.paymentProofURLFundFile.fileBytesList.isEmpty &&
+        oldApplicant.paymentProofURLFundFile.fileBytesList.isNotEmpty &&
+        applicant.paymentProofURLFundFile.fileNameList.isNotEmpty) {
+      applicant.paymentProofURLFundFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.paymentProofURLFundFile.fileBytesList,
+      );
+    }
+    if (applicant.nomineeFormFile.fileBytesList.isEmpty &&
+        oldApplicant.nomineeFormFile.fileBytesList.isNotEmpty &&
+        applicant.nomineeFormFile.fileNameList.isNotEmpty) {
+      applicant.nomineeFormFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.nomineeFormFile.fileBytesList,
+      );
+    }
+    if (applicant.incomeForm16ItrFile.fileBytesList.isEmpty &&
+        oldApplicant.incomeForm16ItrFile.fileBytesList.isNotEmpty &&
+        applicant.incomeForm16ItrFile.fileNameList.isNotEmpty) {
+      applicant.incomeForm16ItrFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.incomeForm16ItrFile.fileBytesList,
+      );
+    }
+    if (applicant.chequeFile.fileBytesList.isEmpty &&
+        oldApplicant.chequeFile.fileBytesList.isNotEmpty &&
+        applicant.chequeFile.fileNameList.isNotEmpty) {
+      applicant.chequeFile.fileBytesList = List<Uint8List>.from(
+        oldApplicant.chequeFile.fileBytesList,
+      );
+    }
     list[index] = applicant;
 
     emit(
@@ -346,6 +464,10 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         hasUnsavedApplicantChanges: true,
       ),
     );
+  }
+
+  bool _isExistingFile(String fileName) {
+    return fileName.startsWith("http://") || fileName.startsWith("https://");
   }
 
   Future updateBookingApplicantModificationRequest(
@@ -404,52 +526,95 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
 
         "bookingApplicantModificationRequests[$applicantIndex].GSTNumber":
             e.gstNumber,
+        "bookingApplicantModificationRequests[$applicantIndex].PhotoURL":
+            e.photoUrl,
 
+        "bookingApplicantModificationRequests[$applicantIndex].AadharCardURL":
+            e.aadharCardUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].PanCardURL":
+            e.panCardUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].PassportURL":
+            e.passportUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].DrivingLicenseURL":
+            e.drivingLicenseUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].VotingIdURL":
+            e.votingIdUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].GSTNumberURL":
+            e.gstNumberUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].CancelledChequeURL":
+            e.cancelledChequeUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].POAURL":
+            e.poaurl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].IncomeForm16ITRURL":
+            e.incomeForm16Itrurl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].NreNroBankDetailsURL":
+            e.nreNroBankDetailsUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].NomineeFormURL":
+            e.nomineeFormUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].StatementOfSourceOfFundsURL":
+            e.statementOfSourceOfFundsUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].PaymentProofURL":
+            e.paymentProofUrl,
+
+        "bookingApplicantModificationRequests[$applicantIndex].ProofOfDocumentURL":
+            e.proofOfDocumentUrl,
         // Remove fields
         "bookingApplicantModificationRequests[$applicantIndex].RemovePhotoURL":
-            e.photoFile?.deletedFileList ?? "",
+            e.photoFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveAadharCardURL":
-            e.aadhaarFile?.deletedFileList ?? "",
+            e.aadhaarFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemovePanCardURL":
-            e.panFile?.deletedFileList ?? "",
+            e.panFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemovePassportURL":
-            e.passportFile?.deletedFileList ?? "",
+            e.passportFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveDrivingLicenseURL":
-            e.drivingLicenseFile?.deletedFileList ?? "",
+            e.drivingLicenseFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveVotingIdURL":
-            e.votingIdFile?.deletedFileList ?? "",
+            e.votingIdFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveGSTNumberURL":
-            e.gstFile?.deletedFileList ?? "",
+            e.gstFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveCancelledChequeURL":
-            e.chequeFile?.deletedFileList ?? "",
+            e.chequeFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemovePOAURL":
-            e.poaFile?.deletedFileList ?? "",
+            e.poaFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveIncomeForm16ITRURL":
-            e.incomeForm16ItrFile?.deletedFileList ?? "",
+            e.incomeForm16ItrFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveNreNroBankDetailsURL":
-            e.nreNroBankDetailsFile?.deletedFileList ?? "",
+            e.nreNroBankDetailsFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveNomineeFormURL":
-            e.nomineeFormFile?.deletedFileList ?? "",
+            e.nomineeFormFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveStatementOfSourceOfFundsURL":
-            e.statementOfSourceOfFundFile?.deletedFileList ?? "",
+            e.statementOfSourceOfFundFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemovePaymentProofURL":
-            e.paymentProofURLFundFile?.deletedFileList ?? "",
+            e.paymentProofURLFundFile.deletedFileList,
 
         "bookingApplicantModificationRequests[$applicantIndex].RemoveProofOfDocumentURL":
-            e.proofOfDocumentFile?.deletedFileList ?? "",
+            e.proofOfDocumentFile.deletedFileList,
       });
     }
     final List<Map<String, dynamic>> fileList = [];
@@ -468,16 +633,22 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         final names = file.fileNameList;
         final bytes = file.fileBytesList;
 
-        final length = math.min(names.length, bytes.length);
+        for (int i = 0; i < names.length; i++) {
+          final name = names[i];
 
-        for (int i = 0; i < length; i++) {
-          if (names[i].startsWith("http")) continue;
+          if (_isExistingFile(name)) {
+            continue;
+          }
 
-          fileList.add({
-            "key": keyName,
-            "value": bytes[i],
-            "fileName": names[i],
-          });
+          if (i >= bytes.length) {
+            continue;
+          }
+
+          if (bytes[i].isEmpty) {
+            continue;
+          }
+
+          fileList.add({"key": keyName, "value": bytes[i], "fileName": name});
         }
       }
 
@@ -497,7 +668,6 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         applicantData.poaFile,
         "bookingApplicantModificationRequests[$applicantIndex].POAURL",
       );
-
       addFiles(
         applicantData.paymentProofURLFundFile,
         "bookingApplicantModificationRequests[$applicantIndex].PaymentProofURL",
@@ -510,16 +680,15 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         applicantData.drivingLicenseFile,
         "bookingApplicantModificationRequests[$applicantIndex].DrivingLicenseURL",
       );
-
       addFiles(
         applicantData.proofOfDocumentFile,
         "bookingApplicantModificationRequests[$applicantIndex].ProofOfDocumentURL",
       );
+
       addFiles(
         applicantData.statementOfSourceOfFundFile,
         "bookingApplicantModificationRequests[$applicantIndex].StatementOfSourceOfFundsURL",
       );
-
       addFiles(
         applicantData.incomeForm16ItrFile,
         "bookingApplicantModificationRequests[$applicantIndex].IncomeForm16ITRURL",
@@ -1173,9 +1342,9 @@ class RequestManagementCubit extends Cubit<RequestManagementState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        goRouter.pop(true);
-        getRefundAmountPaymentLedger(context, projectId, bookingId);
         showSuccessMessage(context, subTitle: response['message']);
+
+        goRouter.pop(true);
       },
     );
   }

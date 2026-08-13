@@ -298,8 +298,6 @@ class _FilesScreenState extends State<FilesScreen> {
             child: SearchWidget(
               hintText: "Search by File Name",
               onSubmit: (value) {
-                _searchTextC.clear();
-                _filesCubit.clearSearch();
                 _filesCubit.searchFiles(
                   context,
                   widget.projectId,

@@ -786,10 +786,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                         ),
                       ),
                       horizontalSpacing(),
-                      if (_bankLoanAuthorization.isAction &&
-                          document.bankStatusClosedActive.toLowerCase() ==
-                              "closed")
+                      if (_bankLoanAuthorization.isAction)
                         CustomIconButton.add(
+                          isDisabled:
+                              document.bankStatusClosedActive.toLowerCase() ==
+                              "closed",
                           onPressed: () {
                             goRouter.pushNamed(
                               AppRoutes.addBankLoanDocument,

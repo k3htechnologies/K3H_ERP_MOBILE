@@ -97,7 +97,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                     ),
                   );
                 }
-                return Padding(
+                return SingleChildScrollView(
                   padding: EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

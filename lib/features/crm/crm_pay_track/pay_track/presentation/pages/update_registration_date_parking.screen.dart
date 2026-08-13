@@ -64,11 +64,11 @@ class _UpdateRegistrationDateParkingScreenState
     _payTrackCubit = context.read<PayTrackCubit>();
     _selectedProject = getProject();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _payTrackCubit.getPayTrackList(
+      await _payTrackCubit.getPayTrackListByBookingId(
         context,
         1,
         widget.projectId,
-        bookingId: widget.bookingId,
+        widget.bookingId,
       );
 
       final payTrack = _payTrackCubit.state.payTrackOverview;
@@ -137,25 +137,30 @@ class _UpdateRegistrationDateParkingScreenState
     if (!formKey.currentState!.validate()) {
       return;
     }
+
     final payTrack = _payTrackCubit.state.bookingData;
 
-    if (payTrack != null) {
-      _payTrackCubit.updateRegistrationDateAndParking(
-        context,
-        projectId: widget.projectId,
-        bookingId: widget.bookingId,
-        uniquekey: payTrack.uniquekey,
-        finalRegistrationDate: finalRegisterationDate!,
-        parkingId: _selectedBankNotifier.value
-            .map((e) => e["zAttributesId"].toString())
-            .join(","),
-        isFinalRegistrationCompleted: markAsFinalRegiserationNotifier.value,
-        finalRegistrationDocument: selectedChequeForPopUpFile,
-      );
-    } else {
+    if (payTrack == null) {
       showErrorMessage(context, "Error", "Booking data not found.");
       return;
     }
+
+    _payTrackCubit.updateRegistrationDateAndParking(
+      context,
+      projectId: widget.projectId,
+      bookingId: widget.bookingId,
+      uniquekey: payTrack.uniquekey,
+
+      finalRegistrationDate: finalRegisterationDate,
+
+      parkingId: _selectedBankNotifier.value
+          .map((e) => e["zAttributesId"].toString())
+          .join(","),
+
+      isFinalRegistrationCompleted: markAsFinalRegiserationNotifier.value,
+
+      finalRegistrationDocument: selectedChequeForPopUpFile,
+    );
   }
 
   @override

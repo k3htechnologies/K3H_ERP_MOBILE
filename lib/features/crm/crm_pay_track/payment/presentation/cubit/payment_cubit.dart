@@ -321,6 +321,7 @@ class PaymentCubit extends Cubit<PaymentState> {
         );
         showSuccessMessage(context, subTitle: response['message']);
         getPaymentLedgerList(context, bookingId, projectId);
+        getPaymentLedgerSummaryList(context, bookingId, projectId, paymentFor);
       },
     );
   }
@@ -363,20 +364,6 @@ class PaymentCubit extends Cubit<PaymentState> {
           selectedChequeUrl.deletedFileList,
     };
 
-    // List<Map<String, dynamic>> fileList = [];
-    // debugPrint("fileNameList : ${selectedChequeUrl.fileNameList.length}");
-    // debugPrint("fileBytesList : ${selectedChequeUrl.fileBytesList.length}");
-    // debugPrint("deletedFileList : ${selectedChequeUrl.deletedFileList}");
-    // for (int i = 0; i < selectedChequeUrl.fileNameList.length; i++) {
-    //   if (selectedChequeUrl.fileNameList[i].contains("http")) {
-    //     continue;
-    //   }
-    //   fileList.add({
-    //     "key": "TransactionChequeDemandDraftURL",
-    //     "value": selectedChequeUrl.fileBytesList[i],
-    //     "fileName": selectedChequeUrl.fileNameList[i],
-    //   });
-    // }
     List<Map<String, dynamic>> fileList = [];
 
     for (int i = 0; i < selectedChequeUrl.fileBytesList.length; i++) {
@@ -401,6 +388,7 @@ class PaymentCubit extends Cubit<PaymentState> {
 
         showSuccessMessage(context, subTitle: response['message']);
         getPaymentLedgerList(context, bookingId, projectId);
+        getPaymentLedgerSummaryList(context, bookingId, projectId, paymentFor);
       },
     );
   }
