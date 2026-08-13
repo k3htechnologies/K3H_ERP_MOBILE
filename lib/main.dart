@@ -22,11 +22,9 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/register/presentation/cubit/register_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/service/internet_connection_service.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-import 'package:k3h_erp_app/widgets/no_internet_screen.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/scheduler.dart';
@@ -194,50 +192,30 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => LoginCubit()),
         BlocProvider(create: (context) => RegisterCubit()),
       ],
-      child: StreamBuilder<bool>(
-        stream: ConnectivityService.instance.connectionStream,
-        initialData: true,
-        builder: (context, snapshot) {
-          final hasInternet = snapshot.data ?? true;
-          if (!hasInternet) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: const [
-                FlutterQuillLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('en')],
-              home: const NoInternetScreen(),
-            );
-          }
-          return ScreenUtilInit(
-            designSize: const Size(375, 812),
-            minTextAdapt: true,
-            splitScreenMode: true,
-            builder: (context, child) {
-              return MaterialApp.router(
-                title: "K3H ERP",
-                debugShowCheckedModeBanner: false,
-                // THEME
-                theme: AppTheme.lightTheme,
-                darkTheme: AppTheme.darkTheme,
-                themeMode: ThemeMode.light,
-                // LOCALIZATION (required by flutter_quill's toolbar)
-                localizationsDelegates: const [
-                  FlutterQuillLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                supportedLocales: const [Locale('en')],
-                // ROUTING
-                routeInformationParser: goRouter.routeInformationParser,
-                routerDelegate: goRouter.routerDelegate,
-                routeInformationProvider: goRouter.routeInformationProvider,
-              );
-            },
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) {
+          return MaterialApp.router(
+            title: "K3H ERP",
+            debugShowCheckedModeBanner: false,
+            // THEME
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeMode.light,
+            // LOCALIZATION (required by flutter_quill's toolbar)
+            localizationsDelegates: const [
+              FlutterQuillLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('en')],
+            // ROUTING
+            routeInformationParser: goRouter.routeInformationParser,
+            routerDelegate: goRouter.routerDelegate,
+            routeInformationProvider: goRouter.routeInformationProvider,
           );
         },
       ),
