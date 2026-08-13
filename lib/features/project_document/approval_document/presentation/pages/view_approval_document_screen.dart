@@ -350,6 +350,7 @@ class _ViewApprovalDocumentScreenState
           ApproveRejectWidget(
             actionTitle: isActionAllowed ? "Actions" : "History",
             isActionAlreadyPerformed: !isActionAllowed,
+            showApproval: document.isApproval,
             popupTitle:
                 "${widget.documentModel.approvalDocumentCategory} > ${document.approvalDocumentName}",
             onApprove: (val) async {

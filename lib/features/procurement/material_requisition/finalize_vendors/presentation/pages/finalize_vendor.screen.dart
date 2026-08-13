@@ -286,6 +286,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                       ApproveRejectWidget(
                         isActionAlreadyPerformed: isApproved,
                         actionTitle: isApproved ? "Approved" : "Pending",
+                        showApproval: isApproved,
                         onApprove: (remark) async {
                           final isSuccess = await _utilsCubit
                               .updateModulesWorkflowApproval(

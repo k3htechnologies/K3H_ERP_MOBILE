@@ -588,6 +588,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                                       invoice.isApproval
                                           ? "Approval"
                                           : "History",
+                                  showApproval: invoice.isApproval,
                                   onApprove: (remark) async {
                                     final isSuccess = await _utilsCubit
                                         .updateModulesWorkflowApproval(
@@ -818,6 +819,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
           ApproveRejectWidget(
             isActionAlreadyPerformed: true,
             actionTitle: invoice.isApproval ? "Approval" : "History",
+            showApproval: invoice.isApproval,
             onApprove: (remark) async {
               final isSuccess = await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,

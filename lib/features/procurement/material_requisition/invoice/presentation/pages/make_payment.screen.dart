@@ -478,7 +478,7 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                           ApproveRejectWidget(
                             isActionAlreadyPerformed: isActionCompleted,
                             actionTitle: approvalStatus,
-
+                            showApproval: invoice.isApproval,
                             onApprove: (remark) async {
                               final isSuccess = await context
                                   .read<UtilsCubit>()

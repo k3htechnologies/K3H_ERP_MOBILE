@@ -363,6 +363,7 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             isActionAlreadyPerformed: !isActionAllowed,
             popupTitle:
                 "${widget.documentModel.projectRERADocumentCategory} > ${document.projectRERADocumentName}",
+            showApproval: document.isApproval,
             onApprove: (val) async {
               await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,
