@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -28,7 +30,7 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PayTrackScreen extends StatefulWidget {
-  const PayTrackScreen({super.key,});
+  const PayTrackScreen({super.key});
 
   @override
   State<PayTrackScreen> createState() => _PayTrackScreenState();
@@ -491,11 +493,13 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                 onRefresh: () async {
                   await _syncAndLoadCallingData();
                   _searchC.clear();
-                  _payTrackCubit.searchPayTrack(
-                    context,
-                    _selectedProject.projectId,
-                    "",
-                  );
+                  if (context.mounted) {
+                    _payTrackCubit.searchPayTrack(
+                      context,
+                      _selectedProject.projectId,
+                      "",
+                    );
+                  }
                 },
                 child: BlocBuilder<PayTrackCubit, PayTrackState>(
                   builder: (context, state) {
