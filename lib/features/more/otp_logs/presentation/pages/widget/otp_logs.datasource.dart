@@ -15,6 +15,7 @@ class OtpLogsDataSource extends DataGridSource {
             .map(
               (e) => DataGridRow(
                 cells: [
+                  DataGridCell<String>(columnName: 'module', value: e.module),
                   DataGridCell<String>(
                     columnName: 'label',
                     value: e.mobileNumber,
@@ -37,6 +38,16 @@ class OtpLogsDataSource extends DataGridSource {
       cells:
           row.getCells().map((cell) {
             switch (cell.columnName) {
+              case 'module':
+                return Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    cell.value.toString(),
+                    textAlign: TextAlign.center,
+                  ),
+                );
+
               case 'label':
                 return Container(
                   alignment: Alignment.center,

@@ -88,8 +88,8 @@ class OtpLogsCubit extends Cubit<OtpLogsState> {
     emit(state.copyWith(isLoading: true));
     final queryParams = <String, dynamic>{};
 
-    if ((mobileNumber ?? "").isNotEmpty) {
-      queryParams["MobileNumber"] = mobileNumber;
+    if ((state.searchText).isNotEmpty) {
+      queryParams["MobileNumber"] = state.searchText;
     }
 
     if ((moduleName ?? "").isNotEmpty) {
@@ -97,15 +97,15 @@ class OtpLogsCubit extends Cubit<OtpLogsState> {
     }
 
     if (fromDate != null) {
-      queryParams["FromDate"] = fromDate.toIso8601String();
+      queryParams["FromDate"] = fromDate.apiDate;
     }
 
     if (toDate != null) {
-      queryParams["ToDate"] = toDate.toIso8601String();
+      queryParams["ToDate"] = toDate.apiDate;
     }
     var result = await _otpLogsRepository.getOTPLogsList(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 20,
       queryParams: queryParams,
     );
 

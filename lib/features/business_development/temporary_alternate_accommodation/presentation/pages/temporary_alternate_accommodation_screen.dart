@@ -20,7 +20,9 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -624,45 +626,99 @@ class _TemporaryAlternateAccommodationScreenState
           }
         });
         final paidAmount = paidRecord?.amount ?? 0.0;
-        return _buildExpansionTileCard(
-          flatNumber: first.flatNumber,
-          expandedContent: Column(
+        return Container(
+          margin: EdgeInsets.only(bottom: 16),
+          decoration: commonCardDecoration(),
+          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Divider(color: AppColor.grey, thickness: .5),
-              _buildInfoRow("Applicant Name", first.applicantName),
-              _buildInfoRow("Flat Type", first.flatType),
-              _buildInfoRow("Flat Configuration", first.flatConfiguration),
-              _buildInfoRow(
-                "Carpet Area (SqFt)",
-                first.flatCarpetAreaSqFt.toStringAsFixed(2),
-              ),
-              _buildInfoRow(
-                "Proposed Offer Amount",
-                first.proposedOfferAmount.toString(),
-              ),
-              Divider(color: AppColor.grey, thickness: .5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
                 children: [
-                  Text('Total', style: AppTextStyle.ts16M()),
-                  Text(
-                    totalAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
+                  Row(
+                    spacing: 10,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          first.flatNumber,
+                          style: AppTextStyle.ts16M(),
+                        ),
+                      ),
+                      CustomIconButton.add(onPressed: () {}),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: 'Applicant Type',
+                        value: first.applicantType,
+                      ),
+                      buildColumnTitleValue(
+                        title: 'Applicant Name',
+                        value: first.applicantName,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Existing Unit Type",
+                        value: first.flatType,
+                      ),
+                      buildColumnTitleValue(
+                        title: "Carpet Area (SqFt)",
+                        value: first.flatCarpetAreaSqFt.toStringAsFixed(2),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Proposed Offer Amount (₹)",
+                        value: first.proposedOfferAmount.toString(),
+                      ),
+                      buildColumnTitleValue(
+                        title: "Paid Amount",
+                        value: paidAmount.toString(),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Total",
+                        value: first.amount.toIndianCurrency(),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              Divider(height: 25, color: AppColor.grey2),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Paid', style: AppTextStyle.ts16M()),
                   Text(
-                    paidAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: Colors.green),
+                    'View Summary',
+                    style: AppTextStyle.ts12R(color: AppColor.primary),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: AppColor.primary,
+                    size: 16,
                   ),
                 ],
               ),
+              verticalSpacing(height: 5),
             ],
           ),
         );

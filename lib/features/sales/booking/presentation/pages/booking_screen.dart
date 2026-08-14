@@ -742,6 +742,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                             isActionAllowed
                                                 ? "Actions"
                                                 : "History",
+                                        showApproval: booking.isApproval,
                                         popupTitle:
                                             booking.bookingType.toLowerCase() ==
                                                     'parking'

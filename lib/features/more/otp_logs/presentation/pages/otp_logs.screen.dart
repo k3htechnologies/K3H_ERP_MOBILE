@@ -15,7 +15,6 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -49,8 +48,6 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
 
   late ProjectModel _selectedProject;
 
-  List<String> modules = ["BOOKING", "ENQUIRY"];
-  String selectedModule = "BOOKING";
   @override
   void initState() {
     super.initState();
@@ -107,10 +104,6 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
 
   void _handleTabChange() {
     if (_tabController.indexIsChanging) return;
-
-    setState(() {
-      selectedModule = modules[_tabController.index];
-    });
   }
 
   Future<void> _showBottomSheetToTicket(BuildContext context) async {
@@ -277,57 +270,50 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
       listener: (context, state) {
         _filterCount.value = _otpLogsCubit.updateFilterCount(state);
       },
-      child: BlocBuilder<OtpLogsCubit, OtpLogsState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.ticketList.isEmpty) {
-            return Center(child: loader());
-          }
-          final filteredList =
-              state.ticketList
-                  .where(
-                    (e) =>
-                        e.module.toUpperCase() == selectedModule.toUpperCase(),
-                  )
-                  .toList();
-          return Scaffold(
-            appBar: CustomAppBar(
-              screenTitle: "OTP Logs",
-              authorization: _routeAuthorizationModel,
-              textController: _searchC,
-              showNotification: true,
-              filterCountNotifier: _filterCount,
-              onSearchSubmit: (value) {
-                _otpLogsCubit.searchOtpLogs(
-                  context,
-                  value,
-                  _selectedProject.projectId,
-                );
-              },
-              onProjectChangeCallback: (value) {
-                _selectedProject = value;
-                _otpLogsCubit.getCallLogsList(
-                  context,
-                  1,
-                  _selectedProject.projectId,
-                );
-              },
-              searchHintText: "Search by Mobile Number",
-              onExportCallback: (value) {
-                if (_otpLogsCubit.state.totalNumberOfRecord == 0) {
-                  showErrorMessage(context, "Error", "No Data Found");
-                  return;
-                }
-                _otpLogsCubit.exportExcelPdf(context, value);
-              },
-              isFilterOn: true,
-              onFilterTap: () {
-                _showBottomSheetToTicket(context);
-              },
-            ),
-            body: Column(
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "OTP Logs",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          showNotification: true,
+          filterCountNotifier: _filterCount,
+          onSearchSubmit: (value) {
+            _otpLogsCubit.searchOtpLogs(
+              context,
+              value,
+              _selectedProject.projectId,
+            );
+          },
+          onProjectChangeCallback: (value) {
+            _selectedProject = value;
+            _otpLogsCubit.getCallLogsList(
+              context,
+              1,
+              _selectedProject.projectId,
+            );
+          },
+          searchHintText: "Search by Mobile Number",
+          onExportCallback: (value) {
+            if (_otpLogsCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _otpLogsCubit.exportExcelPdf(context, value);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToTicket(context);
+          },
+        ),
+        body: BlocBuilder<OtpLogsCubit, OtpLogsState>(
+          builder: (context, state) {
+            if ((state.isLoading ?? true) && state.ticketList.isEmpty) {
+              return Center(child: loader());
+            }
+
+            return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ChipStyleTabBar(controller: _tabController, tabs: modules),
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
@@ -346,46 +332,74 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
                                   gridLineColor: AppColor.grey50,
                                   gridLineStrokeWidth: 0.5,
                                 ),
-                                child: Builder(
-                                  builder: (context) {
-                                    final dataSource = OtpLogsDataSource(
-                                      context: context,
-                                      rows: filteredList,
-                                    );
-                                    return SfDataGrid(
-                                      source: dataSource,
-                                      verticalScrollController:
-                                          scrollController,
-                                      rowHeight: 48.h,
-                                      headerRowHeight: 48.h,
-                                      columnWidthMode: ColumnWidthMode.fill,
-                                      gridLinesVisibility:
-                                          GridLinesVisibility.horizontal,
-                                      headerGridLinesVisibility:
-                                          GridLinesVisibility.horizontal,
-                                      columns: [
-                                        GridColumn(
-                                          columnName: 'label',
-                                          label: Center(
-                                            child: Text(
-                                              'Mobile Number',
-                                              style: AppTextStyle.ts12SB(),
-                                            ),
-                                          ),
+                                child: Column(
+                                  children: [
+                                    Expanded(
+                                      child: Builder(
+                                        builder: (context) {
+                                          final dataSource = OtpLogsDataSource(
+                                            context: context,
+                                            rows: state.ticketList,
+                                          );
+                                          return SfDataGrid(
+                                            source: dataSource,
+                                            verticalScrollController:
+                                                scrollController,
+                                            rowHeight: 48.h,
+                                            headerRowHeight: 48.h,
+                                            columnWidthMode:
+                                                ColumnWidthMode.fill,
+                                            gridLinesVisibility:
+                                                GridLinesVisibility.horizontal,
+                                            headerGridLinesVisibility:
+                                                GridLinesVisibility.horizontal,
+                                            columns: [
+                                              GridColumn(
+                                                columnName: 'module',
+                                                label: Center(
+                                                  child: Text(
+                                                    'Module',
+                                                    style:
+                                                        AppTextStyle.ts12SB(),
+                                                  ),
+                                                ),
+                                              ),
+                                              GridColumn(
+                                                columnName: 'label',
+                                                label: Center(
+                                                  child: Text(
+                                                    'Mobile Number',
+                                                    style:
+                                                        AppTextStyle.ts12SB(),
+                                                  ),
+                                                ),
+                                              ),
+                                              GridColumn(
+                                                columnName: 'otp',
+                                                label: Center(
+                                                  child: Text(
+                                                    'OTP',
+                                                    style:
+                                                        AppTextStyle.ts12SB(),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    // PAGINATION LOADER
+                                    if ((state.isLoading ?? false) &&
+                                        state.ticketList.length <
+                                            state.totalNumberOfRecord)
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12.0,
                                         ),
-
-                                        GridColumn(
-                                          columnName: 'otp',
-                                          label: Center(
-                                            child: Text(
-                                              'OTP',
-                                              style: AppTextStyle.ts12SB(),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  },
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                  ],
                                 ),
                               ),
                             )
@@ -395,9 +409,9 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
                   ),
                 ),
               ],
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

@@ -2975,6 +2975,7 @@ final GoRouter goRouter = GoRouter(
                 BlocProvider(create: (_) => CalendarCubit(), child: child),
                 BlocProvider(create: (_) => InwardOutwardCubit(), child: child),
                 BlocProvider(create: (_) => TicketCubit(), child: child),
+                BlocProvider(create: (_) => OtpLogsCubit(), child: child),
               ],
               child: child,
             );
@@ -3194,6 +3195,11 @@ final GoRouter goRouter = GoRouter(
                 final ticket = state.extra as TicketModel?;
                 return AddTicketScreen(ticket: ticket);
               },
+            ),
+            GoRoute(
+              path: AppRoutes.otpLogs,
+              name: AppRoutes.otpLogs,
+              builder: (context, state) => const OtpLogsScreen(),
             ),
           ],
         ),
@@ -7457,16 +7463,6 @@ final GoRouter goRouter = GoRouter(
           },
         ),
       ],
-    ),
-    GoRoute(
-      name: AppRoutes.otpLogs,
-      path: AppRoutes.otpLogs,
-      builder: (context, state) {
-        return BlocProvider(
-          create: (context) => OtpLogsCubit(),
-          child: OtpLogsScreen(),
-        );
-      },
     ),
   ],
 );

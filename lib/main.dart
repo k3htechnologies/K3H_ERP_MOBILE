@@ -205,11 +205,11 @@ class MyApp extends StatelessWidget {
           return MaterialApp.router(
             title: "K3H ERP",
             debugShowCheckedModeBanner: false,
-
+            // THEME
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeMode.light,
-
+            // LOCALIZATION (required by flutter_quill's toolbar)
             localizationsDelegates: const [
               FlutterQuillLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -237,6 +237,7 @@ class MyApp extends StatelessWidget {
               );
             },
 
+            // ROUTING
             routeInformationParser: goRouter.routeInformationParser,
             routerDelegate: goRouter.routerDelegate,
             routeInformationProvider: goRouter.routeInformationProvider,

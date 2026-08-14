@@ -371,6 +371,8 @@ class _ParkingScreenState extends State<ParkingScreen>
                             child: ApproveRejectWidget(
                               actionTitle:
                                   selectedParking?.approvalStatus ?? "",
+                              showApproval:
+                                  selectedParking?.isApproval ?? false,
                               isActionAlreadyPerformed: !isActionAllowed,
                               popupTitle:
                                   "${selectedParking?.buildingNumber} > ${selectedParking?.wing} / ${selectedParking?.floor}",

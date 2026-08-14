@@ -463,7 +463,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                                     isMaster: true,
                                     popupTitle:
                                         "${selectedBuilding.buildingNumber} > ${selectedWing?.wing ?? ''}",
-
+                                    showApproval:
+                                        selectedWing?.isApproval ?? false,
                                     onApprove: (val) async {
                                       await _utilsCubit
                                           .updateModulesWorkflowApproval(

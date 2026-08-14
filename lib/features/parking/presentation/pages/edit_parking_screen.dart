@@ -402,9 +402,11 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                         _updateParkingTypeListForCategory(
                           selectedCategory.value!,
                         );
+                        selectedType.value = null;
                       },
                       onValueClear: () {
                         selectedCategory.value = null;
+                        selectedType.value = null;
                       },
                     );
                   },
@@ -422,7 +424,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       isDisabled: !_routeAuthorizationModel.isAction,
 
                       validator: (value) {
-                        if (typeValue == null) {
+                        if (typeValue == null ||
+                            selectedType.value!['zAttributesId'] == -1) {
                           return 'Parking Type is required';
                         }
                         return null;
@@ -581,7 +584,8 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
       return;
     }
 
-    if (selectedType.value == null) {
+    if (selectedType.value == null ||
+        selectedType.value!['zAttributesId'] == -1) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select Parking Type'),
