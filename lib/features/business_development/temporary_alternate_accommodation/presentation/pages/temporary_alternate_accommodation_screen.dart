@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -19,7 +19,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -39,6 +38,7 @@ class _TemporaryAlternateAccommodationScreenState
   // CUBIT
   late TemporaryAlternateAccommodationCubit
   _temporaryAlternateAccommodationCubit;
+  late AuthorizationModel _routeAuthorizationModel;
   // PROJECT
   late ProjectModel _project;
   // TAB CONTROLLERS
@@ -62,11 +62,15 @@ class _TemporaryAlternateAccommodationScreenState
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
 
+  final ValueNotifier<int> totalNumberOfRecords = ValueNotifier(0);
   @override
   void initState() {
     super.initState();
     _temporaryAlternateAccommodationCubit =
         context.read<TemporaryAlternateAccommodationCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.rent] ??
+        AuthorizationModel();
     _project = getProject();
     _tabController = TabController(length: 5, vsync: this);
     _tenureTabController = TabController(length: 0, vsync: this);
@@ -87,40 +91,52 @@ class _TemporaryAlternateAccommodationScreenState
   // INITIALIZE SCROLL CONTROLLER
   void _initializeScrollController() {
     _scrollController = ScrollController();
+
     _scrollController.addListener(() {
       final state = _temporaryAlternateAccommodationCubit.state;
+
+      final int tabIndex = _tabController.index;
+      final String tabName = tabTitles[tabIndex];
+
+      final int currentRecordCount =
+          state.rentList.map((e) => e.tenantId).toSet().length;
+
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
-          state.rentList.length < state.totalNumberOfRecord &&
+          currentRecordCount < state.totalNumberOfRecord &&
           state.currentPage * 5 < state.totalNumberOfRecord) {
-        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        if (_debounce?.isActive ?? false) {
+          _debounce?.cancel();
+        }
+
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          if (mounted) {
-            final currentState = _temporaryAlternateAccommodationCubit.state;
-            if (!(currentState.isLoading ?? false) &&
-                currentState.rentList.length <
-                    currentState.totalNumberOfRecord) {
-              final int tabIndex = _tabController.index;
-              final String tabName = tabTitles[tabIndex];
-              final int projectId = _project.projectId;
-              final int? buildingId =
-                  _selectedBuildingNotifier.value.isNotEmpty
-                      ? _selectedBuildingNotifier.value.first['zAttributesId']
-                      : null;
-              if (buildingId != null) {
-                final String selectedTenure = currentState.selectedTenure;
-                _temporaryAlternateAccommodationCubit.pullChargesDetails(
-                  context: context,
-                  pageNumber: currentState.currentPage + 1,
-                  projectId: projectId,
-                  buildingId: buildingId,
-                  chargeName: tabName,
-                  tenure: selectedTenure,
-                );
-              }
-            }
+          if (!mounted) return;
+
+          final currentState = _temporaryAlternateAccommodationCubit.state;
+
+          final int currentCount =
+              currentState.rentList.map((e) => e.tenantId).toSet().length;
+
+          if ((currentState.isLoading ?? false) ||
+              currentCount >= currentState.totalNumberOfRecord) {
+            return;
           }
+
+          final int? buildingId =
+              _selectedBuildingNotifier.value.isNotEmpty
+                  ? _selectedBuildingNotifier.value.first['zAttributesId']
+                  : null;
+
+          if (buildingId == null) return;
+
+          _temporaryAlternateAccommodationCubit.pullChargesDetails(
+            context: context,
+            pageNumber: currentState.currentPage + 1,
+            projectId: _project.projectId,
+            buildingId: buildingId,
+            chargeName: tabName,
+          );
         });
       }
     });
@@ -165,13 +181,12 @@ class _TemporaryAlternateAccommodationScreenState
                 ? _selectedBuildingNotifier.value.first['zAttributesId']
                 : null;
         if (buildingId != null) {
-          final String tenureForApi = "Tenure $selectedTenure";
           _temporaryAlternateAccommodationCubit.onTenureChanged(
             context,
             projectId: projectId,
             buildingId: buildingId,
             tabName: tabName,
-            tenure: tenureForApi,
+            tenure: selectedTenure,
             tenureIndex: tenureIndex,
           );
         }
@@ -240,277 +255,210 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
+  TemporaryAlternativeAccommodationModel? _findTotalRecord(
+    List<TemporaryAlternativeAccommodationModel> rentList,
+    int tenantId, {
+    String? tenure,
+  }) {
+    return rentList.firstWhereOrNull((e) {
+      try {
+        final date = DateTime.parse(e.date.toString());
+        final matchesDate =
+            date.year == 1997 && date.month == 1 && date.day == 1;
+        final matchesTenant = e.tenantId == tenantId;
+        final matchesTenure = tenure == null || e.tenure == tenure;
+        return matchesDate && matchesTenant && matchesTenure;
+      } catch (_) {
+        return false;
+      }
+    });
+  }
+
+  TemporaryAlternativeAccommodationModel? _findPaidRecord(
+    List<TemporaryAlternativeAccommodationModel> rentList,
+    int tenantId, {
+    String? tenure,
+  }) {
+    return rentList.firstWhereOrNull((e) {
+      try {
+        final date = DateTime.parse(e.date.toString());
+        final matchesDate =
+            date.year == 1997 && date.month == 1 && date.day == 2;
+        final matchesTenant = e.tenantId == tenantId;
+        final matchesTenure = tenure == null || e.tenure == tenure;
+        return matchesDate && matchesTenant && matchesTenure;
+      } catch (_) {
+        return false;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Temporary Alternate\nAccommodation",
-        authorization: AuthorizationModel(),
-        isMenuButton: true,
-        onProjectChangeCallback: (project) {
-          _project = project;
-        },
-      ),
-      body: Column(
-        children: [
-          verticalSpacing(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: BlocBuilder<
-              TemporaryAlternateAccommodationCubit,
-              TemporaryAlternateAccommodationState
-            >(
-              bloc: _temporaryAlternateAccommodationCubit,
-              builder: (context, state) {
-                return ValueListenableBuilder<List<Map<String, dynamic>>>(
-                  valueListenable: _selectedBuildingNotifier,
-                  builder: (context, selectedBuilding, child) {
-                    return CustomMultipleSelectPopup(
-                      title: "Building",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: selectedBuilding,
-                      dataList: const [],
-                      onSelected: (value) async {
-                        _selectedBuildingNotifier.value = value;
-                        if (value.isNotEmpty &&
-                            value.first['zAttributesId'] != null &&
-                            mounted) {
-                          final int buildingId = value.first['zAttributesId'];
-                          final int projectId = _project.projectId;
-                          await _temporaryAlternateAccommodationCubit
-                              .pullTemporaryAccommodationAlternativeDetails(
-                                context: context,
-                                projectId: projectId,
-                                buildingId: buildingId,
-                              );
-                          final int tabIndex = _tabController.index;
-                          final String tabName = tabTitles[tabIndex];
-                          if (context.mounted) {
-                            _temporaryAlternateAccommodationCubit.onTabChanged(
-                              tabIndex,
-                              context,
-                              projectId: projectId,
-                              buildingId: buildingId,
-                              tabName: tabName,
-                              tenure: "",
-                            );
-                          }
-                          _updateTenureTabController(0);
-                        }
-                      },
-                      dataFetchCallBack: _fetchBuildings,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Building is required";
-                        }
-                        return null;
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-
-          Expanded(
-            child: ValueListenableBuilder<List<Map<String, dynamic>>>(
-              valueListenable: _selectedBuildingNotifier,
-              builder: (context, selectedBuilding, child) {
-                final bool isBuildingSelected = selectedBuilding.isNotEmpty;
-                if (!isBuildingSelected) {
-                  return Center(
-                    child: Text(
-                      'Please select a building',
-                      style: AppTextStyle.ts14R(color: AppColor.grey),
-                    ),
-                  );
-                }
-                return Column(
-                  children: [
-                    // MAIN TAB BAR
-                    ChipStyleTabBar(
-                      controller: _tabController,
-                      tabs: tabTitles,
-                    ),
-                    // TENURE TAB BAR
-                    BlocBuilder<
-                      TemporaryAlternateAccommodationCubit,
-                      TemporaryAlternateAccommodationState
-                    >(
-                      bloc: _temporaryAlternateAccommodationCubit,
-                      builder: (context, state) {
-                        final int currentTabIndex = _tabController.index;
-                        final bool showTenureTabs =
-                            currentTabIndex == 1 || currentTabIndex == 3;
-                        final List<String> tenureList = state.tenureList;
-                        if (showTenureTabs && tenureList.isNotEmpty) {
-                          if (_tenureTabController.length !=
-                              tenureList.length) {
-                            _updateTenureTabController(
-                              tenureList.length,
-                              initialIndex:
-                                  state.selectedTenureIndex >= 0 &&
-                                          state.selectedTenureIndex <
-                                              tenureList.length
-                                      ? state.selectedTenureIndex
-                                      : 0,
-                            );
-                          }
-                        } else {
-                          if (_tenureTabController.length != 0) {
-                            _updateTenureTabController(0);
-                          }
-                        }
-                        if (showTenureTabs &&
-                            tenureList.isNotEmpty &&
-                            _tenureTabController.length == tenureList.length &&
-                            _tenureTabController.length > 0) {
-                          return ChipStyleTabBar(
-                            controller: _tenureTabController,
-                            style: ChipTabBarStyle.underline,
-                            tabs:
-                                tenureList
-                                    .map((tenure) => "Tenure $tenure")
-                                    .toList(),
-                          );
-                        }
-                        return const SizedBox.shrink();
-                      },
-                    ),
-                    // TAB CONTENT
-                    Expanded(
-                      child: TabBarView(
-                        physics: NeverScrollableScrollPhysics(),
-                        controller: _tabController,
-                        children: [
-                          _buildRentListWidget(), // Additional Rent
-                          _buildRentListWidget(), // Rent
-                          _buildRentListWidget(), // Corpus
-                          _buildRentListWidget(), // Brokerage
-                          _buildRentListWidget(), // Shifting
-                        ],
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // HELPER FUNCTIONS
-  Widget _amountColumn({
-    required String title,
-    required num amount,
-    required Color color,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyle.ts12M(color: AppColor.grey)),
-        const SizedBox(height: 2),
-        Text(
-          amount.toIndianCurrency(),
-          style: AppTextStyle.ts14SB(color: color),
-        ),
-      ],
-    );
-  }
-
-  // BUILD COMMON RENT TAB CARD
-  Widget _buildRentTABExpansionTileCard({
-    required String tabName,
-    required String flatNumber,
-    required num totalAmount,
-    required num paidAmount,
-    required Widget expandedContent,
-    VoidCallback? onAddPayment,
-    VoidCallback? onViewPayment,
-  }) {
-    final ValueNotifier<bool> isExpanded = ValueNotifier(false);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: commonCardDecoration(),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ValueListenableBuilder<bool>(
-          valueListenable: isExpanded,
-          builder: (context, expanded, _) {
-            return ExpansionTile(
-              key: PageStorageKey(flatNumber),
-              initiallyExpanded: expanded,
-              onExpansionChanged: (value) => isExpanded.value = value,
-              // HIDE DEFAULT ARROW
-              trailing: const SizedBox.shrink(),
-              tilePadding: const EdgeInsets.fromLTRB(16, 12, 0, 8),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              // CUSTOM HEADER
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(flatNumber, style: AppTextStyle.ts16M()),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          isExpanded.value = !expanded;
-                        },
-                        child: AnimatedRotation(
-                          turns: expanded ? 0.5 : 0.0,
-                          duration: const Duration(milliseconds: 200),
-                          child: const Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 26,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  // TOTAL & PAID
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _amountColumn(
-                        title: 'Total',
-                        amount: totalAmount,
-                        color: AppColor.slightDarkBlue,
-                      ),
-                      _amountColumn(
-                        title: 'Paid',
-                        amount: paidAmount,
-                        color: Colors.green,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  // Action Buttons
-                  Row(
-                    children: [
-                      if (totalAmount != paidAmount) ...[
-                        CustomButton(
-                          onPressed: onAddPayment,
-                          text: "Add Payment",
-                        ),
-                        horizontalSpacing(),
-                      ],
-                      CustomButton(
-                        onPressed: onViewPayment,
-                        text: "View Summary",
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              children: [expandedContent],
+    return BlocListener<
+      TemporaryAlternateAccommodationCubit,
+      TemporaryAlternateAccommodationState
+    >(
+      listener: (context, state) {
+        totalNumberOfRecords.value = state.totalNumberOfRecord;
+      },
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Temporary Alternate\nAccommodation",
+          authorization: _routeAuthorizationModel,
+          isMenuButton: true,
+          onProjectChangeCallback: (project) {
+            _project = project;
+          },
+          onExportCallback: (value) {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please select a project");
+              return;
+            } else if (_selectedBuildingNotifier.value.isEmpty) {
+              showErrorMessage(context, "Error", "Please select a building");
+              return;
+            } else if (totalNumberOfRecords.value == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _temporaryAlternateAccommodationCubit.exportExcelPdf(
+              context,
+              value,
+              projectId: _project.projectId,
+              buildingId:
+                  _selectedBuildingNotifier.value.first['zAttributesId'],
+              chargeType: tabTitles[_tabController.index],
             );
           },
+        ),
+        body: Column(
+          children: [
+            verticalSpacing(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: BlocBuilder<
+                TemporaryAlternateAccommodationCubit,
+                TemporaryAlternateAccommodationState
+              >(
+                bloc: _temporaryAlternateAccommodationCubit,
+                builder: (context, state) {
+                  return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                    valueListenable: _selectedBuildingNotifier,
+                    builder: (context, selectedBuilding, child) {
+                      return CustomMultipleSelectPopup(
+                        title: "Building",
+                        isRequired: true,
+                        isMultiSelect: false,
+                        initialValue: selectedBuilding,
+                        dataList: const [],
+                        onSelected: (value) async {
+                          _selectedBuildingNotifier.value = value;
+                          if (value.isNotEmpty &&
+                              value.first['zAttributesId'] != null &&
+                              mounted) {
+                            final int buildingId = value.first['zAttributesId'];
+                            final int projectId = _project.projectId;
+                            final int tabIndex = _tabController.index;
+                            final String tabName = tabTitles[tabIndex];
+                            if (context.mounted) {
+                              _temporaryAlternateAccommodationCubit
+                                  .onTabChanged(
+                                    tabIndex,
+                                    context,
+                                    projectId: projectId,
+                                    buildingId: buildingId,
+                                    tabName: tabName,
+                                    tenure: "",
+                                  );
+                            }
+                            _updateTenureTabController(0);
+                          }
+                        },
+                        dataFetchCallBack: _fetchBuildings,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Building is required";
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+
+            Expanded(
+              child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                valueListenable: _selectedBuildingNotifier,
+                builder: (context, selectedBuilding, child) {
+                  final bool isBuildingSelected = selectedBuilding.isNotEmpty;
+                  if (!isBuildingSelected) {
+                    return Center(
+                      child: Text(
+                        'Please select a building',
+                        style: AppTextStyle.ts14R(color: AppColor.grey),
+                      ),
+                    );
+                  }
+                  return Column(
+                    children: [
+                      // MAIN TAB BAR
+                      ChipStyleTabBar(
+                        controller: _tabController,
+                        tabs: tabTitles,
+                      ),
+                      // TENURE TAB BAR
+                      BlocBuilder<
+                        TemporaryAlternateAccommodationCubit,
+                        TemporaryAlternateAccommodationState
+                      >(
+                        bloc: _temporaryAlternateAccommodationCubit,
+                        builder: (context, state) {
+                          final int currentTabIndex = _tabController.index;
+                          final bool showTenureTabs =
+                              currentTabIndex == 1 || currentTabIndex == 3;
+                          final List<String> tenureList = state.tenureList;
+                          if (showTenureTabs && tenureList.isNotEmpty) {
+                            if (_tenureTabController.length !=
+                                tenureList.length) {
+                              _updateTenureTabController(
+                                tenureList.length,
+                                initialIndex:
+                                    state.selectedTenureIndex >= 0 &&
+                                            state.selectedTenureIndex <
+                                                tenureList.length
+                                        ? state.selectedTenureIndex
+                                        : 0,
+                              );
+                            }
+                          } else {
+                            if (_tenureTabController.length != 0) {
+                              _updateTenureTabController(0);
+                            }
+                          }
+                          if (showTenureTabs &&
+                              tenureList.isNotEmpty &&
+                              _tenureTabController.length ==
+                                  tenureList.length &&
+                              _tenureTabController.length > 0) {
+                            return ChipStyleTabBar(
+                              controller: _tenureTabController,
+                              style: ChipTabBarStyle.underline,
+                              tabs: tenureList.map((tenure) => tenure).toList(),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      // TAB CONTENT
+                      Expanded(child: _buildRentListWidget()),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -527,46 +475,70 @@ class _TemporaryAlternateAccommodationScreenState
         if ((state.isLoading ?? false) && state.rentList.isEmpty) {
           return Center(child: loader());
         }
+
         if (state.rentList.isEmpty) {
           return Center(child: noDataWidget());
         }
+
         final int currentTabIndex = _tabController.index;
         final String tabName = tabTitles[currentTabIndex];
+
         List<TemporaryAlternativeAccommodationModel> filteredList =
             state.rentList;
-        if ((currentTabIndex == 1 || currentTabIndex == 3) &&
-            state.selectedTenure.isNotEmpty) {
+
+        if (state.selectedTenure.isNotEmpty) {
           filteredList =
               state.rentList
                   .where((e) => e.tenure == state.selectedTenure)
                   .toList();
         }
-        final groupedByTenant = groupBy(filteredList, (e) => e.tenantId);
+
+        final groupedByTenant = groupBy(
+          filteredList,
+          (TemporaryAlternativeAccommodationModel e) => e.tenantId,
+        );
+
+        final int currentCount =
+            state.rentList.map((e) => e.tenantId).toSet().length;
+
+        final bool hasMoreData = currentCount < state.totalNumberOfRecord;
+
         return ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
+
           itemCount: groupedByTenant.length + 1,
+
           itemBuilder: (context, index) {
             if (index == groupedByTenant.length) {
-              return state.rentList.length < state.totalNumberOfRecord
-                  ? const Padding(
-                    padding: EdgeInsets.all(16),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                  : const SizedBox.shrink();
+              if ((state.isLoading ?? false) && hasMoreData) {
+                return const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              return const SizedBox.shrink();
             }
+
             final entry = groupedByTenant.entries.elementAt(index);
+
             final tenantRecords = entry.value;
+
             // BUILD CARD BASED ON TAB NAME
             switch (tabName) {
               case 'TAA':
-                return _buildTAACard(tenantRecords, state, tabName);
+                return _buildTAACard(tenantRecords, state);
+
               case 'Hardship':
                 return _buildCorpusCard(tenantRecords);
+
               case 'Brokerage':
                 return _buildBrokerageCard(tenantRecords);
+
               case 'Shifting':
                 return _buildShiftingCard(tenantRecords);
+
               case 'Additional TAA':
               default:
                 return _buildAdditionalRentCard(tenantRecords);
@@ -577,22 +549,142 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // COMMON EXPANSION TILE CARD
-  Widget _buildExpansionTileCard({
-    required String flatNumber,
-    required Widget expandedContent,
+  Widget _buildCommonAccommodationCard({
+    required TemporaryAlternativeAccommodationModel tenantRecord,
+    required String secondaryFieldTitle,
+    required String secondaryFieldValue,
+    required num paidAmount,
+    required num totalAmount,
   }) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: commonCardDecoration(),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-          title: Text(flatNumber, style: AppTextStyle.ts16M()),
-          children: [expandedContent],
-        ),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              Row(
+                spacing: 10,
+                children: [
+                  Container(
+                    width: 4.w,
+                    height: 24.h,
+                    decoration: BoxDecoration(
+                      color: AppColor.primary,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        if (_tabController.index == 1) {
+                          goRouter.pushNamed(
+                            AppRoutes.viewRent,
+                            queryParameters: {
+                              'rent': Uri.encodeComponent(
+                                EncryptionManager.encryptData(
+                                  jsonEncode(tenantRecord.toJson()),
+                                ),
+                              ),
+                            },
+                          );
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              tenantRecord.flatNumber,
+                              style: AppTextStyle.ts16M(
+                                color:
+                                    _tabController.index == 1
+                                        ? AppColor.primary
+                                        : null,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  CustomIconButton.add(onPressed: () {}),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: 'Applicant Type',
+                    value: tenantRecord.applicantType,
+                  ),
+                  buildColumnTitleValue(
+                    title: 'Applicant Name',
+                    value: tenantRecord.applicantName,
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Existing Unit Type",
+                    value: tenantRecord.flatType,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Existing Carpet Area (SqFt)",
+                    value: tenantRecord.flatCarpetAreaSqFt.toStringAsFixed(2),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: secondaryFieldTitle,
+                    value: secondaryFieldValue,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Paid Amount",
+                    value: paidAmount.toString(),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Total",
+                    value: totalAmount.toIndianCurrency(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Divider(height: 25, color: AppColor.grey2),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'View Summary',
+                style: AppTextStyle.ts12R(color: AppColor.primary),
+              ),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                color: AppColor.primary,
+                size: 16,
+              ),
+            ],
+          ),
+          verticalSpacing(height: 5),
+        ],
       ),
     );
   }
@@ -607,270 +699,46 @@ class _TemporaryAlternateAccommodationScreenState
     >(
       bloc: _temporaryAlternateAccommodationCubit,
       builder: (context, state) {
-        final first = tenantRecords.first;
-        // CALCULATE TOTAL AMOUNT
-        final totalAmount = tenantRecords.fold<num>(
-          0,
-          (sum, r) => sum + r.amount,
-        );
-        // Find paid amount (date year == 1997, month == 1, day == 2)
-        final paidRecord = state.rentList.firstWhereOrNull((e) {
-          try {
-            final date = DateTime.parse(e.date.toString());
-            return date.year == 1997 &&
-                date.month == 1 &&
-                date.day == 2 &&
-                e.tenantId == first.tenantId;
-          } catch (_) {
-            return false;
-          }
-        });
-        final paidAmount = paidRecord?.amount ?? 0.0;
-        return Container(
-          margin: EdgeInsets.only(bottom: 16),
-          decoration: commonCardDecoration(),
-          padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  Row(
-                    spacing: 10,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          first.flatNumber,
-                          style: AppTextStyle.ts16M(),
-                        ),
-                      ),
-                      CustomIconButton.add(onPressed: () {}),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: 'Applicant Type',
-                        value: first.applicantType,
-                      ),
-                      buildColumnTitleValue(
-                        title: 'Applicant Name',
-                        value: first.applicantName,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Existing Unit Type",
-                        value: first.flatType,
-                      ),
-                      buildColumnTitleValue(
-                        title: "Carpet Area (SqFt)",
-                        value: first.flatCarpetAreaSqFt.toStringAsFixed(2),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Proposed Offer Amount (₹)",
-                        value: first.proposedOfferAmount.toString(),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Paid Amount",
-                        value: paidAmount.toString(),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Total",
-                        value: first.amount.toIndianCurrency(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Divider(height: 25, color: AppColor.grey2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'View Summary',
-                    style: AppTextStyle.ts12R(color: AppColor.primary),
-                  ),
-                  Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: AppColor.primary,
-                    size: 16,
-                  ),
-                ],
-              ),
-              verticalSpacing(height: 5),
-            ],
-          ),
+        final tenantRecord = tenantRecords.first;
+        final totalAmount =
+            _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ??
+            0.0;
+        final paidAmount =
+            _findPaidRecord(state.rentList, tenantRecord.tenantId)?.amount ??
+            0.0;
+        return _buildCommonAccommodationCard(
+          tenantRecord: tenantRecord,
+          secondaryFieldTitle: "Proposed Offer Amount (₹)",
+          secondaryFieldValue: tenantRecord.proposedOfferAmount.toString(),
+          paidAmount: paidAmount,
+          totalAmount: totalAmount,
         );
       },
     );
   }
 
-  // BUILD TAA LIST WIDGET
+  // BUILD TAA CARD
   Widget _buildTAACard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
     TemporaryAlternateAccommodationState state,
-    String tabName,
   ) {
-    final first = tenantRecords.first;
-    final dateRange =
-        tenantRecords
-            .map((e) => DateTime.parse(e.date.toString()))
-            .toSet()
-            .toList()
-          ..sort((a, b) => a.compareTo(b));
-    final totalRecord = state.rentList.firstWhereOrNull((e) {
-      try {
-        final date = DateTime.parse(e.date.toString());
-        return date.year == 1997 &&
-            date.month == 1 &&
-            date.day == 1 &&
-            e.tenantId == first.tenantId;
-      } catch (_) {
-        return false;
-      }
-    });
-    final totalAmount = totalRecord?.amount ?? 0.0;
-    final paidRecord = state.rentList.firstWhereOrNull((e) {
-      try {
-        final date = DateTime.parse(e.date.toString());
-        return date.year == 1997 &&
-            date.month == 1 &&
-            date.day == 2 &&
-            e.tenantId == first.tenantId;
-      } catch (_) {
-        return false;
-      }
-    });
-    final paidAmount = paidRecord?.amount ?? 0.0;
-    return _buildRentTABExpansionTileCard(
-      tabName: tabName,
-      flatNumber: first.flatNumber,
-      totalAmount: totalAmount,
+    final tenantRecord = tenantRecords.first;
+
+    final totalAmount =
+        _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ?? 0.0;
+    final paidAmount =
+        _findPaidRecord(state.rentList, tenantRecord.tenantId)?.amount ?? 0.0;
+
+    return _buildCommonAccommodationCard(
+      tenantRecord: tenantRecord,
+      secondaryFieldTitle: "Proposed Offer Amount (₹)",
+      secondaryFieldValue: tenantRecord.proposedOfferAmount.toString(),
       paidAmount: paidAmount,
-      onAddPayment: () {
-        final rentModelEnc = Uri.encodeQueryComponent(
-          EncryptionManager.encryptData(jsonEncode(first.toJson())),
-        );
-        final rentDetailsEnc = Uri.encodeQueryComponent(
-          EncryptionManager.encryptData(
-            jsonEncode(state.rentDetails.map((e) => e.toJson()).toList()),
-          ),
-        );
-        goRouter.pushNamed(
-          AppRoutes.addPayment,
-          queryParameters: <String, String>{
-            'totalAmount': totalAmount.toString(),
-            'paidAmount': paidAmount.toString(),
-            'buildingId': first.buildingId.toString(),
-            'rentModel': rentModelEnc,
-            'rentDetails': rentDetailsEnc,
-          },
-          extra: <String, dynamic>{
-            'buildingId': first.buildingId,
-            'rentDetails': state.rentDetails,
-            'rentModel': first,
-            'totalAmount': totalAmount.toDouble(),
-            'paidAmount': paidAmount.toDouble(),
-          },
-        );
-      },
-      onViewPayment: () async {
-        final rentModelEnc = Uri.encodeQueryComponent(
-          EncryptionManager.encryptData(jsonEncode(first.toJson())),
-        );
-        await goRouter.pushNamed(
-          AppRoutes.viewSummary,
-          queryParameters: <String, String>{'rentModel': rentModelEnc},
-          extra: {'rentModel': first},
-        );
-        if (mounted) {
-          await _temporaryAlternateAccommodationCubit.pullChargesDetails(
-            context: context,
-            pageNumber: state.currentPage,
-            projectId: first.projectId,
-            buildingId: first.buildingId,
-            chargeName: tabName,
-            tenure: first.tenure,
-          );
-        }
-      },
-      expandedContent: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Divider(color: AppColor.grey, thickness: 0.5),
-          _buildInfoRow("Applicant Name", first.applicantName),
-          _buildInfoRow("Flat Type", first.flatType),
-          _buildInfoRow("Flat Configuration", first.flatConfiguration),
-          _buildInfoRow(
-            "Carpet Area (SqFt)",
-            first.flatCarpetAreaSqFt.toStringAsFixed(2),
-          ),
-          _buildInfoRow(
-            "Proposed Offer Amount",
-            '${first.proposedOfferAmount} ${first.unit}',
-          ),
-          Divider(color: AppColor.grey, thickness: 0.5),
-          // DATE WISE AMOUNT ( EXCLUDE 1997-01-01 AND 1997-01-02 )
-          ...dateRange
-              .where(
-                (date) =>
-                    !(date.year == 1997 &&
-                        date.month == 1 &&
-                        (date.day == 1 || date.day == 2)),
-              )
-              .map((date) {
-                final match = tenantRecords.firstWhereOrNull((r) {
-                  final rDate = DateTime.parse(r.date.toString());
-                  return rDate.year == date.year &&
-                      rDate.month == date.month &&
-                      rDate.day == date.day;
-                });
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        DateFormat('dd MMM yyyy').format(date),
-                        style: AppTextStyle.ts14M(),
-                      ),
-                      Text(
-                        match?.amount != null && match?.amount != 0
-                            ? match!.amount.toIndianCurrency()
-                            : '-',
-                        style: AppTextStyle.ts14B(),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-        ],
-      ),
+      totalAmount: totalAmount,
     );
   }
 
-  // BUILD CORPUS CARD
+  // BUILD CORPUS (HARDSHIP) CARD
   Widget _buildCorpusCard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
   ) {
@@ -880,79 +748,25 @@ class _TemporaryAlternateAccommodationScreenState
     >(
       bloc: _temporaryAlternateAccommodationCubit,
       builder: (context, state) {
-        final first = tenantRecords.first;
+        final tenantRecord = tenantRecords.first;
         final allStages =
             state.rentList
                 .map((e) => e.stage)
                 .where((s) => s.isNotEmpty)
                 .toSet()
                 .toList();
-        final stageMap = {for (var e in tenantRecords) e.stage: e.amount};
-        final totalAmount = stageMap.values.fold<num>(
-          0,
-          (sum, amount) => sum + amount,
-        );
-        // Find paid amount (date year == 1997, month == 1, day == 2)
-        final paidRecord = state.rentList.firstWhereOrNull((e) {
-          try {
-            final date = DateTime.parse(e.date.toString());
-            return date.year == 1997 &&
-                date.month == 1 &&
-                date.day == 2 &&
-                e.tenantId == first.tenantId;
-          } catch (_) {
-            return false;
-          }
-        });
-        final paidAmount = paidRecord?.amount ?? 0.0;
-        return _buildExpansionTileCard(
-          flatNumber: first.flatNumber,
-          expandedContent: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Divider(color: AppColor.grey, thickness: 0.5),
-              _buildInfoRow("Applicant Name", first.applicantName),
-              _buildInfoRow("Flat Type", first.flatType),
-              _buildInfoRow("Flat Configuration", first.flatConfiguration),
-              _buildInfoRow(
-                "Carpet Area (SqFt)",
-                first.flatCarpetAreaSqFt.toStringAsFixed(2),
-              ),
-              Divider(color: AppColor.grey, thickness: 0.5),
-              ...allStages.map((stageName) {
-                final amount = stageMap[stageName] ?? 0.0;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: _buildInfoRow(
-                    stageName,
-                    amount > 0 ? (amount).toIndianCurrency() : '0',
-                  ),
-                );
-              }),
-              Divider(color: AppColor.grey, thickness: 0.5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Total', style: AppTextStyle.ts16M()),
-                  Text(
-                    totalAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Paid', style: AppTextStyle.ts16M()),
-                  Text(
-                    paidAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: Colors.green),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        final totalAmount =
+            _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ??
+            0.0;
+        final paidAmount =
+            _findPaidRecord(state.rentList, tenantRecord.tenantId)?.amount ??
+            0.0;
+        return _buildCommonAccommodationCard(
+          tenantRecord: tenantRecord,
+          secondaryFieldTitle: allStages.first,
+          secondaryFieldValue: tenantRecord.amount.toString(),
+          paidAmount: paidAmount,
+          totalAmount: totalAmount,
         );
       },
     );
@@ -968,62 +782,27 @@ class _TemporaryAlternateAccommodationScreenState
     >(
       bloc: _temporaryAlternateAccommodationCubit,
       builder: (context, state) {
-        final first = tenantRecords.first;
-        final totalAmount = tenantRecords.fold<num>(
-          0,
-          (sum, r) => sum + r.amount,
-        );
-        // Find paid amount (date year == 1997, month == 1, day == 2)
-        final paidRecord = state.rentList.firstWhereOrNull((e) {
-          try {
-            final date = DateTime.parse(e.date.toString());
-            return date.year == 1997 &&
-                date.month == 1 &&
-                date.day == 2 &&
-                e.tenantId == first.tenantId &&
-                e.tenure == first.tenure;
-          } catch (_) {
-            return false;
-          }
-        });
-        final paidAmount = paidRecord?.amount ?? 0.0;
-        return _buildExpansionTileCard(
-          flatNumber: first.flatNumber,
-          expandedContent: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Divider(color: AppColor.grey, thickness: 0.5),
-              _buildInfoRow("Applicant Name", first.applicantName),
-              _buildInfoRow("Flat Type", first.flatType),
-              _buildInfoRow("Flat Configuration", first.flatConfiguration),
-              _buildInfoRow(
-                "Carpet Area (SqFt)",
-                first.flatCarpetAreaSqFt.toStringAsFixed(2),
-              ),
-              Divider(color: AppColor.grey, thickness: 0.5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Total', style: AppTextStyle.ts16M()),
-                  Text(
-                    totalAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Paid', style: AppTextStyle.ts16M()),
-                  Text(
-                    paidAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: Colors.green),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        final tenantRecord = tenantRecords.first;
+        final totalAmount =
+            _findTotalRecord(
+              state.rentList,
+              tenantRecord.tenantId,
+              tenure: tenantRecord.tenure,
+            )?.amount ??
+            0.0;
+        final paidAmount =
+            _findPaidRecord(
+              state.rentList,
+              tenantRecord.tenantId,
+              tenure: tenantRecord.tenure,
+            )?.amount ??
+            0.0;
+        return _buildCommonAccommodationCard(
+          tenantRecord: tenantRecord,
+          secondaryFieldTitle: "Proposed Offer Amount (₹)",
+          secondaryFieldValue: tenantRecord.proposedOfferAmount.toString(),
+          paidAmount: paidAmount,
+          totalAmount: totalAmount,
         );
       },
     );
@@ -1039,102 +818,27 @@ class _TemporaryAlternateAccommodationScreenState
     >(
       bloc: _temporaryAlternateAccommodationCubit,
       builder: (context, state) {
-        final first = tenantRecords.first;
+        final tenantRecord = tenantRecords.first;
         final allStages =
             state.rentList
                 .map((e) => e.stage)
                 .where((s) => s.isNotEmpty)
                 .toSet()
                 .toList();
-        final stageMap = {for (var e in tenantRecords) e.stage: e.amount};
-        final totalAmount = stageMap.values.fold<num>(
-          0,
-          (sum, amount) => sum + amount,
-        );
-        final paidRecord = state.rentList.firstWhereOrNull((e) {
-          try {
-            final date = DateTime.parse(e.date.toString());
-            return date.year == 1997 &&
-                date.month == 1 &&
-                date.day == 2 &&
-                e.tenantId == first.tenantId;
-          } catch (_) {
-            return false;
-          }
-        });
-        final paidAmount = paidRecord?.amount ?? 0.0;
-        return _buildExpansionTileCard(
-          flatNumber: first.flatNumber,
-          expandedContent: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Divider(color: AppColor.grey, thickness: 0.5),
-              _buildInfoRow("Applicant Name", first.applicantName),
-              _buildInfoRow("Flat Type", first.flatType),
-              _buildInfoRow("Flat Configuration", first.flatConfiguration),
-              _buildInfoRow(
-                "Carpet Area (SqFt)",
-                first.flatCarpetAreaSqFt.toStringAsFixed(2),
-              ),
-              _buildInfoRow(
-                "Proposed Offer Amount",
-                first.proposedOfferAmount.toStringAsFixed(2),
-              ),
-              Divider(color: AppColor.grey, thickness: 0.5),
-              ...allStages.map((stageName) {
-                final amount = stageMap[stageName] ?? 0.0;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: _buildInfoRow(
-                    stageName,
-                    amount > 0 ? '₹ ${amount.toStringAsFixed(2)}' : '0',
-                  ),
-                );
-              }),
-              Divider(color: AppColor.grey, thickness: 0.5),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Total', style: AppTextStyle.ts16M()),
-                  Text(
-                    totalAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: AppColor.slightDarkBlue),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Paid', style: AppTextStyle.ts16M()),
-                  Text(
-                    paidAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts16SB(color: Colors.green),
-                  ),
-                ],
-              ),
-            ],
-          ),
+        final totalAmount =
+            _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ??
+            0.0;
+        final paidAmount =
+            _findPaidRecord(state.rentList, tenantRecord.tenantId)?.amount ??
+            0.0;
+        return _buildCommonAccommodationCard(
+          tenantRecord: tenantRecord,
+          secondaryFieldTitle: allStages.first,
+          secondaryFieldValue: tenantRecord.amount.toString(),
+          paidAmount: paidAmount,
+          totalAmount: totalAmount,
         );
       },
-    );
-  }
-
-  // HELPER METHODS
-  Widget _buildInfoRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-          Text(": "),
-          Expanded(flex: 3, child: Text(value, style: AppTextStyle.ts14M())),
-        ],
-      ),
     );
   }
 }

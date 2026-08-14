@@ -185,32 +185,29 @@ class TemporaryAlternateAccommodationCubit
             List<TemporaryAlternativeAccommodationDetailsModel>.from(
               response['data'] ?? [],
             );
-        emit(state.copyWith(rentDetails: rentDetailsList));
+        final tenureList =
+            rentDetailsList
+                .map((item) => item.tenure.trim())
+                .where((tenure) => tenure.isNotEmpty)
+                .map((tenure) {
+                  return tenure.toLowerCase().startsWith('tenure')
+                      ? tenure.substring(6).trim()
+                      : tenure;
+                })
+                .toSet()
+                .toList()
+              ..sort();
+        final formattedTenureList =
+            tenureList.map((tenure) => 'Tenure $tenure').toList();
+        emit(
+          state.copyWith(
+            rentDetails: rentDetailsList,
+            tenureList: formattedTenureList,
+            selectedTenure: formattedTenureList.first,
+          ),
+        );
       },
     );
-  }
-
-  // EXTRACT TENURE LIST FROM RENT DETAILS
-  void extractTenureList(String chargeType) {
-    final List<TemporaryAlternativeAccommodationDetailsModel> rentDetailsList =
-        state.rentDetails;
-    final Set<String> tenureSet = {};
-    for (var item in rentDetailsList) {
-      debugPrint("  - Type: '${item.type}', Tenure: '${item.tenure}'");
-      final String tenureValue = item.tenure.trim();
-      if (tenureValue.isNotEmpty) {
-        String tenure = tenureValue;
-        if (tenureValue.toLowerCase().startsWith('tenure')) {
-          tenure = tenureValue.substring(6).trim();
-        }
-        if (tenure.isNotEmpty) {
-          tenureSet.add(tenure);
-          debugPrint("    -> Added tenure: '$tenure' (from '$tenureValue')");
-        }
-      }
-    }
-    final List<String> tenureList = tenureSet.toList()..sort();
-    emit(state.copyWith(tenureList: tenureList));
   }
 
   // PULL CHARGES DETAILS
@@ -220,12 +217,11 @@ class TemporaryAlternateAccommodationCubit
     required int projectId,
     required int buildingId,
     required String chargeName,
-    required String tenure,
   }) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {"ChargeType": chargeName};
-    if (tenure.isNotEmpty) {
-      queryParams["Tenure"] = tenure;
+    if (state.selectedTenure.isNotEmpty) {
+      queryParams["Tenure"] = state.selectedTenure;
     }
     final result = await _temporaryAlternateAccommodationRepository
         .pullTenantApplicantCharges(
@@ -278,13 +274,13 @@ class TemporaryAlternateAccommodationCubit
           }
           updatedList = [...state.rentList, ...uniqueNewData];
         }
+
         emit(
           state.copyWith(
             isLoading: false,
             rentList: updatedList,
             totalNumberOfRecord: totalRecords,
             currentPage: pageNumber,
-            selectedTenure: tenure,
           ),
         );
       },
@@ -299,7 +295,7 @@ class TemporaryAlternateAccommodationCubit
     required int? buildingId,
     required String? tenure,
     required String tabName,
-  }) {
+  }) async {
     emit(
       state.copyWith(
         rentList: [],
@@ -312,19 +308,24 @@ class TemporaryAlternateAccommodationCubit
     if (buildingId == null) {
       return;
     }
-    if (tabName == 'Rent' || tabName == 'Brokerage') {
-      extractTenureList(tabName);
+    if (tabName == 'TAA' || tabName == 'Brokerage') {
+      await pullTemporaryAccommodationAlternativeDetails(
+        context: context,
+        projectId: projectId,
+        buildingId: buildingId,
+      );
     } else {
       emit(state.copyWith(tenureList: []));
     }
-    pullChargesDetails(
-      context: context,
-      pageNumber: 1,
-      projectId: projectId,
-      buildingId: buildingId,
-      chargeName: tabName,
-      tenure: "",
-    );
+    if (context.mounted) {
+      pullChargesDetails(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+        buildingId: buildingId,
+        chargeName: tabName,
+      );
+    }
   }
 
   // HELPER ON TENURE CHANGED
@@ -350,7 +351,6 @@ class TemporaryAlternateAccommodationCubit
       projectId: projectId,
       buildingId: buildingId,
       chargeName: tabName,
-      tenure: tenure,
     );
   }
 
@@ -622,6 +622,94 @@ class TemporaryAlternateAccommodationCubit
         );
         updatedList.removeAt(index!);
         emit(state.copyWith(paymentLedgerList: updatedList, isLoading: false));
+      },
+    );
+  }
+
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required int projectId,
+    required int buildingId,
+    required String chargeType,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _temporaryAlternateAccommodationRepository
+        .pullTenantApplicantChargesForExport(
+          pageNumber: 1,
+          pageSize: state.totalNumberOfRecord,
+          queryParams: {
+            "ExportType": exportType,
+            "ChargeType": chargeType,
+            "Tenure": state.selectedTenure,
+          },
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "$chargeType ${DateTime.now()}.pdf"
+              : "$chargeType ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future<List<TemporaryAlternativeAccommodationModel>>
+  pullChargesDetailsForView({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required String chargeName,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {"ChargeType": chargeName};
+    if (state.selectedTenure.isNotEmpty) {
+      queryParams["Tenure"] = state.selectedTenure;
+    }
+    final result = await _temporaryAlternateAccommodationRepository
+        .pullTenantApplicantCharges(
+          pageNumber: 1,
+          pageSize: 1,
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+        return [];
+      },
+      (response) {
+        final List<TemporaryAlternativeAccommodationModel> rawData =
+            List<TemporaryAlternativeAccommodationModel>.from(
+              response['data'] ?? [],
+            );
+        final Map<String, TemporaryAlternativeAccommodationModel>
+        uniqueItemsMap = {};
+        for (var item in rawData) {
+          final String uniqueKey =
+              "${item.tenantApplicantChargesId}_${item.tenantId}_${item.tenantApplicantId}_${item.buildingId}_${item.stage}_${item.date.toIso8601String()}_${item.amount}";
+          if (!uniqueItemsMap.containsKey(uniqueKey)) {
+            uniqueItemsMap[uniqueKey] = item;
+          }
+        }
+        final List<TemporaryAlternativeAccommodationModel> newData =
+            uniqueItemsMap.values.toList();
+        emit(state.copyWith(isLoading: false));
+        return newData;
       },
     );
   }

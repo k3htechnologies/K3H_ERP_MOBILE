@@ -36,6 +36,13 @@ abstract interface class TemporaryAlternateAccommodationDatasource {
     required int tenantApplicantId,
     required int buildingId,
   });
+  Future<Map<String, dynamic>> apicallPullTenantApplicantChargesForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TemporaryAlternateAccommodationDatasourceImpl
@@ -228,6 +235,55 @@ class TemporaryAlternateAccommodationDatasourceImpl
           tenantId: tenantId,
           tenantApplicantId: tenantApplicantId,
           buildingId: buildingId,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullTenantApplicantChargesForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullTenantApplicantChargesUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int buildingId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Rent/PullTenantApplicantCharges?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BuildingId=$buildingId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullTenantApplicantChargesUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullTenantApplicantChargesForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
         );
       }
       rethrow;

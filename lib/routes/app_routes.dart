@@ -393,6 +393,7 @@ class AppRoutes {
       "/duplicateBuildingProposedPlan";
   // RENT
   static String rent = "/rent";
+  static String viewRent = "/viewRent";
   static String addPayment = "/addPayment";
   static String viewSummary = "/viewSummary";
 

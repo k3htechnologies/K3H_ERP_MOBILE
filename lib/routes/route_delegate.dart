@@ -26,6 +26,7 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_view_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
@@ -2596,6 +2597,25 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 // return TemporaryAlternateAccommodationScreen();
                 return const ComingSoonScreen(title: "TAA");
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewRent,
+              path: AppRoutes.viewRent,
+              builder: (context, state) {
+                final queryParameterRent = state.uri.queryParameters['rent'];
+
+                final TemporaryAlternativeAccommodationModel tenantModel =
+                    TemporaryAlternativeAccommodationModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterRent!),
+                        ),
+                      ),
+                    );
+                return TemporaryAlternateAccommodationViewScreen(
+                  tenantModel: tenantModel,
+                );
               },
             ),
             GoRoute(

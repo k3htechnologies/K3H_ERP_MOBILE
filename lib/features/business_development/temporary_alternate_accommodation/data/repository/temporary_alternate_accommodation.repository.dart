@@ -35,6 +35,14 @@ abstract interface class TemporaryAlternateAccommodationRepository {
     required int tenantApplicantId,
     required int buildingId,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullTenantApplicantChargesForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class RentRepositoryImpl implements TemporaryAlternateAccommodationRepository {
@@ -124,6 +132,30 @@ class RentRepositoryImpl implements TemporaryAlternateAccommodationRepository {
         tenantApplicantId: tenantApplicantId,
         buildingId: buildingId,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullTenantApplicantChargesForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await rentDatasource
+          .apicallPullTenantApplicantChargesForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            buildingId: buildingId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

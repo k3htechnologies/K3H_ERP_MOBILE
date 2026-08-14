@@ -599,7 +599,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                               projectId: _project.projectId,
                               buildingId: widget.buildingId,
                               chargeName: "RENT",
-                              tenure: tenure,
                             );
                       }
                     });
