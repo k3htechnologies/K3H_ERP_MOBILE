@@ -214,7 +214,7 @@ class _EditCallLogsScreenState extends State<EditCallLogsScreen> {
                 valueListenable: _fromDateNotifier,
                 builder: (context, fromDate, child) {
                   return CustomDatePicker(
-                    title: "Reschedule From Date",
+                    title: "Reschedule Date",
                     initialDate: fromDate,
                     setValue: (value) {
                       _fromDateNotifier.value = value;
@@ -227,7 +227,7 @@ class _EditCallLogsScreenState extends State<EditCallLogsScreen> {
                 valueListenable: _toDateNotifier,
                 builder: (context, toDate, child) {
                   return CustomDatePicker(
-                    title: "Reschedule To Date",
+                    title: "Registration Date",
                     initialDate: toDate,
                     setValue: (value) {
                       _toDateNotifier.value = value;

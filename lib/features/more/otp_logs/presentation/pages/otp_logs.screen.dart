@@ -284,14 +284,6 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
               _selectedProject.projectId,
             );
           },
-          onProjectChangeCallback: (value) {
-            _selectedProject = value;
-            _otpLogsCubit.getCallLogsList(
-              context,
-              1,
-              _selectedProject.projectId,
-            );
-          },
           searchHintText: "Search by Mobile Number",
           onExportCallback: (value) {
             if (_otpLogsCubit.state.totalNumberOfRecord == 0) {

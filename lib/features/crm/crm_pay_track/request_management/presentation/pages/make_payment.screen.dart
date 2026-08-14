@@ -826,10 +826,6 @@ class _ModifiedRequestsMakePaymentScreenState
   }
 
   Widget buildReceivedAmountCard(PayTrackModel data) {
-    final double otherChargesOutstandingGST =
-        data.receivedOtherChargesAmount == 0
-            ? 0
-            : (data.otherChargesAmount - data.receivedOtherChargesGstAmount);
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: EdgeInsets.all(12.0),
@@ -912,7 +908,7 @@ class _ModifiedRequestsMakePaymentScreenState
               Expanded(
                 child: buildColumnTitleValueNormal(
                   title: "Other Charges GST",
-                  value: otherChargesOutstandingGST.toIndianCurrency(),
+                  value: data.receivedOtherChargesGstAmount.toIndianCurrency(),
                 ),
               ),
               horizontalSpacing(width: 20.0),

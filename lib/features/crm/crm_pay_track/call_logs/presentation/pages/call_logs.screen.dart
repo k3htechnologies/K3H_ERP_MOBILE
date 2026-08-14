@@ -14,11 +14,14 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -43,9 +46,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-  late TextEditingController _searchTextC,
-      _filterApplicantNameC,
-      _filterApplicantMobileC;
+  late TextEditingController _filterApplicantNameC, _filterApplicantMobileC;
   late AuthorizationModel _payTrackCallLogsAuthorization;
   final ValueNotifier<Map<String, dynamic>?> _selectedCallStatus =
       ValueNotifier(null);
@@ -67,6 +68,11 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         AuthorizationModel();
     initialiseControllers();
     _onScroll();
+    _payTrackCubit.applyCallLogsFilter(
+      bookingId: widget.bookingId,
+      context: context,
+      isClear: true,
+    );
     _payTrackCubit.getPayTrackCallLog(
       context,
       1,
@@ -77,7 +83,6 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
 
   @override
   void dispose() {
-    _searchTextC.dispose();
     _filterApplicantNameC.dispose();
     _filterApplicantMobileC.dispose();
     _filterCount.dispose();
@@ -86,7 +91,6 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   }
 
   void initialiseControllers() {
-    _searchTextC = TextEditingController();
     _filterApplicantNameC = TextEditingController();
     _filterApplicantMobileC = TextEditingController();
   }
@@ -99,13 +103,13 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
               scrollController.position.maxScrollExtent - 100 &&
           !_payTrackCubit.state.isLoading! &&
           _payTrackCubit.state.payTrackCallLogList.length <
-              _payTrackCubit.state.totalNumberOfRecord) {
+              _payTrackCubit.state.callLogsTotalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           _payTrackCubit.getPayTrackCallLog(
             context,
-            _payTrackCubit.state.currentPage + 1,
+            _payTrackCubit.state.callLogsCurrentPage + 1,
             widget.projectId,
             widget.bookingId,
           );
@@ -138,282 +142,10 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<PayTrackCubit, PayTrackState>(
-      listener: (context, state) {
-        _filterCount.value = _payTrackCubit.updateFilterCount(state);
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSearchBar(),
-          Expanded(
-            child: BlocBuilder<PayTrackCubit, PayTrackState>(
-              builder: (context, state) {
-                if (state.isLoading == true) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (state.payTrackCallLogList.isEmpty) {
-                  return Center(
-                    child: noDataWidget(
-                      message: "No Call Log Found",
-                      iconSize: 180,
-                    ),
-                  );
-                }
-                final bool isBookingCancelledOrRefund =
-                    widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
-                    widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
-                return SingleChildScrollView(
-                  padding: EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ListView.builder(
-                        controller: scrollController,
-                        itemCount: state.payTrackCallLogList.length,
-                        shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          final callLog = state.payTrackCallLogList[index];
-                          return Container(
-                            margin: EdgeInsets.only(bottom: 10.0),
-                            padding: EdgeInsets.all(12.0),
-                            decoration: commonCardDecoration(),
-                            child: Theme(
-                              data: Theme.of(
-                                context,
-                              ).copyWith(dividerColor: Colors.transparent),
-                              child: ExpansionTile(
-                                tilePadding: EdgeInsets.zero,
-                                childrenPadding: EdgeInsets.zero,
-                                expandedCrossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                iconColor: AppColor.black,
-                                collapsedIconColor: AppColor.black,
-                                shape: const Border(),
-                                collapsedShape: const Border(),
-                                title: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        callLog.applicantName,
-                                        style: AppTextStyle.ts16M(
-                                          color: AppColor.primary,
-                                        ),
-                                      ),
-                                    ),
-                                    horizontalSpacing(),
-                                    if (_payTrackCallLogsAuthorization
-                                            .isAction &&
-                                        !isBookingCancelledOrRefund)
-                                      Expanded(
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            CustomIconButton.edit(
-                                              isDisabled:
-                                                  callLog.callStatus.isNotEmpty,
-                                              onPressed: () {
-                                                goRouter.pushNamed(
-                                                  AppRoutes.editPayTrackCallLog,
-                                                  extra: {
-                                                    "projectId":
-                                                        widget.projectId,
-                                                    "bookingId":
-                                                        widget.bookingId,
-                                                    "callLog": callLog,
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                            horizontalSpacing(),
-                                            CustomIconButton.delete(
-                                              isDisabled:
-                                                  callLog.callStatus.isNotEmpty,
-                                              onPressed: () {
-                                                _showPopupToDeletePayTrackCallLogs(
-                                                  context,
-                                                  callLog,
-                                                  state.currentPage,
-                                                  index,
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                                children: [
-                                  Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 12.0,
-                                      vertical: 16.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppColor.lightGreyBackground,
-                                      borderRadius: BorderRadius.circular(6.0),
-                                      border: Border.all(
-                                        width: 0.3,
-                                        color: AppColor.black.withValues(
-                                          alpha: 0.3,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 6,
-                                                vertical: 4,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(6.0),
-                                                color:
-                                                    callLog.callStatus
-                                                                .toLowerCase() ==
-                                                            "pending"
-                                                        ? AppColor.grey
-                                                            .withValues(
-                                                              alpha: 0.3,
-                                                            )
-                                                        : AppColor.green
-                                                            .withValues(
-                                                              alpha: 0.3,
-                                                            ),
-                                              ),
-                                              child: Text(
-                                                callLog.callStatus
-                                                            .toLowerCase() ==
-                                                        "pending"
-                                                    ? "Pending"
-                                                    : callLog.callStatus,
-                                                style: AppTextStyle.ts12SB(
-                                                  color:
-                                                      callLog.callStatus
-                                                                  .toLowerCase() ==
-                                                              "pending"
-                                                          ? AppColor.black
-                                                          : AppColor.green,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        verticalSpacing(),
-                                        buildRowTitleValue(
-                                          title: "Applicant Type",
-                                          value: callLog.applicantType,
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Applicant Mobile Number",
-                                          value: callLog.applicantMobileNumber,
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Call Time",
-                                          value: formatDateTimeReadable(
-                                            callLog.callDate,
-                                          ),
-                                          singleLine: false,
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Duration",
-                                          value: callLog.duration,
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Call Purpose",
-                                          value: callLog.callPurpose,
-                                          singleLine: false,
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Reschedule Date",
-                                          value: formatDateTimeAsDDMMMYYYY(
-                                            callLog.rescheduleDate,
-                                          ),
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Registration Date",
-                                          value: formatDateTimeAsDDMMMYYYY(
-                                            callLog.registrationDate,
-                                          ),
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Promise Amount",
-                                          value:
-                                              callLog.promiseAmount
-                                                  .toIndianCurrency(),
-                                        ),
-                                        buildRowTitleValue(
-                                          title: "Remark",
-                                          value: callLog.remark,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSearchBar() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: SearchWidget(
-              hintText: "Search by Applicant Name",
-              onSubmit: (value) {},
-              textController: _searchTextC,
-              isFilterOn: true,
-              filterCountNotifier: _filterCount,
-              onFilterTap: () {
-                _showBottomSheetToFilterCallLogs(context);
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   // CALL LOGS FILTER
   Future<void> _showBottomSheetToFilterCallLogs(BuildContext context) async {
     final state = _payTrackCubit.state;
 
-    _searchTextC.text = state.searchText;
     _filterApplicantNameC.text = state.filterByCallLogApplicantName;
     _filterApplicantMobileC.text = state.filterCallLogApplicantMobileNumber;
     _fromDateNotifier.value = state.filterCallLogFromDate;
@@ -569,7 +301,6 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
       ),
 
       onClear: () {
-        _searchTextC.clear();
         _filterApplicantNameC.clear();
         _filterApplicantMobileC.clear();
 
@@ -629,9 +360,303 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     );
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
-      _searchTextC.clear();
       _filterApplicantNameC.clear();
       _filterApplicantMobileC.clear();
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<PayTrackCubit, PayTrackState>(
+      listener: (context, state) {
+        _filterCount.value = _payTrackCubit.updateFilterCount(state);
+      },
+      child: BlocBuilder<PayTrackCubit, PayTrackState>(
+        builder: (context, state) {
+          if (state.isLoading ?? true) {
+            return Center(child: loader());
+          }
+
+          final bool isBookingCancelledOrRefund =
+              widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
+              widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSearchBar(),
+              Expanded(
+                child: BlocBuilder<PayTrackCubit, PayTrackState>(
+                  builder: (context, state) {
+                    if (state.isLoading == true &&
+                        state.payTrackCallLogList.isEmpty) {
+                      return Center(child: loader());
+                    }
+
+                    if (state.payTrackCallLogList.isEmpty) {
+                      return Center(
+                        child: noDataWidget(
+                          message: "No Call Log Found Found",
+                          iconSize: 180,
+                        ),
+                      );
+                    }
+                    return ListView.builder(
+                      controller: scrollController,
+                      itemCount: state.payTrackCallLogList.length + 1,
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 16.0,
+                      ),
+                      itemBuilder: (context, index) {
+                        if (index == state.payTrackCallLogList.length) {
+                          return state.payTrackCallLogList.length <
+                                  state.callLogsTotalNumberOfRecord
+                              ? Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        final callLog = state.payTrackCallLogList[index];
+                        final String status = callLog.callStatus.trim();
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          padding: EdgeInsets.all(12.0),
+                          decoration: commonCardDecoration(),
+                          child: Theme(
+                            data: Theme.of(
+                              context,
+                            ).copyWith(dividerColor: Colors.transparent),
+                            child: ExpansionTile(
+                              tilePadding: EdgeInsets.zero,
+                              childrenPadding: EdgeInsets.zero,
+                              expandedCrossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                              iconColor: AppColor.black,
+                              collapsedIconColor: AppColor.black,
+                              shape: const Border(),
+                              collapsedShape: const Border(),
+                              title: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      callLog.applicantName,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  horizontalSpacing(),
+                                  if (_payTrackCallLogsAuthorization.isAction &&
+                                      !isBookingCancelledOrRefund)
+                                    Expanded(
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          CustomIconButton.edit(
+                                            isDisabled:
+                                                callLog.callStatus.isNotEmpty,
+                                            onPressed: () {
+                                              goRouter.pushNamed(
+                                                AppRoutes.editPayTrackCallLog,
+                                                extra: {
+                                                  "projectId": widget.projectId,
+                                                  "bookingId": widget.bookingId,
+                                                  "callLog": callLog,
+                                                },
+                                              );
+                                            },
+                                          ),
+                                          horizontalSpacing(),
+                                          CustomIconButton.delete(
+                                            isDisabled:
+                                                callLog.callStatus.isNotEmpty,
+                                            onPressed: () {
+                                              _showPopupToDeletePayTrackCallLogs(
+                                                context,
+                                                callLog,
+                                                state.currentPage,
+                                                index,
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                    vertical: 16.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.lightGreyBackground,
+                                    borderRadius: BorderRadius.circular(6.0),
+                                    border: Border.all(
+                                      width: 0.3,
+                                      color: AppColor.black.withValues(
+                                        alpha: 0.3,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          if (status.isNotEmpty)
+                                            callLogStatusWidget(status),
+                                        ],
+                                      ),
+                                      verticalSpacing(),
+                                      buildRowTitleValue(
+                                        title: "Applicant Type",
+                                        value: callLog.applicantType,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Mobile Number",
+                                        value: callLog.applicantMobileNumber,
+                                        customValueWidget:
+                                            CustomClickToContactText(
+                                              value:
+                                                  callLog.applicantMobileNumber,
+                                              type: ContactType.phone,
+                                            ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Call Time",
+                                        value: formatDateTimeReadable(
+                                          callLog.callDate,
+                                        ),
+                                        singleLine: false,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Duration",
+                                        value: callLog.duration,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Call Purpose",
+                                        value: callLog.callPurpose,
+                                        singleLine: false,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Reschedule Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          callLog.rescheduleDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Registration Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          callLog.registrationDate,
+                                        ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Promise Amount",
+                                        value:
+                                            callLog.promiseAmount <= 0
+                                                ? "-"
+                                                : callLog.promiseAmount
+                                                    .toIndianCurrency(),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Remark",
+                                        value: callLog.remark,
+                                        singleLine: false,
+                                      ),
+                                      if (callLog.callStatus.isEmpty)
+                                        buildRowTitleValue(
+                                          title: "Status",
+                                          value: callLog.callStatus,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return BlocBuilder<PayTrackCubit, PayTrackState>(
+      builder: (context, state) {
+        final disableExport =
+            (state.payTrackCallLogList.isEmpty ? true : false) ||
+            !_payTrackCallLogsAuthorization.isExport;
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: SearchWidget(
+                  hintText: "Search by Applicant Name",
+                  onSubmit: (value) async {
+                    await _payTrackCubit.searchPayTrackCallLogs(
+                      context,
+                      widget.projectId,
+                      widget.bookingId,
+                      value,
+                    );
+                  },
+                  textController: _filterApplicantNameC,
+                  isFilterOn: true,
+                  filterCountNotifier: _filterCount,
+                  onFilterTap: () {
+                    _showBottomSheetToFilterCallLogs(context);
+                  },
+                ),
+              ),
+              horizontalSpacing(),
+              CustomExportButton(
+                onExport: (v) {
+                  if (disableExport) {
+                    showErrorMessage(context, "Error", "No Data Found");
+                    return;
+                  }
+                  _payTrackCubit.exportPayTrackCallLogsExcelPdf(
+                    context,
+                    v,
+                    projectId: widget.projectId,
+                    bookingId: widget.bookingId,
+                    fromDate: _fromDateNotifier.value,
+                    toDate: _toDateNotifier.value,
+                  );
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

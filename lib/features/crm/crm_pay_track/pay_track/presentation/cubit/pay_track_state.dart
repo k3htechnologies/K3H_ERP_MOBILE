@@ -38,6 +38,8 @@ class PayTrackState extends BaseState {
   final String filterCallLogApplicantMobileNumber;
   final DateTime? filterCallLogFromDate;
   final DateTime? filterCallLogToDate;
+  final int callLogsCurrentPage;
+  final int callLogsTotalNumberOfRecord;
 
   const PayTrackState({
     super.isLoading,
@@ -73,6 +75,8 @@ class PayTrackState extends BaseState {
     this.filterCallLogFromDate,
     this.filterCallLogToDate,
     this.bookingDataList,
+    required this.callLogsCurrentPage,
+    required this.callLogsTotalNumberOfRecord,
   });
 
   factory PayTrackState.initial() => PayTrackState(
@@ -82,8 +86,8 @@ class PayTrackState extends BaseState {
     currentPage: 1,
     totalNumberOfRecord: 0,
     searchText: "",
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
     isLoading: true,
     payTrackOverview: null,
     payTrackBookingFilesOverview: null,
@@ -109,6 +113,8 @@ class PayTrackState extends BaseState {
     filterCallLogFromDate: null,
     filterCallLogToDate: null,
     bookingDataList: [],
+    callLogsCurrentPage: 1,
+    callLogsTotalNumberOfRecord: 0,
   );
   static const _noChange = Object();
   PayTrackState copyWith({
@@ -147,6 +153,8 @@ class PayTrackState extends BaseState {
     Object? filterCallLogFromDate = _noChange,
     Object? filterCallLogToDate = _noChange,
     List<BookingModel>? bookingDataList,
+    int? callLogsCurrentPage,
+    int? callLogsTotalNumberOfRecord,
   }) {
     return PayTrackState(
       isLoading: isLoading ?? this.isLoading,
@@ -209,6 +217,9 @@ class PayTrackState extends BaseState {
               ? this.filterCallLogToDate
               : filterCallLogToDate as DateTime?,
       bookingDataList: bookingDataList ?? this.bookingDataList,
+      callLogsCurrentPage: callLogsCurrentPage ?? this.callLogsCurrentPage,
+      callLogsTotalNumberOfRecord:
+          callLogsTotalNumberOfRecord ?? this.callLogsTotalNumberOfRecord,
     );
   }
 
@@ -248,5 +259,7 @@ class PayTrackState extends BaseState {
     filterCallLogFromDate,
     filterCallLogToDate,
     bookingDataList,
+    callLogsCurrentPage,
+    callLogsTotalNumberOfRecord,
   ];
 }

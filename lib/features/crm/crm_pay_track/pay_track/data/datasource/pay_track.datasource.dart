@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class PayTrackDatasource {
   Future<Map<String, dynamic>> apiCallPullPayTrack({
@@ -45,6 +46,11 @@ abstract interface class PayTrackDatasource {
   });
   Future<Map<String, dynamic>> apiCallToUpdatePayTrackCallLog({
     required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apiCallPullPayTrackCallLogsForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -342,6 +348,40 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apiCallToUpdatePayTrackCallLog(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullPayTrackCallLogsForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullAopAchievementReportUrl({Map<String, dynamic>? queryParams}) {
+      String url =
+          "PayTrackCallLog/PullPayTrackCallLog?pageNumber=$pageNumber&pageSize=$pageSize";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullAopAchievementReportUrl(queryParams: queryParams),
+      );
+
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'] ?? 0,
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullPayTrackCallLogsForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

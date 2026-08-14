@@ -3,6 +3,7 @@ part of 'crm_dashboard_cubit.dart';
 class CrmDashboardState extends BaseState {
   final List<CrmDashboardModel> crmDashboardList;
   final CrmDashboardModel? crmDashboardModel;
+
   final String selectedFilterType;
   const CrmDashboardState({
     super.isLoading,
@@ -14,6 +15,7 @@ class CrmDashboardState extends BaseState {
   factory CrmDashboardState.initial() => CrmDashboardState(
     isLoading: true,
     crmDashboardList: [],
+    crmDashboardModel: null,
     selectedFilterType: "",
   );
   CrmDashboardState copyWith({
@@ -26,7 +28,7 @@ class CrmDashboardState extends BaseState {
       isLoading: isLoading ?? this.isLoading,
       crmDashboardList: crmDashboardList ?? this.crmDashboardList,
       selectedFilterType: selectedFilterType ?? this.selectedFilterType,
-      crmDashboardModel: crmDashboardModel,
+      crmDashboardModel: crmDashboardModel ?? this.crmDashboardModel,
     );
   }
 
