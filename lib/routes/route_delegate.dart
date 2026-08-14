@@ -7431,57 +7431,44 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-      ],
-    ),
-    // TAX TRACKER
-    ShellRoute(
-      builder: (context, state, child) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => TaxTrackerCubit()),
-            BlocProvider(create: (_) => EmployeeMasterCubit()),
-            BlocProvider(create: (_) => CompanyMasterCubit()),
+        // TAX TRACKER
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => TaxTrackerCubit()),
+                BlocProvider(create: (_) => EmployeeMasterCubit()),
+                BlocProvider(create: (_) => CompanyMasterCubit()),
+              ],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.taxTracker,
+              path: AppRoutes.taxTracker,
+              builder: (context, state) {
+                // return const TaxTrackerScreen();
+                return ComingSoonScreen(title: 'Tax Tracker');
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addTaxTracker,
+              path: AppRoutes.addTaxTracker,
+              builder: (context, state) {
+                return const AddTaxTrackerScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewTaxTracker,
+              path: AppRoutes.viewTaxTracker,
+              builder: (context, state) {
+                return const ViewTaxTrackerScreen();
+              },
+            ),
           ],
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          name: AppRoutes.taxTracker,
-          path: AppRoutes.taxTracker,
-          builder: (context, state) {
-            return const TaxTrackerScreen();
-          },
         ),
-        GoRoute(
-          name: AppRoutes.addTaxTracker,
-          path: AppRoutes.addTaxTracker,
-          builder: (context, state) {
-            return const AddTaxTrackerScreen();
-          },
-        ),
-      ],
-    ),
-    // TAX TRACKER
-    ShellRoute(
-      builder: (context, state, child) {
-        return MultiBlocProvider(
-          providers: [
-            BlocProvider(create: (_) => TaxTrackerCubit()),
-            BlocProvider(create: (_) => EmployeeMasterCubit()),
-            BlocProvider(create: (_) => CompanyMasterCubit()),
-          ],
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          name: AppRoutes.viewTaxTracker,
-          path: AppRoutes.viewTaxTracker,
-          builder: (context, state) {
-            return const ViewTaxTrackerScreen();
-          },
-        ),
+        // TAX TRACKER
       ],
     ),
   ],
