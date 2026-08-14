@@ -373,10 +373,6 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
       },
       child: BlocBuilder<PayTrackCubit, PayTrackState>(
         builder: (context, state) {
-          if (state.isLoading ?? true) {
-            return Center(child: loader());
-          }
-
           final bool isBookingCancelledOrRefund =
               widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
               widget.bookingApprovalStatus?.toUpperCase() == "REFUND";

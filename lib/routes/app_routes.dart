@@ -499,7 +499,6 @@ class AppRoutes {
   // INWARD - OUTWARD
   static String inwardOutward = "/inwardOutward";
   static String inwardOutwardAcknowledgement = "/inwardOutwardAcknowledgement";
-  // TODO:
   static String inwarOutwarAdministrativeAccess =
       "/inwarOutwarAdministrativeAccess";
   static String revertInwardOutward = "/revertInwardOutward";
