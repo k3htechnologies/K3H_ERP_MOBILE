@@ -13,6 +13,15 @@ class CrmDashboardCubit extends Cubit<CrmDashboardState> {
 
   final CrmDashboardRepository _crmDashboardRepository =
       serviceLocator<CrmDashboardRepository>();
+  Future<void> clearCrmDashboardData() async {
+    emit(
+      state.copyWith(
+        isLoading: false,
+        crmDashboardList: [],
+        crmDashboardModel: null,
+      ),
+    );
+  }
 
   Future getCrmDashboardList(
     BuildContext context, {

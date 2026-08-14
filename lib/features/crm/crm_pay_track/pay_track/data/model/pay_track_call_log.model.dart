@@ -13,8 +13,8 @@ class PayTrackCallLogModel {
   String callStatus;
   String callPurpose;
   String remark;
-  DateTime rescheduleDate;
-  DateTime registrationDate;
+  DateTime? rescheduleDate;
+  DateTime? registrationDate;
   double promiseAmount;
   int createdById;
   String createdBy;
@@ -70,11 +70,11 @@ class PayTrackCallLogModel {
         rescheduleDate:
             json["RescheduleDate"] != null
                 ? DateTime.parse(json["RescheduleDate"])
-                : DateTime.now(),
+                : null,
         registrationDate:
             json["RegistrationDate"] != null
                 ? DateTime.parse(json["RegistrationDate"])
-                : DateTime.now(),
+                : null,
         promiseAmount: parseValue<double>(json, "PromiseAmount"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
@@ -103,8 +103,8 @@ class PayTrackCallLogModel {
     "CallStatus": callStatus,
     "CallPurpose": callPurpose,
     "Remark": remark,
-    "RescheduleDate": rescheduleDate.toIso8601String(),
-    "RegistrationDate": registrationDate.toIso8601String(),
+    "RescheduleDate": rescheduleDate?.toIso8601String(),
+    "RegistrationDate": registrationDate?.toIso8601String(),
     "PromiseAmount": promiseAmount,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

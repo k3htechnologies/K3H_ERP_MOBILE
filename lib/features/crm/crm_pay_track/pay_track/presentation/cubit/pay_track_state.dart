@@ -9,6 +9,7 @@ class PayTrackState extends BaseState {
   final List<PayTrackModel> payTrackList;
   final PayTrackModel? payTrackModel;
   final List<PayTrackCallLogModel> payTrackCallLogList;
+  final PayTrackCallLogModel? payTrackCallLog;
   final int currentPage;
   final int totalNumberOfRecord;
   final String searchText;
@@ -37,12 +38,15 @@ class PayTrackState extends BaseState {
   final String filterCallLogApplicantMobileNumber;
   final DateTime? filterCallLogFromDate;
   final DateTime? filterCallLogToDate;
+  final int callLogsCurrentPage;
+  final int callLogsTotalNumberOfRecord;
 
   const PayTrackState({
     super.isLoading,
     required this.payTrackList,
     required this.payTrackModel,
     required this.payTrackCallLogList,
+    required this.payTrackCallLog,
     required this.currentPage,
     required this.totalNumberOfRecord,
     required this.searchText,
@@ -71,16 +75,19 @@ class PayTrackState extends BaseState {
     this.filterCallLogFromDate,
     this.filterCallLogToDate,
     this.bookingDataList,
+    required this.callLogsCurrentPage,
+    required this.callLogsTotalNumberOfRecord,
   });
 
   factory PayTrackState.initial() => PayTrackState(
     payTrackList: [],
     payTrackCallLogList: [],
+    payTrackCallLog: null,
     currentPage: 1,
     totalNumberOfRecord: 0,
     searchText: "",
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
     isLoading: true,
     payTrackOverview: null,
     payTrackBookingFilesOverview: null,
@@ -106,6 +113,8 @@ class PayTrackState extends BaseState {
     filterCallLogFromDate: null,
     filterCallLogToDate: null,
     bookingDataList: [],
+    callLogsCurrentPage: 1,
+    callLogsTotalNumberOfRecord: 0,
   );
   static const _noChange = Object();
   PayTrackState copyWith({
@@ -114,6 +123,7 @@ class PayTrackState extends BaseState {
     List<PayTrackModel>? payTrackList,
     PayTrackModel? payTrackModel,
     List<PayTrackCallLogModel>? payTrackCallLogList,
+    PayTrackCallLogModel? payTrackCallLog,
     int? currentPage,
     int? totalNumberOfRecord,
     String? searchText,
@@ -143,12 +153,15 @@ class PayTrackState extends BaseState {
     Object? filterCallLogFromDate = _noChange,
     Object? filterCallLogToDate = _noChange,
     List<BookingModel>? bookingDataList,
+    int? callLogsCurrentPage,
+    int? callLogsTotalNumberOfRecord,
   }) {
     return PayTrackState(
       isLoading: isLoading ?? this.isLoading,
       payTrackList: payTrackList ?? this.payTrackList,
       payTrackModel: payTrackModel ?? this.payTrackModel,
       payTrackCallLogList: payTrackCallLogList ?? this.payTrackCallLogList,
+      payTrackCallLog: payTrackCallLog ?? this.payTrackCallLog,
       currentPage: currentPage ?? this.currentPage,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
@@ -204,6 +217,9 @@ class PayTrackState extends BaseState {
               ? this.filterCallLogToDate
               : filterCallLogToDate as DateTime?,
       bookingDataList: bookingDataList ?? this.bookingDataList,
+      callLogsCurrentPage: callLogsCurrentPage ?? this.callLogsCurrentPage,
+      callLogsTotalNumberOfRecord:
+          callLogsTotalNumberOfRecord ?? this.callLogsTotalNumberOfRecord,
     );
   }
 
@@ -213,6 +229,7 @@ class PayTrackState extends BaseState {
     payTrackList,
     payTrackModel,
     payTrackCallLogList,
+    payTrackCallLog,
     currentPage,
     totalNumberOfRecord,
     searchText,
@@ -242,5 +259,7 @@ class PayTrackState extends BaseState {
     filterCallLogFromDate,
     filterCallLogToDate,
     bookingDataList,
+    callLogsCurrentPage,
+    callLogsTotalNumberOfRecord,
   ];
 }

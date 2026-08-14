@@ -24,6 +24,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class PayTrackViewScreen extends StatefulWidget {
@@ -259,6 +260,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       CallLogsScreen(
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                   ],
                 ),
@@ -1933,7 +1935,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // LEFT TIMELINE
                               Column(
                                 children: [
                                   Container(
@@ -1959,8 +1960,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                               ),
 
                               const SizedBox(width: 16),
-
-                              // RIGHT CONTENT
                               Expanded(
                                 child: Padding(
                                   padding: const EdgeInsets.only(bottom: 24),
@@ -1968,7 +1967,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      // DATE + STATUS
                                       Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -1981,80 +1979,53 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                               style: AppTextStyle.ts16SB(),
                                             ),
                                           ),
-
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 6,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getStatusBgColor(
-                                                callLog.callStatus,
-                                              ),
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                            child: Text(
-                                              callLog.callStatus.toUpperCase(),
-                                              style: AppTextStyle.ts12M(
-                                                color: _getStatusTextColor(
-                                                  callLog.callStatus,
-                                                ),
-                                              ),
-                                            ),
+                                          callLogStatusWidget(
+                                            callLog.callStatus,
                                           ),
                                         ],
                                       ),
-
-                                      const SizedBox(height: 8),
-
-                                      // CREATED BY
+                                      verticalSpacing(height: 8),
                                       Text(
                                         callLog.createdBy,
                                         style: AppTextStyle.ts14R(
                                           color: AppColor.grey,
                                         ),
                                       ),
-
-                                      const SizedBox(height: 10),
-
-                                      // PURPOSE
-                                      RichText(
-                                        text: TextSpan(
-                                          text: "Purpose: ",
+                                      if (callLog.callPurpose.isNotEmpty) ...[
+                                        verticalSpacing(),
+                                        RichText(
+                                          text: TextSpan(
+                                            text: "Purpose: ",
+                                            style: AppTextStyle.ts14SB(
+                                              color: AppColor.black,
+                                            ),
+                                            children: [
+                                              TextSpan(
+                                                text: callLog.callPurpose,
+                                                style: AppTextStyle.ts14SB(
+                                                  color: AppColor.grey,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                      if (callLog.promiseAmount > 0) ...[
+                                        verticalSpacing(),
+                                        Text(
+                                          "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
                                           style: AppTextStyle.ts14SB(
+                                            color: Colors.green,
+                                          ),
+                                        ),
+                                        verticalSpacing(),
+                                        Text(
+                                          callLog.remark,
+                                          style: AppTextStyle.ts14R(
                                             color: AppColor.black,
                                           ),
-                                          children: [
-                                            TextSpan(
-                                              text: callLog.callPurpose,
-                                              style: AppTextStyle.ts14SB(
-                                                color: AppColor.grey,
-                                              ),
-                                            ),
-                                          ],
                                         ),
-                                      ),
-
-                                      const SizedBox(height: 6),
-
-                                      // PROMISE AMOUNT
-                                      Text(
-                                        "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
-                                        style: AppTextStyle.ts14SB(
-                                          color: Colors.green,
-                                        ),
-                                      ),
-
-                                      const SizedBox(height: 10),
-
-                                      // REMARK
-                                      Text(
-                                        callLog.remark,
-                                        style: AppTextStyle.ts14R(
-                                          color: AppColor.black,
-                                        ),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 ),
@@ -2070,50 +2041,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         ],
       ),
     );
-  }
-
-  Color _getStatusBgColor(String status) {
-    switch (status.toLowerCase()) {
-      case "open":
-        return Colors.green.withValues(alpha: .12);
-
-      case "assigned":
-        return Colors.blue.withValues(alpha: .12);
-
-      case "in progress":
-        return Colors.orange.withValues(alpha: .12);
-
-      case "resolved":
-        return Colors.amber.withValues(alpha: .18);
-
-      case "pending":
-        return Colors.grey.withValues(alpha: .15);
-
-      default:
-        return Colors.grey.withValues(alpha: .12);
-    }
-  }
-
-  Color _getStatusTextColor(String status) {
-    switch (status.toLowerCase()) {
-      case "open":
-        return AppColor.green;
-
-      case "assigned":
-        return AppColor.primary;
-
-      case "in progress":
-        return AppColor.orange;
-
-      case "resolved":
-        return Colors.brown;
-
-      case "pending":
-        return AppColor.black;
-
-      default:
-        return AppColor.black;
-    }
   }
 
   // BUILD APPLICANT TYPE WIDGET

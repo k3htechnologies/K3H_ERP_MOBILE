@@ -1,21 +1,19 @@
-// ignore_for_file: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/dashboard/data/model/crm_dashboard.model.dart';
 import 'package:k3h_erp_app/features/crm/dashboard/presentation/cubit/crm_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/sales_filter_widget.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
-import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CrmDashboardScreen extends StatefulWidget {
@@ -25,272 +23,189 @@ class CrmDashboardScreen extends StatefulWidget {
   State<CrmDashboardScreen> createState() => _CrmDashboardScreenState();
 }
 
-class _CrmDashboardScreenState extends State<CrmDashboardScreen>
-    with TickerProviderStateMixin {
+class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
   late CrmDashboardCubit _crmDashboardCubit;
-  // TAB CONTROLLERS
-  late TabController _tabController;
+
+  final ValueNotifier<String> _selectedFilterType = ValueNotifier("Monthly");
+
+  final ValueNotifier<DateTime?> _fromDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
+
+  final ValueNotifier<DateTime?> _toDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
 
   late ProjectModel _selectedProject;
-
-  DateTime? fromDate;
-  DateTime? toDate;
-
-  final ValueNotifier<DateTime?> fromDateNotifier = ValueNotifier(null);
-  final ValueNotifier<DateTime?> toDateNotifier = ValueNotifier(null);
-
+  String selectedSummaryType = "Agreement";
   @override
   void initState() {
     super.initState();
-    _selectedProject = getProject();
+
     _crmDashboardCubit = context.read<CrmDashboardCubit>();
-    _crmDashboardCubit.getCrmDashboardList(
-      context,
-      filterType: "TODAY",
-      projectId: _selectedProject.projectId,
-    );
-    _tabController = TabController(length: 5, vsync: this);
-    _tabController.addListener(_handleTabChange);
+    _selectedProject = getProject();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      getCurrentUser();
+      await _loadDashboard();
+    });
   }
 
-  // HANDLE TAB CHANGE
-  void _handleTabChange() {
-    if (_tabController.indexIsChanging) return;
-
-    String filterType = "TODAY";
-
-    switch (_tabController.index) {
-      case 0:
-        filterType = "TODAY";
-        break;
-      case 1:
-        filterType = "WEEKLY";
-        break;
-      case 2:
-        filterType = "MONTHLY";
-        break;
-      case 3:
-        filterType = "DATEWISE";
-        break;
-      case 4:
-        filterType = "OVERALL";
-        break;
-    }
-
-    // User switched away from Datewise
-    if (filterType != "DATEWISE") {
-      fromDateNotifier.value = null;
-      toDateNotifier.value = null;
-    }
-
-    if (filterType == "DATEWISE") {
-      fromDateNotifier.value = null;
-      toDateNotifier.value = null;
-
-      _crmDashboardCubit.emit(
-        _crmDashboardCubit.state.copyWith(
-          selectedFilterType: "DATEWISE",
-          crmDashboardList: [],
-          crmDashboardModel: null,
-        ),
-      );
-      return;
-    }
-    _crmDashboardCubit.getCrmDashboardList(
+  Future<void> _loadDashboard() async {
+    await _crmDashboardCubit.getCrmDashboardList(
       context,
-      filterType: filterType,
       projectId: _selectedProject.projectId,
+      filterType: _selectedFilterType.value,
+      fromDate: _fromDateNotifier.value.apiDate,
+      toDate: _toDateNotifier.value.apiDate,
     );
   }
 
-  String selectedSummaryType = "Agreement";
   @override
   void dispose() {
-    fromDateNotifier.dispose();
-    toDateNotifier.dispose();
-    _tabController.dispose();
+    _selectedFilterType.dispose();
+    _fromDateNotifier.dispose();
+    _toDateNotifier.dispose();
+
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CrmDashboardCubit, CrmDashboardState>(
-      builder: (context, state) {
-        if ((state.isLoading ?? false) && state.crmDashboardList.isEmpty) {
-          return Center(child: loader());
-        }
+    return RefreshIndicator(
+      onRefresh: _loadDashboard,
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "CRM Dashboard",
+          isMenuButton: true,
+          authorization: AuthorizationModel(),
+          showNotification: true,
+        ),
+        body: BlocBuilder<CrmDashboardCubit, CrmDashboardState>(
+          builder: (context, state) {
+            if (state.isLoading ?? false) {
+              return Center(child: loader());
+            }
+            final userData = state.crmDashboardModel;
+            final table0 =
+                (userData != null && userData.table0.isNotEmpty)
+                    ? userData.table0.first
+                    : null;
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /// DATE FILTER
+                  ValueListenableBuilder<String>(
+                    valueListenable: _selectedFilterType,
+                    builder: (context, selectedTab, child) {
+                      return SalesFilterWidget(
+                        selectedTab: selectedTab,
+                        initialFromDate: _fromDateNotifier.value,
+                        initialToDate: _toDateNotifier.value,
 
-        final userData = state.crmDashboardModel;
-        final table0 =
-            (userData != null && userData.table0.isNotEmpty)
-                ? userData.table0.first
-                : null;
+                        onTap: (tab) async {
+                          _selectedFilterType.value = tab;
 
-        return Scaffold(
-          appBar: CustomAppBarWithBackButton(
-            screenTitle: "Crm Dashbaord",
-            authorization: AuthorizationModel(),
-            isMenuButton: true,
-            onProjectChangeCallback: (value) {
-              _selectedProject = value;
-              _crmDashboardCubit.getCrmDashboardList(
-                context,
-                filterType: state.selectedFilterType,
-                projectId: _selectedProject.projectId,
-              );
-            },
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ChipStyleTabBar(
-                style: ChipTabBarStyle.underline,
-                controller: _tabController,
-                tabs: ["Today", "Weekly", "Monthly", "Datewise", "Overall"],
-              ),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (state.selectedFilterType == "DATEWISE") ...[
-                        verticalSpacing(),
-                        ValueListenableBuilder<DateTime?>(
-                          valueListenable: fromDateNotifier,
-                          builder: (context, fromDate, _) {
-                            return ValueListenableBuilder<DateTime?>(
-                              valueListenable: toDateNotifier,
-                              builder: (context, toDate, _) {
-                                return Row(
-                                  children: [
-                                    Expanded(
-                                      child: CustomDatePicker(
-                                        hint: "Select From Date",
-                                        title: "From Date",
-                                        initialDate: fromDate,
-                                        setValue: (value) {
-                                          fromDateNotifier.value = value;
-                                          toDateNotifier.value = null;
-                                        },
-                                      ),
-                                    ),
-                                    horizontalSpacing(),
-                                    Expanded(
-                                      child: CustomDatePicker(
-                                        hint: "Select To Date",
-                                        title: "To Date",
-                                        initialDate: toDate,
-                                        startDate: fromDate,
-                                        setValue: (value) async {
-                                          toDateNotifier.value = value;
+                          _fromDateNotifier.value = null;
+                          _toDateNotifier.value = null;
 
-                                          if (fromDateNotifier.value != null &&
-                                              toDateNotifier.value != null) {
-                                            await _crmDashboardCubit
-                                                .getCrmDashboardList(
-                                                  context,
-                                                  filterType: "DATEWISE",
-                                                  projectId:
-                                                      _selectedProject
-                                                          .projectId,
-                                                  fromDate:
-                                                      formatDateTimeForApi(
-                                                        fromDateNotifier.value!,
-                                                      ),
-                                                  toDate: formatDateTimeForApi(
-                                                    toDateNotifier.value!,
-                                                  ),
-                                                );
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
+                          await _crmDashboardCubit.clearCrmDashboardData();
+
+                          if (tab.toLowerCase() != "datewise") {
+                            _loadDashboard();
+                          }
+                        },
+
+                        onDateChanged: (fromDate, toDate) {
+                          _fromDateNotifier.value = fromDate;
+                          _toDateNotifier.value = toDate;
+
+                          if (fromDate != null && toDate != null) {
+                            _loadDashboard();
+                          }
+                        },
+                      );
+                    },
+                  ),
+
+                  verticalSpacing(height: 16.h),
+
+                  if (state.crmDashboardList.isNotEmpty &&
+                      state.crmDashboardList.first.table0.isNotEmpty) ...{
+                    GridView.count(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      childAspectRatio: 1.4,
+                      mainAxisExtent: 130,
+                      children: [
+                        _totalValue(
+                          context,
+                          state,
+                          "Total Agreement Value",
+                          formatIndianAmount(table0?.totalAgreementAmount ?? 0),
                         ),
-                      ],
-                      if (state.crmDashboardList.isNotEmpty &&
-                          state.crmDashboardList.first.table0.isNotEmpty) ...{
-                        GridView.count(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 10,
-                          mainAxisSpacing: 10,
-                          childAspectRatio: 1.4,
-                          mainAxisExtent: 130,
-                          children: [
-                            _totalValue(
-                              context,
-                              state,
-                              "Total Agreement Value",
-                              formatIndianAmount(
-                                table0?.totalAgreementAmount ?? 0,
-                              ),
-                            ),
-                            _totalValue(
-                              context,
-                              state,
-                              "Total Received Amount",
-                              formatIndianAmount(
-                                table0?.totalReceivedAgreementAmount ?? 0,
-                                showCurrency: true,
-                              ),
-                            ),
-                            _totalValue(
-                              context,
-                              state,
-                              "Total Outstanding",
-                              formatIndianAmount(
-                                table0?.totalOutstandingAgreementValue ?? 0,
-                                showCurrency: true,
-                              ),
-                            ),
-                            _totalValue(
-                              context,
-                              state,
-                              "Total Booking",
-                              formatIndianAmount(
-                                table0?.totalBooking ?? 0,
-                                showCurrency: true,
-                              ),
-                            ),
-                          ],
-                        ),
-                      } else ...{
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.55,
-                          child: Center(
-                            child: noDataWidget(
-                              message: "No Data Found",
-                              iconSize: 160.0,
-                            ),
+                        _totalValue(
+                          context,
+                          state,
+                          "Total Received Amount",
+                          formatIndianAmount(
+                            table0?.totalReceivedAgreementAmount ?? 0,
+                            showCurrency: true,
                           ),
                         ),
-                      },
-                      if (state.crmDashboardList.isNotEmpty &&
-                          state.crmDashboardList.first.table0.isNotEmpty) ...[
-                        verticalSpacing(height: 16.0),
-                        _collectionSummaryWidget(context, state),
-                        _bookingSummaryWidget(context, state),
-                        _recentBookingSummaryWidget(context, state),
-                        _brokerageSummaryWidget(context, state),
-                        _accountSummaryWidget(context, state),
-                        _modifiedRequestsWidget(context, state),
-                        _recentTransactionWidget(context, state),
+                        _totalValue(
+                          context,
+                          state,
+                          "Total Outstanding",
+                          formatIndianAmount(
+                            table0?.totalOutstandingAgreementValue ?? 0,
+                            showCurrency: true,
+                          ),
+                        ),
+                        _totalValue(
+                          context,
+                          state,
+                          "Total Booking",
+                          formatIndianAmount(
+                            table0?.totalBooking ?? 0,
+                            showCurrency: true,
+                          ),
+                        ),
                       ],
-                    ],
-                  ),
-                ),
+                    ),
+                  } else ...{
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.55,
+                      child: Center(
+                        child: noDataWidget(
+                          message: "No Data Found",
+                          iconSize: 160.0,
+                        ),
+                      ),
+                    ),
+                  },
+                  if (state.crmDashboardList.isNotEmpty &&
+                      state.crmDashboardList.first.table0.isNotEmpty) ...[
+                    verticalSpacing(height: 16.0),
+                    _collectionSummaryWidget(context, state),
+                    _bookingSummaryWidget(context, state),
+                    _recentBookingSummaryWidget(context, state),
+                    _brokerageSummaryWidget(context, state),
+                    _accountSummaryWidget(context, state),
+                    _modifiedRequestsWidget(context, state),
+                    _recentTransactionWidget(context, state),
+                  ],
+                ],
               ),
-            ],
-          ),
-        );
-      },
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -1407,7 +1322,20 @@ class WeeklyCollectionChart extends StatelessWidget {
                                 ),
                               ),
                             )
-                            : const SizedBox(),
+                            : Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 4,
+                              ),
+                              child: Text(
+                                formatIndianAmount(value),
+                                textAlign: TextAlign.center,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyle.ts12SB(
+                                  color: AppColor.white,
+                                ),
+                              ),
+                            ),
                   ),
                 ),
               ),

@@ -71,9 +71,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       "IsCheckPermission": false,
     };
 
-    if (state.filterByApplicantName.isNotEmpty) {
-      queryParams["ApplicantName"] = state.filterByApplicantName;
-    } else if (state.searchText.isNotEmpty) {
+    if (state.searchText.isNotEmpty) {
       queryParams["ApplicantName"] = state.searchText;
     }
 
@@ -204,6 +202,21 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     await getPayTrackList(context, 1, projectId);
   }
 
+  Future searchPayTrackCallLogs(
+    BuildContext context,
+    int projectId,
+    int bookingId,
+    String value,
+  ) async {
+    emit(
+      state.copyWith(
+        filterByCallLogApplicantName: value,
+        payTrackCallLogList: [],
+      ),
+    );
+    await getPayTrackCallLog(context, 1, projectId, bookingId);
+  }
+
   Future applyPaytrackFilterAndSort({
     required BuildContext context,
     String? applicantName,
@@ -223,7 +236,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       emit(
         state.copyWith(
           searchText: "",
-          filterByApplicantName: "",
           filterByMobileNumber: "",
           isFinalRegistrationCompleted: null,
           filterByWing: "",
@@ -239,7 +251,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     } else {
       emit(
         state.copyWith(
-          filterByApplicantName: applicantName ?? state.filterByApplicantName,
+          searchText: applicantName ?? state.searchText,
           filterByMobileNumber: mobileNumber ?? state.filterByMobileNumber,
           isFinalRegistrationCompleted:
               isFinalRegistrationCompleted ??
@@ -402,7 +414,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     if (isClear ?? false) {
       emit(
         state.copyWith(
-          searchText: "",
           filterByCallLogApplicantName: "",
           filterCallLogApplicantMobileNumber: "",
           filterCallStatus: "",
@@ -431,7 +442,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
 
   int updatePayTrackFilterCount(PayTrackState state) {
     return getActiveFilterCount([
-      state.filterByApplicantName.trim().isNotEmpty,
+      state.searchText.trim().isNotEmpty,
       state.filterByMobileNumber.trim().isNotEmpty,
       state.filterByWing.trim().isNotEmpty,
       state.filterByWing.trim().isNotEmpty,
@@ -444,10 +455,9 @@ class PayTrackCubit extends Cubit<PayTrackState> {
 
   int updateFilterCount(PayTrackState state) {
     return getActiveFilterCount([
-      state.searchText.trim().isNotEmpty,
+      state.filterByCallLogApplicantName.trim().isNotEmpty,
       state.filterCallStatus.trim().isNotEmpty,
       state.filterCallPurpose.trim().isNotEmpty,
-      state.filterByCallLogApplicantName.trim().isNotEmpty,
       state.filterCallLogApplicantMobileNumber.trim().isNotEmpty,
       state.filterCallLogFromDate != null,
       state.filterCallLogToDate != null,
@@ -462,28 +472,12 @@ class PayTrackCubit extends Cubit<PayTrackState> {
   ) async {
     emit(state.copyWith(isLoading: true));
 
-    if (projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-      });
-
-      emit(state.copyWith(isLoading: false, payTrackCallLogList: []));
-      return;
-    }
-
-    if (bookingId == 0) {
-      emit(state.copyWith(isLoading: false, payTrackCallLogList: []));
-      return;
-    }
-
     final Map<String, dynamic> queryParams = {
       "BookingId": bookingId,
       "IsCheckPermission": false,
     };
 
-    if (state.filterByCallLogApplicantName.isNotEmpty) {
-      queryParams["ApplicantName"] = state.filterByCallLogApplicantName;
-    }
+    queryParams["ApplicantName"] = state.filterByCallLogApplicantName;
 
     if (state.filterCallLogApplicantMobileNumber.isNotEmpty) {
       queryParams["ApplicantMobileNumber"] =
@@ -524,11 +518,12 @@ class PayTrackCubit extends Cubit<PayTrackState> {
         },
         (response) {
           final logs = response['data'] as List<PayTrackCallLogModel>;
-
+          final List<PayTrackCallLogModel> updatedList =
+              pageNumber == 1 ? logs : [...state.payTrackCallLogList, ...logs];
           emit(
             state.copyWith(
-              payTrackCallLogList: logs,
-              totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
+              payTrackCallLogList: updatedList,
+              callLogsTotalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
               isLoading: false,
             ),
           );
@@ -540,6 +535,133 @@ class PayTrackCubit extends Cubit<PayTrackState> {
 
       emit(state.copyWith(isLoading: false));
     }
+  }
+
+  Future<void> updatePayTrackCallLogs(
+    BuildContext context, {
+    required int projectId,
+    required int bookingId,
+    required int payTrackCallLogId,
+    required String uniquekey,
+    required String callStatus,
+    required String remark,
+    required DateTime? rescheduleDate,
+    required DateTime? registrationDate,
+    required String callPurpose,
+    required double promisedAmount,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final body = {
+      "ProjectId": projectId,
+      "PayTrackCallLogId": payTrackCallLogId,
+      "Uniquekey": uniquekey,
+      "CallStatus": callStatus,
+      "Remark": remark,
+      "RescheduleDate": rescheduleDate?.toIso8601String(),
+      "RegistrationDate": registrationDate?.toIso8601String(),
+      "CallPurpose": callPurpose,
+      "PromiseAmount": promisedAmount,
+    };
+
+    final result = await _payTrackRepository.updatePayTrackCallLog(body: body);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        emit(state.copyWith(isLoading: false));
+
+        showSuccessMessage(context, subTitle: response["message"]);
+        goRouter.pop();
+        await getPayTrackCallLog(context, 1, projectId, bookingId);
+      },
+    );
+  }
+
+  Future deletePayTrackCallLogs(
+    int index,
+    int payTrackCallLogId,
+    String uniquekey,
+    int projectId,
+    int bookingId,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _payTrackRepository.deletePayTrackCallLogs(
+      payTrackCallLogId: payTrackCallLogId,
+      uniqueKey: uniquekey,
+      projectId: projectId,
+      bookingId: bookingId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (response) {
+        final updatedList = List<PayTrackCallLogModel>.from(
+          state.payTrackCallLogList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            payTrackCallLogList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
+  Future exportPayTrackCallLogsExcelPdf(
+    BuildContext context,
+    String exportType, {
+    int? projectId,
+    int? bookingId,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _payTrackRepository.getPayTrackCallLogsForExport(
+      pageNumber: 1,
+      pageSize: state.callLogsTotalNumberOfRecord,
+      queryParams: {
+        "ProjectId": projectId,
+        "BookingId": bookingId,
+        "Name": state.searchText,
+        "ExportType": exportType,
+        'FromDate': fromDate?.apiDate,
+        'ToDate': toDate?.apiDate,
+      },
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Call Log ${DateTime.now()}.pdf"
+              : "Call Log ${DateTime.now()}.xlsx",
+        );
+      },
+    );
   }
 
   Future updateRegistrationDateAndParking(

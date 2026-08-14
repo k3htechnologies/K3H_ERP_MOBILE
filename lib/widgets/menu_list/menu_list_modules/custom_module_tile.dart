@@ -77,8 +77,23 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
         width: 20,
         fit: BoxFit.contain,
         placeholderBuilder:
-            (context) =>
-                Container(height: 20, width: 20, color: Colors.grey[300]),
+            (context) => Container(
+              height: 20,
+              width: 20,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white,
+              ),
+              child: Image.asset(
+                finalPath,
+                height: 20,
+                width: 20,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) {
+                  return Icon(Icons.home, size: 20, color: AppColor.primary);
+                },
+              ),
+            ),
       );
     } else {
       return Image.asset(

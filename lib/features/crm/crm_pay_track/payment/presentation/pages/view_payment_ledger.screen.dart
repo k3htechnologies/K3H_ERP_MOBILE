@@ -212,6 +212,11 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                   title: "Payment Mode",
                                   value: summary.paymentMode,
                                 ),
+                                if (summary.chargeName.isNotEmpty)
+                                  buildRowTitleValue(
+                                    title: "Other Charges",
+                                    value: summary.chargeName,
+                                  ),
                                 summary.isBookingAmount == false
                                     ? SizedBox.shrink()
                                     : buildRowTitleValue(
