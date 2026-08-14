@@ -33,8 +33,10 @@ import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_sales_matrics_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/pages/edit_call_status.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/flat_handover_details.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/update_registration_date_parking.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_schedule_demand_letter_summary.dart';
@@ -7207,6 +7209,19 @@ final GoRouter goRouter = GoRouter(
                   filesModel: extra['file'] as PayTrackBookingFilesModel?,
                   index: extra['index'] as int? ?? 0,
                   isEdit: extra['isEdit'] as bool? ?? false,
+                );
+              },
+            ),
+            GoRoute(
+              path: AppRoutes.editPayTrackCallLog,
+              name: AppRoutes.editPayTrackCallLog,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return EditCallLogsScreen(
+                  projectId: extra["projectId"] as int,
+                  bookingId: extra["bookingId"] as int,
+                  callLog: extra["callLog"] as PayTrackCallLogModel,
                 );
               },
             ),

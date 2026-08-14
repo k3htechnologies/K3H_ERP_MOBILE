@@ -37,6 +37,15 @@ abstract interface class PayTrackDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Map<String, dynamic>> apicallDeleteDeletePayTrackCallLogs({
+    required int payTrackCallLogId,
+    required String uniqueKey,
+    required int projectId,
+    required int bookingId,
+  });
+  Future<Map<String, dynamic>> apiCallToUpdatePayTrackCallLog({
+    required Map<String, dynamic> body,
+  });
 }
 
 class PayTrackDatasourceImpl extends PayTrackDatasource {
@@ -263,6 +272,76 @@ class PayTrackDatasourceImpl extends PayTrackDatasource {
           body: body,
           fileList: fileList,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteDeletePayTrackCallLogs({
+    required int payTrackCallLogId,
+    required String uniqueKey,
+    required int projectId,
+    required int bookingId,
+  }) async {
+    String deletePayTrackCallLogsUrl({
+      required int payTrackCallLogId,
+      required int projectId,
+      required int bookingId,
+      required String uniqueKey,
+    }) {
+      return "PayTrackCallLog/DeletePayTrackCallLog?PayTrackCallLogId=$payTrackCallLogId"
+          "&ProjectId=$projectId&Uniquekey=$uniqueKey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deletePayTrackCallLogsUrl(
+          payTrackCallLogId: payTrackCallLogId,
+          bookingId: bookingId,
+          projectId: projectId,
+          uniqueKey: uniqueKey,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteDeletePayTrackCallLogs(
+          payTrackCallLogId: payTrackCallLogId,
+          projectId: projectId,
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallToUpdatePayTrackCallLog({
+    required Map<String, dynamic> body,
+  }) async {
+    String updateCallLogUrl = "PayTrackCallLog/UpdatePayTrackCallLog";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        updateCallLogUrl,
+        body,
+      );
+      return {
+        'data': List<PayTrackCallLogModel>.from(
+          networkResponse["data"].map((e) => PayTrackCallLogModel.fromJson(e)),
+        ),
+        'message': networkResponse["message"],
+        'totalNumberOfRecord': networkResponse["totalNumberOfRecord"],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallToUpdatePayTrackCallLog(body: body);
       }
       rethrow;
     }

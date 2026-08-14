@@ -259,6 +259,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                       CallLogsScreen(
                         projectId: widget.projectId,
                         bookingId: widget.bookingId,
+                        bookingApprovalStatus: widget.bookingApprovalStatus,
                       ),
                   ],
                 ),
@@ -1968,7 +1969,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      // DATE + STATUS
                                       Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
@@ -1981,7 +1981,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                               style: AppTextStyle.ts16SB(),
                                             ),
                                           ),
-
                                           Container(
                                             padding: const EdgeInsets.symmetric(
                                               horizontal: 14,
@@ -2005,20 +2004,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                           ),
                                         ],
                                       ),
-
-                                      const SizedBox(height: 8),
-
-                                      // CREATED BY
+                                      verticalSpacing(height: 8),
                                       Text(
                                         callLog.createdBy,
                                         style: AppTextStyle.ts14R(
                                           color: AppColor.grey,
                                         ),
                                       ),
-
-                                      const SizedBox(height: 10),
-
-                                      // PURPOSE
+                                      verticalSpacing(),
                                       RichText(
                                         text: TextSpan(
                                           text: "Purpose: ",
@@ -2036,19 +2029,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                                         ),
                                       ),
 
-                                      const SizedBox(height: 6),
-
-                                      // PROMISE AMOUNT
+                                      verticalSpacing(height: 6),
                                       Text(
                                         "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
                                         style: AppTextStyle.ts14SB(
                                           color: Colors.green,
                                         ),
                                       ),
-
-                                      const SizedBox(height: 10),
-
-                                      // REMARK
+                                      verticalSpacing(),
                                       Text(
                                         callLog.remark,
                                         style: AppTextStyle.ts14R(
@@ -2074,8 +2062,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
   Color _getStatusBgColor(String status) {
     switch (status.toLowerCase()) {
-      case "open":
-        return Colors.green.withValues(alpha: .12);
+      case "connected":
+        return AppColor.green.withValues(alpha: .20);
 
       case "assigned":
         return Colors.blue.withValues(alpha: .12);
@@ -2088,6 +2076,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
       case "pending":
         return Colors.grey.withValues(alpha: .15);
+      case "no answer":
+        return AppColor.primary.withValues(alpha: .20);
 
       default:
         return Colors.grey.withValues(alpha: .12);
@@ -2096,7 +2086,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
   Color _getStatusTextColor(String status) {
     switch (status.toLowerCase()) {
-      case "open":
+      case "connected":
         return AppColor.green;
 
       case "assigned":
@@ -2110,6 +2100,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
       case "pending":
         return AppColor.black;
+      case "no answer":
+        return AppColor.primary;
 
       default:
         return AppColor.black;

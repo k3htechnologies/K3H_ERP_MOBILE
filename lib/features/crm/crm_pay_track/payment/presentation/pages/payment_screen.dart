@@ -228,6 +228,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                                     .isAction &&
                                 !isLocked;
                             final isDisabled = isLocked || !isApproved;
+
                             return CustomExpandableCard(
                               header: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,13 +259,6 @@ class _PaymentScreenState extends State<PaymentScreen>
                                                     "registration fees"
                                                 ? "-"
                                                 : "${paymentSchedules.paymentSchedulePercentage} %",
-                                      ),
-                                      buildRowTitleValue(
-                                        title: "Total Amount",
-                                        value:
-                                            paymentSchedules
-                                                .paymentScheduleAmount
-                                                .toIndianCurrency(),
                                       ),
                                     ],
                                   ),
@@ -448,11 +442,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                   builder: (_) {
                     double totalAmount = state.payTrackPaymentScheduleList.fold(
                       0.0,
-                      (sum, item) =>
-                          sum +
-                          item.paymentScheduleAmount +
-                          item.paymentScheduleGstAmount +
-                          item.paymentScheduleTdsAmount,
+                      (sum, item) => sum + item.paymentScheduleAmount,
                     );
 
                     double totalOutstandingAmount = state
@@ -461,21 +451,12 @@ class _PaymentScreenState extends State<PaymentScreen>
                           0.0,
                           (sum, item) =>
                               sum +
-                              ((item.paymentScheduleAmount +
-                                      item.paymentScheduleGstAmount +
-                                      item.paymentScheduleTdsAmount) -
-                                  (item.paymentScheduleReceivedAmount +
-                                      item.paymentScheduleReceivedGstAmount +
-                                      item.paymentScheduleReceivedTdsAmount)),
+                              (item.paymentScheduleAmount -
+                                  item.paymentScheduleReceivedAmount),
                         );
-
                     double grandTotal = state.payTrackPaymentScheduleList.fold(
                       0.0,
-                      (sum, item) =>
-                          sum +
-                          item.paymentScheduleReceivedAmount +
-                          item.paymentScheduleReceivedGstAmount +
-                          item.paymentScheduleReceivedTdsAmount,
+                      (sum, item) => sum + item.paymentScheduleReceivedAmount,
                     );
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.center,

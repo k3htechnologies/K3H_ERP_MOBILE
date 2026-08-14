@@ -1,7 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -9,6 +15,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -18,10 +25,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class CallLogsScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final String? bookingApprovalStatus;
   const CallLogsScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    this.bookingApprovalStatus,
   });
 
   @override
@@ -30,9 +39,14 @@ class CallLogsScreen extends StatefulWidget {
 
 class _CallLogsScreenState extends State<CallLogsScreen> {
   late PayTrackCubit _payTrackCubit;
+
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
   late TextEditingController _searchTextC,
       _filterApplicantNameC,
       _filterApplicantMobileC;
+  late AuthorizationModel _payTrackCallLogsAuthorization;
   final ValueNotifier<Map<String, dynamic>?> _selectedCallStatus =
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedCallPurpose =
@@ -48,7 +62,11 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   void initState() {
     super.initState();
     _payTrackCubit = context.read<PayTrackCubit>();
+    _payTrackCallLogsAuthorization =
+        Authorization.routeAuthorizationMap[AppRoutes.payTrackCallLog] ??
+        AuthorizationModel();
     initialiseControllers();
+    _onScroll();
     _payTrackCubit.getPayTrackCallLog(
       context,
       1,
@@ -63,6 +81,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     _filterApplicantNameC.dispose();
     _filterApplicantMobileC.dispose();
     _filterCount.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -70,6 +89,53 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     _searchTextC = TextEditingController();
     _filterApplicantNameC = TextEditingController();
     _filterApplicantMobileC = TextEditingController();
+  }
+
+  // PAGINATION
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !_payTrackCubit.state.isLoading! &&
+          _payTrackCubit.state.payTrackCallLogList.length <
+              _payTrackCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _payTrackCubit.getPayTrackCallLog(
+            context,
+            _payTrackCubit.state.currentPage + 1,
+            widget.projectId,
+            widget.bookingId,
+          );
+        });
+      }
+    });
+  }
+
+  Future<void> _showPopupToDeletePayTrackCallLogs(
+    BuildContext context,
+    PayTrackCallLogModel obj,
+    int page,
+    int index,
+  ) async {
+    final shouldDelete = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Call Log ?',
+      'Deleting this Call Log will permanently remove all associated data.',
+    );
+
+    if (shouldDelete && context.mounted) {
+      _payTrackCubit.deletePayTrackCallLogs(
+        index,
+        obj.payTrackCallLogId,
+        obj.uniquekey,
+        widget.projectId,
+        widget.bookingId,
+        context,
+      );
+    }
   }
 
   @override
@@ -97,12 +163,16 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                     ),
                   );
                 }
+                final bool isBookingCancelledOrRefund =
+                    widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
+                    widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
                 return SingleChildScrollView(
                   padding: EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ListView.builder(
+                        controller: scrollController,
                         itemCount: state.payTrackCallLogList.length,
                         shrinkWrap: true,
                         physics: NeverScrollableScrollPhysics(),
@@ -125,11 +195,63 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                                 collapsedIconColor: AppColor.black,
                                 shape: const Border(),
                                 collapsedShape: const Border(),
-                                title: Text(
-                                  callLog.applicantName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
+                                title: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        callLog.applicantName,
+                                        style: AppTextStyle.ts16M(
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
+                                    ),
+                                    horizontalSpacing(),
+                                    if (_payTrackCallLogsAuthorization
+                                            .isAction &&
+                                        !isBookingCancelledOrRefund)
+                                      Expanded(
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.end,
+                                          children: [
+                                            CustomIconButton.edit(
+                                              isDisabled:
+                                                  callLog.callStatus.isNotEmpty,
+                                              onPressed: () {
+                                                goRouter.pushNamed(
+                                                  AppRoutes.editPayTrackCallLog,
+                                                  extra: {
+                                                    "projectId":
+                                                        widget.projectId,
+                                                    "bookingId":
+                                                        widget.bookingId,
+                                                    "callLog": callLog,
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                            horizontalSpacing(),
+                                            CustomIconButton.delete(
+                                              isDisabled:
+                                                  callLog.callStatus.isNotEmpty,
+                                              onPressed: () {
+                                                _showPopupToDeletePayTrackCallLogs(
+                                                  context,
+                                                  callLog,
+                                                  state.currentPage,
+                                                  index,
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
                                 ),
                                 children: [
                                   Container(

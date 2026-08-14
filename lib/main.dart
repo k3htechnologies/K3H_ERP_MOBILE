@@ -1,3 +1,5 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
@@ -9,20 +11,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart'
     show FlutterQuillLocalizations;
-import 'package:geolocator/geolocator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/core/cubit/no_internet_connection_cubit.dart';
+import 'package:k3h_erp_app/core/cubit/no_internet_connection_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
 import 'package:k3h_erp_app/features/register/presentation/cubit/register_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/service/internet_connection_service.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
@@ -186,58 +188,58 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        // LOGIN CUBIT
-        BlocProvider(create: (context) => LoginCubit()),
-        BlocProvider(create: (context) => RegisterCubit()),
+        BlocProvider<InternetCubit>(create: (_) => InternetCubit()),
+        BlocProvider<LoginCubit>(create: (_) => LoginCubit()),
+        BlocProvider<RegisterCubit>(create: (_) => RegisterCubit()),
       ],
-      child: StreamBuilder<bool>(
-        stream: ConnectivityService.instance.connectionStream,
-        initialData: true,
-        builder: (context, snapshot) {
-          final hasInternet = snapshot.data ?? true;
-          if (!hasInternet) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              localizationsDelegates: const [
-                FlutterQuillLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              supportedLocales: const [Locale('en')],
-              home: const NoInternetScreen(),
-            );
-          }
-          return ScreenUtilInit(
-            designSize: const Size(375, 812),
-            minTextAdapt: true,
-            splitScreenMode: true,
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        minTextAdapt: true,
+        splitScreenMode: true,
+        builder: (context, child) {
+          return MaterialApp.router(
+            title: "K3H ERP",
+            debugShowCheckedModeBanner: false,
+
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: ThemeMode.light,
+
+            localizationsDelegates: const [
+              FlutterQuillLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+
+            supportedLocales: const [Locale('en')],
+
             builder: (context, child) {
-              return MaterialApp.router(
-                title: "K3H ERP",
-                debugShowCheckedModeBanner: false,
-                // THEME
-                theme: AppTheme.lightTheme,
-                darkTheme: AppTheme.darkTheme,
-                themeMode: ThemeMode.light,
-                // LOCALIZATION (required by flutter_quill's toolbar)
-                localizationsDelegates: const [
-                  FlutterQuillLocalizations.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate,
-                ],
-                supportedLocales: const [Locale('en')],
-                // ROUTING
-                routeInformationParser: goRouter.routeInformationParser,
-                routerDelegate: goRouter.routerDelegate,
-                routeInformationProvider: goRouter.routeInformationProvider,
+              return BlocBuilder<InternetCubit, InternetState>(
+                builder: (context, state) {
+                  if (state is InternetDisconnected) {
+                    return const NoInternetScreen();
+                  }
+
+                  if (state is InternetInitial) {
+                    return const Scaffold(
+                      body: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  return child ?? const SizedBox.shrink();
+                },
               );
             },
+
+            routeInformationParser: goRouter.routeInformationParser,
+            routerDelegate: goRouter.routerDelegate,
+            routeInformationProvider: goRouter.routeInformationProvider,
           );
         },
       ),

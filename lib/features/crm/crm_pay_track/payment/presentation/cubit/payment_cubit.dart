@@ -140,7 +140,7 @@ class PaymentCubit extends Cubit<PaymentState> {
         return;
       },
       (response) async {
-        goRouter.pop();
+        if (!context.mounted) return;
 
         showSuccessMessage(context, subTitle: response["message"]);
 

@@ -253,6 +253,7 @@ class AppRoutes {
   static String modifiedRequestsMakePayment = "/modifiedRequestsMakePayment";
   static String addFlatHandoverDocuments = "/addFlatHandoverDocuments";
   static String addFiles = "/addFiles";
+  static String editPayTrackCallLog = "/editPayTrackCallLog";
   static String crmDashbaord = "/crmDashboard";
 
   // TAB ACCESS ROUTES (PAY TRACK VIEW TABS)

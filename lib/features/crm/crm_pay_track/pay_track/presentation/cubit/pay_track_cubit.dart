@@ -542,6 +542,92 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     }
   }
 
+  Future<void> updatePayTrackCallLogs(
+    BuildContext context, {
+    required int projectId,
+    required int bookingId,
+    required int payTrackCallLogId,
+    required String uniquekey,
+    required String callStatus,
+    required String remark,
+    required DateTime? rescheduleDate,
+    required DateTime? registrationDate,
+    required String callPurpose,
+    required double promisedAmount,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    final body = {
+      "ProjectId": projectId,
+      "PayTrackCallLogId": payTrackCallLogId,
+      "Uniquekey": uniquekey,
+      "CallStatus": callStatus,
+      "Remark": remark,
+      "RescheduleDate": rescheduleDate?.toIso8601String(),
+      "RegistrationDate": registrationDate?.toIso8601String(),
+      "CallPurpose": callPurpose,
+      "PromiseAmount": promisedAmount,
+    };
+
+    final result = await _payTrackRepository.updatePayTrackCallLog(body: body);
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        emit(state.copyWith(isLoading: false));
+
+        showSuccessMessage(context, subTitle: response["message"]);
+        goRouter.pop();
+        await getPayTrackCallLog(context, 1, projectId, bookingId);
+      },
+    );
+  }
+
+  Future deletePayTrackCallLogs(
+    int index,
+    int payTrackCallLogId,
+    String uniquekey,
+    int projectId,
+    int bookingId,
+    BuildContext context,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _payTrackRepository.deletePayTrackCallLogs(
+      payTrackCallLogId: payTrackCallLogId,
+      uniqueKey: uniquekey,
+      projectId: projectId,
+      bookingId: bookingId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        return;
+      },
+      (response) {
+        final updatedList = List<PayTrackCallLogModel>.from(
+          state.payTrackCallLogList,
+        );
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            payTrackCallLogList: updatedList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
+  }
+
   Future updateRegistrationDateAndParking(
     BuildContext context, {
     required int projectId,

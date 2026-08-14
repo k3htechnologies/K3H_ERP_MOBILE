@@ -9,6 +9,7 @@ class PayTrackState extends BaseState {
   final List<PayTrackModel> payTrackList;
   final PayTrackModel? payTrackModel;
   final List<PayTrackCallLogModel> payTrackCallLogList;
+  final PayTrackCallLogModel? payTrackCallLog;
   final int currentPage;
   final int totalNumberOfRecord;
   final String searchText;
@@ -43,6 +44,7 @@ class PayTrackState extends BaseState {
     required this.payTrackList,
     required this.payTrackModel,
     required this.payTrackCallLogList,
+    required this.payTrackCallLog,
     required this.currentPage,
     required this.totalNumberOfRecord,
     required this.searchText,
@@ -76,6 +78,7 @@ class PayTrackState extends BaseState {
   factory PayTrackState.initial() => PayTrackState(
     payTrackList: [],
     payTrackCallLogList: [],
+    payTrackCallLog: null,
     currentPage: 1,
     totalNumberOfRecord: 0,
     searchText: "",
@@ -114,6 +117,7 @@ class PayTrackState extends BaseState {
     List<PayTrackModel>? payTrackList,
     PayTrackModel? payTrackModel,
     List<PayTrackCallLogModel>? payTrackCallLogList,
+    PayTrackCallLogModel? payTrackCallLog,
     int? currentPage,
     int? totalNumberOfRecord,
     String? searchText,
@@ -149,6 +153,7 @@ class PayTrackState extends BaseState {
       payTrackList: payTrackList ?? this.payTrackList,
       payTrackModel: payTrackModel ?? this.payTrackModel,
       payTrackCallLogList: payTrackCallLogList ?? this.payTrackCallLogList,
+      payTrackCallLog: payTrackCallLog ?? this.payTrackCallLog,
       currentPage: currentPage ?? this.currentPage,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
@@ -213,6 +218,7 @@ class PayTrackState extends BaseState {
     payTrackList,
     payTrackModel,
     payTrackCallLogList,
+    payTrackCallLog,
     currentPage,
     totalNumberOfRecord,
     searchText,
