@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
-import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -55,6 +54,7 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_inward_outward_screen.dart';
@@ -78,7 +78,6 @@ import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pa
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
@@ -2156,9 +2155,9 @@ final GoRouter goRouter = GoRouter(
                             : null;
                     final queryParameterBank =
                         state.uri.queryParameters['bank'];
-                    final BankDetailsModel? bankDetailsModel =
+                    final ProjectWithBankDetailsModel? bankDetailsModel =
                         queryParameterBank != null
-                            ? BankDetailsModel.fromJson(
+                            ? ProjectWithBankDetailsModel.fromJson(
                               jsonDecode(
                                 EncryptionManager.decryptData(
                                   Uri.decodeComponent(queryParameterBank),

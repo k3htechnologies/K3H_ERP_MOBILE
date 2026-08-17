@@ -53,7 +53,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
   // PROJECT MODEL
   late ProjectModel _project;
-  // FILTER
   final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
     null,
   );
@@ -541,11 +540,9 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                           return Center(child: loader());
                         }
                         if (state.brokerageList.isEmpty) {
-                          return Expanded(
-                            child: Center(
-                              child: noDataWidget(
-                                message: "No Brokerage Data Found",
-                              ),
+                          return Center(
+                            child: noDataWidget(
+                              message: "No Brokerage Data Found",
                             ),
                           );
                         }

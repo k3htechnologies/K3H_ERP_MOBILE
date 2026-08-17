@@ -1,6 +1,6 @@
-import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class ProjectModel {
@@ -87,7 +87,7 @@ class ProjectModel {
   String modifiedBy;
   DateTime? modifiedDate;
   List<CompanyModel>? companyData;
-  List<BankDetailsModel>? projectWithBankDetailsData;
+  List<ProjectWithBankDetailsModel>? projectWithBankDetailsData;
   List<UserModel>? employeeData;
   ProjectModel({
     required this.projectId,
@@ -314,7 +314,9 @@ class ProjectModel {
         json["ProjectWithBankDetailsData"] != null
             ? (json["ProjectWithBankDetailsData"] as List<dynamic>)
                 .map(
-                  (e) => BankDetailsModel.fromJson(e as Map<String, dynamic>),
+                  (e) => ProjectWithBankDetailsModel.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
                 )
                 .toList()
             : null,
