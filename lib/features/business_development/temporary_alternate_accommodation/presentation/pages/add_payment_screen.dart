@@ -3,12 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/temporary_alternate_accommodation.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
@@ -19,25 +21,19 @@ import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddPaymentScreen extends StatefulWidget {
-  final int buildingId;
-  final List<TemporaryAlternativeAccommodationDetailsModel> rentDetails;
   final TemporaryAlternativeAccommodationModel rentModel;
-
-  /// Total charge amount for this tenant (for remaining-amount validation).
-  final double? totalAmount;
+  final double totalAmount;
   final double? paidAmount;
 
-  /// When non-null, screen is in update mode (reference: employee AddEmployeeScreen).
   final PaymentLedgerModel? paymentLedger;
   final int? paymentLedgerIndex;
   const AddPaymentScreen({
     super.key,
-    required this.buildingId,
-    required this.rentDetails,
     required this.rentModel,
-    this.totalAmount,
+    required this.totalAmount,
     this.paidAmount,
     this.paymentLedger,
     this.paymentLedgerIndex,
@@ -47,39 +43,32 @@ class AddPaymentScreen extends StatefulWidget {
 }
 
 class _AddPaymentScreenState extends State<AddPaymentScreen> {
-  // CUBIT
   late TemporaryAlternateAccommodationCubit
   _temporaryAlternateAccommodationCubit;
   late ProjectModel _project;
-
-  /// Edit mode when opening for update (reference: employee _isEditMode).
   bool get _isEditMode => widget.paymentLedger != null;
-  // FORM KEY
   final GlobalKey<FormState> _formLedger = GlobalKey<FormState>();
-  // TEXT CONTROLLERS
   late TextEditingController _payAmountC,
       _transactionNumC,
       _accountNumberC,
+      _projectAccountNumberC,
       _ifscCodeC,
+      _projectIfscCodeC,
       _branchC,
-      _accountType,
-      _accountHolderNameC;
-  // DATE PICKER VAR
+      _projectAccountType,
+      _accountHolderNameC,
+      _projectNatureOfAccountC;
   DateTime? selectedDate;
-  // DROPDOWN VARIABLES
   final ValueNotifier<Map<String, dynamic>?> selectedPaymentMode =
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> selectedAmountType = ValueNotifier(
     null,
   );
-  final ValueNotifier<Map<String, dynamic>?> selectedPaymentType =
-      ValueNotifier(null);
-  // Bank selections as list (single item when selected) for CustomMultipleSelectPopup
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
       ValueNotifier([]);
   final ValueNotifier<List<Map<String, dynamic>>>
   _selectedProjectWiseBankNotifier = ValueNotifier([]);
-  // FILE PICKER MODELS
+
   MultiFilePickerModel transactionChequeDemandDraftUrl = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -90,29 +79,13 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-  // PAYMENT MODE LIST
-  List<Map<String, dynamic>> paymentModeList = [
-    {"zAttributesId": 1, "DisplayName": "Cheque"},
-    {"zAttributesId": 2, "DisplayName": "Demand Draft"},
-    {"zAttributesId": 3, "DisplayName": "IMPS"},
-    {"zAttributesId": 4, "DisplayName": "N/A"},
-    {"zAttributesId": 5, "DisplayName": "NEFT"},
-    {"zAttributesId": 6, "DisplayName": "RTGS"},
-    {"zAttributesId": 7, "DisplayName": "UPI"},
-  ];
-  // AMOUNT TYPE LIST
-  List<Map<String, dynamic>> amountTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Monthly"},
-    {"zAttributesId": 2, "DisplayName": "Quarterly"},
-    {"zAttributesId": 3, "DisplayName": "Yearly"},
-    {"zAttributesId": 4, "DisplayName": "One Time"},
-  ];
-  // PAYMENT TYPE LIST
-  List<Map<String, dynamic>> paymentTypeList = [
-    {"zAttributesId": 1, "DisplayName": "Advance"},
-    {"zAttributesId": 2, "DisplayName": "Regular"},
-    {"zAttributesId": 3, "DisplayName": "Late Fee"},
-    {"zAttributesId": 4, "DisplayName": "Penalty"},
+
+  final List<String> tabTitles = [
+    'Additional TAA',
+    'TAA',
+    'Hardship',
+    'Brokerage',
+    'Shifting',
   ];
   @override
   void initState() {
@@ -121,55 +94,63 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
         context.read<TemporaryAlternateAccommodationCubit>();
     _project = getProject();
     _initializeTextControllers();
-    if (_isEditMode && widget.paymentLedger != null) {
+    if (_isEditMode) {
       _prefillFromPaymentLedger(widget.paymentLedger!);
     }
   }
 
-  void _prefillFromPaymentLedger(PaymentLedgerModel p) {
+  void _prefillFromPaymentLedger(PaymentLedgerModel p) async {
     selectedDate = p.transactionChequeDemandDraftDate;
     _payAmountC.text = p.payAmount.toStringAsFixed(2);
     _transactionNumC.text = p.transactionChequeDemandDraftNumber;
     _accountNumberC.text = p.accountNumber;
     _ifscCodeC.text = p.ifscCode;
     _branchC.text = '';
-    _accountType.text = '';
+    _projectAccountType.text = '';
     _accountHolderNameC.text = p.projectBankAccountHolderName;
     selectedPaymentMode.value = paymentModeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.paymentMode,
       orElse: () => paymentModeList.first,
     );
-    selectedAmountType.value = amountTypeList.firstWhere(
+    selectedAmountType.value = tenantAmountTypeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.amountType,
-      orElse: () => amountTypeList.first,
+      orElse: () => tenantAmountTypeList.first,
     );
-    selectedPaymentType.value = paymentTypeList.firstWhere(
-      (e) => (e['DisplayName'] as String?) == p.paymentType,
-      orElse: () => paymentTypeList.first,
-    );
+
     _selectedBankNotifier.value = [
       {'zAttributesId': p.bankListMasterId, 'DisplayName': p.bankName},
     ];
-    _selectedProjectWiseBankNotifier.value = [
-      {
-        'zAttributesId': p.projectBankListMasterId,
-        'DisplayName': p.projectBankName,
-        'AccountHolderName': p.projectBankAccountHolderName,
-        'AccountNumber': p.accountNumber,
-        'IFSCCode': p.ifscCode,
-        'Branch': '',
-        'AcType': '',
-      },
-    ];
-    if (p.transactionChequeDemandDraftUrl.isNotEmpty) {
-      transactionChequeDemandDraftUrl.fileNameList = [
-        p.transactionChequeDemandDraftUrl,
-      ];
-    }
-    if (p.paymentReceiptUrl.isNotEmpty) {
-      paymentReceiptUrl.fileNameList = [p.paymentReceiptUrl];
-    }
-    setState(() {});
+    transactionChequeDemandDraftUrl.fileNameList =
+        p.transactionChequeDemandDraftUrl.isNotEmpty
+            ? p.transactionChequeDemandDraftUrl.split(',')
+            : [];
+
+    paymentReceiptUrl.fileNameList =
+        p.paymentReceiptUrl.isNotEmpty ? p.paymentReceiptUrl.split(',') : [];
+    _selectedProjectWiseBankNotifier.value =
+        await _temporaryAlternateAccommodationCubit.getProjectWithBankById(
+          projectWithBankDetailsId: p.projectBankListMasterId,
+        );
+
+    _accountHolderNameC.text =
+        (_selectedProjectWiseBankNotifier.value.first["AccountHolderName"] ??
+                "")
+            .toString();
+    _projectAccountNumberC.text =
+        (_selectedProjectWiseBankNotifier.value.first["AccountNumber"] ?? "")
+            .toString();
+    _projectIfscCodeC.text =
+        (_selectedProjectWiseBankNotifier.value.first["IFSCCode"] ?? "")
+            .toString();
+    _branchC.text =
+        (_selectedProjectWiseBankNotifier.value.first["Branch"] ?? "")
+            .toString();
+    _projectAccountType.text =
+        (_selectedProjectWiseBankNotifier.value.first["AcType"] ?? "")
+            .toString();
+    _projectNatureOfAccountC.text =
+        (_selectedProjectWiseBankNotifier.value.first["NatureOfAccount"] ?? "")
+            .toString();
   }
 
   @override
@@ -180,7 +161,10 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     _accountNumberC.dispose();
     _ifscCodeC.dispose();
     _branchC.dispose();
-    _accountType.dispose();
+    _projectAccountNumberC.dispose();
+    _projectIfscCodeC.dispose();
+    _projectAccountType.dispose();
+    _projectNatureOfAccountC.dispose();
     _accountHolderNameC.dispose();
   }
 
@@ -190,8 +174,11 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     _accountNumberC = TextEditingController();
     _ifscCodeC = TextEditingController();
     _branchC = TextEditingController();
-    _accountType = TextEditingController();
+    _projectAccountType = TextEditingController();
     _accountHolderNameC = TextEditingController();
+    _projectAccountNumberC = TextEditingController();
+    _projectIfscCodeC = TextEditingController();
+    _projectNatureOfAccountC = TextEditingController();
   }
 
   @override
@@ -201,281 +188,352 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
         screenTitle: _isEditMode ? "Update Payment" : "Add Payment",
         authorization: AuthorizationModel(),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-        child: Form(
-          key: _formLedger,
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  children: [
-                    CustomDropDownWidget(
-                      title: "Payment Mode",
-                      hintText: "Select Payment Mode",
-                      isRequired: true,
-                      dataList: paymentModeList,
-                      initialValue: selectedPaymentMode.value,
-                      onSelected: (value) {
-                        selectedPaymentMode.value = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Payment Mode for is required';
-                        }
-                        return null;
-                      },
-                      onValueClear: () => selectedPaymentMode.value = null,
-                    ),
-                    ValueListenableBuilder<List<Map<String, dynamic>>>(
-                      valueListenable: _selectedBankNotifier,
-                      builder: (context, selectedBankList, _) {
-                        return CustomMultipleSelectPopup(
-                          key: ValueKey(
-                            selectedBankList.isEmpty
-                                ? 'bank_empty'
-                                : selectedBankList.first['zAttributesId'],
-                          ),
-                          title: "Bank Name",
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          spacing: 12,
+          children: [
+            infoCard([
+              {"title": "Flat Number", "value": widget.rentModel.flatNumber},
+              {
+                "title": "Applicant Name",
+                "value": widget.rentModel.applicantName,
+              },
+              {"title": "Tenure", "value": widget.rentModel.tenure},
+              {
+                "title": "Charge Type",
+                "value":
+                    tabTitles[_temporaryAlternateAccommodationCubit
+                        .state
+                        .currentTabIndex],
+              },
+              {
+                "title": "Carpet Area (SqFt)",
+                "value":
+                    '${widget.rentModel.flatCarpetAreaSqFt.addCommas()} SqFt',
+              },
+              {"title": "Unit Type", "value": widget.rentModel.flatType},
+              {
+                "title": "Total Amount",
+                "value": widget.totalAmount.toIndianCurrency(),
+              },
+              {
+                "title": "Paid Total Amount",
+                "value":
+                    _isEditMode
+                        ? _temporaryAlternateAccommodationCubit
+                            .paidAmountForSummary
+                            ?.toIndianCurrency()
+                        : widget.paidAmount?.toIndianCurrency(),
+              },
+            ]),
+
+            Expanded(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formLedger,
+                  child: Column(
+                    spacing: 16,
+                    children: [
+                      _card('Payment Details (Payee)', [
+                        CustomTextField(
+                          title: "Account Holder Name",
+                          hint: "Enter Account Holder Name",
+                          textController: _accountHolderNameC,
                           isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedBankList,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedBankNotifier.value = value;
-                          },
-                          dataFetchCallBack:
-                              _temporaryAlternateAccommodationCubit.getBankList,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Bank Name is required';
+                            if (value == null || value.trim().isEmpty) {
+                              return "Account Holder Name is required.";
                             }
                             return null;
                           },
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder<List<Map<String, dynamic>>>(
-                      valueListenable: _selectedProjectWiseBankNotifier,
-                      builder: (context, selectedProjectWiseList, _) {
-                        return CustomMultipleSelectPopup(
-                          key: ValueKey(
-                            selectedProjectWiseList.isEmpty
-                                ? 'projectwise_empty'
-                                : selectedProjectWiseList
-                                    .first['zAttributesId'],
-                          ),
-                          title: "Project Wise Bank",
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedProjectWiseList,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedProjectWiseBankNotifier.value = value;
-                            if (value.isNotEmpty) {
-                              final item = value.first;
-                              _accountHolderNameC.text =
-                                  (item["AccountHolderName"] ?? "").toString();
-                              _accountNumberC.text =
-                                  (item["AccountNumber"] ?? "").toString();
-                              _ifscCodeC.text =
-                                  (item["IFSCCode"] ?? "").toString();
-                              _branchC.text = (item["Branch"] ?? "").toString();
-                              _accountType.text =
-                                  (item["AcType"] ?? "").toString();
-                            }
+                        ),
+                        ValueListenableBuilder<List<Map<String, dynamic>>>(
+                          valueListenable: _selectedBankNotifier,
+                          builder: (context, selectedBankList, _) {
+                            return CustomMultipleSelectPopup(
+                              key: ValueKey(
+                                selectedBankList.isEmpty
+                                    ? 'bank_empty'
+                                    : selectedBankList.first['zAttributesId'],
+                              ),
+                              title: "Bank",
+                              hintText: "Select Bank",
+                              isRequired: true,
+                              isMultiSelect: false,
+                              initialValue: selectedBankList,
+                              dataList: const [],
+                              onSelected: (value) {
+                                _selectedBankNotifier.value = value;
+                              },
+                              dataFetchCallBack:
+                                  _temporaryAlternateAccommodationCubit
+                                      .getBankList,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Bank is required';
+                                }
+                                return null;
+                              },
+                            );
                           },
-                          dataFetchCallBack:
-                              _temporaryAlternateAccommodationCubit
-                                  .getProjectWithBankDropdown,
+                        ),
+                        CustomTextField(
+                          title: "Account Number",
+                          hint: "Enter Account Number",
+                          textController: _accountNumberC,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(15),
+                          isRequired: true,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Project Wise Bank is required';
+                            if (value == null || value.trim().isEmpty) {
+                              return "Account Number is required.";
+                            }
+
+                            return null;
+                          },
+                        ),
+
+                        CustomTextField(
+                          title: "IFSC Code",
+                          hint: "Enter IFSC Code",
+                          textController: _ifscCodeC,
+                          inputFormatterList:
+                              InputValidator.ifscInputFormatters(),
+                          isRequired: true,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "IFSC Code is required.";
+                            }
+                            if (!InputValidator.isValidIFSC(value)) {
+                              return 'Enter a valid IFSC Code';
                             }
                             return null;
                           },
-                        );
-                      },
-                    ),
-                    CustomDropDownWidget(
-                      title: "Amount Type",
-                      hintText: "Select Amount Type",
-                      isRequired: true,
-                      dataList: amountTypeList,
-                      initialValue: selectedAmountType.value,
-                      onSelected: (value) {
-                        selectedAmountType.value = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Amount Type is required';
-                        }
-                        return null;
-                      },
-                      onValueClear: () => selectedAmountType.value = null,
-                    ),
-                    CustomDropDownWidget(
-                      title: "Payment Type",
-                      hintText: "Select Payment Type",
-                      isRequired: true,
-                      dataList: paymentTypeList,
-                      initialValue: selectedPaymentType.value,
-                      onSelected: (value) {
-                        selectedPaymentType.value = value;
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Payment Type is required';
-                        }
-                        return null;
-                      },
-                      onValueClear: () => selectedPaymentType.value = null,
-                    ),
-                    CustomTextField(
-                      title: "Account Number",
-                      textController: _accountNumberC,
-                      readOnly: true,
-                      isRequired: true,
-                    ),
-                    CustomTextField(
-                      title: "IFSC Code",
-                      textController: _ifscCodeC,
-                      readOnly: true,
-                      isRequired: true,
-                    ),
-                    CustomTextField(
-                      title: "Branch",
-                      textController: _branchC,
-                      readOnly: true,
-                      isRequired: true,
-                    ),
-                    CustomTextField(
-                      title: "Account Type",
-                      textController: _accountType,
-                      readOnly: true,
-                      isRequired: true,
-                    ),
-                    CustomTextField(
-                      title: "Account Holder Name",
-                      readOnly: true,
-                      textController: _accountHolderNameC,
-                    ),
-                    CustomTextField(
-                      title: "Pay Amount",
-                      hint: "Enter Amount",
-                      textController: _payAmountC,
-                      isRequired: true,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(9),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Pay Amount is required";
-                        }
-                        final entered = double.tryParse(value);
-                        if (entered == null) {
-                          return "Enter a valid amount";
-                        }
-                        if (entered <= 0) {
-                          return "Pay Amount must be greater than zero";
-                        }
-                        if (_isEditMode) return null;
-                        if (widget.totalAmount == null) {
-                          return "Invalid payment configuration";
-                        }
-                        if ((widget.paidAmount ?? 0) > widget.totalAmount!) {
-                          return "Invalid data: Paid amount exceeds total amount";
-                        }
-                        final remaining =
-                            widget.totalAmount! - (widget.paidAmount ?? 0);
-                        if (remaining <= 0) {
-                          return "Full amount already paid. No further payment allowed.";
-                        }
-                        if (entered > remaining) {
-                          return "Maximum payable amount is ₹${remaining.toStringAsFixed(2)}";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: "Transaction/Cheque/DD No.",
-                      hint: "Enter Transaction/Cheque/DD No.",
-                      isRequired: true,
-                      textController: _transactionNumC,
-                      inputFormatterList: InputValidator.textDigit(50),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Field is required";
-                        }
-                        if (value.length < 6) {
-                          return "Minimum 6 characters required";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultiFilePicker(
-                      title: "Transaction/Cheque/DD Image",
-                      initialFileList:
-                          transactionChequeDemandDraftUrl.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        transactionChequeDemandDraftUrl.fileNameList =
-                            fileNameList;
-                        transactionChequeDemandDraftUrl.fileBytesList =
-                            bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        transactionChequeDemandDraftUrl.fileNameList =
-                            fileNameList;
-                        transactionChequeDemandDraftUrl.fileBytesList =
-                            fileBytesList;
-                        transactionChequeDemandDraftUrl.deletedFileList =
-                            deletedFile;
-                      },
-                    ),
-                    CustomDatePicker(
-                      isRequired: true,
-                      title: "Cheque/DD/IMPS/NEFT/RTGS Date",
-                      initialDate: selectedDate,
-                      setValue: (value) {
-                        setState(() {
-                          selectedDate = value;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return "Date is required";
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomMultiFilePicker(
-                      title: "Payment Receipt",
-                      initialFileList: paymentReceiptUrl.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        paymentReceiptUrl.fileNameList = fileNameList;
-                        paymentReceiptUrl.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deletedFile,
-                      ) {
-                        paymentReceiptUrl.fileNameList = fileNameList;
-                        paymentReceiptUrl.fileBytesList = fileBytesList;
-                        paymentReceiptUrl.deletedFileList = deletedFile;
-                      },
-                    ),
-                  ],
+                        ),
+                        CustomDropDownWidget(
+                          title: "Payment Mode",
+                          hintText: "Select Payment Mode",
+                          isRequired: true,
+                          dataList: paymentModeList,
+                          initialValue: selectedPaymentMode.value,
+                          onSelected: (value) {
+                            selectedPaymentMode.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Payment Mode for is required';
+                            }
+                            return null;
+                          },
+                          onValueClear: () => selectedPaymentMode.value = null,
+                        ),
+                        CustomDropDownWidget(
+                          title: "Amount Type",
+                          hintText: "Select Amount Type",
+                          isRequired: true,
+                          dataList: tenantAmountTypeList,
+                          initialValue: selectedAmountType.value,
+                          onSelected: (value) {
+                            selectedAmountType.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Amount Type is required';
+                            }
+                            return null;
+                          },
+                          onValueClear: () => selectedAmountType.value = null,
+                        ),
+                        CustomTextField(
+                          title: "Amount (₹)",
+                          hint: "Enter Amount",
+                          textController: _payAmountC,
+                          isRequired: true,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList:
+                              inputFormatterListForDecimalValuesFixedToTwo(9),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Amount is required.";
+                            }
+
+                            if (double.parse(value) <= 0) {
+                              return "Amount is required and must be greater than 0.";
+                            }
+                            final total = widget.totalAmount;
+                            final alreadyPaid = widget.paidAmount ?? 0;
+                            final originalPayAmount =
+                                _temporaryAlternateAccommodationCubit
+                                    .paidAmountForSummary ??
+                                0;
+                            final pay = double.parse(_payAmountC.text);
+                            final effectivePaid =
+                                _isEditMode
+                                    ? (alreadyPaid - originalPayAmount + pay)
+                                    : (alreadyPaid + pay);
+
+                            final remaining = total - effectivePaid;
+
+                            if (remaining < 0) {
+                              return "Amount exceeds remaining balance (₹${(total - alreadyPaid).addCommas()})";
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Transaction/Cheque/DD Number",
+                          hint: "Enter Transaction/Cheque/DD Number",
+                          textController: _transactionNumC,
+                          inputFormatterList: InputValidator.textDigit(50),
+                        ),
+                        CustomDatePicker(
+                          isRequired: true,
+                          title: "Transaction / Cheque / Demand Draft Date",
+                          initialDate: selectedDate,
+                          setValue: (value) {
+                            selectedDate = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return "Transaction / Cheque / Demand Draft Date is required.";
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomMultiFilePicker(
+                          title: "Transaction / Cheque / Demand Draft",
+                          initialFileList:
+                              transactionChequeDemandDraftUrl.fileNameList,
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            transactionChequeDemandDraftUrl.fileNameList =
+                                fileNameList;
+                            transactionChequeDemandDraftUrl.fileBytesList =
+                                bytesList;
+                          },
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            transactionChequeDemandDraftUrl.fileNameList =
+                                fileNameList;
+                            transactionChequeDemandDraftUrl.fileBytesList =
+                                fileBytesList;
+                            transactionChequeDemandDraftUrl.deletedFileList =
+                                deletedFile;
+                          },
+                        ),
+                        CustomMultiFilePicker(
+                          title: "Payment Receipt",
+                          initialFileList: paymentReceiptUrl.fileNameList,
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            paymentReceiptUrl.fileNameList = fileNameList;
+                            paymentReceiptUrl.fileBytesList = bytesList;
+                          },
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            paymentReceiptUrl.fileNameList = fileNameList;
+                            paymentReceiptUrl.fileBytesList = fileBytesList;
+                            paymentReceiptUrl.deletedFileList = deletedFile;
+                          },
+                        ),
+                      ]),
+                      ValueListenableBuilder<List<Map<String, dynamic>>>(
+                        valueListenable: _selectedProjectWiseBankNotifier,
+                        builder: (context, selectedProjectWiseList, _) {
+                          return ValueListenableBuilder(
+                            valueListenable: _selectedProjectWiseBankNotifier,
+                            builder: (context, value, child) {
+                              return _card('Developer Bank Details', [
+                                CustomMultipleSelectPopup(
+                                  key: ValueKey(
+                                    selectedProjectWiseList.isEmpty
+                                        ? 'projectwise_empty'
+                                        : selectedProjectWiseList
+                                            .first['zAttributesId'],
+                                  ),
+                                  title: "Project Wise Bank",
+                                  isRequired: true,
+                                  isMultiSelect: false,
+                                  initialValue: selectedProjectWiseList,
+                                  dataList: const [],
+                                  onSelected: (value) {
+                                    _selectedProjectWiseBankNotifier.value =
+                                        value;
+                                    if (value.isNotEmpty) {
+                                      final item = value.first;
+
+                                      _projectAccountNumberC.text =
+                                          (item["AccountNumber"] ?? "")
+                                              .toString();
+                                      _projectIfscCodeC.text =
+                                          (item["IFSCCode"] ?? "").toString();
+                                      _branchC.text =
+                                          (item["Branch"] ?? "").toString();
+                                      _projectAccountType.text =
+                                          (item["AcType"] ?? "").toString();
+                                      _projectNatureOfAccountC.text =
+                                          (item["NatureOfAccount"] ?? "")
+                                              .toString();
+                                    }
+                                  },
+                                  dataFetchCallBack:
+                                      _temporaryAlternateAccommodationCubit
+                                          .getProjectWithBankDropdown,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Project Wise Bank is required';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                if (selectedProjectWiseList.isNotEmpty) ...[
+                                  CustomTextField(
+                                    title: "Account Number",
+                                    textController: _projectAccountNumberC,
+                                    readOnly: true,
+                                    isRequired: true,
+                                  ),
+                                  CustomTextField(
+                                    title: "IFSC Code",
+                                    textController: _projectIfscCodeC,
+                                    readOnly: true,
+                                    isRequired: true,
+                                  ),
+                                  CustomTextField(
+                                    title: "Branch",
+                                    textController: _branchC,
+                                    readOnly: true,
+                                    isRequired: true,
+                                  ),
+                                  CustomTextField(
+                                    title: "Account Type",
+                                    textController: _projectAccountType,
+                                    readOnly: true,
+                                    isRequired: true,
+                                  ),
+                                  CustomTextField(
+                                    title: "Nature Of Account",
+                                    textController: _projectNatureOfAccountC,
+                                    readOnly: true,
+                                    isRequired: true,
+                                  ),
+                                ],
+                              ]);
+                            },
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            },
-          ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -516,10 +574,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                 return;
               }
               final rentModel = widget.rentModel;
-              final tenure =
-                  widget.rentDetails.isNotEmpty
-                      ? widget.rentDetails.first.tenure
-                      : rentModel.tenure;
+
               if (_isEditMode && widget.paymentLedger != null) {
                 _temporaryAlternateAccommodationCubit.updatePayTrackRent(
                   context: context,
@@ -543,16 +598,16 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                       selectedPaymentMode.value?["DisplayName"] as String,
                   amountType:
                       selectedAmountType.value?["DisplayName"] as String,
-                  paymentType:
-                      selectedPaymentType.value?["DisplayName"] as String,
                   payAmount: _payAmountC.text,
                   transactionChequeDemandDraftNumber: _transactionNumC.text,
                   transactionChequeDemandDraftDate: selectedDate!,
                   transactionChequeDemandDraftURL:
                       transactionChequeDemandDraftUrl,
                   paymentReceiptURL: paymentReceiptUrl,
-                  tenure: tenure,
-                  chargeType: widget.paymentLedger?.chargeType ?? "RENT",
+                  chargeType:
+                      tabTitles[_temporaryAlternateAccommodationCubit
+                          .state
+                          .currentTabIndex],
                   index: widget.paymentLedgerIndex ?? 0,
                 );
               } else {
@@ -579,16 +634,16 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                           selectedPaymentMode.value?["DisplayName"] as String,
                       amountType:
                           selectedAmountType.value?["DisplayName"] as String,
-                      paymentType:
-                          selectedPaymentType.value?["DisplayName"] as String,
                       payAmount: _payAmountC.text,
                       transactionChequeDemandDraftNumber: _transactionNumC.text,
                       transactionChequeDemandDraftDate: selectedDate!,
                       transactionChequeDemandDraftURL:
                           transactionChequeDemandDraftUrl,
                       paymentReceiptURL: paymentReceiptUrl,
-                      tenure: tenure,
-                      chargeType: "RENT",
+                      chargeType:
+                          tabTitles[_temporaryAlternateAccommodationCubit
+                              .state
+                              .currentTabIndex],
                     )
                     .then((_) {
                       if (context.mounted) {
@@ -597,7 +652,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                               context: context,
                               pageNumber: 1,
                               projectId: _project.projectId,
-                              buildingId: widget.buildingId,
+                              buildingId: widget.rentModel.buildingId,
                               chargeName: "RENT",
                             );
                       }
@@ -606,6 +661,21 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
             },
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _card(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
       ),
     );
   }

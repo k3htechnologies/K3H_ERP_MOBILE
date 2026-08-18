@@ -521,3 +521,5 @@ const tenantDocumentTypeValues = [
 const aopStatusValues = ['AOP', 'NON - AOP', 'EXPIRED', 'EXPIRE SOON'];
 
 const applicantTypeValues = ['Applicant', 'Co - Applicant'];
+
+const tenantAmountTypeValues = ['Monthly', 'Quarterly', 'Yearly', 'One Time'];

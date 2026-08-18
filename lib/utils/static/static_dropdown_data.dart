@@ -254,3 +254,7 @@ final List<Map<String, dynamic>> tenantDocumentTypesList = createAttributeList(
 final List<Map<String, dynamic>> applicantTypeList = createAttributeList(
   applicantTypeValues,
 );
+
+final List<Map<String, dynamic>> tenantAmountTypeList = createAttributeList(
+  tenantAmountTypeValues,
+);

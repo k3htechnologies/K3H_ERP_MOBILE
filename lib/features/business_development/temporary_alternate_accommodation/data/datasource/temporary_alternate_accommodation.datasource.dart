@@ -116,7 +116,13 @@ class TemporaryAlternateAccommodationDatasourceImpl
             fileList,
             requestBody,
           );
-      return networkResponse;
+      return {
+        'data': List<PaymentLedgerModel>.from(
+          networkResponse["data"].map((e) => PaymentLedgerModel.fromJson(e)),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallAddUpdatePayTrackRent(
@@ -224,6 +230,7 @@ class TemporaryAlternateAccommodationDatasourceImpl
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['TotalNumberOfRecord'],
       };
     } catch (error) {

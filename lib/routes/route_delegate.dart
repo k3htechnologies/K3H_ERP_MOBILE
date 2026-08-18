@@ -499,12 +499,6 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
   return null;
 }
 
-double? _readDouble(dynamic extraVal, String? queryVal) {
-  if (extraVal != null && extraVal is num) return extraVal.toDouble();
-  if (queryVal != null && queryVal.isNotEmpty) return double.tryParse(queryVal);
-  return null;
-}
-
 TemporaryAlternativeAccommodationModel?
 _temporaryAlternateAccommodationModelFromQuery(String? encoded) {
   if (encoded == null || encoded.isEmpty) return null;
@@ -520,26 +514,6 @@ _temporaryAlternateAccommodationModelFromQuery(String? encoded) {
   }
 }
 
-List<TemporaryAlternativeAccommodationDetailsModel>
-_temporaryAlternateAccommodationDetailsFromQuery(String? encoded) {
-  if (encoded == null || encoded.isEmpty) return [];
-  try {
-    final list =
-        jsonDecode(
-              EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
-            )
-            as List<dynamic>;
-    return list
-        .map(
-          (e) => TemporaryAlternativeAccommodationDetailsModel.fromJson(
-            e as Map<String, dynamic>,
-          ),
-        )
-        .toList();
-  } catch (_) {
-    return [];
-  }
-}
 
 final GoRouter goRouter = GoRouter(
   navigatorKey: navigatorKey,
@@ -2611,7 +2585,10 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.viewRent,
               builder: (context, state) {
                 final queryParameterRent = state.uri.queryParameters['rent'];
-
+                final queryParameterTotalAmount =
+                    state.uri.queryParameters['totalAmount'];
+                final queryParameterPaidAmount =
+                    state.uri.queryParameters['paidAmount'];
                 final TemporaryAlternativeAccommodationModel tenantModel =
                     TemporaryAlternativeAccommodationModel.fromJson(
                       jsonDecode(
@@ -2620,8 +2597,14 @@ final GoRouter goRouter = GoRouter(
                         ),
                       ),
                     );
+                final double totalAmount =
+                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+                final double paidAmount =
+                    double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
                 return TemporaryAlternateAccommodationViewScreen(
                   tenantModel: tenantModel,
+                  totalAmount: totalAmount,
+                  paidAmount: paidAmount,
                 );
               },
             ),
@@ -2629,59 +2612,47 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addPayment,
               path: AppRoutes.addPayment,
               builder: (context, state) {
-                final extra = state.extra as Map<String, dynamic>? ?? {};
-                final query = state.uri.queryParameters;
-                // Prefer extra (can be null with ShellRoute + pushNamed), fallback to query params (encrypted JSON)
-                final buildingId =
-                    extra['buildingId'] as int? ??
-                    int.tryParse(query['buildingId'] ?? '') ??
-                    0;
-                List<TemporaryAlternativeAccommodationDetailsModel>
-                rentDetails =
-                    (extra['rentDetails']
-                        as List<
-                          TemporaryAlternativeAccommodationDetailsModel
-                        >?) ??
-                    [];
-                if (rentDetails.isEmpty) {
-                  rentDetails =
-                      _temporaryAlternateAccommodationDetailsFromQuery(
-                        query['rentDetails'],
-                      );
-                }
-                TemporaryAlternativeAccommodationModel? rentModel =
-                    extra['rentModel']
-                        as TemporaryAlternativeAccommodationModel?;
-                rentModel ??= _temporaryAlternateAccommodationModelFromQuery(
-                  query['rentModel'],
+                final queryParameterRent = state.uri.queryParameters['rent'];
+                final queryParameterPaymentLedger =
+                    state.uri.queryParameters['paymentLedger'];
+                final queryParameterTotalAmount =
+                    state.uri.queryParameters['totalAmount'];
+                final queryParameterPaidAmount =
+                    state.uri.queryParameters['paidAmount'];
+                final queryParameterPaymentLedgerIndex =
+                    state.uri.queryParameters['paymentLedgerIndex'];
+                final TemporaryAlternativeAccommodationModel rentModel =
+                    TemporaryAlternativeAccommodationModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterRent!),
+                        ),
+                      ),
+                    );
+                final double totalAmount =
+                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+                final double paidAmount =
+                    double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
+
+                final PaymentLedgerModel? paymentLedgerModel =
+                    queryParameterPaymentLedger != null
+                        ? PaymentLedgerModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterPaymentLedger),
+                            ),
+                          ),
+                        )
+                        : null;
+                final paymentLedgerIndex = int.tryParse(
+                  queryParameterPaymentLedgerIndex ?? '0',
                 );
-                final totalAmount =
-                    _readDouble(extra['totalAmount'], query['totalAmount']) ??
-                    0.0;
-                final paidAmount =
-                    _readDouble(extra['paidAmount'], query['paidAmount']) ??
-                    0.0;
-                final paymentLedger =
-                    extra['paymentLedger'] as PaymentLedgerModel?;
-                final paymentLedgerIndex = extra['paymentLedgerIndex'] as int?;
-                final isEditMode = paymentLedger != null;
-                if (rentModel == null) {
-                  return const Scaffold(
-                    body: Center(child: Text('Missing payment context')),
-                  );
-                }
-                if (!isEditMode && rentDetails.isEmpty) {
-                  return const Scaffold(
-                    body: Center(child: Text('Missing payment context')),
-                  );
-                }
+
                 return AddPaymentScreen(
-                  buildingId: buildingId,
-                  rentDetails: rentDetails,
                   rentModel: rentModel,
                   totalAmount: totalAmount,
                   paidAmount: paidAmount,
-                  paymentLedger: paymentLedger,
+                  paymentLedger: paymentLedgerModel,
                   paymentLedgerIndex: paymentLedgerIndex,
                 );
               },
@@ -2694,16 +2665,19 @@ final GoRouter goRouter = GoRouter(
                 TemporaryAlternativeAccommodationModel? rentModel =
                     extra['rentModel']
                         as TemporaryAlternativeAccommodationModel?;
+                final queryParameterTotalAmount =
+                    state.uri.queryParameters['totalAmount'];
                 rentModel ??= _temporaryAlternateAccommodationModelFromQuery(
                   state.uri.queryParameters['rentModel'],
                 );
-                if (rentModel == null) {
-                  return Scaffold(
-                    appBar: AppBar(title: const Text('Payment Summary')),
-                    body: const Center(child: Text('Missing payment context')),
-                  );
-                }
-                return ViewPaymentSummaryScreen(rentModel: rentModel);
+
+                final double totalAmount =
+                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+
+                return ViewPaymentSummaryScreen(
+                  rentModel: rentModel!,
+                  totalAmount: totalAmount,
+                );
               },
             ),
           ],

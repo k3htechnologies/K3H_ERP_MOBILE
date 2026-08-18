@@ -37,7 +37,6 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
   late ProjectModel _project;
 
   // PROPOSED OFFER TYPE LIST
-  // Add this list
   final List<dynamic> _proposedOfferIcons = [
     LucideIcons.building,
     AppAssets.readyReckonerIcon,
@@ -262,6 +261,14 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                           },
                         );
                       } else {
+                        if (_project.projectId == 0) {
+                          showErrorMessage(
+                            context,
+                            "Error",
+                            "Please Select a Project",
+                          );
+                          return;
+                        }
                         showErrorMessage(
                           context,
                           "Error",

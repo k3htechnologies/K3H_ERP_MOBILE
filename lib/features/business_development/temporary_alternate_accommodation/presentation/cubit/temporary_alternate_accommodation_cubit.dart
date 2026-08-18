@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/repository/building.repository.dart';
@@ -129,6 +130,39 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
+  Future<List<Map<String, dynamic>>> getProjectWithBankById({
+    required int projectWithBankDetailsId,
+  }) async {
+    ProjectModel project = getProject();
+    var result = await _projectMasterRepository.getProjectWithBankDetails(
+      projectId: project.projectId,
+      queryParams: {'ProjectWithBankDetailsId': projectWithBankDetailsId},
+    );
+    return result.fold(
+      (failure) {
+        return [];
+      },
+      (response) {
+        final data =
+            response["data"] as List<ProjectWithBankDetailsModel>? ?? [];
+        return data
+            .map(
+              (e) => {
+                "zAttributesId": e.projectWithBankDetailsId,
+                "DisplayName": e.bankName,
+                "AccountHolderName": e.beneficiaryAccountHolderName,
+                "AccountNumber": e.accountNumber,
+                "Branch": e.branch,
+                "IFSCCode": e.ifscCode,
+                "AcType": e.acType,
+                "NatureOfAccount": e.natureOfAccount,
+              },
+            )
+            .toList();
+      },
+    );
+  }
+
   // GET PROJECT WITH BANK DETAILS
   Future<Map<String, dynamic>> getProjectWithBankDropdown(
     int pageNumber, {
@@ -143,18 +177,20 @@ class TemporaryAlternateAccommodationCubit
         return {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0};
       },
       (response) {
-        final data = response["data"] as List<dynamic>? ?? [];
+        final data =
+            response["data"] as List<ProjectWithBankDetailsModel>? ?? [];
         return {
           "itemList": List<Map<String, dynamic>>.from(
             data.map(
               (e) => {
-                "zAttributesId": e["BankListMasterId"],
-                "DisplayName": e["BankName"],
-                "AccountHolderName": e["BeneficiaryAccountHolderName"],
-                "AccountNumber": e["AccountNumber"],
-                "Branch": e["Branch"],
-                "IFSCCode": e["IFSCCode"],
-                "AcType": e["AcType"],
+                "zAttributesId": e.projectWithBankDetailsId,
+                "DisplayName": e.bankName,
+                "AccountHolderName": e.beneficiaryAccountHolderName,
+                "AccountNumber": e.accountNumber,
+                "Branch": e.branch,
+                "IFSCCode": e.ifscCode,
+                "AcType": e.acType,
+                "NatureOfAccount": e.natureOfAccount,
               },
             ),
           ),
@@ -369,10 +405,8 @@ class TemporaryAlternateAccommodationCubit
     required String ifscCode,
     required String paymentMode,
     required String amountType,
-    required String paymentType,
     required String payAmount,
     required String transactionChequeDemandDraftNumber,
-    required String tenure,
     required String chargeType,
     required DateTime transactionChequeDemandDraftDate,
     required MultiFilePickerModel transactionChequeDemandDraftURL,
@@ -390,15 +424,13 @@ class TemporaryAlternateAccommodationCubit
       "BankListMasterId": bankListMasterId.toString(),
       "AccountNumber": accountNumber,
       "IFSCCode": ifscCode,
-      "PaymentFor": '',
       "AmountType": amountType,
-      "PaymentType": paymentType,
       "PaymentMode": paymentMode,
       "PayAmount": payAmount,
       "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
       "TransactionChequeDemandDraftDate":
-          transactionChequeDemandDraftDate.toIso8601String(),
-      "Tenure": tenure,
+          transactionChequeDemandDraftDate.apiDate.toString(),
+      "Tenure": state.selectedTenure,
       "ChargeType": chargeType,
     };
     List<Map<String, dynamic>> fileList = [];
@@ -435,9 +467,13 @@ class TemporaryAlternateAccommodationCubit
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(
+        showSuccessMessage(context, subTitle: response['message']);
+        getPayTrackRentLedgerList(
           context,
-          subTitle: "Payment tracking added successfully",
+          tenantId,
+          tenantApplicantId,
+          buildingId,
+          projectId,
         );
       },
     );
@@ -459,10 +495,8 @@ class TemporaryAlternateAccommodationCubit
     required String ifscCode,
     required String paymentMode,
     required String amountType,
-    required String paymentType,
     required String payAmount,
     required String transactionChequeDemandDraftNumber,
-    required String tenure,
     required String chargeType,
     required DateTime transactionChequeDemandDraftDate,
     required MultiFilePickerModel transactionChequeDemandDraftURL,
@@ -484,13 +518,12 @@ class TemporaryAlternateAccommodationCubit
       "IFSCCode": ifscCode,
       "PaymentFor": '',
       "AmountType": amountType,
-      "PaymentType": paymentType,
       "PaymentMode": paymentMode,
       "PayAmount": payAmount,
       "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
       "TransactionChequeDemandDraftDate":
           transactionChequeDemandDraftDate.toIso8601String(),
-      "Tenure": tenure,
+      "Tenure": state.selectedTenure,
       "ChargeType": chargeType,
       "RemovePaymentReceiptURL": paymentReceiptURL.deletedFileList,
       "RemoveTransactionChequeDemandDraftURL":
@@ -531,29 +564,35 @@ class TemporaryAlternateAccommodationCubit
       },
       (response) {
         goRouter.pop();
-        final updatedPayment =
-            response['data'] != null && (response['data'] as List).isNotEmpty
-                ? PaymentLedgerModel.fromJson(
-                  (response['data'] as List).first as Map<String, dynamic>,
-                )
-                : null;
-        if (updatedPayment != null &&
-            state.paymentLedgerList != null &&
-            index >= 0 &&
+        final updatedPaymentLedger =
+            (response['data'] as List<PaymentLedgerModel>).first;
+
+        if (state.paymentLedgerList != null &&
+            state.paymentLedgerList!.isNotEmpty &&
             index < state.paymentLedgerList!.length) {
           final updatedList = List<PaymentLedgerModel>.from(
-            state.paymentLedgerList ?? [],
+            state.paymentLedgerList!,
           );
-          updatedList[index] = updatedPayment;
-          emit(state.copyWith(paymentLedgerList: updatedList));
+
+          updatedList[index] = updatedPaymentLedger;
+
+          emit(
+            state.copyWith(isLoading: false, paymentLedgerList: updatedList),
+          );
         }
-        showSuccessMessage(context, subTitle: "Payment updated successfully");
+
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
 
+  double? get paidAmountForSummary => state.paymentLedgerList?.fold<double>(
+    0.0,
+    (sum, p) => sum + (p.payAmount),
+  );
+
   // GET PAY TRACK RENT LIST
-  Future getPayTrackRentList(
+  Future getPayTrackRentLedgerList(
     BuildContext context,
     int tenantId,
     int tenantApplicantId,
@@ -613,10 +652,7 @@ class TemporaryAlternateAccommodationCubit
         return;
       },
       (response) {
-        showSuccessMessage(
-          context,
-          subTitle: 'Payment Deleted Successfully!!!',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
         final updatedList = List<PaymentLedgerModel>.from(
           state.paymentLedgerList ?? [],
         );

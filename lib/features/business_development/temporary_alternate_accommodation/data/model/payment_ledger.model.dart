@@ -7,11 +7,11 @@ class PaymentLedgerModel {
   int tenantApplicantId;
   int buildingId;
   int projectId;
-  String flatNumber;
-  double flatCarpetAreaSqFt;
-  String facing;
-  String flatType;
-  String flatConfiguration;
+  String unitAnnexureSurveyNumber;
+  double unitCarpetAreaSqFt;
+  String unitFacing;
+  String unitType;
+  String unitConfiguration;
   String applicantType;
   String applicantName;
   String applicantMobileNumber;
@@ -24,10 +24,10 @@ class PaymentLedgerModel {
   String projectBankAccountHolderName;
   int bankListMasterId;
   String bankName;
+  String accountHolderName;
   String accountNumber;
   String ifscCode;
   String amountType;
-  String paymentType;
   double payAmount;
   String transactionChequeDemandDraftNumber;
   String transactionChequeDemandDraftUrl;
@@ -50,11 +50,11 @@ class PaymentLedgerModel {
     required this.tenantApplicantId,
     required this.buildingId,
     required this.projectId,
-    required this.flatNumber,
-    required this.flatCarpetAreaSqFt,
-    required this.facing,
-    required this.flatType,
-    required this.flatConfiguration,
+    required this.unitAnnexureSurveyNumber,
+    required this.unitCarpetAreaSqFt,
+    required this.unitFacing,
+    required this.unitType,
+    required this.unitConfiguration,
     required this.applicantType,
     required this.applicantName,
     required this.applicantMobileNumber,
@@ -67,10 +67,10 @@ class PaymentLedgerModel {
     required this.projectBankAccountHolderName,
     required this.bankListMasterId,
     required this.bankName,
+    required this.accountHolderName,
     required this.accountNumber,
     required this.ifscCode,
     required this.amountType,
-    required this.paymentType,
     required this.payAmount,
     required this.transactionChequeDemandDraftNumber,
     required this.transactionChequeDemandDraftUrl,
@@ -87,101 +87,157 @@ class PaymentLedgerModel {
     required this.chargeType,
   });
 
-  factory PaymentLedgerModel.fromJson(Map<String, dynamic> json) =>
-      PaymentLedgerModel(
-        payTrackRentId: parseValue<int>(json, "PayTrackRentId"),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        tenantId: parseValue<int>(json, "TenantId"),
-        tenantApplicantId: parseValue<int>(json, "TenantApplicantId"),
-        buildingId: parseValue<int>(json, "BuildingId"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        flatNumber: parseValue<String>(json, "FlatNumber"),
-        flatCarpetAreaSqFt: parseValue<double>(json, "FlatCarpetAreaSqFt"),
-        facing: parseValue<String>(json, "Facing"),
-        flatType: parseValue<String>(json, "FlatType"),
-        flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
-        applicantType: parseValue<String>(json, "ApplicantType"),
-        applicantName: parseValue<String>(json, "ApplicantName"),
-        applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
-        applicantEmailId: parseValue<String>(json, "ApplicantEmailId"),
-        paymentMode: parseValue<String>(json, "PaymentMode"),
-        projectBankListMasterId:
-            parseValue<int>(json, "ProjectBankListMasterId"),
-        projectBankName: parseValue<String>(json, "ProjectBankName"),
-        projectBankAccountNumber:
-            parseValue<String>(json, "ProjectBankAccountNumber"),
-        projectBankIfscCode: parseValue<String>(json, "ProjectBankIFSCCode"),
-        projectBankAccountHolderName:
-            parseValue<String>(json, "ProjectBankAccountHolderName"),
-        bankListMasterId: parseValue<int>(json, "BankListMasterId"),
-        bankName: parseValue<String>(json, "BankName"),
-        accountNumber: parseValue<String>(json, "AccountNumber"),
-        ifscCode: parseValue<String>(json, "IFSCCode"),
-        amountType: parseValue<String>(json, "AmountType"),
-        paymentType: parseValue<String>(json, "PaymentType"),
-        payAmount: parseValue<double>(json, "PayAmount"),
-        transactionChequeDemandDraftNumber:
-            parseValue<String>(json, "TransactionChequeDemandDraftNumber"),
-        transactionChequeDemandDraftUrl:
-            parseValue<String>(json, "TransactionChequeDemandDraftURL"),
-        transactionChequeDemandDraftDate:
-            parseValue<DateTime>(json, "TransactionChequeDemandDraftDate"),
-        paymentReceiptUrl: parseValue<String>(json, "PaymentReceiptURL"),
-        approvalStatus: parseValue<String>(json, "ApprovalStatus"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate:
-            json["ModifiedDate"] == null
-                ? null
-                : parseValue<DateTime>(json, "ModifiedDate"),
-        tenure: parseValue<String>(json, "Tenure"),
-        chargeType: parseValue<String>(json, "ChargeType"),
-      );
+  factory PaymentLedgerModel.fromJson(Map<String, dynamic> json) {
+    return PaymentLedgerModel(
+      payTrackRentId: parseValue<int>(json, "PayTrackRentId"),
 
-  Map<String, dynamic> toJson() => {
-    "PayTrackRentId": payTrackRentId,
-    "Uniquekey": uniquekey,
-    "TenantId": tenantId,
-    "TenantApplicantId": tenantApplicantId,
-    "BuildingId": buildingId,
-    "ProjectId": projectId,
-    "FlatNumber": flatNumber,
-    "FlatCarpetAreaSqFt": flatCarpetAreaSqFt,
-    "Facing": facing,
-    "FlatType": flatType,
-    "FlatConfiguration": flatConfiguration,
-    "ApplicantType": applicantType,
-    "ApplicantName": applicantName,
-    "ApplicantMobileNumber": applicantMobileNumber,
-    "ApplicantEmailId": applicantEmailId,
-    "PaymentMode": paymentMode,
-    "ProjectBankListMasterId": projectBankListMasterId,
-    "ProjectBankName": projectBankName,
-    "ProjectBankAccountNumber": projectBankAccountNumber,
-    "ProjectBankIFSCCode": projectBankIfscCode,
-    "ProjectBankAccountHolderName": projectBankAccountHolderName,
-    "BankListMasterId": bankListMasterId,
-    "BankName": bankName,
-    "AccountNumber": accountNumber,
-    "IFSCCode": ifscCode,
-    "AmountType": amountType,
-    "PaymentType": paymentType,
-    "PayAmount": payAmount,
-    "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
-    "TransactionChequeDemandDraftURL": transactionChequeDemandDraftUrl,
-    "TransactionChequeDemandDraftDate": transactionChequeDemandDraftDate.toIso8601String(),
-    "PaymentReceiptURL": paymentReceiptUrl,
-    "ApprovalStatus": approvalStatus,
-    "CreatedById": createdById,
-    "CreatedBy": createdBy,
-    "CreatedDate": createdDate.toIso8601String(),
-    "ModifiedById": modifiedById,
-    "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
-    "Tenure": tenure,
-    "ChargeType": chargeType,
-  };
+      uniquekey: parseValue<String>(json, "Uniquekey"),
+
+      tenantId: parseValue<int>(json, "TenantId"),
+
+      tenantApplicantId: parseValue<int>(json, "TenantApplicantId"),
+
+      buildingId: parseValue<int>(json, "BuildingId"),
+
+      projectId: parseValue<int>(json, "ProjectId"),
+
+      unitAnnexureSurveyNumber: parseValue<String>(
+        json,
+        "UnitAnnexureSurveyNumber",
+      ),
+
+      unitCarpetAreaSqFt: parseValue<double>(json, "UnitCarpetAreaSqFt"),
+
+      unitFacing: parseValue<String>(json, "UnitFacing"),
+
+      unitType: parseValue<String>(json, "UnitType"),
+
+      unitConfiguration: parseValue<String>(json, "UnitConfiguration"),
+
+      applicantType: parseValue<String>(json, "ApplicantType"),
+
+      applicantName: parseValue<String>(json, "ApplicantName"),
+
+      applicantMobileNumber: parseValue<String>(json, "ApplicantMobileNumber"),
+
+      applicantEmailId: parseValue<String>(json, "ApplicantEmailId"),
+
+      paymentMode: parseValue<String>(json, "PaymentMode"),
+
+      projectBankListMasterId: parseValue<int>(json, "ProjectBankListMasterId"),
+
+      projectBankName: parseValue<String>(json, "ProjectBankName"),
+
+      projectBankAccountNumber: parseValue<String>(
+        json,
+        "ProjectBankAccountNumber",
+      ),
+
+      projectBankIfscCode: parseValue<String>(json, "ProjectBankIFSCCode"),
+
+      projectBankAccountHolderName: parseValue<String>(
+        json,
+        "ProjectBankAccountHolderName",
+      ),
+
+      bankListMasterId: parseValue<int>(json, "BankListMasterId"),
+
+      bankName: parseValue<String>(json, "BankName"),
+
+      accountHolderName: parseValue<String>(json, "AccountHolderName"),
+
+      accountNumber: parseValue<String>(json, "AccountNumber"),
+
+      ifscCode: parseValue<String>(json, "IFSCCode"),
+
+      amountType: parseValue<String>(json, "AmountType"),
+
+      payAmount: parseValue<double>(json, "PayAmount"),
+
+      transactionChequeDemandDraftNumber: parseValue<String>(
+        json,
+        "TransactionChequeDemandDraftNumber",
+      ),
+
+      transactionChequeDemandDraftUrl: parseValue<String>(
+        json,
+        "TransactionChequeDemandDraftURL",
+      ),
+
+      transactionChequeDemandDraftDate: parseValue<DateTime>(
+        json,
+        "TransactionChequeDemandDraftDate",
+      ),
+
+      paymentReceiptUrl: parseValue<String>(json, "PaymentReceiptURL"),
+
+      approvalStatus: parseValue<String>(json, "ApprovalStatus"),
+
+      createdById: parseValue<int>(json, "CreatedById"),
+
+      createdBy: parseValue<String>(json, "CreatedBy"),
+
+      createdDate: parseValue<DateTime>(json, "CreatedDate"),
+
+      modifiedById: parseValue<int>(json, "ModifiedById"),
+
+      modifiedBy: parseValue<String>(json, "ModifiedBy"),
+
+      modifiedDate:
+          json["ModifiedDate"] == null
+              ? null
+              : parseValue<DateTime>(json, "ModifiedDate"),
+
+      tenure: parseValue<String>(json, "Tenure"),
+
+      chargeType: parseValue<String>(json, "ChargeType"),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "PayTrackRentId": payTrackRentId,
+      "Uniquekey": uniquekey,
+      "TenantId": tenantId,
+      "TenantApplicantId": tenantApplicantId,
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "UnitAnnexureSurveyNumber": unitAnnexureSurveyNumber,
+      "UnitCarpetAreaSqFt": unitCarpetAreaSqFt,
+      "UnitFacing": unitFacing,
+      "UnitType": unitType,
+      "UnitConfiguration": unitConfiguration,
+      "ApplicantType": applicantType,
+      "ApplicantName": applicantName,
+      "ApplicantMobileNumber": applicantMobileNumber,
+      "ApplicantEmailId": applicantEmailId,
+      "PaymentMode": paymentMode,
+      "ProjectBankListMasterId": projectBankListMasterId,
+      "ProjectBankName": projectBankName,
+      "ProjectBankAccountNumber": projectBankAccountNumber,
+      "ProjectBankIFSCCode": projectBankIfscCode,
+      "ProjectBankAccountHolderName": projectBankAccountHolderName,
+      "BankListMasterId": bankListMasterId,
+      "BankName": bankName,
+      "AccountHolderName": accountHolderName,
+      "AccountNumber": accountNumber,
+      "IFSCCode": ifscCode,
+      "AmountType": amountType,
+      "PayAmount": payAmount,
+      "TransactionChequeDemandDraftNumber": transactionChequeDemandDraftNumber,
+      "TransactionChequeDemandDraftURL": transactionChequeDemandDraftUrl,
+      "TransactionChequeDemandDraftDate":
+          transactionChequeDemandDraftDate.toIso8601String(),
+      "PaymentReceiptURL": paymentReceiptUrl,
+      "ApprovalStatus": approvalStatus,
+      "CreatedById": createdById,
+      "CreatedBy": createdBy,
+      "CreatedDate": createdDate.toIso8601String(),
+      "ModifiedById": modifiedById,
+      "ModifiedBy": modifiedBy,
+      "ModifiedDate": modifiedDate?.toIso8601String(),
+      "Tenure": tenure,
+      "ChargeType": chargeType,
+    };
+  }
 }

@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/business_development/temporary_alternate_ac
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/widgets/temporary_alternate_accomodation_datagrid.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -14,9 +15,13 @@ import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
 class TemporaryAlternateAccommodationViewScreen extends StatefulWidget {
   final TemporaryAlternativeAccommodationModel tenantModel;
+  final double totalAmount;
+  final double paidAmount;
   const TemporaryAlternateAccommodationViewScreen({
     super.key,
     required this.tenantModel,
+    required this.totalAmount,
+    required this.paidAmount,
   });
 
   @override
@@ -66,7 +71,7 @@ class _TemporaryAlternateAccommodationViewScreenState
         filtered
             .map(
               (e) => TemporaryAlternateAccommodationGridRowModel(
-                label: DateFormat('MMM yyyy').format(e.date),
+                label: DateFormat('dd MMM yyyy').format(e.date),
                 amount: e.amount,
               ),
             )
@@ -92,29 +97,51 @@ class _TemporaryAlternateAccommodationViewScreenState
       >(
         builder: (context, state) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
             child: ValueListenableBuilder<
               List<TemporaryAlternateAccommodationGridRowModel>
             >(
               valueListenable: taaRows,
               builder: (context, rows, _) {
-                if (state.isLoading ?? true) {
-                  return Center(child: loader());
-                }
-                if (rows.isEmpty) {
-                  return Center(
-                    child: noDataWidget(message: 'No records found'),
-                  );
-                }
                 return Column(
+                  spacing: 12,
                   children: [
                     infoCard([
                       {
                         "title": "Flat Number",
                         "value": widget.tenantModel.flatNumber,
                       },
+                      {
+                        "title": "Applicant Name",
+                        "value": widget.tenantModel.applicantName,
+                      },
+                      {"title": "Tenure", "value": widget.tenantModel.tenure},
+                      {
+                        "title": "Charge Type",
+                        "value":
+                            tabTitles[context
+                                .read<TemporaryAlternateAccommodationCubit>()
+                                .state
+                                .currentTabIndex],
+                      },
+                      {
+                        "title": "Carpet Area (SqFt)",
+                        "value":
+                            '${widget.tenantModel.flatCarpetAreaSqFt.addCommas()} SqFt',
+                      },
+                      {
+                        "title": "Unit Type",
+                        "value": widget.tenantModel.flatType,
+                      },
+                      {
+                        "title": "Total Amount",
+                        "value": widget.totalAmount.toIndianCurrency(),
+                      },
+                      {
+                        "title": "Paid Total Amount",
+                        "value": widget.paidAmount.toIndianCurrency(),
+                      },
                     ]),
-
                     Expanded(
                       child: SfDataGridTheme(
                         data: SfDataGridThemeData(
@@ -126,22 +153,35 @@ class _TemporaryAlternateAccommodationViewScreenState
                         ),
                         child: Builder(
                           builder: (context) {
-                            return SfDataGrid(
-                              source:
-                                  TemporaryAlternateAccommodationReportDataSource(
-                                    rows: rows,
+                            if (state.isLoading ?? true) {
+                              return Center(child: loader());
+                            }
+                            if (rows.isEmpty) {
+                              return Center(
+                                child: noDataWidget(
+                                  message: 'No records found',
+                                ),
+                              );
+                            }
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: SfDataGrid(
+                                source:
+                                    TemporaryAlternateAccommodationReportDataSource(
+                                      rows: rows,
+                                    ),
+                                columnWidthMode: ColumnWidthMode.fill,
+                                columns: [
+                                  GridColumn(
+                                    columnName: 'label',
+                                    label: const Center(child: Text('Month')),
                                   ),
-                              columnWidthMode: ColumnWidthMode.fill,
-                              columns: [
-                                GridColumn(
-                                  columnName: 'label',
-                                  label: const Center(child: Text('Month')),
-                                ),
-                                GridColumn(
-                                  columnName: 'amount',
-                                  label: const Center(child: Text('Amount')),
-                                ),
-                              ],
+                                  GridColumn(
+                                    columnName: 'amount',
+                                    label: const Center(child: Text('Amount')),
+                                  ),
+                                ],
+                              ),
                             );
                           },
                         ),
