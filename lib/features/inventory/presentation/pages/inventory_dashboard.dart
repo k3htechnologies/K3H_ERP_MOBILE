@@ -1045,23 +1045,17 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      value:
-                                          buildingOverview.basement.toString(),
-                                      title: "Basement",
-                                    ),
+                                  buildColumnTitleValue(
+                                    value: buildingOverview.basement.toString(),
+                                    title: "Basement",
                                   ),
                                   horizontalSpacing(),
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      value:
-                                          buildingOverview.podiums.toString(),
-                                      title: "Podiums",
-                                    ),
+                                  buildColumnTitleValue(
+                                    value: buildingOverview.podiums.toString(),
+                                    title: "Podiums",
                                   ),
                                   horizontalSpacing(),
-                                  buildColumnTitleValueNormal(
+                                  buildColumnTitleValue(
                                     value: buildingOverview.wings.toString(),
                                     title: "Wings",
                                   ),
@@ -1073,21 +1067,17 @@ class _InventoryDashboardState extends State<InventoryDashboard> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      value: buildingOverview.floors.toString(),
-                                      title: "Floor",
-                                    ),
+                                  buildColumnTitleValue(
+                                    value: buildingOverview.floors.toString(),
+                                    title: "Floor",
                                   ),
                                   horizontalSpacing(),
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      value: buildingOverview.units.toString(),
-                                      title: "Units",
-                                    ),
+                                  buildColumnTitleValue(
+                                    value: buildingOverview.units.toString(),
+                                    title: "Units",
                                   ),
                                   horizontalSpacing(),
-                                  buildColumnTitleValueNormal(
+                                  buildColumnTitleValue(
                                     value: buildingOverview.parking.toString(),
                                     title: "Parkings",
                                   ),

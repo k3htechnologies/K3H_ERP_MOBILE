@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/data/model/flat_handover_checklist.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class FlatHandoverChecklistDatasource {
   Future<Map<String, dynamic>> apicallPullFlatHandOverCheckList({
@@ -25,13 +26,13 @@ class FlatHandoverChecklistDatasourceImpl
     Map<String, dynamic>? queryParams,
   }) async {
     String pullSnagCheckListUrl({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
-      Map<String, dynamic>? queryParams,
     }) {
       String url =
           "FlatHandOverCheckList/PullFlatHandOverCheckList?ProjectId=$projectId&BookingId=$bookingId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

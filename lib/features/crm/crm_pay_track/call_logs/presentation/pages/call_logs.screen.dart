@@ -3,7 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/data/model/pay_track_call_log.model.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/cubit/call_logs_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -19,7 +20,7 @@ import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -41,7 +42,7 @@ class CallLogsScreen extends StatefulWidget {
 }
 
 class _CallLogsScreenState extends State<CallLogsScreen> {
-  late PayTrackCubit _payTrackCubit;
+  late CallLogsCubit _callLogsCubit;
 
   // PAGINATION
   late ScrollController scrollController;
@@ -62,23 +63,18 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   @override
   void initState() {
     super.initState();
-    _payTrackCubit = context.read<PayTrackCubit>();
+    _callLogsCubit = context.read<CallLogsCubit>();
     _payTrackCallLogsAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.payTrackCallLog] ??
         AuthorizationModel();
     initialiseControllers();
     _onScroll();
-    _payTrackCubit.applyCallLogsFilter(
+    _callLogsCubit.applyCallLogsFilter(
       bookingId: widget.bookingId,
       context: context,
       isClear: true,
     );
-    _payTrackCubit.getPayTrackCallLog(
-      context,
-      1,
-      widget.projectId,
-      widget.bookingId,
-    );
+    _callLogsCubit.getCallLog(context, 1, widget.projectId, widget.bookingId);
   }
 
   @override
@@ -101,15 +97,15 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
-          !_payTrackCubit.state.isLoading! &&
-          _payTrackCubit.state.payTrackCallLogList.length <
-              _payTrackCubit.state.callLogsTotalNumberOfRecord) {
+          !_callLogsCubit.state.isLoading! &&
+          _callLogsCubit.state.payTrackCallLogList.length <
+              _callLogsCubit.state.callLogsTotalNumberOfRecord) {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _payTrackCubit.getPayTrackCallLog(
+          _callLogsCubit.getCallLog(
             context,
-            _payTrackCubit.state.callLogsCurrentPage + 1,
+            _callLogsCubit.state.callLogsCurrentPage + 1,
             widget.projectId,
             widget.bookingId,
           );
@@ -131,7 +127,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     );
 
     if (shouldDelete && context.mounted) {
-      _payTrackCubit.deletePayTrackCallLogs(
+      _callLogsCubit.deleteCallLogs(
         index,
         obj.payTrackCallLogId,
         obj.uniquekey,
@@ -144,7 +140,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
 
   // CALL LOGS FILTER
   Future<void> _showBottomSheetToFilterCallLogs(BuildContext context) async {
-    final state = _payTrackCubit.state;
+    final state = _callLogsCubit.state;
 
     _filterApplicantNameC.text = state.filterByCallLogApplicantName;
     _filterApplicantMobileC.text = state.filterCallLogApplicantMobileNumber;
@@ -197,105 +193,83 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
       title: "Filter - Call Log",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ValueListenableBuilder(
-                valueListenable: _selectedCallStatus,
-                builder: (context, value, child) {
-                  return CustomDropDownWidget(
-                    title: "Call Status",
-                    hintText: "Select Call Status",
-                    initialValue: value,
-                    dataList: callStatus,
-                    onSelected: (value) {
-                      _selectedCallStatus.value = value;
-                      updateApplyState(innerState);
-                    },
-                    onValueClear: () {
-                      _selectedCallStatus.value = null;
-                      updateApplyState(innerState);
-                    },
-                  );
-                },
-              ),
-              ValueListenableBuilder(
-                valueListenable: _selectedCallPurpose,
-                builder: (context, value, child) {
-                  return CustomDropDownWidget(
-                    title: "Call Purpose",
-                    hintText: "Select Call Purpose",
-                    initialValue: value,
-                    dataList: callPurpose,
-                    onSelected: (value) {
-                      _selectedCallPurpose.value = value;
-                      updateApplyState(innerState);
-                    },
-                    onValueClear: () {
-                      _selectedCallPurpose.value = null;
-                      updateApplyState(innerState);
-                    },
-                  );
-                },
-              ),
-              CustomTextField(
-                title: "Applicant Name",
-                hint: "Enter Applicant Name",
-                textController: _filterApplicantNameC,
-                onChangeFunction: (_) {
-                  updateApplyState(innerState);
-                },
-              ),
-              CustomTextField(
-                title: "Applicant Mobile Number",
-                hint: "Enter Applicant Mobile Number",
-                textController: _filterApplicantMobileC,
-                keyboardType: TextInputType.phone,
-                inputFormatterList: InputValidator.digit(10),
-                onChangeFunction: (_) {
-                  updateApplyState(innerState);
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder<DateTime?>(
-                      valueListenable: _fromDateNotifier,
-                      builder: (context, fromDate, child) {
-                        return CustomDatePicker(
-                          title: "Reschedule From Date",
-                          initialDate: fromDate,
-                          setValue: (value) {
-                            _fromDateNotifier.value = value;
-                            updateApplyState(innerState);
-                          },
-                          validator: (value) => null,
-                        );
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: _selectedCallStatus,
+                  builder: (context, value, child) {
+                    return CustomDropDownWidget(
+                      title: "Call Status",
+                      hintText: "Select Call Status",
+                      initialValue: value,
+                      dataList: callStatus,
+                      onSelected: (value) {
+                        _selectedCallStatus.value = value;
+                        updateApplyState(innerState);
                       },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    child: ValueListenableBuilder(
-                      valueListenable: _toDateNotifier,
-                      builder: (context, toDate, child) {
-                        return CustomDatePicker(
-                          title: "Reschedule To Date",
-                          initialDate: toDate,
-                          setValue: (value) {
-                            _toDateNotifier.value = value;
-                            updateApplyState(innerState);
-                          },
-                          validator: (value) => null,
-                        );
+                      onValueClear: () {
+                        _selectedCallStatus.value = null;
+                        updateApplyState(innerState);
                       },
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedCallPurpose,
+                  builder: (context, value, child) {
+                    return CustomDropDownWidget(
+                      title: "Call Purpose",
+                      hintText: "Select Call Purpose",
+                      initialValue: value,
+                      dataList: callPurpose,
+                      onSelected: (value) {
+                        _selectedCallPurpose.value = value;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        _selectedCallPurpose.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
+                CustomTextField(
+                  title: "Applicant Name",
+                  hint: "Enter Applicant Name",
+                  textController: _filterApplicantNameC,
+                  onChangeFunction: (_) {
+                    updateApplyState(innerState);
+                  },
+                ),
+                CustomTextField(
+                  title: "Applicant Mobile Number",
+                  hint: "Enter Applicant Mobile Number",
+                  textController: _filterApplicantMobileC,
+                  keyboardType: TextInputType.phone,
+                  inputFormatterList: InputValidator.digit(10),
+                  onChangeFunction: (_) {
+                    updateApplyState(innerState);
+                  },
+                ),
+                CustomFromToDatePicker(
+                  fromDateTitle: "Reschedule From Date",
+                  toDateTitle: "Reschedule To Date",
+                  initialFromDate: _fromDateNotifier.value,
+                  initialToDate: _toDateNotifier.value,
+                  isRequired: false,
+                  removeBottomMargin: false,
+                  onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
+                    _fromDateNotifier.value = fromDate;
+                    _toDateNotifier.value = toDate;
+
+                    updateApplyState(innerState);
+                  },
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -310,7 +284,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
         _fromDateNotifier.value = null;
         _toDateNotifier.value = null;
 
-        _payTrackCubit.applyCallLogsFilter(
+        _callLogsCubit.applyCallLogsFilter(
           context: context,
           bookingId: widget.bookingId,
           isClear: true,
@@ -323,27 +297,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
 
         final endDate = _toDateNotifier.value;
 
-        if (startDate != null && endDate != null) {
-          final startOnly = DateTime(
-            startDate.year,
-            startDate.month,
-            startDate.day,
-          );
-
-          final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
-
-          if (endOnly.isBefore(startOnly)) {
-            showErrorMessage(
-              context,
-              "Invalid dates",
-              "End Date cannot be before Start Date",
-            );
-
-            return;
-          }
-        }
-
-        _payTrackCubit.applyCallLogsFilter(
+        _callLogsCubit.applyCallLogsFilter(
           context: context,
           bookingId: widget.bookingId,
           callLogApplicantName: _filterApplicantNameC.text.trim(),
@@ -367,9 +321,9 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<PayTrackCubit, PayTrackState>(
+    return BlocListener<CallLogsCubit, CallLogsState>(
       listener: (context, state) {
-        _filterCount.value = _payTrackCubit.updateFilterCount(state);
+        _filterCount.value = _callLogsCubit.updateFilterCount(state);
       },
       child: BlocBuilder<PayTrackCubit, PayTrackState>(
         builder: (context, state) {
@@ -381,7 +335,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
             children: [
               _buildSearchBar(),
               Expanded(
-                child: BlocBuilder<PayTrackCubit, PayTrackState>(
+                child: BlocBuilder<CallLogsCubit, CallLogsState>(
                   builder: (context, state) {
                     if (state.isLoading == true &&
                         state.payTrackCallLogList.isEmpty) {
@@ -481,7 +435,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                                               _showPopupToDeletePayTrackCallLogs(
                                                 context,
                                                 callLog,
-                                                state.currentPage,
+                                                state.callLogsCurrentPage,
                                                 index,
                                               );
                                             },
@@ -602,7 +556,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
   }
 
   Widget _buildSearchBar() {
-    return BlocBuilder<PayTrackCubit, PayTrackState>(
+    return BlocBuilder<CallLogsCubit, CallLogsState>(
       builder: (context, state) {
         final disableExport =
             (state.payTrackCallLogList.isEmpty ? true : false) ||
@@ -617,7 +571,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                 child: SearchWidget(
                   hintText: "Search by Applicant Name",
                   onSubmit: (value) async {
-                    await _payTrackCubit.searchPayTrackCallLogs(
+                    await _callLogsCubit.searchCallLogs(
                       context,
                       widget.projectId,
                       widget.bookingId,
@@ -639,7 +593,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                     showErrorMessage(context, "Error", "No Data Found");
                     return;
                   }
-                  _payTrackCubit.exportPayTrackCallLogsExcelPdf(
+                  _callLogsCubit.exportCallLogsExcelPdf(
                     context,
                     v,
                     projectId: widget.projectId,

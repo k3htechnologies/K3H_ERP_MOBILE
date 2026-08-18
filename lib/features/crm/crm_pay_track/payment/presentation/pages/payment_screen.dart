@@ -508,15 +508,7 @@ class _PaymentScreenState extends State<PaymentScreen>
         if (state.isLoading ?? true && state.paymentLedger.isEmpty) {
           return Center(child: CircularProgressIndicator());
         }
-        double totalOutstandingAmount = 0;
 
-        for (final item in state.paymentLedger) {
-          totalOutstandingAmount += (item.totalAmount - item.receivedAmount);
-        }
-        final showAddButton =
-            widget.bookingApprovalStatus.toLowerCase() != "cancel" &&
-            widget.bookingApprovalStatus.toLowerCase() != "refund" &&
-            totalOutstandingAmount > 0;
         return Padding(
           padding: const EdgeInsets.all(20.0),
           child: Column(
@@ -526,46 +518,6 @@ class _PaymentScreenState extends State<PaymentScreen>
                   spacing: 10.0,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    showAddButton && _accountAuthorization.isAction
-                        ? Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "Add Payment Ledger",
-                              style: AppTextStyle.ts14M(),
-                            ),
-                            horizontalSpacing(),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: CustomButton(
-                                text: "Add",
-                                onPressed: () {
-                                  goRouter.pushNamed(
-                                    AppRoutes.addPaymentLedger,
-                                    queryParameters: {
-                                      "paymentLedger": Uri.encodeComponent(
-                                        jsonEncode(
-                                          state.paymentLedger
-                                              .map((e) => e.toJson())
-                                              .toList(),
-                                        ),
-                                      ),
-                                      "bookingOtherCharges":
-                                          Uri.encodeComponent(
-                                            jsonEncode(
-                                              widget.bookingOtherChargesList
-                                                  .map((e) => e.toJson())
-                                                  .toList(),
-                                            ),
-                                          ),
-                                    },
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                        )
-                        : SizedBox.shrink(),
                     Expanded(
                       child:
                           state.paymentLedger.isEmpty
@@ -793,7 +745,15 @@ class _PaymentScreenState extends State<PaymentScreen>
         final isPaymentSchedule = selectedTab == "Payment Schedule";
 
         final isPaymentLedger = selectedTab == "Payment Ledger";
+        double totalOutstandingAmount = 0;
 
+        for (final item in state.paymentLedger) {
+          totalOutstandingAmount += (item.totalAmount - item.receivedAmount);
+        }
+        final showAddButton =
+            widget.bookingApprovalStatus.toLowerCase() != "cancel" &&
+            widget.bookingApprovalStatus.toLowerCase() != "refund" &&
+            totalOutstandingAmount > 0;
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           child: Row(
@@ -820,9 +780,34 @@ class _PaymentScreenState extends State<PaymentScreen>
                   },
                 ),
               ),
-
+              if (!isPaymentSchedule &&
+                  showAddButton &&
+                  _accountAuthorization.isAction) ...{
+                horizontalSpacing(),
+                CustomButton(
+                  text: "Add",
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addPaymentLedger,
+                      queryParameters: {
+                        "paymentLedger": Uri.encodeComponent(
+                          jsonEncode(
+                            state.paymentLedger.map((e) => e.toJson()).toList(),
+                          ),
+                        ),
+                        "bookingOtherCharges": Uri.encodeComponent(
+                          jsonEncode(
+                            widget.bookingOtherChargesList
+                                .map((e) => e.toJson())
+                                .toList(),
+                          ),
+                        ),
+                      },
+                    );
+                  },
+                ),
+              },
               horizontalSpacing(),
-
               if ((isPaymentLedger && _accountAuthorization.isExport) ||
                   (isPaymentSchedule &&
                       _accountPaymentScheduleAuthorizationModel.isExport))

@@ -31,37 +31,6 @@ class PaymentCubit extends Cubit<PaymentState> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
 
-  // GET PAY TRACK LIST
-  Future getPaymentScheduleList(
-    BuildContext context,
-    int projectId,
-    int bookingId, {
-    String searchText = "",
-  }) async {
-    emit(state.copyWith(isLoading: true));
-
-    var result = await paymentRepository.getPayTrackPaymentScheduleList(
-      bookingId: bookingId,
-      projectId: projectId,
-      queryParams: {"IsCheckPermission": true, "Name": searchText},
-    );
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error", failure.message);
-      },
-      (response) {
-        emit(
-          state.copyWith(
-            isLoading: false,
-            payTrackPaymentScheduleList: response['data'],
-          ),
-        );
-      },
-    );
-  }
-
   void search({
     required BuildContext context,
     required String searchText,
@@ -117,6 +86,47 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
+  String apiDemandType(String value) {
+    switch (value.trim().toLowerCase()) {
+      case "demand":
+        return "Demand Letter";
+      case "reminder":
+        return "Reminder Letter";
+      default:
+        return value;
+    }
+  }
+
+  Future getPaymentScheduleList(
+    BuildContext context,
+    int projectId,
+    int bookingId, {
+    String searchText = "",
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    var result = await paymentRepository.getPayTrackPaymentScheduleList(
+      bookingId: bookingId,
+      projectId: projectId,
+      queryParams: {"IsCheckPermission": true, "Name": searchText},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            payTrackPaymentScheduleList: response['data'],
+          ),
+        );
+      },
+    );
+  }
+
   Future addDemandDraft({
     required BuildContext context,
     required int bookingPaymentScheduleId,
@@ -149,17 +159,6 @@ class PaymentCubit extends Cubit<PaymentState> {
     );
   }
 
-  String apiDemandType(String value) {
-    switch (value.trim().toLowerCase()) {
-      case "demand":
-        return "Demand Letter";
-      case "reminder":
-        return "Reminder Letter";
-      default:
-        return value;
-    }
-  }
-
   // <---- GET PAYMENT LEDGER LIST ---->
   Future getPaymentLedgerList(
     BuildContext context,
@@ -179,7 +178,6 @@ class PaymentCubit extends Cubit<PaymentState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        // Always replace list to avoid duplicates on mobile refresh/approval
         final updatedList =
             response['data'] as List<PayTrackPaymentLedgerModel>;
         emit(state.copyWith(isLoading: false, paymentLedger: updatedList));
@@ -207,7 +205,6 @@ class PaymentCubit extends Cubit<PaymentState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        // Always replace list to avoid duplicates on mobile refresh/approval
         final updatedList =
             response['data'] as List<PayTrackPaymentLedgerSummaryModel>;
         emit(
@@ -240,7 +237,6 @@ class PaymentCubit extends Cubit<PaymentState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        // Always replace list to avoid duplicates on mobile refresh/approval
         final updatedList =
             response['data'] as List<PayTrackPaymentScheduleDemandSummaryModel>;
         emit(

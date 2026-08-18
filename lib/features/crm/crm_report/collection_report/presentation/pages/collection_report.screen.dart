@@ -175,19 +175,15 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      title: "Total Unit",
-                                      value: report.totalUnit.toString(),
-                                    ),
+                                  buildColumnTitleValue(
+                                    title: "Total Unit",
+                                    value: report.totalUnit.toString(),
                                   ),
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      title: "Total Agreement Value",
-                                      value:
-                                          report.totalAgreementValue
-                                              .toIndianCurrency(),
-                                    ),
+                                  buildColumnTitleValue(
+                                    title: "Total Agreement Value",
+                                    value:
+                                        report.totalAgreementValue
+                                            .toIndianCurrency(),
                                   ),
                                 ],
                               ),
@@ -196,23 +192,18 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      title: "Total Received Amount",
-                                      value:
-                                          report.receivedAmount
-                                              .toIndianCurrency(),
-                                    ),
+                                  buildColumnTitleValue(
+                                    title: "Total Received Amount",
+                                    value:
+                                        report.receivedAmount
+                                            .toIndianCurrency(),
                                   ),
-                                  Expanded(
-                                    child: buildColumnTitleValueNormal(
-                                      title: "Total Balance Amount",
-                                      value:
-                                          report.balanceAmount
-                                              .toIndianCurrency(),
-                                      valueTextStyle: AppTextStyle.ts14M(
-                                        color: AppColor.darkGreen10,
-                                      ),
+                                  buildColumnTitleValue(
+                                    title: "Total Balance Amount",
+                                    value:
+                                        report.balanceAmount.toIndianCurrency(),
+                                    valueTextStyle: AppTextStyle.ts14M(
+                                      color: AppColor.darkGreen10,
                                     ),
                                   ),
                                 ],

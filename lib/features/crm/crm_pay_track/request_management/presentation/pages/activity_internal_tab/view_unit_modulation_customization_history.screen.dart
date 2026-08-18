@@ -46,9 +46,11 @@ class _ViewUnitModulationCustomizationHistoryScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValueNormal(
-                      title: "Unit / Modulation / Customization Remark",
-                      value: unitModulationDetail.flatAlterationRemark,
+                    buildRowWrapper(
+                      child: buildColumnTitleValue(
+                        title: "Unit / Modulation / Customization Remark",
+                        value: unitModulationDetail.flatAlterationRemark,
+                      ),
                     ),
 
                     verticalSpacing(),
@@ -56,42 +58,32 @@ class _ViewUnitModulationCustomizationHistoryScreenState
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Created By",
-                            value: unitModulationDetail.createdBy,
-                          ),
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: unitModulationDetail.createdBy,
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Created Date",
-                            value: formatDateTimeAsDDMMMYYYY(
-                              unitModulationDetail.createdDate,
-                            ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            unitModulationDetail.createdDate,
                           ),
                         ),
                       ],
                     ),
-
                     verticalSpacing(),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Modified By",
-                            value: unitModulationDetail.modifiedBy,
-                          ),
+                        buildColumnTitleValue(
+                          title: "Modified By",
+                          value: unitModulationDetail.modifiedBy,
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Modified Date",
-                            value: formatDateTimeAsDDMMMYYYY(
-                              unitModulationDetail.modifiedDate,
-                            ),
+                        buildColumnTitleValue(
+                          title: "Modified Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            unitModulationDetail.modifiedDate,
                           ),
                         ),
                       ],

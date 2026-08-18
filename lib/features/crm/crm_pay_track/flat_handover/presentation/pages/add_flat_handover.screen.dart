@@ -5,6 +5,8 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -68,67 +70,78 @@ class _AddFlatHandoverScreenState extends State<AddFlatHandoverScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Update Flat Handover",
+        screenTitle: "Flat Handover",
         authorization: AuthorizationModel(),
       ),
-      body: Container(
+      body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
-        decoration: commonCardDecoration(),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomTextField(
-                textController: _fileNameController,
-                title: "File Name",
-                hint: "File Name",
-                isRequired: true,
-                readOnly: true,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return "File Name is required";
-                  }
-                  return null;
-                },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Update Flat Handover",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              decoration: commonCardDecoration(),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextField(
+                      textController: _fileNameController,
+                      title: "File Name",
+                      hint: "File Name",
+                      isRequired: true,
+                      readOnly: true,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "File Name is required";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomMultiFilePicker(
+                      title: "File",
+                      isRequired: true,
+                      filePickType: FilePickType.both,
+                      initialFileList: flatHandoverDocument.fileNameList,
+
+                      onFilePickedCallback: (bytesList, fileNameList) {
+                        flatHandoverDocument.fileNameList = fileNameList;
+                        flatHandoverDocument.fileBytesList = bytesList;
+                      },
+
+                      onFileDeleteCallback: (
+                        fileBytesList,
+                        fileNameList,
+                        deletedFile,
+                      ) {
+                        flatHandoverDocument.fileNameList = fileNameList;
+                        flatHandoverDocument.fileBytesList = fileBytesList;
+                        flatHandoverDocument.deletedFileList = deletedFile;
+                      },
+
+                      validator: (fileList) {
+                        if (fileList == null || fileList.isEmpty) {
+                          return "File is required";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
               ),
-              verticalSpacing(),
-              CustomMultiFilePicker(
-                title: "File",
-                isRequired: true,
-                filePickType: FilePickType.both,
-                initialFileList: flatHandoverDocument.fileNameList,
-
-                onFilePickedCallback: (bytesList, fileNameList) {
-                  flatHandoverDocument.fileNameList = fileNameList;
-                  flatHandoverDocument.fileBytesList = bytesList;
-                },
-
-                onFileDeleteCallback: (
-                  fileBytesList,
-                  fileNameList,
-                  deletedFile,
-                ) {
-                  flatHandoverDocument.fileNameList = fileNameList;
-                  flatHandoverDocument.fileBytesList = fileBytesList;
-                  flatHandoverDocument.deletedFileList = deletedFile;
-                },
-
-                validator: (fileList) {
-                  if (fileList == null || fileList.isEmpty) {
-                    return "File is required";
-                  }
-                  return null;
-                },
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
-          color: AppColor.white,
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: "Update",

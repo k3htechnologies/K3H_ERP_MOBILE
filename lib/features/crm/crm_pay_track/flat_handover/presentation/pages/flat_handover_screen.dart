@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class FlatHandoverScreen extends StatefulWidget {
@@ -197,7 +198,8 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                           ],
                         ),
                         verticalSpacing(),
-                        buildRowTitleValueNormal(
+                        buildRowTitleValue(
+                          fixesWidth: 170,
                           title: "Last Modified By",
                           value:
                               flatHandoverDocuments.modifiedBy.isEmpty
@@ -205,7 +207,8 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
                                   : flatHandoverDocuments.modifiedBy,
                         ),
                         verticalSpacing(),
-                        buildRowTitleValueNormal(
+                        buildRowTitleValue(
+                          fixesWidth: 170,
                           title: "Last Modified Date",
                           value:
                               flatHandoverDocuments.modifiedDate == null
@@ -362,23 +365,6 @@ class _FlatHandoverScreenState extends State<FlatHandoverScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget buildRowTitleValueNormal({
-    required String title,
-    required String value,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 170,
-          child: Text(title, style: AppTextStyle.ts14R(color: Colors.grey)),
-        ),
-        const Text(":", style: TextStyle(fontSize: 18, color: Colors.grey)),
-        const SizedBox(width: 20),
-        Expanded(child: Text(value, style: AppTextStyle.ts14M())),
-      ],
     );
   }
 }

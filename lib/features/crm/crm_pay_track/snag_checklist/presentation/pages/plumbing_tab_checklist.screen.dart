@@ -127,28 +127,30 @@ class _PlumbingTabChecklistScreenState
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Sub-Category",
-                                            value: subCategoryName,
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Sub-Category",
+                                          value: subCategoryName,
                                         ),
                                         horizontalSpacing(),
-                                        buildColumnTitleValueNormal(
+                                        buildColumnTitleValue(
                                           title: "Pending",
                                           value: pendingCount.toString(),
                                         ),
                                       ],
                                     ),
                                     verticalSpacing(),
-                                    buildColumnTitleValueNormal(
-                                      title: "Checklist Title",
-                                      value: checklistTitle,
+                                    buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title: "Checklist Title",
+                                        value: checklistTitle,
+                                      ),
                                     ),
                                     verticalSpacing(),
-                                    buildColumnTitleValueNormal(
-                                      title: "Tags",
-                                      value: items.first.tags,
+                                    buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title: "Tags",
+                                        value: items.first.tags,
+                                      ),
                                     ),
                                   ],
                                 ),

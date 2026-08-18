@@ -126,21 +126,29 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValueNormal(
-                                  title: "Refunded Amount",
-                                  value:
-                                      refundDataDetailsDetails.refundedAmount
-                                          .toIndianCurrency(),
-                                ),
-                                verticalSpacing(),
-                                buildColumnTitleValueNormal(
-                                  title: "Payment Mode",
-                                  value: refundDataDetailsDetails.paymentMode,
-                                ),
-                              ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildRowWrapper(
+                                    child: buildColumnTitleValue(
+                                      title: "Refunded Amount",
+                                      value:
+                                          refundDataDetailsDetails
+                                              .refundedAmount
+                                              .toIndianCurrency(),
+                                    ),
+                                  ),
+                                  verticalSpacing(),
+                                  buildRowWrapper(
+                                    child: buildColumnTitleValue(
+                                      title: "Payment Mode",
+                                      value:
+                                          refundDataDetailsDetails.paymentMode,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             if (_modifiedRequestsAuthorization.isAction)
                               Row(
@@ -285,19 +293,15 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Payment Mode",
-                                value: refundDataDetailsDetails.paymentMode,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Payment Mode",
+                              value: refundDataDetailsDetails.paymentMode,
                             ),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Refunded Amount",
-                                value:
-                                    refundDataDetailsDetails.refundedAmount
-                                        .toIndianCurrency(),
-                              ),
+                            buildColumnTitleValue(
+                              title: "Refunded Amount",
+                              value:
+                                  refundDataDetailsDetails.refundedAmount
+                                      .toIndianCurrency(),
                             ),
                           ],
                         ),
@@ -306,32 +310,27 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
+                            buildColumnTitleValue(
+                              title: "Transaction / Cheque / Demand Draft",
+                              value:
+                                  refundDataDetailsDetails
+                                      .transactionChequeDemandDraftNumber,
+                              customValueWidget: DocumentPreviewText(
                                 title: "Transaction / Cheque / Demand Draft",
-                                value:
+                                text:
                                     refundDataDetailsDetails
                                         .transactionChequeDemandDraftNumber,
-                                customValueWidget: DocumentPreviewText(
-                                  title: "Transaction / Cheque / Demand Draft",
-                                  text:
-                                      refundDataDetailsDetails
-                                          .transactionChequeDemandDraftNumber,
-                                  fileUrl:
-                                      refundDataDetailsDetails
-                                          .transactionChequeDemandDraftUrl,
-                                ),
+                                fileUrl:
+                                    refundDataDetailsDetails
+                                        .transactionChequeDemandDraftUrl,
                               ),
                             ),
 
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title:
-                                    "Transaction / Cheque / Demand Draft Date",
-                                value: formatDateTimeAsDDMMMYYYY(
-                                  refundDataDetailsDetails
-                                      .transactionChequeDemandDraftDate,
-                                ),
+                            buildColumnTitleValue(
+                              title: "Transaction / Cheque / Demand Draft Date",
+                              value: formatDateTimeAsDDMMMYYYY(
+                                refundDataDetailsDetails
+                                    .transactionChequeDemandDraftDate,
                               ),
                             ),
                           ],
@@ -346,19 +345,14 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Project Bank name",
-                                value: refundDataDetailsDetails.projectBankName,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Project Bank name",
+                              value: refundDataDetailsDetails.projectBankName,
                             ),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Account Number",
-                                value:
-                                    refundDataDetailsDetails
-                                        .projectAccountNumber,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Account Number",
+                              value:
+                                  refundDataDetailsDetails.projectAccountNumber,
                             ),
                           ],
                         ),
@@ -367,31 +361,26 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "IFSC Code",
-                                value: refundDataDetailsDetails.projectIfscCode,
-                              ),
+                            buildColumnTitleValue(
+                              title: "IFSC Code",
+                              value: refundDataDetailsDetails.projectIfscCode,
                             ),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Nature Of Account",
-                                value:
-                                    refundDataDetailsDetails
-                                        .projectNatureOfAccount,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Nature Of Account",
+                              value:
+                                  refundDataDetailsDetails
+                                      .projectNatureOfAccount,
                             ),
                           ],
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 10.0,
                           children: [
                             Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Account Type",
-                                value: refundDataDetails.projectAcType,
+                              child: buildRowWrapper(
+                                child: buildColumnTitleValue(
+                                  title: "Account Type",
+                                  value: refundDataDetails.projectAcType,
+                                ),
                               ),
                             ),
                           ],
@@ -406,17 +395,13 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Account Holder Name",
-                                value: refundDataDetails.accountHolderName,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Account Holder Name",
+                              value: refundDataDetails.accountHolderName,
                             ),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Bank Name",
-                                value: refundDataDetails.bankName,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Bank Name",
+                              value: refundDataDetails.bankName,
                             ),
                           ],
                         ),
@@ -425,17 +410,13 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Account Number",
-                                value: refundDataDetails.accountNumber,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Account Number",
+                              value: refundDataDetails.accountNumber,
                             ),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "IFSC Code",
-                                value: refundDataDetails.ifscCode,
-                              ),
+                            buildColumnTitleValue(
+                              title: "IFSC Code",
+                              value: refundDataDetails.ifscCode,
                             ),
                           ],
                         ),
@@ -449,18 +430,14 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Created By",
-                                value: refundDataDetails.createdBy,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Created By",
+                              value: refundDataDetails.createdBy,
                             ),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Created Date",
-                                value: formatDateTimeAsDDMMMYYYY(
-                                  refundDataDetails.createdDate,
-                                ),
+                            buildColumnTitleValue(
+                              title: "Created Date",
+                              value: formatDateTimeAsDDMMMYYYY(
+                                refundDataDetails.createdDate,
                               ),
                             ),
                           ],
@@ -470,18 +447,14 @@ class _RefundPaymentLedgerScreenState extends State<RefundPaymentLedgerScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Modified By",
-                                value: refundDataDetails.modifiedBy,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Modified By",
+                              value: refundDataDetails.modifiedBy,
                             ),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Modified Date",
-                                value: formatDateTimeAsDDMMMYYYY(
-                                  refundDataDetails.modifiedDate,
-                                ),
+                            buildColumnTitleValue(
+                              title: "Modified Date",
+                              value: formatDateTimeAsDDMMMYYYY(
+                                refundDataDetails.modifiedDate,
                               ),
                             ),
                           ],

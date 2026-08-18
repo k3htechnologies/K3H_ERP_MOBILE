@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/cubit/call_logs_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/pages/call_logs.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/pages/files.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/flat_handover_screen.dart';
@@ -9,6 +10,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/p
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/presentation/pages/loan_details_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/pages/widget/custom_message_update_parking.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/pages/payment_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_management_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
@@ -55,6 +57,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   // TAB CONTROLLER
   late TabController _tabController;
   late PayTrackCubit _payTrackCubit;
+  late CallLogsCubit _callLogsCubit;
   late ValueNotifier<bool> isExpanded;
   late AuthorizationModel _bookingPayTrackRouteAuthorizationModel,
       _bankLoansRouteAuthorizationModel,
@@ -94,6 +97,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_handleTabChange);
     _payTrackCubit = context.read<PayTrackCubit>();
+    _callLogsCubit = context.read<CallLogsCubit>();
     isExpanded = ValueNotifier(false);
     initOverview();
   }
@@ -144,7 +148,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
       projectId: widget.projectId,
     );
     if (mounted) {
-      await _payTrackCubit.getPayTrackCallLog(
+      await _callLogsCubit.getCallLog(
         context,
         1,
         widget.projectId,
@@ -300,14 +304,59 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         !booking.isFinalRegistrationCompleted &&
         widget.bookingApprovalStatus.trim().toUpperCase() == "APPROVED";
     final approvalStatus = booking.approvalStatus.trim().toUpperCase();
+    final List<Map<String, dynamic>> items = [];
+
+    /// BASIC INFO
+    items.addAll([
+      {"title": "Enquiry Code", "value": enquiry.systemGeneratedCode},
+      {"title": "Name", "value": enquiry.name},
+      {
+        "title": "Mobile No.",
+        "value": enquiry.mobileNumber,
+        "widget": CustomClickToContactText(
+          countryCode: enquiry.mobileNumberCountryCode,
+          value: enquiry.mobileNumber,
+        ),
+      },
+      {
+        "title": "E-Mail ID",
+        "value": enquiry.emailId,
+        "widget": CustomClickToContactText(
+          value: enquiry.emailId,
+          type: ContactType.email,
+        ),
+      },
+      {"title": "Current Location", "value": enquiry.currentLocation},
+      {"title": "Source", "value": enquiry.source},
+    ]);
+    items.add({"title": "Sub Source", "value": enquiry.subSource});
+    if (isDirectWalking && isAdvertisement) {
+      items.add({"title": "Sub Sub Source", "value": enquiry.subSubSource});
+    }
+
+    items.addAll([
+      {"title": "Sales Advisor", "value": enquiry.salesAdvisor},
+      {"title": "Sourcing Manager", "value": enquiry.sourcingManager},
+    ]);
+    if (isEmployeeReference) {
+      items.addAll([
+        {"title": "Employee Name", "value": enquiry.employeeReferenceName},
+        {
+          "title": "Employee Mobile Number",
+          "value": enquiry.employeeReferenceMobileNumber,
+          "widget": CustomClickToContactText(
+            countryCode: "+91",
+            value: enquiry.employeeReferenceMobileNumber,
+          ),
+        },
+      ]);
+    }
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Column(
-        spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          verticalSpacing(height: 5),
           Text(
             widget.applicantName,
             style: AppTextStyle.ts16M(color: AppColor.primary),
@@ -366,209 +415,15 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                 ),
               ],
             ),
-
-          Container(
-            decoration: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10.0,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Enquiry Details",
-                  style: AppTextStyle.ts16SB(color: AppColor.black),
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Enquiry Code",
-                      value: enquiry.systemGeneratedCode,
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(title: "Name", value: enquiry.name),
-                    buildColumnTitleValue(
-                      title: "Mobile No.",
-                      value: enquiry.mobileNumber,
-                      customValueWidget: CustomClickToContactText(
-                        countryCode: enquiry.mobileNumberCountryCode,
-                        value: enquiry.mobileNumber,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "E-Mail ID",
-                      value: enquiry.emailId,
-                      customValueWidget: CustomClickToContactText(
-                        countryCode: enquiry.emailId,
-                        value: enquiry.emailId,
-                        type: ContactType.email,
-                      ),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Current Location",
-                      value: enquiry.currentLocation,
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Source",
-                      value: enquiry.source,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Sub Source",
-                      value: enquiry.subSource,
-                    ),
-                  ],
-                ),
-                if (isDirectWalking && isAdvertisement)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Sub Sub Source",
-                        value: enquiry.subSubSource,
-                      ),
-                    ],
-                  ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Sales Advisor",
-                      value: enquiry.salesAdvisor,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Sourcing Manager",
-                      value: enquiry.sourcingManager,
-                    ),
-                  ],
-                ),
-                if (isEmployeeReference)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Employee Name",
-                          value: enquiry.employeeReferenceName,
-                        ),
-                      ),
-                      horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Employee Mobile Number",
-                          value: enquiry.employeeReferenceMobileNumber,
-                          customValueWidget: CustomClickToContactText(
-                            countryCode: "+91",
-                            value: enquiry.employeeReferenceMobileNumber,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
+          infoCard(items, title: "Enquiry Details"),
           if (!isDirectWalkingForCPDetails)
-            Container(
-              decoration: BoxDecoration(
-                color: AppColor.lightBlue,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                spacing: 10.0,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "CP Code",
-                        value: enquiry.channelPartnerCode,
-                      ),
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "CP E-mail ID",
-                        value: enquiry.channelPartnerEmailId,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "CP Name",
-                        value: enquiry.channelPartnerName,
-                      ),
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "CP Mobile No.",
-                        value: enquiry.channelPartnerMobileNumber,
-                        customValueWidget: CustomClickToContactText(
-                          countryCode:
-                              enquiry.channelPartnerMobileNumberCountryCode,
-                          value: enquiry.channelPartnerMobileNumber,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "CP Team Member Name",
-                        value: enquiry.channelPartnerTeamMemberName,
-                      ),
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "CP Team Mobile No.",
-                        value: enquiry.channelPartnerTeamMemberMobileNumber,
-                        customValueWidget: CustomClickToContactText(
-                          countryCode:
-                              enquiry
-                                  .channelPartnerTeamMemberMobileNumberCountryCode,
-                          value: enquiry.channelPartnerTeamMemberMobileNumber,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "CP Team E-Mail ID",
-                        value: enquiry.channelPartnerTeamMemberEmailId,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
+            infoCard([
+              {"title": "CP Code", "value": enquiry.channelPartnerCode},
+              {"title": "CP E-mail ID", "value": enquiry.channelPartnerEmailId},
+            ]),
+          verticalSpacing(),
           Container(
             height: 450,
-            margin: EdgeInsets.only(bottom: 10),
             decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
@@ -885,32 +740,40 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // ADDRESS DETAILS SECTION
+          verticalSpacing(),
           Container(
             width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Addess Details", style: AppTextStyle.ts16SB()),
-                buildColumnTitleValueNormal(
-                  title: "Communication Address",
-                  value: booking.communicationAddress,
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Communication Address",
+                      value: booking.communicationAddress,
+                    ),
+                  ],
                 ),
-                buildColumnTitleValueNormal(
-                  title: "Permanent Address",
-                  value: booking.permanentAddress,
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Permanent Address",
+                      value: booking.permanentAddress,
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
+          verticalSpacing(),
           // PROJECT DETAILS SECTION
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -984,12 +847,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // PARKING SECTION
-          if (booking.parkingData.isNotEmpty)
+          if (booking.parkingData.isNotEmpty) ...{
+            verticalSpacing(),
             Container(
               height: 350,
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: commonCardDecoration(),
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: commonCardDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1117,11 +980,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                 ],
               ),
             ),
+          },
           // BOOKING DETAILS SECTION
+          verticalSpacing(),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1184,10 +1048,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // BOOKING SUMMARY
+          verticalSpacing(),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1311,10 +1175,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // PAYMENT DETAILS
+          verticalSpacing(),
           Container(
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: commonCardDecoration(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1352,11 +1216,11 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // OTHER CHARGES SECTION
+          verticalSpacing(),
           Container(
             height: 450,
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: commonCardDecoration(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1443,11 +1307,11 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // PAYMENT SCHEDULE SECTION
+          verticalSpacing(),
           Container(
-            height: 250,
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
+            height: 400,
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: commonCardDecoration(),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1582,10 +1446,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // FLAT ALTERATION REMARKS SECTION
+          verticalSpacing(),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1608,6 +1472,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // PAYMENT REMARK
+          verticalSpacing(),
           Container(
             decoration: commonCardDecoration(),
             margin: EdgeInsets.only(bottom: 10),
@@ -1631,10 +1496,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // OTHER REMARK
+          verticalSpacing(),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1654,10 +1519,10 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             ),
           ),
           // TERMS AND CONDITIONS
+          verticalSpacing(),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(16),
             child: ValueListenableBuilder<bool>(
               valueListenable: isExpanded,
               builder: (context, value, child) {
@@ -1723,7 +1588,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           ),
           // CANCELLATION SUMMARY
           if (approvalStatus == "CANCEL" ||
-              booking.cancelRemark.trim().isNotEmpty)
+              booking.cancelRemark.trim().isNotEmpty) ...{
+            verticalSpacing(),
             Container(
               decoration: commonCardDecoration(),
               margin: EdgeInsets.only(bottom: 10),
@@ -1738,20 +1604,14 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Cancelled Date",
-                          value: formatDateTimeAsDDMMMYYYY(
-                            booking.cancelledDate,
-                          ),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Cancelled Date",
+                        value: formatDateTimeAsDDMMMYYYY(booking.cancelledDate),
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Cancelled By",
-                          value: booking.cancelledBy,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Cancelled By",
+                        value: booking.cancelledBy,
                       ),
                     ],
                   ),
@@ -1760,42 +1620,44 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Remark",
-                          value: booking.cancelRemark,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Remark",
+                        value: booking.cancelRemark,
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Proof Of Document",
-                          value: booking.cancelledBy,
-                          customValueWidget: CustomButton.documentOutline(
-                            onPressed: () {
-                              if (booking.proofOfDocumentUrl.isNotEmpty) {
-                                showFilePreviewDialog(
-                                  context,
-                                  title: "Proof Of Document",
-                                  booking.proofOfDocumentUrl.split(","),
-                                );
-                              }
-                            },
-                            isDisable: booking.proofOfDocumentUrl.isEmpty,
-                          ),
+                      buildColumnTitleValue(
+                        title: "Proof Of Document",
+                        value: booking.cancelledBy,
+                        customValueWidget: CustomButton.documentOutline(
+                          onPressed: () {
+                            if (booking.proofOfDocumentUrl.isNotEmpty) {
+                              showFilePreviewDialog(
+                                context,
+                                title: "Proof Of Document",
+                                booking.proofOfDocumentUrl.split(","),
+                              );
+                            }
+                          },
+                          isDisable: booking.proofOfDocumentUrl.isEmpty,
                         ),
                       ),
                     ],
                   ),
-                  buildColumnTitleValueNormal(
-                    title: "Status",
-                    value: booking.cancelBookingApprovalStatus,
+                  Row(
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Status",
+                        value: booking.cancelBookingApprovalStatus,
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
+          },
           // REFUND AMOUNT DETAILS
-          if (approvalStatus == "REFUND")
+          if (approvalStatus == "REFUND") ...{
+            verticalSpacing(),
             Container(
               decoration: commonCardDecoration(),
               margin: EdgeInsets.only(bottom: 10),
@@ -1810,22 +1672,17 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Total Refunded",
-                          value:
-                              booking.totalAmountRefundedAgainstBooking
-                                  .toIndianCurrency(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Total Refunded",
+                        value:
+                            booking.totalAmountRefundedAgainstBooking
+                                .toIndianCurrency(),
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Paid",
-                          value:
-                              booking.refundedAmountOnTillDate
-                                  .toIndianCurrency(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Paid",
+                        value:
+                            booking.refundedAmountOnTillDate.toIndianCurrency(),
                       ),
                     ],
                   ),
@@ -1834,29 +1691,25 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Pending",
-                          value: pendingAmount.toIndianCurrency(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Pending",
+                        value: pendingAmount.toIndianCurrency(),
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Refund Status",
-                          value: booking.approvalStatus,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Refund Status",
+                        value: booking.approvalStatus,
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-
+          },
+          verticalSpacing(),
           Container(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
             child: Column(
               spacing: 10,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1903,140 +1756,149 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
               ],
             ),
           ),
-          Container(
-            decoration: commonCardDecoration(),
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Call Log History", style: AppTextStyle.ts16SB()),
 
-                const SizedBox(height: 20),
+          verticalSpacing(),
+          BlocBuilder<CallLogsCubit, CallLogsState>(
+            builder: (context, state) {
+              return Container(
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Call Log History", style: AppTextStyle.ts16SB()),
 
-                state.payTrackCallLogList.isEmpty
-                    ? Center(
-                      child: noDataWidget(
-                        message: "No Call Logs Found",
-                        iconSize: 180,
-                      ),
-                    )
-                    : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: state.payTrackCallLogList.length,
-                      itemBuilder: (context, index) {
-                        final callLog = state.payTrackCallLogList[index];
+                    verticalSpacing(height: 20),
 
-                        final bool isLast =
-                            index == state.payTrackCallLogList.length - 1;
+                    state.payTrackCallLogList.isEmpty
+                        ? Center(
+                          child: noDataWidget(
+                            message: "No Call Logs Found",
+                            iconSize: 180,
+                          ),
+                        )
+                        : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: state.payTrackCallLogList.length,
+                          itemBuilder: (context, index) {
+                            final callLog = state.payTrackCallLogList[index];
 
-                        return IntrinsicHeight(
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Column(
+                            final bool isLast =
+                                index == state.payTrackCallLogList.length - 1;
+
+                            return IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    width: 18,
-                                    height: 18,
-                                    decoration: const BoxDecoration(
-                                      color: AppColor.primary,
-                                      shape: BoxShape.circle,
-                                    ),
+                                  Column(
+                                    children: [
+                                      Container(
+                                        width: 18,
+                                        height: 18,
+                                        decoration: const BoxDecoration(
+                                          color: AppColor.primary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+
+                                      if (!isLast)
+                                        Expanded(
+                                          child: Container(
+                                            width: 3,
+                                            margin: const EdgeInsets.symmetric(
+                                              vertical: 2,
+                                            ),
+                                            color: AppColor.primary,
+                                          ),
+                                        ),
+                                    ],
                                   ),
 
-                                  if (!isLast)
-                                    Expanded(
-                                      child: Container(
-                                        width: 3,
-                                        margin: const EdgeInsets.symmetric(
-                                          vertical: 2,
-                                        ),
-                                        color: AppColor.primary,
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 24,
                                       ),
-                                    ),
-                                ],
-                              ),
-
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 24),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
+                                      child: Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Expanded(
-                                            child: Text(
-                                              formatDateTimeAsDDMMMYYYY(
-                                                callLog.createdDate,
-                                              ),
-                                              style: AppTextStyle.ts16SB(),
-                                            ),
-                                          ),
-                                          callLogStatusWidget(
-                                            callLog.callStatus,
-                                          ),
-                                        ],
-                                      ),
-                                      verticalSpacing(height: 8),
-                                      Text(
-                                        callLog.createdBy,
-                                        style: AppTextStyle.ts14R(
-                                          color: AppColor.grey,
-                                        ),
-                                      ),
-                                      if (callLog.callPurpose.isNotEmpty) ...[
-                                        verticalSpacing(),
-                                        RichText(
-                                          text: TextSpan(
-                                            text: "Purpose: ",
-                                            style: AppTextStyle.ts14SB(
-                                              color: AppColor.black,
-                                            ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              TextSpan(
-                                                text: callLog.callPurpose,
-                                                style: AppTextStyle.ts14SB(
-                                                  color: AppColor.grey,
+                                              Expanded(
+                                                child: Text(
+                                                  formatDateTimeAsDDMMMYYYY(
+                                                    callLog.createdDate,
+                                                  ),
+                                                  style: AppTextStyle.ts16SB(),
                                                 ),
+                                              ),
+                                              callLogStatusWidget(
+                                                callLog.callStatus,
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      ],
-                                      if (callLog.promiseAmount > 0) ...[
-                                        verticalSpacing(),
-                                        Text(
-                                          "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
-                                          style: AppTextStyle.ts14SB(
-                                            color: Colors.green,
+                                          verticalSpacing(height: 8),
+                                          Text(
+                                            callLog.createdBy,
+                                            style: AppTextStyle.ts14R(
+                                              color: AppColor.grey,
+                                            ),
                                           ),
-                                        ),
-                                        verticalSpacing(),
-                                        Text(
-                                          callLog.remark,
-                                          style: AppTextStyle.ts14R(
-                                            color: AppColor.black,
-                                          ),
-                                        ),
-                                      ],
-                                    ],
+                                          if (callLog
+                                              .callPurpose
+                                              .isNotEmpty) ...[
+                                            verticalSpacing(),
+                                            RichText(
+                                              text: TextSpan(
+                                                text: "Purpose: ",
+                                                style: AppTextStyle.ts14SB(
+                                                  color: AppColor.black,
+                                                ),
+                                                children: [
+                                                  TextSpan(
+                                                    text: callLog.callPurpose,
+                                                    style: AppTextStyle.ts14SB(
+                                                      color: AppColor.grey,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                          if (callLog.promiseAmount > 0) ...[
+                                            verticalSpacing(),
+                                            Text(
+                                              "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
+                                              style: AppTextStyle.ts14SB(
+                                                color: Colors.green,
+                                              ),
+                                            ),
+                                            verticalSpacing(),
+                                            Text(
+                                              callLog.remark,
+                                              style: AppTextStyle.ts14R(
+                                                color: AppColor.black,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-              ],
-            ),
+                            );
+                          },
+                        ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -2063,159 +1925,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   ? AppColor.primary
                   : AppColor.purple,
         ),
-      ),
-    );
-  }
-}
-
-class CustomMessageButton extends StatefulWidget {
-  final bool isDisabled;
-  final VoidCallback onWelcome;
-  final VoidCallback onEmail;
-
-  const CustomMessageButton({
-    super.key,
-    required this.onWelcome,
-    required this.onEmail,
-    this.isDisabled = false,
-  });
-
-  @override
-  State<CustomMessageButton> createState() => _CustomMessageButtonState();
-}
-
-class _CustomMessageButtonState extends State<CustomMessageButton> {
-  final LayerLink _layerLink = LayerLink();
-  final GlobalKey _buttonKey = GlobalKey();
-
-  OverlayEntry? _overlayEntry;
-
-  void _toggleOverlay() {
-    if (_overlayEntry != null) {
-      _removeOverlay();
-    } else {
-      _showOverlay();
-    }
-  }
-
-  void _showOverlay() {
-    const double dropdownWidth = 160.0;
-
-    final RenderBox buttonBox =
-        _buttonKey.currentContext!.findRenderObject() as RenderBox;
-
-    final Offset buttonPosition = buttonBox.localToGlobal(Offset.zero);
-
-    final double screenWidth = MediaQuery.of(context).size.width;
-
-    double shiftX = 0;
-
-    final overflowRight = buttonPosition.dx + dropdownWidth - screenWidth;
-
-    if (overflowRight > 0) {
-      shiftX = -overflowRight - 8;
-    }
-
-    _overlayEntry = OverlayEntry(
-      builder: (_) {
-        return Stack(
-          children: [
-            Positioned.fill(
-              child: GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: _removeOverlay,
-              ),
-            ),
-            CompositedTransformFollower(
-              link: _layerLink,
-              showWhenUnlinked: false,
-              offset: Offset(shiftX, 42),
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  width: dropdownWidth,
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: .12),
-                        blurRadius: 10,
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildItem(
-                        icon: Icons.message_outlined,
-                        label: "Send Message",
-                        onTap: () {
-                          _removeOverlay();
-                          widget.onWelcome();
-                        },
-                      ),
-                      _buildItem(
-                        icon: Icons.email_outlined,
-                        label: "Send e-mail",
-                        onTap: () {
-                          _removeOverlay();
-                          widget.onEmail();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    Overlay.of(context, rootOverlay: true).insert(_overlayEntry!);
-  }
-
-  Widget _buildItem({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Text(
-          label,
-          style: AppTextStyle.ts14R(
-            color: AppColor.black.withValues(alpha: 0.5),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _removeOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-  }
-
-  @override
-  void dispose() {
-    _removeOverlay();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _layerLink,
-      child: CustomButton(
-        key: _buttonKey,
-        text: "Welcome",
-        isDisable: widget.isDisabled,
-        onPressed: _toggleOverlay,
       ),
     );
   }

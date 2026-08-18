@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/loan_details/data/model/loan_details.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class BookingLoanDetailsDatasource {
   Future<Map<String, dynamic>> apicallPullBookingLoanDetails({
@@ -39,16 +40,16 @@ class BookingLoanDetailsDatasourceImpl extends BookingLoanDetailsDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String pullBookingLoanDetailsUrl({
+      Map<String, dynamic>? queryParams,
       required int pageSize,
       required int pageNumber,
       required int bookingId,
       required int projectId,
-      Map<String, dynamic>? queryParams,
     }) {
       String url =
           "BookingLoanDetails/PullBookingLoanDetails?PageSize=$pageSize"
           "&PageNumber=$pageNumber&BookingId=$bookingId&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -121,13 +122,17 @@ class BookingLoanDetailsDatasourceImpl extends BookingLoanDetailsDatasource {
     required int bookingId,
   }) async {
     String deleteBookingLoanDetailsUrl({
+      Map<String, dynamic>? queryParams,
       required int bookingLoanDetailsId,
       required int projectId,
       required int bookingId,
       required String uniqueKey,
     }) {
-      return "BookingLoanDetails/DeleteBookingLoanDetails?BookingLoanDetailsId=$bookingLoanDetailsId"
+      String url =
+          "BookingLoanDetails/DeleteBookingLoanDetails?BookingLoanDetailsId=$bookingLoanDetailsId"
           "&ProjectId=$projectId&BookingId=$bookingId&Uniquekey=$uniqueKey";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {

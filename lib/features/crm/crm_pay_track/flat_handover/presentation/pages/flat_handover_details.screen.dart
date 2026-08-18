@@ -115,18 +115,14 @@ class _FlatHandoverDetailsScreenState extends State<FlatHandoverDetailsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Wing",
-                            value: widget.bookingModel?.wing ?? "-",
-                          ),
+                        buildColumnTitleValue(
+                          title: "Wing",
+                          value: widget.bookingModel?.wing ?? "-",
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Floor",
-                            value: widget.bookingModel?.floor ?? "-",
-                          ),
+                        buildColumnTitleValue(
+                          title: "Floor",
+                          value: widget.bookingModel?.floor ?? "-",
                         ),
                       ],
                     ),
@@ -135,19 +131,14 @@ class _FlatHandoverDetailsScreenState extends State<FlatHandoverDetailsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Unit Number",
-                            value: widget.bookingModel?.flat ?? "-",
-                          ),
+                        buildColumnTitleValue(
+                          title: "Unit Number",
+                          value: widget.bookingModel?.flat ?? "-",
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Configuration",
-                            value:
-                                widget.bookingModel?.flatConfiguration ?? "-",
-                          ),
+                        buildColumnTitleValue(
+                          title: "Configuration",
+                          value: widget.bookingModel?.flatConfiguration ?? "-",
                         ),
                       ],
                     ),
@@ -156,42 +147,31 @@ class _FlatHandoverDetailsScreenState extends State<FlatHandoverDetailsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "RERA Carpet Area (SqFt)",
-                            value:
-                                widget.bookingModel?.reraCarpetAreaSqFt
-                                    .toString() ??
-                                "-",
-                          ),
+                        buildColumnTitleValue(
+                          title: "RERA Carpet Area (SqFt)",
+                          value:
+                              widget.bookingModel?.reraCarpetAreaSqFt
+                                  .toString() ??
+                              "-",
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Agreement Value (With TDS) (₹)",
-                            value:
-                                widget.bookingModel?.agreementValue
-                                    .toIndianCurrency() ??
-                                "-",
-                          ),
+                        buildColumnTitleValue(
+                          title: "Agreement Value (With TDS) (₹)",
+                          value:
+                              widget.bookingModel?.agreementValue
+                                  .toIndianCurrency() ??
+                              "-",
                         ),
                       ],
                     ),
                     verticalSpacing(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Number Of Parking",
-                            value:
-                                widget.bookingModel?.numberOfParking
-                                    .toString() ??
-                                "-",
-                          ),
-                        ),
-                      ],
+                    buildRowWrapper(
+                      child: buildColumnTitleValue(
+                        title: "Number Of Parking",
+                        value:
+                            widget.bookingModel?.numberOfParking.toString() ??
+                            "-",
+                      ),
                     ),
                   ],
                 ),

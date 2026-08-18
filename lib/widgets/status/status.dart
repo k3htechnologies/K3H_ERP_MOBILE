@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/widgets/status/approval_status.dart';
 import 'package:k3h_erp_app/widgets/status/call_log_status.dart';
 import 'package:k3h_erp_app/widgets/status/channel_partner_category_status.dart';
 import 'package:k3h_erp_app/widgets/status/enquiry_status.dart';
+import 'package:k3h_erp_app/widgets/status/flat_handover_checklist.dart';
 import 'package:k3h_erp_app/widgets/status/inward_outward_status.dart';
 import 'package:k3h_erp_app/widgets/status/project_status.dart';
 
@@ -140,5 +141,17 @@ Widget activeInactiveStatusWidget(
       ),
     ),
     trailing: trailing,
+  );
+}
+
+Widget flatHandoverChecklistStatusWidget(
+  String status, {
+  TextStyle? textStyle,
+}) {
+  final formatted = formattedStatus(status.trim());
+  return commonStatusWidget(
+    status: formatted,
+    config: flatHandoverChecklistStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }

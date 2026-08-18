@@ -9,7 +9,6 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
@@ -136,28 +135,7 @@ class _FilesScreenState extends State<FilesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildSearchBar(),
-            if (_filesAuthorization.isAction && !isBookingCancelledOrRefund)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: CustomButton(
-                      text: "Add",
-                      onPressed: () {
-                        goRouter.pushNamed(
-                          AppRoutes.addFiles,
-                          extra: {
-                            'bookingId': widget.bookingId,
-                            'projectId': widget.projectId,
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            verticalSpacing(),
+
             Expanded(
               child: BlocBuilder<FilesCubit, FilesState>(
                 builder: (context, state) {
@@ -176,12 +154,7 @@ class _FilesScreenState extends State<FilesScreen> {
                   }
                   return ListView.builder(
                     controller: scrollController,
-                    itemCount:
-                        state.payTrackBookingFileList.length +
-                        (state.payTrackBookingFileList.length <
-                                state.totalNumberOfRecord
-                            ? 1
-                            : 0),
+                    itemCount: state.payTrackBookingFileList.length + 1,
                     shrinkWrap: true,
                     physics: AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(
@@ -270,24 +243,10 @@ class _FilesScreenState extends State<FilesScreen> {
     );
   }
 
-  Widget buildRowTitleValueNormal({
-    required String title,
-    required String value,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 170,
-          child: Text(title, style: AppTextStyle.ts14R(color: Colors.grey)),
-        ),
-        const Text(":", style: TextStyle(fontSize: 18, color: Colors.grey)),
-        const SizedBox(width: 20),
-        Expanded(child: Text(value, style: AppTextStyle.ts14M())),
-      ],
-    );
-  }
-
   Widget _buildSearchBar() {
+    final bool isBookingCancelledOrRefund =
+        widget.bookingApprovalStatus?.toUpperCase() == "CANCEL" ||
+        widget.bookingApprovalStatus?.toUpperCase() == "REFUND";
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
       child: Row(
@@ -309,6 +268,20 @@ class _FilesScreenState extends State<FilesScreen> {
               textController: _searchTextC,
             ),
           ),
+          horizontalSpacing(),
+          if (_filesAuthorization.isAction && !isBookingCancelledOrRefund)
+            CustomButton(
+              text: "Add",
+              onPressed: () {
+                goRouter.pushNamed(
+                  AppRoutes.addFiles,
+                  extra: {
+                    'bookingId': widget.bookingId,
+                    'projectId': widget.projectId,
+                  },
+                );
+              },
+            ),
         ],
       ),
     );

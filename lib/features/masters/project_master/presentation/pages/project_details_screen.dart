@@ -953,25 +953,21 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "RERA Number",
-                      value:
-                          widget.project.reraNumber.isNotEmpty
-                              ? widget.project.reraNumber
-                              : "-",
-                    ),
+                  buildColumnTitleValue(
+                    title: "RERA Number",
+                    value:
+                        widget.project.reraNumber.isNotEmpty
+                            ? widget.project.reraNumber
+                            : "-",
                   ),
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "RERA Certificate Date",
-                      value:
-                          widget.project.reraCertificateDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.reraCertificateDate!,
-                              )
-                              : "-",
-                    ),
+                  buildColumnTitleValue(
+                    title: "RERA Certificate Date",
+                    value:
+                        widget.project.reraCertificateDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.reraCertificateDate!,
+                            )
+                            : "-",
                   ),
                 ],
               ),
@@ -980,22 +976,18 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "RERA Completion Date",
-                      value:
-                          widget.project.reraPossessionDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.reraPossessionDate!,
-                              )
-                              : "-",
-                    ),
+                  buildColumnTitleValue(
+                    title: "RERA Completion Date",
+                    value:
+                        widget.project.reraPossessionDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.reraPossessionDate!,
+                            )
+                            : "-",
                   ),
-                  Expanded(
-                    child: buildColumnTitleValueNormal(
-                      title: "APF Number",
-                      value: widget.project.apfNumber.toString(),
-                    ),
+                  buildColumnTitleValue(
+                    title: "APF Number",
+                    value: widget.project.apfNumber.toString(),
                   ),
                 ],
               ),

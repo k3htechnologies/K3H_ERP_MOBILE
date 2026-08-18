@@ -4,10 +4,14 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddFilesScreen extends StatefulWidget {
   final int projectId;
@@ -95,17 +99,24 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: widget.isEdit ? "Update Files" : "Add Files",
+        screenTitle: "Files",
         authorization: AuthorizationModel(),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.isEdit ? "Update Files" : "Add Files",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              decoration: commonCardDecoration(),
+              child: Form(
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -151,8 +162,8 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(

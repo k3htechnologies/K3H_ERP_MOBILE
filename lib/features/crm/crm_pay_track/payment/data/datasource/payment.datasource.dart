@@ -1,10 +1,9 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_ledger_summary.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/data/model/pay_track_payment_schedule_demand_summary.model.dart';
-// ignore: unused_import
-import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 import '../model/pay_track_payment_schedule.model.dart';
 
@@ -72,15 +71,14 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "PayTrack/PullPayTrackPaymentSchedule?BookingId=$bookingId&ProjectId=$projectId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -119,15 +117,14 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "PayTrack/PullPayTrackPaymentLedger?BookingId=$bookingId&ProjectId=$projectId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -197,14 +194,18 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     required String uniqueKey,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int projectId,
       required int payTrackPaymentLedgerId,
       required String uniqueKey,
     }) {
-      return "PayTrack/DeletePayTrackPaymentLedger?"
+      String url =
+          "PayTrack/DeletePayTrackPaymentLedger?"
           "ProjectId=$projectId"
           "&PayTrackPaymentLedgerId=$payTrackPaymentLedgerId"
           "&UniqueKey=$uniqueKey";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -240,15 +241,14 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "PayTrack/PullPayTrackPaymentLedgerSummary?BookingId=$bookingId&ProjectId=$projectId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -283,15 +283,14 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "PayTrack/PullPayTrackPaymentSchedule?BookingId=$bookingId&ProjectId=$projectId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -352,16 +351,15 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
       required String paymentFor,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "PayTrack/PullPayTrackPaymentLedgerSummary?BookingId=$bookingId&ProjectId=$projectId&PaymentFor=${Uri.encodeComponent(paymentFor)}";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -403,16 +401,15 @@ class PaymentDatasourceImpl extends PaymentDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
       required int bookingPaymentScheduleId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "PayTrack/PullPayTrackPaymentScheduleDemandSummary?ProjectId=$projectId&BookingId=$bookingId&BookingPaymentScheduleId=$bookingPaymentScheduleId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {

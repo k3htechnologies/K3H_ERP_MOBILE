@@ -53,25 +53,21 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Type",
-                            value: applicant.applicantType,
-                          ),
+                        buildColumnTitleValue(
+                          title: "Type",
+                          value: applicant.applicantType,
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Proof Of Document",
+                          value: applicant.proofOfDocumentUrl,
+                          customValueWidget: DocumentPreviewText(
                             title: "Proof Of Document",
-                            value: applicant.proofOfDocumentUrl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Proof Of Document",
-                              text:
-                                  applicant.proofOfDocumentUrl.isEmpty
-                                      ? "-"
-                                      : "View",
-                              fileUrl: applicant.proofOfDocumentUrl,
-                            ),
+                            text:
+                                applicant.proofOfDocumentUrl.isEmpty
+                                    ? "-"
+                                    : "View",
+                            fileUrl: applicant.proofOfDocumentUrl,
                           ),
                         ),
                       ],
@@ -81,27 +77,23 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Applicant Name",
-                            value: applicant.applicantName,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Profile Photo",
-                              text: applicant.applicantName,
-                              fileUrl: applicant.photoUrl,
-                            ),
+                        buildColumnTitleValue(
+                          title: "Applicant Name",
+                          value: applicant.applicantName,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Profile Photo",
+                            text: applicant.applicantName,
+                            fileUrl: applicant.photoUrl,
                           ),
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Mobile Number",
+                        buildColumnTitleValue(
+                          title: "Mobile Number",
+                          value: applicant.applicantMobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode:
+                                applicant.applicantMobileNumberCountryCode,
                             value: applicant.applicantMobileNumber,
-                            customValueWidget: CustomClickToContactText(
-                              countryCode:
-                                  applicant.applicantMobileNumberCountryCode,
-                              value: applicant.applicantMobileNumber,
-                            ),
                           ),
                         ),
                       ],
@@ -111,22 +103,18 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "E-Mail ID",
-                            value: applicant.applicantEmailId,
-                          ),
+                        buildColumnTitleValue(
+                          title: "E-Mail ID",
+                          value: applicant.applicantEmailId,
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Aadhaar Card No.",
+                          value: applicant.aadharCardNumber,
+                          customValueWidget: DocumentPreviewText(
                             title: "Aadhaar Card No.",
-                            value: applicant.aadharCardNumber,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Aadhaar Card No.",
-                              text: applicant.aadharCardNumber,
-                              fileUrl: applicant.aadharCardUrl,
-                            ),
+                            text: applicant.aadharCardNumber,
+                            fileUrl: applicant.aadharCardUrl,
                           ),
                         ),
                       ],
@@ -136,27 +124,23 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "PAN No.",
+                          value: applicant.panNumber,
+                          customValueWidget: DocumentPreviewText(
                             title: "PAN No.",
-                            value: applicant.panNumber,
-                            customValueWidget: DocumentPreviewText(
-                              title: "PAN No.",
-                              text: applicant.panNumber,
-                              fileUrl: applicant.panCardUrl,
-                            ),
+                            text: applicant.panNumber,
+                            fileUrl: applicant.panCardUrl,
                           ),
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Driving License",
+                          value: applicant.drivingLicenseNumber,
+                          customValueWidget: DocumentPreviewText(
                             title: "Driving License",
-                            value: applicant.drivingLicenseNumber,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Driving License",
-                              text: applicant.drivingLicenseNumber,
-                              fileUrl: applicant.drivingLicenseUrl,
-                            ),
+                            text: applicant.drivingLicenseNumber,
+                            fileUrl: applicant.drivingLicenseUrl,
                           ),
                         ),
                       ],
@@ -166,27 +150,23 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Voting ID No.",
+                          value: applicant.votingIdNumber,
+                          customValueWidget: DocumentPreviewText(
                             title: "Voting ID No.",
-                            value: applicant.votingIdNumber,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Voting ID No.",
-                              text: applicant.votingIdNumber,
-                              fileUrl: applicant.votingIdUrl,
-                            ),
+                            text: applicant.votingIdNumber,
+                            fileUrl: applicant.votingIdUrl,
                           ),
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Passport No.",
+                          value: applicant.passportNumber,
+                          customValueWidget: DocumentPreviewText(
                             title: "Passport No.",
-                            value: applicant.passportNumber,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Passport No.",
-                              text: applicant.passportNumber,
-                              fileUrl: applicant.passportUrl,
-                            ),
+                            text: applicant.passportNumber,
+                            fileUrl: applicant.passportUrl,
                           ),
                         ),
                       ],
@@ -196,30 +176,26 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "GST No.",
+                          value: applicant.gstNumber,
+                          customValueWidget: DocumentPreviewText(
                             title: "GST No.",
-                            value: applicant.gstNumber,
-                            customValueWidget: DocumentPreviewText(
-                              title: "GST No.",
-                              text: applicant.gstNumber,
-                              fileUrl: applicant.gstNumberUrl,
-                            ),
+                            text: applicant.gstNumber,
+                            fileUrl: applicant.gstNumberUrl,
                           ),
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Cancelled Cheque",
+                          value: applicant.cancelledChequeUrl,
+                          customValueWidget: DocumentPreviewText(
                             title: "Cancelled Cheque",
-                            value: applicant.cancelledChequeUrl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Cancelled Cheque",
-                              text:
-                                  applicant.cancelledChequeUrl.isEmpty
-                                      ? "-"
-                                      : "View",
-                              fileUrl: applicant.cancelledChequeUrl,
-                            ),
+                            text:
+                                applicant.cancelledChequeUrl.isEmpty
+                                    ? "-"
+                                    : "View",
+                            fileUrl: applicant.cancelledChequeUrl,
                           ),
                         ),
                       ],
@@ -229,30 +205,26 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "POA (if NRI Execution)",
+                          value: applicant.poaurl,
+                          customValueWidget: DocumentPreviewText(
                             title: "POA (if NRI Execution)",
-                            value: applicant.poaurl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "POA (if NRI Execution)",
-                              text: applicant.poaurl.isEmpty ? "-" : "View",
-                              fileUrl: applicant.poaurl,
-                            ),
+                            text: applicant.poaurl.isEmpty ? "-" : "View",
+                            fileUrl: applicant.poaurl,
                           ),
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Income Docs (Form 16 / ITR)",
+                          value: applicant.incomeForm16Itrurl,
+                          customValueWidget: DocumentPreviewText(
                             title: "Income Docs (Form 16 / ITR)",
-                            value: applicant.incomeForm16Itrurl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Income Docs (Form 16 / ITR)",
-                              text:
-                                  applicant.incomeForm16Itrurl.isEmpty
-                                      ? "-"
-                                      : "View",
-                              fileUrl: applicant.incomeForm16Itrurl,
-                            ),
+                            text:
+                                applicant.incomeForm16Itrurl.isEmpty
+                                    ? "-"
+                                    : "View",
+                            fileUrl: applicant.incomeForm16Itrurl,
                           ),
                         ),
                       ],
@@ -262,33 +234,27 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "NRE / NRO Bank Details",
+                          value: applicant.nreNroBankDetailsUrl,
+                          customValueWidget: DocumentPreviewText(
                             title: "NRE / NRO Bank Details",
-                            value: applicant.nreNroBankDetailsUrl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "NRE / NRO Bank Details",
-                              text:
-                                  applicant.nreNroBankDetailsUrl.isEmpty
-                                      ? "-"
-                                      : "View",
-                              fileUrl: applicant.nreNroBankDetailsUrl,
-                            ),
+                            text:
+                                applicant.nreNroBankDetailsUrl.isEmpty
+                                    ? "-"
+                                    : "View",
+                            fileUrl: applicant.nreNroBankDetailsUrl,
                           ),
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Nominee Form \n",
+                          value: applicant.nomineeFormUrl,
+                          customValueWidget: DocumentPreviewText(
                             title: "Nominee Form \n",
-                            value: applicant.nomineeFormUrl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Nominee Form \n",
-                              text:
-                                  applicant.nomineeFormUrl.isEmpty
-                                      ? "-"
-                                      : "View",
-                              fileUrl: applicant.nomineeFormUrl,
-                            ),
+                            text:
+                                applicant.nomineeFormUrl.isEmpty ? "-" : "View",
+                            fileUrl: applicant.nomineeFormUrl,
                           ),
                         ),
                       ],
@@ -298,33 +264,29 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Statement Of Source Of Funds",
+                          value: applicant.statementOfSourceOfFundsUrl,
+                          customValueWidget: DocumentPreviewText(
                             title: "Statement Of Source Of Funds",
-                            value: applicant.statementOfSourceOfFundsUrl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Statement Of Source Of Funds",
-                              text:
-                                  applicant.statementOfSourceOfFundsUrl.isEmpty
-                                      ? "-"
-                                      : "View",
-                              fileUrl: applicant.statementOfSourceOfFundsUrl,
-                            ),
+                            text:
+                                applicant.statementOfSourceOfFundsUrl.isEmpty
+                                    ? "-"
+                                    : "View",
+                            fileUrl: applicant.statementOfSourceOfFundsUrl,
                           ),
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
+                        buildColumnTitleValue(
+                          title: "Payment Proof \n",
+                          value: applicant.paymentProofUrl,
+                          customValueWidget: DocumentPreviewText(
                             title: "Payment Proof \n",
-                            value: applicant.paymentProofUrl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Payment Proof \n",
-                              text:
-                                  applicant.paymentProofUrl.isEmpty
-                                      ? "-"
-                                      : "View",
-                              fileUrl: applicant.paymentProofUrl,
-                            ),
+                            text:
+                                applicant.paymentProofUrl.isEmpty
+                                    ? "-"
+                                    : "View",
+                            fileUrl: applicant.paymentProofUrl,
                           ),
                         ),
                       ],
@@ -334,19 +296,15 @@ class _ViewBookingApplicantHistoryScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Created By",
-                            value: applicant.createdBy,
-                          ),
+                        buildColumnTitleValue(
+                          title: "Created By",
+                          value: applicant.createdBy,
                         ),
                         horizontalSpacing(),
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Created Date",
-                            value: formatDateTimeAsDDMMMYYYY(
-                              applicant.createdDate!,
-                            ),
+                        buildColumnTitleValue(
+                          title: "Created Date",
+                          value: formatDateTimeAsDDMMMYYYY(
+                            applicant.createdDate!,
                           ),
                         ),
                       ],

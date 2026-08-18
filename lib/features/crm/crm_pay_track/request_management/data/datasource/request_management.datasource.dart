@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/m
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/refund_amount_payment_ledger.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class RequestManagementDatasource {
   Future<Map<String, dynamic>> apicallPullFlatAlterationRequest({
@@ -96,18 +97,17 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int pageSize,
       required int pageNumber,
       required int projectId,
       required int bookingId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "BookingModificationRequest/PullFlatAlterationRequest?PageSize=$pageSize"
           "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -152,18 +152,17 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int pageSize,
       required int pageNumber,
       required int projectId,
       required int bookingId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "BookingModificationRequest/PullParkingModificationRequest?PageSize=$pageSize"
           "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -208,18 +207,17 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int pageSize,
       required int pageNumber,
       required int projectId,
       required int bookingId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "BookingModificationRequest/PullBookingApplicantModificationRequest?PageSize=$pageSize"
           "&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -391,15 +389,14 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String url({
+      Map<String, dynamic>? queryParams,
       required int projectId,
       required int bookingId,
-      Map<String, dynamic>? queryParams,
     }) {
-      String finalUrl =
+      String url =
           "AmountRefundedAgainstBooking/PullRefundedAmountLedger?ProjectId=$projectId&BookingId=$bookingId";
-
-      queryParams?.forEach((key, value) => finalUrl += "&$key=$value");
-      return finalUrl;
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -470,12 +467,16 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     required String uniqueKey,
   }) async {
     String deleteRefundedAmountLedgerUrl({
+      Map<String, dynamic>? queryParams,
       required int projectId,
       required int refundedAmountLedgerId,
       required int bookingId,
       required String uniqueKey,
     }) {
-      return "AmountRefundedAgainstBooking/DeleteRefundedAmountLedger?RefundedAmountLedgerId=$refundedAmountLedgerId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+      String url =
+          "AmountRefundedAgainstBooking/DeleteRefundedAmountLedger?RefundedAmountLedgerId=$refundedAmountLedgerId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -512,11 +513,15 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     required int bookingId,
   }) async {
     String deleteBookingApplicantModificationRequestUrl({
+      Map<String, dynamic>? queryParams,
       required int projectId,
       required int bookingApplicantModificationRequestId,
       required int bookingId,
     }) {
-      return "BookingModificationRequest/DeleteBookingApplicantModificationRequest?BookingApplicantModificationRequestId=$bookingApplicantModificationRequestId&BookingId=$bookingId&ProjectId=$projectId";
+      String url =
+          "BookingModificationRequest/DeleteBookingApplicantModificationRequest?BookingApplicantModificationRequestId=$bookingApplicantModificationRequestId&BookingId=$bookingId&ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -553,18 +558,22 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     required int bookingId,
     required int projectId,
   }) async {
-    String deleteDepartmentUrl({
+    String deleteFlatAlerationRequestUrl({
+      Map<String, dynamic>? queryParams,
       required int flatAlterationRequestId,
       required String uniqueKey,
       required int bookingId,
       required int projectId,
     }) {
-      return "BookingModificationRequest/DeleteFlatAlterationRequest?FlatAlterationRequestId=$flatAlterationRequestId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+      String url =
+          "BookingModificationRequest/DeleteFlatAlterationRequest?FlatAlterationRequestId=$flatAlterationRequestId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteDepartmentUrl(
+        deleteFlatAlerationRequestUrl(
           flatAlterationRequestId: flatAlterationRequestId,
           uniqueKey: uniqueKey,
           bookingId: bookingId,
@@ -596,18 +605,22 @@ class RequestManagementDatasourceImpl extends RequestManagementDatasource {
     required int bookingId,
     required int projectId,
   }) async {
-    String deleteDepartmentUrl({
+    String deleteParkingModificationRequestUrl({
+      Map<String, dynamic>? queryParams,
       required int parkingModificationRequestId,
       required String uniqueKey,
       required int bookingId,
       required int projectId,
     }) {
-      return "BookingModificationRequest/DeleteParkingModificationRequest?ParkingModificationRequestId=$parkingModificationRequestId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+      String url =
+          "BookingModificationRequest/DeleteParkingModificationRequest?ParkingModificationRequestId=$parkingModificationRequestId&Uniquekey=$uniqueKey&BookingId=$bookingId&ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deleteDepartmentUrl(
+        deleteParkingModificationRequestUrl(
           parkingModificationRequestId: parkingModificationRequestId,
           uniqueKey: uniqueKey,
           bookingId: bookingId,

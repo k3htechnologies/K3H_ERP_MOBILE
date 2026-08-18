@@ -511,18 +511,14 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Unit No.",
-                                value: value.flat,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Unit No.",
+                              value: value.flat,
                             ),
                             horizontalSpacing(),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Applicant",
-                                value: value.applicantName,
-                              ),
+                            buildColumnTitleValue(
+                              title: "Applicant",
+                              value: value.applicantName,
                             ),
                           ],
                         ),
@@ -531,20 +527,14 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Amount",
-                                value: value.agreementValue.toIndianCurrency(),
-                              ),
+                            buildColumnTitleValue(
+                              title: "Amount",
+                              value: value.agreementValue.toIndianCurrency(),
                             ),
                             horizontalSpacing(),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Date",
-                                value: formatDateTimeReadable(
-                                  value.createdDate,
-                                ),
-                              ),
+                            buildColumnTitleValue(
+                              title: "Date",
+                              value: formatDateTimeReadable(value.createdDate),
                             ),
                           ],
                         ),
