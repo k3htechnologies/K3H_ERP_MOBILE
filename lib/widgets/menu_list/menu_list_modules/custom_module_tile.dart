@@ -49,6 +49,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
     "assets/sideDrawer/settingsModule.svg":
         AppAssets.settingDashboardFilledIcon,
     "assets/sideDrawer/payRollModule.svg": AppAssets.payRollDashboardFilledIcon,
+    "assets/sideDrawer/moreModule.svg": AppAssets.moreFilledIcon,
   };
   // Helper method to get the correct icon path
   String _getIconPath(String iconPath) {

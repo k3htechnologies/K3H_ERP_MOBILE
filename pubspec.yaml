@@ -130,7 +130,6 @@ dependencies:
   flutter_quill_delta_from_html: ^1.5.1
   html: ^0.15.4
   vsc_quill_delta_to_html: ^1.0.5
-  flutter_cache_manager: ^3.4.2
 
 # DEV DEPENDENCIES
 dev_dependencies:
