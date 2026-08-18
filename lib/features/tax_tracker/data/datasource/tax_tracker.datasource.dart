@@ -44,6 +44,7 @@ class TaxTrackerDatasourceImpl implements TaxTrackerDatasource {
         'data': List<TaxTrackerModel>.from(
           networkResponse['data'].map((e) => TaxTrackerModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

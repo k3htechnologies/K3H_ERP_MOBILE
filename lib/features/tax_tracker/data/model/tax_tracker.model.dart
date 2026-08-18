@@ -13,17 +13,17 @@ class TaxTrackerModel {
   int noticeSectionMasterId;
   String noticeSection;
   String authority;
-  String noticeDate;
-  String dueDate;
+  DateTime? noticeDate;
+  DateTime? dueDate;
   String noticeStatus;
   List<TaxTrackerDocumentDetails> taxTrackerDocumentDetailsData;
   bool isDelete;
   int createdById;
   String createdBy;
-  String createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
-  String? modifiedDate;
+  DateTime? modifiedDate;
 
   TaxTrackerModel({
     required this.taxTrackerId,
@@ -51,36 +51,44 @@ class TaxTrackerModel {
     required this.modifiedDate,
   });
 
-  factory TaxTrackerModel.fromJson(Map<String, dynamic> json) =>
-      TaxTrackerModel(
-        taxTrackerId: parseValue<int>(json, "TaxTrackerId"),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        governmentCompliance: parseValue<String>(json, "GovernmentCompliance"),
-        companyId: parseValue<int>(json, "CompanyId"),
-        companyName: parseValue<String>(json, "CompanyName"),
-        financialYear: parseValue<String>(json, "FinancialYear"),
-        responsiblePersonId: parseValue<String>(json, "ResponsiblePersonId"),
-        responsiblePerson: parseValue<String>(json, "ResponsiblePerson"),
-        noticeType: parseValue<String>(json, "NoticeType"),
-        noticeSectionMasterId: parseValue<int>(json, "NoticeSectionMasterId"),
-        noticeSection: parseValue<String>(json, "NoticeSection"),
-        authority: parseValue<String>(json, "Authority"),
-        noticeDate: parseValue<String>(json, "NoticeDate"),
-        dueDate: parseValue<String>(json, "DueDate"),
-        noticeStatus: json["NoticeStatus"],
-        taxTrackerDocumentDetailsData: List<TaxTrackerDocumentDetails>.from(
-          json["TaxTrackerDocumentDetailsData"].map(
-            (x) => TaxTrackerDocumentDetails.fromJson(x),
-          ),
-        ),
-        isDelete: json["IsDelete"],
-        createdById: json["CreatedById"],
-        createdBy: json["CreatedBy"],
-        createdDate: json["CreatedDate"],
-        modifiedById: json["ModifiedById"],
-        modifiedBy: json["ModifiedBy"],
-        modifiedDate: json["ModifiedDate"],
-      );
+  factory TaxTrackerModel.fromJson(
+    Map<String, dynamic> json,
+  ) => TaxTrackerModel(
+    taxTrackerId: parseValue<int>(json, "TaxTrackerId"),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    governmentCompliance: parseValue<String>(json, "GovernmentCompliance"),
+    companyId: parseValue<int>(json, "CompanyId"),
+    companyName: parseValue<String>(json, "CompanyName"),
+    financialYear: parseValue<String>(json, "FinancialYear"),
+    responsiblePersonId: parseValue<String>(json, "ResponsiblePersonId"),
+    responsiblePerson: parseValue<String>(json, "ResponsiblePerson"),
+    noticeType: parseValue<String>(json, "NoticeType"),
+    noticeSectionMasterId: parseValue<int>(json, "NoticeSectionMasterId"),
+    noticeSection: parseValue<String>(json, "NoticeSection"),
+    authority: parseValue<String>(json, "Authority"),
+    noticeDate:
+        json["NoticeDate"] == null ? null : DateTime.parse(json["NoticeDate"]),
+    dueDate: json["DueDate"] == null ? null : DateTime.parse(json["DueDate"]),
+    noticeStatus: parseValue<String>(json, "NoticeStatus"),
+    taxTrackerDocumentDetailsData: List<TaxTrackerDocumentDetails>.from(
+      json["TaxTrackerDocumentDetailsData"].map(
+        (x) => TaxTrackerDocumentDetails.fromJson(x),
+      ),
+    ),
+    isDelete: parseValue<bool>(json, "IsDelete"),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate:
+        json["CreatedDate"] == null
+            ? null
+            : DateTime.parse(json["CreatedDate"]),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : DateTime.parse(json["ModifiedDate"]),
+  );
 
   Map<String, dynamic> toJson() => {
     "TaxTrackerId": taxTrackerId,
@@ -95,8 +103,8 @@ class TaxTrackerModel {
     "NoticeSectionMasterId": noticeSectionMasterId,
     "NoticeSection": noticeSection,
     "Authority": authority,
-    "NoticeDate": noticeDate,
-    "DueDate": dueDate,
+    "NoticeDate": noticeDate?.toIso8601String(),
+    "DueDate": dueDate?.toIso8601String(),
     "NoticeStatus": noticeStatus,
     "TaxTrackerDocumentDetailsData": List<dynamic>.from(
       taxTrackerDocumentDetailsData.map((x) => x.toJson()),
@@ -104,10 +112,10 @@ class TaxTrackerModel {
     "IsDelete": isDelete,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate,
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }
 
@@ -121,16 +129,16 @@ class TaxTrackerDocumentDetails {
   String noticeDescription;
   String officerName;
   String officerAddress;
-  String? amountUnderDisputeDate;
+  DateTime? amountUnderDisputeDate;
   int amountUnderDispute;
   String orderStatus;
   String noticeStatus;
   int createdById;
   String createdBy;
-  String createdDate;
+  DateTime? createdDate;
   int modifiedById;
   String modifiedBy;
-  String? modifiedDate;
+  DateTime? modifiedDate;
 
   TaxTrackerDocumentDetails({
     required this.taxTrackerDocumentId,
@@ -156,25 +164,34 @@ class TaxTrackerDocumentDetails {
 
   factory TaxTrackerDocumentDetails.fromJson(Map<String, dynamic> json) =>
       TaxTrackerDocumentDetails(
-        taxTrackerDocumentId: json["TaxTrackerDocumentId"],
-        uniquekey: json["Uniquekey"],
-        taxTrackerId: json["TaxTrackerId"],
-        requestType: json["RequestType"],
-        authorityType: json["AuthorityType"],
-        noticeDocumentUrl: json["NoticeDocumentURL"],
-        noticeDescription: json["NoticeDescription"],
-        officerName: json["OfficerName"],
-        officerAddress: json["OfficerAddress"],
-        amountUnderDisputeDate: json["AmountUnderDisputeDate"],
-        amountUnderDispute: json["AmountUnderDispute"],
-        orderStatus: json["OrderStatus"],
-        noticeStatus: json["NoticeStatus"],
-        createdById: json["CreatedById"],
-        createdBy: json["CreatedBy"],
-        createdDate: json["CreatedDate"],
-        modifiedById: json["ModifiedById"],
-        modifiedBy: json["ModifiedBy"],
-        modifiedDate: json["ModifiedDate"],
+        taxTrackerDocumentId: parseValue<int>(json, "TaxTrackerDocumentId"),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
+        taxTrackerId: parseValue<int>(json, "TaxTrackerId"),
+        requestType: parseValue<String>(json, "RequestType"),
+        authorityType: parseValue<String>(json, "AuthorityType"),
+        noticeDocumentUrl: parseValue<String>(json, "NoticeDocumentURL"),
+        noticeDescription: parseValue<String>(json, "NoticeDescription"),
+        officerName: parseValue<String>(json, "OfficerName"),
+        officerAddress: parseValue<String>(json, "OfficerAddress"),
+        amountUnderDisputeDate:
+            json["AmountUnderDisputeDate"] == null
+                ? null
+                : DateTime.parse(json["AmountUnderDisputeDate"]),
+        amountUnderDispute: parseValue<int>(json, "AmountUnderDispute"),
+        orderStatus: parseValue<String>(json, "OrderStatus"),
+        noticeStatus: parseValue<String>(json, "NoticeStatus"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate:
+            json["CreatedDate"] == null
+                ? null
+                : DateTime.parse(json["CreatedDate"]),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : DateTime.parse(json["ModifiedDate"]),
       );
 
   Map<String, dynamic> toJson() => {
@@ -187,15 +204,15 @@ class TaxTrackerDocumentDetails {
     "NoticeDescription": noticeDescription,
     "OfficerName": officerName,
     "OfficerAddress": officerAddress,
-    "AmountUnderDisputeDate": amountUnderDisputeDate,
+    "AmountUnderDisputeDate": amountUnderDisputeDate?.toIso8601String(),
     "AmountUnderDispute": amountUnderDispute,
     "OrderStatus": orderStatus,
     "NoticeStatus": noticeStatus,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate,
+    "CreatedDate": createdDate?.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }
