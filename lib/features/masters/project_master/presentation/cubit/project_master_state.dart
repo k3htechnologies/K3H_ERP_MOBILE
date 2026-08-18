@@ -8,7 +8,7 @@ class ProjectMasterState extends BaseState {
   // PROJECT DETAILS SCREEN
   final List<UserModel> employeeByProject;
   final List<UserModel> employeeByProjectOriginal;
-  final List<BankDetailsModel> bankByProject;
+  final List<ProjectWithBankDetailsModel> bankByProject;
   final List<CompanyModel> companyByProject;
 
   final String currentSortColumn;
@@ -141,7 +141,7 @@ class ProjectMasterState extends BaseState {
     List<ProjectModel>? projectList,
     List<ModulesWorkflowApprovalModel>? moduleWorkflowApprovalList,
     List<CompanyModel>? companyByProject,
-    List<BankDetailsModel>? bankByProject,
+    List<ProjectWithBankDetailsModel>? bankByProject,
     List<UserModel>? employeeByProject,
     List<UserModel>? employeeByProjectOriginal,
     List<ModuleModel>? modulesPermissionsList,

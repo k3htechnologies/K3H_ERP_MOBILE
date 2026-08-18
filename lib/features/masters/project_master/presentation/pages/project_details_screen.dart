@@ -10,11 +10,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/features/masters/project_master/presentation/cubit/project_master_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -2500,7 +2500,10 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   }
 
   // NAVIGATE TO EDIT BANK DETAILS SCREEN
-  void _navigateToEditBankDetails(BuildContext context, BankDetailsModel bank) {
+  void _navigateToEditBankDetails(
+    BuildContext context,
+    ProjectWithBankDetailsModel bank,
+  ) {
     final projectJson = jsonEncode(widget.project.toJson());
     final encryptedProject = EncryptionManager.encryptData(projectJson);
 
@@ -2519,7 +2522,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
   // SHOW DELETE BANK DIALOG
   Future<void> _showDeleteBankDialog(
     BuildContext context,
-    BankDetailsModel bank,
+    ProjectWithBankDetailsModel bank,
   ) async {
     final result = await DialogHelper.deleteDialog(
       context,

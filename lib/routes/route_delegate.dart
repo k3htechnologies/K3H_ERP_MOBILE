@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
-import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -19,14 +18,19 @@ import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_update_document_screen.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/offer_hardship_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_hardship_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_view_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
@@ -56,6 +60,7 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_inward_outward_screen.dart';
@@ -79,6 +84,7 @@ import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pa
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
@@ -2156,9 +2162,9 @@ final GoRouter goRouter = GoRouter(
                             : null;
                     final queryParameterBank =
                         state.uri.queryParameters['bank'];
-                    final BankDetailsModel? bankDetailsModel =
+                    final ProjectWithBankDetailsModel? bankDetailsModel =
                         queryParameterBank != null
-                            ? BankDetailsModel.fromJson(
+                            ? ProjectWithBankDetailsModel.fromJson(
                               jsonDecode(
                                 EncryptionManager.decryptData(
                                   Uri.decodeComponent(queryParameterBank),
@@ -2378,8 +2384,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.building,
               path: AppRoutes.building,
               builder: (context, state) {
-                // return const BuildingScreen();
-                return const ComingSoonScreen(title: "Building");
+                return const BuildingScreen();
+                // return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
@@ -2516,8 +2522,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.tenant,
               path: AppRoutes.tenant,
               builder: (context, state) {
-                // return const TenantScreen();
-                return const ComingSoonScreen(title: "Tenant");
+                return const TenantScreen();
+                // return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2597,8 +2603,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                // return TemporaryAlternateAccommodationScreen();
-                return const ComingSoonScreen(title: "TAA");
+                return TemporaryAlternateAccommodationScreen();
+                // return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2716,8 +2722,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedPlan,
               path: AppRoutes.proposedPlan,
               builder: (context, state) {
-                // return const ProposedPlansScreen();
-                return const ComingSoonScreen(title: "Proposed Plan");
+                return const ProposedPlansScreen();
+                // return const ComingSoonScreen(title: "Proposed Plan");
               },
             ),
             GoRoute(
@@ -2760,8 +2766,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedOffer,
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
-                // return const ProposedOfferScreen();
-                return const ComingSoonScreen(title: "Proposed Offer");
+                return const ProposedOfferScreen();
+                // return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(
@@ -7449,8 +7455,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.taxTracker,
               path: AppRoutes.taxTracker,
               builder: (context, state) {
-                // return const TaxTrackerScreen();
-                return ComingSoonScreen(title: 'Tax Tracker');
+                return const TaxTrackerScreen();
               },
             ),
             GoRoute(

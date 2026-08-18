@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
-import 'package:k3h_erp_app/core/models/bank_details.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/module.model.dart';
@@ -15,6 +14,7 @@ import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/repository/company_master_repository.dart';
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/common_enums.dart';
@@ -743,21 +743,9 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         try {
           final data = response['data'];
           final allBanks =
-              data != null && data is List
-                  ? data
-                      .map((e) {
-                        try {
-                          return BankDetailsModel.fromJson(
-                            e as Map<String, dynamic>,
-                          );
-                        } catch (e) {
-                          log('Error parsing bank details: $e');
-                          return null;
-                        }
-                      })
-                      .whereType<BankDetailsModel>()
-                      .toList()
-                  : <BankDetailsModel>[];
+              data is List
+                  ? data.whereType<ProjectWithBankDetailsModel>().toList()
+                  : <ProjectWithBankDetailsModel>[];
 
           emit(
             state.copyWith(
@@ -771,7 +759,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
           emit(
             state.copyWith(
               isLoading: false,
-              bankByProject: <BankDetailsModel>[],
+              bankByProject: <ProjectWithBankDetailsModel>[],
               currentPageBank: 1,
             ),
           );
@@ -781,7 +769,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   }
 
   // GET PAGINATED BANK LIST (CLIENT-SIDE)
-  List<BankDetailsModel> getPaginatedBankList() {
+  List<ProjectWithBankDetailsModel> getPaginatedBankList() {
     const int pageSize = 10;
 
     final int endIndex = state.currentPageBank * pageSize;
