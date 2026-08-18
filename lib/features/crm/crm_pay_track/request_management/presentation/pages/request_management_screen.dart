@@ -317,6 +317,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                         )
                       else
                         Container(
+                          height: 500.0,
                           margin: EdgeInsets.only(bottom: 10.0),
                           padding: EdgeInsets.all(16.0),
                           decoration: commonCardDecoration(),
@@ -328,43 +329,49 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                 style: AppTextStyle.ts16SB(),
                               ),
                               verticalSpacing(),
-                              ListView.builder(
-                                itemCount:
-                                    bookingData.bookingApplicantData.length,
-                                shrinkWrap: true,
-                                physics: AlwaysScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  final applicantDetails =
-                                      bookingData.bookingApplicantData[index];
-                                  return Container(
-                                    margin: EdgeInsets.only(bottom: 10.0),
-                                    padding: EdgeInsets.all(16.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                      border: Border.all(
-                                        color: AppColor.primary.withValues(
-                                          alpha: 0.3,
+                              Expanded(
+                                child: ListView.builder(
+                                  itemCount:
+                                      bookingData.bookingApplicantData.length,
+                                  shrinkWrap: true,
+                                  physics: AlwaysScrollableScrollPhysics(),
+                                  itemBuilder: (context, index) {
+                                    final applicantDetails =
+                                        bookingData.bookingApplicantData[index];
+                                    return Container(
+                                      margin: EdgeInsets.only(bottom: 10.0),
+                                      padding: EdgeInsets.all(16.0),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                          8.0,
                                         ),
-                                        width: 0.8,
+                                        border: Border.all(
+                                          color: AppColor.primary.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          width: 0.8,
+                                        ),
                                       ),
-                                    ),
-                                    child: Column(
-                                      spacing: 16.0,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        buildColumnTitleValueNormal(
-                                          title: "Applicant Type",
-                                          value: applicantDetails.applicantType,
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                      child: Column(
+                                        spacing: 16.0,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          buildRowWrapper(
+                                            child: buildColumnTitleValue(
+                                              title: "Applicant Type",
+                                              value:
+                                                  applicantDetails
+                                                      .applicantType,
+                                            ),
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
                                                 title: "Applicant Name",
                                                 value:
                                                     applicantDetails
@@ -380,10 +387,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .photoURL,
                                                     ),
                                               ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Mobile Number",
                                                 value:
                                                     applicantDetails
@@ -396,19 +401,18 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                       value:
                                                           applicantDetails
                                                               .applicantMobileNumber,
+                                                      type: ContactType.phone,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
                                                 title: "Email Id",
                                                 value:
                                                     applicantDetails
@@ -421,10 +425,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                       type: ContactType.email,
                                                     ),
                                               ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Aadhaar Card No.",
                                                 value:
                                                     applicantDetails
@@ -440,37 +442,31 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .aadharCardURL,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "PAN No.",
-                                                    value:
-                                                        applicantDetails
-                                                            .panNumber,
-                                                    customValueWidget:
-                                                        DocumentPreviewText(
-                                                          title: "PAN Card",
-                                                          text:
-                                                              applicantDetails
-                                                                  .panNumber,
-                                                          fileUrl:
-                                                              applicantDetails
-                                                                  .panCardURL,
-                                                        ),
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "PAN No.",
+                                                value:
+                                                    applicantDetails.panNumber,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "PAN Card",
+                                                      text:
+                                                          applicantDetails
+                                                              .panNumber,
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .panCardURL,
+                                                    ),
+                                              ),
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Driving License",
                                                 value:
                                                     applicantDetails
@@ -486,17 +482,15 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .drivingLicenseURL,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
                                                 title: "Voting ID No.",
                                                 value:
                                                     applicantDetails
@@ -512,10 +506,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .votingIdURL,
                                                     ),
                                               ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Passport No.",
                                                 value: applicant.passportNumber,
                                                 customValueWidget:
@@ -528,37 +520,31 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                           applicant.passportURL,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "GST No.",
-                                                    value:
-                                                        applicantDetails
-                                                            .gstNumber,
-                                                    customValueWidget:
-                                                        DocumentPreviewText(
-                                                          title: "GST No.",
-                                                          text:
-                                                              applicantDetails
-                                                                  .gstNumber,
-                                                          fileUrl:
-                                                              applicantDetails
-                                                                  .gstNumberURL,
-                                                        ),
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "GST No.",
+                                                value:
+                                                    applicantDetails.gstNumber,
+                                                customValueWidget:
+                                                    DocumentPreviewText(
+                                                      title: "GST No.",
+                                                      text:
+                                                          applicantDetails
+                                                              .gstNumber,
+                                                      fileUrl:
+                                                          applicantDetails
+                                                              .gstNumberURL,
+                                                    ),
+                                              ),
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Cancelled Cheque",
                                                 value:
                                                     applicantDetails
@@ -577,17 +563,15 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .cancelledChequeUrl,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
                                                 title: "POA (if NRI Execution)",
                                                 value: applicantDetails.poaurl,
                                                 customValueWidget:
@@ -605,10 +589,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .poaurl,
                                                     ),
                                               ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title:
                                                     "Income Docs (Form 16 / ITR)",
                                                 value:
@@ -628,17 +610,15 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                           .incomeForm16Itrurl,
                                                 ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
                                                 title: "Nre/Nro/Bank Details",
                                                 value:
                                                     applicantDetails
@@ -656,10 +636,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                           .nreNroBankDetailsUrl,
                                                 ),
                                               ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Nominee Form",
                                                 value: "View",
                                                 customValueWidget:
@@ -676,17 +654,15 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .nomineeFormUrl,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
                                                 title:
                                                     "Statement Of Source Of Funds",
                                                 value:
@@ -706,10 +682,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                           .statementOfSourceOfFundsURL,
                                                 ),
                                               ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Payment Proof",
                                                 value:
                                                     applicantDetails
@@ -728,27 +702,21 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                               .paymentProofURL,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              child:
-                                                  buildColumnTitleValueNormal(
-                                                    title: "Created By",
-                                                    value:
-                                                        applicantDetails
-                                                            .createdBy,
-                                                  ),
-                                            ),
-                                            horizontalSpacing(),
-                                            Expanded(
-                                              child: buildColumnTitleValueNormal(
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Created By",
+                                                value:
+                                                    applicantDetails.createdBy,
+                                              ),
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
                                                 title: "Created Date",
                                                 value:
                                                     formatDateTimeAsDDMMMYYYY(
@@ -756,13 +724,13 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                           .createdDate,
                                                     ),
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
                               ),
                             ],
                           ),
@@ -782,147 +750,125 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                             verticalSpacing(),
                             bookingData.parkingData.isNotEmpty
                                 ? Column(
-                                  children: List.generate(booking.parkingData.length, (
-                                    index,
-                                  ) {
-                                    final parking = booking.parkingData[index];
+                                  children: List.generate(
+                                    booking.parkingData.length,
+                                    (index) {
+                                      final parking =
+                                          booking.parkingData[index];
 
-                                    return Container(
-                                      margin: const EdgeInsets.only(bottom: 12),
-                                      padding: const EdgeInsets.all(16),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: AppColor.primary.withValues(
-                                            alpha: 0.3,
-                                          ),
-                                          width: 0.8,
+                                      return Container(
+                                        margin: const EdgeInsets.only(
+                                          bottom: 12,
                                         ),
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        spacing: 10.0,
-                                        children: [
-                                          Text(
-                                            "Parking ${index + 1}",
-                                            style: AppTextStyle.ts14SB(
-                                              color: AppColor
-                                                  .greyTitleAndValueColor
-                                                  .withValues(alpha: 0.4),
+                                        padding: const EdgeInsets.all(16),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                          border: Border.all(
+                                            color: AppColor.primary.withValues(
+                                              alpha: 0.3,
                                             ),
+                                            width: 0.8,
                                           ),
-                                          verticalSpacing(),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          spacing: 10.0,
+                                          children: [
+                                            Text(
+                                              "Parking ${index + 1}",
+                                              style: AppTextStyle.ts14SB(
+                                                color: AppColor
+                                                    .greyTitleAndValueColor
+                                                    .withValues(alpha: 0.4),
+                                              ),
+                                            ),
+                                            verticalSpacing(),
 
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Parking Number",
-                                                      value:
-                                                          parking.parkingNumber,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Building",
-                                                      value:
-                                                          parking
-                                                              .buildingNumber,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                buildColumnTitleValue(
+                                                  title: "Parking Number",
+                                                  value: parking.parkingNumber,
+                                                ),
+                                                horizontalSpacing(),
+                                                buildColumnTitleValue(
+                                                  title: "Building",
+                                                  value: parking.buildingNumber,
+                                                ),
+                                              ],
+                                            ),
 
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Type",
-                                                      value:
-                                                          parking.parkingType,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Size",
-                                                      value:
-                                                          parking
-                                                              .parkingSubType,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                buildColumnTitleValue(
+                                                  title: "Type",
+                                                  value: parking.parkingType,
+                                                ),
+                                                horizontalSpacing(),
+                                                buildColumnTitleValue(
+                                                  title: "Size",
+                                                  value: parking.parkingSubType,
+                                                ),
+                                              ],
+                                            ),
 
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Wing",
-                                                      value: parking.wing,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Floor",
-                                                      value: parking.floor,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Category",
-                                                      value:
-                                                          parking
-                                                              .parkingCategory,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              Expanded(
-                                                child:
-                                                    buildColumnTitleValueNormal(
-                                                      title: "Dimensions",
-                                                      value:
-                                                          parking
-                                                              .parkingDimensions,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
+                                            Row(
+                                              children: [
+                                                buildColumnTitleValue(
+                                                  title: "Wing",
+                                                  value: parking.wing,
+                                                ),
+                                                horizontalSpacing(),
+                                                buildColumnTitleValue(
+                                                  title: "Floor",
+                                                  value: parking.floor,
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                buildColumnTitleValue(
+                                                  title: "Category",
+                                                  value:
+                                                      parking.parkingCategory,
+                                                ),
+                                                horizontalSpacing(),
+                                                buildColumnTitleValue(
+                                                  title: "Dimensions",
+                                                  value:
+                                                      parking.parkingDimensions,
+                                                ),
+                                              ],
+                                            ),
 
-                                          horizontalSpacing(),
-                                          buildColumnTitleValueNormal(
-                                            title: "EV Charging",
-                                            value:
-                                                parking.isEVChargingAvailable
-                                                    ? "Yes"
-                                                    : "No",
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  }),
+                                            horizontalSpacing(),
+                                            buildRowWrapper(
+                                              child: buildColumnTitleValue(
+                                                title: "EV Charging",
+                                                value:
+                                                    parking.isEVChargingAvailable
+                                                        ? "Yes"
+                                                        : "No",
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 )
                                 : Center(
                                   child: noDataWidget(
@@ -1010,20 +956,16 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Cancelled Date",
-                                            value: formatDateTimeAsDDMMMYYYY(
-                                              bookingData.cancelledDate,
-                                            ),
+                                        buildColumnTitleValue(
+                                          title: "Cancelled Date",
+                                          value: formatDateTimeAsDDMMMYYYY(
+                                            bookingData.cancelledDate,
                                           ),
                                         ),
                                         horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Cancelled By",
-                                            value: bookingData.cancelledBy,
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Cancelled By",
+                                          value: bookingData.cancelledBy,
                                         ),
                                       ],
                                     ),
@@ -1034,39 +976,35 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Remark",
-                                            value: bookingData.cancelRemark,
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Remark",
+                                          value: bookingData.cancelRemark,
                                         ),
                                         horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Proof Of Document",
-                                            value: bookingData.cancelledBy,
-                                            customValueWidget:
-                                                CustomButton.documentOutline(
-                                                  onPressed: () {
-                                                    if (bookingData
-                                                        .proofOfDocumentUrl
-                                                        .isNotEmpty) {
-                                                      showFilePreviewDialog(
-                                                        context,
-                                                        title:
-                                                            "Proof Of Document",
-                                                        bookingData
-                                                            .proofOfDocumentUrl
-                                                            .split(","),
-                                                      );
-                                                    }
-                                                  },
-                                                  isDisable:
-                                                      booking
+                                        buildColumnTitleValue(
+                                          title: "Proof Of Document",
+                                          value: bookingData.cancelledBy,
+                                          customValueWidget:
+                                              CustomButton.documentOutline(
+                                                onPressed: () {
+                                                  if (bookingData
+                                                      .proofOfDocumentUrl
+                                                      .isNotEmpty) {
+                                                    showFilePreviewDialog(
+                                                      context,
+                                                      title:
+                                                          "Proof Of Document",
+                                                      bookingData
                                                           .proofOfDocumentUrl
-                                                          .isEmpty,
-                                                ),
-                                          ),
+                                                          .split(","),
+                                                    );
+                                                  }
+                                                },
+                                                isDisable:
+                                                    booking
+                                                        .proofOfDocumentUrl
+                                                        .isEmpty,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -1110,24 +1048,20 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Total Refunded",
-                                            value:
-                                                bookingData
-                                                    .totalAmountRefundedAgainstBooking
-                                                    .toIndianCurrency(),
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Total Refunded",
+                                          value:
+                                              bookingData
+                                                  .totalAmountRefundedAgainstBooking
+                                                  .toIndianCurrency(),
                                         ),
                                         horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Paid",
-                                            value:
-                                                bookingData
-                                                    .refundedAmountOnTillDate
-                                                    .toIndianCurrency(),
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Paid",
+                                          value:
+                                              bookingData
+                                                  .refundedAmountOnTillDate
+                                                  .toIndianCurrency(),
                                         ),
                                       ],
                                     ),
@@ -1138,22 +1072,18 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Pending",
-                                            value:
-                                                (bookingData.totalAmountRefundedAgainstBooking -
-                                                        bookingData
-                                                            .refundedAmountOnTillDate)
-                                                    .toIndianCurrency(),
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Pending",
+                                          value:
+                                              (bookingData.totalAmountRefundedAgainstBooking -
+                                                      bookingData
+                                                          .refundedAmountOnTillDate)
+                                                  .toIndianCurrency(),
                                         ),
                                         horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Refund Status",
-                                            value: bookingData.approvalStatus,
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Refund Status",
+                                          value: bookingData.approvalStatus,
                                         ),
                                       ],
                                     ),

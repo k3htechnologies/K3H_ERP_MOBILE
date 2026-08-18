@@ -17,13 +17,6 @@ abstract interface class PayTrackRepository {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
-  Future<Either<Failure, Map<String, dynamic>>> getPayTrackCallLog({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  });
   Future<Either<Failure, Map<String, dynamic>>> exportPayTrackList({
     required int pageNumber,
     required int pageSize,
@@ -34,20 +27,6 @@ abstract interface class PayTrackRepository {
   updatePayTrackBookingRegistrationDateParking({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
-  });
-  Future<Either<Failure, Map<String, dynamic>>> deletePayTrackCallLogs({
-    required int payTrackCallLogId,
-    required String uniqueKey,
-    required int projectId,
-    required int bookingId,
-  });
-  Future<Either<Failure, Map<String, dynamic>>> updatePayTrackCallLog({
-    required Map<String, dynamic> body,
-  });
-  Future<Either<Failure, Map<String, dynamic>>> getPayTrackCallLogsForExport({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
   });
 }
 
@@ -97,26 +76,6 @@ class PayTrackRepositoryImpl extends PayTrackRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getPayTrackCallLog({
-    required int pageNumber,
-    required int pageSize,
-    required int projectId,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    try {
-      var result = await payTrackDatasource.apiCallPullPayTrackCallLog(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  @override
   Future<Either<Failure, Map<String, dynamic>>> exportPayTrackList({
     required int pageNumber,
     required int pageSize,
@@ -147,59 +106,6 @@ class PayTrackRepositoryImpl extends PayTrackRepository {
           .apiCallUpdatePayTrackBookingRegistrationDateParking(
             body: body,
             fileList: fileList,
-          );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> deletePayTrackCallLogs({
-    required int payTrackCallLogId,
-    required String uniqueKey,
-    required int projectId,
-    required int bookingId,
-  }) async {
-    try {
-      var result = await payTrackDatasource.apicallDeleteDeletePayTrackCallLogs(
-        payTrackCallLogId: payTrackCallLogId,
-        uniqueKey: uniqueKey,
-        projectId: projectId,
-        bookingId: bookingId,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> updatePayTrackCallLog({
-    required Map<String, dynamic> body,
-  }) async {
-    try {
-      var result = await payTrackDatasource.apiCallToUpdatePayTrackCallLog(
-        body: body,
-      );
-      return right(result);
-    } catch (error) {
-      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Map<String, dynamic>>> getPayTrackCallLogsForExport({
-    required int pageNumber,
-    required int pageSize,
-    Map<String, dynamic>? queryParams,
-  }) async {
-    try {
-      var result = await payTrackDatasource
-          .apiCallPullPayTrackCallLogsForExport(
-            pageNumber: pageNumber,
-            pageSize: pageSize,
-            queryParams: queryParams,
           );
       return right(result);
     } catch (error) {

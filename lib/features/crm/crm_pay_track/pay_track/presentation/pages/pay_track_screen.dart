@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/services/paytrack_call_log_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/cubit/call_logs_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_summary.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
@@ -36,7 +37,8 @@ class PayTrackScreen extends StatefulWidget {
 
 class _PayTrackScreenState extends State<PayTrackScreen> {
   late PayTrackCubit _payTrackCubit;
-  late ProjectModel _selectedProject;
+  late CallLogsCubit _callLogsCubit;
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
   late TextEditingController _searchC,
       _filterApplicantNameC,
       _filterMobileNumberC,
@@ -70,14 +72,19 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
   void initState() {
     super.initState();
     _payTrackCubit = context.read<PayTrackCubit>();
+    _callLogsCubit = context.read<CallLogsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.payTrackMaster]!;
     _payTrackCallLogService = serviceLocator<PayTrackCallLogService>();
 
-    _selectedProject = getProject();
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
     initializeControllers();
 
-    _payTrackCubit.getPayTrackList(context, 1, _selectedProject.projectId);
+    _payTrackCubit.getPayTrackList(
+      context,
+      1,
+      _selectedProjectNotifier.value.projectId,
+    );
     _onScroll();
 
     _syncAndLoadCallingData();
@@ -127,7 +134,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           _payTrackCubit.getPayTrackList(
             context,
             _payTrackCubit.state.currentPage + 1,
-            _selectedProject.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         });
       }
@@ -138,7 +145,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
     final state = _payTrackCubit.state;
 
     _searchC.text = state.searchText;
-    _filterApplicantNameC.text = state.filterByApplicantName;
+    _filterApplicantNameC.text = state.searchText;
     _filterMobileNumberC.text = state.filterByMobileNumber;
     _filterWingC.text = state.filterByWing;
     _filterUnitC.text = state.filterByUnit;
@@ -193,7 +200,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return SingleChildScrollView(
-            padding: const EdgeInsets.only(right: 15),
+            padding: const EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -425,10 +432,10 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
 
     if (!mounted) return;
 
-    await _payTrackCubit.getPayTrackCallLog(
+    await _callLogsCubit.getCallLog(
       context,
       1,
-      _selectedProject.projectId,
+      _selectedProjectNotifier.value.projectId,
       _payTrackCubit.state.bookingData?.bookingId ?? 0,
     );
   }
@@ -444,9 +451,9 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           screenTitle: 'Pay Track',
           authorization: _routeAuthorizationModel,
           onProjectChangeCallback: (value) {
-            setState(() {
-              _selectedProject = value;
-            });
+            // setState(() {
+            _selectedProjectNotifier.value = value;
+            // });
 
             _searchC.clear();
             _payTrackCubit.clearSearch();
@@ -454,7 +461,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
             _payTrackCubit.getPayTrackList(
               context,
               1,
-              _selectedProject.projectId,
+              _selectedProjectNotifier.value.projectId,
             );
           },
           onExportCallback: (value) {
@@ -468,7 +475,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           onSearchSubmit: (value) {
             _payTrackCubit.searchPayTrack(
               context,
-              _selectedProject.projectId,
+              _selectedProjectNotifier.value.projectId,
               value,
             );
           },
@@ -482,9 +489,14 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: showSiteSelectedWidget(),
+            ValueListenableBuilder(
+              valueListenable: _selectedProjectNotifier,
+              builder: (context, value, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: showSiteSelectedWidget(),
+                );
+              },
             ),
             Expanded(
               child: RefreshIndicator(
@@ -494,7 +506,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                   if (context.mounted) {
                     _payTrackCubit.searchPayTrack(
                       context,
-                      _selectedProject.projectId,
+                      _selectedProjectNotifier.value.projectId,
                       "",
                     );
                   }
@@ -506,27 +518,15 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                       return Center(child: loader());
                     }
                     if (state.payTrackList.isEmpty) {
-                      return ListView(
-                        physics: AlwaysScrollableScrollPhysics(),
-                        children: [
-                          SizedBox(
-                            height: getActualHeight(context) * .7,
-                            child: Center(
-                              child: noDataWidget(
-                                message: "No Pay Track Data Available",
-                              ),
-                            ),
-                          ),
-                        ],
+                      return Center(
+                        child: noDataWidget(
+                          message: "No Pay Track Data Available",
+                        ),
                       );
                     }
                     return ListView.builder(
                       controller: scrollController,
-                      itemCount:
-                          state.payTrackList.length +
-                          (state.payTrackList.length < state.totalNumberOfRecord
-                              ? 1
-                              : 0),
+                      itemCount: state.payTrackList.length + 1,
                       shrinkWrap: true,
                       physics: BouncingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(
@@ -620,34 +620,32 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                 ),
               ),
               horizontalSpacing(),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    RichText(
-                      text: TextSpan(
-                        style: AppTextStyle.ts14M(color: AppColor.black),
-                        children: [
-                          const TextSpan(text: "Reg"),
-                          const TextSpan(text: " : "),
-                          TextSpan(
-                            text:
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: AppTextStyle.ts14M(color: AppColor.black),
+                      children: [
+                        const TextSpan(text: "Reg"),
+                        const TextSpan(text: " : "),
+                        TextSpan(
+                          text:
+                              payTrack.isFinalRegistrationCompleted
+                                  ? "Yes"
+                                  : "No",
+                          style: AppTextStyle.ts14M(
+                            color:
                                 payTrack.isFinalRegistrationCompleted
-                                    ? "Yes"
-                                    : "No",
-                            style: AppTextStyle.ts14M(
-                              color:
-                                  payTrack.isFinalRegistrationCompleted
-                                      ? Color(0xff15803D)
-                                      : AppColor.yellow,
-                            ),
+                                    ? Color(0xff15803D)
+                                    : AppColor.yellow,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -702,7 +700,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                       await _payTrackCubit.getPayTrackList(
                         context,
                         1,
-                        _selectedProject.projectId,
+                        _selectedProjectNotifier.value.projectId,
                       );
                     }
                   },
@@ -822,7 +820,8 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
               : SizedBox.shrink(),
           payTrack.bookingApprovalStatus.toLowerCase() != "refund" &&
                   payTrack.cancelRemark.isNotEmpty
-              ? buildRowTitleValueOfCancellationStatus(
+              ? buildRowTitleValue(
+                fixesWidth: 120,
                 title: "Cancellation Status",
                 value: "",
                 customValueWidget: ApproveRejectWidget(
@@ -1033,51 +1032,6 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  // BUILD ROW TITLE VALUE
-  Widget buildRowTitleValueOfCancellationStatus({
-    required String title,
-    required String value,
-    double fixesWidth = 120,
-    TextStyle? valueTextStyle,
-    Widget? customValueWidget,
-    bool singleLine = true,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // TITLE
-          SizedBox(
-            width: fixesWidth,
-            child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-          ),
-
-          // COLON
-          Text(
-            ":",
-            textAlign: TextAlign.center,
-            style: TextStyle(color: AppColor.grey),
-          ),
-          horizontalSpacing(width: 6.0),
-
-          // VALUE
-          Flexible(
-            child:
-                customValueWidget ??
-                Text(
-                  value.isNotEmpty ? value : "-",
-                  maxLines: singleLine ? 1 : null,
-                  overflow:
-                      singleLine ? TextOverflow.ellipsis : TextOverflow.visible,
-                  style: valueTextStyle ?? AppTextStyle.ts14M(),
-                ),
-          ),
-        ],
-      ),
     );
   }
 }

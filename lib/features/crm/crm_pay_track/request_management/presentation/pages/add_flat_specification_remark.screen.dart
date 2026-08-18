@@ -5,10 +5,13 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/model/flat_alteration_requests.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddFlatSpecificationRemarkScreen extends StatefulWidget {
   final FlatAlterationRequestsModel? remark;
@@ -84,20 +87,26 @@ class _AddFlatSpecificationRemarkScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            widget.remark == null
-                ? "Add Unit / Modulation / Customization"
-                : "Edit Unit / Modulation / Customization",
+        screenTitle: "Unit / Modulation / Customization",
         authorization: AuthorizationModel(),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.remark == null
+                  ? "Add Unit / Modulation / Customization"
+                  : "Update Unit / Modulation / Customization",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              decoration: commonCardDecoration(),
+              child: Form(
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -145,13 +154,12 @@ class _AddFlatSpecificationRemarkScreenState
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70.0,
-          color: AppColor.white,
           padding: const EdgeInsets.all(16.0),
           child: CustomButton(
             text: widget.remark == null ? "Add" : "Update",

@@ -139,18 +139,15 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: buildColumnTitleValueNormal(
+                              buildColumnTitleValue(
+                                title: widget.summary.paymentFor,
+                                value:
+                                    summary.receivedAmount.toIndianCurrency(),
+                                customValueWidget: DocumentPreviewText(
                                   title: widget.summary.paymentFor,
-                                  value:
+                                  text:
                                       summary.receivedAmount.toIndianCurrency(),
-                                  customValueWidget: DocumentPreviewText(
-                                    title: widget.summary.paymentFor,
-                                    text:
-                                        summary.receivedAmount
-                                            .toIndianCurrency(),
-                                    fileUrl: summary.paymentReceiptUrl,
-                                  ),
+                                  fileUrl: summary.paymentReceiptUrl,
                                 ),
                               ),
                               horizontalSpacing(),
@@ -332,25 +329,36 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                           ),
                                         ),
                                       ),
-                                      buildColumnTitleValueNormal(
-                                        title: "Bank Name",
-                                        value: summary.projectBankName,
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title: "Bank Name",
+                                          value: summary.projectBankName,
+                                        ),
                                       ),
-                                      buildColumnTitleValueNormal(
-                                        title: "Account Number",
-                                        value: summary.projectAccountNumber,
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title: "Account Number",
+                                          value: summary.projectAccountNumber,
+                                        ),
                                       ),
-                                      buildColumnTitleValueNormal(
-                                        title: "IFSC Code",
-                                        value: summary.projectIfscCode,
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title: "IFSC Code",
+                                          value: summary.projectIfscCode,
+                                        ),
                                       ),
-                                      buildColumnTitleValueNormal(
-                                        title: "Nature Of Account",
-                                        value: summary.projectNatureOfAccount,
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title: "Nature Of Account",
+                                          value: summary.projectNatureOfAccount,
+                                        ),
                                       ),
-                                      buildColumnTitleValueNormal(
-                                        title: "Account Type",
-                                        value: summary.projectAcType,
+
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title: "Account Type",
+                                          value: summary.projectAcType,
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -380,40 +388,48 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         ),
                                       ),
                                       verticalSpacing(),
-                                      buildColumnTitleValueNormal(
-                                        title: "Payment Received From",
-                                        value: summary.paymentReceivedFrom,
-                                      ),
-                                      verticalSpacing(),
-                                      buildColumnTitleValueNormal(
-                                        title: "Bank",
-                                        value: summary.bankName,
-                                      ),
-                                      verticalSpacing(),
-                                      buildColumnTitleValueNormal(
-                                        title:
-                                            "Transaction / Cheque / Demand Draft No",
-                                        value:
-                                            summary
-                                                .transactionChequeDemandDraftNumber,
-                                        customValueWidget: DocumentPreviewText(
-                                          title:
-                                              "Transaction / Cheque / Demand Draft",
-                                          text:
-                                              summary
-                                                  .transactionChequeDemandDraftNumber,
-                                          fileUrl:
-                                              summary
-                                                  .transactionChequeDemandDraftUrl,
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title: "Payment Received From",
+                                          value: summary.paymentReceivedFrom,
                                         ),
                                       ),
                                       verticalSpacing(),
-                                      buildColumnTitleValueNormal(
-                                        title:
-                                            "Transaction / Cheque / Demand Draft Date",
-                                        value: formatDateTimeAsDDMMMYYYY(
-                                          summary
-                                              .transactionChequeDemandDraftDate,
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title: "Bank",
+                                          value: summary.bankName,
+                                        ),
+                                      ),
+                                      verticalSpacing(),
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title:
+                                              "Transaction / Cheque / Demand Draft No",
+                                          value:
+                                              summary
+                                                  .transactionChequeDemandDraftNumber,
+                                          customValueWidget: DocumentPreviewText(
+                                            title:
+                                                "Transaction / Cheque / Demand Draft",
+                                            text:
+                                                summary
+                                                    .transactionChequeDemandDraftNumber,
+                                            fileUrl:
+                                                summary
+                                                    .transactionChequeDemandDraftUrl,
+                                          ),
+                                        ),
+                                      ),
+                                      verticalSpacing(),
+                                      buildRowWrapper(
+                                        child: buildColumnTitleValue(
+                                          title:
+                                              "Transaction / Cheque / Demand Draft Date",
+                                          value: formatDateTimeAsDDMMMYYYY(
+                                            summary
+                                                .transactionChequeDemandDraftDate,
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -450,19 +466,15 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Expanded(
-                                            child: buildColumnTitleValueNormal(
-                                              title: "Created By",
-                                              value: summary.createdBy,
-                                            ),
+                                          buildColumnTitleValue(
+                                            title: "Created By",
+                                            value: summary.createdBy,
                                           ),
                                           horizontalSpacing(),
-                                          Expanded(
-                                            child: buildColumnTitleValueNormal(
-                                              title: "Created Date",
-                                              value: formatDate(
-                                                summary.createdDate,
-                                              ),
+                                          buildColumnTitleValue(
+                                            title: "Created Date",
+                                            value: formatDate(
+                                              summary.createdDate,
                                             ),
                                           ),
                                         ],
@@ -473,19 +485,15 @@ class _ViewPaymentLedgerScreenState extends State<ViewPaymentLedgerScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Expanded(
-                                            child: buildColumnTitleValueNormal(
-                                              title: "Modified By",
-                                              value: summary.modifiedBy,
-                                            ),
+                                          buildColumnTitleValue(
+                                            title: "Modified By",
+                                            value: summary.modifiedBy,
                                           ),
                                           horizontalSpacing(),
-                                          Expanded(
-                                            child: buildColumnTitleValueNormal(
-                                              title: "Modified Date",
-                                              value: formatDate(
-                                                summary.modifiedDate,
-                                              ),
+                                          buildColumnTitleValue(
+                                            title: "Modified Date",
+                                            value: formatDate(
+                                              summary.modifiedDate,
                                             ),
                                           ),
                                         ],

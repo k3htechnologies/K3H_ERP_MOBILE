@@ -364,6 +364,7 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
 
   Future updateBankDocument({
     required BuildContext context,
+    required int bookingLoanDetailsId,
     required int payTrackBookingFilesId,
     required String uniqueKey,
     required int projectId,
@@ -407,11 +408,23 @@ class LoanDetailsCubit extends Cubit<LoanDetailsState> {
       },
       (response) async {
         goRouter.pop();
-        final updatedList = List<PayTrackBookingFilesModel>.from(
-          state.bankDocumentList,
+
+        final updatedMap = Map<int, List<PayTrackBookingFilesModel>>.from(
+          state.bankDocumentMap,
         );
-        updatedList[index] = (response['data'][0] as PayTrackBookingFilesModel);
-        emit(state.copyWith(bankDocumentList: updatedList));
+
+        final docs = List<PayTrackBookingFilesModel>.from(
+          updatedMap[bookingLoanDetailsId] ?? [],
+        );
+
+        if (index >= 0 && index < docs.length) {
+          docs[index] = response['data'][0] as PayTrackBookingFilesModel;
+
+          updatedMap[bookingLoanDetailsId] = docs;
+
+          emit(state.copyWith(bankDocumentMap: updatedMap));
+        }
+
         showSuccessMessage(context, subTitle: response['message']);
       },
     );

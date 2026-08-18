@@ -483,33 +483,29 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            _isEditMode ? "Update Payment Ledger" : "Add Payment Ledger",
+        screenTitle: "Payment Ledger",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            spacing: 10.0,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                decoration: commonCardDecoration(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode ? "Update Payment Ledger" : "Add Payment Ledger",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
+            verticalSpacing(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              decoration: commonCardDecoration(),
+              child: Form(
+                key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      _isEditMode
-                          ? "Update Payment Ledger"
-                          : "Add Payment Ledger",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    verticalSpacing(),
                     ValueListenableBuilder(
                       valueListenable: selectedPaymentFor,
                       builder: (context, value, child) {
@@ -517,6 +513,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           title: "Payment For",
                           hintText: "Select Payment For",
                           dataList: paymentForList,
+                          isRequired: true,
                           initialValue: selectedPaymentFor.value,
                           onSelected: (value) {
                             selectedPaymentFor.value = value;
@@ -611,30 +608,23 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Expanded(
-                                            child: buildColumnTitleValueNormal(
-                                              title: "Total Amount",
-                                              value:
-                                                  totalAmount
-                                                      .toIndianCurrency(),
-                                            ),
+                                          buildColumnTitleValue(
+                                            title: "Total Amount",
+                                            value:
+                                                totalAmount.toIndianCurrency(),
                                           ),
                                           horizontalSpacing(),
-                                          Expanded(
-                                            child: buildColumnTitleValueNormal(
-                                              title: "Paid Amount",
-                                              value:
-                                                  paidAmount.toIndianCurrency(),
-                                            ),
+                                          buildColumnTitleValue(
+                                            title: "Paid Amount",
+                                            value:
+                                                paidAmount.toIndianCurrency(),
                                           ),
                                           horizontalSpacing(),
-                                          Expanded(
-                                            child: buildColumnTitleValueNormal(
-                                              title: "Pending Amount",
-                                              value:
-                                                  pendingAmount
-                                                      .toIndianCurrency(),
-                                            ),
+                                          buildColumnTitleValue(
+                                            title: "Pending Amount",
+                                            value:
+                                                pendingAmount
+                                                    .toIndianCurrency(),
                                           ),
                                         ],
                                       ),
@@ -717,7 +707,6 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           title: "Other Charges",
                           hintText: "Select Other Charge",
 
-                          // This will now contain Balcony during edit
                           initialValue: selectedOtherCharge.value,
 
                           dataList:
@@ -937,179 +926,172 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                   ],
                 ),
               ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Developer Bank Details",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.5),
-                      ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              decoration: commonCardDecoration(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Developer Bank Details",
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.5),
                     ),
-                    verticalSpacing(),
-                    ValueListenableBuilder(
-                      valueListenable: selectedPaymentFor,
-                      builder: (_, __, ___) {
-                        return ValueListenableBuilder(
-                          valueListenable: _selectedProjectBankNameNotifier,
-                          builder: (context, selectedProjectBank, _) {
-                            return CustomMultipleSelectPopup(
-                              title: 'Project Bank Name',
-                              hintText: "Select Project Bank Name",
-                              isRequired: _isDeveloperBankRequired,
-                              isMultiSelect: false,
-                              initialValue:
-                                  selectedProjectBank.isNotEmpty
-                                      ? selectedProjectBank
-                                      : null,
-                              dataList: const [],
+                  ),
+                  verticalSpacing(),
+                  ValueListenableBuilder(
+                    valueListenable: selectedPaymentFor,
+                    builder: (_, __, ___) {
+                      return ValueListenableBuilder(
+                        valueListenable: _selectedProjectBankNameNotifier,
+                        builder: (context, selectedProjectBank, _) {
+                          return CustomMultipleSelectPopup(
+                            title: 'Project Bank Name',
+                            hintText: "Select Project Bank Name",
+                            isRequired: _isDeveloperBankRequired,
+                            isMultiSelect: false,
+                            initialValue:
+                                selectedProjectBank.isNotEmpty
+                                    ? selectedProjectBank
+                                    : null,
+                            dataList: const [],
 
-                              onSelected: (value) {
-                                _selectedProjectBankNameNotifier.value = value;
+                            onSelected: (value) {
+                              _selectedProjectBankNameNotifier.value = value;
 
-                                if (value.isNotEmpty) {
-                                  final item = value.first;
+                              if (value.isNotEmpty) {
+                                final item = value.first;
 
-                                  _accountNumberC.text =
-                                      (item["AccountNumber"] ?? "").toString();
+                                _accountNumberC.text =
+                                    (item["AccountNumber"] ?? "").toString();
 
-                                  _ifscCodeC.text =
-                                      (item["IFSCCode"] ?? "").toString();
+                                _ifscCodeC.text =
+                                    (item["IFSCCode"] ?? "").toString();
 
-                                  _branchC.text =
-                                      (item["Branch"] ?? "").toString();
+                                _branchC.text =
+                                    (item["Branch"] ?? "").toString();
 
-                                  _accountTypeC.text =
-                                      (item["AcType"] ?? "").toString();
+                                _accountTypeC.text =
+                                    (item["AcType"] ?? "").toString();
 
-                                  _natureOfAccountC.text =
-                                      (item["NatureOfAccount"] ?? "")
-                                          .toString();
-                                }
-                              },
+                                _natureOfAccountC.text =
+                                    (item["NatureOfAccount"] ?? "").toString();
+                              }
+                            },
 
-                              dataFetchCallBack: getProjectWithBankDropdown,
+                            dataFetchCallBack: getProjectWithBankDropdown,
 
-                              validator: (value) {
-                                if (_isDeveloperBankRequired &&
-                                    (value == null || value.isEmpty)) {
-                                  return "Project Bank Name is required";
-                                }
-                                return null;
-                              },
+                            validator: (value) {
+                              if (_isDeveloperBankRequired &&
+                                  (value == null || value.isEmpty)) {
+                                return "Project Bank Name is required";
+                              }
+                              return null;
+                            },
 
-                              onClear: () {
-                                _selectedProjectBankNameNotifier.value = [];
-                                _accountNumberC.clear();
-                                _ifscCodeC.clear();
-                                _branchC.clear();
-                                _accountTypeC.clear();
-                                _natureOfAccountC.clear();
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _selectedProjectBankNameNotifier,
-                      builder: (context, selectedProjectBank, _) {
-                        if (selectedProjectBank.isEmpty) {
-                          return const SizedBox.shrink();
-                        }
+                            onClear: () {
+                              _selectedProjectBankNameNotifier.value = [];
+                              _accountNumberC.clear();
+                              _ifscCodeC.clear();
+                              _branchC.clear();
+                              _accountTypeC.clear();
+                              _natureOfAccountC.clear();
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _selectedProjectBankNameNotifier,
+                    builder: (context, selectedProjectBank, _) {
+                      if (selectedProjectBank.isEmpty) {
+                        return const SizedBox.shrink();
+                      }
 
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomTextField(
-                                      textController: _accountNumberC,
-                                      title: "Account Number",
-                                      hint: "Account Number",
-                                      readOnly: true,
-                                    ),
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    textController: _accountNumberC,
+                                    title: "Account Number",
+                                    hint: "Account Number",
+                                    readOnly: true,
                                   ),
+                                ),
 
-                                  horizontalSpacing(),
+                                horizontalSpacing(),
 
-                                  Expanded(
-                                    child: CustomTextField(
-                                      textController: _ifscCodeC,
-                                      title: "IFSC Code",
-                                      hint: "IFSC Code",
-                                      readOnly: true,
-                                    ),
+                                Expanded(
+                                  child: CustomTextField(
+                                    textController: _ifscCodeC,
+                                    title: "IFSC Code",
+                                    hint: "IFSC Code",
+                                    readOnly: true,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
+                            ),
 
-                              verticalSpacing(),
+                            verticalSpacing(),
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomTextField(
-                                      textController: _branchC,
-                                      title: "Branch",
-                                      hint: "Branch",
-                                      readOnly: true,
-                                    ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    textController: _branchC,
+                                    title: "Branch",
+                                    hint: "Branch",
+                                    readOnly: true,
                                   ),
-                                  horizontalSpacing(),
-                                  Expanded(
-                                    child: CustomTextField(
-                                      textController: _accountTypeC,
-                                      title: "Account Type",
-                                      hint: "Account Type",
-                                      readOnly: true,
-                                    ),
+                                ),
+                                horizontalSpacing(),
+                                Expanded(
+                                  child: CustomTextField(
+                                    textController: _accountTypeC,
+                                    title: "Account Type",
+                                    hint: "Account Type",
+                                    readOnly: true,
                                   ),
-                                ],
-                              ),
-                              verticalSpacing(),
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(),
 
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: CustomTextField(
-                                      textController: _natureOfAccountC,
-                                      title: "Nature Of Account",
-                                      hint: "Nature Of Account",
-                                      readOnly: true,
-                                    ),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: CustomTextField(
+                                    textController: _natureOfAccountC,
+                                    title: "Nature Of Account",
+                                    hint: "Nature Of Account",
+                                    readOnly: true,
                                   ),
-                                  horizontalSpacing(),
-                                ],
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
+                                ),
+                                horizontalSpacing(),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
-          color: AppColor.white,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            leading: Icon(
-              _isEditMode ? Icons.edit : Icons.add,
-              size: 18,
-              color: AppColor.white,
-            ),
             text: _isEditMode ? "Update" : "Add",
             onPressed: _submitForm,
           ),

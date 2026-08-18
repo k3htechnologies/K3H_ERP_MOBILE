@@ -1822,11 +1822,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: buildColumnTitleValueNormal(
-                                  title: "Qualification",
-                                  value: education.qualification,
-                                ),
+                              buildColumnTitleValue(
+                                title: "Qualification",
+                                value: education.qualification,
                               ),
                               horizontalSpacing(),
                               Row(
@@ -1860,13 +1858,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ],
                           ),
-                          buildColumnTitleValueNormal(
-                            title: "School / College Name",
-                            value: education.collegeName,
+                          buildRowWrapper(
+                            child: buildColumnTitleValue(
+                              title: "School / College Name",
+                              value: education.collegeName,
+                            ),
                           ),
-                          buildColumnTitleValueNormal(
-                            title: "Passing Year",
-                            value: education.passing,
+                          buildRowWrapper(
+                            child: buildColumnTitleValue(
+                              title: "Passing Year",
+                              value: education.passing,
+                            ),
                           ),
                         ],
                       ),
@@ -1931,11 +1933,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Expanded(
-                                child: buildColumnTitleValueNormal(
-                                  title: "Company",
-                                  value: experience.companyName,
-                                ),
+                              buildColumnTitleValue(
+                                title: "Company",
+                                value: experience.companyName,
                               ),
                               horizontalSpacing(),
                               Row(
@@ -1964,13 +1964,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                               ),
                             ],
                           ),
-                          buildColumnTitleValueNormal(
-                            title: "Role",
-                            value: experience.role,
+                          buildRowWrapper(
+                            child: buildColumnTitleValue(
+                              title: "Role",
+                              value: experience.role,
+                            ),
                           ),
-                          buildColumnTitleValueNormal(
-                            title: "Tenure",
-                            value: experience.tenure,
+                          buildRowWrapper(
+                            child: buildColumnTitleValue(
+                              title: "Tenure",
+                              value: experience.tenure,
+                            ),
                           ),
                         ],
                       ),

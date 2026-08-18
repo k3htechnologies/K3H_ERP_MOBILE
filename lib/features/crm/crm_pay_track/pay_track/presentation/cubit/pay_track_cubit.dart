@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_call_log.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/repository/pay_track.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
@@ -69,46 +68,20 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "BookingId": bookingId,
       "IsCheckPermission": false,
+      "ApplicantName": state.searchText,
+      "ApplicantMobileNumber": state.filterByMobileNumber,
+      "Wing": state.filterByWing,
+      "Flat": state.filterByUnit,
+      "Floor": state.filterByFloor,
+      "Configuration": state.filterByConfiguration,
+      "AgreementValue": state.filterByAgreementValue,
+      "BookingType": state.filterByBookingType,
+      "FromDate": state.filterByFromDate.apiDate,
+      "ToDate": state.filterByToDate.apiDate,
     };
-
-    if (state.searchText.isNotEmpty) {
-      queryParams["ApplicantName"] = state.searchText;
-    }
-
-    if (state.filterByMobileNumber.isNotEmpty) {
-      queryParams["ApplicantMobileNumber"] = state.filterByMobileNumber;
-    }
-
-    if (state.filterByWing.isNotEmpty) {
-      queryParams["Wing"] = state.filterByWing;
-    }
-
-    if (state.filterByUnit.isNotEmpty) {
-      queryParams["Flat"] = state.filterByUnit;
-    }
-
-    if (state.filterByFloor.isNotEmpty) {
-      queryParams["Floor"] = state.filterByFloor;
-    }
     if (state.isFinalRegistrationCompleted != null) {
       queryParams["IsFinalRegistrationCompleted"] =
           state.isFinalRegistrationCompleted! ? "true" : "false";
-    }
-    if (state.filterByConfiguration.isNotEmpty) {
-      queryParams["Configuration"] = state.filterByConfiguration;
-    }
-    if (state.filterByAgreementValue.isNotEmpty) {
-      queryParams["AgreementValue"] = state.filterByAgreementValue;
-    }
-    if (state.filterByBookingType.isNotEmpty) {
-      queryParams["BookingType"] = state.filterByBookingType;
-    }
-    if (state.filterByFromDate != null) {
-      queryParams["FromDate"] = state.filterByFromDate!.toIso8601String();
-    }
-
-    if (state.filterByToDate != null) {
-      queryParams["ToDate"] = state.filterByToDate!.toIso8601String();
     }
     var result = await _payTrackRepository.getPayTrackList(
       pageSize: 10,
@@ -149,14 +122,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     int bookingId,
   ) async {
     emit(state.copyWith(isLoading: true));
-    if (projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-        PayTrackCubit();
-        emit(state.copyWith(isLoading: false, payTrackList: []));
-      });
-      return;
-    }
 
     Map<String, dynamic> queryParams = {"IsCheckPermission": false};
     var result = await _payTrackRepository.getPayTrackListById(
@@ -200,21 +165,6 @@ class PayTrackCubit extends Cubit<PayTrackState> {
   ) async {
     emit(state.copyWith(searchText: value, payTrackList: []));
     await getPayTrackList(context, 1, projectId);
-  }
-
-  Future searchPayTrackCallLogs(
-    BuildContext context,
-    int projectId,
-    int bookingId,
-    String value,
-  ) async {
-    emit(
-      state.copyWith(
-        filterByCallLogApplicantName: value,
-        payTrackCallLogList: [],
-      ),
-    );
-    await getPayTrackCallLog(context, 1, projectId, bookingId);
   }
 
   Future applyPaytrackFilterAndSort({
@@ -315,12 +265,8 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     Map<String, dynamic> queryParams = {
       "BookingId": bookingId,
       "IsCheckPermission": false,
+      "ExportType": exportType,
     };
-
-    if (exportType != null) {
-      queryParams["IsCheckPermission"] = false;
-      queryParams["ExportType"] = exportType;
-    }
 
     final result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
@@ -400,268 +346,17 @@ class PayTrackCubit extends Cubit<PayTrackState> {
     );
   }
 
-  Future applyCallLogsFilter({
-    required int bookingId,
-    required BuildContext context,
-    String? callLogApplicantName,
-    String? callLogApplicantMobileNumber,
-    String? callLogStatus,
-    String? callLogPurpose,
-    DateTime? fromDate,
-    DateTime? toDate,
-    bool? isClear,
-  }) async {
-    if (isClear ?? false) {
-      emit(
-        state.copyWith(
-          filterByCallLogApplicantName: "",
-          filterCallLogApplicantMobileNumber: "",
-          filterCallStatus: "",
-          filterCallPurpose: "",
-          filterCallLogFromDate: null,
-          filterCallLogToDate: null,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          filterByCallLogApplicantName:
-              callLogApplicantName ?? state.filterByCallLogApplicantName,
-          filterCallLogApplicantMobileNumber:
-              callLogApplicantMobileNumber ??
-              state.filterCallLogApplicantMobileNumber,
-          filterCallStatus: callLogStatus ?? state.filterCallStatus,
-          filterCallPurpose: callLogPurpose ?? state.filterCallPurpose,
-          filterCallLogFromDate: fromDate,
-          filterCallLogToDate: toDate,
-        ),
-      );
-    }
-    await getPayTrackCallLog(context, 1, getProject().projectId, bookingId);
-  }
-
   int updatePayTrackFilterCount(PayTrackState state) {
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
       state.filterByMobileNumber.trim().isNotEmpty,
       state.filterByWing.trim().isNotEmpty,
-      state.filterByWing.trim().isNotEmpty,
       state.filterByUnit.trim().isNotEmpty,
       state.filterByFloor.trim().isNotEmpty,
       state.filterByFromDate != null,
       state.filterByToDate != null,
+      state.isFinalRegistrationCompleted != null,
     ]);
-  }
-
-  int updateFilterCount(PayTrackState state) {
-    return getActiveFilterCount([
-      state.filterByCallLogApplicantName.trim().isNotEmpty,
-      state.filterCallStatus.trim().isNotEmpty,
-      state.filterCallPurpose.trim().isNotEmpty,
-      state.filterCallLogApplicantMobileNumber.trim().isNotEmpty,
-      state.filterCallLogFromDate != null,
-      state.filterCallLogToDate != null,
-    ]);
-  }
-
-  Future<void> getPayTrackCallLog(
-    BuildContext context,
-    int pageNumber,
-    int projectId,
-    int bookingId,
-  ) async {
-    emit(state.copyWith(isLoading: true));
-
-    final Map<String, dynamic> queryParams = {
-      "BookingId": bookingId,
-      "IsCheckPermission": false,
-    };
-
-    queryParams["ApplicantName"] = state.filterByCallLogApplicantName;
-
-    if (state.filterCallLogApplicantMobileNumber.isNotEmpty) {
-      queryParams["ApplicantMobileNumber"] =
-          state.filterCallLogApplicantMobileNumber;
-    }
-
-    if (state.filterCallStatus.isNotEmpty) {
-      queryParams["CallStatus"] = state.filterCallStatus;
-    }
-
-    if (state.filterCallPurpose.isNotEmpty) {
-      queryParams["CallPurpose"] = state.filterCallPurpose;
-    }
-
-    if (state.filterCallLogFromDate != null) {
-      queryParams["RescheduleDateFromDate"] =
-          state.filterCallLogFromDate!.toIso8601String();
-    }
-
-    if (state.filterCallLogToDate != null) {
-      queryParams["RescheduleDateToDate"] =
-          state.filterCallLogToDate!.toIso8601String();
-    }
-
-    try {
-      final result = await _payTrackRepository.getPayTrackCallLog(
-        pageSize: 10,
-        pageNumber: pageNumber,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
-
-      result.fold(
-        (failure) {
-          emit(state.copyWith(isLoading: false));
-
-          showErrorMessage(context, "Error", failure.message);
-        },
-        (response) {
-          final logs = response['data'] as List<PayTrackCallLogModel>;
-          final List<PayTrackCallLogModel> updatedList =
-              pageNumber == 1 ? logs : [...state.payTrackCallLogList, ...logs];
-          emit(
-            state.copyWith(
-              payTrackCallLogList: updatedList,
-              callLogsTotalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
-              isLoading: false,
-            ),
-          );
-        },
-      );
-    } catch (e, stackTrace) {
-      debugPrint("Get PayTrack Call Log Error => $e");
-      debugPrintStack(stackTrace: stackTrace);
-
-      emit(state.copyWith(isLoading: false));
-    }
-  }
-
-  Future<void> updatePayTrackCallLogs(
-    BuildContext context, {
-    required int projectId,
-    required int bookingId,
-    required int payTrackCallLogId,
-    required String uniquekey,
-    required String callStatus,
-    required String remark,
-    required DateTime? rescheduleDate,
-    required DateTime? registrationDate,
-    required String callPurpose,
-    required double promisedAmount,
-  }) async {
-    emit(state.copyWith(isLoading: true));
-
-    final body = {
-      "ProjectId": projectId,
-      "PayTrackCallLogId": payTrackCallLogId,
-      "Uniquekey": uniquekey,
-      "CallStatus": callStatus,
-      "Remark": remark,
-      "RescheduleDate": rescheduleDate?.toIso8601String(),
-      "RegistrationDate": registrationDate?.toIso8601String(),
-      "CallPurpose": callPurpose,
-      "PromiseAmount": promisedAmount,
-    };
-
-    final result = await _payTrackRepository.updatePayTrackCallLog(body: body);
-
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-
-        showErrorMessage(context, "Error", failure.message);
-      },
-      (response) async {
-        emit(state.copyWith(isLoading: false));
-
-        showSuccessMessage(context, subTitle: response["message"]);
-        goRouter.pop();
-        await getPayTrackCallLog(context, 1, projectId, bookingId);
-      },
-    );
-  }
-
-  Future deletePayTrackCallLogs(
-    int index,
-    int payTrackCallLogId,
-    String uniquekey,
-    int projectId,
-    int bookingId,
-    BuildContext context,
-  ) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _payTrackRepository.deletePayTrackCallLogs(
-      payTrackCallLogId: payTrackCallLogId,
-      uniqueKey: uniquekey,
-      projectId: projectId,
-      bookingId: bookingId,
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, "Error", failure.message);
-        return;
-      },
-      (response) {
-        final updatedList = List<PayTrackCallLogModel>.from(
-          state.payTrackCallLogList,
-        );
-        updatedList.removeAt(index);
-        emit(
-          state.copyWith(
-            payTrackCallLogList: updatedList,
-            isLoading: false,
-            totalNumberOfRecord:
-                state.totalNumberOfRecord > 0
-                    ? state.totalNumberOfRecord - 1
-                    : 0,
-          ),
-        );
-        showSuccessMessage(context, subTitle: response['message']);
-      },
-    );
-  }
-
-  Future exportPayTrackCallLogsExcelPdf(
-    BuildContext context,
-    String exportType, {
-    int? projectId,
-    int? bookingId,
-    DateTime? fromDate,
-    DateTime? toDate,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _payTrackRepository.getPayTrackCallLogsForExport(
-      pageNumber: 1,
-      pageSize: state.callLogsTotalNumberOfRecord,
-      queryParams: {
-        "ProjectId": projectId,
-        "BookingId": bookingId,
-        "Name": state.searchText,
-        "ExportType": exportType,
-        'FromDate': fromDate?.apiDate,
-        'ToDate': toDate?.apiDate,
-      },
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        showSuccessMessage(
-          context,
-          subTitle: 'Successfully Exported as $exportType',
-        );
-        exportExcelOrPdfMobile(
-          response["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "Call Log ${DateTime.now()}.pdf"
-              : "Call Log ${DateTime.now()}.xlsx",
-        );
-      },
-    );
   }
 
   Future updateRegistrationDateAndParking(

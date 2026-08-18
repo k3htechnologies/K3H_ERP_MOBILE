@@ -94,18 +94,14 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Employee Code",
-                                    value: attendance.employeeCode,
-                                  ),
+                                buildColumnTitleValue(
+                                  title: "Employee Code",
+                                  value: attendance.employeeCode,
                                 ),
                                 horizontalSpacing(),
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Employee Name",
-                                    value: attendance.name,
-                                  ),
+                                buildColumnTitleValue(
+                                  title: "Employee Name",
+                                  value: attendance.name,
                                 ),
                               ],
                             ),
@@ -114,18 +110,14 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Designation",
-                                    value: attendance.designationName,
-                                  ),
+                                buildColumnTitleValue(
+                                  title: "Designation",
+                                  value: attendance.designationName,
                                 ),
                                 horizontalSpacing(),
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Status",
-                                    value: attendance.status,
-                                  ),
+                                buildColumnTitleValue(
+                                  title: "Status",
+                                  value: attendance.status,
                                 ),
                               ],
                             ),
@@ -134,26 +126,22 @@ class _EmployeeAttendanceScreenState extends State<EmployeeAttendanceScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Punch In",
-                                    value:
-                                        attendance.punchIn == "{}" ||
-                                                attendance.punchIn.isEmpty
-                                            ? "-"
-                                            : attendance.punchIn,
-                                  ),
+                                buildColumnTitleValue(
+                                  title: "Punch In",
+                                  value:
+                                      attendance.punchIn == "{}" ||
+                                              attendance.punchIn.isEmpty
+                                          ? "-"
+                                          : attendance.punchIn,
                                 ),
                                 horizontalSpacing(),
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Punch Out",
-                                    value:
-                                        attendance.punchOut == "{}" ||
-                                                attendance.punchOut.isEmpty
-                                            ? "-"
-                                            : attendance.punchOut,
-                                  ),
+                                buildColumnTitleValue(
+                                  title: "Punch Out",
+                                  value:
+                                      attendance.punchOut == "{}" ||
+                                              attendance.punchOut.isEmpty
+                                          ? "-"
+                                          : attendance.punchOut,
                                 ),
                               ],
                             ),

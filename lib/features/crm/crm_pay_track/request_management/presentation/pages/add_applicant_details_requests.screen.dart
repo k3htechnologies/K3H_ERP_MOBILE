@@ -8,12 +8,15 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/m
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddApplicantDetailsRequestsScreen extends StatefulWidget {
   final BookingApplicantModificationRequestModel? applicant;
@@ -488,15 +491,22 @@ class _AddApplicantDetailsRequestsScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: widget.isEdit ? "Update Applicant" : "Add Applicant",
+        screenTitle: "Applicant Details Request",
         authorization: AuthorizationModel(),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              widget.isEdit ? "Update Applicant" : "Add Applicant",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              decoration: commonCardDecoration(),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -1139,13 +1149,12 @@ class _AddApplicantDetailsRequestsScreenState
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
-          color: AppColor.white,
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: widget.isEdit ? "Update" : "Add",

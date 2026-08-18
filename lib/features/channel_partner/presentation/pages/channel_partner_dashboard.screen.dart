@@ -513,90 +513,86 @@ class _ChannelPartnerDashboardScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            buildColumnTitleValueNormal(
-                              title: "Channel Partner Name",
-                              value: addedChannelPartner.name,
-                              valueTextStyle: AppTextStyle.ts14M(
-                                color: AppColor.primary,
+                            buildRowWrapper(
+                              child: buildColumnTitleValue(
+                                title: "Channel Partner Name",
+                                value: addedChannelPartner.name,
+                                valueTextStyle: AppTextStyle.ts14M(
+                                  color: AppColor.primary,
+                                ),
                               ),
                             ),
                             verticalSpacing(height: 16),
-                            buildColumnTitleValueNormal(
-                              title: "Channel Partner Code",
-                              value: addedChannelPartner.systemGeneratedCode,
-                              valueTextStyle: AppTextStyle.ts14M(
-                                color: AppColor.greyTitleAndValueColor,
-                              ),
-                              customValueWidget: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    addedChannelPartner.systemGeneratedCode,
-                                    style: AppTextStyle.ts14M(),
-                                  ),
+                            buildRowWrapper(
+                              child: buildColumnTitleValue(
+                                title: "Channel Partner Code",
+                                value: addedChannelPartner.systemGeneratedCode,
+                                valueTextStyle: AppTextStyle.ts14M(
+                                  color: AppColor.greyTitleAndValueColor,
+                                ),
+                                customValueWidget: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      addedChannelPartner.systemGeneratedCode,
+                                      style: AppTextStyle.ts14M(),
+                                    ),
 
-                                  horizontalSpacing(width: 2),
-                                  InkWell(
-                                    onTap: () {
-                                      copy(
-                                        context: context,
-                                        text:
-                                            addedChannelPartner
-                                                .systemGeneratedCode,
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(5),
-                                      child: Icon(
-                                        Icons.copy,
-                                        size: 16,
-                                        color: AppColor.primary,
+                                    horizontalSpacing(width: 2),
+                                    InkWell(
+                                      onTap: () {
+                                        copy(
+                                          context: context,
+                                          text:
+                                              addedChannelPartner
+                                                  .systemGeneratedCode,
+                                        );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5),
+                                        child: Icon(
+                                          Icons.copy,
+                                          size: 16,
+                                          color: AppColor.primary,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                             verticalSpacing(height: 16),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                buildColumnTitleValueNormal(
-                                  title: "Company",
-                                  value: addedChannelPartner.companyName,
-                                  valueTextStyle: AppTextStyle.ts14M(
-                                    color: AppColor.greyTitleAndValueColor,
-                                  ),
+                            buildRowWrapper(
+                              child: buildColumnTitleValue(
+                                title: "Company",
+                                value: addedChannelPartner.companyName,
+                                valueTextStyle: AppTextStyle.ts14M(
+                                  color: AppColor.greyTitleAndValueColor,
                                 ),
-                              ],
+                              ),
                             ),
                             verticalSpacing(height: 16.0),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Date",
-                                    value: formatDateTimeAsDDMMMYYYY(
-                                      addedChannelPartner.createdDate,
-                                    ),
-                                    valueTextStyle: AppTextStyle.ts14M(
-                                      color: AppColor.greyTitleAndValueColor,
-                                    ),
+                                buildColumnTitleValue(
+                                  title: "Date",
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    addedChannelPartner.createdDate,
+                                  ),
+                                  valueTextStyle: AppTextStyle.ts14M(
+                                    color: AppColor.greyTitleAndValueColor,
                                   ),
                                 ),
                                 horizontalSpacing(),
-                                Expanded(
-                                  child: buildColumnTitleValueNormal(
-                                    title: "Type",
-                                    value: addedChannelPartner.type,
-                                    valueTextStyle: AppTextStyle.ts14M(
-                                      color: AppColor.greyTitleAndValueColor,
-                                    ),
+                                buildColumnTitleValue(
+                                  title: "Type",
+                                  value: addedChannelPartner.type,
+                                  valueTextStyle: AppTextStyle.ts14M(
+                                    color: AppColor.greyTitleAndValueColor,
                                   ),
                                 ),
                               ],

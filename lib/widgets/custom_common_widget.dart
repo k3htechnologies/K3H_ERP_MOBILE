@@ -110,30 +110,6 @@ Widget buildColumnTitleValue({
   );
 }
 
-// BUILD COLUMN TITLE VALUE WITHOUT EXPANDED
-Widget buildColumnTitleValueNormal({
-  required String title,
-  required String value,
-  TextStyle? valueTextStyle,
-  Widget? customValueWidget,
-}) {
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-
-      verticalSpacing(height: 4),
-
-      customValueWidget ??
-          Text(
-            value.isEmpty ? "-" : value,
-            style: valueTextStyle ?? AppTextStyle.ts14M(color: AppColor.black),
-          ),
-    ],
-  );
-}
-
 // BUILD COMMON ACTION CARD
 Widget actionCardWidget({
   required String createdBy,

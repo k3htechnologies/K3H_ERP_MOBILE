@@ -377,26 +377,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 10.0,
         children: [
-          buildColumnTitleValueNormal(
-            title: "Bank Name",
-            value: bankDetail.bankName,
-          ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Branch Name",
-                  value: bankDetail.bankBranchName,
-                ),
-              ),
-              horizontalSpacing(),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Account Number",
-                  value: bankDetail.loanAccountNumber,
-                ),
+              buildColumnTitleValue(
+                title: "Bank Name",
+                value: bankDetail.bankName,
               ),
             ],
           ),
@@ -404,20 +389,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Loan Sanction Amount",
-                  value: bankDetail.loanSanctionAmount.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Branch Name",
+                value: bankDetail.bankBranchName,
               ),
               horizontalSpacing(),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Loan Sanction Date",
-                  value: formatDateTimeAsDDMMMYYYY(
-                    bankDetail.loanSanctionDate!,
-                  ),
-                ),
+              buildColumnTitleValue(
+                title: "Account Number",
+                value: bankDetail.loanAccountNumber,
               ),
             ],
           ),
@@ -425,18 +404,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Address",
-                  value: bankDetail.address,
-                ),
+              buildColumnTitleValue(
+                title: "Loan Sanction Amount",
+                value: bankDetail.loanSanctionAmount.toIndianCurrency(),
               ),
               horizontalSpacing(),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "No of Bank Documents",
-                  value: bankDetail.noOfBankDocument.toString(),
-                ),
+              buildColumnTitleValue(
+                title: "Loan Sanction Date",
+                value: formatDateTimeAsDDMMMYYYY(bankDetail.loanSanctionDate!),
               ),
             ],
           ),
@@ -444,18 +419,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Created By",
-                  value: bankDetail.createdBy,
-                ),
+              buildColumnTitleValue(
+                title: "Address",
+                value: bankDetail.address,
               ),
               horizontalSpacing(),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Created Date",
-                  value: formatDate(bankDetail.createdDate),
-                ),
+              buildColumnTitleValue(
+                title: "No of Bank Documents",
+                value: bankDetail.noOfBankDocument.toString(),
               ),
             ],
           ),
@@ -463,21 +434,32 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Modified By",
-                  value: bankDetail.modifiedBy,
-                ),
+              buildColumnTitleValue(
+                title: "Created By",
+                value: bankDetail.createdBy,
               ),
               horizontalSpacing(),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Modified Date",
-                  value:
-                      bankDetail.modifiedDate != null
-                          ? formatDate(bankDetail.modifiedDate!)
-                          : '-',
-                ),
+              buildColumnTitleValue(
+                title: "Created Date",
+                value: formatDate(bankDetail.createdDate),
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Modified By",
+                value: bankDetail.modifiedBy,
+              ),
+              horizontalSpacing(),
+              buildColumnTitleValue(
+                title: "Modified Date",
+                value:
+                    bankDetail.modifiedDate != null
+                        ? formatDate(bankDetail.modifiedDate!)
+                        : '-',
               ),
             ],
           ),
@@ -591,25 +573,42 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10.0,
               children: [
-                buildColumnTitleValueNormal(
-                  title: "Bank Name",
-                  value: bankDetail.bankName,
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Bank Name",
+                      value: bankDetail.bankName,
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Branch Name",
-                        value: bankDetail.bankBranchName,
-                      ),
+                    buildColumnTitleValue(
+                      title: "Branch Name",
+                      value: bankDetail.bankBranchName,
                     ),
                     horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Account Number",
-                        value: bankDetail.loanAccountNumber,
+                    buildColumnTitleValue(
+                      title: "Account Number",
+                      value: bankDetail.loanAccountNumber,
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Loan Sanction Amount",
+                      value: bankDetail.loanSanctionAmount.toIndianCurrency(),
+                    ),
+                    horizontalSpacing(),
+                    buildColumnTitleValue(
+                      title: "Loan Sanction Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        bankDetail.loanSanctionDate!,
                       ),
                     ),
                   ],
@@ -618,20 +617,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Loan Sanction Amount",
-                        value: bankDetail.loanSanctionAmount.toIndianCurrency(),
-                      ),
+                    buildColumnTitleValue(
+                      title: "Address",
+                      value: bankDetail.address,
                     ),
                     horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Loan Sanction Date",
-                        value: formatDateTimeAsDDMMMYYYY(
-                          bankDetail.loanSanctionDate!,
-                        ),
-                      ),
+                    buildColumnTitleValue(
+                      title: "No of Bank Documents",
+                      value: bankDetail.noOfBankDocument.toString(),
                     ),
                   ],
                 ),
@@ -639,18 +632,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Address",
-                        value: bankDetail.address,
-                      ),
+                    buildColumnTitleValue(
+                      title: "Created By",
+                      value: bankDetail.createdBy,
                     ),
                     horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "No of Bank Documents",
-                        value: bankDetail.noOfBankDocument.toString(),
-                      ),
+                    buildColumnTitleValue(
+                      title: "Created Date",
+                      value: formatDate(bankDetail.createdDate),
                     ),
                   ],
                 ),
@@ -658,40 +647,17 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Created By",
-                        value: bankDetail.createdBy,
-                      ),
+                    buildColumnTitleValue(
+                      title: "Modified By",
+                      value: bankDetail.modifiedBy,
                     ),
                     horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Created Date",
-                        value: formatDate(bankDetail.createdDate),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Modified By",
-                        value: bankDetail.modifiedBy,
-                      ),
-                    ),
-                    horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Modified Date",
-                        value:
-                            bankDetail.modifiedDate != null
-                                ? formatDate(bankDetail.modifiedDate!)
-                                : '-',
-                      ),
+                    buildColumnTitleValue(
+                      title: "Modified Date",
+                      value:
+                          bankDetail.modifiedDate != null
+                              ? formatDate(bankDetail.modifiedDate!)
+                              : '-',
                     ),
                   ],
                 ),
@@ -822,18 +788,14 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Account Number",
-                          value: document.loanAccountNumber.toString(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Account Number",
+                        value: document.loanAccountNumber.toString(),
                       ),
                       horizontalSpacing(width: 20.0),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Loan Sanction Amount",
-                          value: document.loanSanctionAmount.toIndianCurrency(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Loan Sanction Amount",
+                        value: document.loanSanctionAmount.toIndianCurrency(),
                       ),
                     ],
                   ),
@@ -841,30 +803,22 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Status",
-                          value: document.bankStatusClosedActive.toString(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Status",
+                        value: document.bankStatusClosedActive.toString(),
                       ),
                       horizontalSpacing(width: 20.0),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Document Count",
-                          value: document.noOfBankDocument.toString(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Document Count",
+                        value: document.noOfBankDocument.toString(),
                       ),
                     ],
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Branch Name",
-                          value: document.bankBranchName,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Branch Name",
+                        value: document.bankBranchName,
                       ),
                     ],
                   ),
@@ -949,14 +903,11 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
-                                          child: buildColumnValue(
-                                            value: file.fileName,
-                                            customValueWidget: DocumentPreviewText(
-                                              title: file.fileName,
-                                              text: file.fileName,
-                                              fileUrl:
-                                                  file.payTrackBookingFilesUrl,
-                                            ),
+                                          child: DocumentPreviewText(
+                                            title: file.fileName,
+                                            text: file.fileName,
+                                            fileUrl:
+                                                file.payTrackBookingFilesUrl,
                                           ),
                                         ),
                                         horizontalSpacing(),
@@ -1029,23 +980,19 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Last Modified By",
-                                            value:
-                                                file.modifiedBy.trim().isEmpty
-                                                    ? file.createdBy
-                                                    : file.modifiedBy,
-                                          ),
+                                        buildColumnTitleValue(
+                                          title: "Last Modified By",
+                                          value:
+                                              file.modifiedBy.trim().isEmpty
+                                                  ? file.createdBy
+                                                  : file.modifiedBy,
                                         ),
                                         horizontalSpacing(),
-                                        Expanded(
-                                          child: buildColumnTitleValueNormal(
-                                            title: "Last Modified Date",
-                                            value: formatDate(
-                                              file.modifiedDate ??
-                                                  file.createdDate,
-                                            ),
+                                        buildColumnTitleValue(
+                                          title: "Last Modified Date",
+                                          value: formatDate(
+                                            file.modifiedDate ??
+                                                file.createdDate,
                                           ),
                                         ),
                                       ],
@@ -1066,17 +1013,5 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
         );
       },
     );
-  }
-
-  Widget buildColumnValue({
-    required String value,
-    TextStyle? valueTextStyle,
-    Widget? customValueWidget,
-  }) {
-    return customValueWidget ??
-        Text(
-          value.isEmpty ? "-" : value,
-          style: valueTextStyle ?? AppTextStyle.ts14M(color: AppColor.black),
-        );
   }
 }

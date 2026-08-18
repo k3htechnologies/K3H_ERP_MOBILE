@@ -106,18 +106,14 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Company Name",
-                  value: "Rishabraj Chambers",
-                ),
+              buildColumnTitleValue(
+                title: "Company Name",
+                value: "Rishabraj Chambers",
               ),
               horizontalSpacing(width: 16.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Company Name",
-                  value: "Rishabraj Chambers",
-                ),
+              buildColumnTitleValue(
+                title: "Company Name",
+                value: "Rishabraj Chambers",
               ),
             ],
           ),
@@ -126,19 +122,9 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Financial Year ",
-                  value: "2025-26",
-                ),
-              ),
+              buildColumnTitleValue(title: "Financial Year ", value: "2025-26"),
               horizontalSpacing(width: 16.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Notice U/S",
-                  value: "143 (1)",
-                ),
-              ),
+              buildColumnTitleValue(title: "Notice U/S", value: "143 (1)"),
             ],
           ),
           verticalSpacing(height: 16.0),
@@ -146,30 +132,23 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Responsible Person",
-                  value: "Prachin Bari",
-                ),
+              buildColumnTitleValue(
+                title: "Responsible Person",
+                value: "Prachin Bari",
               ),
               horizontalSpacing(width: 16.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Status",
-                  value: "Reply Pending",
-                  customValueWidget: Container(
-                    padding: EdgeInsets.symmetric(
-                      vertical: 4,
-                      horizontal: 12.0,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Color(0xffFFEDD5),
-                      borderRadius: BorderRadius.circular(9999.0),
-                    ),
-                    child: Text(
-                      "Reply Pending",
-                      style: AppTextStyle.ts10M(color: Color(0xffC2410C)),
-                    ),
+              buildColumnTitleValue(
+                title: "Status",
+                value: "Reply Pending",
+                customValueWidget: Container(
+                  padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12.0),
+                  decoration: BoxDecoration(
+                    color: Color(0xffFFEDD5),
+                    borderRadius: BorderRadius.circular(9999.0),
+                  ),
+                  child: Text(
+                    "Reply Pending",
+                    style: AppTextStyle.ts10M(color: Color(0xffC2410C)),
                   ),
                 ),
               ),
@@ -192,19 +171,12 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Notice Date",
-                  value: "09 June 2026",
-                ),
+              buildColumnTitleValue(
+                title: "Notice Date",
+                value: "09 June 2026",
               ),
               horizontalSpacing(width: 16.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Due Date",
-                  value: "29 June 2026",
-                ),
-              ),
+              buildColumnTitleValue(title: "Due Date", value: "29 June 2026"),
             ],
           ),
           verticalSpacing(height: 16.0),
@@ -212,19 +184,12 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Authority",
-                  value: "Assessing Officer ( AO )",
-                ),
+              buildColumnTitleValue(
+                title: "Authority",
+                value: "Assessing Officer ( AO )",
               ),
               horizontalSpacing(width: 16.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Notice Type",
-                  value: "Processing",
-                ),
-              ),
+              buildColumnTitleValue(title: "Notice Type", value: "Processing"),
             ],
           ),
         ],
@@ -244,18 +209,11 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Reply Date",
-                  value: "16 June 2026",
-                ),
-              ),
+              buildColumnTitleValue(title: "Reply Date", value: "16 June 2026"),
               horizontalSpacing(width: 16.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Reply Submitted By",
-                  value: "Prachin Bari",
-                ),
+              buildColumnTitleValue(
+                title: "Reply Submitted By",
+                value: "Prachin Bari",
               ),
             ],
           ),
@@ -276,34 +234,21 @@ class _ViewTaxTrackerScreenState extends State<ViewTaxTrackerScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Remark Type",
-                  value: "Notice",
-                ),
-              ),
+              buildColumnTitleValue(title: "Remark Type", value: "Notice"),
               horizontalSpacing(width: 16.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Remark Date",
-                  value: "16 June 2026",
-                ),
+              buildColumnTitleValue(
+                title: "Remark Date",
+                value: "16 June 2026",
               ),
             ],
           ),
           verticalSpacing(height: 16.0),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Remark",
-                  value:
-                      "Notice received regarding mismatch in reported turnover for FY 2024-25.  Initial review completed by internal accounts team and supporting ledger copies collected.  Draft reply prepared by tax consultant and reviewed by finance head on 22-Apr-2026.",
-                ),
-              ),
-            ],
+          buildRowWrapper(
+            child: buildColumnTitleValue(
+              title: "Remark",
+              value:
+                  "Notice received regarding mismatch in reported turnover for FY 2024-25.  Initial review completed by internal accounts team and supporting ledger copies collected.  Draft reply prepared by tax consultant and reviewed by finance head on 22-Apr-2026.",
+            ),
           ),
         ],
       ),

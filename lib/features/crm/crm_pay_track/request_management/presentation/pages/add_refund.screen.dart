@@ -103,24 +103,20 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Stamp Duty",
-                                value:
-                                    addRefundData?.receivedStampDutyAmount
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Stamp Duty",
+                              value:
+                                  addRefundData?.receivedStampDutyAmount
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                             horizontalSpacing(),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Registration Fees",
-                                value:
-                                    addRefundData?.receivedRegistrationFees
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Registration Fees",
+                              value:
+                                  addRefundData?.receivedRegistrationFees
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                           ],
                         ),
@@ -128,25 +124,20 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Agreement Value(Without TDS)",
-                                value:
-                                    addRefundData?.receivedAgreementValue
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Agreement Value(Without TDS)",
+                              value:
+                                  addRefundData?.receivedAgreementValue
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                             horizontalSpacing(),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Agreement Value GST",
-                                value:
-                                    addRefundData
-                                        ?.receivedAgreementValueGstAmount
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Agreement Value GST",
+                              value:
+                                  addRefundData?.receivedAgreementValueGstAmount
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                           ],
                         ),
@@ -154,24 +145,20 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Agreement Value TDS",
-                                value:
-                                    addRefundData?.receivedAgreementValueTds
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Agreement Value TDS",
+                              value:
+                                  addRefundData?.receivedAgreementValueTds
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                             horizontalSpacing(),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Other Charges",
-                                value:
-                                    addRefundData?.receivedOtherChargesAmount
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Other Charges",
+                              value:
+                                  addRefundData?.receivedOtherChargesAmount
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                           ],
                         ),
@@ -179,25 +166,21 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Other Charges GST",
-                                value:
-                                    addRefundData?.receivedOtherChargesGstAmount
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Other Charges GST",
+                              value:
+                                  addRefundData?.receivedOtherChargesGstAmount
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                             horizontalSpacing(),
-                            Expanded(
-                              child: buildColumnTitleValueNormal(
-                                title: "Total Received",
-                                value:
-                                    addRefundData
-                                        ?.totalAmountReceivedAgainstBooking
-                                        .toIndianCurrency() ??
-                                    "",
-                              ),
+                            buildColumnTitleValue(
+                              title: "Total Received",
+                              value:
+                                  addRefundData
+                                      ?.totalAmountReceivedAgainstBooking
+                                      .toIndianCurrency() ??
+                                  "",
                             ),
                           ],
                         ),
@@ -264,7 +247,6 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
-          color: AppColor.white,
           padding: EdgeInsets.all(16),
           child: ValueListenableBuilder<bool>(
             valueListenable: finalizeRefundAmountNotifier,

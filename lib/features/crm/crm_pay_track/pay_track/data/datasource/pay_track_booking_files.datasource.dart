@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_booking_files.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class PayTrackBookingFilesDatasource {
   Future<Map<String, dynamic>> apiCallPullPayTrackBookingFiles({
@@ -39,17 +40,17 @@ class PayTrackBookingFilesDatasourceImpl
     Map<String, dynamic>? queryParams,
   }) async {
     String pullPayTrackBookingFilesUrl({
+      Map<String, dynamic>? queryParams,
       required int pageSize,
       required int pageNumber,
       required String fileType,
       required int bookingId,
       required int projectId,
-      Map<String, dynamic>? queryParams,
     }) {
       String url =
           "PayTrackBookingFiles/PullPayTrackBookingFiles?PageSize=$pageSize"
           "&PageNumber=$pageNumber&FileType=$fileType&BookingId=$bookingId&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -128,13 +129,17 @@ class PayTrackBookingFilesDatasourceImpl
     required String uniqueKey,
   }) async {
     String deletePayTrackBookingFilesUrl({
+      Map<String, dynamic>? queryParams,
       required int payTrackBookingFilesId,
       required int projectId,
       required int bookingId,
       required String uniqueKey,
     }) {
-      return "PayTrackBookingFiles/DeletePayTrackBookingFiles?PayTrackBookingFilesId=$payTrackBookingFilesId"
+      String url =
+          "PayTrackBookingFiles/DeletePayTrackBookingFiles?PayTrackBookingFilesId=$payTrackBookingFilesId"
           "&ProjectId=$projectId&BookingId=$bookingId&Uniquekey=$uniqueKey";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {

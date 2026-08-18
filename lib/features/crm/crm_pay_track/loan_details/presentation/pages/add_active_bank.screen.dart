@@ -171,149 +171,155 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Bank" : "Add Bank",
+        screenTitle: "Bank Details",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Bank Details",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
-                ),
-                verticalSpacing(),
-                ValueListenableBuilder(
-                  valueListenable: _selectedBankNotifier,
-                  builder: (context, selectedBank, _) {
-                    return CustomMultipleSelectPopup(
-                      title: 'Bank',
-                      hintText: "Select Bank",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: selectedBank,
-                      dataList: const [],
-                      onSelected: (value) {
-                        _selectedBankNotifier.value = value;
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode ? "Update Bank Details" : "Add Bank Details",
+              style: AppTextStyle.ts14M(
+                color: AppColor.black.withValues(alpha: 0.5),
+              ),
+            ),
+            verticalSpacing(),
+            Form(
+              key: _formKey,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ValueListenableBuilder(
+                      valueListenable: _selectedBankNotifier,
+                      builder: (context, selectedBank, _) {
+                        return CustomMultipleSelectPopup(
+                          title: 'Bank',
+                          hintText: "Select Bank",
+                          isRequired: true,
+                          isMultiSelect: false,
+                          initialValue: selectedBank,
+                          dataList: const [],
+                          onSelected: (value) {
+                            _selectedBankNotifier.value = value;
+                          },
+                          dataFetchCallBack: _fetchBanks,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Bank Name is required";
+                            }
+                            return null;
+                          },
+                          onClear: () {
+                            _selectedBankNotifier.value = [];
+                          },
+                        );
                       },
-                      dataFetchCallBack: _fetchBanks,
+                    ),
+                    CustomTextField(
+                      textController: _bankBranchNameC,
+                      title: "Branch Name",
+                      hint: "Enter Bank Branch Name",
+                      isRequired: true,
+                      inputFormatterList: InputValidator.textDigit(50),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Bank Name is required";
+                        if (value == null || value.trim().isEmpty) {
+                          return "Bank Branch Name is required";
                         }
                         return null;
                       },
-                      onClear: () {
-                        _selectedBankNotifier.value = [];
+                    ),
+                    CustomTextField(
+                      textController: _accountNumberC,
+                      title: "Account Number",
+                      hint: "Enter Account Number",
+                      isRequired: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(18),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Account Number is required";
+                        }
+                        return null;
                       },
-                    );
-                  },
-                ),
-                CustomTextField(
-                  textController: _bankBranchNameC,
-                  title: "Branch Name",
-                  hint: "Enter Bank Branch Name",
-                  isRequired: true,
-                  inputFormatterList: InputValidator.textDigit(50),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Bank Branch Name is required";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _accountNumberC,
-                  title: "Account Number",
-                  hint: "Enter Account Number",
-                  isRequired: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(18),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Account Number is required";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _loanSanctionAmountC,
-                  title: "Loan Sanction Amount (₹)",
-                  hint: "Enter Loan Sanction Amount",
-                  isRequired: true,
-                  keyboardType: TextInputType.numberWithOptions(),
-                  inputFormatterList: InputValidator.digitWithDecimal(
-                    maxDigitsBeforeDecimal: 16,
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Loan Sanction Amount is required";
-                    }
+                    ),
+                    CustomTextField(
+                      textController: _loanSanctionAmountC,
+                      title: "Loan Sanction Amount (₹)",
+                      hint: "Enter Loan Sanction Amount",
+                      isRequired: true,
+                      keyboardType: TextInputType.numberWithOptions(),
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 16,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Loan Sanction Amount is required";
+                        }
 
-                    final enteredAmount = double.tryParse(
-                      value.replaceAll(',', ''),
-                    );
+                        final enteredAmount = double.tryParse(
+                          value.replaceAll(',', ''),
+                        );
 
-                    if (enteredAmount == null) {
-                      return "Please enter a valid amount";
-                    }
+                        if (enteredAmount == null) {
+                          return "Please enter a valid amount";
+                        }
 
-                    final paymentLedgerAmount =
-                        context.read<PaymentCubit>().totalAmount;
-                    if (enteredAmount > paymentLedgerAmount) {
-                      return "Loan Sanction Amount cannot be greater than "
-                          "Total Unit Cost (${paymentLedgerAmount.toIndianCurrency()})";
-                    }
+                        final paymentLedgerAmount =
+                            context.read<PaymentCubit>().totalAmount;
+                        if (enteredAmount > paymentLedgerAmount) {
+                          return "Loan Sanction Amount cannot be greater than "
+                              "Total Unit Cost (${paymentLedgerAmount.toIndianCurrency()})";
+                        }
 
-                    return null;
-                  },
+                        return null;
+                      },
+                    ),
+                    CustomDatePicker(
+                      title: "Sanction Date",
+                      isRequired: true,
+                      initialDate: sanctionDate,
+                      setValue: (value) => sanctionDate = value,
+                      validator: (value) {
+                        if (value == null) {
+                          return 'Sanction Date is required';
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _addressC,
+                      title: "Address",
+                      hint: "Enter Address",
+                      minLines: 3,
+                      maxLines: 10,
+                      isRequired: true,
+                      suffixWidget: SpeechToTextIcon(controller: _addressC),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(250),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Address is required";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
-                CustomDatePicker(
-                  title: "Sanction Date",
-                  isRequired: true,
-                  initialDate: sanctionDate,
-                  setValue: (value) => sanctionDate = value,
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Sanction Date is required';
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _addressC,
-                  title: "Address",
-                  hint: "Enter Address",
-                  minLines: 3,
-                  maxLines: 10,
-                  isRequired: true,
-                  suffixWidget: SpeechToTextIcon(controller: _addressC),
-                  inputFormatterList: [LengthLimitingTextInputFormatter(250)],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Address is required";
-                    }
-                    return null;
-                  },
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
           padding: EdgeInsets.all(16),
-          color: AppColor.white,
           child: CustomButton(
             leading: Icon(
               _isEditMode ? Icons.edit : Icons.add,

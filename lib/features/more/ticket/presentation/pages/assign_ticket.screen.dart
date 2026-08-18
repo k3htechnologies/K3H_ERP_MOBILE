@@ -194,18 +194,14 @@ class _AssignTicketMasterState extends State<AssignTicketMaster> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Platform",
-                          value: widget.ticket?.platform ?? "-",
-                        ),
+                      buildColumnTitleValue(
+                        title: "Platform",
+                        value: widget.ticket?.platform ?? "-",
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Module",
-                          value: widget.ticket?.module ?? "-",
-                        ),
+                      buildColumnTitleValue(
+                        title: "Module",
+                        value: widget.ticket?.module ?? "-",
                       ),
                     ],
                   ),
@@ -214,18 +210,14 @@ class _AssignTicketMasterState extends State<AssignTicketMaster> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Raised By",
-                          value: widget.ticket?.createdBy ?? "-",
-                        ),
+                      buildColumnTitleValue(
+                        title: "Raised By",
+                        value: widget.ticket?.createdBy ?? "-",
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Department",
-                          value: widget.ticket?.departmentName ?? "-",
-                        ),
+                      buildColumnTitleValue(
+                        title: "Department",
+                        value: widget.ticket?.departmentName ?? "-",
                       ),
                     ],
                   ),
@@ -234,7 +226,7 @@ class _AssignTicketMasterState extends State<AssignTicketMaster> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      buildColumnTitleValueNormal(
+                      buildColumnTitleValue(
                         title: "Description",
                         value: widget.ticket?.ticketDescription ?? "-",
                       ),

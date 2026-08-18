@@ -50,36 +50,32 @@ class _ViewParkingHistoryScreenState extends State<ViewParkingHistoryScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Proof Of Document",
-                          value: widget.parkingDetail.proofOfDocumentUrl,
-                          customValueWidget: CustomButton.documentOutline(
-                            onPressed: () {
-                              if (widget
-                                  .parkingDetail
-                                  .proofOfDocumentUrl
-                                  .isNotEmpty) {
-                                showFilePreviewDialog(
-                                  title: "Proof Of Document",
-                                  context,
-                                  widget.parkingDetail.proofOfDocumentUrl.split(
-                                    ",",
-                                  ),
-                                );
-                              }
-                            },
-                            isDisable:
-                                widget.parkingDetail.proofOfDocumentUrl.isEmpty,
-                          ),
+                      buildColumnTitleValue(
+                        title: "Proof Of Document",
+                        value: widget.parkingDetail.proofOfDocumentUrl,
+                        customValueWidget: CustomButton.documentOutline(
+                          onPressed: () {
+                            if (widget
+                                .parkingDetail
+                                .proofOfDocumentUrl
+                                .isNotEmpty) {
+                              showFilePreviewDialog(
+                                title: "Proof Of Document",
+                                context,
+                                widget.parkingDetail.proofOfDocumentUrl.split(
+                                  ",",
+                                ),
+                              );
+                            }
+                          },
+                          isDisable:
+                              widget.parkingDetail.proofOfDocumentUrl.isEmpty,
                         ),
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Parking Number",
-                          value: parking.parkingNumber,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Parking Number",
+                        value: parking.parkingNumber,
                       ),
                     ],
                   ),
@@ -88,18 +84,14 @@ class _ViewParkingHistoryScreenState extends State<ViewParkingHistoryScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Category",
-                          value: parking.parkingCategory,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Category",
+                        value: parking.parkingCategory,
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Type",
-                          value: parking.parkingType,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Type",
+                        value: parking.parkingType,
                       ),
                     ],
                   ),
@@ -108,18 +100,14 @@ class _ViewParkingHistoryScreenState extends State<ViewParkingHistoryScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Size",
-                          value: parking.parkingSubType,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Size",
+                        value: parking.parkingSubType,
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Dimensions",
-                          value: parking.parkingDimensions,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Dimensions",
+                        value: parking.parkingDimensions,
                       ),
                     ],
                   ),
@@ -128,34 +116,23 @@ class _ViewParkingHistoryScreenState extends State<ViewParkingHistoryScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "EV Charging",
-                          value: parking.isEvChargingAvailable ? "Yes" : "No",
-                        ),
+                      buildColumnTitleValue(
+                        title: "EV Charging",
+                        value: parking.isEvChargingAvailable ? "Yes" : "No",
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Created By",
-                          value: parking.createdBy,
-                        ),
+                      buildColumnTitleValue(
+                        title: "Created By",
+                        value: parking.createdBy,
                       ),
                     ],
                   ),
                   verticalSpacing(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Created Date",
-                          value: formatDateTimeAsDDMMMYYYY(parking.createdDate),
-                        ),
-                      ),
-                      horizontalSpacing(),
-                    ],
+                  buildRowWrapper(
+                    child: buildColumnTitleValue(
+                      title: "Created Date",
+                      value: formatDateTimeAsDDMMMYYYY(parking.createdDate),
+                    ),
                   ),
                 ],
               ),

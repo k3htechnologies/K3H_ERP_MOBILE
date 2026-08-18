@@ -4,8 +4,6 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/data/model/flat_handover_checklist.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/presentation/cubit/flat_handover_checklist_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
-import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -13,6 +11,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -183,24 +182,26 @@ class _FlatHandoverChecklistScreenState
                     );
                   },
                 ),
-                if (_flatHandoverChecklistAuthorization.isAction)
-                  CustomButton(
-                    padding: EdgeInsets.symmetric(vertical: 10),
-                    text: index != null ? "Update" : "Save",
-                    onPressed: () {
-                      if (!_statusFormKey.currentState!.validate()) return;
-
-                      _submitForm(
-                        flatHandoverChecklistModel: flatHandoverChecklistModel,
-                        index: index,
-                      );
-                    },
-                  ),
               ],
             ),
           );
         },
       ),
+      bottomActions:
+          _flatHandoverChecklistAuthorization.isAction
+              ? CustomButton(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                text: index != null ? "Update" : "Save",
+                onPressed: () {
+                  if (!_statusFormKey.currentState!.validate()) return;
+
+                  _submitForm(
+                    flatHandoverChecklistModel: flatHandoverChecklistModel,
+                    index: index,
+                  );
+                },
+              )
+              : SizedBox.shrink(),
     );
 
     _clearStatusSheet();
@@ -306,41 +307,6 @@ class _FlatHandoverChecklistScreenState
                         itemCount: sectionItems.length,
                         itemBuilder: (context, index) {
                           final item = sectionItems[index];
-                          Color getStatusBackgroundColor(String status) {
-                            switch (status.toLowerCase()) {
-                              case "yes":
-                                return AppColor.green20.withValues(alpha: 0.20);
-
-                              case "pending":
-                                return Colors.orange.withValues(alpha: 0.15);
-
-                              case "no":
-                                return Colors.red.withValues(alpha: 0.15);
-
-                              case "n/a":
-                              case "":
-                              default:
-                                return AppColor.lightGreyBackground;
-                            }
-                          }
-
-                          Color getStatusTextColor(String status) {
-                            switch (status.toLowerCase()) {
-                              case "yes":
-                                return AppColor.green;
-
-                              case "pending":
-                                return Colors.orange;
-
-                              case "no":
-                                return Colors.red;
-
-                              case "n/a":
-                              case "":
-                              default:
-                                return AppColor.black.withValues(alpha: 0.7);
-                            }
-                          }
 
                           return Container(
                             margin: const EdgeInsets.only(bottom: 12.0),
@@ -354,11 +320,9 @@ class _FlatHandoverChecklistScreenState
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Expanded(
-                                      child: buildColumnTitleValueNormal(
-                                        title: "Item",
-                                        value: item.items,
-                                      ),
+                                    buildColumnTitleValue(
+                                      title: "Item",
+                                      value: item.items,
                                     ),
                                     horizontalSpacing(),
                                     if (_flatHandoverChecklistAuthorization
@@ -381,42 +345,18 @@ class _FlatHandoverChecklistScreenState
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: buildColumnTitleValueNormal(
-                                        title: "Status",
-                                        value: item.status,
-                                        customValueWidget: Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 4.0,
-                                            horizontal: 10.0,
+                                    buildColumnTitleValue(
+                                      title: "Status",
+                                      value: item.status,
+                                      customValueWidget:
+                                          flatHandoverChecklistStatusWidget(
+                                            item.status,
                                           ),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              6.0,
-                                            ),
-                                            color: getStatusBackgroundColor(
-                                              item.status,
-                                            ),
-                                          ),
-                                          child: Text(
-                                            item.status.trim().isEmpty
-                                                ? "-"
-                                                : item.status,
-                                            style: AppTextStyle.ts12M(
-                                              color: getStatusTextColor(
-                                                item.status,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
                                     ),
                                     horizontalSpacing(),
-                                    Expanded(
-                                      child: buildColumnTitleValueNormal(
-                                        title: "Remark",
-                                        value: item.remark,
-                                      ),
+                                    buildColumnTitleValue(
+                                      title: "Remark",
+                                      value: item.remark,
                                     ),
                                   ],
                                 ),
@@ -426,22 +366,18 @@ class _FlatHandoverChecklistScreenState
                                       MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Expanded(
-                                      child: buildColumnTitleValueNormal(
-                                        title: "Last Modified By",
-                                        value:
-                                            item.modifiedBy.trim().isEmpty
-                                                ? item.createdBy
-                                                : item.modifiedBy,
-                                      ),
+                                    buildColumnTitleValue(
+                                      title: "Last Modified By",
+                                      value:
+                                          item.modifiedBy.trim().isEmpty
+                                              ? item.createdBy
+                                              : item.modifiedBy,
                                     ),
                                     horizontalSpacing(),
-                                    Expanded(
-                                      child: buildColumnTitleValueNormal(
-                                        title: "Last Modified Date",
-                                        value: formatDate(
-                                          item.modifiedDate ?? item.createdDate,
-                                        ),
+                                    buildColumnTitleValue(
+                                      title: "Last Modified Date",
+                                      value: formatDate(
+                                        item.modifiedDate ?? item.createdDate,
                                       ),
                                     ),
                                   ],

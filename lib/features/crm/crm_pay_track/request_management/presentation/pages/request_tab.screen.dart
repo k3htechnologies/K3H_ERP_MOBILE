@@ -445,11 +445,9 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Type",
-                            value: applicant.applicantType,
-                          ),
+                        buildColumnTitleValue(
+                          title: "Type",
+                          value: applicant.applicantType,
                         ),
                         horizontalSpacing(),
                         Expanded(
@@ -836,8 +834,21 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             },
           ),
         } else ...{
-          Center(
-            child: noDataWidget(message: "No Applicant Found", iconSize: 160.0),
+          Container(
+            padding: EdgeInsets.all(12.0),
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child: noDataWidget(
+                    message: "No Applicant Found",
+                    iconSize: 120.0,
+                  ),
+                ),
+              ],
+            ),
           ),
         },
       ],
@@ -944,103 +955,105 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                           )
                           : SizedBox.shrink(),
                       _modifiedRequestsAuthorization.isAction
-                          ? buildColumnTitleValueNormal(
-                            title: "Approval Status",
-                            value: parkingStatus,
-                            customValueWidget: ApproveRejectWidget(
-                              showApproval: parkingData.isApproval,
-                              actionTitle:
-                                  parkingStatus.isEmpty
-                                      ? "Pending"
-                                      : parkingStatus,
-                              subTitle: parking.parkingNumber,
-                              onApprove: (remark) async {
-                                final isSuccess = await _utilsCubit
-                                    .updateModulesWorkflowApproval(
-                                      context: context,
-                                      moduleName:
-                                          "PARKING MODIFICATION APPROVAL",
-                                      id: widget.bookingId,
-                                      subId:
-                                          parkingData
-                                              .parkingModificationRequestId,
-                                      projectId: widget.projectId,
-                                      isApproved: true,
-                                      remark: remark.trim(),
-                                    );
-
-                                if (context.mounted && isSuccess) {
-                                  _requestManagementCubit
-                                      .getParkingModificationRequestList(
-                                        context,
-                                        100,
-                                        1,
-                                        widget.bookingId,
-                                        widget.projectId,
+                          ? buildRowWrapper(
+                            child: buildColumnTitleValue(
+                              title: "Approval Status",
+                              value: parkingStatus,
+                              customValueWidget: ApproveRejectWidget(
+                                showApproval: parkingData.isApproval,
+                                actionTitle:
+                                    parkingStatus.isEmpty
+                                        ? "Pending"
+                                        : parkingStatus,
+                                subTitle: parking.parkingNumber,
+                                onApprove: (remark) async {
+                                  final isSuccess = await _utilsCubit
+                                      .updateModulesWorkflowApproval(
+                                        context: context,
+                                        moduleName:
+                                            "PARKING MODIFICATION APPROVAL",
+                                        id: widget.bookingId,
+                                        subId:
+                                            parkingData
+                                                .parkingModificationRequestId,
+                                        projectId: widget.projectId,
+                                        isApproved: true,
+                                        remark: remark.trim(),
                                       );
-                                }
-                              },
-                              onReject: (remark) async {
-                                final isSuccess = await _utilsCubit
-                                    .updateModulesWorkflowApproval(
-                                      context: context,
-                                      moduleName:
-                                          "PARKING MODIFICATION APPROVAL",
-                                      id: widget.bookingId,
-                                      subId:
-                                          parkingData
-                                              .parkingModificationRequestId,
-                                      projectId: widget.projectId,
-                                      isApproved: false,
-                                      remark: remark.trim(),
-                                    );
 
-                                if (context.mounted && isSuccess) {
-                                  _requestManagementCubit
-                                      .getParkingModificationRequestList(
-                                        context,
-                                        100,
-                                        1,
-                                        widget.bookingId,
-                                        widget.projectId,
+                                  if (context.mounted && isSuccess) {
+                                    _requestManagementCubit
+                                        .getParkingModificationRequestList(
+                                          context,
+                                          100,
+                                          1,
+                                          widget.bookingId,
+                                          widget.projectId,
+                                        );
+                                  }
+                                },
+                                onReject: (remark) async {
+                                  final isSuccess = await _utilsCubit
+                                      .updateModulesWorkflowApproval(
+                                        context: context,
+                                        moduleName:
+                                            "PARKING MODIFICATION APPROVAL",
+                                        id: widget.bookingId,
+                                        subId:
+                                            parkingData
+                                                .parkingModificationRequestId,
+                                        projectId: widget.projectId,
+                                        isApproved: false,
+                                        remark: remark.trim(),
                                       );
-                                }
-                              },
-                              onThirdTap: () async {
-                                final approvalLogHistoryList = await _utilsCubit
-                                    .getApprovalLogHistory(
-                                      context: context,
-                                      id: widget.bookingId,
-                                      subId:
-                                          parkingData
-                                              .parkingModificationRequestId,
-                                      projectId: widget.projectId,
-                                      moduleName:
-                                          "PARKING MODIFICATION APPROVAL",
-                                    );
-                                if (context.mounted) {
-                                  goRouter.pushNamed(
-                                    AppRoutes.approvalLogHistory,
-                                    queryParameters: {
-                                      "title": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          "Parking Details Log History",
-                                        ),
-                                      ),
-                                      "approvalList": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(
-                                            approvalLogHistoryList
-                                                .map((e) => e.toJson())
-                                                .toList(),
+
+                                  if (context.mounted && isSuccess) {
+                                    _requestManagementCubit
+                                        .getParkingModificationRequestList(
+                                          context,
+                                          100,
+                                          1,
+                                          widget.bookingId,
+                                          widget.projectId,
+                                        );
+                                  }
+                                },
+                                onThirdTap: () async {
+                                  final approvalLogHistoryList =
+                                      await _utilsCubit.getApprovalLogHistory(
+                                        context: context,
+                                        id: widget.bookingId,
+                                        subId:
+                                            parkingData
+                                                .parkingModificationRequestId,
+                                        projectId: widget.projectId,
+                                        moduleName:
+                                            "PARKING MODIFICATION APPROVAL",
+                                      );
+                                  if (context.mounted) {
+                                    goRouter.pushNamed(
+                                      AppRoutes.approvalLogHistory,
+                                      queryParameters: {
+                                        "title": Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            "Parking Details Log History",
                                           ),
                                         ),
-                                      ),
-                                    },
-                                  );
-                                }
-                              },
-                              popupTitle: "PARKING MODIFICATION APPROVAL",
+                                        "approvalList": Uri.encodeComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(
+                                              approvalLogHistoryList
+                                                  .map((e) => e.toJson())
+                                                  .toList(),
+                                            ),
+                                          ),
+                                        ),
+                                      },
+                                    );
+                                  }
+                                },
+                                popupTitle: "PARKING MODIFICATION APPROVAL",
+                              ),
                             ),
                           )
                           : SizedBox.shrink(),
@@ -1102,10 +1115,20 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             ),
           ),
         } else ...{
-          Center(
-            child: noDataWidget(
-              message: "No Parking Data Found",
-              iconSize: 160.0,
+          Container(
+            padding: EdgeInsets.all(12.0),
+            decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child: noDataWidget(
+                    message: "No Parking Data Found",
+                    iconSize: 120.0,
+                  ),
+                ),
+              ],
             ),
           ),
         },
@@ -1210,105 +1233,109 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                     _modifiedRequestsAuthorization.isAction
                         ? verticalSpacing()
                         : SizedBox.shrink(),
-                    buildColumnTitleValueNormal(
-                      title: "Unit / Modulation / Customization Remark",
-                      value: remark.flatAlterationRemark,
-                      customValueWidget: DocumentPreviewText(
-                        title: "Proof of Document",
-                        text: remark.flatAlterationRemark,
-                        fileUrl: remark.proofOfDocumentUrl,
+                    buildRowWrapper(
+                      child: buildColumnTitleValue(
+                        title: "Unit / Modulation / Customization Remark",
+                        value: remark.flatAlterationRemark,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Proof of Document",
+                          text: remark.flatAlterationRemark,
+                          fileUrl: remark.proofOfDocumentUrl,
+                        ),
                       ),
                     ),
                     _modifiedRequestsAuthorization.isAction
-                        ? buildColumnTitleValueNormal(
-                          title: "Approval Status",
-                          value: remark.approvalStatus,
-                          customValueWidget: ApproveRejectWidget(
-                            showApproval: remark.isApproval,
-                            actionTitle:
-                                remark.approvalStatus.isEmpty
-                                    ? "Pending"
-                                    : remark.approvalStatus,
-                            approveIcon: Icons.check,
-                            onApprove: (value) async {
-                              final isSuccess = await _utilsCubit
-                                  .updateModulesWorkflowApproval(
-                                    context: context,
-                                    moduleName: "FLAT ALTERATION APPROVAL",
-                                    id: widget.bookingId,
-                                    subId: remark.flatAlterationRequestId,
-                                    projectId: widget.projectId,
-                                    isApproved: true,
-                                    remark: value.trim(),
-                                  );
-
-                              if (context.mounted && isSuccess) {
-                                _requestManagementCubit
-                                    .getFlatAlterationRequestList(
-                                      context,
-                                      10,
-                                      1,
-                                      widget.bookingId,
-                                      widget.projectId,
+                        ? buildRowWrapper(
+                          child: buildColumnTitleValue(
+                            title: "Approval Status",
+                            value: remark.approvalStatus,
+                            customValueWidget: ApproveRejectWidget(
+                              showApproval: remark.isApproval,
+                              actionTitle:
+                                  remark.approvalStatus.isEmpty
+                                      ? "Pending"
+                                      : remark.approvalStatus,
+                              approveIcon: Icons.check,
+                              onApprove: (value) async {
+                                final isSuccess = await _utilsCubit
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      moduleName: "FLAT ALTERATION APPROVAL",
+                                      id: widget.bookingId,
+                                      subId: remark.flatAlterationRequestId,
+                                      projectId: widget.projectId,
+                                      isApproved: true,
+                                      remark: value.trim(),
                                     );
-                              }
-                            },
-                            onReject: (value) async {
-                              final isSuccess = await _utilsCubit
-                                  .updateModulesWorkflowApproval(
-                                    context: context,
-                                    moduleName: "FLAT ALTERATION APPROVAL",
-                                    id: widget.bookingId,
-                                    subId: remark.flatAlterationRequestId,
-                                    projectId: widget.projectId,
-                                    isApproved: false,
-                                    remark: value.trim(),
-                                  );
 
-                              if (context.mounted && isSuccess) {
-                                _requestManagementCubit
-                                    .getFlatAlterationRequestList(
-                                      context,
-                                      10,
-                                      1,
-                                      widget.bookingId,
-                                      widget.projectId,
+                                if (context.mounted && isSuccess) {
+                                  _requestManagementCubit
+                                      .getFlatAlterationRequestList(
+                                        context,
+                                        10,
+                                        1,
+                                        widget.bookingId,
+                                        widget.projectId,
+                                      );
+                                }
+                              },
+                              onReject: (value) async {
+                                final isSuccess = await _utilsCubit
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      moduleName: "FLAT ALTERATION APPROVAL",
+                                      id: widget.bookingId,
+                                      subId: remark.flatAlterationRequestId,
+                                      projectId: widget.projectId,
+                                      isApproved: false,
+                                      remark: value.trim(),
                                     );
-                              }
-                            },
-                            onThirdTap: () async {
-                              final approvalLogHistoryList = await _utilsCubit
-                                  .getApprovalLogHistory(
-                                    context: context,
-                                    id: widget.bookingId,
-                                    subId: remark.flatAlterationRequestId,
-                                    projectId: widget.projectId,
-                                    moduleName: "FLAT ALTERATION APPROVAL",
-                                  );
-                              if (context.mounted) {
-                                goRouter.pushNamed(
-                                  AppRoutes.approvalLogHistory,
-                                  queryParameters: {
-                                    "title": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        "Unit/ Modulation/ Customization Remark Log History",
-                                      ),
-                                    ),
-                                    "approvalList": Uri.encodeComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(
-                                          approvalLogHistoryList
-                                              .map((e) => e.toJson())
-                                              .toList(),
+
+                                if (context.mounted && isSuccess) {
+                                  _requestManagementCubit
+                                      .getFlatAlterationRequestList(
+                                        context,
+                                        10,
+                                        1,
+                                        widget.bookingId,
+                                        widget.projectId,
+                                      );
+                                }
+                              },
+                              onThirdTap: () async {
+                                final approvalLogHistoryList = await _utilsCubit
+                                    .getApprovalLogHistory(
+                                      context: context,
+                                      id: widget.bookingId,
+                                      subId: remark.flatAlterationRequestId,
+                                      projectId: widget.projectId,
+                                      moduleName: "FLAT ALTERATION APPROVAL",
+                                    );
+                                if (context.mounted) {
+                                  goRouter.pushNamed(
+                                    AppRoutes.approvalLogHistory,
+                                    queryParameters: {
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Unit/ Modulation/ Customization Remark Log History",
                                         ),
                                       ),
-                                    ),
-                                  },
-                                );
-                              }
-                            },
-                            popupTitle:
-                                "Unit / Modulation / Customization Remark",
+                                      "approvalList": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            approvalLogHistoryList
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                }
+                              },
+                              popupTitle:
+                                  "Unit / Modulation / Customization Remark",
+                            ),
                           ),
                         )
                         : SizedBox.shrink(),
@@ -1321,13 +1348,14 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
           Container(
             padding: EdgeInsets.all(12.0),
             decoration: commonCardDecoration(),
+            margin: EdgeInsets.only(bottom: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Center(
                   child: noDataWidget(
                     message: "No data available",
-                    iconSize: 160.0,
+                    iconSize: 120.0,
                   ),
                 ),
               ],

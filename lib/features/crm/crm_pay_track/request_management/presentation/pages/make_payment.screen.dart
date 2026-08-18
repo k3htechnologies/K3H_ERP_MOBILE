@@ -816,9 +816,11 @@ class _ModifiedRequestsMakePaymentScreenState
             "Note: This is the refund amount finalized for this booking. Please consider this amount while initiating any further refund process.",
             style: AppTextStyle.ts12B(),
           ),
-          buildColumnTitleValueNormal(
-            title: "Amount",
-            value: data.totalAmountRefundedAgainstBooking.toIndianCurrency(),
+          buildRowWrapper(
+            child: buildColumnTitleValue(
+              title: "Amount",
+              value: data.totalAmountRefundedAgainstBooking.toIndianCurrency(),
+            ),
           ),
         ],
       ),
@@ -847,18 +849,14 @@ class _ModifiedRequestsMakePaymentScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Stamp Duty",
-                  value: data.receivedStampDutyAmount.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Stamp Duty",
+                value: data.receivedStampDutyAmount.toIndianCurrency(),
               ),
               horizontalSpacing(width: 20.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Registration Fees",
-                  value: data.receivedRegistrationFees.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Registration Fees",
+                value: data.receivedRegistrationFees.toIndianCurrency(),
               ),
             ],
           ),
@@ -866,19 +864,14 @@ class _ModifiedRequestsMakePaymentScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Agreememt Value (Without TDS)",
-                  value: data.receivedAgreementValue.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Agreememt Value (Without TDS)",
+                value: data.receivedAgreementValue.toIndianCurrency(),
               ),
               horizontalSpacing(width: 20.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Agreememt Value GST",
-                  value:
-                      data.receivedAgreementValueGstAmount.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Agreememt Value GST",
+                value: data.receivedAgreementValueGstAmount.toIndianCurrency(),
               ),
             ],
           ),
@@ -886,18 +879,14 @@ class _ModifiedRequestsMakePaymentScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Agreememt Value TDS",
-                  value: data.receivedAgreementValueTds.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Agreememt Value TDS",
+                value: data.receivedAgreementValueTds.toIndianCurrency(),
               ),
               horizontalSpacing(width: 20.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Other Charges",
-                  value: data.receivedOtherChargesAmount.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Other Charges",
+                value: data.receivedOtherChargesAmount.toIndianCurrency(),
               ),
             ],
           ),
@@ -905,18 +894,14 @@ class _ModifiedRequestsMakePaymentScreenState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Other Charges GST",
-                  value: data.receivedOtherChargesGstAmount.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Other Charges GST",
+                value: data.receivedOtherChargesGstAmount.toIndianCurrency(),
               ),
               horizontalSpacing(width: 20.0),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Total Received",
-                  value: data.refundedAmountOnTillDate.toIndianCurrency(),
-                ),
+              buildColumnTitleValue(
+                title: "Total Received",
+                value: data.refundedAmountOnTillDate.toIndianCurrency(),
               ),
             ],
           ),
@@ -961,18 +946,23 @@ class _ModifiedRequestsMakePaymentScreenState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Project Name",
-                        value: data.projectName,
-                      ),
+                    buildColumnTitleValue(
+                      title: "Project Name",
+                      value: data.projectName,
                     ),
                     horizontalSpacing(width: 20.0),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Wing",
-                        value: data.wing,
-                      ),
+                    buildColumnTitleValue(title: "Wing", value: data.wing),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(title: "Floor", value: data.floor),
+                    horizontalSpacing(width: 20.0),
+                    buildColumnTitleValue(
+                      title: "Unit Number",
+                      value: data.flat,
                     ),
                   ],
                 ),
@@ -980,18 +970,14 @@ class _ModifiedRequestsMakePaymentScreenState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Floor",
-                        value: data.floor,
-                      ),
+                    buildColumnTitleValue(
+                      title: "Configuration",
+                      value: data.flatConfiguration,
                     ),
                     horizontalSpacing(width: 20.0),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Unit Number",
-                        value: data.flat,
-                      ),
+                    buildColumnTitleValue(
+                      title: "RERA Carpet Area (SqFt)",
+                      value: data.reraCarpetAreaSqFt.toString(),
                     ),
                   ],
                 ),
@@ -999,37 +985,14 @@ class _ModifiedRequestsMakePaymentScreenState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Configuration",
-                        value: data.flatConfiguration,
-                      ),
+                    buildColumnTitleValue(
+                      title: "Agreement Value (With TDS)",
+                      value: data.agreementValue.toIndianCurrency(),
                     ),
                     horizontalSpacing(width: 20.0),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "RERA Carpet Area (SqFt)",
-                        value: data.reraCarpetAreaSqFt.toString(),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Agreement Value (With TDS)",
-                        value: data.agreementValue.toIndianCurrency(),
-                      ),
-                    ),
-                    horizontalSpacing(width: 20.0),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Number Of Parking",
-                        value: data.numberOfParking.toString(),
-                      ),
+                    buildColumnTitleValue(
+                      title: "Number Of Parking",
+                      value: data.numberOfParking.toString(),
                     ),
                   ],
                 ),
@@ -1108,29 +1071,25 @@ class _ModifiedRequestsMakePaymentScreenState
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Applicant Name",
-                            value: applicant.applicantName,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Profile Photo",
-                              text: applicant.applicantName,
-                              fileUrl: applicant.photoURL,
-                            ),
+                        buildColumnTitleValue(
+                          title: "Applicant Name",
+                          value: applicant.applicantName,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Profile Photo",
+                            text: applicant.applicantName,
+                            fileUrl: applicant.photoURL,
                           ),
                         ),
 
                         horizontalSpacing(width: 20),
 
-                        Expanded(
-                          child: buildColumnTitleValueNormal(
-                            title: "Mobile Number",
+                        buildColumnTitleValue(
+                          title: "Mobile Number",
+                          value: applicant.applicantMobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode:
+                                applicant.applicantMobileNumberCountryCode,
                             value: applicant.applicantMobileNumber,
-                            customValueWidget: CustomClickToContactText(
-                              countryCode:
-                                  applicant.applicantMobileNumberCountryCode,
-                              value: applicant.applicantMobileNumber,
-                            ),
                           ),
                         ),
                       ],

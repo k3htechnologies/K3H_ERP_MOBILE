@@ -1,4 +1,7 @@
 import 'package:get_it/get_it.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/data/datasource/call_logs.datasource.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/data/repository/call_logs.repository.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/cubit/call_logs_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover_checklist/data/datasource/flat_handover_checklist.datasource.dart';
@@ -44,6 +47,9 @@ void registerCRMPayTrackDependencies(GetIt serviceLocator) {
   serviceLocator.registerSingleton<FlatHandoverChecklistDatasource>(
     FlatHandoverChecklistDatasourceImpl(),
   );
+  serviceLocator.registerSingleton<CallLogsDatasource>(
+    CallLogsDatasourceImpl(),
+  );
   // REPOSITORIES
   serviceLocator.registerSingleton<PayTrackRepository>(
     PayTrackRepositoryImpl(
@@ -83,6 +89,11 @@ void registerCRMPayTrackDependencies(GetIt serviceLocator) {
           serviceLocator<FlatHandoverChecklistDatasource>(),
     ),
   );
+  serviceLocator.registerSingleton<CallLogsRepository>(
+    CallLogsRepositoryImpl(
+      callLogsDatasource: serviceLocator<CallLogsDatasource>(),
+    ),
+  );
   // CUBITS
   serviceLocator.registerSingleton<PayTrackCubit>(PayTrackCubit());
   serviceLocator.registerSingleton<LoanDetailsCubit>(LoanDetailsCubit());
@@ -96,4 +107,5 @@ void registerCRMPayTrackDependencies(GetIt serviceLocator) {
   serviceLocator.registerSingleton<FlatHandoverChecklistCubit>(
     FlatHandoverChecklistCubit(),
   );
+  serviceLocator.registerSingleton<CallLogsCubit>(CallLogsCubit());
 }

@@ -968,12 +968,18 @@ class _AddInventorySpecificationScreenState
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         spacing: 6.0,
         children: [
-          buildColumnTitleValueNormal(
-            title: "Building Number",
-            value: building,
+          buildRowWrapper(
+            child: buildColumnTitleValue(
+              title: "Building Number",
+              value: building,
+            ),
           ),
-          buildColumnTitleValueNormal(title: "Wing", value: wing),
-          buildColumnTitleValueNormal(title: "Floor", value: floor),
+          buildRowWrapper(
+            child: buildColumnTitleValue(title: "Wing", value: wing),
+          ),
+          buildRowWrapper(
+            child: buildColumnTitleValue(title: "Floor", value: floor),
+          ),
         ],
       ),
     );

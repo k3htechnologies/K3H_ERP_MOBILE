@@ -78,22 +78,23 @@ class _SnagCheckListScreenState extends State<SnagCheckListScreen>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SnagChecklistCubit, SnagChecklistState>(
-      builder: (context, state) {
-        if (state.isLoading ?? true) {
-          return Center(child: loader());
-        }
-        final bookingStatus = widget.bookingApprovalStatus?.toUpperCase() ?? "";
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            verticalSpacing(),
-            ChipStyleTabBar(
-              controller: _tabController,
-              tabs: ['Civil', 'Electrical', 'Plumbing'],
-            ),
-            Expanded(
-              child: TabBarView(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        verticalSpacing(),
+        ChipStyleTabBar(
+          controller: _tabController,
+          tabs: ['Civil', 'Electrical', 'Plumbing'],
+        ),
+        Expanded(
+          child: BlocBuilder<SnagChecklistCubit, SnagChecklistState>(
+            builder: (context, state) {
+              if (state.isLoading ?? true) {
+                return Center(child: loader());
+              }
+              final bookingStatus =
+                  widget.bookingApprovalStatus?.toUpperCase() ?? "";
+              return TabBarView(
                 controller: _tabController,
                 physics: NeverScrollableScrollPhysics(),
                 children: [
@@ -116,11 +117,11 @@ class _SnagCheckListScreenState extends State<SnagCheckListScreen>
                     bookingApprovalStatus: bookingStatus,
                   ),
                 ],
-              ),
-            ),
-          ],
-        );
-      },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

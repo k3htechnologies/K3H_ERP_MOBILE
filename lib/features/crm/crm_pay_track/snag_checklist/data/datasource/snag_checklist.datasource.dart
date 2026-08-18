@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/data/model/snag_checklist.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class SnagChecklistDatasource {
   Future<Map<String, dynamic>> apicallPullSnagCheckList({
@@ -26,14 +27,14 @@ class SnagChecklistDatasourceImpl extends SnagChecklistDatasource {
     Map<String, dynamic>? queryParams,
   }) async {
     String pullSnagCheckListUrl({
+      Map<String, dynamic>? queryParams,
       required int bookingId,
       required int projectId,
       required String categoryName,
-      Map<String, dynamic>? queryParams,
     }) {
       String url =
           "SnagCheckList/PullSnagCheckList?ProjectId=$projectId&BookingId=$bookingId&&CategoryName=$categoryName";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

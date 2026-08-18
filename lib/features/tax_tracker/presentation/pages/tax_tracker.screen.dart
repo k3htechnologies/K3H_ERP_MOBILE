@@ -165,28 +165,24 @@ class _TaxTrackerScreenState extends State<TaxTrackerScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Notice Type",
-                        value: "ITR ACK / Revised Return",
-                        customValueWidget: GestureDetector(
-                          onTap: () {
-                            goRouter.pushNamed(AppRoutes.viewTaxTracker);
-                          },
-                          child: Text(
-                            "ITR ACK / Revised Return",
-                            style: AppTextStyle.ts14M(color: AppColor.primary),
-                          ),
+                    buildColumnTitleValue(
+                      title: "Notice Type",
+                      value: "ITR ACK / Revised Return",
+                      customValueWidget: GestureDetector(
+                        onTap: () {
+                          goRouter.pushNamed(AppRoutes.viewTaxTracker);
+                        },
+                        child: Text(
+                          "ITR ACK / Revised Return",
+                          style: AppTextStyle.ts14M(color: AppColor.primary),
                         ),
                       ),
                     ),
                     horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Authority",
-                        value: "Assessing Officer (AO)",
-                        valueTextStyle: AppTextStyle.ts14M(),
-                      ),
+                    buildColumnTitleValue(
+                      title: "Authority",
+                      value: "Assessing Officer (AO)",
+                      valueTextStyle: AppTextStyle.ts14M(),
                     ),
                   ],
                 ),
@@ -195,31 +191,27 @@ class _TaxTrackerScreenState extends State<TaxTrackerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Notice U/S",
-                        value: "143 (1)",
-                        valueTextStyle: AppTextStyle.ts14M(),
-                      ),
+                    buildColumnTitleValue(
+                      title: "Notice U/S",
+                      value: "143 (1)",
+                      valueTextStyle: AppTextStyle.ts14M(),
                     ),
                     horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Notice Status",
-                        value: "Reply Pending",
-                        customValueWidget: Container(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 4,
-                            horizontal: 12.0,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Color(0xffFFEDD5),
-                            borderRadius: BorderRadius.circular(9999.0),
-                          ),
-                          child: Text(
-                            "Reply Pending",
-                            style: AppTextStyle.ts10M(color: Color(0xffC2410C)),
-                          ),
+                    buildColumnTitleValue(
+                      title: "Notice Status",
+                      value: "Reply Pending",
+                      customValueWidget: Container(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 4,
+                          horizontal: 12.0,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Color(0xffFFEDD5),
+                          borderRadius: BorderRadius.circular(9999.0),
+                        ),
+                        child: Text(
+                          "Reply Pending",
+                          style: AppTextStyle.ts10M(color: Color(0xffC2410C)),
                         ),
                       ),
                     ),
@@ -230,20 +222,16 @@ class _TaxTrackerScreenState extends State<TaxTrackerScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Notice Date",
-                        value: "09 June 2026",
-                        valueTextStyle: AppTextStyle.ts14M(),
-                      ),
+                    buildColumnTitleValue(
+                      title: "Notice Date",
+                      value: "09 June 2026",
+                      valueTextStyle: AppTextStyle.ts14M(),
                     ),
                     horizontalSpacing(),
-                    Expanded(
-                      child: buildColumnTitleValueNormal(
-                        title: "Due Date",
-                        value: "28 June 2026",
-                        valueTextStyle: AppTextStyle.ts14M(),
-                      ),
+                    buildColumnTitleValue(
+                      title: "Due Date",
+                      value: "28 June 2026",
+                      valueTextStyle: AppTextStyle.ts14M(),
                     ),
                   ],
                 ),

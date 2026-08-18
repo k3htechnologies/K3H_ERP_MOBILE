@@ -351,17 +351,13 @@ class _DcrReportCardState extends State<DcrReportCard> {
           verticalSpacing(height: 13),
           Row(
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "Month Collection",
-                  value: widget.item.target.toString(),
-                ),
+              buildColumnTitleValue(
+                title: "Month Collection",
+                value: widget.item.target.toString(),
               ),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "FTD Collection",
-                  value: widget.item.ftd.toString(),
-                ),
+              buildColumnTitleValue(
+                title: "FTD Collection",
+                value: widget.item.ftd.toString(),
               ),
             ],
           ),
@@ -370,17 +366,13 @@ class _DcrReportCardState extends State<DcrReportCard> {
 
           Row(
             children: [
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "New Booking",
-                  value: widget.item.newBooking.toString(),
-                ),
+              buildColumnTitleValue(
+                title: "New Booking",
+                value: widget.item.newBooking.toString(),
               ),
-              Expanded(
-                child: buildColumnTitleValueNormal(
-                  title: "FTM Collection",
-                  value: widget.item.ftm.toString(),
-                ),
+              buildColumnTitleValue(
+                title: "FTM Collection",
+                value: widget.item.ftm.toString(),
               ),
             ],
           ),
@@ -411,18 +403,14 @@ class _DcrReportCardState extends State<DcrReportCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Reg Target",
-                          value: widget.item.regTarget.toString(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Reg Target",
+                        value: widget.item.regTarget.toString(),
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Reg Done (FTD)",
-                          value: widget.item.regDoneFtd.toString(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Reg Done (FTD)",
+                        value: widget.item.regDoneFtd.toString(),
                       ),
                     ],
                   ),
@@ -430,18 +418,14 @@ class _DcrReportCardState extends State<DcrReportCard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Reg Done (MTD)",
-                          value: widget.item.regDoneMtd.toString(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Reg Done (MTD)",
+                        value: widget.item.regDoneMtd.toString(),
                       ),
                       horizontalSpacing(),
-                      Expanded(
-                        child: buildColumnTitleValueNormal(
-                          title: "Balance Against Target",
-                          value: widget.item.balanceAgainstTarget.toString(),
-                        ),
+                      buildColumnTitleValue(
+                        title: "Balance Against Target",
+                        value: widget.item.balanceAgainstTarget.toString(),
                       ),
                     ],
                   ),

@@ -30,8 +30,6 @@ class FlatHandoverState extends BaseState {
     int? currentPage,
     int? totalNumberOfRecord,
     String? searchText,
-    String? currentSortColumn,
-    String? currentSortDirection,
   }) {
     return FlatHandoverState(
       flatHandoverFileList: flatHandoverFileList ?? this.flatHandoverFileList,

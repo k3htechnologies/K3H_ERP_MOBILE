@@ -8,6 +8,9 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/data/m
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -120,20 +123,29 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
         }
         return Scaffold(
           appBar: CustomAppBarWithBackButton(
-            screenTitle:
-                widget.parking == null
-                    ? "Add Parking Modification Request"
-                    : "Update Parking Modification Request",
+            screenTitle: "Parking Modification Request",
             authorization: AuthorizationModel(),
           ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Form(
-                  key: _formKey,
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.parking == null
+                      ? "Add Parking Modification Request"
+                      : "Update Parking Modification Request",
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                verticalSpacing(),
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
+                  ),
+                  decoration: commonCardDecoration(),
+                  child: Form(
+                    key: _formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -202,8 +214,8 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           bottomNavigationBar: SafeArea(
             child: Container(
