@@ -355,7 +355,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       state.filterByFloor.trim().isNotEmpty,
       state.filterByFromDate != null,
       state.filterByToDate != null,
-      state.isFinalRegistrationCompleted != null,
+      state.isFinalRegistrationCompleted == true,
     ]);
   }
 
