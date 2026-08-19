@@ -95,9 +95,6 @@ class _TemporaryAlternateAccommodationScreenState
     _scrollController.addListener(() {
       final state = _temporaryAlternateAccommodationCubit.state;
 
-      final int tabIndex = _tabController.index;
-      final String tabName = tabTitles[tabIndex];
-
       final int currentRecordCount =
           state.rentList.map((e) => e.tenantId).toSet().length;
 
@@ -135,7 +132,6 @@ class _TemporaryAlternateAccommodationScreenState
             pageNumber: currentState.currentPage + 1,
             projectId: _project.projectId,
             buildingId: buildingId,
-            chargeName: tabName,
           );
         });
       }
@@ -154,7 +150,6 @@ class _TemporaryAlternateAccommodationScreenState
               : null;
       if (buildingId != null) {
         _temporaryAlternateAccommodationCubit.onTabChanged(
-          tabIndex,
           context,
           projectId: projectId,
           buildingId: buildingId,
@@ -257,17 +252,15 @@ class _TemporaryAlternateAccommodationScreenState
 
   TemporaryAlternativeAccommodationModel? _findTotalRecord(
     List<TemporaryAlternativeAccommodationModel> rentList,
-    int tenantId, {
-    String? tenure,
-  }) {
+    int tenantId,
+  ) {
     return rentList.firstWhereOrNull((e) {
       try {
         final date = DateTime.parse(e.date.toString());
         final matchesDate =
             date.year == 1997 && date.month == 1 && date.day == 1;
         final matchesTenant = e.tenantId == tenantId;
-        final matchesTenure = tenure == null || e.tenure == tenure;
-        return matchesDate && matchesTenant && matchesTenure;
+        return matchesDate && matchesTenant;
       } catch (_) {
         return false;
       }
@@ -276,17 +269,15 @@ class _TemporaryAlternateAccommodationScreenState
 
   TemporaryAlternativeAccommodationModel? _findPaidRecord(
     List<TemporaryAlternativeAccommodationModel> rentList,
-    int tenantId, {
-    String? tenure,
-  }) {
+    int tenantId,
+  ) {
     return rentList.firstWhereOrNull((e) {
       try {
         final date = DateTime.parse(e.date.toString());
         final matchesDate =
             date.year == 1997 && date.month == 1 && date.day == 2;
         final matchesTenant = e.tenantId == tenantId;
-        final matchesTenure = tenure == null || e.tenure == tenure;
-        return matchesDate && matchesTenant && matchesTenure;
+        return matchesDate && matchesTenant;
       } catch (_) {
         return false;
       }
@@ -327,7 +318,6 @@ class _TemporaryAlternateAccommodationScreenState
               projectId: _project.projectId,
               buildingId:
                   _selectedBuildingNotifier.value.first['zAttributesId'],
-              chargeType: tabTitles[_tabController.index],
             );
           },
           searchHintText: 'Search By Unit Number',
@@ -369,7 +359,6 @@ class _TemporaryAlternateAccommodationScreenState
                                 if (context.mounted) {
                                   _temporaryAlternateAccommodationCubit
                                       .onTabChanged(
-                                        tabIndex,
                                         context,
                                         projectId: projectId,
                                         buildingId: buildingId,
@@ -622,6 +611,7 @@ class _TemporaryAlternateAccommodationScreenState
                     ),
                   ),
                   CustomIconButton.add(
+                    isDisabled: totalAmount == 0 || totalAmount == paidAmount,
                     onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.addPayment,
@@ -634,6 +624,7 @@ class _TemporaryAlternateAccommodationScreenState
 
                           'totalAmount': totalAmount.toString(),
                           'paidAmount': paidAmount.toString(),
+                          'previousRoute': AppRoutes.rent,
                         },
                       );
                     },
@@ -705,19 +696,23 @@ class _TemporaryAlternateAccommodationScreenState
                   if (totalAmount == 0) {
                     return;
                   }
-                  final rentModelEnc = Uri.encodeQueryComponent(
-                    EncryptionManager.encryptData(
-                      jsonEncode(tenantRecord.toJson()),
-                    ),
-                  );
+
                   await goRouter
                       .pushNamed(
                         AppRoutes.viewSummary,
                         queryParameters: <String, String>{
-                          'rentModel': rentModelEnc,
+                          'rentModel': Uri.encodeQueryComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(tenantRecord.toJson()),
+                            ),
+                          ),
                           'totalAmount': totalAmount.toString(),
+                          'rent': Uri.encodeComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(tenantRecord.toJson()),
+                            ),
+                          ),
                         },
-                        extra: {'rentModel': tenantRecord},
                       )
                       .then((_) async {
                         if (context.mounted) {
@@ -727,7 +722,6 @@ class _TemporaryAlternateAccommodationScreenState
                                 pageNumber: state.currentPage,
                                 projectId: tenantRecord.projectId,
                                 buildingId: tenantRecord.buildingId,
-                                chargeName: tabTitles[_tabController.index],
                               );
                         }
                       });
@@ -862,18 +856,10 @@ class _TemporaryAlternateAccommodationScreenState
       builder: (context, state) {
         final tenantRecord = tenantRecords.first;
         final totalAmount =
-            _findTotalRecord(
-              state.rentList,
-              tenantRecord.tenantId,
-              tenure: tenantRecord.tenure,
-            )?.amount ??
+            _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ??
             0.0;
         final paidAmount =
-            _findPaidRecord(
-              state.rentList,
-              tenantRecord.tenantId,
-              tenure: tenantRecord.tenure,
-            )?.amount ??
+            _findPaidRecord(state.rentList, tenantRecord.tenantId)?.amount ??
             0.0;
         return _buildCommonAccommodationCard(
           tenantRecord: tenantRecord,

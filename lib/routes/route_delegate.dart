@@ -30,6 +30,7 @@ import 'package:k3h_erp_app/features/business_development/proposed_plans/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_view_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/view_payment_details_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
@@ -498,22 +499,6 @@ String? authenticateAndAuthorizeRoute(GoRouterState state) {
   }
   return null;
 }
-
-TemporaryAlternativeAccommodationModel?
-_temporaryAlternateAccommodationModelFromQuery(String? encoded) {
-  if (encoded == null || encoded.isEmpty) return null;
-  try {
-    final json =
-        jsonDecode(
-              EncryptionManager.decryptData(Uri.decodeQueryComponent(encoded)),
-            )
-            as Map<String, dynamic>;
-    return TemporaryAlternativeAccommodationModel.fromJson(json);
-  } catch (_) {
-    return null;
-  }
-}
-
 
 final GoRouter goRouter = GoRouter(
   navigatorKey: navigatorKey,
@@ -2621,6 +2606,11 @@ final GoRouter goRouter = GoRouter(
                     state.uri.queryParameters['paidAmount'];
                 final queryParameterPaymentLedgerIndex =
                     state.uri.queryParameters['paymentLedgerIndex'];
+
+                // Take previous route directly from query parameter
+                final String previousRoute =
+                    state.uri.queryParameters['previousRoute'] ?? '';
+
                 final TemporaryAlternativeAccommodationModel rentModel =
                     TemporaryAlternativeAccommodationModel.fromJson(
                       jsonDecode(
@@ -2629,8 +2619,10 @@ final GoRouter goRouter = GoRouter(
                         ),
                       ),
                     );
+
                 final double totalAmount =
                     double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+
                 final double paidAmount =
                     double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
 
@@ -2644,8 +2636,9 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : null;
-                final paymentLedgerIndex = int.tryParse(
-                  queryParameterPaymentLedgerIndex ?? '0',
+
+                final int? paymentLedgerIndex = int.tryParse(
+                  queryParameterPaymentLedgerIndex ?? '',
                 );
 
                 return AddPaymentScreen(
@@ -2654,6 +2647,7 @@ final GoRouter goRouter = GoRouter(
                   paidAmount: paidAmount,
                   paymentLedger: paymentLedgerModel,
                   paymentLedgerIndex: paymentLedgerIndex,
+                  previousRoute: previousRoute,
                 );
               },
             ),
@@ -2661,22 +2655,60 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewSummary,
               path: AppRoutes.viewSummary,
               builder: (context, state) {
-                final extra = state.extra as Map<String, dynamic>? ?? {};
-                TemporaryAlternativeAccommodationModel? rentModel =
-                    extra['rentModel']
-                        as TemporaryAlternativeAccommodationModel?;
+                final queryParameterRent = state.uri.queryParameters['rent'];
                 final queryParameterTotalAmount =
                     state.uri.queryParameters['totalAmount'];
-                rentModel ??= _temporaryAlternateAccommodationModelFromQuery(
-                  state.uri.queryParameters['rentModel'],
-                );
+                final TemporaryAlternativeAccommodationModel rentModel =
+                    TemporaryAlternativeAccommodationModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterRent!),
+                        ),
+                      ),
+                    );
 
                 final double totalAmount =
                     double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
 
                 return ViewPaymentSummaryScreen(
-                  rentModel: rentModel!,
+                  rentModel: rentModel,
                   totalAmount: totalAmount,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewPaymentDetails,
+              path: AppRoutes.viewPaymentDetails,
+              builder: (context, state) {
+                final queryParameterRent = state.uri.queryParameters['rent'];
+                final queryParameterTotalAmount =
+                    state.uri.queryParameters['totalAmount'];
+                final queryParameterPaymentLedger =
+                    state.uri.queryParameters['paymentLedger'];
+                final TemporaryAlternativeAccommodationModel rentModel =
+                    TemporaryAlternativeAccommodationModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterRent!),
+                        ),
+                      ),
+                    );
+
+                final double totalAmount =
+                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+
+                final PaymentLedgerModel paymentLedgerModel =
+                    PaymentLedgerModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterPaymentLedger!),
+                        ),
+                      ),
+                    );
+                return ViewPaymentDetailsScreen(
+                  rentModel: rentModel,
+                  totalAmount: totalAmount,
+                  paymentLedger: paymentLedgerModel,
                 );
               },
             ),

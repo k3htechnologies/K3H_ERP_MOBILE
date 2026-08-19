@@ -11,9 +11,11 @@ class TemporaryAlternateAccommodationState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String selectedTenure;
-  final int currentTabIndex;
+  final String currentTabName;
   final List<String> tenureList;
   final int selectedTenureIndex;
+  final String searchText;
+  final String paymentLedgerSearchText;
 
   const TemporaryAlternateAccommodationState({
     super.isLoading,
@@ -27,9 +29,11 @@ class TemporaryAlternateAccommodationState extends BaseState {
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.selectedTenure,
-    required this.currentTabIndex,
+    required this.currentTabName,
     required this.tenureList,
     required this.selectedTenureIndex,
+    required this.searchText,
+    required this.paymentLedgerSearchText,
   });
 
   factory TemporaryAlternateAccommodationState.initial() =>
@@ -45,9 +49,11 @@ class TemporaryAlternateAccommodationState extends BaseState {
         totalNumberOfRecord: 0,
         currentPage: 1,
         selectedTenure: "",
-        currentTabIndex: 0,
+        currentTabName: "Additional TAA",
         tenureList: [],
         selectedTenureIndex: -1,
+        searchText: '',
+        paymentLedgerSearchText: '',
       );
 
   TemporaryAlternateAccommodationState copyWith({
@@ -62,9 +68,11 @@ class TemporaryAlternateAccommodationState extends BaseState {
     int? totalNumberOfRecord,
     int? currentPage,
     String? selectedTenure,
-    int? currentTabIndex,
+    String? currentTabName,
     List<String>? tenureList,
     int? selectedTenureIndex,
+    String? searchText,
+    String? paymentLedgerSearchText,
   }) {
     return TemporaryAlternateAccommodationState(
       isLoading: isLoading ?? this.isLoading,
@@ -78,9 +86,12 @@ class TemporaryAlternateAccommodationState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       selectedTenure: selectedTenure ?? this.selectedTenure,
-      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      currentTabName: currentTabName ?? this.currentTabName,
       tenureList: tenureList ?? this.tenureList,
       selectedTenureIndex: selectedTenureIndex ?? this.selectedTenureIndex,
+      searchText: searchText ?? this.searchText,
+      paymentLedgerSearchText:
+          paymentLedgerSearchText ?? this.paymentLedgerSearchText,
     );
   }
 
@@ -97,8 +108,10 @@ class TemporaryAlternateAccommodationState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     selectedTenure,
-    currentTabIndex,
+    currentTabName,
     tenureList,
     selectedTenureIndex,
+    searchText,
+    paymentLedgerSearchText,
   ];
 }

@@ -31,14 +31,6 @@ class TemporaryAlternateAccommodationViewScreen extends StatefulWidget {
 
 class _TemporaryAlternateAccommodationViewScreenState
     extends State<TemporaryAlternateAccommodationViewScreen> {
-  final List<String> tabTitles = [
-    'Additional TAA',
-    'TAA',
-    'Hardship',
-    'Brokerage',
-    'Shifting',
-  ];
-
   final ValueNotifier<List<TemporaryAlternateAccommodationGridRowModel>>
   taaRows = ValueNotifier([]);
 
@@ -55,11 +47,6 @@ class _TemporaryAlternateAccommodationViewScreenState
           context: context,
           projectId: widget.tenantModel.projectId,
           buildingId: widget.tenantModel.buildingId,
-          chargeName:
-              tabTitles[context
-                  .read<TemporaryAlternateAccommodationCubit>()
-                  .state
-                  .currentTabIndex],
         );
 
     // Skip the 1997 adjustment/lump-sum records, keep only real month-wise entries
@@ -119,10 +106,10 @@ class _TemporaryAlternateAccommodationViewScreenState
                       {
                         "title": "Charge Type",
                         "value":
-                            tabTitles[context
+                            context
                                 .read<TemporaryAlternateAccommodationCubit>()
                                 .state
-                                .currentTabIndex],
+                                .currentTabName,
                       },
                       {
                         "title": "Carpet Area (SqFt)",

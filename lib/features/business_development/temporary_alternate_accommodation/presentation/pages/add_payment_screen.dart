@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/temporary_alternate_accommodation.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
@@ -27,6 +28,7 @@ class AddPaymentScreen extends StatefulWidget {
   final TemporaryAlternativeAccommodationModel rentModel;
   final double totalAmount;
   final double? paidAmount;
+  final String previousRoute;
 
   final PaymentLedgerModel? paymentLedger;
   final int? paymentLedgerIndex;
@@ -34,6 +36,7 @@ class AddPaymentScreen extends StatefulWidget {
     super.key,
     required this.rentModel,
     required this.totalAmount,
+    required this.previousRoute,
     this.paidAmount,
     this.paymentLedger,
     this.paymentLedgerIndex,
@@ -45,7 +48,6 @@ class AddPaymentScreen extends StatefulWidget {
 class _AddPaymentScreenState extends State<AddPaymentScreen> {
   late TemporaryAlternateAccommodationCubit
   _temporaryAlternateAccommodationCubit;
-  late ProjectModel _project;
   bool get _isEditMode => widget.paymentLedger != null;
   final GlobalKey<FormState> _formLedger = GlobalKey<FormState>();
   late TextEditingController _payAmountC,
@@ -80,19 +82,11 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     deletedFileList: "",
   );
 
-  final List<String> tabTitles = [
-    'Additional TAA',
-    'TAA',
-    'Hardship',
-    'Brokerage',
-    'Shifting',
-  ];
   @override
   void initState() {
     super.initState();
     _temporaryAlternateAccommodationCubit =
         context.read<TemporaryAlternateAccommodationCubit>();
-    _project = getProject();
     _initializeTextControllers();
     if (_isEditMode) {
       _prefillFromPaymentLedger(widget.paymentLedger!);
@@ -203,9 +197,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
               {
                 "title": "Charge Type",
                 "value":
-                    tabTitles[_temporaryAlternateAccommodationCubit
-                        .state
-                        .currentTabIndex],
+                    _temporaryAlternateAccommodationCubit.state.currentTabName,
               },
               {
                 "title": "Carpet Area (SqFt)",
@@ -549,30 +541,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
             ),
             onPressed: () {
               if (!_formLedger.currentState!.validate()) return;
-              if (_selectedBankNotifier.value.isEmpty) {
-                CustomSnackBar.showTopSnackBar(
-                  context,
-                  title: "Please select Bank Name",
-                  isError: true,
-                );
-                return;
-              }
-              if (_selectedProjectWiseBankNotifier.value.isEmpty) {
-                CustomSnackBar.showTopSnackBar(
-                  context,
-                  title: "Please select Project Wise Bank",
-                  isError: true,
-                );
-                return;
-              }
-              if (selectedDate == null) {
-                CustomSnackBar.showTopSnackBar(
-                  context,
-                  title: "Please select Date",
-                  isError: true,
-                );
-                return;
-              }
               final rentModel = widget.rentModel;
 
               if (_isEditMode && widget.paymentLedger != null) {
@@ -604,59 +572,39 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                   transactionChequeDemandDraftURL:
                       transactionChequeDemandDraftUrl,
                   paymentReceiptURL: paymentReceiptUrl,
-                  chargeType:
-                      tabTitles[_temporaryAlternateAccommodationCubit
-                          .state
-                          .currentTabIndex],
                   index: widget.paymentLedgerIndex ?? 0,
                 );
               } else {
-                _temporaryAlternateAccommodationCubit
-                    .addPayTrackRent(
-                      context: context,
-                      payTrackRentId: 0,
-                      tenantId: rentModel.tenantId,
-                      tenantApplicantId: rentModel.tenantApplicantId,
-                      buildingId: rentModel.buildingId,
-                      projectId: rentModel.projectId,
-                      projectBankListMasterId:
-                          _selectedProjectWiseBankNotifier
-                                  .value
-                                  .first["zAttributesId"]
-                              as int,
-                      accountHolderName: _accountHolderNameC.text,
-                      bankListMasterId:
-                          _selectedBankNotifier.value.first["zAttributesId"]
-                              as int,
-                      accountNumber: _accountNumberC.text,
-                      ifscCode: _ifscCodeC.text,
-                      paymentMode:
-                          selectedPaymentMode.value?["DisplayName"] as String,
-                      amountType:
-                          selectedAmountType.value?["DisplayName"] as String,
-                      payAmount: _payAmountC.text,
-                      transactionChequeDemandDraftNumber: _transactionNumC.text,
-                      transactionChequeDemandDraftDate: selectedDate!,
-                      transactionChequeDemandDraftURL:
-                          transactionChequeDemandDraftUrl,
-                      paymentReceiptURL: paymentReceiptUrl,
-                      chargeType:
-                          tabTitles[_temporaryAlternateAccommodationCubit
-                              .state
-                              .currentTabIndex],
-                    )
-                    .then((_) {
-                      if (context.mounted) {
-                        _temporaryAlternateAccommodationCubit
-                            .pullChargesDetails(
-                              context: context,
-                              pageNumber: 1,
-                              projectId: _project.projectId,
-                              buildingId: widget.rentModel.buildingId,
-                              chargeName: "RENT",
-                            );
-                      }
-                    });
+                _temporaryAlternateAccommodationCubit.addPayTrackRent(
+                  context: context,
+                  payTrackRentId: 0,
+                  tenantId: rentModel.tenantId,
+                  tenantApplicantId: rentModel.tenantApplicantId,
+                  buildingId: rentModel.buildingId,
+                  projectId: rentModel.projectId,
+                  projectBankListMasterId:
+                      _selectedProjectWiseBankNotifier
+                              .value
+                              .first["zAttributesId"]
+                          as int,
+                  accountHolderName: _accountHolderNameC.text,
+                  bankListMasterId:
+                      _selectedBankNotifier.value.first["zAttributesId"] as int,
+                  accountNumber: _accountNumberC.text,
+                  ifscCode: _ifscCodeC.text,
+                  paymentMode:
+                      selectedPaymentMode.value?["DisplayName"] as String,
+                  amountType:
+                      selectedAmountType.value?["DisplayName"] as String,
+                  payAmount: _payAmountC.text,
+                  transactionChequeDemandDraftNumber: _transactionNumC.text,
+                  transactionChequeDemandDraftDate: selectedDate!,
+                  transactionChequeDemandDraftURL:
+                      transactionChequeDemandDraftUrl,
+                  paymentReceiptURL: paymentReceiptUrl,
+                  makeChargeTypeApiPull:
+                      widget.previousRoute == AppRoutes.rent ? true : false,
+                );
               }
             },
           ),

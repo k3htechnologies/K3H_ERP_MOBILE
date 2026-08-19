@@ -252,10 +252,9 @@ class TemporaryAlternateAccommodationCubit
     required int pageNumber,
     required int projectId,
     required int buildingId,
-    required String chargeName,
   }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"ChargeType": chargeName};
+    Map<String, dynamic> queryParams = {"ChargeType": state.currentTabName};
     if (state.selectedTenure.isNotEmpty) {
       queryParams["Tenure"] = state.selectedTenure;
     }
@@ -325,7 +324,6 @@ class TemporaryAlternateAccommodationCubit
 
   // HELPER ON TAB CHANGED
   void onTabChanged(
-    int index,
     BuildContext context, {
     required int projectId,
     required int? buildingId,
@@ -338,7 +336,7 @@ class TemporaryAlternateAccommodationCubit
         selectedTenure: "",
         selectedTenureIndex: -1,
         currentPage: 1,
-        currentTabIndex: index,
+        currentTabName: tabName,
       ),
     );
     if (buildingId == null) {
@@ -359,7 +357,6 @@ class TemporaryAlternateAccommodationCubit
         pageNumber: 1,
         projectId: projectId,
         buildingId: buildingId,
-        chargeName: tabName,
       );
     }
   }
@@ -386,7 +383,6 @@ class TemporaryAlternateAccommodationCubit
       pageNumber: 1,
       projectId: projectId,
       buildingId: buildingId,
-      chargeName: tabName,
     );
   }
 
@@ -407,10 +403,10 @@ class TemporaryAlternateAccommodationCubit
     required String amountType,
     required String payAmount,
     required String transactionChequeDemandDraftNumber,
-    required String chargeType,
     required DateTime transactionChequeDemandDraftDate,
     required MultiFilePickerModel transactionChequeDemandDraftURL,
     required MultiFilePickerModel paymentReceiptURL,
+    required bool makeChargeTypeApiPull,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -431,7 +427,7 @@ class TemporaryAlternateAccommodationCubit
       "TransactionChequeDemandDraftDate":
           transactionChequeDemandDraftDate.apiDate.toString(),
       "Tenure": state.selectedTenure,
-      "ChargeType": chargeType,
+      "ChargeType": state.currentTabName,
     };
     List<Map<String, dynamic>> fileList = [];
     for (
@@ -468,13 +464,23 @@ class TemporaryAlternateAccommodationCubit
       (response) {
         goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
-        getPayTrackRentLedgerList(
-          context,
-          tenantId,
-          tenantApplicantId,
-          buildingId,
-          projectId,
-        );
+
+        if (makeChargeTypeApiPull) {
+          pullChargesDetails(
+            context: context,
+            pageNumber: 1,
+            projectId: projectId,
+            buildingId: buildingId,
+          );
+        } else {
+          getPayTrackRentLedgerList(
+            context,
+            tenantId,
+            tenantApplicantId,
+            buildingId,
+            projectId,
+          );
+        }
       },
     );
   }
@@ -497,7 +503,6 @@ class TemporaryAlternateAccommodationCubit
     required String amountType,
     required String payAmount,
     required String transactionChequeDemandDraftNumber,
-    required String chargeType,
     required DateTime transactionChequeDemandDraftDate,
     required MultiFilePickerModel transactionChequeDemandDraftURL,
     required MultiFilePickerModel paymentReceiptURL,
@@ -524,7 +529,7 @@ class TemporaryAlternateAccommodationCubit
       "TransactionChequeDemandDraftDate":
           transactionChequeDemandDraftDate.toIso8601String(),
       "Tenure": state.selectedTenure,
-      "ChargeType": chargeType,
+      "ChargeType": state.currentTabName,
       "RemovePaymentReceiptURL": paymentReceiptURL.deletedFileList,
       "RemoveTransactionChequeDemandDraftURL":
           transactionChequeDemandDraftURL.deletedFileList,
@@ -591,6 +596,28 @@ class TemporaryAlternateAccommodationCubit
     (sum, p) => sum + (p.payAmount),
   );
 
+  Future clearPaymentLedger() async {
+    emit(state.copyWith(paymentLedgerList: [], paymentLedgerSearchText: ''));
+  }
+
+  void onPaymentLedgerSearch({
+    required BuildContext context,
+    required String value,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int buildingId,
+    required int projectId,
+  }) {
+    emit(state.copyWith(paymentLedgerSearchText: value));
+    getPayTrackRentLedgerList(
+      context,
+      tenantId,
+      tenantApplicantId,
+      buildingId,
+      projectId,
+    );
+  }
+
   // GET PAY TRACK RENT LIST
   Future getPayTrackRentLedgerList(
     BuildContext context,
@@ -608,6 +635,11 @@ class TemporaryAlternateAccommodationCubit
           tenantApplicantId: tenantApplicantId,
           buildingId: buildingId,
           projectId: projectId,
+          queryParams: {
+            'FlatNumber': state.paymentLedgerSearchText,
+            'ApplicantName': state.paymentLedgerSearchText,
+            'ChargeType': state.currentTabName,
+          },
         );
     result.fold(
       (failure) {
@@ -667,7 +699,6 @@ class TemporaryAlternateAccommodationCubit
     String exportType, {
     required int projectId,
     required int buildingId,
-    required String chargeType,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _temporaryAlternateAccommodationRepository
@@ -676,7 +707,7 @@ class TemporaryAlternateAccommodationCubit
           pageSize: state.totalNumberOfRecord,
           queryParams: {
             "ExportType": exportType,
-            "ChargeType": chargeType,
+            "ChargeType": state.currentTabName,
             "Tenure": state.selectedTenure,
           },
           projectId: projectId,
@@ -695,8 +726,8 @@ class TemporaryAlternateAccommodationCubit
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "$chargeType ${DateTime.now()}.pdf"
-              : "$chargeType ${DateTime.now()}.xlsx",
+              ? "${state.currentTabName} ${DateTime.now()}.pdf"
+              : "${state.currentTabName} ${DateTime.now()}.xlsx",
         );
       },
     );
@@ -707,10 +738,9 @@ class TemporaryAlternateAccommodationCubit
     required BuildContext context,
     required int projectId,
     required int buildingId,
-    required String chargeName,
   }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"ChargeType": chargeName};
+    Map<String, dynamic> queryParams = {"ChargeType": state.currentTabName};
     if (state.selectedTenure.isNotEmpty) {
       queryParams["Tenure"] = state.selectedTenure;
     }
