@@ -527,6 +527,12 @@ class AppRoutes {
   static String addTaxTracker = "/addTaxTracker";
   static String viewTaxTracker = "/viewTaxTracker";
 
+  // FINANCE
+  static String termSheet = "/termSheet";
+  static String addTermSheet = "/addTermSheet";
+  static String addLocalTermSheet = "/addLocalTermSheet";
+  static String viewTermSheet = "/viewTermSheet";
+
   // otp LOGS
   static String otpLogs = "/otpLogs";
 }

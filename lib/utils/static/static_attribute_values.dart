@@ -521,3 +521,11 @@ const tenantDocumentTypeValues = [
 const aopStatusValues = ['AOP', 'NON - AOP', 'EXPIRED', 'EXPIRE SOON'];
 
 const applicantTypeValues = ['Applicant', 'Co - Applicant'];
+
+// TERM SHEET TYPE LIST VALUES
+const termSheetTypeValues = [
+  'Construction Finance (CF)',
+  'Loan Against Property (LAN)',
+  'Lease Rental Discounting (LRD)',
+  'Overdraft Facility (OD)',
+];

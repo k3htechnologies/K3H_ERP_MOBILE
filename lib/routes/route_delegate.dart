@@ -60,6 +60,12 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/presentation/cubit/term_sheet_cubit.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/add_local_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/add_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/view_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -7474,7 +7480,49 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-        // TAX TRACKER
+        //  FINANCE
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => TermSheetCubit())],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.termSheet,
+              path: AppRoutes.termSheet,
+              builder: (context, state) {
+                return const TermSheetScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addTermSheet,
+              path: AppRoutes.addTermSheet,
+              builder: (context, state) {
+                return AddTermSheetScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addLocalTermSheet,
+              path: AppRoutes.addLocalTermSheet,
+              builder: (context, state) {
+                final termSheetModel = state.extra as TermSheetModel?;
+                return AddLocalTermSheet(
+                  isEdit: termSheetModel != null,
+                  termSheetModel: termSheetModel,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewTermSheet,
+              path: AppRoutes.viewTermSheet,
+              builder: (context, state) {
+                return const ViewTermSheetScreen();
+              },
+            ),
+          ],
+        ),
       ],
     ),
   ],
