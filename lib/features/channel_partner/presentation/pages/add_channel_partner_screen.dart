@@ -340,8 +340,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
     hasReraNumber.value = channelPartnerMasterModel.reraNumber.isNotEmpty;
 
     if (channelPartnerMasterModel.companyName.isNotEmpty) {
-      selectedCompanyType.value = companyTypeList[1];
-
       selectedCompany.value = [
         {
           "DisplayName": channelPartnerMasterModel.companyName,
@@ -354,11 +352,14 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       selectedFirmsType.value = firmTypeList.firstWhere(
         (e) => e['DisplayName'] == channelPartnerMasterModel.firmsType,
       );
-    } else {
-      selectedCompanyType.value = companyTypeList[1];
     }
 
     if (channelPartnerMasterModel.designation.isNotEmpty) {
+      selectedCompanyType.value =
+          channelPartnerMasterModel.designation != 'Owner'
+              ? companyTypeList[1]
+              : companyTypeList[0];
+
       selectedDesignation.value = designationList.firstWhere(
         (element) =>
             element['DisplayName'] == channelPartnerMasterModel.designation,
