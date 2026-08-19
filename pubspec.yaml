@@ -2,7 +2,7 @@ name: k3h_erp_app
 description: "ERP Mobile App."
 publish_to: "none"
 
-version: 1.0.2+14
+version: 1.0.3+15
 
 environment:
   sdk: ^3.7.2
