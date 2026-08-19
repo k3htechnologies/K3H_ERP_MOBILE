@@ -82,8 +82,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
     _carpetAreaController.text = taaDetailsModel.carpetAreaSqFt.toString();
     _taaStartDate.value =
         taaDetailsModel.temporaryAlternateAccommodationStartDate;
-    _taaEndDate.value =
-        taaDetailsModel.temporaryAlternateAccommodationEndDate;
+    _taaEndDate.value = taaDetailsModel.temporaryAlternateAccommodationEndDate;
     _isAdditionalTemporaryAccommodationAlternative.value =
         taaDetailsModel.isAdditionalTemporaryAlternateAccommodation;
     _isPayBrokerage.value = taaDetailsModel.isPayBrokerage;
@@ -133,7 +132,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                     ? (_selectedTenure.value?['DisplayName'] ?? "")
                     : "",
             amount: double.tryParse(_amountController.text) ?? 0,
-            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per SqFt' : 'Lumpsum',
+            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
             carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
             temporaryAlternateAccommodationStartDate: _taaStartDate.value,
             temporaryAlternateAccommodationEndDate: _taaEndDate.value,
@@ -153,7 +152,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                     ? (_selectedTenure.value?['DisplayName'] ?? "")
                     : "",
             amount: double.tryParse(_amountController.text) ?? 0,
-            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per SqFt' : 'Lumpsum',
+            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
             carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
             temporaryAlternateAccommodationStartDate: _taaStartDate.value,
             temporaryAlternateAccommodationEndDate: _taaEndDate.value,
@@ -424,7 +423,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                               : null,
                       alignment: Alignment.center,
                       child: Text(
-                        "Per Sq.ft",
+                        "Per Sq Ft",
                         style:
                             _isPerSqFt.value
                                 ? AppTextStyle.ts14SB()

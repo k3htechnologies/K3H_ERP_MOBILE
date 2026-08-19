@@ -40,7 +40,7 @@ class _TemporaryAlternateAccommodationScreenState
   _temporaryAlternateAccommodationCubit;
   late AuthorizationModel _routeAuthorizationModel;
   // PROJECT
-  late ProjectModel _project;
+  late ValueNotifier<ProjectModel> _project;
   // TAB CONTROLLERS
   late TabController _tabController;
   late TabController _tenureTabController;
@@ -71,7 +71,7 @@ class _TemporaryAlternateAccommodationScreenState
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rent] ??
         AuthorizationModel();
-    _project = getProject();
+    _project = ValueNotifier(getProject());
     _tabController = TabController(length: 5, vsync: this);
     _tenureTabController = TabController(length: 0, vsync: this);
     _tabController.addListener(_handleTabChange);
@@ -130,7 +130,7 @@ class _TemporaryAlternateAccommodationScreenState
           _temporaryAlternateAccommodationCubit.pullChargesDetails(
             context: context,
             pageNumber: currentState.currentPage + 1,
-            projectId: _project.projectId,
+            projectId: _project.value.projectId,
             buildingId: buildingId,
           );
         });
@@ -143,7 +143,7 @@ class _TemporaryAlternateAccommodationScreenState
     if (!_tabController.indexIsChanging) {
       final int tabIndex = _tabController.index;
       final String tabName = tabTitles[tabIndex];
-      final int projectId = _project.projectId;
+      final int projectId = _project.value.projectId;
       final int? buildingId =
           _selectedBuildingNotifier.value.isNotEmpty
               ? _selectedBuildingNotifier.value.first['zAttributesId']
@@ -170,7 +170,7 @@ class _TemporaryAlternateAccommodationScreenState
         final String selectedTenure = tenureList[tenureIndex];
         final int tabIndex = _tabController.index;
         final String tabName = tabTitles[tabIndex];
-        final int projectId = _project.projectId;
+        final int projectId = _project.value.projectId;
         final int? buildingId =
             _selectedBuildingNotifier.value.isNotEmpty
                 ? _selectedBuildingNotifier.value.first['zAttributesId']
@@ -222,7 +222,7 @@ class _TemporaryAlternateAccommodationScreenState
     final result = await _buildingRepository.pullBuilding(
       pageNumber: pageNumber,
       pageSize: 15,
-      projectId: _project.projectId,
+      projectId: _project.value.projectId,
       queryParams:
           value != null && value.isNotEmpty
               ? {"BuildingName": value, "isCheckPermission": false}
@@ -299,10 +299,10 @@ class _TemporaryAlternateAccommodationScreenState
           authorization: _routeAuthorizationModel,
           extraHeight: 20,
           onProjectChangeCallback: (project) {
-            _project = project;
+            _project.value = project;
           },
           onExportCallback: (value) {
-            if (_project.projectId == 0) {
+            if (_project.value.projectId == 0) {
               showErrorMessage(context, "Error", "Please select a project");
               return;
             } else if (_selectedBuildingNotifier.value.isEmpty) {
@@ -315,74 +315,72 @@ class _TemporaryAlternateAccommodationScreenState
             _temporaryAlternateAccommodationCubit.exportExcelPdf(
               context,
               value,
-              projectId: _project.projectId,
+              projectId: _project.value.projectId,
               buildingId:
                   _selectedBuildingNotifier.value.first['zAttributesId'],
             );
           },
+          isFilterOn: true,
+          onFilterTap: () {},
           searchHintText: 'Search By Unit Number',
           textController: TextEditingController(),
           onSearchSubmit: (value) {},
         ),
         body: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: BlocBuilder<
-                TemporaryAlternateAccommodationCubit,
-                TemporaryAlternateAccommodationState
-              >(
-                bloc: _temporaryAlternateAccommodationCubit,
-                builder: (context, state) {
-                  return Column(
+            AnimatedBuilder(
+              animation: Listenable.merge([
+                _selectedBuildingNotifier,
+                _project,
+              ]),
+              builder: (context, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
                     children: [
-                      showSiteSelectedWidget(projectName: _project.projectName),
-                      ValueListenableBuilder<List<Map<String, dynamic>>>(
-                        valueListenable: _selectedBuildingNotifier,
-                        builder: (context, selectedBuilding, child) {
-                          return CustomMultipleSelectPopup(
-                            title: "Building",
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: selectedBuilding,
-                            dataList: const [],
-                            onSelected: (value) async {
-                              _selectedBuildingNotifier.value = value;
-                              if (value.isNotEmpty &&
-                                  value.first['zAttributesId'] != null &&
-                                  mounted) {
-                                final int buildingId =
-                                    value.first['zAttributesId'];
-                                final int projectId = _project.projectId;
-                                final int tabIndex = _tabController.index;
-                                final String tabName = tabTitles[tabIndex];
-                                if (context.mounted) {
-                                  _temporaryAlternateAccommodationCubit
-                                      .onTabChanged(
-                                        context,
-                                        projectId: projectId,
-                                        buildingId: buildingId,
-                                        tabName: tabName,
-                                        tenure: "",
-                                      );
-                                }
-                                _updateTenureTabController(0);
-                              }
-                            },
-                            dataFetchCallBack: _fetchBuildings,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Building is required";
-                              }
-                              return null;
-                            },
-                          );
+                      showSiteSelectedWidget(
+                        projectName: _project.value.projectName,
+                      ),
+                      CustomMultipleSelectPopup(
+                        title: "Building",
+                        isRequired: true,
+                        isMultiSelect: false,
+                        initialValue: _selectedBuildingNotifier.value,
+                        dataList: const [],
+                        onSelected: (value) async {
+                          _selectedBuildingNotifier.value = value;
+                          if (value.isNotEmpty &&
+                              value.first['zAttributesId'] != null &&
+                              mounted) {
+                            final int buildingId = value.first['zAttributesId'];
+                            final int projectId = _project.value.projectId;
+                            final int tabIndex = _tabController.index;
+                            final String tabName = tabTitles[tabIndex];
+                            if (context.mounted) {
+                              _temporaryAlternateAccommodationCubit
+                                  .onTabChanged(
+                                    context,
+                                    projectId: projectId,
+                                    buildingId: buildingId,
+                                    tabName: tabName,
+                                    tenure: "",
+                                  );
+                            }
+                            _updateTenureTabController(0);
+                          }
+                        },
+                        dataFetchCallBack: _fetchBuildings,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Building is required";
+                          }
+                          return null;
                         },
                       ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                );
+              },
             ),
 
             Expanded(

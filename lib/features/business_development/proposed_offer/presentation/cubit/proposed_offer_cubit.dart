@@ -1104,7 +1104,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
       "BuildingId": buildingId,
       "ProjectId": projectId,
       if (isAdditionalTemporaryAlternateAccommodation != null)
-        "IsAdditionalTemporaryAccommodationAlternative":
+        "IsAdditionalTemporaryAlternateAccommodation":
             isAdditionalTemporaryAlternateAccommodation,
       if (isPayBrokerage != null) "IsPayBrokerage": isPayBrokerage,
       "ChargeType": chargeType,

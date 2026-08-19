@@ -226,86 +226,78 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
     TemporaryAlternateAccommodationState state,
     int? index,
   ) {
-    return Container(
-      padding: EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
-      child: Column(
+    return CustomExpandableCard(
+      header: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            spacing: 10,
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: InkWell(
-                  onTap: () {
-                    goRouter.pushNamed(
-                      AppRoutes.viewPaymentDetails,
-                      queryParameters: <String, String>{
-                        'rentModel': Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(widget.rentModel.toJson()),
-                          ),
-                        ),
-                        'totalAmount': widget.totalAmount.toString(),
-                        'paymentLedger': Uri.encodeComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(item.toJson()),
-                          ),
-                        ),
-                      },
-                    );
-                  },
-                  child: Text(
-                    item.payAmount.toIndianCurrency(),
-                    style: AppTextStyle.ts18M(color: AppColor.slightDarkBlue),
-                  ),
-                ),
+              Text(
+                item.payAmount.toIndianCurrency(),
+                style: AppTextStyle.ts18M(color: AppColor.slightDarkBlue),
               ),
-              Row(
-                spacing: 10,
-                children: [
-                  CustomIconButton.edit(
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addPayment,
-                        queryParameters: {
-                          'rent': Uri.encodeComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(widget.rentModel.toJson()),
-                            ),
-                          ),
-                          'paymentLedger': Uri.encodeComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(item.toJson()),
-                            ),
-                          ),
-                          'totalAmount': widget.totalAmount.toString(),
-                          'paymentLedgerIndex': (index ?? 0).toString(),
-                          'previousRoute': AppRoutes.viewSummary,
-                        },
-                      );
-                    },
-                  ),
-                  CustomIconButton.delete(
-                    onPressed: () {
-                      _showPopupToDeletePayTrackRent(
-                        context,
-                        item,
-                        state.currentPage,
-                        index ?? 0,
-                      );
-                    },
-                  ),
-                ],
+              Text(
+                formatDateTimeAsDDMMMYYYY(
+                  item.transactionChequeDemandDraftDate,
+                ),
+                style: AppTextStyle.ts12R(color: AppColor.grey),
               ),
             ],
           ),
+          Row(
+            spacing: 10,
+            children: [
+              CustomIconButton.edit(
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.addPayment,
+                    queryParameters: {
+                      'rent': Uri.encodeComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(widget.rentModel.toJson()),
+                        ),
+                      ),
+                      'paymentLedger': Uri.encodeComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(item.toJson()),
+                        ),
+                      ),
+                      'totalAmount': widget.totalAmount.toString(),
+                      'paymentLedgerIndex': (index ?? 0).toString(),
+                    },
+                  );
+                },
+              ),
+              CustomIconButton.delete(
+                onPressed: () {
+                  _showPopupToDeletePayTrackRent(
+                    context,
+                    item,
+                    state.currentPage,
+                    index ?? 0,
+                  );
+                },
+              ),
+            ],
+          ),
+        ],
+      ),
+
+      body: Column(
+        children: [
           buildRowTitleValue(title: 'Payment Mode', value: item.paymentMode),
           buildRowTitleValue(title: 'Amount Type', value: item.amountType),
+          buildRowTitleValue(title: 'Bank', value: item.bankName),
+          buildRowTitleValue(title: 'Account', value: item.accountNumber),
+          buildRowTitleValue(title: 'IFSC Code', value: item.ifscCode),
           buildRowTitleValue(
-            title: 'Amount (₹)',
-            value: item.payAmount.toIndianCurrency(),
+            title: 'Account Holder',
+            value: item.applicantName,
+          ),
+          buildRowTitleValue(
+            title: 'Transaction / Cheque / DD No.',
+            value: item.transactionChequeDemandDraftNumber,
           ),
         ],
       ),
