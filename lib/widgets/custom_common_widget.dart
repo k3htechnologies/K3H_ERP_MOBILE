@@ -92,22 +92,38 @@ Widget buildColumnTitleValue({
   required String? value,
   TextStyle? valueTextStyle,
   Widget? customValueWidget,
+  bool removeExpanded = false,
 }) {
-  return Expanded(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
-        verticalSpacing(height: 4),
-        customValueWidget ??
-            Text(
-              (value == null || value.isEmpty) ? "-" : value,
-              style:
-                  valueTextStyle ?? AppTextStyle.ts14M(color: AppColor.black),
-            ),
-      ],
-    ),
-  );
+  return removeExpanded
+      ? Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          verticalSpacing(height: 4),
+          customValueWidget ??
+              Text(
+                (value == null || value.isEmpty) ? "-" : value,
+                style:
+                    valueTextStyle ?? AppTextStyle.ts14M(color: AppColor.black),
+              ),
+        ],
+      )
+      : Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+            verticalSpacing(height: 4),
+            customValueWidget ??
+                Text(
+                  (value == null || value.isEmpty) ? "-" : value,
+                  style:
+                      valueTextStyle ??
+                      AppTextStyle.ts14M(color: AppColor.black),
+                ),
+          ],
+        ),
+      );
 }
 
 // BUILD COMMON ACTION CARD

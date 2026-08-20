@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
@@ -23,6 +24,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TemporaryAlternateAccommodationScreen extends StatefulWidget {
@@ -47,6 +49,10 @@ class _TemporaryAlternateAccommodationScreenState
   // BUILDING SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBuildingNotifier =
       ValueNotifier([]);
+  late TextEditingController _searchC,
+      _existingUnitTypeC,
+      _applicantNameC,
+      _applicantTypeC;
   // PAGINATION
   late ScrollController _scrollController;
   Timer? _debounce;
@@ -58,6 +64,8 @@ class _TemporaryAlternateAccommodationScreenState
     'Brokerage',
     'Shifting',
   ];
+
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
@@ -71,6 +79,7 @@ class _TemporaryAlternateAccommodationScreenState
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rent] ??
         AuthorizationModel();
+    _initializeTextEditingController();
     _project = ValueNotifier(getProject());
     _tabController = TabController(length: 5, vsync: this);
     _tenureTabController = TabController(length: 0, vsync: this);
@@ -86,6 +95,13 @@ class _TemporaryAlternateAccommodationScreenState
     _scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
+  }
+
+  void _initializeTextEditingController() {
+    _searchC = TextEditingController();
+    _existingUnitTypeC = TextEditingController();
+    _applicantNameC = TextEditingController();
+    _applicantTypeC = TextEditingController();
   }
 
   // INITIALIZE SCROLL CONTROLLER
@@ -284,6 +300,120 @@ class _TemporaryAlternateAccommodationScreenState
     });
   }
 
+  Future<void> _showBottomSheetToFilterTAA(BuildContext context) async {
+    final state = _temporaryAlternateAccommodationCubit.state;
+
+    final initialUnitNumber = state.searchText;
+    final initialExistingUnitType = state.filterByExistingUnitType;
+    final initialApplicantName = state.filterByApplicantName;
+    final initialApplicantType = state.filterByApplicantType;
+
+    _searchC.text = initialUnitNumber;
+    _existingUnitTypeC.text = initialExistingUnitType;
+    _applicantNameC.text = initialApplicantName;
+    _applicantTypeC.text = initialApplicantType;
+
+    bool applied = false;
+    bool manualClose = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState() {
+      manualClose =
+          (_searchC.text.trim() != initialUnitNumber) ||
+          (_existingUnitTypeC.text.trim() != initialExistingUnitType) ||
+          (_applicantNameC.text.trim() != initialApplicantName) ||
+          (_applicantTypeC.text.trim() != initialApplicantType);
+
+      applyEnabled.value = manualClose;
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Temporary Alternate Accommodation",
+
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomTextField(
+                  textController: _searchC,
+                  title: "Unit Number",
+                  hint: "Enter Unit Number",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _existingUnitTypeC,
+                  title: "Existing Unit Type",
+                  hint: "Enter Existing Unit Type",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _applicantNameC,
+                  title: "Applicant Name",
+                  hint: "Enter Applicant Name",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _applicantTypeC,
+                  title: "Applicant Type",
+                  hint: "Enter Applicant Type",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+
+      onClear: () async {
+        _searchC.clear();
+        _existingUnitTypeC.clear();
+        _applicantNameC.clear();
+        _applicantTypeC.clear();
+
+        await _temporaryAlternateAccommodationCubit.applyTAAFilter(
+          context: context,
+          projectId: _project.value.projectId,
+          buildingId:
+              _selectedBuildingNotifier.value.isNotEmpty
+                  ? _selectedBuildingNotifier.value.first['zAttributesId']
+                  : 0,
+          isClear: true,
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _temporaryAlternateAccommodationCubit.applyTAAFilter(
+          context: context,
+          unitNumber: _searchC.text.trim(),
+          existingUnitType: _existingUnitTypeC.text.trim(),
+          applicantName: _applicantNameC.text.trim(),
+          applicantType: _applicantTypeC.text.trim(),
+          projectId: _project.value.projectId,
+          buildingId:
+              _selectedBuildingNotifier.value.isNotEmpty
+                  ? _selectedBuildingNotifier.value.first['zAttributesId']
+                  : 0,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    if (!applied && manualClose) {
+      _searchC.clear();
+      _existingUnitTypeC.clear();
+      _applicantNameC.clear();
+      _applicantTypeC.clear();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<
@@ -292,14 +422,18 @@ class _TemporaryAlternateAccommodationScreenState
     >(
       listener: (context, state) {
         totalNumberOfRecords.value = state.totalNumberOfRecord;
+        _filterCount.value = _temporaryAlternateAccommodationCubit
+            .updateFilterCount(state);
       },
       child: Scaffold(
         appBar: CustomAppBar(
           screenTitle: "Temporary Alternate\nAccommodation",
           authorization: _routeAuthorizationModel,
+          filterCountNotifier: _filterCount,
           extraHeight: 20,
-          onProjectChangeCallback: (project) {
+          onProjectChangeCallback: (project) async {
             _project.value = project;
+            _selectedBuildingNotifier.value = [];
           },
           onExportCallback: (value) {
             if (_project.value.projectId == 0) {
@@ -312,7 +446,7 @@ class _TemporaryAlternateAccommodationScreenState
               showErrorMessage(context, "Error", "No Data Found");
               return;
             }
-            _temporaryAlternateAccommodationCubit.exportExcelPdf(
+            _temporaryAlternateAccommodationCubit.exportExcelPdfForTAA(
               context,
               value,
               projectId: _project.value.projectId,
@@ -321,10 +455,22 @@ class _TemporaryAlternateAccommodationScreenState
             );
           },
           isFilterOn: true,
-          onFilterTap: () {},
+          onFilterTap: () {
+            _showBottomSheetToFilterTAA(context);
+          },
           searchHintText: 'Search By Unit Number',
-          textController: TextEditingController(),
-          onSearchSubmit: (value) {},
+          textController: _searchC,
+          onSearchSubmit: (value) {
+            _temporaryAlternateAccommodationCubit.search(
+              buildingId:
+                  _selectedBuildingNotifier.value.isNotEmpty
+                      ? _selectedBuildingNotifier.value.first['zAttributesId']
+                      : 0,
+              value: value,
+              context: context,
+              projectId: _project.value.projectId,
+            );
+          },
         ),
         body: Column(
           children: [
@@ -609,7 +755,9 @@ class _TemporaryAlternateAccommodationScreenState
                     ),
                   ),
                   CustomIconButton.add(
-                    isDisabled: totalAmount == 0 || totalAmount == paidAmount,
+                    isDisabled:
+                        (totalAmount == 0 || totalAmount == paidAmount) ||
+                        !_routeAuthorizationModel.isAction,
                     onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.addPayment,

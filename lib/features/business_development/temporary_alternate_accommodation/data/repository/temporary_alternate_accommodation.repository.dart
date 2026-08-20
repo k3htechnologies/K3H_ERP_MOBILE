@@ -43,6 +43,17 @@ abstract interface class TemporaryAlternateAccommodationRepository {
     required int buildingId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  getPayTrackRentLedgerListForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class RentRepositoryImpl implements TemporaryAlternateAccommodationRepository {
@@ -156,6 +167,33 @@ class RentRepositoryImpl implements TemporaryAlternateAccommodationRepository {
             buildingId: buildingId,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getPayTrackRentLedgerListForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await rentDatasource.apicallPullPayTrackRentLedgerForExport(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        tenantId: tenantId,
+        tenantApplicantId: tenantApplicantId,
+        projectId: projectId,
+        buildingId: buildingId,
+        queryParams: queryParams,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

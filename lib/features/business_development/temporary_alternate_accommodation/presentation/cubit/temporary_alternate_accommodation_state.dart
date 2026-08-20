@@ -14,7 +14,15 @@ class TemporaryAlternateAccommodationState extends BaseState {
   final String currentTabName;
   final List<String> tenureList;
   final int selectedTenureIndex;
+
+  // Unit Number
   final String searchText;
+
+  // TAA Filters
+  final String filterByExistingUnitType;
+  final String filterByApplicantName;
+  final String filterByApplicantType;
+
   final String paymentLedgerSearchText;
 
   const TemporaryAlternateAccommodationState({
@@ -33,6 +41,9 @@ class TemporaryAlternateAccommodationState extends BaseState {
     required this.tenureList,
     required this.selectedTenureIndex,
     required this.searchText,
+    required this.filterByExistingUnitType,
+    required this.filterByApplicantName,
+    required this.filterByApplicantType,
     required this.paymentLedgerSearchText,
   });
 
@@ -53,6 +64,10 @@ class TemporaryAlternateAccommodationState extends BaseState {
         tenureList: [],
         selectedTenureIndex: -1,
         searchText: '',
+        filterByExistingUnitType: '',
+        filterByApplicantName: '',
+        filterByApplicantType: '',
+
         paymentLedgerSearchText: '',
       );
 
@@ -72,6 +87,10 @@ class TemporaryAlternateAccommodationState extends BaseState {
     List<String>? tenureList,
     int? selectedTenureIndex,
     String? searchText,
+    String? filterByExistingUnitType,
+    String? filterByApplicantName,
+    String? filterByApplicantType,
+
     String? paymentLedgerSearchText,
   }) {
     return TemporaryAlternateAccommodationState(
@@ -90,6 +109,12 @@ class TemporaryAlternateAccommodationState extends BaseState {
       tenureList: tenureList ?? this.tenureList,
       selectedTenureIndex: selectedTenureIndex ?? this.selectedTenureIndex,
       searchText: searchText ?? this.searchText,
+      filterByExistingUnitType:
+          filterByExistingUnitType ?? this.filterByExistingUnitType,
+      filterByApplicantName:
+          filterByApplicantName ?? this.filterByApplicantName,
+      filterByApplicantType:
+          filterByApplicantType ?? this.filterByApplicantType,
       paymentLedgerSearchText:
           paymentLedgerSearchText ?? this.paymentLedgerSearchText,
     );
@@ -112,6 +137,9 @@ class TemporaryAlternateAccommodationState extends BaseState {
     tenureList,
     selectedTenureIndex,
     searchText,
+    filterByExistingUnitType,
+    filterByApplicantName,
+    filterByApplicantType,
     paymentLedgerSearchText,
   ];
 }

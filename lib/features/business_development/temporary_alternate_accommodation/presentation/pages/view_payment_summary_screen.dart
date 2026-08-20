@@ -16,8 +16,10 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewPaymentSummaryScreen extends StatefulWidget {
@@ -39,6 +41,10 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
 
   late AuthorizationModel _routeAuthorizationModel;
 
+  late TextEditingController _searchC;
+
+  final ValueNotifier<bool> _fullyAmountPaid = ValueNotifier(false);
+  final ValueNotifier<bool> _canExport = ValueNotifier(false);
   @override
   void initState() {
     super.initState();
@@ -47,6 +53,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rent] ??
         AuthorizationModel();
+    _searchC = TextEditingController();
     _loadPaymentLedger();
   }
 
@@ -91,129 +98,168 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Temporary Alternate\nAccommodation",
-        authorization: _routeAuthorizationModel,
-        extraHeight: 20,
-        showMenuIcon: false,
-        searchHintText: 'Search byFlat Number or Applicant Name',
-        textController: TextEditingController(),
-        onSearchSubmit: (value) {
-          _temporaryAlternateAccommodationCubit.onPaymentLedgerSearch(
-            context: context,
-            value: value,
-            tenantId: widget.rentModel.tenantId,
-            tenantApplicantId: widget.rentModel.tenantApplicantId,
-            buildingId: widget.rentModel.buildingId,
-            projectId: widget.rentModel.projectId,
-          );
-        },
-        onAddCallback: () {
-          goRouter.pushNamed(
-            AppRoutes.addPayment,
-            queryParameters: {
-              'rent': Uri.encodeComponent(
-                EncryptionManager.encryptData(
-                  jsonEncode(widget.rentModel.toJson()),
-                ),
-              ),
-
-              'totalAmount': widget.totalAmount.toString(),
-              'paidAmount':
-                  _temporaryAlternateAccommodationCubit.paidAmountForSummary
-                      ?.toString(),
-              'previousRoute': AppRoutes.viewSummary,
-            },
-          );
-        },
-      ),
-      body: BlocBuilder<
-        TemporaryAlternateAccommodationCubit,
-        TemporaryAlternateAccommodationState
-      >(
-        builder: (context, state) {
-          if (state.isLoading == true &&
-              (state.paymentLedgerList ?? []).isEmpty) {
-            return Center(child: loader());
-          }
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            child: Column(
-              spacing: 16,
-              children: [
-                infoCard([
-                  {
-                    "title": "Flat Number",
-                    "value": widget.rentModel.flatNumber,
-                  },
-                  {
-                    "title": "Applicant Name",
-                    "value": widget.rentModel.applicantName,
-                  },
-                  {"title": "Tenure", "value": widget.rentModel.tenure},
-                  {
-                    "title": "Charge Type",
-                    "value":
-                        context
-                            .read<TemporaryAlternateAccommodationCubit>()
-                            .state
-                            .currentTabName,
-                  },
-                  {
-                    "title": "Carpet Area (SqFt)",
-                    "value":
-                        '${widget.rentModel.flatCarpetAreaSqFt.addCommas()} SqFt',
-                  },
-                  {"title": "Unit Type", "value": widget.rentModel.flatType},
-                  {
-                    "title": "Total Amount",
-                    "value": widget.totalAmount.toIndianCurrency(),
-                  },
-                  {
-                    "title": "Paid Total Amount",
-                    "value":
-                        _temporaryAlternateAccommodationCubit
-                            .paidAmountForSummary
-                            ?.toIndianCurrency(),
-                  },
-                ]),
-                Expanded(
-                  child: BlocBuilder<
-                    TemporaryAlternateAccommodationCubit,
-                    TemporaryAlternateAccommodationState
-                  >(
-                    bloc: _temporaryAlternateAccommodationCubit,
-                    buildWhen:
-                        (previous, current) =>
-                            previous.paymentLedgerList !=
-                                current.paymentLedgerList ||
-                            previous.isLoading != current.isLoading,
-                    builder: (context, state) {
-                      final list = state.paymentLedgerList ?? [];
-                      if (list.isEmpty) {
-                        return Container(
-                          decoration: commonCardDecoration(),
-                          child: Center(child: noDataWidget()),
+    return BlocListener<
+      TemporaryAlternateAccommodationCubit,
+      TemporaryAlternateAccommodationState
+    >(
+      listener: (context, state) {
+        _fullyAmountPaid.value =
+            widget.totalAmount ==
+            _temporaryAlternateAccommodationCubit.paidAmountForSummary;
+        _canExport.value =
+            state.paymentLedgerList != null &&
+            state.paymentLedgerList!.isNotEmpty;
+      },
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_canExport, _fullyAmountPaid]),
+        builder: (context, _) {
+          return Scaffold(
+            appBar: CustomAppBar(
+              screenTitle: "Temporary Alternate\nAccommodation",
+              authorization: _routeAuthorizationModel,
+              extraHeight: 20,
+              showMenuIcon: false,
+              searchHintText: 'Search by Account Holder Name',
+              textController: _searchC,
+              onSearchSubmit: (value) {
+                _temporaryAlternateAccommodationCubit.onPaymentLedgerSearch(
+                  context: context,
+                  value: value,
+                  tenantId: widget.rentModel.tenantId,
+                  tenantApplicantId: widget.rentModel.tenantApplicantId,
+                  buildingId: widget.rentModel.buildingId,
+                  projectId: widget.rentModel.projectId,
+                );
+              },
+              onAddCallback:
+                  _fullyAmountPaid.value
+                      ? null
+                      : () {
+                        goRouter.pushNamed(
+                          AppRoutes.addPayment,
+                          queryParameters: {
+                            'rent': Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(widget.rentModel.toJson()),
+                              ),
+                            ),
+                            'totalAmount': widget.totalAmount.toString(),
+                            'paidAmount':
+                                _temporaryAlternateAccommodationCubit
+                                    .paidAmountForSummary
+                                    ?.toString(),
+                            'previousRoute': AppRoutes.viewSummary,
+                          },
                         );
-                      }
-                      return RefreshIndicator(
-                        onRefresh: () async => _loadPaymentLedger(),
-                        child: ListView.builder(
-                          itemCount: list.length,
-                          itemBuilder: (context, index) {
-                            return _paymentLedgerCard(
-                              list[index],
-                              state,
-                              index,
+                      },
+              onExportCallback:
+                  !_canExport.value
+                      ? null
+                      : (value) {
+                        _temporaryAlternateAccommodationCubit
+                            .exportExcelPdfForPaymentLedger(
+                              context,
+                              value,
+                              projectId: widget.rentModel.projectId,
+                              buildingId: widget.rentModel.buildingId,
+                              tenantId: widget.rentModel.tenantId,
+                              tenantApplicantId:
+                                  widget.rentModel.tenantApplicantId,
+                            );
+                      },
+            ),
+            body: BlocBuilder<
+              TemporaryAlternateAccommodationCubit,
+              TemporaryAlternateAccommodationState
+            >(
+              builder: (context, state) {
+                if (state.isLoading == true &&
+                    (state.paymentLedgerList ?? []).isEmpty) {
+                  return Center(child: loader());
+                }
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Column(
+                    spacing: 12,
+                    children: [
+                      infoCard([
+                        {
+                          "title": "Flat Number",
+                          "value": widget.rentModel.flatNumber,
+                        },
+                        {
+                          "title": "Applicant Name",
+                          "value": widget.rentModel.applicantName,
+                        },
+                        {"title": "Tenure", "value": widget.rentModel.tenure},
+                        {
+                          "title": "Charge Type",
+                          "value":
+                              context
+                                  .read<TemporaryAlternateAccommodationCubit>()
+                                  .state
+                                  .currentTabName,
+                        },
+                        {
+                          "title": "Carpet Area (SqFt)",
+                          "value":
+                              '${widget.rentModel.flatCarpetAreaSqFt.addCommas()} SqFt',
+                        },
+                        {
+                          "title": "Unit Type",
+                          "value": widget.rentModel.flatType,
+                        },
+                        {
+                          "title": "Total Amount",
+                          "value": widget.totalAmount.toIndianCurrency(),
+                        },
+                        {
+                          "title": "Paid Total Amount",
+                          "value":
+                              _temporaryAlternateAccommodationCubit
+                                  .paidAmountForSummary
+                                  ?.toIndianCurrency(),
+                        },
+                      ]),
+                      Expanded(
+                        child: BlocBuilder<
+                          TemporaryAlternateAccommodationCubit,
+                          TemporaryAlternateAccommodationState
+                        >(
+                          bloc: _temporaryAlternateAccommodationCubit,
+                          buildWhen:
+                              (previous, current) =>
+                                  previous.paymentLedgerList !=
+                                      current.paymentLedgerList ||
+                                  previous.isLoading != current.isLoading,
+                          builder: (context, state) {
+                            final list = state.paymentLedgerList ?? [];
+                            if (list.isEmpty) {
+                              return Container(
+                                decoration: commonCardDecoration(),
+                                child: Center(child: noDataWidget()),
+                              );
+                            }
+                            return RefreshIndicator(
+                              onRefresh: () async => _loadPaymentLedger(),
+                              child: ListView.builder(
+                                itemCount: list.length,
+                                itemBuilder: (context, index) {
+                                  return _paymentLedgerCard(
+                                    list[index],
+                                    state,
+                                    index,
+                                  );
+                                },
+                              ),
                             );
                           },
                         ),
-                      );
-                    },
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                );
+              },
             ),
           );
         },
@@ -222,62 +268,67 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
   }
 
   Widget _paymentLedgerCard(
-    PaymentLedgerModel item,
+    PaymentLedgerModel paymentLedger,
     TemporaryAlternateAccommodationState state,
     int? index,
   ) {
     return CustomExpandableCard(
-      header: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      header: Column(
+        spacing: 10,
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                item.payAmount.toIndianCurrency(),
-                style: AppTextStyle.ts18M(color: AppColor.slightDarkBlue),
-              ),
-              Text(
-                formatDateTimeAsDDMMMYYYY(
-                  item.transactionChequeDemandDraftDate,
-                ),
-                style: AppTextStyle.ts12R(color: AppColor.grey),
+              paymentModeStatusWidget(paymentLedger.paymentMode),
+              Row(
+                spacing: 10,
+                children: [
+                  CustomIconButton.edit(
+                    isDisabled: !_routeAuthorizationModel.isAction,
+                    onPressed: () {
+                      goRouter.pushNamed(
+                        AppRoutes.addPayment,
+                        queryParameters: {
+                          'rent': Uri.encodeComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(widget.rentModel.toJson()),
+                            ),
+                          ),
+                          'paymentLedger': Uri.encodeComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(paymentLedger.toJson()),
+                            ),
+                          ),
+                          'totalAmount': widget.totalAmount.toString(),
+                          'paymentLedgerIndex': (index ?? 0).toString(),
+                        },
+                      );
+                    },
+                  ),
+                  CustomIconButton.delete(
+                    isDisabled: !_routeAuthorizationModel.isAction,
+                    onPressed: () {
+                      _showPopupToDeletePayTrackRent(
+                        context,
+                        paymentLedger,
+                        state.currentPage,
+                        index ?? 0,
+                      );
+                    },
+                  ),
+                ],
               ),
             ],
           ),
           Row(
-            spacing: 10,
             children: [
-              CustomIconButton.edit(
-                onPressed: () {
-                  goRouter.pushNamed(
-                    AppRoutes.addPayment,
-                    queryParameters: {
-                      'rent': Uri.encodeComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(widget.rentModel.toJson()),
-                        ),
-                      ),
-                      'paymentLedger': Uri.encodeComponent(
-                        EncryptionManager.encryptData(
-                          jsonEncode(item.toJson()),
-                        ),
-                      ),
-                      'totalAmount': widget.totalAmount.toString(),
-                      'paymentLedgerIndex': (index ?? 0).toString(),
-                    },
-                  );
-                },
+              buildColumnTitleValue(
+                title: "Amount Type",
+                value: paymentLedger.amountType,
               ),
-              CustomIconButton.delete(
-                onPressed: () {
-                  _showPopupToDeletePayTrackRent(
-                    context,
-                    item,
-                    state.currentPage,
-                    index ?? 0,
-                  );
-                },
+              buildColumnTitleValue(
+                title: "Amount (₹)",
+                value: paymentLedger.payAmount.toIndianCurrency(),
               ),
             ],
           ),
@@ -285,22 +336,197 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
       ),
 
       body: Column(
+        spacing: 12,
         children: [
-          buildRowTitleValue(title: 'Payment Mode', value: item.paymentMode),
-          buildRowTitleValue(title: 'Amount Type', value: item.amountType),
-          buildRowTitleValue(title: 'Bank', value: item.bankName),
-          buildRowTitleValue(title: 'Account', value: item.accountNumber),
-          buildRowTitleValue(title: 'IFSC Code', value: item.ifscCode),
-          buildRowTitleValue(
-            title: 'Account Holder',
-            value: item.applicantName,
+          _detailsCard(
+            title: 'Payee Details',
+            childrens: [
+              buildColumnTitleValue(
+                title: 'Bank',
+                value: paymentLedger.bankName,
+                removeExpanded: true,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  buildColumnTitleValue(
+                    title: 'Account Holder Name',
+                    value: paymentLedger.accountHolderName,
+                  ),
+                  buildColumnTitleValue(
+                    title: 'Account Number',
+                    value: paymentLedger.accountNumber,
+                  ),
+                ],
+              ),
+
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: 'IFSC Code',
+                    value: paymentLedger.ifscCode,
+                  ),
+                  buildColumnTitleValue(
+                    title: 'Transaction / Cheque / DD Date',
+                    value: formatDateTimeAsDDMMMYYYY(
+                      paymentLedger.transactionChequeDemandDraftDate,
+                    ),
+                  ),
+                ],
+              ),
+              buildColumnTitleValue(
+                title: 'Transaction / Cheque / DD No.',
+                value: paymentLedger.transactionChequeDemandDraftNumber,
+                removeExpanded: true,
+              ),
+              buildColumnTitleValue(
+                title: "Transaction /Cheque/DD Document",
+                removeExpanded: true,
+                value: paymentLedger.transactionChequeDemandDraftUrl,
+                customValueWidget: Row(
+                  children: [
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (paymentLedger
+                            .transactionChequeDemandDraftUrl
+                            .isNotEmpty) {
+                          showFilePreviewDialog(
+                            title: "Transaction /Cheque/DD Document",
+                            context,
+                            paymentLedger.transactionChequeDemandDraftUrl.split(
+                              ",",
+                            ),
+                          );
+                        }
+                      },
+
+                      isDisable:
+                          paymentLedger.transactionChequeDemandDraftUrl.isEmpty,
+                    ),
+                    Spacer(),
+                  ],
+                ),
+              ),
+              buildColumnTitleValue(
+                title: "Payment Receipt",
+                removeExpanded: true,
+                value: paymentLedger.paymentReceiptUrl,
+                customValueWidget: Row(
+                  children: [
+                    CustomButton.documentOutline(
+                      onPressed: () {
+                        if (paymentLedger.paymentReceiptUrl.isNotEmpty) {
+                          showFilePreviewDialog(
+                            title: "Payment Receipt",
+                            context,
+                            paymentLedger.paymentReceiptUrl.split(","),
+                          );
+                        }
+                      },
+
+                      isDisable: paymentLedger.paymentReceiptUrl.isEmpty,
+                    ),
+                    Spacer(),
+                  ],
+                ),
+              ),
+            ],
           ),
-          buildRowTitleValue(
-            title: 'Transaction / Cheque / DD No.',
-            value: item.transactionChequeDemandDraftNumber,
+
+          _detailsCard(
+            title: "Developer Details",
+            childrens: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  buildColumnTitleValue(
+                    title: 'Project Account Holder',
+                    value: paymentLedger.projectBankAccountHolderName,
+                  ),
+                  buildColumnTitleValue(
+                    title: 'Project Account Number',
+                    value: paymentLedger.projectBankAccountNumber,
+                  ),
+                ],
+              ),
+              buildColumnTitleValue(
+                title: 'Bank Name',
+                value: paymentLedger.projectBankName,
+                removeExpanded: true,
+              ),
+
+              buildColumnTitleValue(
+                title: 'Project IFSC Code',
+                value: paymentLedger.projectBankIfscCode,
+                removeExpanded: true,
+              ),
+            ],
+          ),
+
+          _detailsCard(
+            title: "Action Details",
+            childrens: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  buildColumnTitleValue(
+                    title: 'Approval Status',
+                    value: paymentLedger.approvalStatus,
+                  ),
+                  buildColumnTitleValue(
+                    title: 'Created By',
+                    value: paymentLedger.createdBy,
+                  ),
+                ],
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Created Date",
+                    value: formatDate(paymentLedger.createdDate),
+                  ),
+                  buildColumnTitleValue(
+                    title: 'Modified By',
+                    value: paymentLedger.modifiedBy,
+                  ),
+                ],
+              ),
+              buildColumnTitleValue(
+                title: "Modified Date",
+                value: formatDate(paymentLedger.modifiedDate),
+                removeExpanded: true,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+}
+
+Widget _detailsCard({required String title, required List<Widget> childrens}) {
+  return Container(
+    decoration: BoxDecoration(
+      color: AppColor.grey10.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(color: AppColor.grey10),
+    ),
+    padding: EdgeInsets.all(12),
+
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: 10,
+      children: [
+        Text(title, style: AppTextStyle.ts14SB(color: AppColor.black)),
+        ...childrens,
+      ],
+    ),
+  );
 }

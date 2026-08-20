@@ -43,6 +43,15 @@ abstract interface class TemporaryAlternateAccommodationDatasource {
     required int buildingId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallPullPayTrackRentLedgerForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TemporaryAlternateAccommodationDatasourceImpl
@@ -149,12 +158,12 @@ class TemporaryAlternateAccommodationDatasourceImpl
       required int pageNumber,
       required int projectId,
       required int buildingId,
+      required int tenantApplicantId,
       required int tenantId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "PayTrackRent/PullPayTrackRentLedger?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BuildingId=$buildingId&TenantId=$tenantId";
-
+          "PayTrackRent/PullPayTrackRentLedger?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BuildingId=$buildingId&TenantId=$tenantId&TenantApplicantId=$tenantApplicantId";
       url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
@@ -167,12 +176,8 @@ class TemporaryAlternateAccommodationDatasourceImpl
           projectId: projectId,
           buildingId: buildingId,
           tenantId: tenantId,
-          queryParams: {
-            ...?queryParams,
-            'PageNumber': pageNumber.toString(),
-            'PageSize': pageSize.toString(),
-            'TenantApplicantId': tenantApplicantId.toString(),
-          },
+          tenantApplicantId: tenantApplicantId,
+          queryParams: queryParams,
         ),
       );
       return {
@@ -288,6 +293,63 @@ class TemporaryAlternateAccommodationDatasourceImpl
         apicallPullTenantApplicantChargesForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullPayTrackRentLedgerForExport({
+    required int pageNumber,
+    required int pageSize,
+    required int tenantId,
+    required int tenantApplicantId,
+    required int projectId,
+    required int buildingId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullPayTrackRentLedgerUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      required int buildingId,
+      required int tenantApplicantId,
+      required int tenantId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "PayTrackRent/PullPayTrackRentLedger?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BuildingId=$buildingId&TenantId=$tenantId&TenantApplicantId=$tenantApplicantId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullPayTrackRentLedgerUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          buildingId: buildingId,
+          tenantId: tenantId,
+          tenantApplicantId: tenantApplicantId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullPayTrackRentLedgerForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          tenantId: tenantId,
+          tenantApplicantId: tenantApplicantId,
           projectId: projectId,
           buildingId: buildingId,
           queryParams: queryParams,

@@ -40,6 +40,7 @@ class TemporaryAlternateAccommodationCubit
   final TemporaryAlternateAccommodationRepository
   _temporaryAlternateAccommodationRepository =
       serviceLocator<TemporaryAlternateAccommodationRepository>();
+
   // GET BUILDING LIST
   Future getBuildingList(
     BuildContext context,
@@ -96,6 +97,21 @@ class TemporaryAlternateAccommodationCubit
           ),
         );
       },
+    );
+  }
+
+  void search({
+    required String value,
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+  }) {
+    emit(state.copyWith(searchText: value));
+    pullChargesDetails(
+      context: context,
+      pageNumber: 1,
+      projectId: projectId,
+      buildingId: buildingId,
     );
   }
 
@@ -254,10 +270,14 @@ class TemporaryAlternateAccommodationCubit
     required int buildingId,
   }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"ChargeType": state.currentTabName};
-    if (state.selectedTenure.isNotEmpty) {
-      queryParams["Tenure"] = state.selectedTenure;
-    }
+    Map<String, dynamic> queryParams = {
+      "ChargeType": state.currentTabName,
+      "Tenure": state.selectedTenure,
+      "FlatNumber": state.searchText,
+      "ApplicantName": state.filterByApplicantName,
+      "ApplicantType": state.filterByApplicantType,
+      "FlatType": state.filterByExistingUnitType,
+    };
     final result = await _temporaryAlternateAccommodationRepository
         .pullTenantApplicantCharges(
           pageNumber: pageNumber,
@@ -337,9 +357,11 @@ class TemporaryAlternateAccommodationCubit
         selectedTenureIndex: -1,
         currentPage: 1,
         currentTabName: tabName,
+        isLoading: true,
       ),
     );
     if (buildingId == null) {
+      emit(state.copyWith(isLoading: false));
       return;
     }
     if (tabName == 'TAA' || tabName == 'Brokerage') {
@@ -378,6 +400,46 @@ class TemporaryAlternateAccommodationCubit
         currentPage: 1,
       ),
     );
+    pullChargesDetails(
+      context: context,
+      pageNumber: 1,
+      projectId: projectId,
+      buildingId: buildingId,
+    );
+  }
+
+  Future applyTAAFilter({
+    required BuildContext context,
+    String? unitNumber,
+    String? existingUnitType,
+    String? applicantName,
+    String? applicantType,
+    bool? isClear,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          searchText: "",
+          filterByExistingUnitType: "",
+          filterByApplicantName: "",
+          filterByApplicantType: "",
+          currentPage: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          searchText: unitNumber ?? state.searchText,
+          filterByExistingUnitType:
+              existingUnitType ?? state.filterByExistingUnitType,
+          filterByApplicantName: applicantName ?? state.filterByApplicantName,
+          filterByApplicantType: applicantType ?? state.filterByApplicantType,
+          currentPage: 1,
+        ),
+      );
+    }
     pullChargesDetails(
       context: context,
       pageNumber: 1,
@@ -636,9 +698,8 @@ class TemporaryAlternateAccommodationCubit
           buildingId: buildingId,
           projectId: projectId,
           queryParams: {
-            'FlatNumber': state.paymentLedgerSearchText,
-            'ApplicantName': state.paymentLedgerSearchText,
             'ChargeType': state.currentTabName,
+            'AccountHolderName': state.paymentLedgerSearchText,
           },
         );
     result.fold(
@@ -694,45 +755,6 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  Future exportExcelPdf(
-    BuildContext context,
-    String exportType, {
-    required int projectId,
-    required int buildingId,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _temporaryAlternateAccommodationRepository
-        .pullTenantApplicantChargesForExport(
-          pageNumber: 1,
-          pageSize: state.totalNumberOfRecord,
-          queryParams: {
-            "ExportType": exportType,
-            "ChargeType": state.currentTabName,
-            "Tenure": state.selectedTenure,
-          },
-          projectId: projectId,
-          buildingId: buildingId,
-        );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        showSuccessMessage(
-          context,
-          subTitle: 'Successfully Exported as $exportType',
-        );
-        exportExcelOrPdfMobile(
-          response["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "${state.currentTabName} ${DateTime.now()}.pdf"
-              : "${state.currentTabName} ${DateTime.now()}.xlsx",
-        );
-      },
-    );
-  }
-
   Future<List<TemporaryAlternativeAccommodationModel>>
   pullChargesDetailsForView({
     required BuildContext context,
@@ -778,5 +800,96 @@ class TemporaryAlternateAccommodationCubit
         return newData;
       },
     );
+  }
+
+  Future exportExcelPdfForTAA(
+    BuildContext context,
+    String exportType, {
+    required int projectId,
+    required int buildingId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _temporaryAlternateAccommodationRepository
+        .pullTenantApplicantChargesForExport(
+          pageNumber: 1,
+          pageSize: state.totalNumberOfRecord,
+          queryParams: {
+            "ExportType": exportType,
+            "ChargeType": state.currentTabName,
+            "Tenure": state.selectedTenure,
+          },
+          projectId: projectId,
+          buildingId: buildingId,
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "${state.currentTabName} ${DateTime.now()}.pdf"
+              : "${state.currentTabName} ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  Future exportExcelPdfForPaymentLedger(
+    BuildContext context,
+    String exportType, {
+    required int projectId,
+    required int buildingId,
+    required int tenantId,
+    required int tenantApplicantId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _temporaryAlternateAccommodationRepository
+        .getPayTrackRentLedgerListForExport(
+          pageNumber: 1,
+          pageSize: 10000,
+          queryParams: {
+            "ExportType": exportType,
+            "ChargeType": state.currentTabName,
+            "Tenure": state.selectedTenure,
+          },
+          projectId: projectId,
+          buildingId: buildingId,
+          tenantId: tenantId,
+          tenantApplicantId: tenantApplicantId,
+        );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Pay Track Rent Ledger ${DateTime.now()}.pdf"
+              : "Pay Track Rent Ledger ${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
+
+  int updateFilterCount(TemporaryAlternateAccommodationState state) {
+    return getActiveFilterCount([
+      state.searchText.isNotEmpty,
+      state.filterByApplicantName.isNotEmpty,
+      state.filterByApplicantType.isNotEmpty,
+      state.filterByExistingUnitType.isNotEmpty,
+    ]);
   }
 }
