@@ -25,7 +25,6 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/theme/theme.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-import 'package:k3h_erp_app/widgets/app_icon/app_icon_service.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/scheduler.dart';
@@ -71,7 +70,6 @@ Future<bool> onIosBackground(ServiceInstance service) async {
 
 Future initialSetup() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AppIconService.updateSeasonalIcon();
   await Firebase.initializeApp();
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
