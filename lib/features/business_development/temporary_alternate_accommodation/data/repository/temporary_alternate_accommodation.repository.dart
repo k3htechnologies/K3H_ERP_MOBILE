@@ -17,7 +17,7 @@ abstract interface class TemporaryAlternateAccommodationRepository {
     required List<Map<String, dynamic>> fileList,
   });
 
-  Future<Either<Failure, Map<String, dynamic>>> getPayTrackRentLedgerList({
+  Future<Either<Failure, Map<String, dynamic>>> pullPayTrackRentLedgerList({
     required int pageNumber,
     required int pageSize,
     required int tenantId,
@@ -100,7 +100,7 @@ class RentRepositoryImpl implements TemporaryAlternateAccommodationRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getPayTrackRentLedgerList({
+  Future<Either<Failure, Map<String, dynamic>>> pullPayTrackRentLedgerList({
     required int pageNumber,
     required int pageSize,
     required int tenantId,

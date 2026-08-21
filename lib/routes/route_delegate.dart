@@ -393,7 +393,7 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/data/mo
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/payment_ledger.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/temporary_alternate_accommodation.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
-import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/add_payment_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/add_tempory_alternate_accommodation_payment_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/view_payment_summary_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/cubit/tenant_cubit.dart';
@@ -2640,7 +2640,7 @@ final GoRouter goRouter = GoRouter(
                   queryParameterPaymentLedgerIndex ?? '',
                 );
 
-                return AddPaymentScreen(
+                return AddTemporaryAlternateAccommodationPaymentScreen(
                   rentModel: rentModel,
                   totalAmount: totalAmount,
                   paidAmount: paidAmount,

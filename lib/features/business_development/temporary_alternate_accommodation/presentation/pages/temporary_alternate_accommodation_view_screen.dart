@@ -4,8 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/temporary_alternate_accommodation.model.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/cubit/temporary_alternate_accommodation_cubit.dart';
-import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/widgets/temporary_alternate_accomodation_datagrid.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/widgets/temporary_alternate_accomodation_datasource.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -23,7 +24,6 @@ class TemporaryAlternateAccommodationViewScreen extends StatefulWidget {
     required this.totalAmount,
     required this.paidAmount,
   });
-
   @override
   State<TemporaryAlternateAccommodationViewScreen> createState() =>
       _TemporaryAlternateAccommodationViewScreenState();
@@ -43,17 +43,14 @@ class _TemporaryAlternateAccommodationViewScreenState
   void loadData() async {
     final taaList = await context
         .read<TemporaryAlternateAccommodationCubit>()
-        .pullChargesDetailsForView(
+        .getChargesDetailsForView(
           context: context,
           projectId: widget.tenantModel.projectId,
           buildingId: widget.tenantModel.buildingId,
         );
-
-    // Skip the 1997 adjustment/lump-sum records, keep only real month-wise entries
     final filtered =
         taaList.where((e) => e.date.year != 1997).toList()
           ..sort((a, b) => a.date.compareTo(b.date));
-
     taaRows.value =
         filtered
             .map(
@@ -75,7 +72,7 @@ class _TemporaryAlternateAccommodationViewScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "TAA",
+        screenTitle: "Temporary Alternate\nAccommodation",
         authorization: AuthorizationModel(),
       ),
       body: BlocBuilder<
@@ -109,7 +106,7 @@ class _TemporaryAlternateAccommodationViewScreenState
                             context
                                 .read<TemporaryAlternateAccommodationCubit>()
                                 .state
-                                .currentTabName,
+                                .chargeType,
                       },
                       {
                         "title": "Carpet Area (SqFt)",
@@ -161,11 +158,21 @@ class _TemporaryAlternateAccommodationViewScreenState
                                 columns: [
                                   GridColumn(
                                     columnName: 'label',
-                                    label: const Center(child: Text('Month')),
+                                    label: Center(
+                                      child: Text(
+                                        'Month',
+                                        style: AppTextStyle.ts12SB(),
+                                      ),
+                                    ),
                                   ),
                                   GridColumn(
                                     columnName: 'amount',
-                                    label: const Center(child: Text('Amount')),
+                                    label: Center(
+                                      child: Text(
+                                        'Amount',
+                                        style: AppTextStyle.ts12SB(),
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

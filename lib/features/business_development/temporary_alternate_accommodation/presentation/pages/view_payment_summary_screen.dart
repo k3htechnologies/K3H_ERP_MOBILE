@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -38,13 +37,11 @@ class ViewPaymentSummaryScreen extends StatefulWidget {
 class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
   late TemporaryAlternateAccommodationCubit
   _temporaryAlternateAccommodationCubit;
-
   late AuthorizationModel _routeAuthorizationModel;
-
   late TextEditingController _searchC;
-
   final ValueNotifier<bool> _fullyAmountPaid = ValueNotifier(false);
   final ValueNotifier<bool> _canExport = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -70,7 +67,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
     }
   }
 
-  // DELETE DEPARTMENT
   Future<void> _showPopupToDeletePayTrackRent(
     BuildContext context,
     PaymentLedgerModel obj,
@@ -83,7 +79,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
       'Are you sure you want to delete this Pay Track Ledger record?',
     );
     if (result && context.mounted) {
-      _temporaryAlternateAccommodationCubit.deletePayTrackRent(
+      _temporaryAlternateAccommodationCubit.deletePayTrackRentLedger(
         context: context,
         payTrackRentId: obj.payTrackRentId,
         uniqueKey: obj.uniquekey,
@@ -198,7 +194,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                               context
                                   .read<TemporaryAlternateAccommodationCubit>()
                                   .state
-                                  .currentTabName,
+                                  .chargeType,
                         },
                         {
                           "title": "Carpet Area (SqFt)",
@@ -273,6 +269,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
     int? index,
   ) {
     return CustomExpandableCard(
+      margin: EdgeInsets.only(bottom: 16),
       header: Column(
         spacing: 10,
         children: [
@@ -334,7 +331,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
           ),
         ],
       ),
-
       body: Column(
         spacing: 12,
         children: [
@@ -360,7 +356,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                   ),
                 ],
               ),
-
               Row(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -402,7 +397,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                           );
                         }
                       },
-
                       isDisable:
                           paymentLedger.transactionChequeDemandDraftUrl.isEmpty,
                     ),
@@ -426,7 +420,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                           );
                         }
                       },
-
                       isDisable: paymentLedger.paymentReceiptUrl.isEmpty,
                     ),
                     Spacer(),
@@ -435,7 +428,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
               ),
             ],
           ),
-
           _detailsCard(
             title: "Developer Details",
             childrens: [
@@ -458,7 +450,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                 value: paymentLedger.projectBankName,
                 removeExpanded: true,
               ),
-
               buildColumnTitleValue(
                 title: 'Project IFSC Code',
                 value: paymentLedger.projectBankIfscCode,
@@ -466,7 +457,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
               ),
             ],
           ),
-
           _detailsCard(
             title: "Action Details",
             childrens: [
@@ -519,7 +509,6 @@ Widget _detailsCard({required String title, required List<Widget> childrens}) {
       border: Border.all(color: AppColor.grey10),
     ),
     padding: EdgeInsets.all(12),
-
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: 10,

@@ -2,42 +2,27 @@ part of 'temporary_alternate_accommodation_cubit.dart';
 
 class TemporaryAlternateAccommodationState extends BaseState {
   final List<PaymentLedgerModel>? paymentLedgerList;
-  final List<BusinessDevelopmentBuildingModel> buildingList;
-  final int bankTotalCount;
-  final List<BankListMasterModel> bankList;
-  final int buildingTotalCount;
-  final List<TemporaryAlternativeAccommodationDetailsModel> rentDetails;
   final List<TemporaryAlternativeAccommodationModel> rentList;
   final int totalNumberOfRecord;
   final int currentPage;
   final String selectedTenure;
-  final String currentTabName;
+  final String chargeType;
   final List<String> tenureList;
   final int selectedTenureIndex;
-
-  // Unit Number
   final String searchText;
-
-  // TAA Filters
   final String filterByExistingUnitType;
   final String filterByApplicantName;
   final String filterByApplicantType;
-
   final String paymentLedgerSearchText;
 
   const TemporaryAlternateAccommodationState({
     super.isLoading,
     required this.paymentLedgerList,
-    required this.bankList,
-    required this.bankTotalCount,
-    required this.buildingList,
-    required this.buildingTotalCount,
-    required this.rentDetails,
     required this.rentList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.selectedTenure,
-    required this.currentTabName,
+    required this.chargeType,
     required this.tenureList,
     required this.selectedTenureIndex,
     required this.searchText,
@@ -51,16 +36,11 @@ class TemporaryAlternateAccommodationState extends BaseState {
       TemporaryAlternateAccommodationState(
         isLoading: true,
         paymentLedgerList: [],
-        bankList: [],
-        bankTotalCount: 0,
-        buildingList: [],
-        buildingTotalCount: 0,
-        rentDetails: [],
         rentList: [],
         totalNumberOfRecord: 0,
         currentPage: 1,
         selectedTenure: "",
-        currentTabName: "Additional TAA",
+        chargeType: "Additional TAA",
         tenureList: [],
         selectedTenureIndex: -1,
         searchText: '',
@@ -74,16 +54,12 @@ class TemporaryAlternateAccommodationState extends BaseState {
   TemporaryAlternateAccommodationState copyWith({
     bool? isLoading,
     List<PaymentLedgerModel>? paymentLedgerList,
-    List<BankListMasterModel>? bankList,
-    int? bankTotalCount,
-    List<BusinessDevelopmentBuildingModel>? buildingList,
-    int? buildingTotalCount,
     List<TemporaryAlternativeAccommodationDetailsModel>? rentDetails,
     List<TemporaryAlternativeAccommodationModel>? rentList,
     int? totalNumberOfRecord,
     int? currentPage,
     String? selectedTenure,
-    String? currentTabName,
+    String? chargeType,
     List<String>? tenureList,
     int? selectedTenureIndex,
     String? searchText,
@@ -96,16 +72,11 @@ class TemporaryAlternateAccommodationState extends BaseState {
     return TemporaryAlternateAccommodationState(
       isLoading: isLoading ?? this.isLoading,
       paymentLedgerList: paymentLedgerList ?? this.paymentLedgerList,
-      bankList: bankList ?? this.bankList,
-      bankTotalCount: bankTotalCount ?? this.bankTotalCount,
-      buildingList: buildingList ?? this.buildingList,
-      buildingTotalCount: buildingTotalCount ?? this.buildingTotalCount,
-      rentDetails: rentDetails ?? this.rentDetails,
       rentList: rentList ?? this.rentList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       selectedTenure: selectedTenure ?? this.selectedTenure,
-      currentTabName: currentTabName ?? this.currentTabName,
+      chargeType: chargeType ?? this.chargeType,
       tenureList: tenureList ?? this.tenureList,
       selectedTenureIndex: selectedTenureIndex ?? this.selectedTenureIndex,
       searchText: searchText ?? this.searchText,
@@ -124,16 +95,11 @@ class TemporaryAlternateAccommodationState extends BaseState {
   List<Object?> get props => [
     isLoading,
     paymentLedgerList,
-    bankList,
-    bankTotalCount,
-    buildingList,
-    buildingTotalCount,
-    rentDetails,
     rentList,
     totalNumberOfRecord,
     currentPage,
     selectedTenure,
-    currentTabName,
+    chargeType,
     tenureList,
     selectedTenureIndex,
     searchText,

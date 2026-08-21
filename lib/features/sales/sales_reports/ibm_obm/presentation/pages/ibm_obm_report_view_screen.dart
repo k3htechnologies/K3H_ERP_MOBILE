@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/data/model/ibm_obm_report.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_cubit.dart';
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/cubit/ibm_obm_report_state.dart';
-import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/widget/ibm_obm_report_datagrid.dart';
+import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/widget/ibm_obm_report_datasource.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';

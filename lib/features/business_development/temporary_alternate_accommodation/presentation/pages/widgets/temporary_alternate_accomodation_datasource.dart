@@ -24,7 +24,6 @@ class TemporaryAlternateAccommodationReportDataSource extends DataGridSource {
               (e) => DataGridRow(
                 cells: [
                   DataGridCell<String>(columnName: 'label', value: e.label),
-                  // Keep the raw numeric value here, NOT the formatted string
                   DataGridCell<double>(columnName: 'amount', value: e.amount),
                 ],
               ),
@@ -48,7 +47,6 @@ class TemporaryAlternateAccommodationReportDataSource extends DataGridSource {
                   alignment: Alignment.center,
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
-                    // Format only the amount column for display; label stays as-is
                     index == 0
                         ? cell.value.toString()
                         : (cell.value as double).toIndianCurrency(),

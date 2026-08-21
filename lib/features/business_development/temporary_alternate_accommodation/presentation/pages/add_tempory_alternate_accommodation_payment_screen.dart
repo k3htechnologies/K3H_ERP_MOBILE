@@ -21,7 +21,7 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class AddPaymentScreen extends StatefulWidget {
+class AddTemporaryAlternateAccommodationPaymentScreen extends StatefulWidget {
   final TemporaryAlternativeAccommodationModel rentModel;
   final double totalAmount;
   final double? paidAmount;
@@ -29,7 +29,7 @@ class AddPaymentScreen extends StatefulWidget {
 
   final PaymentLedgerModel? paymentLedger;
   final int? paymentLedgerIndex;
-  const AddPaymentScreen({
+  const AddTemporaryAlternateAccommodationPaymentScreen({
     super.key,
     required this.rentModel,
     required this.totalAmount,
@@ -39,10 +39,12 @@ class AddPaymentScreen extends StatefulWidget {
     this.paymentLedgerIndex,
   });
   @override
-  State<AddPaymentScreen> createState() => _AddPaymentScreenState();
+  State<AddTemporaryAlternateAccommodationPaymentScreen> createState() =>
+      _AddTemporaryAlternateAccommodationPaymentScreenState();
 }
 
-class _AddPaymentScreenState extends State<AddPaymentScreen> {
+class _AddTemporaryAlternateAccommodationPaymentScreenState
+    extends State<AddTemporaryAlternateAccommodationPaymentScreen> {
   late TemporaryAlternateAccommodationCubit
   _temporaryAlternateAccommodationCubit;
   bool get _isEditMode => widget.paymentLedger != null;
@@ -58,11 +60,10 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
       _accountHolderNameC,
       _projectNatureOfAccountC;
   DateTime? selectedDate;
-  final ValueNotifier<Map<String, dynamic>?> selectedPaymentMode =
+  final ValueNotifier<Map<String, dynamic>?> _selectedPaymentMode =
       ValueNotifier(null);
-  final ValueNotifier<Map<String, dynamic>?> selectedAmountType = ValueNotifier(
-    null,
-  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedAmountType =
+      ValueNotifier(null);
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier =
       ValueNotifier([]);
   final ValueNotifier<List<Map<String, dynamic>>>
@@ -99,11 +100,11 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     _branchC.text = '';
     _projectAccountType.text = '';
     _accountHolderNameC.text = p.projectBankAccountHolderName;
-    selectedPaymentMode.value = paymentModeList.firstWhere(
+    _selectedPaymentMode.value = paymentModeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.paymentMode,
       orElse: () => paymentModeList.first,
     );
-    selectedAmountType.value = tenantAmountTypeList.firstWhere(
+    _selectedAmountType.value = tenantAmountTypeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.amountType,
       orElse: () => tenantAmountTypeList.first,
     );
@@ -152,11 +153,15 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
     _accountNumberC.dispose();
     _ifscCodeC.dispose();
     _branchC.dispose();
+    _projectAccountType.dispose();
+    _accountHolderNameC.dispose();
     _projectAccountNumberC.dispose();
     _projectIfscCodeC.dispose();
-    _projectAccountType.dispose();
     _projectNatureOfAccountC.dispose();
-    _accountHolderNameC.dispose();
+    _selectedPaymentMode.dispose();
+    _selectedAmountType.dispose();
+    _selectedBankNotifier.dispose();
+    _selectedProjectWiseBankNotifier.dispose();
   }
 
   void _initializeTextControllers() {
@@ -176,11 +181,11 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Payment" : "Add Payment",
+        screenTitle: "Temporary Alternate\nAccommodation",
         authorization: AuthorizationModel(),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Column(
           spacing: 12,
           children: [
@@ -193,8 +198,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
               {"title": "Tenure", "value": widget.rentModel.tenure},
               {
                 "title": "Charge Type",
-                "value":
-                    _temporaryAlternateAccommodationCubit.state.currentTabName,
+                "value": _temporaryAlternateAccommodationCubit.state.chargeType,
               },
               {
                 "title": "Carpet Area (SqFt)",
@@ -278,7 +282,6 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                             if (value == null || value.trim().isEmpty) {
                               return "Account Number is required.";
                             }
-
                             return null;
                           },
                         ),
@@ -305,9 +308,9 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                           hintText: "Select Payment Mode",
                           isRequired: true,
                           dataList: paymentModeList,
-                          initialValue: selectedPaymentMode.value,
+                          initialValue: _selectedPaymentMode.value,
                           onSelected: (value) {
-                            selectedPaymentMode.value = value;
+                            _selectedPaymentMode.value = value;
                           },
                           validator: (value) {
                             if (value == null) {
@@ -315,16 +318,16 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                             }
                             return null;
                           },
-                          onValueClear: () => selectedPaymentMode.value = null,
+                          onValueClear: () => _selectedPaymentMode.value = null,
                         ),
                         CustomDropDownWidget(
                           title: "Amount Type",
                           hintText: "Select Amount Type",
                           isRequired: true,
                           dataList: tenantAmountTypeList,
-                          initialValue: selectedAmountType.value,
+                          initialValue: _selectedAmountType.value,
                           onSelected: (value) {
-                            selectedAmountType.value = value;
+                            _selectedAmountType.value = value;
                           },
                           validator: (value) {
                             if (value == null) {
@@ -332,7 +335,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                             }
                             return null;
                           },
-                          onValueClear: () => selectedAmountType.value = null,
+                          onValueClear: () => _selectedAmountType.value = null,
                         ),
                         CustomTextField(
                           title: "Amount (₹)",
@@ -530,7 +533,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
           height: 70,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
-            text: _isEditMode ? "Update Payment" : "Add Payment",
+            text: _isEditMode ? "Update" : "Add",
             leading: Icon(
               _isEditMode ? Icons.edit : Icons.add,
               color: AppColor.white,
@@ -541,7 +544,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
               final rentModel = widget.rentModel;
 
               if (_isEditMode && widget.paymentLedger != null) {
-                _temporaryAlternateAccommodationCubit.updatePayTrackRent(
+                _temporaryAlternateAccommodationCubit.updatePayTrackRentLedger(
                   context: context,
                   payTrackRentId: widget.paymentLedger!.payTrackRentId,
                   uniqueKey: widget.paymentLedger!.uniquekey,
@@ -560,9 +563,9 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                   accountNumber: _accountNumberC.text,
                   ifscCode: _ifscCodeC.text,
                   paymentMode:
-                      selectedPaymentMode.value?["DisplayName"] as String,
+                      _selectedPaymentMode.value?["DisplayName"] as String,
                   amountType:
-                      selectedAmountType.value?["DisplayName"] as String,
+                      _selectedAmountType.value?["DisplayName"] as String,
                   payAmount: _payAmountC.text,
                   transactionChequeDemandDraftNumber: _transactionNumC.text,
                   transactionChequeDemandDraftDate: selectedDate!,
@@ -572,7 +575,7 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                   index: widget.paymentLedgerIndex ?? 0,
                 );
               } else {
-                _temporaryAlternateAccommodationCubit.addPayTrackRent(
+                _temporaryAlternateAccommodationCubit.addPayTrackRentLedger(
                   context: context,
                   payTrackRentId: 0,
                   tenantId: rentModel.tenantId,
@@ -590,9 +593,9 @@ class _AddPaymentScreenState extends State<AddPaymentScreen> {
                   accountNumber: _accountNumberC.text,
                   ifscCode: _ifscCodeC.text,
                   paymentMode:
-                      selectedPaymentMode.value?["DisplayName"] as String,
+                      _selectedPaymentMode.value?["DisplayName"] as String,
                   amountType:
-                      selectedAmountType.value?["DisplayName"] as String,
+                      _selectedAmountType.value?["DisplayName"] as String,
                   payAmount: _payAmountC.text,
                   transactionChequeDemandDraftNumber: _transactionNumC.text,
                   transactionChequeDemandDraftDate: selectedDate!,

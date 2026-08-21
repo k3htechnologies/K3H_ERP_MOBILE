@@ -37,6 +37,9 @@ class TemporaryAlternateAccommodationScreen extends StatefulWidget {
 class _TemporaryAlternateAccommodationScreenState
     extends State<TemporaryAlternateAccommodationScreen>
     with TickerProviderStateMixin {
+  //REPOSITORY
+  final BuildingRepository _buildingRepository =
+      serviceLocator<BuildingRepository>();
   // CUBIT
   late TemporaryAlternateAccommodationCubit
   _temporaryAlternateAccommodationCubit;
@@ -64,13 +67,9 @@ class _TemporaryAlternateAccommodationScreenState
     'Brokerage',
     'Shifting',
   ];
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
-  final BuildingRepository _buildingRepository =
-      serviceLocator<BuildingRepository>();
-
   final ValueNotifier<int> totalNumberOfRecords = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -104,16 +103,12 @@ class _TemporaryAlternateAccommodationScreenState
     _applicantTypeC = TextEditingController();
   }
 
-  // INITIALIZE SCROLL CONTROLLER
   void _initializeScrollController() {
     _scrollController = ScrollController();
-
     _scrollController.addListener(() {
       final state = _temporaryAlternateAccommodationCubit.state;
-
       final int currentRecordCount =
           state.rentList.map((e) => e.tenantId).toSet().length;
-
       if (_scrollController.position.pixels >=
               _scrollController.position.maxScrollExtent - 100 &&
           !(state.isLoading ?? false) &&
@@ -122,28 +117,21 @@ class _TemporaryAlternateAccommodationScreenState
         if (_debounce?.isActive ?? false) {
           _debounce?.cancel();
         }
-
         _debounce = Timer(const Duration(milliseconds: 300), () {
           if (!mounted) return;
-
           final currentState = _temporaryAlternateAccommodationCubit.state;
-
           final int currentCount =
               currentState.rentList.map((e) => e.tenantId).toSet().length;
-
           if ((currentState.isLoading ?? false) ||
               currentCount >= currentState.totalNumberOfRecord) {
             return;
           }
-
           final int? buildingId =
               _selectedBuildingNotifier.value.isNotEmpty
                   ? _selectedBuildingNotifier.value.first['zAttributesId']
                   : null;
-
           if (buildingId == null) return;
-
-          _temporaryAlternateAccommodationCubit.pullChargesDetails(
+          _temporaryAlternateAccommodationCubit.getChargesDetails(
             context: context,
             pageNumber: currentState.currentPage + 1,
             projectId: _project.value.projectId,
@@ -154,7 +142,6 @@ class _TemporaryAlternateAccommodationScreenState
     });
   }
 
-  // HANDLE TAB CHANGES
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
       final int tabIndex = _tabController.index;
@@ -176,7 +163,6 @@ class _TemporaryAlternateAccommodationScreenState
     }
   }
 
-  // HANDLE TENURE TAB CHANGES
   void _handleTenureTabChange() {
     if (!_tenureTabController.indexIsChanging) {
       final int tenureIndex = _tenureTabController.index;
@@ -205,7 +191,6 @@ class _TemporaryAlternateAccommodationScreenState
     }
   }
 
-  // UPDATE TENURE TAB CONTROLLER
   void _updateTenureTabController(int length, {int? initialIndex}) {
     if (_tenureTabController.length != length) {
       _tenureTabController.removeListener(_handleTenureTabChange);
@@ -230,7 +215,6 @@ class _TemporaryAlternateAccommodationScreenState
     }
   }
 
-  // FETCH BUILDINGS
   Future<Map<String, dynamic>> _fetchBuildings(
     int pageNumber, {
     String? value,
@@ -302,36 +286,29 @@ class _TemporaryAlternateAccommodationScreenState
 
   Future<void> _showBottomSheetToFilterTAA(BuildContext context) async {
     final state = _temporaryAlternateAccommodationCubit.state;
-
     final initialUnitNumber = state.searchText;
     final initialExistingUnitType = state.filterByExistingUnitType;
     final initialApplicantName = state.filterByApplicantName;
     final initialApplicantType = state.filterByApplicantType;
-
     _searchC.text = initialUnitNumber;
     _existingUnitTypeC.text = initialExistingUnitType;
     _applicantNameC.text = initialApplicantName;
     _applicantTypeC.text = initialApplicantType;
-
     bool applied = false;
     bool manualClose = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState() {
       manualClose =
           (_searchC.text.trim() != initialUnitNumber) ||
           (_existingUnitTypeC.text.trim() != initialExistingUnitType) ||
           (_applicantNameC.text.trim() != initialApplicantName) ||
           (_applicantTypeC.text.trim() != initialApplicantType);
-
       applyEnabled.value = manualClose;
     }
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Temporary Alternate Accommodation",
-
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return SingleChildScrollView(
@@ -367,13 +344,11 @@ class _TemporaryAlternateAccommodationScreenState
           );
         },
       ),
-
       onClear: () async {
         _searchC.clear();
         _existingUnitTypeC.clear();
         _applicantNameC.clear();
         _applicantTypeC.clear();
-
         await _temporaryAlternateAccommodationCubit.applyTAAFilter(
           context: context,
           projectId: _project.value.projectId,
@@ -384,10 +359,8 @@ class _TemporaryAlternateAccommodationScreenState
           isClear: true,
         );
       },
-
       onApply: () {
         applied = true;
-
         _temporaryAlternateAccommodationCubit.applyTAAFilter(
           context: context,
           unitNumber: _searchC.text.trim(),
@@ -401,11 +374,9 @@ class _TemporaryAlternateAccommodationScreenState
                   : 0,
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     if (!applied && manualClose) {
       _searchC.clear();
       _existingUnitTypeC.clear();
@@ -434,6 +405,7 @@ class _TemporaryAlternateAccommodationScreenState
           onProjectChangeCallback: (project) async {
             _project.value = project;
             _selectedBuildingNotifier.value = [];
+            _temporaryAlternateAccommodationCubit.resetState();
           },
           onExportCallback: (value) {
             if (_project.value.projectId == 0) {
@@ -465,7 +437,7 @@ class _TemporaryAlternateAccommodationScreenState
               buildingId:
                   _selectedBuildingNotifier.value.isNotEmpty
                       ? _selectedBuildingNotifier.value.first['zAttributesId']
-                      : 0,
+                      : null,
               value: value,
               context: context,
               projectId: _project.value.projectId,
@@ -528,7 +500,6 @@ class _TemporaryAlternateAccommodationScreenState
                 );
               },
             ),
-
             Expanded(
               child: ValueListenableBuilder<List<Map<String, dynamic>>>(
                 valueListenable: _selectedBuildingNotifier,
@@ -544,12 +515,10 @@ class _TemporaryAlternateAccommodationScreenState
                   }
                   return Column(
                     children: [
-                      // MAIN TAB BAR
                       ChipStyleTabBar(
                         controller: _tabController,
                         tabs: tabTitles,
                       ),
-                      // TENURE TAB BAR
                       BlocBuilder<
                         TemporaryAlternateAccommodationCubit,
                         TemporaryAlternateAccommodationState
@@ -592,7 +561,6 @@ class _TemporaryAlternateAccommodationScreenState
                           return const SizedBox.shrink();
                         },
                       ),
-                      // TAB CONTENT
                       Expanded(child: _buildRentListWidget()),
                     ],
                   );
@@ -605,7 +573,6 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // BUILD COMMON RENT LIST WIDGET
   Widget _buildRentListWidget() {
     return BlocBuilder<
       TemporaryAlternateAccommodationCubit,
@@ -616,40 +583,30 @@ class _TemporaryAlternateAccommodationScreenState
         if ((state.isLoading ?? false) && state.rentList.isEmpty) {
           return Center(child: loader());
         }
-
         if (state.rentList.isEmpty) {
           return Center(child: noDataWidget());
         }
-
         final int currentTabIndex = _tabController.index;
         final String tabName = tabTitles[currentTabIndex];
-
         List<TemporaryAlternativeAccommodationModel> filteredList =
             state.rentList;
-
         if (state.selectedTenure.isNotEmpty) {
           filteredList =
               state.rentList
                   .where((e) => e.tenure == state.selectedTenure)
                   .toList();
         }
-
         final groupedByTenant = groupBy(
           filteredList,
           (TemporaryAlternativeAccommodationModel e) => e.tenantId,
         );
-
         final int currentCount =
             state.rentList.map((e) => e.tenantId).toSet().length;
-
         final bool hasMoreData = currentCount < state.totalNumberOfRecord;
-
         return ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
-
           itemCount: groupedByTenant.length + 1,
-
           itemBuilder: (context, index) {
             if (index == groupedByTenant.length) {
               if ((state.isLoading ?? false) && hasMoreData) {
@@ -658,28 +615,19 @@ class _TemporaryAlternateAccommodationScreenState
                   child: Center(child: CircularProgressIndicator()),
                 );
               }
-
               return const SizedBox.shrink();
             }
-
             final entry = groupedByTenant.entries.elementAt(index);
-
             final tenantRecords = entry.value;
-
-            // BUILD CARD BASED ON TAB NAME
             switch (tabName) {
               case 'TAA':
                 return _buildTAACard(tenantRecords, state);
-
               case 'Hardship':
-                return _buildCorpusCard(tenantRecords);
-
+                return _buildHardshipCard(tenantRecords);
               case 'Brokerage':
                 return _buildBrokerageCard(tenantRecords);
-
               case 'Shifting':
                 return _buildShiftingCard(tenantRecords);
-
               case 'Additional TAA':
               default:
                 return _buildAdditionalRentCard(tenantRecords);
@@ -767,7 +715,6 @@ class _TemporaryAlternateAccommodationScreenState
                               jsonEncode(tenantRecord.toJson()),
                             ),
                           ),
-
                           'totalAmount': totalAmount.toString(),
                           'paidAmount': paidAmount.toString(),
                           'previousRoute': AppRoutes.rent,
@@ -842,7 +789,6 @@ class _TemporaryAlternateAccommodationScreenState
                   if (totalAmount == 0) {
                     return;
                   }
-
                   await goRouter
                       .pushNamed(
                         AppRoutes.viewSummary,
@@ -863,7 +809,7 @@ class _TemporaryAlternateAccommodationScreenState
                       .then((_) async {
                         if (context.mounted) {
                           await _temporaryAlternateAccommodationCubit
-                              .pullChargesDetails(
+                              .getChargesDetails(
                                 context: context,
                                 pageNumber: state.currentPage,
                                 projectId: tenantRecord.projectId,
@@ -901,7 +847,6 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // BUILD ADDITIONAL RENT CARD
   Widget _buildAdditionalRentCard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
   ) {
@@ -932,18 +877,15 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // BUILD TAA CARD
   Widget _buildTAACard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
     TemporaryAlternateAccommodationState state,
   ) {
     final tenantRecord = tenantRecords.first;
-
     final totalAmount =
         _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ?? 0.0;
     final paidAmount =
         _findPaidRecord(state.rentList, tenantRecord.tenantId)?.amount ?? 0.0;
-
     return _buildCommonAccommodationCard(
       tenantRecord: tenantRecord,
       secondaryFieldTitle: "Proposed Offer Amount (₹)",
@@ -956,8 +898,7 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // BUILD CORPUS (HARDSHIP) CARD
-  Widget _buildCorpusCard(
+  Widget _buildHardshipCard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
   ) {
     return BlocBuilder<
@@ -990,7 +931,6 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // BUILD BROKERAGE CARD
   Widget _buildBrokerageCard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
   ) {
@@ -1021,7 +961,6 @@ class _TemporaryAlternateAccommodationScreenState
     );
   }
 
-  // BUILD SHIFTING CARD
   Widget _buildShiftingCard(
     List<TemporaryAlternativeAccommodationModel> tenantRecords,
   ) {

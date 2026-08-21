@@ -286,18 +286,36 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                 }
               }
             },
-            child: Container(
-              padding: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: AppColor.lightBlue,
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Icon(
-                widget.showMenuIcon ? Icons.menu : Icons.arrow_back_ios,
-                color: isDarkMode ? AppColor.white : AppColor.primary,
-                size: widget.showMenuIcon ? 16 : 14,
-              ),
-            ),
+            child:
+                widget.showMenuIcon
+                    ? Container(
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: AppColor.lightBlue,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Icon(
+                        Icons.menu,
+                        color: isDarkMode ? AppColor.white : AppColor.primary,
+                        size: widget.showMenuIcon ? 16 : 14,
+                      ),
+                    )
+                    : Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        color: AppColor.primary.withValues(alpha: .2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 3.0),
+                        child: Icon(
+                          Icons.arrow_back_ios,
+                          size: 14,
+                          color: AppColor.primary,
+                        ),
+                      ),
+                    ),
           ),
           Expanded(
             child: Text(

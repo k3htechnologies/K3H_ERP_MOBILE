@@ -18,6 +18,11 @@ class TenantCubit extends Cubit<TenantState> {
   TenantCubit() : super(TenantState.initial());
   // TENANT REPOSITORY
   final TenantRepository _tenantRepository = serviceLocator<TenantRepository>();
+
+  void resetState() {
+    emit(TenantState.initial());
+  }
+
   // ON TAB CHANGED
   void onTabChanged(
     int index,
@@ -34,7 +39,6 @@ class TenantCubit extends Cubit<TenantState> {
       ),
     );
     if (index == 1) {
-      // Document tab
       getTenantDocumentList(
         context: context,
         projectId: projectId,
@@ -49,7 +53,7 @@ class TenantCubit extends Cubit<TenantState> {
     String value,
     BuildContext context,
     int projectId,
-    int buildingId,
+    int? buildingId,
   ) {
     emit(
       state.copyWith(
@@ -59,6 +63,7 @@ class TenantCubit extends Cubit<TenantState> {
         currentPage: 1,
       ),
     );
+    if (buildingId == null) return;
     getTenantList(
       context: context,
       projectId: projectId,
@@ -130,7 +135,7 @@ class TenantCubit extends Cubit<TenantState> {
       "Wing": state.filterByWing,
       "Flat": state.filterByFlat,
       "ParkingNumber": state.filterByParkingNumber,
-      "IsCheckPermission": false,
+      "IsCheckPermission": true,
       "SystemGeneratedCode": state.filterByTenantCode,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
@@ -247,7 +252,6 @@ class TenantCubit extends Cubit<TenantState> {
     required List<TenantApplicantData> addUpdateTenantApplicant,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-    // Build request
     Map<String, String> requestBody = {
       "TenantId": "0",
       "ProjectId": projectId.toString(),
@@ -298,7 +302,6 @@ class TenantCubit extends Cubit<TenantState> {
             e.applicantMobileNumber,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantEmailId":
             e.applicantEmailId,
-        // Keep original URLs, send deleted files separately
         "AddUpdateTenantApplicants[$applicantIndex].PhotoURL": e.photoURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePhotoURL":
             e.profilePhotoImage.deletedFileList,
@@ -336,7 +339,6 @@ class TenantCubit extends Cubit<TenantState> {
             e.gstNumberURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveGSTNumberURL":
             e.gstImage.deletedFileList,
-        // Bank details
         "AddUpdateTenantApplicants[$applicantIndex].BankListMasterId":
             e.bankListMasterId.toString(),
         "AddUpdateTenantApplicants[$applicantIndex].AccountNumber":
@@ -503,7 +505,6 @@ class TenantCubit extends Cubit<TenantState> {
             e.applicantMobileNumber,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantEmailId":
             e.applicantEmailId,
-        // Keep original URLs, send deleted files separately
         "AddUpdateTenantApplicants[$applicantIndex].PhotoURL": e.photoURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemovePhotoURL":
             e.profilePhotoImage.deletedFileList,
@@ -541,7 +542,6 @@ class TenantCubit extends Cubit<TenantState> {
             e.gstNumberURL,
         "AddUpdateTenantApplicants[$applicantIndex].RemoveGSTNumberURL":
             e.gstImage.deletedFileList,
-        // Bank details
         "AddUpdateTenantApplicants[$applicantIndex].BankListMasterId":
             e.bankListMasterId.toString(),
         "AddUpdateTenantApplicants[$applicantIndex].AccountNumber":
@@ -637,7 +637,6 @@ class TenantCubit extends Cubit<TenantState> {
   }) async {
     for (int i = 0; i < fileModel.fileNameList.length; i++) {
       final fileName = fileModel.fileNameList[i];
-      // skip already uploaded files
       if (fileName.contains("http")) continue;
       if (i >= fileModel.fileBytesList.length) continue;
       final bytes = fileModel.fileBytesList[i];
@@ -880,7 +879,7 @@ class TenantCubit extends Cubit<TenantState> {
 
   int updateFilterCount(TenantState state) {
     final hasSort =
-        state.currentSortColumn == "Applicant Name" &&
+        state.currentSortColumn == "Unit / Annx / Svy No." &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
     return getActiveFilterCount([

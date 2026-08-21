@@ -8,8 +8,6 @@ import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_li
 import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
-import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
-import 'package:k3h_erp_app/features/business_development/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/temporary_accomodation_alternative_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/repository/proposed_offer.repository.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/data/model/payment_ledger.model.dart';
@@ -25,9 +23,6 @@ class TemporaryAlternateAccommodationCubit
     extends Cubit<TemporaryAlternateAccommodationState> {
   TemporaryAlternateAccommodationCubit()
     : super(TemporaryAlternateAccommodationState.initial());
-  // BUILDING REPOSITORY
-  final BuildingRepository _buildingRepository =
-      serviceLocator<BuildingRepository>();
   // PROPOSED OFFER REPOSITORY
   final ProposedOfferRepository _proposedOfferRepository =
       serviceLocator<ProposedOfferRepository>();
@@ -41,73 +36,19 @@ class TemporaryAlternateAccommodationCubit
   _temporaryAlternateAccommodationRepository =
       serviceLocator<TemporaryAlternateAccommodationRepository>();
 
-  // GET BUILDING LIST
-  Future getBuildingList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-    int projectId,
-  ) async {
-    emit(state.copyWith(isLoading: true));
-    if (projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-      });
-      emit(state.copyWith(isLoading: false));
-      return;
-    }
-    var result = await _buildingRepository.pullBuilding(
-      pageNumber: pageNumber,
-      pageSize: pageSize,
-      projectId: projectId,
-    );
-    result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error", failure.message);
-      },
-      (response) {
-        final newData = List<BusinessDevelopmentBuildingModel>.from(
-          response['data'],
-        );
-        List<BusinessDevelopmentBuildingModel> updatedList;
-        if (pageNumber == 1) {
-          updatedList =
-              state.buildingList
-                  .where((b) => b.projectId != projectId)
-                  .toList();
-        } else {
-          updatedList = List.from(state.buildingList);
-        }
-        final Map<int, BusinessDevelopmentBuildingModel> uniqueMap = {
-          for (var b in updatedList) b.buildingId: b,
-        };
-        for (final b in newData) {
-          if (b.projectId == projectId) {
-            uniqueMap[b.buildingId] = b;
-          }
-        }
-        updatedList = uniqueMap.values.toList();
-        final totalCount = response['totalNumberOfRecord'] ?? 0;
-        emit(
-          state.copyWith(
-            isLoading: false,
-            buildingList: updatedList,
-            buildingTotalCount: totalCount,
-          ),
-        );
-      },
-    );
+  void resetState() {
+    emit(TemporaryAlternateAccommodationState.initial());
   }
 
   void search({
     required String value,
     required BuildContext context,
     required int projectId,
-    required int buildingId,
+    required int? buildingId,
   }) {
     emit(state.copyWith(searchText: value));
-    pullChargesDetails(
+    if (buildingId == null) return;
+    getChargesDetails(
       context: context,
       pageNumber: 1,
       projectId: projectId,
@@ -115,7 +56,95 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  // GET BANK LIST
+  void onTabChanged(
+    BuildContext context, {
+    required int projectId,
+    required int? buildingId,
+    required String? tenure,
+    required String tabName,
+  }) async {
+    emit(
+      state.copyWith(
+        rentList: [],
+        selectedTenure: "",
+        selectedTenureIndex: -1,
+        currentPage: 1,
+        chargeType: tabName,
+        isLoading: true,
+      ),
+    );
+    if (buildingId == null) {
+      emit(state.copyWith(isLoading: false));
+      return;
+    }
+    if (tabName == 'TAA' || tabName == 'Brokerage') {
+      await getTemporaryAccommodationAlternativeDetails(
+        context: context,
+        projectId: projectId,
+        buildingId: buildingId,
+      );
+    } else {
+      emit(state.copyWith(tenureList: []));
+    }
+    if (context.mounted) {
+      getChargesDetails(
+        context: context,
+        pageNumber: 1,
+        projectId: projectId,
+        buildingId: buildingId,
+      );
+    }
+  }
+
+  Future getChargesDetails({
+    required BuildContext context,
+    required int pageNumber,
+    required int projectId,
+    required int buildingId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {
+      "ChargeType": state.chargeType,
+      "Tenure": state.selectedTenure,
+      "FlatNumber": state.searchText,
+      "ApplicantName": state.filterByApplicantName,
+      "ApplicantType": state.filterByApplicantType,
+      "FlatType": state.filterByExistingUnitType,
+    };
+    final result = await _temporaryAlternateAccommodationRepository
+        .pullTenantApplicantCharges(
+          pageNumber: pageNumber,
+          pageSize: 10,
+          projectId: projectId,
+          buildingId: buildingId,
+          queryParams: queryParams,
+        );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final List<TemporaryAlternativeAccommodationModel> newData =
+            List<TemporaryAlternativeAccommodationModel>.from(
+              response['data'] ?? [],
+            );
+
+        final List<TemporaryAlternativeAccommodationModel> updatedList =
+            pageNumber == 1 ? newData : [...state.rentList, ...newData];
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            rentList: updatedList,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+            currentPage: pageNumber,
+          ),
+        );
+      },
+    );
+  }
+
   Future<Map<String, dynamic>> getBankList(
     int pageNumber, {
     String? value,
@@ -179,7 +208,6 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  // GET PROJECT WITH BANK DETAILS
   Future<Map<String, dynamic>> getProjectWithBankDropdown(
     int pageNumber, {
     String? value,
@@ -217,7 +245,7 @@ class TemporaryAlternateAccommodationCubit
   }
 
   // PULL RENT DETAILS (For Tenure List)
-  Future pullTemporaryAccommodationAlternativeDetails({
+  Future getTemporaryAccommodationAlternativeDetails({
     required BuildContext context,
     required int projectId,
     required int buildingId,
@@ -262,128 +290,6 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  // PULL CHARGES DETAILS
-  Future pullChargesDetails({
-    required BuildContext context,
-    required int pageNumber,
-    required int projectId,
-    required int buildingId,
-  }) async {
-    emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "ChargeType": state.currentTabName,
-      "Tenure": state.selectedTenure,
-      "FlatNumber": state.searchText,
-      "ApplicantName": state.filterByApplicantName,
-      "ApplicantType": state.filterByApplicantType,
-      "FlatType": state.filterByExistingUnitType,
-    };
-    final result = await _temporaryAlternateAccommodationRepository
-        .pullTenantApplicantCharges(
-          pageNumber: pageNumber,
-          pageSize: 10,
-          projectId: projectId,
-          buildingId: buildingId,
-          queryParams: queryParams,
-        );
-    return result.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, "Error", failure.message);
-      },
-      (response) {
-        final List<TemporaryAlternativeAccommodationModel> rawData =
-            List<TemporaryAlternativeAccommodationModel>.from(
-              response['data'] ?? [],
-            );
-        final int totalRecords = response['totalNumberOfRecord'] ?? 0;
-        final Map<String, TemporaryAlternativeAccommodationModel>
-        uniqueItemsMap = {};
-        for (var item in rawData) {
-          final String uniqueKey =
-              "${item.tenantApplicantChargesId}_${item.tenantId}_${item.tenantApplicantId}_${item.buildingId}_${item.stage}_${item.date.toIso8601String()}_${item.amount}";
-          if (!uniqueItemsMap.containsKey(uniqueKey)) {
-            uniqueItemsMap[uniqueKey] = item;
-          }
-        }
-        final List<TemporaryAlternativeAccommodationModel> newData =
-            uniqueItemsMap.values.toList();
-        List<TemporaryAlternativeAccommodationModel> updatedList;
-        if (pageNumber == 1) {
-          updatedList = newData;
-        } else {
-          final Map<String, TemporaryAlternativeAccommodationModel>
-          existingItemsMap = {};
-          for (var item in state.rentList) {
-            final String uniqueKey =
-                "${item.tenantApplicantChargesId}_${item.tenantId}_${item.tenantApplicantId}_${item.buildingId}_${item.stage}_${item.date.toIso8601String()}_${item.amount}";
-            existingItemsMap[uniqueKey] = item;
-          }
-          final List<TemporaryAlternativeAccommodationModel> uniqueNewData = [];
-          for (var item in newData) {
-            final String uniqueKey =
-                "${item.tenantApplicantChargesId}_${item.tenantId}_${item.tenantApplicantId}_${item.buildingId}_${item.stage}_${item.date.toIso8601String()}_${item.amount}";
-            if (!existingItemsMap.containsKey(uniqueKey)) {
-              uniqueNewData.add(item);
-            }
-          }
-          updatedList = [...state.rentList, ...uniqueNewData];
-        }
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            rentList: updatedList,
-            totalNumberOfRecord: totalRecords,
-            currentPage: pageNumber,
-          ),
-        );
-      },
-    );
-  }
-
-  // HELPER ON TAB CHANGED
-  void onTabChanged(
-    BuildContext context, {
-    required int projectId,
-    required int? buildingId,
-    required String? tenure,
-    required String tabName,
-  }) async {
-    emit(
-      state.copyWith(
-        rentList: [],
-        selectedTenure: "",
-        selectedTenureIndex: -1,
-        currentPage: 1,
-        currentTabName: tabName,
-        isLoading: true,
-      ),
-    );
-    if (buildingId == null) {
-      emit(state.copyWith(isLoading: false));
-      return;
-    }
-    if (tabName == 'TAA' || tabName == 'Brokerage') {
-      await pullTemporaryAccommodationAlternativeDetails(
-        context: context,
-        projectId: projectId,
-        buildingId: buildingId,
-      );
-    } else {
-      emit(state.copyWith(tenureList: []));
-    }
-    if (context.mounted) {
-      pullChargesDetails(
-        context: context,
-        pageNumber: 1,
-        projectId: projectId,
-        buildingId: buildingId,
-      );
-    }
-  }
-
-  // HELPER ON TENURE CHANGED
   void onTenureChanged(
     BuildContext context, {
     required int projectId,
@@ -400,7 +306,7 @@ class TemporaryAlternateAccommodationCubit
         currentPage: 1,
       ),
     );
-    pullChargesDetails(
+    getChargesDetails(
       context: context,
       pageNumber: 1,
       projectId: projectId,
@@ -440,7 +346,7 @@ class TemporaryAlternateAccommodationCubit
         ),
       );
     }
-    pullChargesDetails(
+    getChargesDetails(
       context: context,
       pageNumber: 1,
       projectId: projectId,
@@ -448,8 +354,7 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  // ADD PAYMENT TRACKING RENT
-  Future addPayTrackRent({
+  Future addPayTrackRentLedger({
     required BuildContext context,
     required int payTrackRentId,
     required int tenantId,
@@ -489,7 +394,7 @@ class TemporaryAlternateAccommodationCubit
       "TransactionChequeDemandDraftDate":
           transactionChequeDemandDraftDate.apiDate.toString(),
       "Tenure": state.selectedTenure,
-      "ChargeType": state.currentTabName,
+      "ChargeType": state.chargeType,
     };
     List<Map<String, dynamic>> fileList = [];
     for (
@@ -528,7 +433,7 @@ class TemporaryAlternateAccommodationCubit
         showSuccessMessage(context, subTitle: response['message']);
 
         if (makeChargeTypeApiPull) {
-          pullChargesDetails(
+          getChargesDetails(
             context: context,
             pageNumber: 1,
             projectId: projectId,
@@ -547,8 +452,7 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  // UPDATE PAYMENT TRACKING RENT (reference: employee updateEmployeeMaster)
-  Future updatePayTrackRent({
+  Future updatePayTrackRentLedger({
     required BuildContext context,
     required int payTrackRentId,
     required String uniqueKey,
@@ -591,7 +495,7 @@ class TemporaryAlternateAccommodationCubit
       "TransactionChequeDemandDraftDate":
           transactionChequeDemandDraftDate.toIso8601String(),
       "Tenure": state.selectedTenure,
-      "ChargeType": state.currentTabName,
+      "ChargeType": state.chargeType,
       "RemovePaymentReceiptURL": paymentReceiptURL.deletedFileList,
       "RemoveTransactionChequeDemandDraftURL":
           transactionChequeDemandDraftURL.deletedFileList,
@@ -680,7 +584,6 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  // GET PAY TRACK RENT LIST
   Future getPayTrackRentLedgerList(
     BuildContext context,
     int tenantId,
@@ -690,7 +593,7 @@ class TemporaryAlternateAccommodationCubit
   ) async {
     emit(state.copyWith(isLoading: true));
     var result = await _temporaryAlternateAccommodationRepository
-        .getPayTrackRentLedgerList(
+        .pullPayTrackRentLedgerList(
           pageNumber: 1,
           pageSize: 100,
           tenantId: tenantId,
@@ -698,7 +601,7 @@ class TemporaryAlternateAccommodationCubit
           buildingId: buildingId,
           projectId: projectId,
           queryParams: {
-            'ChargeType': state.currentTabName,
+            'ChargeType': state.chargeType,
             'AccountHolderName': state.paymentLedgerSearchText,
           },
         );
@@ -716,8 +619,7 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  // DELETE PAY TRACK RENT
-  Future deletePayTrackRent({
+  Future deletePayTrackRentLedger({
     required BuildContext context,
     required int payTrackRentId,
     required String uniqueKey,
@@ -756,13 +658,13 @@ class TemporaryAlternateAccommodationCubit
   }
 
   Future<List<TemporaryAlternativeAccommodationModel>>
-  pullChargesDetailsForView({
+  getChargesDetailsForView({
     required BuildContext context,
     required int projectId,
     required int buildingId,
   }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"ChargeType": state.currentTabName};
+    Map<String, dynamic> queryParams = {"ChargeType": state.chargeType};
     if (state.selectedTenure.isNotEmpty) {
       queryParams["Tenure"] = state.selectedTenure;
     }
@@ -781,21 +683,10 @@ class TemporaryAlternateAccommodationCubit
         return [];
       },
       (response) {
-        final List<TemporaryAlternativeAccommodationModel> rawData =
+        final List<TemporaryAlternativeAccommodationModel> newData =
             List<TemporaryAlternativeAccommodationModel>.from(
               response['data'] ?? [],
             );
-        final Map<String, TemporaryAlternativeAccommodationModel>
-        uniqueItemsMap = {};
-        for (var item in rawData) {
-          final String uniqueKey =
-              "${item.tenantApplicantChargesId}_${item.tenantId}_${item.tenantApplicantId}_${item.buildingId}_${item.stage}_${item.date.toIso8601String()}_${item.amount}";
-          if (!uniqueItemsMap.containsKey(uniqueKey)) {
-            uniqueItemsMap[uniqueKey] = item;
-          }
-        }
-        final List<TemporaryAlternativeAccommodationModel> newData =
-            uniqueItemsMap.values.toList();
         emit(state.copyWith(isLoading: false));
         return newData;
       },
@@ -815,7 +706,7 @@ class TemporaryAlternateAccommodationCubit
           pageSize: state.totalNumberOfRecord,
           queryParams: {
             "ExportType": exportType,
-            "ChargeType": state.currentTabName,
+            "ChargeType": state.chargeType,
             "Tenure": state.selectedTenure,
           },
           projectId: projectId,
@@ -834,8 +725,8 @@ class TemporaryAlternateAccommodationCubit
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "${state.currentTabName} ${DateTime.now()}.pdf"
-              : "${state.currentTabName} ${DateTime.now()}.xlsx",
+              ? "${state.chargeType} ${DateTime.now()}.pdf"
+              : "${state.chargeType} ${DateTime.now()}.xlsx",
         );
       },
     );
@@ -856,7 +747,7 @@ class TemporaryAlternateAccommodationCubit
           pageSize: 10000,
           queryParams: {
             "ExportType": exportType,
-            "ChargeType": state.currentTabName,
+            "ChargeType": state.chargeType,
             "Tenure": state.selectedTenure,
           },
           projectId: projectId,
