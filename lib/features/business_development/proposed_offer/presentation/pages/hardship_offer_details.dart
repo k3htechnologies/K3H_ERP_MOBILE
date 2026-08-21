@@ -109,6 +109,28 @@ class _HardshipDetailsState extends State<HardshipDetails> {
         showErrorMessage(context, 'Error', 'Please add at least one hardship.');
         return;
       }
+      final residentialTotal = _corpusList
+          .where((h) => h.type == 'Residential')
+          .fold(0.0, (sum, i) => sum + i.amount);
+      if (double.parse(_residentialAmountC.text) < residentialTotal) {
+        showErrorMessage(
+          context,
+          "Error",
+          "Residential total (${residentialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_residentialAmountC.text).toIndianCurrency()}).",
+        );
+        return;
+      }
+      final commercialTotal = _corpusList
+          .where((h) => h.type == 'Commercial')
+          .fold(0.0, (sum, i) => sum + i.amount);
+      if (double.parse(_commercialAmountC.text) < commercialTotal) {
+        showErrorMessage(
+          context,
+          "Error",
+          "Commercial total (${commercialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_commercialAmountC.text).toIndianCurrency()}).",
+        );
+        return;
+      }
       _cubit.addUpdateHardshipDetails(
         context,
         buildingId: widget.buildingId,
@@ -312,57 +334,74 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                             );
                             return Column(
                               children: [
-                                CustomTextField(
-                                  title: "Residential Hardship Amount (₹)",
-                                  isRequired: true,
-                                  hint: "Enter Residential Hardship Amount (₹)",
-                                  textController: _residentialAmountC,
-                                  keyboardType: TextInputType.number,
-                                  readOnly:
-                                      (isResidentialReadOnly || disableAction),
-                                  inputFormatterList:
-                                      inputFormatterListForDecimalValuesFixedToTwo(
-                                        10,
-                                      ),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return "Residential amount is required";
-                                    }
-                                    if (double.parse(value) < 0) {
-                                      return "Amount should be positive";
-                                    }
-                                    return null;
-                                  },
-                                  onChangeFunction: (value) {
-                                    _handleResidentialAmountChange(
-                                      double.tryParse(value) ?? 0,
-                                    );
-                                  },
-                                ),
-                                CustomTextField(
-                                  title: "Commercial Hardship Amount (₹)",
-                                  isRequired: true,
-                                  hint: "Enter Commercial Hardship Amount (₹)",
-                                  textController: _commercialAmountC,
-                                  keyboardType: TextInputType.number,
-                                  readOnly:
-                                      (isCommercialReadOnly || disableAction),
-                                  inputFormatterList:
-                                      inputFormatterListForDecimalValuesFixedToTwo(
-                                        10,
-                                      ),
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return "Commercial amount is required";
-                                    }
-                                    if (double.parse(value) < 0) {
-                                      return "Amount should be positive";
-                                    }
-                                    return null;
-                                  },
-                                  onChangeFunction: (value) {
-                                    _handleCommercialAmountChange(
-                                      double.tryParse(value) ?? 0,
+                                ValueListenableBuilder(
+                                  valueListenable: _hardshipListNotifier,
+                                  builder: (context, value, child) {
+                                    return Column(
+                                      children: [
+                                        CustomTextField(
+                                          title:
+                                              "Residential Hardship Amount (₹)",
+                                          isRequired: true,
+                                          hint:
+                                              "Enter Residential Hardship Amount (₹)",
+                                          textController: _residentialAmountC,
+                                          keyboardType: TextInputType.number,
+                                          readOnly:
+                                              (isResidentialReadOnly ||
+                                                  disableAction),
+                                          inputFormatterList:
+                                              inputFormatterListForDecimalValuesFixedToTwo(
+                                                10,
+                                              ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.trim().isEmpty) {
+                                              return "Residential amount is required";
+                                            }
+                                            if (double.parse(value) < 0) {
+                                              return "Amount should be positive";
+                                            }
+                                            return null;
+                                          },
+                                          onChangeFunction: (value) {
+                                            _handleResidentialAmountChange(
+                                              double.tryParse(value) ?? 0,
+                                            );
+                                          },
+                                        ),
+                                        CustomTextField(
+                                          title:
+                                              "Commercial Hardship Amount (₹)",
+                                          isRequired: true,
+                                          hint:
+                                              "Enter Commercial Hardship Amount (₹)",
+                                          textController: _commercialAmountC,
+                                          keyboardType: TextInputType.number,
+                                          readOnly:
+                                              (isCommercialReadOnly ||
+                                                  disableAction),
+                                          inputFormatterList:
+                                              inputFormatterListForDecimalValuesFixedToTwo(
+                                                10,
+                                              ),
+                                          validator: (value) {
+                                            if (value == null ||
+                                                value.trim().isEmpty) {
+                                              return "Commercial amount is required";
+                                            }
+                                            if (double.parse(value) < 0) {
+                                              return "Amount should be positive";
+                                            }
+                                            return null;
+                                          },
+                                          onChangeFunction: (value) {
+                                            _handleCommercialAmountChange(
+                                              double.tryParse(value) ?? 0,
+                                            );
+                                          },
+                                        ),
+                                      ],
                                     );
                                   },
                                 ),

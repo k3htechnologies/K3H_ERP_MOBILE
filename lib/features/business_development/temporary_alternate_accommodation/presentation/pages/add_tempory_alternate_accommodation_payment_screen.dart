@@ -87,11 +87,11 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
         context.read<TemporaryAlternateAccommodationCubit>();
     _initializeTextControllers();
     if (_isEditMode) {
-      _prefillFromPaymentLedger(widget.paymentLedger!);
+      _populateFormFields(widget.paymentLedger!);
     }
   }
 
-  void _prefillFromPaymentLedger(PaymentLedgerModel p) async {
+  void _populateFormFields(PaymentLedgerModel p) async {
     selectedDate = p.transactionChequeDemandDraftDate;
     _payAmountC.text = p.payAmount.toStringAsFixed(2);
     _transactionNumC.text = p.transactionChequeDemandDraftNumber;
@@ -175,6 +175,65 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
     _projectAccountNumberC = TextEditingController();
     _projectIfscCodeC = TextEditingController();
     _projectNatureOfAccountC = TextEditingController();
+  }
+
+  void _submitForm() {
+    if (!_formLedger.currentState!.validate()) return;
+    final rentModel = widget.rentModel;
+
+    if (_isEditMode && widget.paymentLedger != null) {
+      _temporaryAlternateAccommodationCubit.updatePayTrackRentLedger(
+        context: context,
+        payTrackRentId: widget.paymentLedger!.payTrackRentId,
+        uniqueKey: widget.paymentLedger!.uniquekey,
+        tenantId: rentModel.tenantId,
+        tenantApplicantId: rentModel.tenantApplicantId,
+        buildingId: rentModel.buildingId,
+        projectId: rentModel.projectId,
+        projectBankListMasterId:
+            _selectedProjectWiseBankNotifier.value.first["zAttributesId"]
+                as int,
+        accountHolderName: _accountHolderNameC.text,
+        bankListMasterId:
+            _selectedBankNotifier.value.first["zAttributesId"] as int,
+        accountNumber: _accountNumberC.text,
+        ifscCode: _ifscCodeC.text,
+        paymentMode: _selectedPaymentMode.value?["DisplayName"] as String,
+        amountType: _selectedAmountType.value?["DisplayName"] as String,
+        payAmount: _payAmountC.text,
+        transactionChequeDemandDraftNumber: _transactionNumC.text,
+        transactionChequeDemandDraftDate: selectedDate!,
+        transactionChequeDemandDraftURL: transactionChequeDemandDraftUrl,
+        paymentReceiptURL: paymentReceiptUrl,
+        index: widget.paymentLedgerIndex ?? 0,
+      );
+    } else {
+      _temporaryAlternateAccommodationCubit.addPayTrackRentLedger(
+        context: context,
+        payTrackRentId: 0,
+        tenantId: rentModel.tenantId,
+        tenantApplicantId: rentModel.tenantApplicantId,
+        buildingId: rentModel.buildingId,
+        projectId: rentModel.projectId,
+        projectBankListMasterId:
+            _selectedProjectWiseBankNotifier.value.first["zAttributesId"]
+                as int,
+        accountHolderName: _accountHolderNameC.text,
+        bankListMasterId:
+            _selectedBankNotifier.value.first["zAttributesId"] as int,
+        accountNumber: _accountNumberC.text,
+        ifscCode: _ifscCodeC.text,
+        paymentMode: _selectedPaymentMode.value?["DisplayName"] as String,
+        amountType: _selectedAmountType.value?["DisplayName"] as String,
+        payAmount: _payAmountC.text,
+        transactionChequeDemandDraftNumber: _transactionNumC.text,
+        transactionChequeDemandDraftDate: selectedDate!,
+        transactionChequeDemandDraftURL: transactionChequeDemandDraftUrl,
+        paymentReceiptURL: paymentReceiptUrl,
+        makeChargeTypeApiPull:
+            widget.previousRoute == AppRoutes.rent ? true : false,
+      );
+    }
   }
 
   @override
@@ -539,74 +598,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
               color: AppColor.white,
               size: 18,
             ),
-            onPressed: () {
-              if (!_formLedger.currentState!.validate()) return;
-              final rentModel = widget.rentModel;
-
-              if (_isEditMode && widget.paymentLedger != null) {
-                _temporaryAlternateAccommodationCubit.updatePayTrackRentLedger(
-                  context: context,
-                  payTrackRentId: widget.paymentLedger!.payTrackRentId,
-                  uniqueKey: widget.paymentLedger!.uniquekey,
-                  tenantId: rentModel.tenantId,
-                  tenantApplicantId: rentModel.tenantApplicantId,
-                  buildingId: rentModel.buildingId,
-                  projectId: rentModel.projectId,
-                  projectBankListMasterId:
-                      _selectedProjectWiseBankNotifier
-                              .value
-                              .first["zAttributesId"]
-                          as int,
-                  accountHolderName: _accountHolderNameC.text,
-                  bankListMasterId:
-                      _selectedBankNotifier.value.first["zAttributesId"] as int,
-                  accountNumber: _accountNumberC.text,
-                  ifscCode: _ifscCodeC.text,
-                  paymentMode:
-                      _selectedPaymentMode.value?["DisplayName"] as String,
-                  amountType:
-                      _selectedAmountType.value?["DisplayName"] as String,
-                  payAmount: _payAmountC.text,
-                  transactionChequeDemandDraftNumber: _transactionNumC.text,
-                  transactionChequeDemandDraftDate: selectedDate!,
-                  transactionChequeDemandDraftURL:
-                      transactionChequeDemandDraftUrl,
-                  paymentReceiptURL: paymentReceiptUrl,
-                  index: widget.paymentLedgerIndex ?? 0,
-                );
-              } else {
-                _temporaryAlternateAccommodationCubit.addPayTrackRentLedger(
-                  context: context,
-                  payTrackRentId: 0,
-                  tenantId: rentModel.tenantId,
-                  tenantApplicantId: rentModel.tenantApplicantId,
-                  buildingId: rentModel.buildingId,
-                  projectId: rentModel.projectId,
-                  projectBankListMasterId:
-                      _selectedProjectWiseBankNotifier
-                              .value
-                              .first["zAttributesId"]
-                          as int,
-                  accountHolderName: _accountHolderNameC.text,
-                  bankListMasterId:
-                      _selectedBankNotifier.value.first["zAttributesId"] as int,
-                  accountNumber: _accountNumberC.text,
-                  ifscCode: _ifscCodeC.text,
-                  paymentMode:
-                      _selectedPaymentMode.value?["DisplayName"] as String,
-                  amountType:
-                      _selectedAmountType.value?["DisplayName"] as String,
-                  payAmount: _payAmountC.text,
-                  transactionChequeDemandDraftNumber: _transactionNumC.text,
-                  transactionChequeDemandDraftDate: selectedDate!,
-                  transactionChequeDemandDraftURL:
-                      transactionChequeDemandDraftUrl,
-                  paymentReceiptURL: paymentReceiptUrl,
-                  makeChargeTypeApiPull:
-                      widget.previousRoute == AppRoutes.rent ? true : false,
-                );
-              }
-            },
+            onPressed: _submitForm,
           ),
         ),
       ),

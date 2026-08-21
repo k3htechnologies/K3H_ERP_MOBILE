@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
@@ -31,12 +32,6 @@ class ProposedPlansScreen extends StatefulWidget {
 
 class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     with TickerProviderStateMixin {
-  static const _tabTitles = [
-    "Basic Details",
-    "Documents",
-    "Parking Details",
-    "Amenities",
-  ];
   late final ProposedPlansCubit _proposedPlansCubit;
   late final AuthorizationModel _routeAuthorizationModel;
   late TabController _buildingTabController;
@@ -46,6 +41,13 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   final ValueNotifier<bool> _hasSearchResults = ValueNotifier(true);
   final TextEditingController _buildingCountC = TextEditingController();
   final GlobalKey<FormState> _buildingCountFormKey = GlobalKey<FormState>();
+  static const _tabTitles = [
+    "Basic Details",
+    "Documents",
+    "Parking Details",
+    "Amenities",
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -97,7 +99,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     )..addListener(_handleBuildingTabChange);
   }
 
-  void _handleAddOrUpdateProposedPlan(ProposedPlansState state) {
+  void _submitForm(ProposedPlansState state) {
     if (state.proposedPlansList.isEmpty) return;
     final plan = state.proposedPlansList.first;
     final selectedBuilding =
@@ -154,6 +156,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
               hint: "Enter Total Number Of Buildings",
               textController: _buildingCountC,
               keyboardType: TextInputType.number,
+              inputFormatterList: InputValidator.digit(2),
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -201,15 +204,14 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                     plans.isNotEmpty && buildingIndex < plans.length
                         ? plans[buildingIndex].uniquekey
                         : "";
-                _proposedPlansCubit.addUpdateBuildingProposedPlan(
+                _proposedPlansCubit.addUpdateBuilding(
                   context: context,
                   proposedOfferProposedPlanId: proposedOfferProposedPlanId,
                   projectId: _project.projectId,
                   totalNumberOfBuilding: count,
                   uniquekey: uniquekey,
                 );
-                _totalBuildingC.text = count.toString();
-                Navigator.pop(context);
+                goRouter.pop();
               },
             ),
           ),
@@ -299,15 +301,22 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                 child: CustomTextField(
                   textController: _totalBuildingC,
                   title: "Total No. Of Buildings",
-                  hint: "Enter Total No. Of Buildings",
+                  hint: "0",
                   keyboardType: TextInputType.number,
                   readOnly: true,
                 ),
               ),
-              CustomButton(
-                text: _totalBuildingC.text.isEmpty ? 'Add' : 'Update',
-                isDisable: !_routeAuthorizationModel.isAction,
-                onPressed: _showBuildingCountBottomSheet,
+              BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
+                builder: (context, state) {
+                  return CustomButton(
+                    text:
+                        state.proposedPlansList.isEmpty
+                            ? 'Add Building'
+                            : 'Update Building',
+                    isDisable: !_routeAuthorizationModel.isAction,
+                    onPressed: _showBuildingCountBottomSheet,
+                  );
+                },
               ),
             ],
           ),
@@ -428,6 +437,9 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     return AnimatedBuilder(
       animation: Listenable.merge([_hasSearchResults, _totalBuildingC]),
       builder: (context, _) {
+        if (_totalBuildingC.text.isEmpty) {
+          return SizedBox.shrink();
+        }
         return BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
           builder: (context, state) {
             return SafeArea(
@@ -439,11 +451,8 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                       _totalBuildingC.text.trim().isEmpty ||
                       !_hasSearchResults.value ||
                       !_routeAuthorizationModel.isAction,
-                  text:
-                      state.proposedPlansList.isEmpty
-                          ? "Add Proposed Plan"
-                          : "Update Proposed Plan",
-                  onPressed: () => _handleAddOrUpdateProposedPlan(state),
+                  text: "Update Proposed Plan",
+                  onPressed: () => _submitForm(state),
                 ),
               ),
             );

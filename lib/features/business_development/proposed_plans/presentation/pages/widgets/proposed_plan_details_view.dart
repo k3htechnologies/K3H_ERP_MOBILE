@@ -78,17 +78,14 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
     _totalUnitsC = TextEditingController();
   }
 
-  /// Attach listener to every wing
   void _attachWingListeners(WingDetailFormModel wing) {
     wing.totalUnits.addListener(_updateTotalUnits);
   }
 
-  /// Remove listener
   void _detachWingListeners(WingDetailFormModel wing) {
     wing.totalUnits.removeListener(_updateTotalUnits);
   }
 
-  /// Sum all wing total units
   void _updateTotalUnits() {
     int total = 0;
     for (final wing in wingsNotifier.value) {
@@ -102,13 +99,11 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   }
 
   void generateWingControllers(int count) {
-    // Create new wings only if cache doesn't have enough.
     while (_cachedWings.length < count) {
       final wing = WingDetailFormModel(buildingName: widget.buildingName);
       _attachWingListeners(wing);
       _cachedWings.add(wing);
     }
-    // Show only the requested number of wings.
     final visibleWings = _cachedWings.take(count).toList();
     wingsNotifier.value = visibleWings;
     final cubit = context.read<ProposedPlansCubit>();

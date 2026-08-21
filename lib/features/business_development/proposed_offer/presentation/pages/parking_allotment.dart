@@ -45,6 +45,9 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
 
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
 
+  final ValueNotifier<bool> disableNoOfParking = ValueNotifier(false);
+  final ValueNotifier<bool> disableParkingPercentage = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -90,10 +93,10 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
-        numberOfParkingAllottedToMembers: int.parse(_numberOfParkingC.text),
-        totalParkingPercentageAllottedToSociety: double.parse(
-          _totalParkingPercentageC.text,
-        ),
+        numberOfParkingAllottedToMembers:
+            int.tryParse(_numberOfParkingC.text) ?? 0,
+        totalParkingPercentageAllottedToSociety:
+            double.tryParse(_totalParkingPercentageC.text) ?? 0,
         remark: _remarkC.text.trim(),
       );
     }
@@ -134,50 +137,71 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                           title: "Parking Allotment",
                         ),
                         verticalSpacing(height: 15),
-                        CustomTextField(
-                          title: 'Number of Parking Allotted to Members',
-                          hint: 'Enter Number of Parking Allotted to Members',
-                          isRequired: true,
-                          readOnly: disableAction,
-                          textController: _numberOfParkingC,
-                          keyboardType: TextInputType.number,
-                          inputFormatterList: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(4),
-                          ],
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Number of parking is required";
-                            }
-                            if (int.parse(value) < 0) {
-                              return "Number of parking should be greater than or equal to 0";
-                            }
-                            return null;
+                        ValueListenableBuilder(
+                          valueListenable: disableNoOfParking,
+                          builder: (context, disableNoOfParking, child) {
+                            return CustomTextField(
+                              title: 'Number of Parking Allotted to Members',
+                              hint:
+                                  'Enter Number of Parking Allotted to Members',
+                              isRequired: true,
+                              readOnly: disableAction || disableNoOfParking,
+                              textController: _numberOfParkingC,
+                              keyboardType: TextInputType.number,
+                              onChangeFunction: (value) {
+                                if (value.isNotEmpty) {
+                                  disableParkingPercentage.value = true;
+                                } else {
+                                  disableParkingPercentage.value = false;
+                                }
+                              },
+                              inputFormatterList: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(4),
+                              ],
+                              validator: (value) {
+                                if (disableNoOfParking) return null;
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    int.parse(value) < 0) {
+                                  return "Number of parking is required";
+                                }
+                                return null;
+                              },
+                            );
                           },
                         ),
-                        CustomTextField(
-                          title:
-                              "Total Parking Percentage Allotted to Society (%)",
-                          isRequired: true,
-                          readOnly: disableAction,
-                          hint:
-                              "Enter Total Parking Percentage Allotted to Society (%)",
-                          textController: _totalParkingPercentageC,
-                          keyboardType: TextInputType.number,
-                          inputFormatterList:
-                              inputFormatterListForDecimalValuesFixedToTwo(3),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Total parking percentage is required";
-                            }
-                            if (double.parse(value) <= 0) {
-                              return "Please enter valid Percentage";
-                            }
-                            if (double.parse(value) > 100) {
-                              return "Percentage should be less than or equal to 100";
-                            }
+                        ValueListenableBuilder(
+                          valueListenable: disableParkingPercentage,
+                          builder: (context, disableParkingPercentage, child) {
+                            return CustomTextField(
+                              title:
+                                  "Total Parking Percentage Allotted to Society (%)",
+                              isRequired: true,
+                              readOnly:
+                                  disableAction || disableParkingPercentage,
+                              hint: "0",
+                              textController: _totalParkingPercentageC,
+                              keyboardType: TextInputType.number,
+                              inputFormatterList: InputValidator.percentage(),
+                              onChangeFunction: (value) {
+                                if (value.isNotEmpty) {
+                                  disableNoOfParking.value = true;
+                                } else {
+                                  disableNoOfParking.value = false;
+                                }
+                              },
+                              validator: (value) {
+                                if (disableParkingPercentage) return null;
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    double.parse(value) <= 0) {
+                                  return "Total parking percentage is required";
+                                }
 
-                            return null;
+                                return null;
+                              },
+                            );
                           },
                         ),
                         CustomTextField(

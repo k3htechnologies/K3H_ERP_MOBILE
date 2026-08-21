@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
@@ -14,12 +13,18 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class ProposedPlansCubit extends Cubit<ProposedPlansState> {
   ProposedPlansCubit() : super(ProposedPlansState.initial());
-
   // REPOSITORIES
   final ProposedPlansRepository _proposedPlansRepository =
       serviceLocator<ProposedPlansRepository>();
 
-  // GET PROPOSED PLANS LIST
+  void onTabChanged(int index) {
+    emit(state.copyWith(currentBuildingDetailTabIndex: index));
+  }
+
+  void changeBuildingTab(int index) {
+    emit(state.copyWith(currentBuildingIndex: index));
+  }
+
   Future getProposedPlanList(BuildContext context, int projectId) async {
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
@@ -29,11 +34,9 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       emit(state.copyWith(isLoading: false));
       return;
     }
-
     var result = await _proposedPlansRepository.getProposedPlanList(
       projectId: projectId,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -43,7 +46,6 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
         final List<ProposedPlanBuilding> list = List<ProposedPlanBuilding>.from(
           response['data'] ?? [],
         );
-
         emit(
           state.copyWith(
             proposedPlansList: list,
@@ -64,12 +66,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     );
   }
 
-  // ON TAB CHANGE
-  void onTabChanged(int index) {
-    emit(state.copyWith(currentBuildingDetailTabIndex: index));
-  }
-
-  Future<void> addUpdateBuildingProposedPlan({
+  Future<void> addUpdateBuilding({
     required BuildContext context,
     required int projectId,
     required int proposedOfferProposedPlanId,
@@ -77,40 +74,29 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     required String uniquekey,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final body = {
       "ProjectId": projectId,
       "ProposedOfferProposedPlanId": proposedOfferProposedPlanId,
       "TotalNumberOfBuilding": totalNumberOfBuilding,
       if (proposedOfferProposedPlanId != 0) "Uniquekey": uniquekey,
     };
-
     final result = await _proposedPlansRepository.addUpdateProposedPlan(
       body: body,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<ProposedPlanBuilding> list = List<ProposedPlanBuilding>.from(
           response['data'] ?? [],
         );
-
         emit(state.copyWith(isLoading: false, proposedPlansList: list));
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
-  }
-
-  void changeBuildingTab(int index) {
-    emit(state.copyWith(currentBuildingIndex: index));
   }
 
   Future<void> addUpdateProposedPlans({
@@ -137,27 +123,19 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     required int memberVisitorsParking,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final Map<String, String> body = {
       "ProjectId": projectId.toString(),
       "ProposedOfferProposedPlanId": proposedOfferProposedPlanId.toString(),
       "BuildingProposedPlanId": buildingProposedPlanId.toString(),
       "Uniquekey": uniquekey,
-
       "TotalNumberOfWing": totalNumberOfWing.toString(),
-
       "TotalPodium": totalPodium.toString(),
-
       "TotalUnits": totalUnits.toString(),
-
       "TotalParking": totalParking.toString(),
-
       "WingProposedPlanJSON": jsonEncode(
         wingProposedPlanJSON.map((e) => e.toJson()).toList(),
       ),
-
       "Amenities": amenities,
-
       "RemovePlanDocumentURL": planFile.deletedFileList,
       "RemoveThreeDViewURL": threeDViewFile.deletedFileList,
       "RemoveSalesPlanURL": salesPlanFile.deletedFileList,
@@ -169,26 +147,21 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       "MemberCommercialParking": memberCommercialParking.toString(),
       "MemberVisitorsParking": memberVisitorsParking.toString(),
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < planFile.fileNameList.length; i++) {
       if (planFile.fileNameList[i].contains("http")) {
         continue;
       }
-
       fileList.add({
         "key": "PlanDocumentURL",
         "value": planFile.fileBytesList[i],
         "fileName": planFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < threeDViewFile.fileNameList.length; i++) {
       if (threeDViewFile.fileNameList[i].contains("http")) {
         continue;
       }
-
       fileList.add({
         "key": "ThreeDViewURL",
         "value": threeDViewFile.fileBytesList[i],
@@ -199,19 +172,16 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       if (salesPlanFile.fileNameList[i].contains("http")) {
         continue;
       }
-
       fileList.add({
         "key": "SalesPlanURL",
         "value": salesPlanFile.fileBytesList[i],
         "fileName": salesPlanFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < walkthroughViewFile.fileNameList.length; i++) {
       if (walkthroughViewFile.fileNameList[i].contains("http")) {
         continue;
       }
-
       fileList.add({
         "key": "WalkthroughViewURL",
         "value": walkthroughViewFile.fileBytesList[i],
@@ -222,9 +192,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       body: body,
       fileList: fileList,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -234,9 +202,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
         final List<ProposedPlanBuilding> list = List<ProposedPlanBuilding>.from(
           response['data'] ?? [],
         );
-
         emit(state.copyWith(isLoading: false, proposedPlansList: list));
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -246,7 +212,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     emit(state.copyWith(proposedPlanForm: formData));
   }
 
-  Future<void> copyBuildingProposedPlan({
+  Future<void> copyBuildingDetails({
     required BuildContext context,
     required int projectId,
     required int proposedOfferProposedPlanId,
@@ -254,22 +220,17 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
     required String copyBuildingProposedPlanId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final body = {
       "ProjectId": projectId,
       "ProposedOfferProposedPlanId": proposedOfferProposedPlanId,
       "SourceBuildingProposedPlanId": sourceBuildingProposedPlanId,
       "CopyBuildingProposedPlanId": copyBuildingProposedPlanId,
     };
-
     final result = await _proposedPlansRepository.copyProposedPlan(body: body);
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
@@ -277,9 +238,7 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
           response['data'] ?? [],
         );
         goRouter.pop();
-
         emit(state.copyWith(isLoading: false, proposedPlansList: list));
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );

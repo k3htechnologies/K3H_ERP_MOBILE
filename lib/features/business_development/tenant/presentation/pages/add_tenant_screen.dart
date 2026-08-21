@@ -75,7 +75,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _routeAuthorizationModel = AuthorizationModel();
     _initialisedTextController();
     _initApplicants();
-    _prefillTenantDetails(widget.tenant);
+    _populateFormFields(widget.tenant);
     _areaAgainstTerraceC.addListener(_calculateTotalArea);
     _deckAreaC.addListener(_calculateTotalArea);
     _totalNewReraCarpetAreaC.addListener(_calculateTotalArea);
@@ -99,7 +99,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _remarkControllerC = TextEditingController();
   }
 
-  void _prefillTenantDetails(TenantModel? tenant) {
+  void _populateFormFields(TenantModel? tenant) {
     if (tenant == null) return;
     _unitNumberC.text = tenant.unitAnnexureSurveyNumber;
     _flatCarpetAreaC.text = tenant.unitCarpetAreaSqFt.toString();

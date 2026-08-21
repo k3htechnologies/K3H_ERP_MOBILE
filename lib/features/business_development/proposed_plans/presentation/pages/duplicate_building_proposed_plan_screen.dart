@@ -31,11 +31,18 @@ class _DuplicateBuildingProposedPlanScreenState
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBuildings =
       ValueNotifier([]);
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late ProposedPlansCubit _proposedPlansCubit;
+  @override
+  void initState() {
+    _proposedPlansCubit = context.read<ProposedPlansCubit>();
+    super.initState();
+  }
+
   Future<Map<String, dynamic>> _fetchBuildings(
     int pageNumber, {
     String? value,
   }) async {
-    final state = context.read<ProposedPlansCubit>().state;
+    final state = _proposedPlansCubit.state;
     final selectedBuildingId =
         state
             .proposedPlansList
@@ -67,6 +74,23 @@ class _DuplicateBuildingProposedPlanScreenState
       .map((v) => v["zAttributesId"].toString())
       .toSet()
       .join(",");
+
+  void _submitForm() {
+    if (!_formKey.currentState!.validate()) return;
+    final state = _proposedPlansCubit.state;
+    final building =
+        state.proposedPlansList.first.buildingProposedPlanData[widget
+            .selectedBuildingIndex];
+    _proposedPlansCubit.copyBuildingDetails(
+      context: context,
+      projectId: widget.projectId,
+      proposedOfferProposedPlanId:
+          state.proposedPlansList.first.proposedOfferProposedPlanId,
+      sourceBuildingProposedPlanId: building.buildingProposedPlanId,
+      copyBuildingProposedPlanId: selectedBuilding,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -131,24 +155,7 @@ class _DuplicateBuildingProposedPlanScreenState
         child: Container(
           height: 70,
           padding: const EdgeInsets.all(16),
-          child: CustomButton(
-            text: 'Duplicate',
-            onPressed: () {
-              if (!_formKey.currentState!.validate()) return;
-              final state = context.read<ProposedPlansCubit>().state;
-              final building =
-                  state.proposedPlansList.first.buildingProposedPlanData[widget
-                      .selectedBuildingIndex];
-              context.read<ProposedPlansCubit>().copyBuildingProposedPlan(
-                context: context,
-                projectId: widget.projectId,
-                proposedOfferProposedPlanId:
-                    state.proposedPlansList.first.proposedOfferProposedPlanId,
-                sourceBuildingProposedPlanId: building.buildingProposedPlanId,
-                copyBuildingProposedPlanId: selectedBuilding,
-              );
-            },
-          ),
+          child: CustomButton(text: 'Duplicate', onPressed: _submitForm),
         ),
       ),
     );

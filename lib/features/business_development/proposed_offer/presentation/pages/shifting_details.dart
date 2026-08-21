@@ -100,38 +100,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _remarkC = TextEditingController();
   }
 
-  // CHECK IF AMOUNT EXCEEDS ALLOCATED LIMIT
-  bool _isAmountExceedingForSelectedType(int? editIndex) {
-    final selectedType = _selectedShiftingType.value;
-    if (selectedType == null) return false;
-
-    double limit = 0;
-    final typeId = selectedType['zAttributesId'];
-
-    if (typeId == 1) {
-      limit = double.tryParse(_residentialAmountC.text) ?? 0;
-    } else if (typeId == 2) {
-      limit = double.tryParse(_commercialAmountC.text) ?? 0;
-    }
-
-    double currentAmount = double.tryParse(_amountController.text) ?? 0;
-    double sum = currentAmount;
-
-    for (int i = 0; i < _shiftingList.length; i++) {
-      if (editIndex != null && i == editIndex) continue;
-
-      final item = _shiftingList[i];
-
-      if (item.type == selectedType['DisplayName']) {
-        sum += item.amount;
-      }
-    }
-
-    return sum > limit;
-  }
-
-  // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     var shiftingDetailsModel = _cubit.state.shiftingDetails!;
     _residentialAmountC.text =
         shiftingDetailsModel.shiftingOfferedToResidentialAmount.toString();
@@ -144,7 +113,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _remarkC.text = shiftingDetailsModel.remark;
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_shiftingList.isEmpty) {
@@ -155,6 +123,29 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
         );
         return;
       }
+      final residentialTotal = _shiftingList
+          .where((h) => h.type == 'Residential')
+          .fold(0.0, (sum, i) => sum + i.amount);
+      if (double.parse(_residentialAmountC.text) < residentialTotal) {
+        showErrorMessage(
+          context,
+          "Error",
+          "Residential total (${residentialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_residentialAmountC.text).toIndianCurrency()}).",
+        );
+        return;
+      }
+      final commercialTotal = _shiftingList
+          .where((h) => h.type == 'Commercial')
+          .fold(0.0, (sum, i) => sum + i.amount);
+      if (double.parse(_commercialAmountC.text) < commercialTotal) {
+        showErrorMessage(
+          context,
+          "Error",
+          "Commercial total (${commercialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_commercialAmountC.text).toIndianCurrency()}).",
+        );
+        return;
+      }
+
       _cubit.addUpdateShiftingDetails(
         context,
         buildingId: widget.buildingId,
@@ -171,7 +162,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     }
   }
 
-  // PREFILL DIALOG
   void _prefillDialog(
     ProposedOfferShiftingDetailsWithPaymentStageData shifting,
   ) {
@@ -192,7 +182,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _amountController.clear();
   }
 
-  // SHOW SHIFTING BOTTOM SHEET
   Future<void> _showShiftingBottomSheet({
     ProposedOfferShiftingDetailsWithPaymentStageData? shifting,
     int? index,
@@ -216,7 +205,16 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                 return CustomDropDownWidget(
                   isRequired: true,
                   initialValue: _selectedShiftingType.value,
-                  dataList: propertyTypeList,
+                  dataList:
+                      (double.tryParse(_commercialAmountC.text) != 0 &&
+                              double.tryParse(_residentialAmountC.text) != 0)
+                          ? propertyTypeList
+                          : (List<Map<String, dynamic>>.from(propertyTypeList)
+                            ..removeAt(
+                              double.tryParse(_commercialAmountC.text) == 0
+                                  ? 1
+                                  : 0,
+                            )),
                   onSelected: (value) {
                     _selectedShiftingType.value = value;
                     _amountController.text = '0.0';
@@ -257,17 +255,14 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               hint: "Enter Stage Percentage",
               textController: _stagePercentageController,
               keyboardType: TextInputType.number,
-              inputFormatterList: inputFormatterListForDecimalValuesFixedToTwo(
-                3,
-              ),
+              inputFormatterList: InputValidator.percentage(),
               validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Amount is required";
+                if (value == null ||
+                    value.trim().isEmpty ||
+                    double.tryParse(value) == 0) {
+                  return "Stage Percentage is required";
                 }
 
-                if (_isAmountExceedingForSelectedType(index)) {
-                  return "Amount exceeds allocated limit";
-                }
                 return null;
               },
               onChangeFunction: (value) {
@@ -297,39 +292,11 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
             /// AMOUNT
             CustomTextField(
               title: "Amount (₹)",
-              hint: "Enter Amount",
+              hint: "Calculated Amount",
               isRequired: true,
               textController: _amountController,
               keyboardType: TextInputType.number,
               readOnly: true,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return "Amount is required";
-                }
-
-                double amount = double.tryParse(value) ?? 0;
-
-                if (_selectedShiftingType.value == null ||
-                    _selectedShiftingType.value?['zAttributesId'] == -1) {
-                  return "Type must be selected first";
-                }
-
-                if (_selectedShiftingType.value?['zAttributesId'] == 1 &&
-                    (double.tryParse(_residentialAmountC.text) ?? 0) == 0) {
-                  return "Residential amount is required";
-                }
-
-                if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
-                    (double.tryParse(_commercialAmountC.text) ?? 0) == 0) {
-                  return "Commercial amount is required";
-                }
-
-                if (amount == 0) {
-                  return "Amount cannot be zero";
-                }
-
-                return null;
-              },
             ),
 
             verticalSpacing(height: 25),
@@ -536,7 +503,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.shiftingDetails != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _residentialAmountC.clear();
             _commercialAmountC.clear();
@@ -584,62 +551,76 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                         ),
 
                         verticalSpacing(),
-                        CustomTextField(
-                          title: "Residential Shifting Amount (₹)",
-                          hint: "Enter Residential Shifting Amount",
-                          isRequired: true,
-                          textController: _residentialAmountC,
-                          keyboardType: TextInputType.number,
-                          readOnly:
-                              (_shiftingListNotifier.value.any(
-                                    (item) =>
-                                        item.type.toLowerCase() ==
-                                        'residential',
-                                  ) ||
-                                  disableAction),
-                          inputFormatterList:
-                              inputFormatterListForDecimalValuesFixedToTwo(10),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Residential amount is required";
-                            }
-                            if (double.parse(value) < 0) {
-                              return "Amount should be positive";
-                            }
-                            return null;
-                          },
-                          onChangeFunction: (value) {
-                            _handleResidentialAmountChange(
-                              double.tryParse(value) ?? 0,
-                            );
-                          },
-                        ),
-                        CustomTextField(
-                          title: "Commercial Shifting Amount (₹)",
-                          hint: "Enter Commercial Shifting Amount",
-                          isRequired: true,
-                          textController: _commercialAmountC,
-                          keyboardType: TextInputType.number,
-                          readOnly:
-                              (_shiftingListNotifier.value.any(
-                                    (item) =>
-                                        item.type.toLowerCase() == 'commercial',
-                                  ) ||
-                                  disableAction),
-                          inputFormatterList:
-                              inputFormatterListForDecimalValuesFixedToTwo(10),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Commercial amount is required";
-                            }
-                            if (double.parse(value) < 0) {
-                              return "Amount should be positive";
-                            }
-                            return null;
-                          },
-                          onChangeFunction: (value) {
-                            _handleCommercialAmountChange(
-                              double.tryParse(value) ?? 0,
+                        ValueListenableBuilder(
+                          valueListenable: _shiftingListNotifier,
+                          builder: (context, value, child) {
+                            return Column(
+                              children: [
+                                CustomTextField(
+                                  title: "Residential Shifting Amount (₹)",
+                                  hint: "Enter Residential Shifting Amount",
+                                  isRequired: true,
+                                  textController: _residentialAmountC,
+                                  keyboardType: TextInputType.number,
+                                  readOnly:
+                                      (_shiftingList.any(
+                                            (item) =>
+                                                item.type.toLowerCase() ==
+                                                'residential',
+                                          ) ||
+                                          disableAction),
+                                  inputFormatterList:
+                                      inputFormatterListForDecimalValuesFixedToTwo(
+                                        10,
+                                      ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return "Residential amount is required";
+                                    }
+                                    if (double.parse(value) < 0) {
+                                      return "Amount should be positive";
+                                    }
+                                    return null;
+                                  },
+                                  onChangeFunction: (value) {
+                                    _handleResidentialAmountChange(
+                                      double.tryParse(value) ?? 0,
+                                    );
+                                  },
+                                ),
+                                CustomTextField(
+                                  title: "Commercial Shifting Amount (₹)",
+                                  hint: "Enter Commercial Shifting Amount",
+                                  isRequired: true,
+                                  textController: _commercialAmountC,
+                                  keyboardType: TextInputType.number,
+                                  readOnly:
+                                      (_shiftingList.any(
+                                            (item) =>
+                                                item.type.toLowerCase() ==
+                                                'commercial',
+                                          ) ||
+                                          disableAction),
+                                  inputFormatterList:
+                                      inputFormatterListForDecimalValuesFixedToTwo(
+                                        10,
+                                      ),
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return "Commercial amount is required";
+                                    }
+                                    if (double.parse(value) < 0) {
+                                      return "Amount should be positive";
+                                    }
+                                    return null;
+                                  },
+                                  onChangeFunction: (value) {
+                                    _handleCommercialAmountChange(
+                                      double.tryParse(value) ?? 0,
+                                    );
+                                  },
+                                ),
+                              ],
                             );
                           },
                         ),

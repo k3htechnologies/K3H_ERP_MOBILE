@@ -76,23 +76,22 @@ class CustomTextField extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Flexible(
-                    child: Text(
-                      title!,
-                      style: AppTextStyle.ts14R(),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                    ),
-                  ),
-                  if (isRequired == true)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 2),
-                      child: Text(
-                        "*",
-                        style: AppTextStyle.ts14R(color: AppColor.error),
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(text: title!, style: AppTextStyle.ts14R()),
+                          if (isRequired == true)
+                            TextSpan(
+                              text: "*",
+                              style: AppTextStyle.ts14R(color: AppColor.error),
+                            ),
+                        ],
                       ),
                     ),
+                  ),
                 ],
               ),
+            verticalSpacing(height: 2),
             Padding(
               padding: EdgeInsets.only(bottom: 2.0),
               child: TextFormField(

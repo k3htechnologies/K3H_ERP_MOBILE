@@ -125,11 +125,26 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
             readyReckonerDetailsModel.proposedOfferReadyReckonerRateDetailsId,
         uniqueKey: readyReckonerDetailsModel.uniquekey,
         financialYear: _selectedFinancialYear.value!['DisplayName'],
-        residentialRate: _residentialRateController.text.trim(),
-        commercialRate: _commercialRateController.text.trim(),
-        industrialRate: _industrialRateController.text.trim(),
-        shopRate: _shopRateController.text.trim(),
-        landRate: _landRateController.text.trim(),
+        residentialRate:
+            _residentialRateController.text.trim().isEmpty
+                ? "0"
+                : _residentialRateController.text.trim(),
+        commercialRate:
+            _commercialRateController.text.trim().isEmpty
+                ? "0"
+                : _commercialRateController.text.trim(),
+        industrialRate:
+            _industrialRateController.text.trim().isEmpty
+                ? "0"
+                : _industrialRateController.text.trim(),
+        shopRate:
+            _shopRateController.text.trim().isEmpty
+                ? "0"
+                : _shopRateController.text.trim(),
+        landRate:
+            _landRateController.text.trim().isEmpty
+                ? "0"
+                : _landRateController.text.trim(),
         effectiveStartDate: _effectiveStartDate.value!,
         effectiveEndDate: _effectiveEndDate.value!,
         remark: _remarkController.text.trim(),
@@ -143,11 +158,26 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
         buildingId: widget.buildingId,
         projectId: widget.projectId,
         financialYear: _selectedFinancialYear.value!['DisplayName'],
-        residentialRate: _residentialRateController.text.trim(),
-        commercialRate: _commercialRateController.text.trim(),
-        industrialRate: _industrialRateController.text.trim(),
-        shopRate: _shopRateController.text.trim(),
-        landRate: _landRateController.text.trim(),
+        residentialRate:
+            _residentialRateController.text.trim().isEmpty
+                ? "0"
+                : _residentialRateController.text.trim(),
+        commercialRate:
+            _commercialRateController.text.trim().isEmpty
+                ? "0"
+                : _commercialRateController.text.trim(),
+        industrialRate:
+            _industrialRateController.text.trim().isEmpty
+                ? "0"
+                : _industrialRateController.text.trim(),
+        shopRate:
+            _shopRateController.text.trim().isEmpty
+                ? "0"
+                : _shopRateController.text.trim(),
+        landRate:
+            _landRateController.text.trim().isEmpty
+                ? "0"
+                : _landRateController.text.trim(),
         effectiveStartDate: _effectiveStartDate.value!,
         effectiveEndDate: _effectiveEndDate.value!,
         remark: _remarkController.text.trim(),
@@ -157,7 +187,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
     }
   }
 
-  void _onSave({
+  void _submitForm({
     ReadyReckonerRateDetailsModel? readyReckonerDetailsModel,
     int? index,
   }) {
@@ -221,14 +251,24 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                         CustomTextField(
                           title: "Zone",
                           textController: _zoneController,
+                          isRequired: true,
                           hint: "Enter Zone",
-                          maxLines: 4,
+                          validator:
+                              (v) =>
+                                  (v == null || v.isEmpty)
+                                      ? "Zone is required"
+                                      : null,
                         ),
                         CustomTextField(
                           title: "Sub Zone",
                           textController: _subZoneController,
                           hint: "Enter Sub Zone",
-                          maxLines: 4,
+                          isRequired: true,
+                          validator:
+                              (v) =>
+                                  (v == null || v.isEmpty)
+                                      ? "Sub Zone is required"
+                                      : null,
                         ),
                         ValueListenableBuilder(
                           valueListenable: _selectedFinancialYear,
@@ -268,6 +308,18 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                                 _effectiveStartDate.value = from;
                                 _effectiveEndDate.value = to;
                               },
+                              fromDateValidator: (value) {
+                                if (value == null) {
+                                  return 'Effective Start Date is required';
+                                }
+                                return null;
+                              },
+                              toDateValidator: (value) {
+                                if (value == null) {
+                                  return 'Effective End Date is required';
+                                }
+                                return null;
+                              },
                             );
                           },
                         ),
@@ -290,7 +342,8 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                           title: "Remark",
                           textController: _remarkController,
                           hint: "Enter Remark",
-                          maxLines: 4,
+                          minLines: 3,
+                          maxLines: 3,
                         ),
                       ],
                     ),
@@ -308,7 +361,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
           child: CustomButton(
             text: "Save",
             onPressed: () {
-              _onSave(
+              _submitForm(
                 index: widget.index,
                 readyReckonerDetailsModel: widget.readyReckonerRateDetails,
               );
@@ -325,19 +378,17 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
     return CustomTextField(
       title: title,
       textController: controller,
-      isRequired: true,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatterList: InputValidator.digitWithDecimal(
         maxDigitsBeforeDecimal: 16,
       ),
-      bottomMargin: 12,
       hint: "Enter $validationTitle",
-      validator: (v) {
-        if (v == null || v.isEmpty) {
-          return "$validationTitle is required";
-        }
-        return null;
-      },
+      prefixWidget: Container(
+        decoration: BoxDecoration(
+          border: Border(right: BorderSide(color: AppColor.grey, width: .5)),
+        ),
+        child: Icon(Icons.currency_rupee, color: AppColor.grey, size: 18),
+      ),
     );
   }
 }

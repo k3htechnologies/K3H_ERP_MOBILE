@@ -191,6 +191,7 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                             },
                             child: Column(
                               spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Row(
                                   spacing: 10,
@@ -258,19 +259,15 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                                     ),
                                   ],
                                 ),
-                                Row(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    buildColumnTitleValue(
-                                      title: "Land Rate (₹)",
-                                      value: rent.landRate.toIndianCurrency(),
-                                    ),
-                                    buildColumnTitleValue(
-                                      title: "Remark",
-                                      value: rent.remark,
-                                    ),
-                                  ],
+                                buildColumnTitleValue(
+                                  removeExpanded: true,
+                                  title: "Land Rate (₹)",
+                                  value: rent.landRate.toIndianCurrency(),
+                                ),
+                                buildColumnTitleValue(
+                                  removeExpanded: true,
+                                  title: "Remark",
+                                  value: rent.remark,
                                 ),
                                 Row(
                                   spacing: 10,

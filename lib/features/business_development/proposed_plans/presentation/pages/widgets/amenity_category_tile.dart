@@ -32,7 +32,6 @@ class AmenityCategoryTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header - Category Title with Expand/Collapse Icon
           InkWell(
             onTap: () {
               final updatedCategory = AmenityCategory(
@@ -71,7 +70,6 @@ class AmenityCategoryTile extends StatelessWidget {
               ),
             ),
           ),
-          // Subcategories List
           if (category.isExpanded)
             Column(
               children: [

@@ -52,27 +52,19 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
   void _prefillDocuments() {
     final building = widget.building;
     if (building == null) return;
-    // Plan Document
-    if (building.planDocumentURL.toString().isNotEmpty) {
-      planFile.fileNameList = [building.planDocumentURL.toString()];
-      planFile.fileBytesList = [];
-    }
-    // 3D View
-    if (building.threeDViewURL.toString().isNotEmpty) {
-      threeDViewFile.fileNameList = [building.threeDViewURL.toString()];
-      threeDViewFile.fileBytesList = [];
-    }
-    if (building.walkthroughViewURL.toString().isNotEmpty) {
-      walkthroughViewFile.fileNameList = [
-        building.walkthroughViewURL.toString(),
-      ];
-      walkthroughViewFile.fileBytesList = [];
-    }
-    // Sales Planx
-    if (building.salesPlanURL.toString().isNotEmpty) {
-      salesPlanFile.fileNameList = [building.salesPlanURL.toString()];
-      salesPlanFile.fileBytesList = [];
-    }
+    planFile.fileNameList =
+        building.planDocumentURL.isEmpty
+            ? []
+            : building.planDocumentURL.split(',');
+    threeDViewFile.fileNameList =
+        building.threeDViewURL.isEmpty ? [] : building.threeDViewURL.split(',');
+    walkthroughViewFile.fileNameList =
+        building.walkthroughViewURL.isEmpty
+            ? []
+            : building.walkthroughViewURL.split(',');
+
+    salesPlanFile.fileNameList =
+        building.salesPlanURL.isEmpty ? [] : building.salesPlanURL.split(',');
   }
 
   void _updateDocumentsState() {

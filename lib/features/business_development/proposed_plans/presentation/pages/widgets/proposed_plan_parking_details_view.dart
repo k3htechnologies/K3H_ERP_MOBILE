@@ -21,16 +21,17 @@ class ProposedPlanParkingDetailsView extends StatefulWidget {
 
 class _ProposedPlanParkingDetailsViewState
     extends State<ProposedPlanParkingDetailsView> {
-  late TextEditingController _overallParkingC;
-  late TextEditingController _salesResidentialC;
-  late TextEditingController _salesCommercialC;
-  late TextEditingController _salesVisitorC;
-  late TextEditingController _totalSalesParkingC;
-  late TextEditingController _memberResidentialC;
-  late TextEditingController _memberCommercialC;
-  late TextEditingController _memberVisitorC;
-  late TextEditingController _totalMemberParkingC;
   late final AuthorizationModel _routeAuthorizationModel;
+  late TextEditingController _overallParkingC,
+      _salesResidentialC,
+      _salesCommercialC,
+      _salesVisitorC,
+      _totalSalesParkingC,
+      _memberResidentialC,
+      _memberCommercialC,
+      _memberVisitorC,
+      _totalMemberParkingC;
+
   @override
   void initState() {
     super.initState();

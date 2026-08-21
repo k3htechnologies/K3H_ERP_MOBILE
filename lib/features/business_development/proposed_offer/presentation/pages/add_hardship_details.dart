@@ -57,24 +57,23 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
       _amountC,
       _carpetAreaSqFtC;
   final ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>
-  _corpusListNotifier =
+  _hardshipListNotifier =
       ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>([]);
-  List<ProposedOfferHardshipDetailsWithPaymentStageData> get _corpusList =>
-      _corpusListNotifier.value;
+  List<ProposedOfferHardshipDetailsWithPaymentStageData> get _hardshipList =>
+      _hardshipListNotifier.value;
   bool get _isEditMode => widget.hardship != null;
 
   @override
   void initState() {
     super.initState();
     _initializeControllers();
-    _corpusListNotifier
+    _hardshipListNotifier
         .value = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
       widget.hardshipList,
     );
     _prefillData(hardship: widget.hardship);
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAmountC = TextEditingController(
       text: widget.residentialAmount.toString(),
@@ -104,36 +103,6 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
       (e) => e['DisplayName'] == hardship.unitSqFtLumsum,
       orElse: () => unitSqFtLumsumList.first,
     );
-  }
-
-  // CHECK IF AMOUNT EXCEEDS ALLOCATED LIMIT
-  bool _isAmountExceedingForSelectedType(int? editIndex) {
-    final selectedType = _selectedHardshipType.value;
-    if (selectedType == null) return false;
-
-    double limit = 0;
-    final typeId = selectedType['zAttributesId'];
-
-    if (typeId == 1) {
-      limit = double.tryParse(_residentialAmountC.text) ?? 0;
-    } else if (typeId == 2) {
-      limit = double.tryParse(_commercialAmountC.text) ?? 0;
-    }
-
-    double currentAmount = double.tryParse(_amountC.text) ?? 0;
-    double sum = currentAmount;
-
-    for (int i = 0; i < _corpusList.length; i++) {
-      if (editIndex != null && i == editIndex) continue;
-
-      final item = _corpusList[i];
-
-      if (item.type == selectedType['DisplayName']) {
-        sum += item.amount;
-      }
-    }
-
-    return sum > limit;
   }
 
   @override
@@ -179,12 +148,18 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                       : "Add Hardship Payment Stage",
                             ),
                             verticalSpacing(height: 15),
-
-                            /// TYPE
                             CustomDropDownWidget(
                               isRequired: true,
                               initialValue: selectedHardshipType,
-                              dataList: propertyTypeList,
+                              dataList:
+                                  (widget.commercialAmount != 0 &&
+                                          widget.residentialAmount != 0)
+                                      ? propertyTypeList
+                                      : (List<Map<String, dynamic>>.from(
+                                        propertyTypeList,
+                                      )..removeAt(
+                                        widget.commercialAmount == 0 ? 1 : 0,
+                                      )),
                               onSelected: (value) {
                                 _selectedHardshipType.value = value;
                                 _amountC.text = '0.0';
@@ -193,8 +168,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                               title: "Type",
                               hintText: "Select Type",
                               validator: (value) {
-                                if (value == null ||
-                                    value['zAttributesId'] == -1) {
+                                if (value == null) {
                                   return "Type is required";
                                 }
                                 return null;
@@ -203,8 +177,6 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                 _selectedHardshipType.value = null;
                               },
                             ),
-
-                            // STAGE
                             CustomTextField(
                               title: "Stage",
                               isRequired: true,
@@ -217,31 +189,25 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Stage is required";
                                 }
+
                                 return null;
                               },
                             ),
 
-                            // STAGE %
                             CustomTextField(
                               title: "Stage Percentage (%)",
                               isRequired: true,
                               hint: "Enter Stage Percentage",
                               textController: _stagePercentageC,
                               keyboardType: TextInputType.number,
-                              inputFormatterList:
-                                  inputFormatterListForDecimalValuesFixedToTwo(
-                                    3,
-                                  ),
+                              inputFormatterList: InputValidator.percentage(),
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "Amount is required";
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    double.tryParse(value) == 0) {
+                                  return "Stage Percentage is required";
                                 }
 
-                                if (_isAmountExceedingForSelectedType(
-                                  widget.index,
-                                )) {
-                                  return "Amount exceeds allocated limit";
-                                }
                                 return null;
                               },
                               onChangeFunction: (value) {
@@ -274,49 +240,28 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                 }
                               },
                             ),
-
-                            // AMOUNT
                             CustomTextField(
                               title: "Amount (₹)",
                               textController: _amountC,
-                              hint: "Enter Amount",
+                              hint: "Calculated Amount",
                               keyboardType: TextInputType.number,
+                              isRequired: true,
                               readOnly: true,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "Amount is required";
-                                }
-
-                                double amount = double.tryParse(value) ?? 0;
-
-                                if (selectedHardshipType == null) {
-                                  return "Type must be selected first";
-                                }
-
-                                if (selectedHardshipType['zAttributesId'] ==
-                                        1 &&
-                                    (double.tryParse(
-                                              _residentialAmountC.text,
-                                            ) ??
-                                            0) ==
-                                        0) {
-                                  return "Residential amount is required";
-                                }
-
-                                if (selectedHardshipType['zAttributesId'] ==
-                                        2 &&
-                                    (double.tryParse(_commercialAmountC.text) ??
-                                            0) ==
-                                        0) {
-                                  return "Commercial amount is required";
-                                }
-
-                                if (amount == 0) {
-                                  return "Amount cannot be zero";
-                                }
-
-                                return null;
-                              },
+                              prefixWidget: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    right: BorderSide(
+                                      color: AppColor.grey,
+                                      width: .5,
+                                    ),
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.currency_rupee,
+                                  color: AppColor.grey,
+                                  size: 18,
+                                ),
+                              ),
                             ),
                             ValueListenableBuilder(
                               valueListenable: _selectedUnitSqFtLumsum,
@@ -343,16 +288,8 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                             CustomTextField(
                               title: "Carpet Area (SqFt)",
                               textController: _carpetAreaSqFtC,
-                              isRequired: true,
                               hint: "Enter Carpet Area (SqFt)",
                               keyboardType: TextInputType.number,
-                              validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
-                                  return "Carpet Area (SqFt) is required";
-                                }
-
-                                return null;
-                              },
                             ),
                             verticalSpacing(height: 15),
                           ],
@@ -400,7 +337,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
 
                     final newList = List<
                       ProposedOfferHardshipDetailsWithPaymentStageData
-                    >.from(_corpusList);
+                    >.from(_hardshipList);
                     if (!_isEditMode) {
                       newList.add(
                         ProposedOfferHardshipDetailsWithPaymentStageData(
@@ -420,7 +357,8 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                           modifiedDate: null,
                           unitSqFtLumsum:
                               _selectedUnitSqFtLumsum.value!['DisplayName'],
-                          carpetAreaSqFt: double.parse(_carpetAreaSqFtC.text),
+                          carpetAreaSqFt:
+                              double.tryParse(_carpetAreaSqFtC.text) ?? 0,
                         ),
                       );
                     } else {
@@ -447,12 +385,13 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                             modifiedDate: hardship.modifiedDate,
                             unitSqFtLumsum:
                                 _selectedUnitSqFtLumsum.value!['DisplayName'],
-                            carpetAreaSqFt: double.parse(_carpetAreaSqFtC.text),
+                            carpetAreaSqFt:
+                                double.tryParse(_carpetAreaSqFtC.text) ?? 0,
                           );
                     }
 
-                    _corpusListNotifier.value = newList;
-                    goRouter.pop(_corpusListNotifier.value);
+                    _hardshipListNotifier.value = newList;
+                    goRouter.pop(_hardshipListNotifier.value);
                   }
                 },
               );

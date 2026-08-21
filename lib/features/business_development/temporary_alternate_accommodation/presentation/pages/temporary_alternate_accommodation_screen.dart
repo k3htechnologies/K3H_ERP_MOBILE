@@ -463,6 +463,7 @@ class _TemporaryAlternateAccommodationScreenState
                         title: "Building",
                         isRequired: true,
                         isMultiSelect: false,
+                        hintText: "Select Building",
                         initialValue: _selectedBuildingNotifier.value,
                         dataList: const [],
                         onSelected: (value) async {

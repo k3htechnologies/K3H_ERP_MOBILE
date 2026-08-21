@@ -125,7 +125,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   void initState() {
     super.initState();
     _initControllers(widget.applicant);
-    _prefill(widget.applicant);
+    _populateFormFields(widget.applicant);
   }
 
   @override
@@ -160,7 +160,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     _ifscCodeC = TextEditingController(text: applicant?.ifscCode);
   }
 
-  void _prefill(TenantApplicantData? applicant) {
+  void _populateFormFields(TenantApplicantData? applicant) {
     if (applicant == null) return;
     selectedApplicantType.value = applicantTypeList.firstWhere(
       (e) =>
@@ -347,7 +347,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                         onSelected:
                             (value) => selectedApplicantType.value = value,
                         validator: (value) {
-                          if (value == null || value['zAttributesId'] == -1) {
+                          if (value == null) {
                             return "Applicant Type is required";
                           }
                           return null;

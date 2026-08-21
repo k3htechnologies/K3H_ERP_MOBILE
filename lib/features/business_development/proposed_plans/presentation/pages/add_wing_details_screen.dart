@@ -36,12 +36,10 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
         AuthorizationModel();
-    // Listeners for auto calculation
     wing.memberUnits.addListener(_calculateTotalUnits);
     wing.saleUnits.addListener(_calculateTotalUnits);
     wing.memberArea.addListener(_calculateTotalArea);
     wing.saleArea.addListener(_calculateTotalArea);
-    // Initial calculation
     _calculateTotalUnits();
     _calculateTotalArea();
   }

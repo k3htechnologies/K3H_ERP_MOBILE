@@ -61,6 +61,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _searchDocumentNameC.dispose();
     _selectedDocumentName.dispose();
     super.dispose();
   }

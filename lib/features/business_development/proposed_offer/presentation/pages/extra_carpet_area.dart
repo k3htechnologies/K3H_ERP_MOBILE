@@ -49,8 +49,8 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
 
   // DROPDOWN LISTS
   final List<Map<String, dynamic>> _extraCarpetTypeList = [
-    {"zAttributesId": 1, "DisplayName": "RERA"},
-    {"zAttributesId": 2, "DisplayName": "MOFA"},
+    {"zAttributesId": 1, "DisplayName": "MOFA"},
+    {"zAttributesId": 2, "DisplayName": "RERA"},
   ];
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
 

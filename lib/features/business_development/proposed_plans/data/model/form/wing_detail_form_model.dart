@@ -10,11 +10,9 @@ class WingDetailFormModel {
   final TextEditingController wingName = TextEditingController();
   final TextEditingController lobbyArea = TextEditingController();
   final TextEditingController totalLifts = TextEditingController();
-
   final TextEditingController memberUnits = TextEditingController();
   final TextEditingController saleUnits = TextEditingController();
   final TextEditingController totalUnits = TextEditingController();
-
   final TextEditingController memberArea = TextEditingController();
   final TextEditingController saleArea = TextEditingController();
   final TextEditingController totalArea = TextEditingController();
@@ -35,30 +33,19 @@ class WingDetailFormModel {
     );
 
     model.wingName.text = data.wings;
-
     model.lobbyArea.text = data.mainEntranceLobbyAreaSqFt.toString();
-
     model.totalLifts.text = data.totalNumberOfLifts.toString();
-
     model.memberUnits.text = data.totalNumberOfUnitsForMember.toString();
-
     model.saleUnits.text = data.totalNumberOfUnitsForSale.toString();
-
     model.totalUnits.text = data.totalNumberOfUnits.toString();
-
     model.memberArea.text = data.totalNumberOfAreaForMemberSqFt.toString();
-
     model.saleArea.text = data.totalNumberOfAreaForSaleSqFt.toString();
-
     model.totalArea.text =
         (data.totalNumberOfAreaForMemberSqFt +
                 data.totalNumberOfAreaForSaleSqFt)
             .toString();
-
     return model;
   }
-
-  // UI MODEL -> API MODEL
   WingProposedPlanDataModel toApiModel({
     required int proposedOfferProposedPlanId,
     required int buildingProposedPlanId,
@@ -66,48 +53,29 @@ class WingDetailFormModel {
   }) {
     return WingProposedPlanDataModel(
       wingProposedPlanId: wingProposedPlanId,
-
       proposedOfferProposedPlanId: proposedOfferProposedPlanId,
-
       buildingProposedPlanId: buildingProposedPlanId,
-
       buildingName: buildingName,
-
       wings: wingName.text.trim(),
-
       mainEntranceLobbyAreaSqFt: double.tryParse(lobbyArea.text) ?? 0,
-
       totalNumberOfLifts: int.tryParse(totalLifts.text) ?? 0,
-
       totalNumberOfUnitsForMember: int.tryParse(memberUnits.text) ?? 0,
-
       totalNumberOfUnitsForSale: int.tryParse(saleUnits.text) ?? 0,
-
       totalNumberOfUnits: int.tryParse(totalUnits.text) ?? 0,
-
       totalNumberOfAreaForMemberSqFt: double.tryParse(memberArea.text) ?? 0,
-
       totalNumberOfAreaForSaleSqFt: double.tryParse(saleArea.text) ?? 0,
     );
   }
 
   void dispose() {
     wingName.dispose();
-
     lobbyArea.dispose();
-
     totalLifts.dispose();
-
     memberUnits.dispose();
-
     saleUnits.dispose();
-
     totalUnits.dispose();
-
     memberArea.dispose();
-
     saleArea.dispose();
-
     totalArea.dispose();
   }
 }

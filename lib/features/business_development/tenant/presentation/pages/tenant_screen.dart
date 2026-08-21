@@ -50,7 +50,6 @@ class _TenantScreenState extends State<TenantScreen> {
       _filterWingC,
       _filterFlatC,
       _filterParkingNumberC;
-  int? _lastFetchedBuildingId;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
@@ -478,7 +477,6 @@ class _TenantScreenState extends State<TenantScreen> {
           onProjectChangeCallback: (project) {
             _project = project;
             _selectedBuildingNotifier.value = [];
-            _lastFetchedBuildingId = null;
             _tenantCubit.resetState();
           },
           isFilterOn: true,
@@ -505,27 +503,32 @@ class _TenantScreenState extends State<TenantScreen> {
                             title: "Building",
                             isRequired: true,
                             isMultiSelect: false,
+                            hintText: "Select Building",
                             initialValue: selectedBuilding,
                             dataList: const [],
                             onSelected: (value) async {
-                              _selectedBuildingNotifier.value = value;
-                              if (value.isNotEmpty &&
-                                  value.first['zAttributesId'] != null &&
-                                  mounted) {
-                                final newBuildingId =
-                                    value.first['zAttributesId'] as int;
-                                if (_lastFetchedBuildingId != newBuildingId) {
-                                  _lastFetchedBuildingId = newBuildingId;
-                                  await _tenantCubit.getTenantList(
-                                    context: context,
-                                    projectId: _project.projectId,
-                                    buildingId: newBuildingId,
-                                    pageNumber: 1,
-                                  );
-                                }
-                              } else if (mounted) {
-                                _lastFetchedBuildingId = null;
+                              final newBuildingId =
+                                  value.isEmpty
+                                      ? null
+                                      : value.first['zAttributesId'] as int;
+
+                              if (newBuildingId == null ||
+                                  (_selectedBuildingNotifier.value.isNotEmpty &&
+                                      _selectedBuildingNotifier
+                                              .value
+                                              .first['zAttributesId'] ==
+                                          newBuildingId)) {
+                                return;
                               }
+
+                              _selectedBuildingNotifier.value = value;
+
+                              await _tenantCubit.getTenantList(
+                                context: context,
+                                projectId: _project.projectId,
+                                buildingId: newBuildingId,
+                                pageNumber: 1,
+                              );
                             },
                             dataFetchCallBack: _fetchBuildings,
                             validator: (value) {
@@ -533,6 +536,9 @@ class _TenantScreenState extends State<TenantScreen> {
                                 return "Building is required";
                               }
                               return null;
+                            },
+                            onClear: () {
+                              _selectedBuildingNotifier.value = [];
                             },
                           ),
                         ],
