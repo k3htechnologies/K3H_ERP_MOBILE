@@ -603,36 +603,50 @@ class _TemporaryAlternateAccommodationScreenState
         final int currentCount =
             state.rentList.map((e) => e.tenantId).toSet().length;
         final bool hasMoreData = currentCount < state.totalNumberOfRecord;
-        return ListView.builder(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(16),
-          itemCount: groupedByTenant.length + 1,
-          itemBuilder: (context, index) {
-            if (index == groupedByTenant.length) {
-              if ((state.isLoading ?? false) && hasMoreData) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              return const SizedBox.shrink();
-            }
-            final entry = groupedByTenant.entries.elementAt(index);
-            final tenantRecords = entry.value;
-            switch (tabName) {
-              case 'TAA':
-                return _buildTAACard(tenantRecords, state);
-              case 'Hardship':
-                return _buildHardshipCard(tenantRecords);
-              case 'Brokerage':
-                return _buildBrokerageCard(tenantRecords);
-              case 'Shifting':
-                return _buildShiftingCard(tenantRecords);
-              case 'Additional TAA':
-              default:
-                return _buildAdditionalRentCard(tenantRecords);
-            }
+        return RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            _temporaryAlternateAccommodationCubit.search(
+              value: '',
+              context: context,
+              projectId: _project.value.projectId,
+              buildingId:
+                  _selectedBuildingNotifier.value.isNotEmpty
+                      ? _selectedBuildingNotifier.value.first['zAttributesId']
+                      : null,
+            );
           },
+          child: ListView.builder(
+            controller: _scrollController,
+            padding: const EdgeInsets.all(16),
+            itemCount: groupedByTenant.length + 1,
+            itemBuilder: (context, index) {
+              if (index == groupedByTenant.length) {
+                if ((state.isLoading ?? false) && hasMoreData) {
+                  return const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                return const SizedBox.shrink();
+              }
+              final entry = groupedByTenant.entries.elementAt(index);
+              final tenantRecords = entry.value;
+              switch (tabName) {
+                case 'TAA':
+                  return _buildTAACard(tenantRecords, state);
+                case 'Hardship':
+                  return _buildHardshipCard(tenantRecords);
+                case 'Brokerage':
+                  return _buildBrokerageCard(tenantRecords);
+                case 'Shifting':
+                  return _buildShiftingCard(tenantRecords);
+                case 'Additional TAA':
+                default:
+                  return _buildAdditionalRentCard(tenantRecords);
+              }
+            },
+          ),
         );
       },
     );

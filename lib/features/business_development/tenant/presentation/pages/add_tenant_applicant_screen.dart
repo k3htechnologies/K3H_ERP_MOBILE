@@ -43,7 +43,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
   ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
-  // TEXT CONTROLLERS
   late TextEditingController _applicantNameC,
       _mobileC,
       _emailC,
@@ -55,8 +54,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
       _gstC,
       _accountNumberC,
       _ifscCodeC;
-  // SELECTED APPLICANT TYPE
-  // Map<String, dynamic>? selectedApplicantType;
   ValueNotifier<Map<String, dynamic>?> selectedApplicantType = ValueNotifier(
     null,
   );
@@ -147,7 +144,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     super.dispose();
   }
 
-  // INITIALIZE TEXT CONTROLLERS
   void _initControllers(TenantApplicantData? applicant) {
     _applicantNameC = TextEditingController(text: applicant?.applicantName);
     _mobileC = TextEditingController(text: applicant?.applicantMobileNumber);
@@ -164,7 +160,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     _ifscCodeC = TextEditingController(text: applicant?.ifscCode);
   }
 
-  // PREFILL APPLICANT DETAILS
   void _prefill(TenantApplicantData? applicant) {
     if (applicant == null) return;
     selectedApplicantType.value = applicantTypeList.firstWhere(
@@ -200,7 +195,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     }
   }
 
-  // FETCH BANK
   Future<Map<String, dynamic>> _fetchBank(
     int pageNumber, {
     String? value,
@@ -231,7 +225,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     );
   }
 
-  // SAVE
   void _submitForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final selectedType = selectedApplicantType.value!['DisplayName'].toString();
@@ -410,7 +403,6 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                             return "Mobile Number is required";
                           }
                           if (mobile.isNotEmpty) {
-                            // LENGTH AND REGEX VALIDATION
                             if ((mobile.length != country.mobileLength) ||
                                 country.regex != null &&
                                     !country.regex!.hasMatch(mobile)) {

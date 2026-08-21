@@ -636,9 +636,35 @@ class _TenantScreenState extends State<TenantScreen> {
                                                 borderRadius:
                                                     BorderRadius.circular(6),
                                               ),
-                                              child: Text(
-                                                tenant.systemGeneratedCode,
-                                                style: AppTextStyle.ts12M(),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    tenant.systemGeneratedCode,
+                                                    style: AppTextStyle.ts12M(),
+                                                  ),
+                                                  InkWell(
+                                                    onTap: () {
+                                                      copy(
+                                                        context: context,
+                                                        text:
+                                                            tenant
+                                                                .systemGeneratedCode,
+                                                      );
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                            left: 10,
+                                                          ),
+                                                      child: Icon(
+                                                        Icons.copy,
+                                                        size: 16,
+                                                        color: AppColor.primary,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             const SizedBox(height: 8),
