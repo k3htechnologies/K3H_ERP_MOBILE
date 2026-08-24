@@ -42,7 +42,7 @@ class _AdditionalInformationDetailsState
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     _cubit.pullAdditionalInformationDetails(
       context: context,
       projectId: widget.projectId,
@@ -60,7 +60,7 @@ class _AdditionalInformationDetailsState
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _taxDetailsC = TextEditingController();
     _taxRemarkC = TextEditingController();
     _purchaseAdditionalAreaRemarkC = TextEditingController();

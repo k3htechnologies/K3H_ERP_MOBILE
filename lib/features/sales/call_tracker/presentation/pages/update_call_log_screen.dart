@@ -137,7 +137,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
     siteVisitProposedDate = callLog.siteVisitProposedDate;
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (_formKey.currentState!.validate()) {
       _callTrackerCubit.updateCallLog(
         context: context,
@@ -400,7 +400,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
           height: 70,
           color: AppColor.white,
           padding: EdgeInsets.all(16),
-          child: CustomButton(text: "Save", onPressed: _submitForm),
+          child: CustomButton(text: "Save", onPressed: _saveForm),
         ),
       ),
     );

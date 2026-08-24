@@ -75,7 +75,7 @@ class _DuplicateBuildingProposedPlanScreenState
       .toSet()
       .join(",");
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
     final state = _proposedPlansCubit.state;
     final building =
@@ -155,7 +155,7 @@ class _DuplicateBuildingProposedPlanScreenState
         child: Container(
           height: 70,
           padding: const EdgeInsets.all(16),
-          child: CustomButton(text: 'Duplicate', onPressed: _submitForm),
+          child: CustomButton(text: 'Duplicate', onPressed: _saveForm),
         ),
       ),
     );

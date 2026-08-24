@@ -387,7 +387,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
     );
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -1093,7 +1093,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

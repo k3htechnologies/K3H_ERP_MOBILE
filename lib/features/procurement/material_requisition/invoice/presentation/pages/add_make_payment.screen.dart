@@ -159,7 +159,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
     ];
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -471,7 +471,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
               height: 70,
               color: Colors.transparent,
               padding: const EdgeInsets.all(16),
-              child: CustomButton(text: "Save", onPressed: _submitForm),
+              child: CustomButton(text: "Save", onPressed: _saveForm),
             ),
           ],
         ),

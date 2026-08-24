@@ -64,6 +64,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   DateTime? surveyDate;
   DateTime? expectedStartDate;
   DateTime? executionStartDate;
+  final ValueNotifier<DateTime?> purchaseStartDate = ValueNotifier(null);
+  final ValueNotifier<DateTime?> purchaseEndDate = ValueNotifier(null);
+  final ValueNotifier<DateTime?> submissionDate = ValueNotifier(null);
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _projectNameC,
@@ -103,9 +106,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
       _tenderAmountPayOrderRemarkC,
       _federationAmountC;
 
-  final ValueNotifier<DateTime?> purchaseStartDate = ValueNotifier(null);
-  final ValueNotifier<DateTime?> purchaseEndDate = ValueNotifier(null);
-  final ValueNotifier<DateTime?> submissionDate = ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?>
   _selectedTenantAmountPaymentModeNotifier = ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?>
@@ -167,11 +167,6 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     {"zAttributesId": 2, "DisplayName": "33 (11)"},
   ];
 
-  final List<Map<String, dynamic>> categoryList = [
-    {"zAttributesId": 1, "DisplayName": "Direct"},
-    {"zAttributesId": 2, "DisplayName": "Tender"},
-  ];
-
   List<Map<String, dynamic>> get _currentSubSchemeList {
     if (projectSchemeNotifier.value == null) return [{}];
     final id = projectSchemeNotifier.value!["zAttributesId"] as int?;
@@ -198,7 +193,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     selectedCategoryType = ValueNotifier(null);
     _initializeTextEditingController();
     if (_isEditMode) {
-      _prefillDialogueToAddUpdateProjectMaster(widget.project!);
+      _populateFormFields(widget.project!);
     }
   }
 
@@ -291,7 +286,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
   }
 
   // PREFILL DIALOGUE TO ADD/UPDATE PROJECT MASTER
-  void _prefillDialogueToAddUpdateProjectMaster(ProjectModel projectModel) {
+  void _populateFormFields(ProjectModel projectModel) {
     _projectNameC.text = widget.project!.projectName;
     _projectLocationC.text = widget.project!.projectLocation;
     _ctsNumberC.text = widget.project!.ctsNumber;
@@ -305,9 +300,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
     _rccConsultantNameC.text = widget.project!.rccConsultantName;
     _rccConsultantMobileNumberC.text =
         widget.project!.rccConsultantMobileNumber;
-    selectedCategoryType.value = categoryList.firstWhere(
+    selectedCategoryType.value = projectCategoryList.firstWhere(
       (item) => item["DisplayName"] == widget.project!.category,
-      orElse: () => categoryList.first,
+      orElse: () => projectCategoryList.first,
     );
     final isTender = selectedCategoryType.value?["zAttributesId"] == 2;
     if (isTender) {
@@ -836,7 +831,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             hintText: "Select Category",
                             isRequired: true,
                             initialValue: value,
-                            dataList: categoryList,
+                            dataList: projectCategoryList,
                             onSelected: (val) {
                               if (selectedCategoryType
                                       .value?['zAttributesId'] !=

@@ -73,7 +73,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_branchMasterAddUpdateKey.currentState!.validate()) {
       return;
     }
@@ -212,7 +212,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

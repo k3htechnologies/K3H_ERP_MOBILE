@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -23,28 +22,23 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BuildingScreen extends StatefulWidget {
   const BuildingScreen({super.key});
-
   @override
   State<BuildingScreen> createState() => _BuildingScreenState();
 }
 
 class _BuildingScreenState extends State<BuildingScreen> {
   late BuildingCubit _buildingCubit;
-
   late AuthorizationModel _routeAuthorizationModel;
-
   late ProjectModel _project;
-
   final ScrollController scrollController = ScrollController();
-
   late TextEditingController _searchC,
       _filterCTSNumberC,
       _filterRoadWidthC,
       _filterCityC,
       _filterVillageC,
-      _filterWardC;
+      _filterWardC,
+      _filterCategoryC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -55,7 +49,6 @@ class _BuildingScreenState extends State<BuildingScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _buildingCubit.getBuildingList(context, 1, _project.projectId);
@@ -73,6 +66,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _filterCityC.dispose();
     _filterVillageC.dispose();
     _filterWardC.dispose();
+    _filterCategoryC.dispose();
     super.dispose();
   }
 
@@ -83,6 +77,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _filterCityC = TextEditingController();
     _filterVillageC = TextEditingController();
     _filterWardC = TextEditingController();
+    _filterCategoryC = TextEditingController();
   }
 
   void _onScroll() {
@@ -112,7 +107,6 @@ class _BuildingScreenState extends State<BuildingScreen> {
       'You are about to delete a Building?',
       'Deleting this Building will permanently remove its contents.',
     );
-
     if (shouldDelete && context.mounted) {
       _buildingCubit.deleteBuilding(_project.projectId, obj, context, index);
     }
@@ -120,7 +114,6 @@ class _BuildingScreenState extends State<BuildingScreen> {
 
   Future<void> _showBottomSheetToFilterBuilding(BuildContext context) async {
     final state = _buildingCubit.state;
-
     _filterCTSNumberC.text = state.filterCTSNumber;
     _searchC.text = state.searchText;
     _filterCTSNumberC.text = state.filterCTSNumber;
@@ -129,22 +122,22 @@ class _BuildingScreenState extends State<BuildingScreen> {
     _filterVillageC.text = state.filterVillage;
     _searchC.text = state.searchText;
     _filterWardC.text = state.filterWard;
+    _filterCategoryC.text = state.filterCategory;
     String? selectedDirection =
         state.currentSortColumn == "Building Name"
             ? state.currentSortDirection
             : null;
-
     final String initialBuildingName = _searchC.text;
     final String initialCTSNumber = _filterCTSNumberC.text;
     final String initialRoadWidth = _filterRoadWidthC.text;
     final String initialCity = _filterCityC.text;
     final String initialVillage = _filterVillageC.text;
     final String initialWard = _filterWardC.text;
+    final String initialCategory = _filterCategoryC.text;
     final String? initialDirection = selectedDirection;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
@@ -154,8 +147,8 @@ class _BuildingScreenState extends State<BuildingScreen> {
             (_filterCityC.text.trim() != initialCity) ||
             (_filterVillageC.text.trim() != initialVillage) ||
             (_filterWardC.text.trim() != initialWard) ||
+            (_filterCategoryC.text.trim() != initialCategory) ||
             (selectedDirection != initialDirection);
-
         applyEnabled.value = manualClose;
       });
     }
@@ -229,6 +222,12 @@ class _BuildingScreenState extends State<BuildingScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
+                  title: "Category",
+                  hint: "Enter Category",
+                  textController: _filterCategoryC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "CTS Number",
                   hint: "Enter CTS Number",
                   textController: _filterCTSNumberC,
@@ -240,14 +239,12 @@ class _BuildingScreenState extends State<BuildingScreen> {
                   textController: _filterRoadWidthC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "City",
                   hint: "Enter City",
                   textController: _filterCityC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Village",
                   hint: "Enter Village",
@@ -278,6 +275,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
           filterWard: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
+          filterCategory: "",
         );
       },
       onApply: () {
@@ -293,13 +291,12 @@ class _BuildingScreenState extends State<BuildingScreen> {
           sortColumn: selectedDirection != null ? "Building Name" : null,
           sortDirection: selectedDirection,
           filterWard: _filterWardC.text,
+          filterCategory: _filterCategoryC.text,
         );
       },
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
-    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _searchC.clear();
       _filterCTSNumberC.clear();
@@ -307,6 +304,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
       _filterCityC.clear();
       _filterVillageC.clear();
       _filterWardC.clear();
+      _filterCategoryC.clear();
     }
   }
 

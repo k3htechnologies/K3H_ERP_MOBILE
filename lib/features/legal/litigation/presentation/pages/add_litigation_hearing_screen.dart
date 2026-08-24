@@ -80,7 +80,7 @@ class _AddLitigationHearingScreenState
     hearingDate = litigationHearing.hearingDate;
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
     var body = {
       "LitigationHearingId":
@@ -223,7 +223,7 @@ class _AddLitigationHearingScreenState
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: _isEditMode ? "Update" : "Add ",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

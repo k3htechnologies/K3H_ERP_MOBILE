@@ -26,7 +26,8 @@ abstract interface class BuildingRepository {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> addUpdateBuilding({
-    required Map<String, dynamic> requestBody,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> addUpdateBuildingDetails({
@@ -142,11 +143,13 @@ class BuildingRepositoryImpl implements BuildingRepository {
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateBuilding({
-    required Map<String, dynamic> requestBody,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     try {
       var result = await buildingDatasource.apicallAddUpdateBuilding(
-        body: requestBody,
+        body: body,
+        fileList: fileList,
       );
       return right(result);
     } catch (error) {

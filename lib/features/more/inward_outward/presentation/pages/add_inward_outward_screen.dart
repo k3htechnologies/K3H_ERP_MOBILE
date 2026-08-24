@@ -258,7 +258,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     }
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -951,7 +951,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

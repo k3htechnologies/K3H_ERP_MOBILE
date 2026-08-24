@@ -283,7 +283,7 @@ class _ModifiedRequestsMakePaymentScreenState
     );
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -793,7 +793,7 @@ class _ModifiedRequestsMakePaymentScreenState
           child: CustomButton(
             text: isEdit ? "Update" : "Add",
 
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

@@ -63,7 +63,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     widget.onSave(_onSave);
     _cubit.pullSecurityDepositDetails(
       projectId: widget.projectId,
@@ -83,7 +83,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _securityDepositAmountC = TextEditingController();
     _stageController = TextEditingController();
     _interestAmountC = TextEditingController();

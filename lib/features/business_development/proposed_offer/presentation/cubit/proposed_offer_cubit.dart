@@ -1447,7 +1447,8 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int projectId,
     required int buildingId,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(state.copyWith(isLoading: true, clearCarpetPlotDetails: true));
+    DialogHelper.showProcessingOverlay(context);
 
     final result = await _buildingRepository.pullBuildingDetails(
       projectId: projectId,
@@ -1456,9 +1457,11 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
+        goRouter.pop();
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
+        goRouter.pop();
         emit(
           state.copyWith(
             isLoading: false,
@@ -1477,7 +1480,9 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     required int projectId,
     required int buildingId,
   }) async {
-    emit(state.copyWith(isLoading: true));
+    emit(
+      state.copyWith(isLoading: true, clearAdditionalInformationDetails: true),
+    );
 
     final result = await _proposedOfferRepository
         .pullAdditionalInformationDetails(

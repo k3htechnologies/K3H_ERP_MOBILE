@@ -121,7 +121,7 @@ class _DocumentScreenState extends State<DocumentScreen>
   }
 
   // SUBMIT FORM
-  void _submitForm({DocumentModel? documentModel, int? index}) {
+  void _saveForm({DocumentModel? documentModel, int? index}) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -207,7 +207,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                 ? "Update Document Name"
                 : "Add Document Name",
         onPressed: () {
-          _submitForm(documentModel: documentModel, index: index);
+          _saveForm(documentModel: documentModel, index: index);
           _searchC.clear();
         },
       ),

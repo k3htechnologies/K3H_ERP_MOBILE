@@ -99,7 +99,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
     )..addListener(_handleBuildingTabChange);
   }
 
-  void _submitForm(ProposedPlansState state) {
+  void _saveForm(ProposedPlansState state) {
     if (state.proposedPlansList.isEmpty) return;
     final plan = state.proposedPlansList.first;
     final selectedBuilding =
@@ -452,7 +452,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                       !_hasSearchResults.value ||
                       !_routeAuthorizationModel.isAction,
                   text: "Update Proposed Plan",
-                  onPressed: () => _submitForm(state),
+                  onPressed: () => _saveForm(state),
                 ),
               ),
             );

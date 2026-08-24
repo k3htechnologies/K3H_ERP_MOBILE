@@ -35,6 +35,20 @@ class BusinessDevelopmentBuildingModel {
   String landOwnershipType;
   bool isLitigation;
   String litigationRemarks;
+  String category;
+  double tenderAmount;
+  DateTime? tenderPurchaseStartDate;
+  DateTime? tenderPurchaseEndDate;
+  String tenderAmountPaymentMode;
+  String tenderAmountChequeNumber;
+  String tenderAmountChequeNumberURL;
+  String tenderAmountPayorderRemark;
+  double tenderEMDAmount;
+  DateTime? tenderSubmissionDate;
+  String tenderEMDPaymentMode;
+  String tenderEMDChequeNumber;
+  String tenderEMDChequeNumberURL;
+  String tenderEMDPayorderRemark;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -77,6 +91,20 @@ class BusinessDevelopmentBuildingModel {
     required this.landOwnershipType,
     required this.isLitigation,
     required this.litigationRemarks,
+    required this.category,
+    required this.tenderAmount,
+    required this.tenderPurchaseStartDate,
+    required this.tenderPurchaseEndDate,
+    required this.tenderAmountPaymentMode,
+    required this.tenderAmountChequeNumber,
+    required this.tenderAmountChequeNumberURL,
+    required this.tenderAmountPayorderRemark,
+    required this.tenderEMDAmount,
+    required this.tenderSubmissionDate,
+    required this.tenderEMDPaymentMode,
+    required this.tenderEMDChequeNumber,
+    required this.tenderEMDChequeNumberURL,
+    required this.tenderEMDPayorderRemark,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -85,61 +113,100 @@ class BusinessDevelopmentBuildingModel {
     required this.modifiedDate,
   });
 
-  factory BusinessDevelopmentBuildingModel.fromJson(Map<String, dynamic> json) =>
-      BusinessDevelopmentBuildingModel(
-        buildingId: parseValue<int>(json, "BuildingId"),
-        uniquekey: parseValue<String>(json, "Uniquekey"),
-        projectId: parseValue<int>(json, "ProjectId"),
-        buildingName: parseValue<String>(json, "BuildingName"),
-        cTSNumber: parseValue<String>(json, "CTSNumber"),
-        googleLocation: parseValue<String>(json, "GoogleLocation"),
-        totalPlotAreaSqMt: parseValue<double>(json, "TotalPlotAreaSqMt"),
-        totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt"),
-        roadWidth: parseValue<String>(json, "RoadWidth"),
-        countryMasterId: parseValue<int>(json, "CountryMasterId"),
-        countryName: parseValue<String>(json, "CountryName"),
-        districtMasterId: parseValue<int>(json, "DistrictMasterId"),
-        districtName: parseValue<String>(json, "DistrictName"),
-        stateMasterId: parseValue<int>(json, "StateMasterId"),
-        stateName: parseValue<String>(json, "StateName"),
-        cityMasterId: parseValue<int>(json, "CityMasterId"),
-        cityName: parseValue<String>(json, "CityName"),
-        villageMasterId: parseValue<int>(json, "VillageMasterId"),
-        villageName: parseValue<String>(json, "VillageName"),
-        wardMasterId: parseValue<int>(json, "WardMasterId"),
-        wardName: parseValue<String>(json, "WardName"),
-        totalNumberOfUnits: parseValue<int>(json, "TotalNumberOfUnits"),
-        totalUnitsAreaUtilizedSqFt: parseValue<double>(
-          json,
-          "TotalUnitsAreaUtilizedSqFt",
-        ),
-        isGarden: parseValue<bool>(json, "IsGarden"),
-        totalGardenAreaSqFt: parseValue<double>(json, "TotalGardenAreaSqFt"),
-        isReligiousStructure: parseValue<bool>(json, "IsReligiousStructure"),
-        totalReligiousStructureAreaSqFt: parseValue<double>(
-          json,
-          "TotalReligiousStructureAreaSqFt",
-        ),
-        propertyAgeYears: parseValue<double>(json, "PropertyAgeYears"),
-        numberOfFloors: parseValue<int>(json, "NumberOfFloors"),
-        numberOfWings: parseValue<int>(json, "NumberOfWings"),
-        fSITDRUtilizationSqFt: parseValue<double>(
-          json,
-          "FSI_TDR_UtilizationSqFt",
-        ),
-        landOwnershipType: parseValue<String>(json, "LandOwnershipType"),
-        isLitigation: parseValue<bool>(json, "IsLitigation"),
-        litigationRemarks: parseValue<String>(json, "LitigationRemarks"),
-        createdById: parseValue<int>(json, "CreatedById"),
-        createdBy: parseValue<String>(json, "CreatedBy"),
-        createdDate: parseValue<DateTime>(json, "CreatedDate"),
-        modifiedById: parseValue<int>(json, "ModifiedById"),
-        modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate:
-            json["ModifiedDate"] == null
-                ? null
-                : parseValue<DateTime>(json, "ModifiedDate"),
-      );
+  factory BusinessDevelopmentBuildingModel.fromJson(
+    Map<String, dynamic> json,
+  ) => BusinessDevelopmentBuildingModel(
+    buildingId: parseValue<int>(json, "BuildingId"),
+    uniquekey: parseValue<String>(json, "Uniquekey"),
+    projectId: parseValue<int>(json, "ProjectId"),
+    buildingName: parseValue<String>(json, "BuildingName"),
+    cTSNumber: parseValue<String>(json, "CTSNumber"),
+    googleLocation: parseValue<String>(json, "GoogleLocation"),
+    totalPlotAreaSqMt: parseValue<double>(json, "TotalPlotAreaSqMt"),
+    totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt"),
+    roadWidth: parseValue<String>(json, "RoadWidth"),
+    countryMasterId: parseValue<int>(json, "CountryMasterId"),
+    countryName: parseValue<String>(json, "CountryName"),
+    districtMasterId: parseValue<int>(json, "DistrictMasterId"),
+    districtName: parseValue<String>(json, "DistrictName"),
+    stateMasterId: parseValue<int>(json, "StateMasterId"),
+    stateName: parseValue<String>(json, "StateName"),
+    cityMasterId: parseValue<int>(json, "CityMasterId"),
+    cityName: parseValue<String>(json, "CityName"),
+    villageMasterId: parseValue<int>(json, "VillageMasterId"),
+    villageName: parseValue<String>(json, "VillageName"),
+    wardMasterId: parseValue<int>(json, "WardMasterId"),
+    wardName: parseValue<String>(json, "WardName"),
+    totalNumberOfUnits: parseValue<int>(json, "TotalNumberOfUnits"),
+    totalUnitsAreaUtilizedSqFt: parseValue<double>(
+      json,
+      "TotalUnitsAreaUtilizedSqFt",
+    ),
+    isGarden: parseValue<bool>(json, "IsGarden"),
+    totalGardenAreaSqFt: parseValue<double>(json, "TotalGardenAreaSqFt"),
+    isReligiousStructure: parseValue<bool>(json, "IsReligiousStructure"),
+    totalReligiousStructureAreaSqFt: parseValue<double>(
+      json,
+      "TotalReligiousStructureAreaSqFt",
+    ),
+    propertyAgeYears: parseValue<double>(json, "PropertyAgeYears"),
+    numberOfFloors: parseValue<int>(json, "NumberOfFloors"),
+    numberOfWings: parseValue<int>(json, "NumberOfWings"),
+    fSITDRUtilizationSqFt: parseValue<double>(json, "FSI_TDR_UtilizationSqFt"),
+    landOwnershipType: parseValue<String>(json, "LandOwnershipType"),
+    isLitigation: parseValue<bool>(json, "IsLitigation"),
+    litigationRemarks: parseValue<String>(json, "LitigationRemarks"),
+    category: parseValue<String>(json, "Category"),
+    tenderAmount: parseValue<double>(json, "TenderAmount"),
+    tenderPurchaseStartDate:
+        json["TenderPurchaseStartDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "TenderPurchaseStartDate"),
+    tenderPurchaseEndDate:
+        json["TenderPurchaseEndDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "TenderPurchaseEndDate"),
+    tenderAmountPaymentMode: parseValue<String>(
+      json,
+      "TenderAmountPaymentMode",
+    ),
+    tenderAmountChequeNumber: parseValue<String>(
+      json,
+      "TenderAmountChequeNumber",
+    ),
+    tenderAmountChequeNumberURL: parseValue<String>(
+      json,
+      "TenderAmountChequeNumberURL",
+    ),
+    tenderAmountPayorderRemark: parseValue<String>(
+      json,
+      "TenderAmountPayorderRemark",
+    ),
+    tenderEMDAmount: parseValue<double>(json, "TenderEMDAmount"),
+    tenderSubmissionDate:
+        json["TenderSubmissionDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "TenderSubmissionDate"),
+    tenderEMDPaymentMode: parseValue<String>(json, "TenderEMDPaymentMode"),
+    tenderEMDChequeNumber: parseValue<String>(json, "TenderEMDChequeNumber"),
+    tenderEMDChequeNumberURL: parseValue<String>(
+      json,
+      "TenderEMDChequeNumberURL",
+    ),
+    tenderEMDPayorderRemark: parseValue<String>(
+      json,
+      "TenderEMDPayorderRemark",
+    ),
+    createdById: parseValue<int>(json, "CreatedById"),
+    createdBy: parseValue<String>(json, "CreatedBy"),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+    modifiedById: parseValue<int>(json, "ModifiedById"),
+    modifiedBy: parseValue<String>(json, "ModifiedBy"),
+    modifiedDate:
+        json["ModifiedDate"] == null
+            ? null
+            : parseValue<DateTime>(json, "ModifiedDate"),
+  );
 
   Map<String, dynamic> toJson() => {
     "BuildingId": buildingId,
@@ -176,6 +243,20 @@ class BusinessDevelopmentBuildingModel {
     "LandOwnershipType": landOwnershipType,
     "IsLitigation": isLitigation,
     "LitigationRemarks": litigationRemarks,
+    "Category": category,
+    "TenderAmount": tenderAmount,
+    "TenderPurchaseStartDate": tenderPurchaseStartDate?.toIso8601String(),
+    "TenderPurchaseEndDate": tenderPurchaseEndDate?.toIso8601String(),
+    "TenderAmountPaymentMode": tenderAmountPaymentMode,
+    "TenderAmountChequeNumber": tenderAmountChequeNumber,
+    "TenderAmountChequeNumberURL": tenderAmountChequeNumberURL,
+    "TenderAmountPayorderRemark": tenderAmountPayorderRemark,
+    "TenderEMDAmount": tenderEMDAmount,
+    "TenderSubmissionDate": tenderSubmissionDate?.toIso8601String(),
+    "TenderEMDPaymentMode": tenderEMDPaymentMode,
+    "TenderEMDChequeNumber": tenderEMDChequeNumber,
+    "TenderEMDChequeNumberURL": tenderEMDChequeNumberURL,
+    "TenderEMDPayorderRemark": tenderEMDPayorderRemark,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

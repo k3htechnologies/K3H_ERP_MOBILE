@@ -83,7 +83,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -182,7 +182,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                 _isEditMode
                     ? "Update Document Category"
                     : "Add Document Category",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

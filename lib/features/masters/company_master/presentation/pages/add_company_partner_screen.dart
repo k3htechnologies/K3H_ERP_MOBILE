@@ -140,7 +140,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
   }
 
   // SAVE FUNCTION
-  void _submitForm() {
+  void _saveForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final partner = CompanyPartnerModel(
@@ -488,7 +488,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
               color: AppColor.white,
             ),
             text: widget.companyPartner == null ? "Add" : "Update",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

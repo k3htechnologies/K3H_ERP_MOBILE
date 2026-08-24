@@ -133,7 +133,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
     );
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -327,7 +327,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

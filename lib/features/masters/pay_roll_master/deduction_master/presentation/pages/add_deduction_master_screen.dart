@@ -347,7 +347,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -698,7 +698,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
           child: CustomButton(
             leading: Icon(_isEditMode ? Icons.edit : Icons.add, size: 16),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: () => _submitForm(),
+            onPressed: () => _saveForm(),
           ),
         ),
       ),

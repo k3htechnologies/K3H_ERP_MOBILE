@@ -367,7 +367,7 @@ class _AddApplicantDetailsRequestsScreenState
     }
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final latestVersion = context
         .read<RequestManagementCubit>()
@@ -1158,7 +1158,7 @@ class _AddApplicantDetailsRequestsScreenState
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: widget.isEdit ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

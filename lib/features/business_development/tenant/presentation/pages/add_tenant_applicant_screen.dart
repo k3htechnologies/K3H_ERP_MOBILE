@@ -225,7 +225,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
     );
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final selectedType = selectedApplicantType.value!['DisplayName'].toString();
     if (widget.hasPrimaryApplicant &&
@@ -813,7 +813,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
               color: AppColor.white,
             ),
             text: _isEditingApplicantType ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

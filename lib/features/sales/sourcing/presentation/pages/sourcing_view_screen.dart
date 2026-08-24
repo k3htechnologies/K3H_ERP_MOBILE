@@ -227,7 +227,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
         text: "Update",
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            _submitForm(isIBM, obj);
+            _saveForm(isIBM, obj);
           }
         },
       ),
@@ -336,7 +336,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
         text: "Save",
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            _submitForm(isIBM, null);
+            _saveForm(isIBM, null);
           }
         },
       ),
@@ -344,7 +344,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     _clearBottomSheet();
   }
 
-  void _submitForm(bool isIBM, SourcingModel? obj) {
+  void _saveForm(bool isIBM, SourcingModel? obj) {
     if (!_formKey.currentState!.validate()) return;
 
     if (obj == null) {

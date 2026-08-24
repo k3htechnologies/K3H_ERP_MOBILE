@@ -90,7 +90,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -264,7 +264,7 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update Document" : "Add Document",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

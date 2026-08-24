@@ -121,7 +121,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -371,7 +371,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

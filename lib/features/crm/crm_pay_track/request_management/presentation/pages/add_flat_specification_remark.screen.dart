@@ -56,7 +56,7 @@ class _AddFlatSpecificationRemarkScreenState
     _remarkC.dispose();
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
 
     final booking = _requestManagementCubit.state.bookingData;
@@ -163,7 +163,7 @@ class _AddFlatSpecificationRemarkScreenState
           padding: const EdgeInsets.all(16.0),
           child: CustomButton(
             text: widget.remark == null ? "Add" : "Update",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

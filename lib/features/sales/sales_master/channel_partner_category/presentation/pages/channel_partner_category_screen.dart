@@ -65,7 +65,7 @@ class _ChannelPartnerCategoryScreenState
             .toList();
   }
 
-  void _submitForm() {
+  void _saveForm() {
     final channelPartnerCategoryList =
         _channelPartnerCategoryCubit.state.channelPartnerCategoryList
             .mapIndexed((index, c) {
@@ -371,7 +371,7 @@ class _ChannelPartnerCategoryScreenState
                     ),
                   ),
                   Expanded(
-                    child: CustomButton(text: "Save", onPressed: _submitForm),
+                    child: CustomButton(text: "Save", onPressed: _saveForm),
                   ),
                 ],
               ),

@@ -322,12 +322,6 @@ class _TemporaryAlternateAccommodationScreenState
                   onChangeFunction: (_) => updateApplyState(),
                 ),
                 CustomTextField(
-                  textController: _existingUnitTypeC,
-                  title: "Existing Unit Type",
-                  hint: "Enter Existing Unit Type",
-                  onChangeFunction: (_) => updateApplyState(),
-                ),
-                CustomTextField(
                   textController: _applicantNameC,
                   title: "Applicant Name",
                   hint: "Enter Applicant Name",
@@ -337,6 +331,12 @@ class _TemporaryAlternateAccommodationScreenState
                   textController: _applicantTypeC,
                   title: "Applicant Type",
                   hint: "Enter Applicant Type",
+                  onChangeFunction: (_) => updateApplyState(),
+                ),
+                CustomTextField(
+                  textController: _existingUnitTypeC,
+                  title: "Existing Unit Type",
+                  hint: "Enter Existing Unit Type",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
               ],

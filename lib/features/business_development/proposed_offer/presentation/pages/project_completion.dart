@@ -37,7 +37,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
   initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     _cubit.pullProjectCompletion(
       projectId: widget.projectId,
       buildingId: widget.buildingId,
@@ -53,7 +53,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _completionTimelineC = TextEditingController();
     _gracePeriodC = TextEditingController();
     _remarkC = TextEditingController();

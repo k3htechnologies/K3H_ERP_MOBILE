@@ -177,7 +177,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
     _projectNatureOfAccountC = TextEditingController();
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formLedger.currentState!.validate()) return;
     final rentModel = widget.rentModel;
 
@@ -598,7 +598,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
               color: AppColor.white,
               size: 18,
             ),
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

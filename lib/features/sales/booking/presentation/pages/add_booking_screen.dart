@@ -911,7 +911,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
       .join(",");
 
   // SUBMIT BOOKING FORM
-  void _submitForm() async {
+  void _saveForm() async {
     if (_isEditMode) {
       _submitDetails();
       return;
@@ -1231,7 +1231,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
             text: _isEditMode ? 'Update Booking' : 'Add Booking',
             onPressed: () async {
               if (await _validateAllTabs()) {
-                _submitForm();
+                _saveForm();
               }
             },
           ),

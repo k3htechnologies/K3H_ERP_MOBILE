@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/cubit/proposed_offer_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
@@ -27,11 +28,13 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _cubit.pullCarpetPlotDetails(
-      context: context,
-      projectId: widget.projectId,
-      buildingId: widget.buildingId,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _cubit.pullCarpetPlotDetails(
+        context: context,
+        projectId: widget.projectId,
+        buildingId: widget.buildingId,
+      );
+    });
   }
 
   @override
@@ -41,10 +44,7 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
         padding: EdgeInsets.symmetric(horizontal: 16),
         child: BlocBuilder<ProposedOfferCubit, ProposedOfferState>(
           builder: (context, state) {
-            if ((state.isLoading ?? true) && state.carpetPlotDetails == null) {
-              return Center(child: loader());
-            }
-            final carpetPlotDetails = state.carpetPlotDetails!;
+            final carpetPlotDetails = state.carpetPlotDetails;
             return Column(
               children: [
                 SectionCard(
@@ -57,13 +57,14 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Gross Plot Area (Sq. ft)",
-                          value: carpetPlotDetails.grossPlotAreaSqFt.toString(),
+                          title: "Gross Plot Area (SqFt)",
+                          value:
+                              carpetPlotDetails?.grossPlotAreaSqFt.addCommas(),
                         ),
                         buildColumnTitleValue(
-                          title: "PR Card Area(Sq. ft)",
+                          title: "PR Card Area(SqFt)",
                           value:
-                              carpetPlotDetails.plotAreaPRCardSqFt.toString(),
+                              carpetPlotDetails?.plotAreaPRCardSqFt.addCommas(),
                         ),
                       ],
                     ),
@@ -72,16 +73,16 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Old Approved Plan Area (Sq. ft)",
+                          title: "Old Approved Plan Area (SqFt)",
                           value:
-                              carpetPlotDetails.plotAreaOldApprovedPlanSqFt
-                                  .toString(),
+                              carpetPlotDetails?.plotAreaOldApprovedPlanSqFt
+                                  .addCommas(),
                         ),
                         buildColumnTitleValue(
-                          title: "Conveyance Area (Sq. ft)",
+                          title: "Conveyance Area (SqFt)",
                           value:
-                              carpetPlotDetails.plotAreaConveyanceSqFt
-                                  .toString(),
+                              carpetPlotDetails?.plotAreaConveyanceSqFt
+                                  .addCommas(),
                         ),
                       ],
                     ),
@@ -89,10 +90,10 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Physical Survey Area (Sq. ft)",
+                          title: "Physical Survey Area (SqFt)",
                           value:
-                              carpetPlotDetails.plotAreaPhysicalSurveySqFt
-                                  .toString(),
+                              carpetPlotDetails?.plotAreaPhysicalSurveySqFt
+                                  .addCommas(),
                         ),
                         Expanded(child: SizedBox()),
                       ],
@@ -109,15 +110,16 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Total Carpet Area (Sq. ft)",
+                          title: "Total Carpet Area (SqFt)",
                           value:
-                              carpetPlotDetails.totalCarpetAreaSqFt.toString(),
+                              carpetPlotDetails?.totalCarpetAreaSqFt
+                                  .addCommas(),
                         ),
                         buildColumnTitleValue(
                           title: "Total Residential Units",
                           value:
-                              carpetPlotDetails.totalResidentialUnits
-                                  .toString(),
+                              carpetPlotDetails?.totalResidentialUnits
+                                  .addCommas(),
                         ),
                       ],
                     ),
@@ -126,15 +128,16 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Residential Carpet Area (Sq. ft)",
+                          title: "Residential Carpet Area (SqFt)",
                           value:
-                              carpetPlotDetails.totalResidentialCarpetAreaSqFt
-                                  .toString(),
+                              carpetPlotDetails?.totalResidentialCarpetAreaSqFt
+                                  .addCommas(),
                         ),
                         buildColumnTitleValue(
                           title: "Total Commercial Units",
                           value:
-                              carpetPlotDetails.totalCommercialUnits.toString(),
+                              carpetPlotDetails?.totalCommercialUnits
+                                  .addCommas(),
                         ),
                       ],
                     ),
@@ -142,10 +145,10 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Commercial Carpet Area (Sq. ft)",
+                          title: "Commercial Carpet Area (SqFt)",
                           value:
-                              carpetPlotDetails.totalCommercialCarpetAreaSqFt
-                                  .toString(),
+                              carpetPlotDetails?.totalCommercialCarpetAreaSqFt
+                                  .addCommas(),
                         ),
                         Expanded(child: SizedBox()),
                       ],
@@ -157,46 +160,45 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                   titleTextColor: AppColor.primary,
                   headerBackgroundColor: AppColor.lightBlue,
                   children: [
-                    ...carpetPlotDetails.buildingKeyContactDetailsData.map((
-                      contact,
-                    ) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            contact.contactType.isEmpty
-                                ? "-"
-                                : contact.contactType,
-                            style: AppTextStyle.ts14M(),
-                          ),
-                          verticalSpacing(height: 2.h),
-                          buildRowTitleValue(
-                            title: "Contact Name",
-                            value: contact.contactName,
-                            singleLine: false,
-                          ),
-                          buildRowTitleValue(
-                            title: "Mobile Number",
-                            value: contact.mobileNumber,
-                            singleLine: false,
-                            customValueWidget: CustomClickToContactText(
-                              countryCode: "+91",
-                              value: contact.mobileNumber,
-                              type: ContactType.phone,
-                            ),
-                          ),
-                          buildRowTitleValue(
-                            title: "Email Id",
-                            value: contact.emailId,
-                            singleLine: false,
-                            customValueWidget: CustomClickToContactText(
-                              value: contact.emailId,
-                              type: ContactType.email,
-                            ),
-                          ),
-                        ],
-                      );
-                    }),
+                    ...(carpetPlotDetails?.buildingKeyContactDetailsData ?? [])
+                        .map((contact) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                contact.contactType.isEmpty
+                                    ? "-"
+                                    : contact.contactType,
+                                style: AppTextStyle.ts14M(),
+                              ),
+                              verticalSpacing(height: 2.h),
+                              buildRowTitleValue(
+                                title: "Contact Name",
+                                value: contact.contactName,
+                                singleLine: false,
+                              ),
+                              buildRowTitleValue(
+                                title: "Mobile Number",
+                                value: contact.mobileNumber,
+                                singleLine: false,
+                                customValueWidget: CustomClickToContactText(
+                                  countryCode: "+91",
+                                  value: contact.mobileNumber,
+                                  type: ContactType.phone,
+                                ),
+                              ),
+                              buildRowTitleValue(
+                                title: "Email Id",
+                                value: contact.emailId,
+                                singleLine: false,
+                                customValueWidget: CustomClickToContactText(
+                                  value: contact.emailId,
+                                  type: ContactType.email,
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
                   ],
                 ),
               ],

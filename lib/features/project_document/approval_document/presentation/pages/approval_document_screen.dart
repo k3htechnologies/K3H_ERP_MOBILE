@@ -118,7 +118,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     super.dispose();
   }
 
-  void _submitForm({ApprovalDocumentModel? documentModel, int? index}) {
+  void _saveForm({ApprovalDocumentModel? documentModel, int? index}) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -196,7 +196,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
       bottomActions: CustomButton(
         text: documentModel != null ? "Update Document" : "Add Document",
         onPressed: () {
-          _submitForm(documentModel: documentModel, index: index);
+          _saveForm(documentModel: documentModel, index: index);
           _searchC.clear();
         },
       ),

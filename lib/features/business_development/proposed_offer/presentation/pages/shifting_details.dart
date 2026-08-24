@@ -58,7 +58,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     widget.onSave(_onSave);
     _cubit.pullShiftingDetails(
       projectId: widget.projectId,
@@ -79,7 +79,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _residentialAmountC = TextEditingController();
     _commercialAmountC = TextEditingController();
     _stageController = TextEditingController();

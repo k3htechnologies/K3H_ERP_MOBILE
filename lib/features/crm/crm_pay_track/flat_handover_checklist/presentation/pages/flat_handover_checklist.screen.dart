@@ -195,7 +195,7 @@ class _FlatHandoverChecklistScreenState
                 onPressed: () {
                   if (!_statusFormKey.currentState!.validate()) return;
 
-                  _submitForm(
+                  _saveForm(
                     flatHandoverChecklistModel: flatHandoverChecklistModel,
                     index: index,
                   );
@@ -207,7 +207,7 @@ class _FlatHandoverChecklistScreenState
     _clearStatusSheet();
   }
 
-  void _submitForm({
+  void _saveForm({
     FlatHandoverChecklistModel? flatHandoverChecklistModel,
     int? index,
   }) {

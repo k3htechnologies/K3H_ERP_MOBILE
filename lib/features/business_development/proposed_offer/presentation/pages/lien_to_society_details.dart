@@ -72,7 +72,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     _loadData();
     widget.onSave(_onSave);
   }
@@ -125,7 +125,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     }
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _residentialAreaC = TextEditingController();
     _commercialAreaC = TextEditingController();
     _residentialUnitsC = TextEditingController();

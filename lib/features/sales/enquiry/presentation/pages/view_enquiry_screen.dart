@@ -1410,7 +1410,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         onPressed: () {
           if (!_statusFormKey.currentState!.validate()) return;
 
-          _submitForm(followUpModel: followUpModel, index: index);
+          _saveForm(followUpModel: followUpModel, index: index);
         },
       ),
     );
@@ -1425,7 +1425,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     _remarkC.clear();
   }
 
-  void _submitForm({EnquiryFollowUpModel? followUpModel, int? index}) {
+  void _saveForm({EnquiryFollowUpModel? followUpModel, int? index}) {
     if (!_statusFormKey.currentState!.validate()) return;
 
     final statusName = _selectedStatus.value?['DisplayName'];

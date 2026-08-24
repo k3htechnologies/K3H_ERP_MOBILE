@@ -63,7 +63,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
   @override
   void initState() {
     super.initState();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     _hardshipListNotifier
         .value = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
       widget.hardshipList,
@@ -71,7 +71,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
     _prefillData(hardship: widget.hardship);
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _residentialAmountC = TextEditingController(
       text: widget.residentialAmount.toString(),
     );
@@ -118,7 +118,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
     }
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_corpusFormKey.currentState!.validate()) return;
     final newList = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
       _hardshipList,
@@ -345,7 +345,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
           child: ValueListenableBuilder<Map<String, dynamic>?>(
             valueListenable: _selectedHardshipType,
             builder: (context, selectedHardshipType, _) {
-              return CustomButton(text: "Save", onPressed: _submitForm);
+              return CustomButton(text: "Save", onPressed: _saveForm);
             },
           ),
         ),

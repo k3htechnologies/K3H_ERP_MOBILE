@@ -219,7 +219,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     final isShiftValid = _formKeys[0].currentState?.validate() ?? false;
     final isTimeDetailsValid = _formKeys[1].currentState?.validate() ?? false;
     final isBreakDetails = _formKeys[2].currentState?.validate() ?? false;
@@ -353,7 +353,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

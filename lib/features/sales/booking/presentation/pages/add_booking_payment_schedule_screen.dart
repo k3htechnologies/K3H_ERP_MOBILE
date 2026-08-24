@@ -117,7 +117,7 @@ class _AddBookingPaymentScheduleScreenState
   }
 
   /// SAVE FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
 
     final percentage = double.parse(_percentageC.text);
@@ -480,7 +480,7 @@ class _AddBookingPaymentScheduleScreenState
               size: 18,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

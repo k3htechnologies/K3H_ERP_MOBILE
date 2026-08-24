@@ -108,7 +108,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
     );
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -149,10 +149,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
                 .state
                 .selectedScheme!
                 .inventoryFlatFloorBasementPodiumWingId,
-        scheme:
-            _paymentScheduleCubit
-                .state
-                .selectedScheme!,
+        scheme: _paymentScheduleCubit.state.selectedScheme!,
       );
     }
   }
@@ -243,7 +240,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
               size: 18,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

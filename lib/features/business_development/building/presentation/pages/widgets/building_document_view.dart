@@ -1,6 +1,6 @@
+// ignore_for_file: use_build_context_synchronously
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,9 +27,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BuildingDocumentView extends StatefulWidget {
   final BusinessDevelopmentBuildingModel building;
-
   const BuildingDocumentView({super.key, required this.building});
-
   @override
   State<BuildingDocumentView> createState() => _BuildingDocumentViewState();
 }
@@ -41,18 +39,15 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
   late ProjectModel _project;
   final ValueNotifier<Map<int, List<BuildingDocumentModel>>> _childDocuments =
       ValueNotifier({});
-
   final ValueNotifier<Map<int, bool>> _loadingChildren = ValueNotifier({});
   late ScrollController scrollController;
   Timer? _debounce;
-
   @override
   void initState() {
     _buildingCubit = context.read<BuildingCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.building] ??
         AuthorizationModel();
-
     _project = getProject();
     _searchDocumentNameC = TextEditingController();
     _newDocumentTitleController = TextEditingController();
@@ -68,7 +63,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
           !_buildingCubit.state.isLoading! &&
           _buildingCubit.state.buildingDocumentList.length <
               _buildingCubit.state.totalNumberOfRecordDocument) {
-        // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           _buildingCubit.getBuildingDocumentList(
@@ -113,7 +107,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
             showErrorMessage(context, "Error", "Please enter document title");
             return;
           }
-
           if (!isEditMode) {
             await _buildingCubit.addBuildingParentDocument(
               context: context,
@@ -131,7 +124,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               uniquekey: document.uniquekey,
             );
           }
-
           if (!mounted) return;
           _newDocumentTitleController.clear();
         },
@@ -148,7 +140,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
       'You are about to delete a document ?',
       'Deleting this document will permanently remove all associated data.',
     );
-
     if (result && context.mounted) {
       await _buildingCubit.deleteBuildingDocument(
         document: document,
@@ -190,7 +181,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               ),
             ],
           ),
-
           Expanded(
             child: BlocBuilder<BuildingCubit, BuildingState>(
               builder: (context, state) {
@@ -201,9 +191,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                 if (state.buildingDocumentList.isEmpty) {
                   return Center(child: noDataWidget());
                 }
-
                 final documents = state.buildingDocumentList;
-
                 return ListView.builder(
                   controller: scrollController,
                   shrinkWrap: true,
@@ -219,7 +207,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                           : const SizedBox.shrink();
                     }
                     final doc = documents[index];
-
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: commonCardDecoration(),
@@ -227,7 +214,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                         data: Theme.of(
                           context,
                         ).copyWith(dividerColor: Colors.transparent),
-
                         child: ExpansionTile(
                           tilePadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -242,12 +228,10 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                           ),
                           onExpansionChanged: (expanded) async {
                             if (!expanded) return;
-
                             _loadingChildren.value = {
                               ..._loadingChildren.value,
                               doc.buildingDocumentId: true,
                             };
-
                             try {
                               final children = await _buildingCubit
                                   .getBuildingChildDocuments(
@@ -256,7 +240,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                     widget.building.buildingId,
                                     doc.buildingDocumentId,
                                   );
-
                               _childDocuments.value = {
                                 ..._childDocuments.value,
                                 doc.buildingDocumentId: children,
@@ -289,7 +272,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                   ],
                                 ),
                               ),
-
                               Row(
                                 mainAxisSize: MainAxisSize.min,
                                 spacing: 10,
@@ -311,13 +293,11 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                       if (result == true) {
                                         final children = await _buildingCubit
                                             .getBuildingChildDocuments(
-                                              // ignore: use_build_context_synchronously
                                               context,
                                               _project.projectId,
                                               widget.building.buildingId,
                                               doc.buildingDocumentId,
                                             );
-
                                         _childDocuments.value = {
                                           ..._childDocuments.value,
                                           doc.buildingDocumentId: children,
@@ -357,7 +337,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                               builder: (context, loadingMap, _) {
                                 final isLoading =
                                     loadingMap[doc.buildingDocumentId] ?? false;
-
                                 if (isLoading) {
                                   return const Padding(
                                     padding: EdgeInsets.symmetric(vertical: 20),
@@ -366,7 +345,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                     ),
                                   );
                                 }
-
                                 return ValueListenableBuilder<
                                   Map<int, List<BuildingDocumentModel>>
                                 >(
@@ -375,7 +353,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                     final childDocs =
                                         childMap[doc.buildingDocumentId] ??
                                         <BuildingDocumentModel>[];
-
                                     if (childDocs.isEmpty) {
                                       return Padding(
                                         padding: EdgeInsets.symmetric(
@@ -386,7 +363,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                         ),
                                       );
                                     }
-
                                     return Column(
                                       children:
                                           childDocs
@@ -439,7 +415,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               Row(
                 children: [
                   Text(subDocument.documentName, style: AppTextStyle.ts14R()),
-
                   CustomIconButton(
                     onPressed: () {
                       showFilePreviewDialog(
@@ -457,7 +432,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                   ),
                 ],
               ),
-
               CustomMoreButton(
                 isDisabled: !_routeAuthorizationModel.isAction,
                 items: [
@@ -483,13 +457,11 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                         if (result == true) {
                           final children = await _buildingCubit
                               .getBuildingChildDocuments(
-                                // ignore: use_build_context_synchronously
                                 context,
                                 _project.projectId,
                                 widget.building.buildingId,
                                 document.buildingDocumentId,
                               );
-
                           _childDocuments.value = {
                             ..._childDocuments.value,
                             document.buildingDocumentId: children,
@@ -516,13 +488,11 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                       if (result == true) {
                         final children = await _buildingCubit
                             .getBuildingChildDocuments(
-                              // ignore: use_build_context_synchronously
                               context,
                               _project.projectId,
                               widget.building.buildingId,
                               document.buildingDocumentId,
                             );
-
                         _childDocuments.value = {
                           ..._childDocuments.value,
                           document.buildingDocumentId: children,
@@ -540,13 +510,11 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                         );
                         final children = await _buildingCubit
                             .getBuildingChildDocuments(
-                              // ignore: use_build_context_synchronously
                               context,
                               _project.projectId,
                               widget.building.buildingId,
                               document.buildingDocumentId,
                             );
-
                         _childDocuments.value = {
                           ..._childDocuments.value,
                           document.buildingDocumentId: children,
@@ -560,13 +528,11 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                       );
                       final children = await _buildingCubit
                           .getBuildingChildDocuments(
-                            // ignore: use_build_context_synchronously
                             context,
                             _project.projectId,
                             widget.building.buildingId,
                             document.buildingDocumentId,
                           );
-
                       _childDocuments.value = {
                         ..._childDocuments.value,
                         document.buildingDocumentId: children,

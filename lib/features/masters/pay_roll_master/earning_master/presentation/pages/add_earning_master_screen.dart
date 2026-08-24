@@ -174,13 +174,13 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
       ),
     ];
     _valueC.text = earningMasterModel.value.toString();
-    if(earningMasterModel.branchName.isNotEmpty) {
+    if (earningMasterModel.branchName.isNotEmpty) {
       selectedBranch = [
-      {
-        'zAttributesId': earningMasterModel.branchMasterId,
-        'DisplayName': earningMasterModel.branchName,
-      },
-    ];
+        {
+          'zAttributesId': earningMasterModel.branchMasterId,
+          'DisplayName': earningMasterModel.branchName,
+        },
+      ];
     }
     _minSalaryC.text = earningMasterModel.minSalary.toString();
     _maxSalaryC.text = earningMasterModel.maxSalary.toString();
@@ -265,7 +265,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -578,7 +578,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
           padding: const EdgeInsets.all(16),
           child: CustomButton(
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

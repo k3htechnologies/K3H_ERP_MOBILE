@@ -14,13 +14,11 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 class AddUpdateDocumentScreen extends StatefulWidget {
   final BuildingDocumentModel? subDocumentModel;
   final BuildingDocumentModel documentModel;
-
   const AddUpdateDocumentScreen({
     super.key,
     required this.subDocumentModel,
     required this.documentModel,
   });
-
   @override
   State<AddUpdateDocumentScreen> createState() =>
       _AddUpdateDocumentScreenState();
@@ -37,7 +35,6 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
     deletedFileList: "",
   );
   bool get _isEditMode => widget.subDocumentModel != null;
-
   @override
   void initState() {
     super.initState();
@@ -59,7 +56,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
     _remarkC = TextEditingController();
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -90,10 +87,8 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
 
   void _prefillForm(BuildingDocumentModel document) {
     _documentNameC.text = document.documentName;
-
     _remarkC.text =
         document.documentRemark.isNotEmpty ? document.documentRemark : "";
-
     selectedDocumentFile.fileNameList =
         document.documentURL.isEmpty ? [] : document.documentURL.split(",");
   }
@@ -148,7 +143,6 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
                     return null;
                   },
                 ),
-
                 CustomTextField(
                   title: "Remark",
                   hint: "Enter Remark",
@@ -172,7 +166,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
               color: AppColor.white,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

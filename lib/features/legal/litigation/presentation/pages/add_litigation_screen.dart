@@ -148,7 +148,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) return;
     if (_isEditMode) {
-      _submitForm();
+      _saveForm();
     } else {
       showCompleteVerificationDialog(
         context,
@@ -173,13 +173,13 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
           "Case Number": _caseNumberC.text.trim().isNotEmpty,
         },
         onVerifyOTP: () {
-          _submitForm();
+          _saveForm();
         },
       );
     }
   }
 
-  void _submitForm() {
+  void _saveForm() {
     final payload = {
       if (_isEditMode) "Uniquekey": widget.litigationModel!.uniquekey,
       "ProjectId": _selectedProject!['zAttributesId'],

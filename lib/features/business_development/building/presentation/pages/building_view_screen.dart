@@ -15,9 +15,7 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 
 class BuildingViewScreen extends StatefulWidget {
   final BusinessDevelopmentBuildingModel building;
-
   const BuildingViewScreen({super.key, required this.building});
-
   @override
   State<BuildingViewScreen> createState() => _BuildingViewScreenState();
 }
@@ -28,7 +26,6 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
   late AuthorizationModel _routeAuthorizationModel;
   late TabController _tabController;
   late ProjectModel _project;
-
   final ValueNotifier<Set<int>> _expandedDocumentIds = ValueNotifier<Set<int>>(
     {},
   );
@@ -36,9 +33,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
       ValueNotifier<Map<int, List<BuildingDocumentModel>>>({});
   final ValueNotifier<Map<int, bool>> _loadingChildDocuments =
       ValueNotifier<Map<int, bool>>({});
-
   late TextEditingController _newDocumentTitleController, _searchDocumentNameC;
-
   @override
   void initState() {
     super.initState();

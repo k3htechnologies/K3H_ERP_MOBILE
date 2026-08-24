@@ -45,7 +45,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     widget.onSave(_onSave);
     _cubit.pullExtraCarpetArea(
       projectId: widget.projectId,
@@ -62,7 +62,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
   }
 
   // INITIALIZE CONTROLLERS
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _residentialPercentC = TextEditingController();
     _commercialPercentC = TextEditingController();
     _remarkC = TextEditingController();

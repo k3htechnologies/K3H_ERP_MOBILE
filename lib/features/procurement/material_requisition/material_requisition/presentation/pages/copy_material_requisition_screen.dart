@@ -54,7 +54,7 @@ class _CopyMaterialRequisitionScreenState
     super.initState();
   }
 
-  Future _submitForm() async {
+  Future _saveForm() async {
     if (!_formKey.currentState!.validate()) return;
     final finalMaterialRequisition =
         widget.materialRequisitionModel.materialRequisitionDetailData
@@ -199,7 +199,7 @@ class _CopyMaterialRequisitionScreenState
         child: Container(
           height: 70,
           padding: EdgeInsets.all(16),
-          child: CustomButton(text: "Save", onPressed: _submitForm),
+          child: CustomButton(text: "Save", onPressed: _saveForm),
         ),
       ),
     );

@@ -214,14 +214,14 @@ class _AddPaymentScheduleSchemeScreenState
               size: 18,
             ),
             text: isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),
     );
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (_formKey.currentState!.validate()) {
       if (isEditMode) {
         _schemeCubit.updatePaymentScheduleScheme(

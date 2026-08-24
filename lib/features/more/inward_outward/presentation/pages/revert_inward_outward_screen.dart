@@ -56,7 +56,7 @@ class _RevertInwardOutwardScreenState extends State<RevertInwardOutwardScreen> {
     super.dispose();
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -155,7 +155,7 @@ class _RevertInwardOutwardScreenState extends State<RevertInwardOutwardScreen> {
           height: 70,
           color: AppColor.white,
           padding: EdgeInsets.all(16),
-          child: CustomButton(text: "Save", onPressed: _submitForm),
+          child: CustomButton(text: "Save", onPressed: _saveForm),
         ),
       ),
     );

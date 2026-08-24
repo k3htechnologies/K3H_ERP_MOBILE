@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
-import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
@@ -10,7 +11,6 @@ import 'package:k3h_erp_app/widgets/section_card.dart';
 class BuildingOverview extends StatelessWidget {
   final BusinessDevelopmentBuildingModel building;
   const BuildingOverview({super.key, required this.building});
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -65,7 +65,151 @@ class BuildingOverview extends StatelessWidget {
               ),
             ],
           ),
-          // PROPERTY INFORMATION
+          if (building.category == 'Tender') ...[
+            SectionCard(
+              title: 'Tender Amount Details',
+              titleTextColor: AppColor.purple700,
+              headerBackgroundColor: AppColor.lightPurpleBg2,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Amount",
+                      value: building.tenderAmount.toIndianCurrency(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Payment Mode",
+                      value: building.tenderAmountPaymentMode,
+                    ),
+                  ],
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Purchase Start Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        building.tenderPurchaseStartDate,
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Purchase End Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        building.tenderPurchaseEndDate,
+                      ),
+                    ),
+                  ],
+                ),
+                buildColumnTitleValue(
+                  title: "Transaction / Cheque / DD No",
+                  value: building.tenderAmountChequeNumber,
+                  removeExpanded: true,
+                  customValueWidget:
+                      (building.tenderAmountChequeNumber.isEmpty)
+                          ? null
+                          : Row(
+                            children: [
+                              Text(
+                                building.tenderAmountChequeNumber,
+                                style: AppTextStyle.ts14M(),
+                              ),
+                              CustomIconButton(
+                                onPressed: () {
+                                  showFilePreviewDialog(
+                                    title: "Transaction / Cheque / DD No",
+                                    context,
+                                    building.tenderAmountChequeNumberURL.split(
+                                      ",",
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.remove_red_eye_outlined,
+                                  size: 16,
+                                  color: AppColor.primary,
+                                ),
+                                backgroundColor: AppColor.white,
+                              ),
+                            ],
+                          ),
+                ),
+                buildColumnTitleValue(
+                  title: "Payorder Remark",
+                  value: building.tenderAmountPayorderRemark,
+                  removeExpanded: true,
+                ),
+              ],
+            ),
+            SectionCard(
+              title: 'Tender EMD Details',
+              titleTextColor: AppColor.red,
+              headerBackgroundColor: AppColor.lightRed.withValues(alpha: 0.5),
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 10,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "EMD Amount",
+                      value: building.tenderEMDAmount.toIndianCurrency(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Submission Date",
+                      value: formatDateTimeAsDDMMMYYYY(
+                        building.tenderSubmissionDate,
+                      ),
+                    ),
+                  ],
+                ),
+                buildColumnTitleValue(
+                  title: "Payment Mode",
+                  value: building.tenderEMDPaymentMode,
+                  removeExpanded: true,
+                ),
+                buildColumnTitleValue(
+                  title: "Transaction / Cheque / DD No",
+                  value: building.tenderEMDChequeNumberURL,
+                  removeExpanded: true,
+                  customValueWidget:
+                      (building.tenderEMDChequeNumberURL.isEmpty)
+                          ? null
+                          : Row(
+                            children: [
+                              Text(
+                                building.tenderEMDChequeNumber,
+                                style: AppTextStyle.ts14M(),
+                              ),
+                              CustomIconButton(
+                                onPressed: () {
+                                  showFilePreviewDialog(
+                                    title: "Transaction / Cheque / DD No",
+                                    context,
+                                    building.tenderEMDChequeNumberURL.split(
+                                      ",",
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.remove_red_eye_outlined,
+                                  size: 16,
+                                  color: AppColor.primary,
+                                ),
+                                backgroundColor: AppColor.white,
+                              ),
+                            ],
+                          ),
+                ),
+                buildColumnTitleValue(
+                  title: "Payorder Remark",
+                  value: building.tenderEMDPayorderRemark,
+                  removeExpanded: true,
+                ),
+              ],
+            ),
+          ],
           SectionCard(
             title: 'Property Information',
             titleTextColor: AppColor.orange,
@@ -117,8 +261,6 @@ class BuildingOverview extends StatelessWidget {
               ),
             ],
           ),
-
-          // LOCATION DETAILS
           SectionCard(
             title: 'Location Details',
             titleTextColor: AppColor.darkBlue29,
@@ -171,51 +313,6 @@ class BuildingOverview extends StatelessWidget {
               ),
             ],
           ),
-          // GARDEN INFORMATION
-          SectionCard(
-            title: 'Garden Information',
-            titleTextColor: AppColor.purple700,
-            headerBackgroundColor: AppColor.lightPurpleBg2,
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Garden Structure",
-                    value: building.isGarden ? "Yes" : "No",
-                  ),
-                  buildColumnTitleValue(
-                    title: "Garden Area (SqFt)",
-                    value: building.totalGardenAreaSqFt.addCommas(),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // RELIGIOUS INFORMATION
-          SectionCard(
-            title: 'Religious Information',
-            titleTextColor: Colors.blue,
-            headerBackgroundColor: Colors.blue.shade100.withValues(alpha: 0.5),
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Religious Structure",
-                    value: building.isReligiousStructure ? "Yes" : "No",
-                  ),
-                  buildColumnTitleValue(
-                    title: "Structure Area (SqFt)",
-                    value: building.totalReligiousStructureAreaSqFt.addCommas(),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          // FSI/TDR INFORMATION
           SectionCard(
             title: 'FSI/TDR Information',
             titleTextColor: AppColor.brown,
@@ -237,9 +334,50 @@ class BuildingOverview extends StatelessWidget {
               ),
             ],
           ),
-          // LITIGATION INFORMATION
           SectionCard(
-            title: 'Litigation Information',
+            title: 'Garden Information',
+            titleTextColor: AppColor.purple700,
+            headerBackgroundColor: AppColor.lightPurpleBg2,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Garden Structure",
+                    value: building.isGarden ? "Yes" : "No",
+                  ),
+                  buildColumnTitleValue(
+                    title: "Garden Area (SqFt)",
+                    value: building.totalGardenAreaSqFt.addCommas(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SectionCard(
+            title: 'Religious Information',
+            titleTextColor: Colors.blue,
+            headerBackgroundColor: Colors.blue.shade100.withValues(alpha: 0.5),
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Religious Structure",
+                    value: building.isReligiousStructure ? "Yes" : "No",
+                  ),
+                  buildColumnTitleValue(
+                    title: "Structure Area (SqFt)",
+                    value: building.totalReligiousStructureAreaSqFt.addCommas(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          SectionCard(
+            title: 'Litigation',
             titleTextColor: AppColor.darkGreen10,
             headerBackgroundColor: AppColor.darkGreen10.withValues(alpha: 0.1),
             children: [
@@ -259,7 +397,6 @@ class BuildingOverview extends StatelessWidget {
               ),
             ],
           ),
-          // ACTION DETAILS
           SectionCard(
             title: 'Action Details',
             titleTextColor: AppColor.black,
@@ -279,7 +416,6 @@ class BuildingOverview extends StatelessWidget {
                   ),
                 ],
               ),
-
               Row(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,

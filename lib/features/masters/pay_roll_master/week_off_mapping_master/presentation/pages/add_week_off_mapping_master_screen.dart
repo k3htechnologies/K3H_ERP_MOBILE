@@ -70,8 +70,7 @@ class _AddWeekOffMappingMasterScreenState
 
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
 
-    _selectedDepartmentNotifier =
-        ValueNotifier<List<Map<String, dynamic>>>([]);
+    _selectedDepartmentNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
 
     if (_isEditMode) {
       _populateFormFields(widget.weekOffMappingMasterModel!);
@@ -150,7 +149,7 @@ class _AddWeekOffMappingMasterScreenState
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -250,7 +249,7 @@ class _AddWeekOffMappingMasterScreenState
                           },
                         ),
                         verticalSpacing(),
-                        Text("Mapping",style: AppTextStyle.ts14R(),),
+                        Text("Mapping", style: AppTextStyle.ts14R()),
                         Row(
                           children: [
                             Radio<String>(
@@ -394,7 +393,9 @@ class _AddWeekOffMappingMasterScreenState
                         Visibility(
                           visible: state.selectedOption == state.options[1],
 
-                          child: ValueListenableBuilder<List<Map<String, dynamic>>>(
+                          child: ValueListenableBuilder<
+                            List<Map<String, dynamic>>
+                          >(
                             valueListenable: _selectedDepartmentNotifier,
                             builder: (context, selectedDepartment, _) {
                               return Column(
@@ -410,10 +411,11 @@ class _AddWeekOffMappingMasterScreenState
                                       _selectedDepartmentNotifier.value = value;
                                     },
                                     dataFetchCallBack:
-                                    _weekOffMappingMasterCubit.fetchDepartment,
+                                        _weekOffMappingMasterCubit
+                                            .fetchDepartment,
                                     validator: (value) {
                                       if ((state.selectedOption.toLowerCase() ==
-                                          state.options[1].toLowerCase()) &&
+                                              state.options[1].toLowerCase()) &&
                                           (value == null || value.isEmpty)) {
                                         return "Department is required";
                                       }
@@ -431,27 +433,32 @@ class _AddWeekOffMappingMasterScreenState
                                           width: .5,
                                         ),
                                       ),
-                                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 10,
+                                      ),
                                       child: RichText(
                                         text: TextSpan(
                                           children: [
                                             TextSpan(
-                                              text: "This week-off policy will be applied to ",
+                                              text:
+                                                  "This week-off policy will be applied to ",
                                               style: AppTextStyle.ts12R(),
                                             ),
                                             TextSpan(
-                                              text: "all employees in this department.",
+                                              text:
+                                                  "all employees in this department.",
                                               style: AppTextStyle.ts12SB(),
                                             ),
                                           ],
                                         ),
-                                      )
+                                      ),
                                     ),
                                   ],
                                 ],
                               );
                             },
-                          )
+                          ),
                         ),
                       ],
                     );
@@ -473,7 +480,7 @@ class _AddWeekOffMappingMasterScreenState
               size: 18,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

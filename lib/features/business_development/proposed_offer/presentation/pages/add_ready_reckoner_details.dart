@@ -57,12 +57,12 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
   @override
   void initState() {
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     _populateFormFields();
     super.initState();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _zoneController = TextEditingController();
     _subZoneController = TextEditingController();
     _residentialRateController = TextEditingController();
@@ -92,7 +92,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
     _remarkController.text = model.remark;
   }
 
-  void _submitForm({
+  void _saveForm({
     ReadyReckonerRateDetailsModel? readyReckonerDetailsModel,
     int? index,
   }) {
@@ -328,7 +328,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
           child: CustomButton(
             text: "Save",
             onPressed: () {
-              _submitForm(
+              _saveForm(
                 index: widget.index,
                 readyReckonerDetailsModel: widget.readyReckonerRateDetails,
               );

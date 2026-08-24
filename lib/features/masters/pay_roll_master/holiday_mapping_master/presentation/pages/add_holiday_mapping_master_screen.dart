@@ -215,7 +215,7 @@ class _AddHolidayMappingMasterScreenState
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -372,7 +372,7 @@ class _AddHolidayMappingMasterScreenState
               size: 18,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

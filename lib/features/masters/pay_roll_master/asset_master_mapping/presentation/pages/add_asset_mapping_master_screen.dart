@@ -253,7 +253,7 @@ class _AddAssetMappingMasterScreenState
   }
 
   // SUBMIT FORM
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -776,7 +776,7 @@ class _AddAssetMappingMasterScreenState
                     color: AppColor.white,
                   ),
                   text: _isEditMode ? "Update" : "Add",
-                  onPressed: _submitForm,
+                  onPressed: _saveForm,
                 ),
               ),
             ],

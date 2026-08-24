@@ -41,7 +41,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     _cubit.pullGSTonExistingPlusFreeArea(
       projectId: widget.projectId,
       buildingId: widget.buildingId,
@@ -58,7 +58,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _gstOnAreaByMemberPercentC = TextEditingController();
     _gstOnAreaByDeveloperPercentC = TextEditingController();
     _totalGstC = TextEditingController(text: '0');

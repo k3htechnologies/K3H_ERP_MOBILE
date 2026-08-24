@@ -54,7 +54,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     widget.onSave(_onSave);
     _cubit.pullHardshipDetails(
       projectId: widget.projectId,
@@ -71,7 +71,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _residentialAmountC = TextEditingController();
     _commercialAmountC = TextEditingController();
     _remarkC = TextEditingController();

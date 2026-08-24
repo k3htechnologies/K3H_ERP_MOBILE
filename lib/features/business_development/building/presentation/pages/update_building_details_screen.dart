@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -21,7 +20,6 @@ class UpdateBuildingDetailsScreen extends StatefulWidget {
     super.key,
     required this.buildingDetailsModel,
   });
-
   @override
   State<UpdateBuildingDetailsScreen> createState() =>
       _UpdateBuildingDetailsScreenState();
@@ -31,9 +29,7 @@ class _UpdateBuildingDetailsScreenState
     extends State<UpdateBuildingDetailsScreen> {
   late BuildingCubit _buildingCubit;
   late ProjectModel _project;
-
   final _formKey = GlobalKey<FormState>();
-
   late TextEditingController _grossPlotAreaC,
       _plotAreaPhysicalSurveyC,
       _plotAreaOldApprovedPlanC,
@@ -61,27 +57,22 @@ class _UpdateBuildingDetailsScreenState
       _brokerContactNameC,
       _brokerMobileNumberC,
       _brokerEmailIdC;
-
   @override
   void initState() {
     super.initState();
     _buildingCubit = context.read<BuildingCubit>();
     _project = getProject();
-    _initializeControllers();
-
-    _prefillDetails(widget.buildingDetailsModel);
+    _initializeTextEditingControllers();
+    _populateFormFields(widget.buildingDetailsModel);
   }
 
   @override
   void dispose() {
-    // PLOT AREA Controllers
     _grossPlotAreaC.dispose();
     _plotAreaPhysicalSurveyC.dispose();
     _plotAreaOldApprovedPlanC.dispose();
     _plotAreaConveyanceC.dispose();
     _plotAreaPRCardC.dispose();
-
-    // CONSTRUCTION DETAILS Controllers
     _totalCarpetAreaC.dispose();
     _totalResidentialUnitsC.dispose();
     _totalResidentialCarpetAreaC.dispose();
@@ -89,42 +80,30 @@ class _UpdateBuildingDetailsScreenState
     _totalCommercialCarpetAreaC.dispose();
     _garageCarpetAreaC.dispose();
     _terraceCarpetAreaC.dispose();
-    // CONTACT DETAILS CONTROLLERS - CHAIRMAN
     _chairmanContactNameC.dispose();
     _chairmanMobileNumberC.dispose();
     _chairmanEmailIdC.dispose();
-
-    // CONTACT DETAILS CONTROLLERS - SECRETARY
     _secretaryContactNameC.dispose();
     _secretaryMobileNumberC.dispose();
     _secretaryEmailIdC.dispose();
-
-    // CONTACT DETAILS CONTROLLERS - TREASURER
     _treasurerContactNameC.dispose();
     _treasurerMobileNumberC.dispose();
     _treasurerEmailIdC.dispose();
-
-    // CONTACT DETAILS CONTROLLERS - PMC
     _pmcContactNameC.dispose();
     _pmcMobileNumberC.dispose();
     _pmcEmailIdC.dispose();
-
-    // CONTACT DETAILS CONTROLLERS - BROKER
     _brokerContactNameC.dispose();
     _brokerMobileNumberC.dispose();
     _brokerEmailIdC.dispose();
-
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _grossPlotAreaC = TextEditingController();
     _plotAreaPhysicalSurveyC = TextEditingController();
     _plotAreaOldApprovedPlanC = TextEditingController();
     _plotAreaConveyanceC = TextEditingController();
     _plotAreaPRCardC = TextEditingController();
-
     _totalCarpetAreaC = TextEditingController();
     _totalResidentialUnitsC = TextEditingController();
     _totalResidentialCarpetAreaC = TextEditingController();
@@ -132,30 +111,24 @@ class _UpdateBuildingDetailsScreenState
     _totalCommercialCarpetAreaC = TextEditingController();
     _garageCarpetAreaC = TextEditingController();
     _terraceCarpetAreaC = TextEditingController();
-
     _chairmanContactNameC = TextEditingController();
     _chairmanMobileNumberC = TextEditingController();
     _chairmanEmailIdC = TextEditingController();
-
     _secretaryContactNameC = TextEditingController();
     _secretaryMobileNumberC = TextEditingController();
     _secretaryEmailIdC = TextEditingController();
-
     _treasurerContactNameC = TextEditingController();
     _treasurerMobileNumberC = TextEditingController();
     _treasurerEmailIdC = TextEditingController();
-
     _pmcContactNameC = TextEditingController();
     _pmcMobileNumberC = TextEditingController();
     _pmcEmailIdC = TextEditingController();
-
     _brokerContactNameC = TextEditingController();
     _brokerMobileNumberC = TextEditingController();
     _brokerEmailIdC = TextEditingController();
   }
 
-  // PREFILL DETAILS
-  void _prefillDetails(BuildingDetailsModel buildingDetails) {
+  void _populateFormFields(BuildingDetailsModel buildingDetails) {
     _grossPlotAreaC.text = buildingDetails.grossPlotAreaSqFt.toString();
     _plotAreaPhysicalSurveyC.text =
         buildingDetails.plotAreaPhysicalSurveySqFt.toString();
@@ -164,7 +137,6 @@ class _UpdateBuildingDetailsScreenState
     _plotAreaConveyanceC.text =
         buildingDetails.plotAreaConveyanceSqFt.toString();
     _plotAreaPRCardC.text = buildingDetails.plotAreaPRCardSqFt.toString();
-
     _totalCarpetAreaC.text = buildingDetails.totalCarpetAreaSqFt.toString();
     _totalResidentialUnitsC.text =
         buildingDetails.totalResidentialUnits.toString();
@@ -176,7 +148,6 @@ class _UpdateBuildingDetailsScreenState
         buildingDetails.totalCommercialCarpetAreaSqFt.toString();
     _garageCarpetAreaC.text = buildingDetails.garageCarpetAreaSqFt.toString();
     _terraceCarpetAreaC.text = buildingDetails.terraceCarpetAreaSqFt.toString();
-
     for (var contact in buildingDetails.buildingKeyContactDetailsData) {
       switch (contact.contactType) {
         case 'Chairman':
@@ -208,7 +179,6 @@ class _UpdateBuildingDetailsScreenState
     }
   }
 
-  // SAVE FORM
   void _saveForm() {
     if (_formKey.currentState?.validate() ?? false) {
       _buildingCubit.updateBuildingDetails(
@@ -274,12 +244,12 @@ class _UpdateBuildingDetailsScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Plot Area Details",
+                      "Building Plot Area",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'Gross Plot Area (SqFt)',
+                      title: 'Gross Plot Area (SqMt)',
                       hint: 'Enter Gross Plot Area',
                       textController: _grossPlotAreaC,
                       isRequired: true,
@@ -288,12 +258,10 @@ class _UpdateBuildingDetailsScreenState
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            ((double.tryParse(value) ?? 0) <= 0)) {
                           return 'Gross Plot Area is required';
-                        }
-                        final numValue = double.tryParse(value);
-                        if (numValue == null || numValue <= 0) {
-                          return 'Please enter a valid number';
                         }
                         return null;
                       },
@@ -306,15 +274,6 @@ class _UpdateBuildingDetailsScreenState
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: 'Plot Area Old Approved Plan (SqFt)',
@@ -324,51 +283,24 @@ class _UpdateBuildingDetailsScreenState
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
-                      title: 'Plot Area Conveyance (SqFt)',
+                      title: 'Plot Area Conveyance (SqMt)',
                       hint: 'Enter Plot Area Conveyance',
                       textController: _plotAreaConveyanceC,
                       inputFormatterList: InputValidator.digitWithDecimal(
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
-                      title: 'Plot Area PR Card (SqFt)',
+                      title: 'Plot Area PR Card (SqMt)',
                       hint: 'Enter Plot Area PR Card',
                       textController: _plotAreaPRCardC,
                       inputFormatterList: InputValidator.digitWithDecimal(
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                   ],
                 ),
@@ -381,13 +313,13 @@ class _UpdateBuildingDetailsScreenState
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Construction Details",
+                      "Existing Details",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'Total Built Up Area (SqFt)',
-                      hint: 'Enter Total Built Up Area',
+                      title: 'Total Carpet Area (SqFt)',
+                      hint: 'Enter Total Carpet Area (SqFt)',
                       textController: _totalCarpetAreaC,
                       isRequired: true,
                       inputFormatterList: InputValidator.digitWithDecimal(
@@ -395,12 +327,10 @@ class _UpdateBuildingDetailsScreenState
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Total Built Up Area is required';
-                        }
-                        final numValue = double.tryParse(value);
-                        if (numValue == null || numValue <= 0) {
-                          return 'Please enter a valid number';
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            ((double.tryParse(value) ?? 0) <= 0)) {
+                          return 'Total Carpet Area is required';
                         }
                         return null;
                       },
@@ -411,15 +341,6 @@ class _UpdateBuildingDetailsScreenState
                       textController: _totalResidentialUnitsC,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(9),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = int.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: 'Total Residential Carpet Area (SqFt)',
@@ -429,15 +350,6 @@ class _UpdateBuildingDetailsScreenState
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: 'Total Commercial Units',
@@ -445,15 +357,6 @@ class _UpdateBuildingDetailsScreenState
                       textController: _totalCommercialUnitsC,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(9),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = int.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: 'Total Commercial Carpet Area (SqFt)',
@@ -463,15 +366,6 @@ class _UpdateBuildingDetailsScreenState
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: 'Garage Carpet Area (SqFt)',
@@ -481,15 +375,6 @@ class _UpdateBuildingDetailsScreenState
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: 'Terrace Carpet Area (SqFt)',
@@ -499,15 +384,6 @@ class _UpdateBuildingDetailsScreenState
                         maxDigitsBeforeDecimal: 16,
                       ),
                       keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value != null && value.isNotEmpty) {
-                          final numValue = double.tryParse(value);
-                          if (numValue == null || numValue < 0) {
-                            return 'Please enter a valid number';
-                          }
-                        }
-                        return null;
-                      },
                     ),
                   ],
                 ),
@@ -571,7 +447,8 @@ class _UpdateBuildingDetailsScreenState
           height: 70,
           padding: const EdgeInsets.all(16),
           child: CustomButton(
-            text: "Update Building Details",
+            leading: Icon(Icons.edit, size: 18, color: AppColor.white),
+            text: "Update",
             onPressed: _saveForm,
           ),
         ),

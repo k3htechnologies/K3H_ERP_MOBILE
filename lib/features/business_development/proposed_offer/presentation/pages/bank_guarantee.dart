@@ -62,7 +62,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     widget.onSave(_onSave);
     _cubit.pullBankGuaranteeDetails(
       context: context,
@@ -83,7 +83,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _accountHolderNameC = TextEditingController();
     _stageController = TextEditingController();
     _bankGuaranteeAmountController = TextEditingController();

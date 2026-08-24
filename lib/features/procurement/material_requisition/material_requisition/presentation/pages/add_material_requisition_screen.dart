@@ -75,7 +75,7 @@ class _AddMaterialRequisitionScreenState
     _remarkC.text = widget.materialRequisitionModel!.remarks;
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
 
     if (_materialRequisitionCubit.state.materialList.isEmpty) {
@@ -326,7 +326,7 @@ class _AddMaterialRequisitionScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           color: AppColor.white,
-          child: CustomButton(text: "Save", onPressed: _submitForm),
+          child: CustomButton(text: "Save", onPressed: _saveForm),
         ),
       ),
     );

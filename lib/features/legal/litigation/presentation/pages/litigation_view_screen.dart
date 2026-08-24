@@ -1146,7 +1146,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
       bottomActions: CustomButton(
         text: documentModel != null ? "Update Document" : "Add Document",
         onPressed: () {
-          _submitForm(
+          _saveForm(
             documentModel: documentModel,
             index: index,
             projectId: widget.litigationModel.projectId,
@@ -1158,7 +1158,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
   }
 
   // SUBMIT DOCUMENT
-  void _submitForm({
+  void _saveForm({
     LitigationDocumentModel? documentModel,
     int? index,
     required int projectId,

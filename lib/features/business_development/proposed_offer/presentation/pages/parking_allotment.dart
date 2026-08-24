@@ -42,7 +42,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
-    _initializeControllers();
+    _initializeTextEditingControllers();
     widget.onSave(_onSave);
     _cubit.pullParkingAllotment(
       projectId: widget.projectId,
@@ -60,7 +60,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
     super.dispose();
   }
 
-  void _initializeControllers() {
+  void _initializeTextEditingControllers() {
     _numberOfParkingC = TextEditingController();
     _totalParkingPercentageC = TextEditingController();
     _remarkC = TextEditingController();
@@ -204,6 +204,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                           title: 'Remark',
                           hint: 'Enter Remark',
                           textController: _remarkC,
+                          readOnly: disableAction,
                           minLines: 3,
                           maxLines: 3,
                         ),

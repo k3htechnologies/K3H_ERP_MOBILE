@@ -14,13 +14,13 @@ class BuildingState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final String filterCTSNumber;
+  final String filterCategory;
   final String filterRoadWidth;
   final String filterCity;
   final String filterVillage;
   final String filterWard;
   const BuildingState({
     super.isLoading,
-    super.stateType,
     required this.buildingList,
     this.buildingDetails,
     required this.buildingDocumentList,
@@ -34,6 +34,7 @@ class BuildingState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
     required this.filterCTSNumber,
+    required this.filterCategory,
     required this.filterRoadWidth,
     required this.filterCity,
     required this.filterVillage,
@@ -54,15 +55,14 @@ class BuildingState extends BaseState {
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
     filterCTSNumber: "",
+    filterCategory: "",
     filterRoadWidth: "",
     filterCity: "",
     filterVillage: "",
     filterWard: "",
   );
-
   BuildingState copyWith({
     bool? isLoading,
-    StateType? stateType,
     List<BusinessDevelopmentBuildingModel>? buildingList,
     BuildingDetailsModel? buildingDetails,
     List<BuildingDocumentModel>? buildingDocumentList,
@@ -75,6 +75,7 @@ class BuildingState extends BaseState {
     String? documentSearchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterCategory,
     String? filterCTSNumber,
     String? filterRoadWidth,
     String? filterCity,
@@ -83,7 +84,6 @@ class BuildingState extends BaseState {
   }) {
     return BuildingState(
       isLoading: isLoading ?? this.isLoading,
-      stateType: stateType ?? this.stateType,
       buildingList: buildingList ?? this.buildingList,
       buildingDetails: buildingDetails ?? this.buildingDetails,
       buildingDocumentList: buildingDocumentList ?? this.buildingDocumentList,
@@ -98,6 +98,7 @@ class BuildingState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterCTSNumber: filterCTSNumber ?? this.filterCTSNumber,
+      filterCategory: filterCategory ?? this.filterCategory,
       filterRoadWidth: filterRoadWidth ?? this.filterRoadWidth,
       filterCity: filterCity ?? this.filterCity,
       filterVillage: filterVillage ?? this.filterVillage,
@@ -120,6 +121,7 @@ class BuildingState extends BaseState {
     currentSortColumn,
     currentSortDirection,
     filterCTSNumber,
+    filterCategory,
     filterRoadWidth,
     filterCity,
     filterVillage,

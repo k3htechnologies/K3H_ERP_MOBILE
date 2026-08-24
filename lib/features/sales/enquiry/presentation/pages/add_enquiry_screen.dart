@@ -583,7 +583,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
   }
 
   // SUBMIT FORM
-  void _submitForm(BuildContext context) async {
+  void _saveForm(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
     // VERIFY OTP ONLY IN FIRST ONBOARDING STAGE AND USER IS INDIAN
@@ -1195,7 +1195,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               size: 18,
             ),
             text: !_isEditMode ? 'Add' : 'Update',
-            onPressed: () => _submitForm(context),
+            onPressed: () => _saveForm(context),
             backgroundColor: AppColor.primary,
           ),
         ),

@@ -231,7 +231,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
     setFileLists(paymentProofURLFundFile, applicant.paymentProofURL);
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     // PREVENT DUPLICATE PRIMARY APPLICANT
@@ -938,7 +938,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
           color: AppColor.white,
           child: CustomButton(
             text: isEditMode ? "Update Applicant" : "Add Applicant",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

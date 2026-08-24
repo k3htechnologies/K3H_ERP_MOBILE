@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -19,17 +18,10 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class BuildingDetailsView extends StatelessWidget {
   final bool canAction;
   const BuildingDetailsView({super.key, required this.canAction});
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BuildingCubit, BuildingState>(
       builder: (context, state) {
-        if ((state.isLoading ?? true) && state.buildingDetails == null) {
-          return Center(child: loader());
-        }
-        if (state.buildingDetails == null) {
-          return Center(child: noDataWidget());
-        }
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           child: Column(
@@ -60,7 +52,6 @@ class BuildingDetailsView extends StatelessWidget {
                 ],
               ),
               verticalSpacing(),
-              // BUILDING PLOT AREA
               SectionCard(
                 title: 'Building Plot Area',
                 titleTextColor: AppColor.primary,
@@ -73,13 +64,13 @@ class BuildingDetailsView extends StatelessWidget {
                       buildColumnTitleValue(
                         title: "Gross Plot Area (Sq. ft)",
                         value:
-                            state.buildingDetails!.grossPlotAreaSqFt
+                            state.buildingDetails?.grossPlotAreaSqFt
                                 .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "PR Card Area(Sq. ft)",
                         value:
-                            state.buildingDetails!.plotAreaPRCardSqFt
+                            state.buildingDetails?.plotAreaPRCardSqFt
                                 .addCommas(),
                       ),
                     ],
@@ -91,13 +82,13 @@ class BuildingDetailsView extends StatelessWidget {
                       buildColumnTitleValue(
                         title: "Old Approved Plan Area (Sq. ft)",
                         value:
-                            state.buildingDetails!.plotAreaOldApprovedPlanSqFt
+                            state.buildingDetails?.plotAreaOldApprovedPlanSqFt
                                 .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Conveyance Area (Sq. ft)",
                         value:
-                            state.buildingDetails!.plotAreaConveyanceSqFt
+                            state.buildingDetails?.plotAreaConveyanceSqFt
                                 .addCommas(),
                       ),
                     ],
@@ -108,7 +99,7 @@ class BuildingDetailsView extends StatelessWidget {
                       buildColumnTitleValue(
                         title: "Physical Survey Area (Sq. ft)",
                         value:
-                            state.buildingDetails!.plotAreaPhysicalSurveySqFt
+                            state.buildingDetails?.plotAreaPhysicalSurveySqFt
                                 .addCommas(),
                       ),
                       Expanded(child: SizedBox()),
@@ -116,7 +107,6 @@ class BuildingDetailsView extends StatelessWidget {
                   ),
                 ],
               ),
-              // BUILDING CONSTRUCTION DETAILS
               SectionCard(
                 title: 'Building Construction Details',
                 titleTextColor: AppColor.primary,
@@ -129,13 +119,13 @@ class BuildingDetailsView extends StatelessWidget {
                       buildColumnTitleValue(
                         title: "Total Carpet Area (SqFt)",
                         value:
-                            state.buildingDetails!.totalCarpetAreaSqFt
+                            state.buildingDetails?.totalCarpetAreaSqFt
                                 .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Total Residential Units",
                         value:
-                            state.buildingDetails!.totalResidentialUnits
+                            state.buildingDetails?.totalResidentialUnits
                                 .addCommas(),
                       ),
                     ],
@@ -148,14 +138,14 @@ class BuildingDetailsView extends StatelessWidget {
                         title: "Residential Carpet Area (Sq. ft)",
                         value:
                             state
-                                .buildingDetails!
-                                .totalResidentialCarpetAreaSqFt
+                                .buildingDetails
+                                ?.totalResidentialCarpetAreaSqFt
                                 .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Total Commercial Units",
                         value:
-                            state.buildingDetails!.totalCommercialUnits
+                            state.buildingDetails?.totalCommercialUnits
                                 .addCommas(),
                       ),
                     ],
@@ -166,13 +156,13 @@ class BuildingDetailsView extends StatelessWidget {
                       buildColumnTitleValue(
                         title: "Commercial Carpet Area (Sq. ft)",
                         value:
-                            state.buildingDetails!.totalCommercialCarpetAreaSqFt
+                            state.buildingDetails?.totalCommercialCarpetAreaSqFt
                                 .addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Garage Carpet Area (SqFt)",
                         value:
-                            state.buildingDetails!.garageCarpetAreaSqFt
+                            state.buildingDetails?.garageCarpetAreaSqFt
                                 .addCommas(),
                       ),
                     ],
@@ -181,67 +171,65 @@ class BuildingDetailsView extends StatelessWidget {
                     child: buildColumnTitleValue(
                       title: "Terrace Carpet Area (SqFt)",
                       value:
-                          state.buildingDetails!.terraceCarpetAreaSqFt
+                          state.buildingDetails?.terraceCarpetAreaSqFt
                               .addCommas(),
                     ),
                   ),
                 ],
               ),
-              // BUILDING KEY CONTACT DETAILS
               SectionCard(
                 title: 'Building Key Contact Details',
                 titleTextColor: AppColor.primary,
                 headerBackgroundColor: AppColor.lightBlue,
                 children: [
-                  ...state.buildingDetails!.buildingKeyContactDetailsData.map((
-                    contact,
-                  ) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          contact.contactType.isEmpty
-                              ? "-"
-                              : contact.contactType,
-                          style: AppTextStyle.ts14M(),
-                        ),
-                        verticalSpacing(height: 2.h),
-
-                        buildRowTitleValue(
-                          title: "Contact Name",
-                          value:
-                              contact.contactName.isEmpty
+                  ...(state.buildingDetails?.buildingKeyContactDetailsData ??
+                          [])
+                      .map((contact) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              contact.contactType.isEmpty
                                   ? "-"
-                                  : contact.contactName,
-                          singleLine: false,
-                        ),
-
-                        buildRowTitleValue(
-                          title: "Mobile Number",
-                          value:
-                              contact.mobileNumber.isEmpty
-                                  ? "-"
-                                  : contact.mobileNumber,
-                          singleLine: false,
-                          customValueWidget: CustomClickToContactText(
-                            countryCode: "+91",
-                            value: contact.mobileNumber,
-                          ),
-                        ),
-
-                        buildRowTitleValue(
-                          title: "Email Id",
-                          value:
-                              contact.emailId.isEmpty ? "-" : contact.emailId,
-                          singleLine: false,
-                          customValueWidget: CustomClickToContactText(
-                            value: contact.emailId,
-                            type: ContactType.email,
-                          ),
-                        ),
-                      ],
-                    );
-                  }),
+                                  : contact.contactType,
+                              style: AppTextStyle.ts14M(),
+                            ),
+                            verticalSpacing(height: 2.h),
+                            buildRowTitleValue(
+                              title: "Contact Name",
+                              value:
+                                  contact.contactName.isEmpty
+                                      ? "-"
+                                      : contact.contactName,
+                              singleLine: false,
+                            ),
+                            buildRowTitleValue(
+                              title: "Mobile Number",
+                              value:
+                                  contact.mobileNumber.isEmpty
+                                      ? "-"
+                                      : contact.mobileNumber,
+                              singleLine: false,
+                              customValueWidget: CustomClickToContactText(
+                                countryCode: "+91",
+                                value: contact.mobileNumber,
+                              ),
+                            ),
+                            buildRowTitleValue(
+                              title: "Email Id",
+                              value:
+                                  contact.emailId.isEmpty
+                                      ? "-"
+                                      : contact.emailId,
+                              singleLine: false,
+                              customValueWidget: CustomClickToContactText(
+                                value: contact.emailId,
+                                type: ContactType.email,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                 ],
               ),
             ],

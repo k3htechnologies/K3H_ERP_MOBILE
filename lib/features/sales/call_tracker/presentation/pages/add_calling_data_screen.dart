@@ -70,7 +70,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
     }
   }
 
-  void _submitForm() {
+  void _saveForm() {
     if (_formKey.currentState!.validate()) {
       if (_isEditMode) {
         _callTrackerCubit.updateCallingData(
@@ -211,7 +211,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
               size: 16,
             ),
             text: _isEditMode ? "Update" : "Add",
-            onPressed: _submitForm,
+            onPressed: _saveForm,
           ),
         ),
       ),

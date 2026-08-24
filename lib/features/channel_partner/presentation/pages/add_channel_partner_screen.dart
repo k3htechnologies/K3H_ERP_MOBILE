@@ -541,15 +541,15 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
           "Address Details": true,
         },
         onVerifyOTP: () {
-          _submitForm();
+          _saveForm();
         },
       );
     } else {
-      _submitForm();
+      _saveForm();
     }
   }
 
-  void _submitForm() {
+  void _saveForm() {
     final companyTypeId = selectedCompanyType.value?['zAttributesId'];
 
     final String companyName =

@@ -33,7 +33,8 @@ abstract interface class BuildingDatasource {
   });
 
   Future<Map<String, dynamic>> apicallAddUpdateBuilding({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   });
 
   Future<Map<String, dynamic>> apicallAddUpdateBuildingDetails({
@@ -238,15 +239,18 @@ class BuildingDatasourceImpl implements BuildingDatasource {
 
   @override
   Future<Map<String, dynamic>> apicallAddUpdateBuilding({
-    required Map<String, dynamic> body,
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateBuildingUrl = "Building/AddUpdateBuilding";
 
     try {
-      var networkResponse = await baseClient.postRequestWithAuthentication(
-        addUpdateBuildingUrl,
-        body,
-      );
+      var networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateBuildingUrl,
+            fileList,
+            body,
+          );
       return {
         'data': List<BusinessDevelopmentBuildingModel>.from(
           networkResponse["data"].map(
@@ -258,7 +262,7 @@ class BuildingDatasourceImpl implements BuildingDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallAddUpdateBuilding(body: body);
+        apicallAddUpdateBuilding(body: body, fileList: fileList);
       }
       rethrow;
     }

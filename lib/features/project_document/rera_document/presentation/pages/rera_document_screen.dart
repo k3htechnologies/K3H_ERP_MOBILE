@@ -118,7 +118,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   }
 
   // SUBMIT FORM
-  void _submitForm({RERADocumentModel? documentModel, int? index}) {
+  void _saveForm({RERADocumentModel? documentModel, int? index}) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -180,7 +180,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
       bottomActions: CustomButton(
         text: documentModel != null ? "Update Document" : "Add Document",
         onPressed: () {
-          _submitForm(documentModel: documentModel, index: index);
+          _saveForm(documentModel: documentModel, index: index);
         },
       ),
     );
