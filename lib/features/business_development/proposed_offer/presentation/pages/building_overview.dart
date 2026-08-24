@@ -5,7 +5,6 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 
 class ProposedOfferBuildingOverview extends StatefulWidget {
   const ProposedOfferBuildingOverview({super.key});
-
   @override
   State<ProposedOfferBuildingOverview> createState() =>
       _ProposedOfferBuildingOverviewState();

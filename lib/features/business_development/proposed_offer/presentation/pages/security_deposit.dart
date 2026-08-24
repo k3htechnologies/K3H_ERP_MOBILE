@@ -27,7 +27,6 @@ class SecurityDeposit extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const SecurityDeposit({
     super.key,
     required this.projectId,
@@ -35,34 +34,24 @@ class SecurityDeposit extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<SecurityDeposit> createState() => _SecurityDepositState();
 }
 
 class _SecurityDepositState extends State<SecurityDeposit> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _securityDepositAmountC,
       _interestAmountC,
       _remarkC;
-
   final ValueNotifier<
     List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
   >
   _securityDepositListNotifier = ValueNotifier<
     List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
   >([]);
-
   List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
   get _securityDepositList => _securityDepositListNotifier.value;
-
-  // SECURITY DEPOSIT FORM CONTROLLERS
   final ValueNotifier<Map<String, dynamic>?> _selectedSecurityDepositType =
       ValueNotifier<Map<String, dynamic>?>(null);
   late TextEditingController _stageController;
@@ -70,7 +59,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   final GlobalKey<FormState> _securityDepositFormKey = GlobalKey<FormState>();
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
   final ValueNotifier<bool> _isRelease = ValueNotifier(false);
-
   @override
   void initState() {
     super.initState();
@@ -95,7 +83,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _securityDepositAmountC = TextEditingController();
     _stageController = TextEditingController();
@@ -104,8 +91,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _remarkC = TextEditingController();
   }
 
-  // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     var securityDepositDetailsModel = _cubit.state.securityDepositDetails!;
     _securityDepositAmountC.text =
         securityDepositDetailsModel.securityDepositToSocietyAmount.toString();
@@ -118,7 +104,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _remarkC.text = securityDepositDetailsModel.remark;
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_securityDepositList.isEmpty) {
@@ -143,15 +128,15 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     }
   }
 
-  // BOTTOM SHEET TO ADD SECURITY DEPOSIT DETAILS
   Future<void> _showSecurityDepositBottomSheet({
     ProposedOfferSecurityDepositDetailsWithPaymentStageData? securityDeposit,
     int? index,
   }) async {
     if (securityDeposit != null) {
       _prefillBottomSheet(securityDeposit);
+    } else {
+      _clearDialog();
     }
-
     await DialogHelper.showCustomBottomSheet(
       context,
       "${securityDeposit != null ? 'Update' : 'Add'} Security Deposit Details",
@@ -164,7 +149,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                /// TYPE
                 CustomDropDownWidget(
                   isRequired: true,
                   initialValue: selectedSecurityDepositType,
@@ -182,8 +166,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                   },
                   onValueClear: () => _selectedSecurityDepositType.value = null,
                 ),
-
-                /// STAGE
                 CustomTextField(
                   title: "Stage",
                   isRequired: true,
@@ -196,8 +178,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                     return null;
                   },
                 ),
-
-                /// AMOUNT
                 CustomTextField(
                   title: "Amount (₹)",
                   isRequired: true,
@@ -210,12 +190,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                     if (value == null || value.trim().isEmpty) {
                       return "Amount is required";
                     }
-
-                    // if (_isSecurityAmountExceeding(index)) {
-                    //   return "Total amount cannot exceed "
-                    //       "${_securityDepositAmountC.text}";
-                    // }
-
                     return null;
                   },
                 ),
@@ -287,7 +261,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                         isRelease: _isRelease.value,
                       );
                 }
-
                 _securityDepositListNotifier.value = newList;
                 goRouter.pop();
               }
@@ -296,11 +269,8 @@ class _SecurityDepositState extends State<SecurityDeposit> {
         },
       ),
     );
-
-    _clearDialog();
   }
 
-  // PREFILL BOTTOM SHEET
   void _prefillBottomSheet(
     ProposedOfferSecurityDepositDetailsWithPaymentStageData securityDeposit,
   ) {
@@ -364,7 +334,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.securityDepositDetails != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _securityDepositAmountC.clear();
             _selectedSecurityDepositType.value = null;
@@ -409,7 +379,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                             ),
                           ],
                         ),
-
                         verticalSpacing(height: 15),
                         CustomTextField(
                           title: 'Security Deposit Amount',
@@ -445,7 +414,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           minLines: 3,
                           maxLines: 3,
                         ),
-                        // SECURITY DEPOSIT DETAILS SECTION
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -484,7 +452,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                                       (index) {
                                         final securityDeposit =
                                             securityDepositList[index];
-
                                         return ProposedOfferInfoCard(
                                           title: securityDeposit.stage,
                                           disable: disableAction,
@@ -572,7 +539,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

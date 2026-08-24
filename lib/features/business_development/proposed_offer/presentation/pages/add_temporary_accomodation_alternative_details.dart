@@ -26,7 +26,6 @@ class AddTemporaryAccommodationAlternativeDetails extends StatefulWidget {
   final int projectId;
   final int buildingId;
   final String buildingName;
-
   const AddTemporaryAccommodationAlternativeDetails({
     super.key,
     this.taaDetailsModel,
@@ -35,7 +34,6 @@ class AddTemporaryAccommodationAlternativeDetails extends StatefulWidget {
     required this.buildingId,
     required this.buildingName,
   });
-
   @override
   State<AddTemporaryAccommodationAlternativeDetails> createState() =>
       _AddTemporaryAccommodationAlternativeDetailsState();
@@ -45,29 +43,22 @@ class _AddTemporaryAccommodationAlternativeDetailsState
     extends State<AddTemporaryAccommodationAlternativeDetails> {
   late ProposedOfferCubit _cubit;
   final _formKey = GlobalKey<FormState>();
-
   bool get _isEditMode => widget.taaDetailsModel != null;
-
   final ValueNotifier<bool> _isPayTAA = ValueNotifier(false);
   final ValueNotifier<bool> _isAdditionalTemporaryAccommodationAlternative =
       ValueNotifier(false);
   final ValueNotifier<bool> _isPayBrokerage = ValueNotifier(false);
   final ValueNotifier<bool> _isPerSqFt = ValueNotifier(true);
-
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _carpetAreaController = TextEditingController();
-
   final ValueNotifier<DateTime?> _taaStartDate = ValueNotifier(null);
   final ValueNotifier<DateTime?> _taaEndDate = ValueNotifier(null);
-
   final ValueNotifier<Map<String, dynamic>?> _selectedType = ValueNotifier(
     null,
   );
-
   final ValueNotifier<Map<String, dynamic>?> _selectedTenure = ValueNotifier(
     null,
   );
-
   @override
   void initState() {
     _cubit = context.read<ProposedOfferCubit>();
@@ -87,13 +78,10 @@ class _AddTemporaryAccommodationAlternativeDetailsState
         taaDetailsModel.isAdditionalTemporaryAlternateAccommodation;
     _isPayBrokerage.value = taaDetailsModel.isPayBrokerage;
     _isPayTAA.value = taaDetailsModel.isPayTAA;
-
-    // Prefill dropdowns
     _selectedType.value = propertyTypeList.firstWhere(
       (e) => e['DisplayName'] == taaDetailsModel.type,
       orElse: () => propertyTypeList.first,
     );
-
     _selectedTenure.value = tenureList.firstWhere(
       (e) => e['DisplayName'] == taaDetailsModel.tenure,
       orElse: () => tenureList.first,
@@ -104,76 +92,55 @@ class _AddTemporaryAccommodationAlternativeDetailsState
             : false;
   }
 
-  // API CALLS TO ADD/UPDATE RENT DETAILS
-  Future<void> _addUpdateTemporaryAccommodationAlternativeDetails(
-    BuildContext context,
-    TemporaryAlternativeAccommodationDetailsModel? taaDetailsModel,
-    ProposedOfferState state,
-    int index,
-  ) async {
-    if (_formKey.currentState!.validate()) {
-      debugPrint(
-        "Adding/Updating Temporary Accommodation Alternative Details ${taaDetailsModel?.proposedOfferTemporaryAlternateAccommodationDetailsId ?? 0}",
-      );
-      taaDetailsModel != null
-          ? _cubit.updateTemporaryAccommodationAlternativeDetails(
-            context,
-            buildingId: widget.buildingId,
-            projectId: widget.projectId,
-            proposedOfferTemporaryAlternateAccommodationDetailsId:
-                taaDetailsModel
-                    .proposedOfferTemporaryAlternateAccommodationDetailsId,
-            uniqueKey: taaDetailsModel.uniquekey,
-            isAdditionalTemporaryAlternateAccommodation:
-                _isAdditionalTemporaryAccommodationAlternative.value,
-            type: _selectedType.value!['DisplayName'],
-            tenure:
-                _isAdditionalTemporaryAccommodationAlternative.value != true
-                    ? (_selectedTenure.value?['DisplayName'] ?? "")
-                    : "",
-            amount: double.tryParse(_amountController.text) ?? 0,
-            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
-            carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
-            temporaryAlternateAccommodationStartDate: _taaStartDate.value,
-            temporaryAlternateAccommodationEndDate: _taaEndDate.value,
-            isPayBrokerage: _isPayBrokerage.value,
-            index: index,
-            isPayTAA: _isPayTAA.value,
-          )
-          : _cubit.addTemporaryAccommodationAlternativeDetails(
-            context,
-            buildingId: widget.buildingId,
-            projectId: widget.projectId,
-            isAdditionalTemporaryAlternateAccommodation:
-                _isAdditionalTemporaryAccommodationAlternative.value,
-            type: _selectedType.value!['DisplayName'],
-            tenure:
-                _isAdditionalTemporaryAccommodationAlternative.value != true
-                    ? (_selectedTenure.value?['DisplayName'] ?? "")
-                    : "",
-            amount: double.tryParse(_amountController.text) ?? 0,
-            unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
-            carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
-            temporaryAlternateAccommodationStartDate: _taaStartDate.value,
-            temporaryAlternateAccommodationEndDate: _taaEndDate.value,
-            isPayBrokerage: _isPayBrokerage.value,
-            isPayTAA: _isPayTAA.value,
-          );
-    }
-  }
-
   void _onSave({
     TemporaryAlternativeAccommodationDetailsModel? taaDetailsModel,
     int? index,
   }) {
-    if (_formKey.currentState!.validate()) {
-      _addUpdateTemporaryAccommodationAlternativeDetails(
-        context,
-        taaDetailsModel,
-        _cubit.state,
-        index ?? 0,
-      );
-    }
+    if (!_formKey.currentState!.validate()) return;
+    (_isEditMode)
+        ? _cubit.updateTemporaryAccommodationAlternativeDetails(
+          context,
+          buildingId: widget.buildingId,
+          projectId: widget.projectId,
+          proposedOfferTemporaryAlternateAccommodationDetailsId:
+              taaDetailsModel!
+                  .proposedOfferTemporaryAlternateAccommodationDetailsId,
+          uniqueKey: taaDetailsModel.uniquekey,
+          isAdditionalTemporaryAlternateAccommodation:
+              _isAdditionalTemporaryAccommodationAlternative.value,
+          type: _selectedType.value!['DisplayName'],
+          tenure:
+              _isAdditionalTemporaryAccommodationAlternative.value != true
+                  ? (_selectedTenure.value?['DisplayName'] ?? "")
+                  : "",
+          amount: double.tryParse(_amountController.text) ?? 0,
+          unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
+          carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
+          temporaryAlternateAccommodationStartDate: _taaStartDate.value,
+          temporaryAlternateAccommodationEndDate: _taaEndDate.value,
+          isPayBrokerage: _isPayBrokerage.value,
+          index: index!,
+          isPayTAA: _isPayTAA.value,
+        )
+        : _cubit.addTemporaryAccommodationAlternativeDetails(
+          context,
+          buildingId: widget.buildingId,
+          projectId: widget.projectId,
+          isAdditionalTemporaryAlternateAccommodation:
+              _isAdditionalTemporaryAccommodationAlternative.value,
+          type: _selectedType.value!['DisplayName'],
+          tenure:
+              _isAdditionalTemporaryAccommodationAlternative.value != true
+                  ? (_selectedTenure.value?['DisplayName'] ?? "")
+                  : "",
+          amount: double.tryParse(_amountController.text) ?? 0,
+          unitSqFtLumsum: _isPerSqFt.value == true ? 'Per Sq Ft' : 'Lumpsum',
+          carpetAreaSqFt: double.tryParse(_carpetAreaController.text) ?? 0,
+          temporaryAlternateAccommodationStartDate: _taaStartDate.value,
+          temporaryAlternateAccommodationEndDate: _taaEndDate.value,
+          isPayBrokerage: _isPayBrokerage.value,
+          isPayTAA: _isPayTAA.value,
+        );
   }
 
   @override
@@ -194,7 +161,6 @@ class _AddTemporaryAccommodationAlternativeDetailsState
               toTitleCase(widget.buildingName),
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 child: Form(
@@ -215,13 +181,10 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                         verticalSpacing(height: 15),
                         _buildBasicPreferenceCard(),
                         Divider(height: 30, color: AppColor.grey2),
-
                         _buildLeaseTermsCard(),
                         Divider(height: 30, color: AppColor.grey2),
-
                         _buildValuationCard(),
                         Divider(height: 30, color: AppColor.grey2),
-
                         _buildRentPeriodCard(),
                       ],
                     ),
@@ -366,9 +329,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
   Widget _buildValuationCard() {
     return _buildCardSection("Valuation Details", [
       Text("Additional Rent", style: AppTextStyle.ts14R()),
-
       verticalSpacing(height: 10),
-
       ValueListenableBuilder(
         valueListenable: _isPerSqFt,
         builder: (_, value, __) {
@@ -437,9 +398,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
           );
         },
       ),
-
       verticalSpacing(height: 16),
-
       CustomTextField(
         title: "Amount (₹)",
         textController: _amountController,
@@ -452,7 +411,6 @@ class _AddTemporaryAccommodationAlternativeDetailsState
         validator:
             (v) => (v == null || v.isEmpty) ? "Amount is required" : null,
       ),
-
       CustomTextField(
         title: "Carpet Area (Sq. ft)",
         textController: _carpetAreaController,
@@ -523,7 +481,6 @@ class _AddTemporaryAccommodationAlternativeDetailsState
   Widget _buildCardSection(String title, List<Widget> children) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-
       children: [
         Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
         verticalSpacing(),

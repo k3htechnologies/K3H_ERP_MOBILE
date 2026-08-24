@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/inventory/data/model/inventory_dashboard.mo
 import 'package:k3h_erp_app/features/inventory/data/model/project_inventory_structure.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class InventoryDatasource {
   Future<Map<String, dynamic>> apicallPullInventory({
@@ -500,25 +501,12 @@ class InventoryDatasourceImpl implements InventoryDatasource {
       required int pageSize,
       required int pageNumber,
       required int projectId,
-      String? buildingNumber,
-      String? wing,
-      String? floor,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
           "Inventory/PullPaginatedFlats?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
 
-      if (buildingNumber != null && buildingNumber.isNotEmpty) {
-        url += "&BuildingNumber=$buildingNumber";
-      }
-      if (wing != null && wing.isNotEmpty) {
-        url += "&Wing=$wing";
-      }
-      if (floor != null && floor.isNotEmpty) {
-        url += "&Floor=$floor";
-      }
-
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

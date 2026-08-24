@@ -17,7 +17,6 @@ class AdditionalInformationDetails extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const AdditionalInformationDetails({
     super.key,
     required this.projectId,
@@ -25,7 +24,6 @@ class AdditionalInformationDetails extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<AdditionalInformationDetails> createState() =>
       _AdditionalInformationDetailsState();
@@ -34,29 +32,22 @@ class AdditionalInformationDetails extends StatefulWidget {
 class _AdditionalInformationDetailsState
     extends State<AdditionalInformationDetails> {
   late ProposedOfferCubit _cubit;
-
   final _formKey = GlobalKey<FormState>();
-
   late TextEditingController _taxDetailsC,
       _taxRemarkC,
       _purchaseAdditionalAreaRemarkC,
       _additionalRemarkC;
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   @override
   void initState() {
     super.initState();
-
     _cubit = context.read<ProposedOfferCubit>();
-
     _initializeControllers();
-
     _cubit.pullAdditionalInformationDetails(
       context: context,
       projectId: widget.projectId,
       buildingId: widget.buildingId,
     );
-
     widget.onSave(_onSave);
   }
 
@@ -76,9 +67,8 @@ class _AdditionalInformationDetailsState
     _additionalRemarkC = TextEditingController();
   }
 
-  void fillData() {
+  void _populateFormFields() {
     final model = _cubit.state.additionalInformationDetails;
-
     if (model != null) {
       _taxDetailsC.text = model.taxAndDutiesDetails;
       _taxRemarkC.text = model.taxRemark;
@@ -115,7 +105,7 @@ class _AdditionalInformationDetailsState
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.additionalInformationDetails != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _taxDetailsC.clear();
             _taxRemarkC.clear();
@@ -127,7 +117,6 @@ class _AdditionalInformationDetailsState
           if (state.isLoading ?? true) {
             return loader();
           }
-
           return SingleChildScrollView(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -145,23 +134,20 @@ class _AdditionalInformationDetailsState
                           svgIcon: AppAssets.additionalInfoIcon,
                           title: "Additional Information",
                         ),
-
                         verticalSpacing(height: 15),
-
                         Text(
                           "Tax Details",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
                         verticalSpacing(),
-
                         CustomTextField(
                           title:
                               "Stamp Duty, Registration Charges, Other Govt. Levied Pertaining to Re-Development",
-                          hint: "Enter Tax Details",
+                          hint:
+                              "Enter Stamp Duty, Registration Charges, Other Govt. Levied Pertaining to Re-Development",
                           readOnly: disableAction,
                           textController: _taxDetailsC,
                         ),
-
                         CustomTextField(
                           title: "Remarks",
                           readOnly: disableAction,
@@ -172,12 +158,10 @@ class _AdditionalInformationDetailsState
                         ),
                         Divider(height: 1, color: AppColor.lightBlue),
                         verticalSpacing(),
-
                         Text(
                           "Purchase Of Additional Area Details",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
-
                         verticalSpacing(),
                         Padding(
                           padding: EdgeInsets.only(bottom: 12),
@@ -186,7 +170,6 @@ class _AdditionalInformationDetailsState
                             style: AppTextStyle.ts14R(),
                           ),
                         ),
-
                         Padding(
                           padding: EdgeInsets.only(bottom: 12),
                           child: Text(
@@ -194,7 +177,6 @@ class _AdditionalInformationDetailsState
                             style: AppTextStyle.ts14R(),
                           ),
                         ),
-
                         CustomTextField(
                           hint: "Enter Remarks",
                           textController: _purchaseAdditionalAreaRemarkC,
@@ -204,13 +186,11 @@ class _AdditionalInformationDetailsState
                         ),
                         Divider(height: 1, color: AppColor.lightBlue),
                         verticalSpacing(),
-
                         Text(
                           "Additional Remark",
                           style: AppTextStyle.ts14M(color: AppColor.grey),
                         ),
                         verticalSpacing(),
-
                         CustomTextField(
                           title: "Remarks",
                           hint: "Enter Remarks",
@@ -244,7 +224,6 @@ class _AdditionalInformationDetailsState
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

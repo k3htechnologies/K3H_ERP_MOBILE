@@ -18,7 +18,6 @@ class ParkingAllotment extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const ParkingAllotment({
     super.key,
     required this.projectId,
@@ -26,28 +25,19 @@ class ParkingAllotment extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<ParkingAllotment> createState() => _ParkingAllotmentState();
 }
 
 class _ParkingAllotmentState extends State<ParkingAllotment> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _numberOfParkingC,
       _totalParkingPercentageC,
       _remarkC;
-
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
-  final ValueNotifier<bool> disableNoOfParking = ValueNotifier(false);
-  final ValueNotifier<bool> disableParkingPercentage = ValueNotifier(false);
-
+  final ValueNotifier<bool> _disableNoOfParking = ValueNotifier(false);
+  final ValueNotifier<bool> _disableParkingPercentage = ValueNotifier(false);
   @override
   void initState() {
     super.initState();
@@ -65,28 +55,35 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
     _numberOfParkingC.dispose();
     _totalParkingPercentageC.dispose();
     _remarkC.dispose();
+    _disableNoOfParking.dispose();
+    _disableParkingPercentage.dispose();
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _numberOfParkingC = TextEditingController();
     _totalParkingPercentageC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
-  // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     var parkingAllotmentModel = _cubit.state.parkingAllotment!;
     _numberOfParkingC.text =
         parkingAllotmentModel.numberOfParkingAllottedToMembers.toString();
     _totalParkingPercentageC.text =
         parkingAllotmentModel.totalParkingPercentageAllottedToSociety
             .toString();
+    _disableNoOfParking.value =
+        parkingAllotmentModel.numberOfParkingAllottedToMembers == 0
+            ? true
+            : false;
+    _disableParkingPercentage.value =
+        parkingAllotmentModel.totalParkingPercentageAllottedToSociety == 0
+            ? true
+            : false;
     _remarkC.text = parkingAllotmentModel.remark;
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       _cubit.addUpdateParkingAllotment(
@@ -108,7 +105,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.parkingAllotment != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _numberOfParkingC.clear();
             _totalParkingPercentageC.clear();
@@ -138,7 +135,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                         ),
                         verticalSpacing(height: 15),
                         ValueListenableBuilder(
-                          valueListenable: disableNoOfParking,
+                          valueListenable: _disableNoOfParking,
                           builder: (context, disableNoOfParking, child) {
                             return CustomTextField(
                               title: 'Number of Parking Allotted to Members',
@@ -149,10 +146,10 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                               textController: _numberOfParkingC,
                               keyboardType: TextInputType.number,
                               onChangeFunction: (value) {
-                                if (value.isNotEmpty) {
-                                  disableParkingPercentage.value = true;
+                                if (value.isNotEmpty && value != '0') {
+                                  _disableParkingPercentage.value = true;
                                 } else {
-                                  disableParkingPercentage.value = false;
+                                  _disableParkingPercentage.value = false;
                                 }
                               },
                               inputFormatterList: [
@@ -172,7 +169,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                           },
                         ),
                         ValueListenableBuilder(
-                          valueListenable: disableParkingPercentage,
+                          valueListenable: _disableParkingPercentage,
                           builder: (context, disableParkingPercentage, child) {
                             return CustomTextField(
                               title:
@@ -185,10 +182,10 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                               keyboardType: TextInputType.number,
                               inputFormatterList: InputValidator.percentage(),
                               onChangeFunction: (value) {
-                                if (value.isNotEmpty) {
-                                  disableNoOfParking.value = true;
+                                if (value.isNotEmpty && value != '0') {
+                                  _disableNoOfParking.value = true;
                                 } else {
-                                  disableNoOfParking.value = false;
+                                  _disableNoOfParking.value = false;
                                 }
                               },
                               validator: (value) {
@@ -198,7 +195,6 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                                     double.parse(value) <= 0) {
                                   return "Total parking percentage is required";
                                 }
-
                                 return null;
                               },
                             );
@@ -236,7 +232,6 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

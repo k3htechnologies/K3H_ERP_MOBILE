@@ -38,7 +38,6 @@ class AddHardshipDetails extends StatefulWidget {
     required this.hardshipList,
     required this.buildingName,
   });
-
   @override
   State<AddHardshipDetails> createState() => _AddHardshipDetailsState();
 }
@@ -47,7 +46,6 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
   final ValueNotifier<Map<String, dynamic>?> _selectedHardshipType =
       ValueNotifier<Map<String, dynamic>?>(null);
   final GlobalKey<FormState> _corpusFormKey = GlobalKey<FormState>();
-
   final ValueNotifier<Map<String, dynamic>?> _selectedUnitSqFtLumsum =
       ValueNotifier(null);
   late TextEditingController _residentialAmountC,
@@ -62,7 +60,6 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
   List<ProposedOfferHardshipDetailsWithPaymentStageData> get _hardshipList =>
       _hardshipListNotifier.value;
   bool get _isEditMode => widget.hardship != null;
-
   @override
   void initState() {
     super.initState();
@@ -105,6 +102,74 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
     );
   }
 
+  void calculateAmount() {
+    if (_selectedHardshipType.value == null) {
+      return;
+    }
+    double percentage = double.tryParse(_stagePercentageC.text) ?? 0;
+    if (_selectedHardshipType.value?['zAttributesId'] == 1) {
+      _amountC.text =
+          ((double.tryParse(_residentialAmountC.text) ?? 0) * percentage / 100)
+              .toString();
+    } else if (_selectedHardshipType.value?['zAttributesId'] == 2) {
+      _amountC.text =
+          ((double.tryParse(_commercialAmountC.text) ?? 0) * percentage / 100)
+              .toString();
+    }
+  }
+
+  void _submitForm() {
+    if (!_corpusFormKey.currentState!.validate()) return;
+    final newList = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
+      _hardshipList,
+    );
+    if (!_isEditMode) {
+      newList.add(
+        ProposedOfferHardshipDetailsWithPaymentStageData(
+          proposedOfferHardshipDetailsWithPaymentStageId: 0,
+          uniquekey: '',
+          buildingId: widget.buildingId,
+          projectId: widget.projectId,
+          type: _selectedHardshipType.value?['DisplayName'],
+          stage: _stageC.text,
+          stagePercentage: double.parse(_stagePercentageC.text),
+          amount: double.parse(_amountC.text),
+          createdById: 1,
+          createdBy: '',
+          createdDate: DateTime.now(),
+          modifiedById: 0,
+          modifiedBy: '',
+          modifiedDate: null,
+          unitSqFtLumsum: _selectedUnitSqFtLumsum.value!['DisplayName'],
+          carpetAreaSqFt: double.tryParse(_carpetAreaSqFtC.text) ?? 0,
+        ),
+      );
+    } else {
+      final hardship = widget.hardship!;
+      newList[widget.index!] = ProposedOfferHardshipDetailsWithPaymentStageData(
+        proposedOfferHardshipDetailsWithPaymentStageId:
+            hardship.proposedOfferHardshipDetailsWithPaymentStageId,
+        uniquekey: hardship.uniquekey,
+        buildingId: hardship.buildingId,
+        projectId: hardship.projectId,
+        type: _selectedHardshipType.value?['DisplayName'],
+        stage: _stageC.text,
+        stagePercentage: double.parse(_stagePercentageC.text),
+        amount: double.parse(_amountC.text),
+        createdById: hardship.createdById,
+        createdBy: hardship.createdBy,
+        createdDate: hardship.createdDate,
+        modifiedById: hardship.modifiedById,
+        modifiedBy: hardship.modifiedBy,
+        modifiedDate: hardship.modifiedDate,
+        unitSqFtLumsum: _selectedUnitSqFtLumsum.value!['DisplayName'],
+        carpetAreaSqFt: double.tryParse(_carpetAreaSqFtC.text) ?? 0,
+      );
+    }
+    _hardshipListNotifier.value = newList;
+    goRouter.pop(_hardshipListNotifier.value);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +188,6 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
               toTitleCase(widget.buildingName),
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-
             Expanded(
               child: SingleChildScrollView(
                 child: ValueListenableBuilder<Map<String, dynamic>?>(
@@ -162,8 +226,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                       )),
                               onSelected: (value) {
                                 _selectedHardshipType.value = value;
-                                _amountC.text = '0.0';
-                                _stagePercentageC.text = '0.0';
+                                calculateAmount();
                               },
                               title: "Type",
                               hintText: "Select Type",
@@ -175,6 +238,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                               },
                               onValueClear: () {
                                 _selectedHardshipType.value = null;
+                                _amountC.clear();
                               },
                             ),
                             CustomTextField(
@@ -189,11 +253,9 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Stage is required";
                                 }
-
                                 return null;
                               },
                             ),
-
                             CustomTextField(
                               title: "Stage Percentage (%)",
                               isRequired: true,
@@ -207,37 +269,10 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                     double.tryParse(value) == 0) {
                                   return "Stage Percentage is required";
                                 }
-
                                 return null;
                               },
                               onChangeFunction: (value) {
-                                if (selectedHardshipType == null) {
-                                  return;
-                                }
-
-                                double percentage = double.tryParse(value) ?? 0;
-
-                                if (selectedHardshipType['zAttributesId'] ==
-                                    1) {
-                                  _amountC.text =
-                                      ((double.tryParse(
-                                                    _residentialAmountC.text,
-                                                  ) ??
-                                                  0) *
-                                              percentage /
-                                              100)
-                                          .toString();
-                                } else if (selectedHardshipType['zAttributesId'] ==
-                                    2) {
-                                  _amountC.text =
-                                      ((double.tryParse(
-                                                    _commercialAmountC.text,
-                                                  ) ??
-                                                  0) *
-                                              percentage /
-                                              100)
-                                          .toString();
-                                }
+                                calculateAmount();
                               },
                             ),
                             CustomTextField(
@@ -303,7 +338,6 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
           ],
         ),
       ),
-
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,
@@ -311,90 +345,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
           child: ValueListenableBuilder<Map<String, dynamic>?>(
             valueListenable: _selectedHardshipType,
             builder: (context, selectedHardshipType, _) {
-              return CustomButton(
-                text: "Save",
-                onPressed: () {
-                  if (_corpusFormKey.currentState!.validate()) {
-                    if (selectedHardshipType!['zAttributesId'] == 1 &&
-                        (double.tryParse(_residentialAmountC.text) ?? 0) == 0) {
-                      showErrorMessage(
-                        context,
-                        'Error',
-                        'Residential amount is required.',
-                      );
-                      return;
-                    }
-
-                    if (selectedHardshipType['zAttributesId'] == 2 &&
-                        (double.tryParse(_commercialAmountC.text) ?? 0) == 0) {
-                      showErrorMessage(
-                        context,
-                        'Error',
-                        'Commercial amount is required.',
-                      );
-                      return;
-                    }
-
-                    final newList = List<
-                      ProposedOfferHardshipDetailsWithPaymentStageData
-                    >.from(_hardshipList);
-                    if (!_isEditMode) {
-                      newList.add(
-                        ProposedOfferHardshipDetailsWithPaymentStageData(
-                          proposedOfferHardshipDetailsWithPaymentStageId: 0,
-                          uniquekey: '',
-                          buildingId: widget.buildingId,
-                          projectId: widget.projectId,
-                          type: selectedHardshipType['DisplayName'],
-                          stage: _stageC.text,
-                          stagePercentage: double.parse(_stagePercentageC.text),
-                          amount: double.parse(_amountC.text),
-                          createdById: 1,
-                          createdBy: 'Current User',
-                          createdDate: DateTime.now(),
-                          modifiedById: 0,
-                          modifiedBy: '',
-                          modifiedDate: null,
-                          unitSqFtLumsum:
-                              _selectedUnitSqFtLumsum.value!['DisplayName'],
-                          carpetAreaSqFt:
-                              double.tryParse(_carpetAreaSqFtC.text) ?? 0,
-                        ),
-                      );
-                    } else {
-                      final hardship = widget.hardship!;
-                      newList[widget.index!] =
-                          ProposedOfferHardshipDetailsWithPaymentStageData(
-                            proposedOfferHardshipDetailsWithPaymentStageId:
-                                hardship
-                                    .proposedOfferHardshipDetailsWithPaymentStageId,
-                            uniquekey: hardship.uniquekey,
-                            buildingId: hardship.buildingId,
-                            projectId: hardship.projectId,
-                            type: selectedHardshipType['DisplayName'],
-                            stage: _stageC.text,
-                            stagePercentage: double.parse(
-                              _stagePercentageC.text,
-                            ),
-                            amount: double.parse(_amountC.text),
-                            createdById: hardship.createdById,
-                            createdBy: hardship.createdBy,
-                            createdDate: hardship.createdDate,
-                            modifiedById: hardship.modifiedById,
-                            modifiedBy: hardship.modifiedBy,
-                            modifiedDate: hardship.modifiedDate,
-                            unitSqFtLumsum:
-                                _selectedUnitSqFtLumsum.value!['DisplayName'],
-                            carpetAreaSqFt:
-                                double.tryParse(_carpetAreaSqFtC.text) ?? 0,
-                          );
-                    }
-
-                    _hardshipListNotifier.value = newList;
-                    goRouter.pop(_hardshipListNotifier.value);
-                  }
-                },
-              );
+              return CustomButton(text: "Save", onPressed: _submitForm);
             },
           ),
         ),

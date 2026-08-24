@@ -383,28 +383,142 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
 
   // < ---------------------------------------------------------------------------------------------------------- >
 
-  Future<List<Map<String, dynamic>>> fetchUnitsByProjectId() async {
-    emit(state.copyWith(isLoading: true));
+  // PULL DROPDOWN DATA AS PER Ids
+  Future<List<Map<String, dynamic>>> fetchResidentialUnitsById({
+    required String flatIds,
+  }) async {
     final result = await _inventoryRepository.getPaginatedFlats(
       pageNumber: 1,
-      pageSize: 1000,
+      pageSize: 15,
       projectId: getProject().projectId,
+      queryParams: {
+        "ApprovalStatus": "APPROVED",
+        "FlatType": "Residential",
+        "IsAcessOnlyLienToSociety": true,
+        "DisplayInventoryFlatId": flatIds,
+      },
     );
 
-    return result.fold((failure) => <Map<String, dynamic>>[], (response) {
-      emit(state.copyWith(isLoading: false));
+    return result.fold((failure) => [], (response) {
       final flats = response['data'] as List<FlatModel>;
 
+      final ids = flatIds.split(',').map((id) => id.trim()).toSet();
       return flats
-          .map(
-            (flat) => {
+          .where((flat) => ids.contains(flat.inventoryFlatId.toString()))
+          .map((flat) {
+            return {
               "zAttributesId": flat.inventoryFlatId,
-              "DisplayName":
-                  "${flat.buildingNumber} - ${flat.wing} - ${flat.floor} - ${flat.flat}",
-            },
-          )
+              "DisplayName": "${flat.buildingNumber} - ${flat.flat}",
+            };
+          })
           .toList();
     });
+  }
+
+  Future<List<Map<String, dynamic>>> fetchCommercialUnitsById({
+    required String flatIds,
+  }) async {
+    final result = await _inventoryRepository.getPaginatedFlats(
+      pageNumber: 1,
+      pageSize: 15,
+      projectId: getProject().projectId,
+      queryParams: {
+        "ApprovalStatus": "APPROVED",
+        "FlatType": "Commercial",
+        "IsAcessOnlyLienToSociety": true,
+        "DisplayInventoryFlatId": flatIds,
+      },
+    );
+    return result.fold((failure) => [], (response) {
+      final flats = response['data'] as List<FlatModel>;
+      final ids = flatIds.split(',').map((id) => id.trim()).toSet();
+      return flats
+          .where((flat) => ids.contains(flat.inventoryFlatId.toString()))
+          .map((flat) {
+            return {
+              "zAttributesId": flat.inventoryFlatId,
+              "DisplayName": "${flat.buildingNumber} - ${flat.flat}",
+            };
+          })
+          .toList();
+    });
+  }
+
+  // PULL DROPDOWN DATA
+  Future<Map<String, dynamic>> fetchResidentialUnits(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _inventoryRepository.getPaginatedFlats(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      projectId: getProject().projectId,
+      queryParams: {
+        "Flat": value,
+        "ApprovalStatus": "APPROVED",
+        "FlatType": "Residential",
+        "IsAcessOnlyLienToSociety": true,
+      },
+    );
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final flats = response['data'] as List<FlatModel>;
+        return {
+          "itemList":
+              flats.map((flat) {
+                return {
+                  "zAttributesId": flat.inventoryFlatId,
+                  "DisplayName": "${flat.buildingNumber} - ${flat.flat}",
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
+  }
+
+  Future<Map<String, dynamic>> fetchCommercialUnits(
+    int pageNumber, {
+    String? value,
+  }) async {
+    final result = await _inventoryRepository.getPaginatedFlats(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      projectId: getProject().projectId,
+      queryParams: {
+        "Flat": value,
+        "ApprovalStatus": "APPROVED",
+        "FlatType": "Commercial",
+        "IsAcessOnlyLienToSociety": true,
+      },
+    );
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final flats = response['data'] as List<FlatModel>;
+        return {
+          "itemList":
+              flats.map((flat) {
+                return {
+                  "zAttributesId": flat.inventoryFlatId,
+                  "DisplayName": "${flat.buildingNumber} - ${flat.flat}",
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
+  }
+
+  void closeLienToSocietyLoader() {
+    emit(state.copyWith(isLoading: false));
   }
 
   // PULL LIEN TO SOCIETY DETAILS
@@ -431,7 +545,6 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         }
         emit(
           state.copyWith(
-            isLoading: false,
             lienToSocietyDetails:
                 (response['data'] as List<LienToSocietyDetailsModel>)[0],
           ),
@@ -1406,7 +1519,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     final Map<String, dynamic> body = {
       "ProposedOfferAdditionalInformationId":
           proposedOfferAdditionalInformationId,
-      "Uniquekey": uniqueKey,
+      if (uniqueKey.isNotEmpty) "Uniquekey": uniqueKey,
       "BuildingId": buildingId,
       "ProjectId": projectId,
       "AdditionalRemark": additionalRemark,

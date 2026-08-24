@@ -258,3 +258,7 @@ final List<Map<String, dynamic>> applicantTypeList = createAttributeList(
 final List<Map<String, dynamic>> tenantAmountTypeList = createAttributeList(
   tenantAmountTypeValues,
 );
+
+final List<Map<String, dynamic>> extraCarpetAreaList = createAttributeList(
+  extraCarpetAreaValues,
+);

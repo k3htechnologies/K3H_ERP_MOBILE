@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -26,34 +27,20 @@ class ExtraCarpetArea extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<ExtraCarpetArea> createState() => _ExtraCarpetAreaState();
 }
 
 class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _residentialPercentC,
       _commercialPercentC,
       _remarkC;
-
-  // DROPDOWN SELECTIONS
   final ValueNotifier<Map<String, dynamic>?> _selectedExtraCarpetType =
       ValueNotifier(null);
 
-  // DROPDOWN LISTS
-  final List<Map<String, dynamic>> _extraCarpetTypeList = [
-    {"zAttributesId": 1, "DisplayName": "MOFA"},
-    {"zAttributesId": 2, "DisplayName": "RERA"},
-  ];
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   @override
   void initState() {
     super.initState();
@@ -82,18 +69,15 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
   }
 
   // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     var extraCarpetModel = _cubit.state.extraCarpetArea!;
-
     _residentialPercentC.text =
         extraCarpetModel.residentialExtraCarpetPercent.toString();
-
     _commercialPercentC.text =
         extraCarpetModel.commercialExtraCarpetPercent.toString();
-
-    _selectedExtraCarpetType.value = _extraCarpetTypeList.firstWhere(
+    _selectedExtraCarpetType.value = extraCarpetAreaList.firstWhere(
       (e) => e['DisplayName'] == extraCarpetModel.extraCarpetAreaOfferedType,
-      orElse: () => _extraCarpetTypeList.first,
+      orElse: () => extraCarpetAreaList.first,
     );
     _remarkC.text = extraCarpetModel.remark;
   }
@@ -120,7 +104,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.extraCarpetArea != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _residentialPercentC.clear();
             _commercialPercentC.clear();
@@ -162,7 +146,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                               hintText: 'Select Extra Carpet Area Type',
                               isRequired: true,
                               isDisabled: disableAction,
-                              dataList: _extraCarpetTypeList,
+                              dataList: extraCarpetAreaList,
                               initialValue: value,
                               onSelected: (value) {
                                 _selectedExtraCarpetType.value = value;
@@ -252,7 +236,6 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

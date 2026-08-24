@@ -1,7 +1,5 @@
 // ignore_for_file: deprecated_member_use
-
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -26,7 +24,6 @@ class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
   final int buildingId;
   final String buildingName;
   final AuthorizationModel routeAuthorizationModel;
-
   const TemporaryAccommodationAlternativeDetails({
     super.key,
     required this.projectId,
@@ -34,7 +31,6 @@ class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
     required this.routeAuthorizationModel,
     required this.buildingName,
   });
-
   @override
   State<TemporaryAccommodationAlternativeDetails> createState() =>
       _TemporaryAccommodationAlternativeDetailsState();
@@ -45,15 +41,12 @@ class _TemporaryAccommodationAlternativeDetailsState
     with TickerProviderStateMixin {
   late ProposedOfferCubit _cubit;
   TabController? _tabController;
-
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   void _updateTabs(List<TemporaryAlternativeAccommodationDetailsModel> list) {
     final tenures = [
       ...list.where((e) => e.tenure.isNotEmpty).map((e) => e.tenure).toSet(),
       if (list.any((e) => e.tenure.isEmpty)) "Additional TAA",
     ];
-
     if (_tabController?.length != tenures.length) {
       _tabController?.dispose();
       _tabController = TabController(length: tenures.length, vsync: this);
@@ -138,21 +131,15 @@ class _TemporaryAccommodationAlternativeDetailsState
           }
           return e.tenure == current.tenure;
         }).toList();
-
     if (tenureItems.isEmpty) return false;
-
-    // Show only for first item of the group
     if (!identical(tenureItems.first, current)) {
       return false;
     }
-
-    // Hide if any item in the group has missing dates
     final hasMissingDates = tenureItems.any(
       (e) =>
           e.temporaryAlternateAccommodationStartDate == null ||
           e.temporaryAlternateAccommodationEndDate == null,
     );
-
     return !hasMissingDates;
   }
 
@@ -206,7 +193,6 @@ class _TemporaryAccommodationAlternativeDetailsState
                   if (state.isLoading ?? true) {
                     return loader();
                   }
-
                   if (state.temporaryAccommodationAlternativeDetails.isEmpty) {
                     return Center(
                       child: noDataWidget(message: 'No TAA Details Found'),
@@ -214,7 +200,6 @@ class _TemporaryAccommodationAlternativeDetailsState
                   }
                   final allList =
                       state.temporaryAccommodationAlternativeDetails;
-
                   final tenures = [
                     ...allList
                         .where((e) => e.tenure.isNotEmpty)
@@ -222,9 +207,7 @@ class _TemporaryAccommodationAlternativeDetailsState
                         .toSet(),
                     if (allList.any((e) => e.tenure.isEmpty)) "Additional TAA",
                   ];
-
                   _updateTabs(allList);
-
                   return Column(
                     children: [
                       if (_tabController != null)
@@ -233,7 +216,6 @@ class _TemporaryAccommodationAlternativeDetailsState
                           tabs: tenures,
                           margin: EdgeInsets.zero,
                         ),
-
                       Expanded(
                         child: Column(
                           children: [
@@ -245,7 +227,6 @@ class _TemporaryAccommodationAlternativeDetailsState
                                   builder: (_, __, ___) {
                                     final selectedTenure =
                                         tenures[_tabController!.index];
-
                                     final filteredList =
                                         allList.where((e) {
                                           if (selectedTenure ==
@@ -254,12 +235,10 @@ class _TemporaryAccommodationAlternativeDetailsState
                                           }
                                           return e.tenure == selectedTenure;
                                         }).toList();
-
                                     final rent =
                                         filteredList.isNotEmpty
                                             ? filteredList.first
                                             : null;
-
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 12,
@@ -300,16 +279,13 @@ class _TemporaryAccommodationAlternativeDetailsState
                                             }
                                             return e.tenure == tenure;
                                           }).toList();
-
                                       return ListView.builder(
                                         itemCount: filteredList.length,
                                         itemBuilder: (context, index) {
                                           final rent = filteredList[index];
-
                                           final originalIndex = allList.indexOf(
                                             rent,
                                           );
-
                                           return ProposedOfferInfoCard(
                                             title:
                                                 rent.tenure.isNotEmpty

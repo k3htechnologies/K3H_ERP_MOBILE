@@ -17,14 +17,12 @@ class CarpetPlotDetails extends StatefulWidget {
     required this.projectId,
     required this.buildingId,
   });
-
   @override
   State<CarpetPlotDetails> createState() => _CarpetPlotDetailsState();
 }
 
 class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
   late ProposedOfferCubit _cubit;
-
   @override
   void initState() {
     super.initState();
@@ -49,7 +47,6 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
             final carpetPlotDetails = state.carpetPlotDetails!;
             return Column(
               children: [
-                // BUILDING PLOT AREA
                 SectionCard(
                   title: 'Building Plot Area',
                   titleTextColor: AppColor.primary,
@@ -102,7 +99,6 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                     ),
                   ],
                 ),
-                // BUILDING CONSTRUCTION DETAILS
                 SectionCard(
                   title: 'Building Construction Details',
                   headerBackgroundColor: AppColor.lightBlue,
@@ -156,7 +152,6 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                     ),
                   ],
                 ),
-                // BUILDING KEY CONTACT DETAILS
                 SectionCard(
                   title: 'Building Key Contact Details',
                   titleTextColor: AppColor.primary,
@@ -175,13 +170,11 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                             style: AppTextStyle.ts14M(),
                           ),
                           verticalSpacing(height: 2.h),
-
                           buildRowTitleValue(
                             title: "Contact Name",
                             value: contact.contactName,
                             singleLine: false,
                           ),
-
                           buildRowTitleValue(
                             title: "Mobile Number",
                             value: contact.mobileNumber,
@@ -192,7 +185,6 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                               type: ContactType.phone,
                             ),
                           ),
-
                           buildRowTitleValue(
                             title: "Email Id",
                             value: contact.emailId,

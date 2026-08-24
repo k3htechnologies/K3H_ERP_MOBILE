@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -37,29 +36,20 @@ class HardshipDetails extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<HardshipDetails> createState() => _HardshipDetailsState();
 }
 
 class _HardshipDetailsState extends State<HardshipDetails> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _residentialAmountC, _commercialAmountC, _remarkC;
-
   final ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>
   _hardshipListNotifier =
       ValueNotifier<List<ProposedOfferHardshipDetailsWithPaymentStageData>>([]);
-
   List<ProposedOfferHardshipDetailsWithPaymentStageData> get _corpusList =>
       _hardshipListNotifier.value;
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   @override
   void initState() {
     super.initState();
@@ -81,28 +71,24 @@ class _HardshipDetailsState extends State<HardshipDetails> {
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAmountC = TextEditingController();
     _commercialAmountC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
-  // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     var corpusDetailsModel = _cubit.state.hardshipOfferDetails!;
     _residentialAmountC.text =
         corpusDetailsModel.corpusOfferedToResidentialAmount.toString();
     _commercialAmountC.text =
         corpusDetailsModel.corpusOfferedToCommercialAmount.toString();
-
     _hardshipListNotifier.value = List.from(
       corpusDetailsModel.proposedOfferHardshipDetailsWithPaymentStageData,
     );
     _remarkC.text = corpusDetailsModel.remark;
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_corpusList.isEmpty) {
@@ -145,68 +131,6 @@ class _HardshipDetailsState extends State<HardshipDetails> {
         remark: _remarkC.text.trim(),
       );
     }
-  }
-
-  // HANDLE AMOUNT CHANGE
-  void _handleResidentialAmountChange(double value) {
-    final newList = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
-      _corpusList,
-    );
-    for (int i = 0; i < newList.length; i++) {
-      if (newList[i].type == 'Residential') {
-        newList[i] = ProposedOfferHardshipDetailsWithPaymentStageData(
-          proposedOfferHardshipDetailsWithPaymentStageId:
-              newList[i].proposedOfferHardshipDetailsWithPaymentStageId,
-          uniquekey: newList[i].uniquekey,
-          buildingId: newList[i].buildingId,
-          projectId: newList[i].projectId,
-          type: newList[i].type,
-          stage: newList[i].stage,
-          stagePercentage: newList[i].stagePercentage,
-          amount: value * (newList[i].stagePercentage / 100),
-          createdById: newList[i].createdById,
-          createdBy: newList[i].createdBy,
-          createdDate: newList[i].createdDate,
-          modifiedById: newList[i].modifiedById,
-          modifiedBy: newList[i].modifiedBy,
-          modifiedDate: newList[i].modifiedDate,
-          unitSqFtLumsum: '',
-          carpetAreaSqFt: 0,
-        );
-      }
-    }
-    _hardshipListNotifier.value = newList;
-  }
-
-  // HANDLE AMOUNT CHANGE
-  void _handleCommercialAmountChange(double value) {
-    final newList = List<ProposedOfferHardshipDetailsWithPaymentStageData>.from(
-      _corpusList,
-    );
-    for (int i = 0; i < newList.length; i++) {
-      if (newList[i].type == 'Commercial') {
-        newList[i] = ProposedOfferHardshipDetailsWithPaymentStageData(
-          proposedOfferHardshipDetailsWithPaymentStageId:
-              newList[i].proposedOfferHardshipDetailsWithPaymentStageId,
-          uniquekey: newList[i].uniquekey,
-          buildingId: newList[i].buildingId,
-          projectId: newList[i].projectId,
-          type: newList[i].type,
-          stage: newList[i].stage,
-          stagePercentage: newList[i].stagePercentage,
-          amount: value * (newList[i].stagePercentage / 100),
-          createdById: newList[i].createdById,
-          createdBy: newList[i].createdBy,
-          createdDate: newList[i].createdDate,
-          modifiedById: newList[i].modifiedById,
-          modifiedBy: newList[i].modifiedBy,
-          modifiedDate: newList[i].modifiedDate,
-          unitSqFtLumsum: '',
-          carpetAreaSqFt: 0,
-        );
-      }
-    }
-    _hardshipListNotifier.value = newList;
   }
 
   Future<void> _showPopupToDeleteHardshipData() async {
@@ -269,7 +193,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.hardshipOfferDetails != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _residentialAmountC.clear();
             _commercialAmountC.clear();
@@ -350,24 +274,22 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                           readOnly:
                                               (isResidentialReadOnly ||
                                                   disableAction),
+                                          prefixWidget: Icon(
+                                            Icons.currency_rupee,
+                                            size: 16,
+                                            color: AppColor.grey,
+                                          ),
                                           inputFormatterList:
                                               inputFormatterListForDecimalValuesFixedToTwo(
                                                 10,
                                               ),
                                           validator: (value) {
                                             if (value == null ||
-                                                value.trim().isEmpty) {
+                                                value.trim().isEmpty ||
+                                                double.parse(value) < 0) {
                                               return "Residential amount is required";
                                             }
-                                            if (double.parse(value) < 0) {
-                                              return "Amount should be positive";
-                                            }
                                             return null;
-                                          },
-                                          onChangeFunction: (value) {
-                                            _handleResidentialAmountChange(
-                                              double.tryParse(value) ?? 0,
-                                            );
                                           },
                                         ),
                                         CustomTextField(
@@ -377,6 +299,21 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                           hint:
                                               "Enter Commercial Hardship Amount (₹)",
                                           textController: _commercialAmountC,
+                                          prefixWidget: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                right: BorderSide(
+                                                  color: AppColor.grey,
+                                                  width: .5,
+                                                ),
+                                              ),
+                                            ),
+                                            child: Icon(
+                                              Icons.currency_rupee,
+                                              color: AppColor.grey,
+                                              size: 18,
+                                            ),
+                                          ),
                                           keyboardType: TextInputType.number,
                                           readOnly:
                                               (isCommercialReadOnly ||
@@ -387,18 +324,11 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                               ),
                                           validator: (value) {
                                             if (value == null ||
-                                                value.trim().isEmpty) {
+                                                value.trim().isEmpty ||
+                                                double.parse(value) < 0) {
                                               return "Commercial amount is required";
                                             }
-                                            if (double.parse(value) < 0) {
-                                              return "Amount should be positive";
-                                            }
                                             return null;
-                                          },
-                                          onChangeFunction: (value) {
-                                            _handleCommercialAmountChange(
-                                              double.tryParse(value) ?? 0,
-                                            );
                                           },
                                         ),
                                       ],
@@ -417,8 +347,6 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                             );
                           },
                         ),
-
-                        // LITIGATION DETAILS SECTION
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -516,7 +444,6 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                       index,
                                     ) {
                                       final corpus = hardshipList[index];
-
                                       return ProposedOfferInfoCard(
                                         title: corpus.stage,
                                         tag: corpus.type,
@@ -662,7 +589,6 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

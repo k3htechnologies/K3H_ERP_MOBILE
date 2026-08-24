@@ -17,7 +17,6 @@ class GstOnExistingPlusFreeArea extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const GstOnExistingPlusFreeArea({
     super.key,
     required this.projectId,
@@ -25,26 +24,19 @@ class GstOnExistingPlusFreeArea extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<GstOnExistingPlusFreeArea> createState() =>
       _GstOnExistingPlusFreeAreaState();
 }
 
 class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _gstOnAreaByMemberPercentC,
       _gstOnAreaByDeveloperPercentC,
       _totalGstC,
       _remarkC;
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   @override
   void initState() {
     super.initState();
@@ -66,7 +58,6 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _gstOnAreaByMemberPercentC = TextEditingController();
     _gstOnAreaByDeveloperPercentC = TextEditingController();
@@ -74,8 +65,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
     _remarkC = TextEditingController();
   }
 
-  // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     var gstModel = _cubit.state.gstOnExistingPlusFreeArea!;
     _gstOnAreaByMemberPercentC.text =
         gstModel.gstOnAreaByMemberPercent.toString();
@@ -85,7 +75,6 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
     updateTotal();
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       _cubit.addUpdateGSTonExistingPlusFreeArea(
@@ -105,7 +94,6 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
     final total =
         (double.tryParse(_gstOnAreaByMemberPercentC.text) ?? 0) +
         (double.tryParse(_gstOnAreaByDeveloperPercentC.text) ?? 0);
-
     _totalGstC.text = total.toStringAsFixed(2);
   }
 
@@ -115,7 +103,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.gstOnExistingPlusFreeArea != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _gstOnAreaByMemberPercentC.clear();
             _gstOnAreaByDeveloperPercentC.clear();
@@ -158,7 +146,6 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                             if (value == null || value.trim().isEmpty) {
                               return "GST on area by member percent is required";
                             }
-
                             return null;
                           },
                         ),
@@ -177,7 +164,6 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                             if (value == null || value.trim().isEmpty) {
                               return "GST on area by developer percent is required";
                             }
-
                             return null;
                           },
                         ),
@@ -192,7 +178,6 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                                 ((double.tryParse(value) ?? 0) > 100)) {
                               return "Total GST percentage cannot be more than 100%";
                             }
-
                             return null;
                           },
                         ),
@@ -229,7 +214,6 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

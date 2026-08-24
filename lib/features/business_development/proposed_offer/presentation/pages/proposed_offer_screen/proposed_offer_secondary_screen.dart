@@ -37,7 +37,6 @@ class ProposedOfferSecondaryScreen extends StatefulWidget {
     required this.buildingName,
     required this.type,
   });
-
   @override
   State<ProposedOfferSecondaryScreen> createState() =>
       _ProposedOfferSecondaryScreenState();
@@ -103,12 +102,10 @@ class _ProposedOfferSecondaryScreenState
     );
   }
 
-  // BUILD TYPE WIDGET
   Widget _buildTypeWidget(String type, int projectId, int buildingId) {
     switch (type) {
       case "Building Overview":
         return ProposedOfferBuildingOverview();
-
       case "Extra Carpet Area":
         return ExtraCarpetArea(
           projectId: projectId,
@@ -116,7 +113,6 @@ class _ProposedOfferSecondaryScreenState
           routeAuthorizationModel: _routeAuthorizationModel,
           onSave: (callback) => _onSave = callback,
         );
-
       case "Hardship Offer Details":
         return HardshipDetails(
           projectId: projectId,

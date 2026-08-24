@@ -29,7 +29,6 @@ class LienToSocietyDetails extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const LienToSocietyDetails({
     super.key,
     required this.projectId,
@@ -37,19 +36,13 @@ class LienToSocietyDetails extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<LienToSocietyDetails> createState() => _LienToSocietyDetailsState();
 }
 
 class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _residentialAreaC,
       _commercialAreaC,
       _residentialUnitsC,
@@ -57,20 +50,15 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       _remarkC,
       _stageController,
       _carpetAreaController;
-
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   final ValueNotifier<
     List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>
   >
   _lienListNotifier = ValueNotifier<
     List<ProposedOfferLienToSocietyDetailsWithPaymentStageData>
   >([]);
-
   List<ProposedOfferLienToSocietyDetailsWithPaymentStageData> get _lienList =>
       _lienListNotifier.value;
-
-  // LIEN FORM CONTROLLERS
   final ValueNotifier<Map<String, dynamic>?> _selectedLienType =
       ValueNotifier<Map<String, dynamic>?>(null);
   final ValueNotifier<bool> _isRelease = ValueNotifier<bool>(false);
@@ -80,13 +68,11 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       ValueNotifier([]);
   final ValueNotifier<List<Map<String, dynamic>>> _selectCommercialLienUnits =
       ValueNotifier([]);
-
   @override
   void initState() {
     super.initState();
     _cubit = context.read<ProposedOfferCubit>();
     _initializeControllers();
-
     _loadData();
     widget.onSave(_onSave);
   }
@@ -111,8 +97,8 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       projectId: widget.projectId,
       buildingId: widget.buildingId,
     );
-    var lienDetailsModel = _cubit.state.lienToSocietyDetails!;
-    _flatLits.value = await _cubit.fetchUnitsByProjectId();
+    var lienDetailsModel = _cubit.state.lienToSocietyDetails;
+    if (lienDetailsModel == null) return;
     if (lienDetailsModel.commercialInventoryFlatId.isNotEmpty) {
       final commercialIds =
           lienDetailsModel.commercialInventoryFlatId
@@ -120,13 +106,11 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
               .map((e) => int.tryParse(e.trim()))
               .whereType<int>()
               .toSet();
-
       _selectCommercialLienUnits.value =
           _flatLits.value
               .where((e) => commercialIds.contains(e['zAttributesId']))
               .toList();
     }
-
     if (lienDetailsModel.residentialInventoryFlatId.isNotEmpty) {
       final residentialIds =
           lienDetailsModel.residentialInventoryFlatId
@@ -134,7 +118,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
               .map((e) => int.tryParse(e.trim()))
               .whereType<int>()
               .toSet();
-
       _selectResidentialLienUnits.value =
           _flatLits.value
               .where((e) => residentialIds.contains(e['zAttributesId']))
@@ -142,7 +125,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     }
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAreaC = TextEditingController();
     _commercialAreaC = TextEditingController();
@@ -153,24 +135,20 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     _remarkC = TextEditingController();
   }
 
-  // UPDATE LIEN UNIT COUNTS
   void _updateLienUnitCounts() {
     final residentialCount =
         _lienList
             .where((item) => item.type.toLowerCase() == 'residential')
             .length;
-
     final commercialCount =
         _lienList
             .where((item) => item.type.toLowerCase() == 'commercial')
             .length;
-
     _residentialUnitsC.text = residentialCount.toString();
     _commercialUnitsC.text = commercialCount.toString();
   }
 
-  // FILL DATA
-  void fillData() async {
+  void _populateFormFields() async {
     var lienDetailsModel = _cubit.state.lienToSocietyDetails!;
     _residentialAreaC.text = lienDetailsModel.residentialAreaSqFt.toString();
     _commercialAreaC.text = lienDetailsModel.commercialAreaSqFt.toString();
@@ -186,9 +164,20 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       lienDetailsModel.proposedOfferLienToSocietyDetailsWithPaymentStageData,
     );
     _remarkC.text = lienDetailsModel.remark;
+    if (lienDetailsModel.residentialInventoryFlatId.toString().isNotEmpty) {
+      _selectResidentialLienUnits.value = await _cubit
+          .fetchResidentialUnitsById(
+            flatIds: lienDetailsModel.residentialInventoryFlatId,
+          );
+    }
+    if (lienDetailsModel.commercialInventoryFlatId.toString().isNotEmpty) {
+      _selectCommercialLienUnits.value = await _cubit.fetchCommercialUnitsById(
+        flatIds: lienDetailsModel.commercialInventoryFlatId,
+      );
+    }
+    _cubit.closeLienToSocietyLoader();
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_lienList.isEmpty) {
@@ -205,8 +194,9 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
         projectId: widget.projectId,
         residentialAreaSqFt: double.parse(_residentialAreaC.text),
         commercialAreaSqFt: double.parse(_commercialAreaC.text),
-        numberOfResidentialLienUnits: int.parse(_residentialUnitsC.text),
-        numberOfCommercialLienUnits: int.parse(_commercialUnitsC.text),
+        numberOfResidentialLienUnits:
+            int.tryParse(_residentialUnitsC.text) ?? 0,
+        numberOfCommercialLienUnits: int.tryParse(_commercialUnitsC.text) ?? 0,
         paymentStageList: _lienList,
         commercialInventoryFlatId: selectedCommercialLienUnits,
         residentialInventoryFlatId: selectedResidentialLienUnits,
@@ -219,20 +209,19 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       .map((v) => v["zAttributesId"].toString())
       .toSet()
       .join(",");
-
   String get selectedCommercialLienUnits => _selectCommercialLienUnits.value
       .map((v) => v["zAttributesId"].toString())
       .toSet()
       .join(",");
-  // LIEN BOTTOM SHEET
   Future<void> _showLienBottomSheet({
     ProposedOfferLienToSocietyDetailsWithPaymentStageData? lien,
     int? index,
   }) async {
     if (lien != null) {
       _prefillBottomSheet(lien);
+    } else {
+      _clearDialog();
     }
-
     await DialogHelper.showCustomBottomSheet(
       context,
       "${lien != null ? 'Update' : 'Add'} Lien to Society Payment Stage",
@@ -247,11 +236,24 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    /// TYPE
                     CustomDropDownWidget(
                       isRequired: true,
                       initialValue: selectedLienType,
-                      dataList: propertyTypeList,
+                      dataList:
+                          ((double.tryParse(_residentialAreaC.text) ?? 0) !=
+                                      0 &&
+                                  (double.tryParse(_commercialAreaC.text) ??
+                                          0) !=
+                                      0)
+                              ? propertyTypeList
+                              : (List<Map<String, dynamic>>.from(
+                                propertyTypeList,
+                              )..removeAt(
+                                (double.tryParse(_commercialAreaC.text) ?? 0) ==
+                                        0
+                                    ? 1
+                                    : 0,
+                              )),
                       onSelected: (value) {
                         _selectedLienType.value = value;
                       },
@@ -264,8 +266,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       },
                       onValueClear: () => _selectedLienType.value = null,
                     ),
-
-                    /// STAGE
                     CustomTextField(
                       title: "Stage",
                       isRequired: true,
@@ -281,8 +281,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                         return null;
                       },
                     ),
-
-                    // CARPET AREA
                     CustomTextField(
                       title: "Carpet Area (SqFt)",
                       isRequired: true,
@@ -292,56 +290,14 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(10),
                       validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Carpet area is required";
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            double.parse(value) <= 0) {
+                          return "Carpet Area is required";
                         }
-                        if (double.parse(value) <= 0) {
-                          return "Carpet area should be greater than 0";
-                        }
-
-                        final selectedType = selectedLienType?['DisplayName'];
-                        if (selectedType == null) {
-                          return "Type is required";
-                        }
-
-                        final newArea = double.tryParse(value) ?? 0;
-
-                        double existingTotal = _lienList
-                            .where(
-                              (l) =>
-                                  l.type.toLowerCase() ==
-                                  selectedType.toLowerCase(),
-                            )
-                            .fold(
-                              0.0,
-                              (sum, item) => sum + item.carpetAreaSqFt,
-                            );
-
-                        if (lien != null &&
-                            lien.type.toLowerCase() ==
-                                selectedType.toLowerCase()) {
-                          existingTotal -= lien.carpetAreaSqFt;
-                        }
-
-                        double allowedArea = 0;
-                        if (selectedType.toLowerCase() == 'residential') {
-                          allowedArea =
-                              double.tryParse(_residentialAreaC.text) ?? 0;
-                        } else if (selectedType.toLowerCase() == 'commercial') {
-                          allowedArea =
-                              double.tryParse(_commercialAreaC.text) ?? 0;
-                        }
-
-                        if (existingTotal + newArea > allowedArea) {
-                          return "$selectedType carpet area exceeds allowed total of "
-                              "${allowedArea.toStringAsFixed(2)} SqFt.";
-                        }
-
                         return null;
                       },
                     ),
-
-                    // RELEASE CHECKBOX
                     Row(
                       children: [
                         CustomCheckBox(
@@ -353,7 +309,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                         ),
                       ],
                     ),
-
                     verticalSpacing(height: 15),
                   ],
                 ),
@@ -419,10 +374,8 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                             modifiedDate: lien.modifiedDate,
                           );
                     }
-
                     _lienListNotifier.value = newList;
                     _updateLienUnitCounts();
-
                     goRouter.pop();
                   }
                 },
@@ -432,11 +385,8 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
         },
       ),
     );
-
-    _clearDialog();
   }
 
-  // PREFILL BOTTOM ShEET
   void _prefillBottomSheet(
     ProposedOfferLienToSocietyDetailsWithPaymentStageData lien,
   ) {
@@ -456,14 +406,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
     _isRelease.value = false;
   }
 
-  void _handleResidentialAreaChange(double value) {
-    // This method can be used if you want to recalculate something when residential area changes
-  }
-
-  void _handleCommercialAreaChange(double value) {
-    // This method can be used if you want to recalculate something when commercial area changes
-  }
-
   Future<void> _showPopupToDeleteLienToSocietyPaymentStage(int index) async {
     var result = await DialogHelper.deleteDialog(
       context,
@@ -478,7 +420,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       newList.removeAt(index);
       _lienListNotifier.value = newList;
       _updateLienUnitCounts();
-
       showSuccessMessage(
         // ignore: use_build_context_synchronously
         context,
@@ -493,7 +434,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.lienToSocietyDetails != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _residentialAreaC.clear();
             _commercialAreaC.clear();
@@ -531,7 +472,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           svgIcon: AppAssets.lienToSocietyIcon,
                           title: "Lien To Society Area Details",
                         ),
-
                         verticalSpacing(height: 15),
                         CustomTextField(
                           title: "Residential Area (SqFt)",
@@ -549,29 +489,14 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                             }
                             return null;
                           },
-                          onChangeFunction: (value) {
-                            _handleResidentialAreaChange(
-                              double.tryParse(value) ?? 0,
-                            );
-                          },
                         ),
                         CustomTextField(
                           title: "Number of Residential Lien Units",
                           hint: "Enter Number of Residential Lien Units",
-                          isRequired: true,
                           readOnly: disableAction,
                           textController: _residentialUnitsC,
                           keyboardType: TextInputType.number,
-                          inputFormatterList: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Number of Residential Lien Units is required";
-                            }
-
-                            return null;
-                          },
+                          inputFormatterList: InputValidator.digit(4),
                         ),
                         ValueListenableBuilder(
                           valueListenable: _selectResidentialLienUnits,
@@ -589,13 +514,24 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                               onSelected: (value) {
                                 _selectResidentialLienUnits.value = value;
                               },
-                              dataFetchCallBack:
-                                  (pageNumber, {value}) => filterDropdownList(
-                                    pageNumber,
-                                    value: value,
-                                    list: _flatLits.value,
-                                  ),
+                              dataFetchCallBack: _cubit.fetchResidentialUnits,
                               hintText: "Select Residential Lien Units",
+                              validator: (value) {
+                                if (value != null && value.isNotEmpty) {
+                                  if (_residentialUnitsC.text.isEmpty ||
+                                      (int.tryParse(_residentialUnitsC.text) ??
+                                              0) ==
+                                          0) {
+                                    return "Residential Lien Units are required.";
+                                  }
+                                  if ((int.tryParse(_residentialUnitsC.text) ??
+                                          0) !=
+                                      value.length) {
+                                    return "${int.tryParse(_residentialUnitsC.text)} Residential Lien Units are required.";
+                                  }
+                                }
+                                return null;
+                              },
                             );
                           },
                         ),
@@ -613,32 +549,16 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                             if (value == null || value.trim().isEmpty) {
                               return "Commercial area is required";
                             }
-
                             return null;
-                          },
-                          onChangeFunction: (value) {
-                            _handleCommercialAreaChange(
-                              double.tryParse(value) ?? 0,
-                            );
                           },
                         ),
                         CustomTextField(
                           title: "Number of Commercial Lien Units",
                           hint: "Enter of Commercial Lien Units",
                           readOnly: disableAction,
-                          isRequired: true,
                           textController: _commercialUnitsC,
                           keyboardType: TextInputType.number,
-                          inputFormatterList: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Number of Commercial Lien Units is required";
-                            }
-
-                            return null;
-                          },
+                          inputFormatterList: InputValidator.digit(4),
                         ),
                         ValueListenableBuilder(
                           valueListenable: _selectCommercialLienUnits,
@@ -653,12 +573,23 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                               onSelected: (value) {
                                 _selectCommercialLienUnits.value = value;
                               },
-                              dataFetchCallBack:
-                                  (pageNumber, {value}) => filterDropdownList(
-                                    pageNumber,
-                                    value: value,
-                                    list: _flatLits.value,
-                                  ),
+                              dataFetchCallBack: _cubit.fetchCommercialUnits,
+                              validator: (value) {
+                                if (value != null && value.isNotEmpty) {
+                                  if (_commercialUnitsC.text.isEmpty ||
+                                      (int.tryParse(_commercialUnitsC.text) ??
+                                              0) ==
+                                          0) {
+                                    return "Commercial Lien Units are required.";
+                                  }
+                                  if ((int.tryParse(_commercialUnitsC.text) ??
+                                          0) !=
+                                      value.length) {
+                                    return "${int.tryParse(_commercialUnitsC.text)} Commercial Lien Units are required.";
+                                  }
+                                }
+                                return null;
+                              },
                             );
                           },
                         ),
@@ -702,7 +633,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                                   index,
                                 ) {
                                   final lien = lienList[index];
-
                                   return ProposedOfferInfoCard(
                                     title: lien.stage,
                                     tag: lien.type,
@@ -711,7 +641,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                                       if (!_formKey.currentState!.validate()) {
                                         return;
                                       }
-
                                       _showLienBottomSheet(
                                         lien: lien,
                                         index: index,
@@ -787,7 +716,6 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

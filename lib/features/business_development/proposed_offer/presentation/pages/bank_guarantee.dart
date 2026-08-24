@@ -26,7 +26,6 @@ class BankGuaranteeDetails extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const BankGuaranteeDetails({
     super.key,
     required this.projectId,
@@ -34,37 +33,27 @@ class BankGuaranteeDetails extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<BankGuaranteeDetails> createState() => _BankGuaranteeDetailsState();
 }
 
 class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _accountHolderNameC,
       _remarkC,
       _stageController,
       _bankGuaranteeAmountController,
       _amountController;
-
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   final ValueNotifier<
     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
   >
   _bankGuaranteeListNotifier = ValueNotifier<
     List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
   >([]);
-
   List<ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel>
   get _bankGuaranteeList => _bankGuaranteeListNotifier.value;
-
   final ValueNotifier<Map<String, dynamic>?> _selectedBankGuaranteeType =
       ValueNotifier(null);
   final GlobalKey<FormState> _shiftingFormKey = GlobalKey<FormState>();
@@ -94,7 +83,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _accountHolderNameC = TextEditingController();
     _stageController = TextEditingController();
@@ -103,14 +91,12 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     _remarkC = TextEditingController();
   }
 
-  // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     var bankGuaranteeDetailsModel = _cubit.state.bankGuaranteeDetails!;
     _bankGuaranteeAmountController.text =
         bankGuaranteeDetailsModel.bankGuaranteeAmount.toString();
     _accountHolderNameC.text =
         bankGuaranteeDetailsModel.accountHolderName.toString();
-
     _bankGuaranteeListNotifier.value = List.from(
       bankGuaranteeDetailsModel
           .proposedOfferBankGuaranteeDetailsWithPaymentStageData,
@@ -118,7 +104,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     _remarkC.text = bankGuaranteeDetailsModel.remark;
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_bankGuaranteeList.isEmpty) {
@@ -155,7 +140,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     }
   }
 
-  // PREFILL DIALOG
   void _prefillDialog(
     ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel bankGuarantee,
   ) {
@@ -164,7 +148,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     _isRelease.value = bankGuarantee.isRelease;
   }
 
-  // CLEAR DIALOG
   void _clearDialog() {
     _selectedBankGuaranteeType.value = null;
     _isRelease.value = false;
@@ -172,7 +155,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     _amountController.clear();
   }
 
-  // SHOW SHIFTING BOTTOM SHEET
   Future<void> _showBankGuaranteeBottomSheet({
     ProposedOfferBankGuaranteeDetailsWithPaymentStageDataModel? shifting,
     int? index,
@@ -182,7 +164,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     } else {
       _clearDialog();
     }
-
     await DialogHelper.showCustomBottomSheet(
       context,
       "Bank Guarantee Details",
@@ -192,7 +173,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// STAGE
             CustomTextField(
               title: "Stage",
               isRequired: true,
@@ -206,19 +186,28 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                 return null;
               },
             ),
-
-            /// AMOUNT
             CustomTextField(
               title: "Amount (₹)",
               hint: "Enter Amount",
               isRequired: true,
               textController: _amountController,
               keyboardType: TextInputType.number,
+              prefixWidget: Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    right: BorderSide(color: AppColor.grey, width: .5),
+                  ),
+                ),
+                child: Icon(
+                  Icons.currency_rupee,
+                  color: AppColor.grey,
+                  size: 18,
+                ),
+              ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return "Amount is required";
                 }
-
                 return null;
               },
             ),
@@ -283,7 +272,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                     isRelease: _isRelease.value,
                   );
             }
-
             _bankGuaranteeListNotifier.value = newList;
             goRouter.pop();
           }
@@ -334,11 +322,9 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     final releaseAmount = _bankGuaranteeList
         .where((b) => b.isRelease == true)
         .fold<double>(0, (sum, item) => sum + item.amount);
-
     final nonReleaseAmount = _bankGuaranteeList
         .where((b) => b.isRelease == false)
         .fold<double>(0, (sum, item) => sum + item.amount);
-
     final actualAmount =
         double.tryParse(_bankGuaranteeAmountController.text) ?? 0;
     if (releaseAmount != actualAmount) {
@@ -356,7 +342,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.bankGuaranteeDetails != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _accountHolderNameC.clear();
             _selectedBankGuaranteeType.value = null;
@@ -401,7 +387,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                             ),
                           ],
                         ),
-
                         verticalSpacing(),
                         ValueListenableBuilder(
                           valueListenable: _bankGuaranteeListNotifier,
@@ -410,7 +395,21 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                               title: "Bank Guarantee Amount (₹)",
                               hint: "Enter Bank Guarantee Amount",
                               isRequired: true,
-
+                              prefixWidget: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    right: BorderSide(
+                                      color: AppColor.grey,
+                                      width: .5,
+                                    ),
+                                  ),
+                                ),
+                                child: Icon(
+                                  Icons.currency_rupee,
+                                  color: AppColor.grey,
+                                  size: 18,
+                                ),
+                              ),
                               textController: _bankGuaranteeAmountController,
                               keyboardType: TextInputType.number,
                               readOnly:
@@ -424,7 +423,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Bank Guarantee Amount is required";
                                 }
-
                                 return null;
                               },
                             );
@@ -433,18 +431,9 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                         CustomTextField(
                           title: "Account Holder Name",
                           hint: "Enter Account Holder Name",
-                          isRequired: true,
                           readOnly: disableAction,
                           textController: _accountHolderNameC,
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Account Holder Name is required";
-                            }
-
-                            return null;
-                          },
                         ),
-
                         CustomTextField(
                           title: 'Remark',
                           hint: 'Enter Remark',
@@ -485,7 +474,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                                   index,
                                 ) {
                                   final shifting = shiftingList[index];
-
                                   return ProposedOfferInfoCard(
                                     title: shifting.stage,
                                     disable: disableAction,
@@ -567,7 +555,6 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

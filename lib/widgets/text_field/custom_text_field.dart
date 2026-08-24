@@ -91,7 +91,7 @@ class CustomTextField extends StatelessWidget {
                   ),
                 ],
               ),
-            verticalSpacing(height: 2),
+            verticalSpacing(height: 5),
             Padding(
               padding: EdgeInsets.only(bottom: 2.0),
               child: TextFormField(

@@ -17,7 +17,6 @@ class ProjectCompletion extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const ProjectCompletion({
     super.key,
     required this.projectId,
@@ -25,23 +24,15 @@ class ProjectCompletion extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<ProjectCompletion> createState() => _ProjectCompletionState();
 }
 
 class _ProjectCompletionState extends State<ProjectCompletion> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _completionTimelineC, _gracePeriodC, _remarkC;
-
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   @override
   initState() {
     super.initState();
@@ -62,15 +53,13 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _completionTimelineC = TextEditingController();
     _gracePeriodC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
-  // FILL DATA
-  void fillData() {
+  void _populateFormFields() {
     if (_cubit.state.projectCompletion != null) {
       var projectCompletionModel = _cubit.state.projectCompletion!;
       _completionTimelineC.text =
@@ -80,7 +69,6 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
     }
   }
 
-  // SAVE
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       _cubit.addUpdateProjectCompletion(
@@ -100,7 +88,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
       child: BlocConsumer<ProposedOfferCubit, ProposedOfferState>(
         listener: (context, state) {
           if (state.projectCompletion != null) {
-            fillData();
+            _populateFormFields();
           } else {
             _completionTimelineC.clear();
             _gracePeriodC.clear();
@@ -135,13 +123,12 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                           hint: "Enter Completion Timeline (Months)",
                           textController: _completionTimelineC,
                           keyboardType: TextInputType.number,
-                          inputFormatterList: InputValidator.digit(2),
+                          inputFormatterList: InputValidator.digit(3),
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
+                            if (value == null ||
+                                value.trim().isEmpty ||
+                                int.parse(value) <= 0) {
                               return "Completion timeline is required";
-                            }
-                            if (int.parse(value) <= 0) {
-                              return "Timeline should be greater than 0";
                             }
                             return null;
                           },
@@ -153,13 +140,12 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                           readOnly: disableAction,
                           textController: _gracePeriodC,
                           keyboardType: TextInputType.number,
-                          inputFormatterList: InputValidator.digit(2),
+                          inputFormatterList: InputValidator.digit(3),
                           validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
+                            if (value == null ||
+                                value.trim().isEmpty ||
+                                int.parse(value) <= 0) {
                               return "Grace period is required";
-                            }
-                            if (int.parse(value) <= 0) {
-                              return "Grace period should be greater than 0";
                             }
                             return null;
                           },
@@ -197,7 +183,6 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,

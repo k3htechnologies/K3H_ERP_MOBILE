@@ -33,7 +33,6 @@ class AddReadyReckonerDetails extends StatefulWidget {
     required this.buildingId,
     required this.buildingName,
   });
-
   @override
   State<AddReadyReckonerDetails> createState() =>
       _AddReadyReckonerDetailsState();
@@ -41,11 +40,8 @@ class AddReadyReckonerDetails extends StatefulWidget {
 
 class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
   late ProposedOfferCubit _cubit;
-
   final _formKey = GlobalKey<FormState>();
-
   bool get _isEditMode => widget.readyReckonerRateDetails != null;
-
   late TextEditingController _zoneController,
       _subZoneController,
       _residentialRateController,
@@ -54,14 +50,10 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
       _industrialRateController,
       _landRateController,
       _remarkController;
-
   final ValueNotifier<DateTime?> _effectiveStartDate = ValueNotifier(null);
-
   final ValueNotifier<DateTime?> _effectiveEndDate = ValueNotifier(null);
-
   final ValueNotifier<Map<String, dynamic>?> _selectedFinancialYear =
       ValueNotifier(null);
-
   @override
   void initState() {
     _cubit = context.read<ProposedOfferCubit>();
@@ -83,41 +75,30 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
 
   void _populateFormFields() {
     if (!_isEditMode) return;
-
     final model = widget.readyReckonerRateDetails!;
-
     _selectedFinancialYear.value = financialYearList.firstWhere(
       (e) => e['DisplayName'] == model.financialYear,
       orElse: () => financialYearList.first,
     );
-
     _effectiveStartDate.value = model.effectiveStartDate;
     _effectiveEndDate.value = model.effectiveEndDate;
-
     _zoneController.text = model.zone;
     _subZoneController.text = model.subZone;
     _residentialRateController.text = model.residentialRate.toString();
-
     _commercialRateController.text = model.commercialRate.toString();
-
     _shopRateController.text = model.shopRate.toString();
-
     _industrialRateController.text = model.industrialRate.toString();
-
     _landRateController.text = model.landRate.toString();
-
     _remarkController.text = model.remark;
   }
 
-  Future<void> _addUpdateReadyReckonerRateDetails(
-    BuildContext context,
+  void _submitForm({
     ReadyReckonerRateDetailsModel? readyReckonerDetailsModel,
-    int index,
-  ) async {
+    int? index,
+  }) {
     if (!_formKey.currentState!.validate()) return;
-
-    if (readyReckonerDetailsModel != null) {
-      await _cubit.updateReadyReckonerRateDetails(
+    if (readyReckonerDetailsModel != null && index != null) {
+      _cubit.updateReadyReckonerRateDetails(
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
@@ -153,7 +134,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
         index: index,
       );
     } else {
-      await _cubit.addReadyReckonerRateDetails(
+      _cubit.addReadyReckonerRateDetails(
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
@@ -183,19 +164,6 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
         remark: _remarkController.text.trim(),
         zone: _zoneController.text.trim(),
         subZone: _subZoneController.text.trim(),
-      );
-    }
-  }
-
-  void _submitForm({
-    ReadyReckonerRateDetailsModel? readyReckonerDetailsModel,
-    int? index,
-  }) {
-    if (_formKey.currentState!.validate()) {
-      _addUpdateReadyReckonerRateDetails(
-        context,
-        readyReckonerDetailsModel,
-        index ?? 0,
       );
     }
   }
@@ -291,7 +259,6 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                             );
                           },
                         ),
-
                         AnimatedBuilder(
                           animation: Listenable.merge([
                             _effectiveStartDate,
@@ -374,7 +341,6 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
 
   Widget _rateField(String title, TextEditingController controller) {
     final validationTitle = title.replaceAll(" (₹)", "");
-
     return CustomTextField(
       title: title,
       textController: controller,

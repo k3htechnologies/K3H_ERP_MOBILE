@@ -24,19 +24,13 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ProposedOfferScreen extends StatefulWidget {
   const ProposedOfferScreen({super.key});
-
   @override
   State<ProposedOfferScreen> createState() => _ProposedOfferScreenState();
 }
 
 class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
-  // CUBIT
   late ProposedOfferCubit _proposedOfferCubit;
-
-  // PROJECT
   late ProjectModel _project;
-
-  // PROPOSED OFFER TYPE LIST
   final List<dynamic> _proposedOfferIcons = [
     LucideIcons.building,
     AppAssets.readyReckonerIcon,
@@ -69,16 +63,11 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     "Project Completion",
     "Additional Information",
   ];
-
-  // BUILDING SELECTION
   final ValueNotifier<List<Map<String, dynamic>>> _selectedBuildingNotifier =
       ValueNotifier([]);
-
-  // BUILDING REPOSITORY
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
   late AuthorizationModel _routeAuthorizationModel;
-
   @override
   void initState() {
     super.initState();
@@ -101,7 +90,6 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
               ? {"BuildingName": value, "isCheckPermission": false}
               : {"isCheckPermission": false},
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
@@ -110,7 +98,6 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
       (response) {
         final project =
             response['data'] as List<BusinessDevelopmentBuildingModel>;
-
         return {
           "itemList":
               project.map((pr) {
@@ -195,7 +182,6 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                               },
                               onSelected: (value) async {
                                 _selectedBuildingNotifier.value = value;
-
                                 _proposedOfferCubit.updateBuildingDetails(
                                   value.first['building'],
                                 );

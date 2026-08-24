@@ -1,7 +1,5 @@
 // ignore_for_file: deprecated_member_use
-
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -31,17 +29,14 @@ class ReadyReckonerRateDetails extends StatefulWidget {
     required this.routeAuthorizationModel,
     required this.buildingName,
   });
-
   @override
   State<ReadyReckonerRateDetails> createState() =>
       _ReadyReckonerRateDetailsState();
 }
 
 class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   @override
   void initState() {
     super.initState();
@@ -60,7 +55,6 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
     super.dispose();
   }
 
-  // DIALOGUE TO DELETE RENT DETAILS
   Future<void> _showPopupToDeleteTemporaryAlternateAccommodationDetails(
     BuildContext context,
     ReadyReckonerRateDetailsModel obj,
@@ -133,7 +127,6 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                   if (state.isLoading ?? true) {
                     return loader();
                   }
-
                   if (state.readyReckonerRateDetails.isEmpty) {
                     return Center(
                       child: noDataWidget(
@@ -147,7 +140,6 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                         state.readyReckonerRateDetails.length,
                         (index) {
                           final rent = state.readyReckonerRateDetails[index];
-
                           return ProposedOfferInfoCard(
                             leading: buildColumnTitleValue(
                               title: "Financial Year",

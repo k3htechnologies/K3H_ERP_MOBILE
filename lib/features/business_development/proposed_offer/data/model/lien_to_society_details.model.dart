@@ -94,7 +94,9 @@ class LienToSocietyDetailsModel {
   String modifiedBy;
   DateTime? modifiedDate;
   String residentialInventoryFlatId;
+  String residentialFlat;
   String commercialInventoryFlatId;
+  String commercialFlat;
   String remark;
 
   LienToSocietyDetailsModel({
@@ -114,7 +116,9 @@ class LienToSocietyDetailsModel {
     required this.modifiedBy,
     required this.modifiedDate,
     required this.residentialInventoryFlatId,
+    required this.residentialFlat,
     required this.commercialInventoryFlatId,
+    required this.commercialFlat,
     required this.remark,
   });
 
@@ -162,10 +166,12 @@ class LienToSocietyDetailsModel {
       json,
       "ResidentialInventoryFlatId",
     ),
+    residentialFlat: parseValue<String>(json, "ResidentialFlat"),
     commercialInventoryFlatId: parseValue<String>(
       json,
       "CommercialInventoryFlatId",
     ),
+    commercialFlat: parseValue<String>(json, "CommercialFlat"),
     remark: parseValue<String>(json, "Remark"),
   );
 
@@ -189,7 +195,9 @@ class LienToSocietyDetailsModel {
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "ResidentialInventoryFlatId": residentialInventoryFlatId,
+    "ResidentialFlat": residentialFlat,
     "CommercialInventoryFlatId": commercialInventoryFlatId,
+    "CommercialFlat": commercialFlat,
     "Remark": remark,
   };
 }

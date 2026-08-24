@@ -27,7 +27,6 @@ class ShiftingDetails extends StatefulWidget {
   final int buildingId;
   final ValueChanged<VoidCallback> onSave;
   final AuthorizationModel routeAuthorizationModel;
-
   const ShiftingDetails({
     super.key,
     required this.projectId,
@@ -35,36 +34,26 @@ class ShiftingDetails extends StatefulWidget {
     required this.onSave,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<ShiftingDetails> createState() => _ShiftingDetailsState();
 }
 
 class _ShiftingDetailsState extends State<ShiftingDetails> {
-  // CUBIT
   late ProposedOfferCubit _cubit;
-
-  // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _residentialAmountC, _commercialAmountC, _remarkC;
-
   final ValueNotifier<List<ProposedOfferShiftingDetailsWithPaymentStageData>>
   _shiftingListNotifier =
       ValueNotifier<List<ProposedOfferShiftingDetailsWithPaymentStageData>>([]);
-
   List<ProposedOfferShiftingDetailsWithPaymentStageData> get _shiftingList =>
       _shiftingListNotifier.value;
-
   final ValueNotifier<Map<String, dynamic>?> _selectedShiftingType =
       ValueNotifier(null);
   late TextEditingController _stageController;
   late TextEditingController _stagePercentageController;
-  late TextEditingController _amountController;
+  late TextEditingController _amountC;
   final GlobalKey<FormState> _shiftingFormKey = GlobalKey<FormState>();
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-
   @override
   void initState() {
     super.initState();
@@ -83,20 +72,19 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     _commercialAmountC.dispose();
     _stageController.dispose();
     _stagePercentageController.dispose();
-    _amountController.dispose();
+    _amountC.dispose();
     _shiftingListNotifier.dispose();
     _selectedShiftingType.dispose();
     _remarkC.dispose();
     super.dispose();
   }
 
-  // INITIALIZE CONTROLLERS
   void _initializeControllers() {
     _residentialAmountC = TextEditingController();
     _commercialAmountC = TextEditingController();
     _stageController = TextEditingController();
     _stagePercentageController = TextEditingController();
-    _amountController = TextEditingController();
+    _amountC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
@@ -106,7 +94,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
         shiftingDetailsModel.shiftingOfferedToResidentialAmount.toString();
     _commercialAmountC.text =
         shiftingDetailsModel.shiftingOfferedToCommercialAmount.toString();
-
     _shiftingListNotifier.value = List.from(
       shiftingDetailsModel.proposedOfferShiftingDetailsWithPaymentStageData,
     );
@@ -145,7 +132,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
         );
         return;
       }
-
       _cubit.addUpdateShiftingDetails(
         context,
         buildingId: widget.buildingId,
@@ -171,15 +157,14 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
     );
     _stageController.text = shifting.stage;
     _stagePercentageController.text = shifting.stagePercentage.toString();
-    _amountController.text = shifting.amount.toString();
+    _amountC.text = shifting.amount.toString();
   }
 
-  // CLEAR DIALOG
   void _clearDialog() {
     _selectedShiftingType.value = null;
     _stageController.clear();
     _stagePercentageController.clear();
-    _amountController.clear();
+    _amountC.clear();
   }
 
   Future<void> _showShiftingBottomSheet({
@@ -188,6 +173,24 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   }) async {
     if (shifting != null) {
       _prefillDialog(shifting);
+    }
+    void calculateAmount() {
+      if (_selectedShiftingType.value == null ||
+          _selectedShiftingType.value?['zAttributesId'] == -1) {
+        return;
+      }
+      double percentage = double.tryParse(_stagePercentageController.text) ?? 0;
+      if (_selectedShiftingType.value?['zAttributesId'] == 1) {
+        _amountC.text =
+            ((double.tryParse(_residentialAmountC.text) ?? 0) *
+                    percentage /
+                    100)
+                .toString();
+      } else if (_selectedShiftingType.value?['zAttributesId'] == 2) {
+        _amountC.text =
+            ((double.tryParse(_commercialAmountC.text) ?? 0) * percentage / 100)
+                .toString();
+      }
     }
 
     await DialogHelper.showCustomBottomSheet(
@@ -198,7 +201,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            /// TYPE
             ValueListenableBuilder(
               valueListenable: _selectedShiftingType,
               builder: (context, value, child) {
@@ -217,8 +219,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             )),
                   onSelected: (value) {
                     _selectedShiftingType.value = value;
-                    _amountController.text = '0.0';
-                    _stagePercentageController.text = '0.0';
+                    calculateAmount();
                   },
                   title: "Type",
                   hintText: "Select Type",
@@ -228,12 +229,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                     }
                     return null;
                   },
-                  onValueClear: () => _selectedShiftingType.value = null,
+                  onValueClear: () {
+                    _selectedShiftingType.value = null;
+                    _amountC.clear();
+                  },
                 );
               },
             ),
-
-            /// STAGE
             CustomTextField(
               title: "Stage",
               isRequired: true,
@@ -247,8 +249,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                 return null;
               },
             ),
-
-            /// STAGE %
             CustomTextField(
               title: "Stage Percentage (%)",
               isRequired: true,
@@ -262,43 +262,20 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                     double.tryParse(value) == 0) {
                   return "Stage Percentage is required";
                 }
-
                 return null;
               },
               onChangeFunction: (value) {
-                if (_selectedShiftingType.value == null ||
-                    _selectedShiftingType.value?['zAttributesId'] == -1) {
-                  return;
-                }
-
-                double percentage = double.tryParse(value) ?? 0;
-
-                if (_selectedShiftingType.value?['zAttributesId'] == 1) {
-                  _amountController.text =
-                      ((double.tryParse(_residentialAmountC.text) ?? 0) *
-                              percentage /
-                              100)
-                          .toString();
-                } else if (_selectedShiftingType.value?['zAttributesId'] == 2) {
-                  _amountController.text =
-                      ((double.tryParse(_commercialAmountC.text) ?? 0) *
-                              percentage /
-                              100)
-                          .toString();
-                }
+                calculateAmount();
               },
             ),
-
-            /// AMOUNT
             CustomTextField(
               title: "Amount (₹)",
               hint: "Calculated Amount",
               isRequired: true,
-              textController: _amountController,
+              textController: _amountC,
               keyboardType: TextInputType.number,
               readOnly: true,
             ),
-
             verticalSpacing(height: 25),
           ],
         ),
@@ -316,7 +293,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               );
               return;
             }
-
             if (_selectedShiftingType.value?['zAttributesId'] == 2 &&
                 (double.tryParse(_commercialAmountC.text) ?? 0) == 0) {
               showErrorMessage(
@@ -326,7 +302,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               );
               return;
             }
-
             final newList =
                 List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
                   _shiftingList,
@@ -343,7 +318,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                   stagePercentage: double.parse(
                     _stagePercentageController.text,
                   ),
-                  amount: double.parse(_amountController.text),
+                  amount: double.parse(_amountC.text),
                   createdById: 1,
                   createdBy: 'Current User',
                   createdDate: DateTime.now(),
@@ -365,7 +340,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                     stagePercentage: double.parse(
                       _stagePercentageController.text,
                     ),
-                    amount: double.parse(_amountController.text),
+                    amount: double.parse(_amountC.text),
                     createdById: shifting.createdById,
                     createdBy: shifting.createdBy,
                     createdDate: shifting.createdDate,
@@ -374,73 +349,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                     modifiedDate: shifting.modifiedDate,
                   );
             }
-
             _shiftingListNotifier.value = newList;
             goRouter.pop();
           }
         },
       ),
     );
-
     _clearDialog();
-  }
-
-  // HANDLE AMOUNT CHANGE
-  void _handleResidentialAmountChange(double value) {
-    final newList = List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
-      _shiftingList,
-    );
-    for (int i = 0; i < newList.length; i++) {
-      if (newList[i].type == 'Residential') {
-        newList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
-          proposedOfferShiftingDetailsWithPaymentStageId:
-              newList[i].proposedOfferShiftingDetailsWithPaymentStageId,
-          uniquekey: newList[i].uniquekey,
-          buildingId: newList[i].buildingId,
-          projectId: newList[i].projectId,
-          type: newList[i].type,
-          stage: newList[i].stage,
-          stagePercentage: newList[i].stagePercentage,
-          amount: value * (newList[i].stagePercentage / 100),
-          createdById: newList[i].createdById,
-          createdBy: newList[i].createdBy,
-          createdDate: newList[i].createdDate,
-          modifiedById: newList[i].modifiedById,
-          modifiedBy: newList[i].modifiedBy,
-          modifiedDate: newList[i].modifiedDate,
-        );
-      }
-    }
-    _shiftingListNotifier.value = newList;
-  }
-
-  // HANDLE AMOUNT CHANGE
-  void _handleCommercialAmountChange(double value) {
-    final newList = List<ProposedOfferShiftingDetailsWithPaymentStageData>.from(
-      _shiftingList,
-    );
-    for (int i = 0; i < newList.length; i++) {
-      if (newList[i].type == 'Commercial') {
-        newList[i] = ProposedOfferShiftingDetailsWithPaymentStageData(
-          proposedOfferShiftingDetailsWithPaymentStageId:
-              newList[i].proposedOfferShiftingDetailsWithPaymentStageId,
-          uniquekey: newList[i].uniquekey,
-          buildingId: newList[i].buildingId,
-          projectId: newList[i].projectId,
-          type: newList[i].type,
-          stage: newList[i].stage,
-          stagePercentage: newList[i].stagePercentage,
-          amount: value * (newList[i].stagePercentage / 100),
-          createdById: newList[i].createdById,
-          createdBy: newList[i].createdBy,
-          createdDate: newList[i].createdDate,
-          modifiedById: newList[i].modifiedById,
-          modifiedBy: newList[i].modifiedBy,
-          modifiedDate: newList[i].modifiedDate,
-        );
-      }
-    }
-    _shiftingListNotifier.value = newList;
   }
 
   Future<void> _showPopupToDeleteShiftingData() async {
@@ -511,7 +426,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
             _shiftingListNotifier.value = [];
             _stageController.clear();
             _stagePercentageController.clear();
-            _amountController.clear();
+            _amountC.clear();
             _remarkC.clear();
           }
         },
@@ -549,7 +464,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             ),
                           ],
                         ),
-
                         verticalSpacing(),
                         ValueListenableBuilder(
                           valueListenable: _shiftingListNotifier,
@@ -562,6 +476,21 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                   isRequired: true,
                                   textController: _residentialAmountC,
                                   keyboardType: TextInputType.number,
+                                  prefixWidget: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        right: BorderSide(
+                                          color: AppColor.grey,
+                                          width: .5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.currency_rupee,
+                                      color: AppColor.grey,
+                                      size: 18,
+                                    ),
+                                  ),
                                   readOnly:
                                       (_shiftingList.any(
                                             (item) =>
@@ -574,18 +503,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                         10,
                                       ),
                                   validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
+                                    if (value == null ||
+                                        value.trim().isEmpty ||
+                                        double.parse(value) < 0) {
                                       return "Residential amount is required";
                                     }
-                                    if (double.parse(value) < 0) {
-                                      return "Amount should be positive";
-                                    }
                                     return null;
-                                  },
-                                  onChangeFunction: (value) {
-                                    _handleResidentialAmountChange(
-                                      double.tryParse(value) ?? 0,
-                                    );
                                   },
                                 ),
                                 CustomTextField(
@@ -594,6 +517,21 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                   isRequired: true,
                                   textController: _commercialAmountC,
                                   keyboardType: TextInputType.number,
+                                  prefixWidget: Container(
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        right: BorderSide(
+                                          color: AppColor.grey,
+                                          width: .5,
+                                        ),
+                                      ),
+                                    ),
+                                    child: Icon(
+                                      Icons.currency_rupee,
+                                      color: AppColor.grey,
+                                      size: 18,
+                                    ),
+                                  ),
                                   readOnly:
                                       (_shiftingList.any(
                                             (item) =>
@@ -606,18 +544,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                         10,
                                       ),
                                   validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
+                                    if (value == null ||
+                                        value.trim().isEmpty ||
+                                        double.parse(value) < 0) {
                                       return "Commercial amount is required";
                                     }
-                                    if (double.parse(value) < 0) {
-                                      return "Amount should be positive";
-                                    }
                                     return null;
-                                  },
-                                  onChangeFunction: (value) {
-                                    _handleCommercialAmountChange(
-                                      double.tryParse(value) ?? 0,
-                                    );
                                   },
                                 ),
                               ],
@@ -679,7 +611,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                   index,
                                 ) {
                                   final shifting = shiftingList[index];
-
                                   return ProposedOfferInfoCard(
                                     title: shifting.stage,
                                     tag: shifting.type,
@@ -758,7 +689,6 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                         ),
                       ],
                     ),
-
                     Row(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
