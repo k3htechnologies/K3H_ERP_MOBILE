@@ -894,14 +894,10 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         districtId: districtMasterId,
         cityId: cityMasterId,
         tanFile: selectedTANFile,
-        pageNumber: 1,
-        pageSize: 10,
       );
     } else {
       _companyMasterAddCubit.updateCompanyMaster(
         context: context,
-        pageNumber: 1,
-        pageSize: 10,
         companyId: widget.company!.companyId,
         uniquekey: widget.company!.uniquekey,
         companyName: _companyNameC.text.trim(),

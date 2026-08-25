@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/masters/company_master/data/model/company_bank.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/repository/company_master_repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -85,7 +86,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
-    final result = await _companyMasterRepository.getCompanyList(
+    final result = await _companyMasterRepository.pullCompanyList(
       pageNumber: pageNumber,
       pageSize: 10,
       queryParams: queryParams,
@@ -121,13 +122,9 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  Future clearOverview() async {
-    emit(state.copyWith(clearOverview: true));
-  }
-
   Future<void> getCompanyById(BuildContext context, int companyId) async {
     emit(state.copyWith(isLoading: true, clearOverview: true));
-    final result = await _companyMasterRepository.getCompanyList(
+    final result = await _companyMasterRepository.pullCompanyList(
       pageNumber: 1,
       pageSize: 10,
       queryParams: {"CompanyId": companyId},
@@ -172,7 +169,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        showSuccessMessage(context, subTitle: "Company deleted successfully");
+        showSuccessMessage(context, subTitle: response["message"]);
         if (index != null) {
           final updatedList = List<CompanyModel>.from(state.companyList);
           updatedList.removeAt(index);
@@ -214,8 +211,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     required int stateId,
     required int districtId,
     required int cityId,
-    required int pageNumber,
-    required int pageSize,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -392,8 +387,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     var addResult = await _companyMasterRepository.addUpdateCompanyList(
       body: requestBody,
       fileList: fileList,
-      pageNumber: pageNumber,
-      pageSize: pageSize,
     );
     goRouter.pop();
     addResult.fold(
@@ -415,7 +408,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
           ),
         );
         goRouter.pop();
-        showSuccessMessage(context, subTitle: "Company added successfully");
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -471,6 +464,129 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
               ? "Company Master ${DateTime.now()}.pdf"
               : "Company Master ${DateTime.now()}.xlsx",
         );
+      },
+    );
+  }
+
+  Future<void> getCompanyBankDetailsById(
+    BuildContext context,
+    int companyId,
+  ) async {
+    emit(state.copyWith(isLoading: true, clearBankDetails: true));
+    final result = await _companyMasterRepository
+        .pullCompanyWithBankDetailsList(
+          pageNumber: 1,
+          pageSize: 10,
+          queryParams: {"CompanyId": companyId},
+        );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false, clearBankDetails: true));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final newData = response['data'] as List<CompanyBankModel>;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            bankDetailList: newData,
+            clearBankDetails: false,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> addUpdateProjectWithBankDetails({
+    required int companyWithBankDetailsId,
+    String? uniqueKey,
+    required String beneficiaryAccountHolderName,
+    required int bankListMasterId,
+    required String accountNumber,
+    required String branch,
+    required String ifscCode,
+    required String natureOfAccount,
+    required String accountType,
+    required BuildContext context,
+    required MultiFilePickerModel cancelChequeFile,
+  }) async {
+    final Map<String, String> bankRequestBody = {
+      "CompanyWithBankDetailsId": companyWithBankDetailsId.toString(),
+
+      if (uniqueKey != null) "Uniquekey": uniqueKey,
+
+      "BeneficiaryAccountHolderName": beneficiaryAccountHolderName.trim(),
+
+      "BankListMasterId": bankListMasterId.toString(),
+
+      "AccountNumber": accountNumber.trim(),
+
+      "Branch": branch.trim(),
+
+      "IFSCCode": ifscCode.trim(),
+
+      "NatureOfAccount": natureOfAccount,
+
+      "AcType": accountType,
+    };
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < cancelChequeFile.fileNameList.length; i++) {
+      if (cancelChequeFile.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "CancelChequeURL",
+        "value": cancelChequeFile.fileBytesList[i],
+        "fileName": cancelChequeFile.fileNameList[i],
+      });
+    }
+
+    DialogHelper.showProcessingOverlay(context);
+
+    final result = await _companyMasterRepository
+        .addUpdateCompanyWithBankDetailsList(
+          body: bankRequestBody,
+          fileList: fileList,
+        );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: response["message"]);
+      },
+    );
+  }
+
+  Future<void> deleteCompanyWithBankDetails({
+    required BuildContext context,
+    required int companyMasterId,
+    required int companyWithBankDetailsId,
+    required String uniqueKey,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _companyMasterRepository
+        .deleteCompanyWithBankDetails(
+          companyId: companyMasterId,
+          uniqueKey: uniqueKey,
+          companyWithBankDetailsId: companyWithBankDetailsId,
+        );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final updatedList = List<CompanyBankModel>.from(state.bankDetailList);
+        updatedList.removeAt(index);
+        emit(state.copyWith(bankDetailList: updatedList));
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }

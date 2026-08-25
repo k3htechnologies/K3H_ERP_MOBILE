@@ -266,3 +266,4 @@ final List<Map<String, dynamic>> extraCarpetAreaList = createAttributeList(
 final List<Map<String, dynamic>> projectCategoryList = createAttributeList(
   projectCategoryValues,
 );
+final List<Map<String, dynamic>> statusList = createAttributeList(statusValues);

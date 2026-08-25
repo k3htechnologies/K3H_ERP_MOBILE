@@ -30,6 +30,7 @@ class AppRoutes {
   static String addCompanyPartner = "addCompanyPartner";
   static String viewCompanyDetails = "/viewCompanyDetails";
   static String viewCompanyPartner = "/viewCompanyPartner";
+  static String addCompanyBankDetails = "/addCompanyBankDetails";
 
   // DESIGNATION MASTER
   static String designationMaster = "/designationMaster";

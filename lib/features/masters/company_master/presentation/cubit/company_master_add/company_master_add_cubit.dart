@@ -41,8 +41,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     required int stateId,
     required int districtId,
     required int cityId,
-    required int pageNumber,
-    required int pageSize,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -229,8 +227,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     var addResult = await _companyMasterRepository.addUpdateCompanyList(
       body: requestBody,
       fileList: fileList,
-      pageNumber: pageNumber,
-      pageSize: pageSize,
     );
     goRouter.pop();
     addResult.fold(
@@ -333,8 +329,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     required int stateId,
     required int districtId,
     required int cityId,
-    required int pageNumber,
-    required int pageSize,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -540,8 +534,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     var addResult = await _companyMasterRepository.addUpdateCompanyList(
       body: requestBody,
       fileList: fileList,
-      pageNumber: pageNumber,
-      pageSize: pageSize,
     );
     goRouter.pop();
     addResult.fold(

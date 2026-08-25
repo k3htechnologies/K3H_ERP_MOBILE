@@ -37,6 +37,9 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
       case 0:
         _cubit.getCompanyById(context, widget.company!.companyId);
         break;
+      case 1:
+        _cubit.getCompanyBankDetailsById(context, widget.company!.companyId);
+        break;
       case 2:
         _cubit.getCompanyById(context, widget.company!.companyId);
         break;

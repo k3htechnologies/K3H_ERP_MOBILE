@@ -13,6 +13,7 @@ class CompanyMasterState extends BaseState {
   final String filterByMobileNumber;
   final String filterByCityName;
   final CompanyModel? companyOverview;
+  final List<CompanyBankModel> bankDetailList;
 
   const CompanyMasterState({
     super.isLoading,
@@ -29,6 +30,7 @@ class CompanyMasterState extends BaseState {
     required this.filterByMobileNumber,
     required this.filterByCityName,
     required this.companyOverview,
+    required this.bankDetailList,
   });
 
   factory CompanyMasterState.initial() => CompanyMasterState(
@@ -45,6 +47,7 @@ class CompanyMasterState extends BaseState {
     filterByCityName: "",
     isLoading: true,
     companyOverview: null,
+    bankDetailList: [],
   );
 
   CompanyMasterState copyWith({
@@ -64,6 +67,8 @@ class CompanyMasterState extends BaseState {
     String? filterByCityName,
     bool? clearOverview,
     CompanyModel? companyOverview,
+    bool? clearBankDetails,
+    List<CompanyBankModel>? bankDetailList,
   }) {
     return CompanyMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -84,6 +89,8 @@ class CompanyMasterState extends BaseState {
           clearOverview == true
               ? null
               : companyOverview ?? this.companyOverview,
+      bankDetailList:
+          clearBankDetails == true ? [] : bankDetailList ?? this.bankDetailList,
     );
   }
 
@@ -101,5 +108,6 @@ class CompanyMasterState extends BaseState {
     filterByMobileNumber,
     filterByCityName,
     companyOverview,
+    bankDetailList,
   ];
 }

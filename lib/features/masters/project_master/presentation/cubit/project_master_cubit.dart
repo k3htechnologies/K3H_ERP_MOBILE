@@ -924,7 +924,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
   }) async {
     emit(state.copyWith(isLoading: true));
 
-    final result = await companyMasterRepository.getCompanyList(
+    final result = await companyMasterRepository.pullCompanyList(
       pageNumber: pageNumber,
       pageSize:
           isAllSelected ? state.totalNumberOfRecordCompanyMaster : pageSize,

@@ -60,6 +60,8 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
+import 'package:k3h_erp_app/features/masters/company_master/data/model/company_bank.model.dart';
+import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -817,6 +819,29 @@ final GoRouter goRouter = GoRouter(
                   return ViewCompanyPartnerScreen(company: companyModel);
                 }
                 return Scaffold();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addCompanyBankDetails,
+              path: AppRoutes.addCompanyBankDetails,
+              builder: (context, state) {
+                final queryParameterBank = state.uri.queryParameters['bank'];
+                final CompanyBankModel? bankDetailsModel =
+                    queryParameterBank != null
+                        ? CompanyBankModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBank),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return AddCompanyBankDetailsScreen(
+                  bankDetailsModel: bankDetailsModel,
+                  index: index,
+                );
               },
             ),
           ],

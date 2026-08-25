@@ -125,7 +125,7 @@ Widget activeInactiveStatusWidget(
   Widget? leading,
   Widget? trailing,
 }) {
-  final config = projectStatusConfig[status.toLowerCase()];
+  final config = activeInactiveStatusConfig[status.toLowerCase()];
   return commonStatusWidget(
     status: status,
     config: activeInactiveStatusConfig,

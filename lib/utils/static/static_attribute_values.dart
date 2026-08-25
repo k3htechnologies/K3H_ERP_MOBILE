@@ -527,3 +527,5 @@ const tenantAmountTypeValues = ['Monthly', 'Quarterly', 'Yearly', 'One Time'];
 const extraCarpetAreaValues = ['MOFA', 'RERA'];
 
 const projectCategoryValues = ['Direct', 'Tender'];
+
+const statusValues = ['Active', 'Inactive'];

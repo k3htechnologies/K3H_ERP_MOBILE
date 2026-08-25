@@ -640,7 +640,7 @@ class EmployeeMasterCubit extends Cubit<EmployeeMasterState> {
       "IsCheckPermission": false,
     };
 
-    final result = await companyMasterRepository.getCompanyList(
+    final result = await companyMasterRepository.pullCompanyList(
       pageNumber: pageNumber,
       pageSize: pageSize,
       queryParams: queryParams,
