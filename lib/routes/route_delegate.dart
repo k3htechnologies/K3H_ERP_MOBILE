@@ -728,18 +728,22 @@ final GoRouter goRouter = GoRouter(
           },
         ),
         // COMPANY MASTER
-        GoRoute(
-          name: AppRoutes.companyMaster,
-          path: AppRoutes.companyMaster,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider(
-              create: (context) => CompanyMasterCubit(),
-              child: CompanyMasterScreen(),
+              create: (_) => CompanyMasterCubit(),
+              child: child,
             );
           },
           routes: [
             GoRoute(
-              parentNavigatorKey: navigatorKey,
+              name: AppRoutes.companyMaster,
+              path: AppRoutes.companyMaster,
+              builder: (context, state) {
+                return CompanyMasterScreen();
+              },
+            ),
+            GoRoute(
               name: AppRoutes.addCompany,
               path: AppRoutes.addCompany,
               builder: (context, state) {
@@ -762,7 +766,6 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
-              parentNavigatorKey: navigatorKey,
               name: AppRoutes.addCompanyPartner,
               path: AppRoutes.addCompanyPartner,
               builder: (context, state) {
@@ -780,7 +783,6 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
-              parentNavigatorKey: navigatorKey,
               name: AppRoutes.viewCompanyDetails,
               path: AppRoutes.viewCompanyDetails,
               builder: (context, state) {
@@ -800,7 +802,6 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
-              parentNavigatorKey: navigatorKey,
               name: AppRoutes.viewCompanyPartner,
               path: AppRoutes.viewCompanyPartner,
               builder: (context, state) {
@@ -880,7 +881,6 @@ final GoRouter goRouter = GoRouter(
             ),
 
             GoRoute(
-              // parentNavigatorKey: navigatorKey,
               name: AppRoutes.addDesignation,
               path: AppRoutes.addDesignation,
               builder: (context, state) {
@@ -905,7 +905,6 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
-              // parentNavigatorKey: navigatorKey,
               path: AppRoutes.employeeModuleAccess,
               name: AppRoutes.employeeModuleAccess,
               builder: (context, state) {

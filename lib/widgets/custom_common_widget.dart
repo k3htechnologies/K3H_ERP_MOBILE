@@ -197,7 +197,6 @@ Widget buildDocumentRow({
           style: AppTextStyle.ts14M(color: AppColor.black),
         ),
       ),
-      horizontalSpacing(),
       if (url.isNotEmpty && url != "-")
         (iconWithoutBg != null && iconWithoutBg == true)
             ? GestureDetector(
@@ -207,7 +206,7 @@ Widget buildDocumentRow({
                 }
               },
               child: Padding(
-                padding: const EdgeInsets.all(2.0),
+                padding: const EdgeInsets.only(left: 10, top: 2),
                 child: Icon(
                   Icons.remove_red_eye_outlined,
                   size: 16,

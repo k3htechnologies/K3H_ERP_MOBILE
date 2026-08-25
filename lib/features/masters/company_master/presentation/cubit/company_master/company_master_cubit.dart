@@ -121,6 +121,37 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
+  Future clearOverview() async {
+    emit(state.copyWith(clearOverview: true));
+  }
+
+  Future<void> getCompanyById(BuildContext context, int companyId) async {
+    emit(state.copyWith(isLoading: true, clearOverview: true));
+    final result = await _companyMasterRepository.getCompanyList(
+      pageNumber: 1,
+      pageSize: 10,
+      queryParams: {"CompanyId": companyId},
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false, clearOverview: true));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final newData = response['data'] as List<CompanyModel>;
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            companyOverview: newData.isNotEmpty ? newData.first : null,
+            clearOverview: false,
+          ),
+        );
+      },
+    );
+  }
+
   // DELETE COMPANY
   Future<void> deleteCompanyMaster({
     required BuildContext context,

@@ -12,6 +12,7 @@ class CompanyMasterState extends BaseState {
   final String filterByContactPerson;
   final String filterByMobileNumber;
   final String filterByCityName;
+  final CompanyModel? companyOverview;
 
   const CompanyMasterState({
     super.isLoading,
@@ -27,6 +28,7 @@ class CompanyMasterState extends BaseState {
     required this.filterByContactPerson,
     required this.filterByMobileNumber,
     required this.filterByCityName,
+    required this.companyOverview,
   });
 
   factory CompanyMasterState.initial() => CompanyMasterState(
@@ -42,6 +44,7 @@ class CompanyMasterState extends BaseState {
     filterByMobileNumber: "",
     filterByCityName: "",
     isLoading: true,
+    companyOverview: null,
   );
 
   CompanyMasterState copyWith({
@@ -59,6 +62,8 @@ class CompanyMasterState extends BaseState {
     String? filterByContactPerson,
     String? filterByMobileNumber,
     String? filterByCityName,
+    bool? clearOverview,
+    CompanyModel? companyOverview,
   }) {
     return CompanyMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -71,13 +76,16 @@ class CompanyMasterState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterByFirmType: filterByFirmType ?? this.filterByFirmType,
-      filterByContactPerson: filterByContactPerson ?? this.filterByContactPerson,
+      filterByContactPerson:
+          filterByContactPerson ?? this.filterByContactPerson,
       filterByMobileNumber: filterByMobileNumber ?? this.filterByMobileNumber,
       filterByCityName: filterByCityName ?? this.filterByCityName,
+      companyOverview:
+          clearOverview == true
+              ? null
+              : companyOverview ?? this.companyOverview,
     );
   }
-
-
 
   @override
   List<Object?> get props => [
@@ -92,5 +100,6 @@ class CompanyMasterState extends BaseState {
     filterByContactPerson,
     filterByMobileNumber,
     filterByCityName,
+    companyOverview,
   ];
 }
