@@ -674,11 +674,13 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Address'),
+          _buildSectionHeader('Address Details'),
           CustomTextField(
             textController: addressC,
             title: "Address",
-            hint: "Enter Full Address",
+            hint: "Enter Address",
+            minLines: 3,
+            maxLines: 3,
             isRequired: true,
             inputFormatterList: [LengthLimitingTextInputFormatter(500)],
             validator: (value) {
