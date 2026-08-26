@@ -429,15 +429,6 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
 
     final isSynced = await _payTrackCallLogService.syncPayTrackCallLogsToApi();
     debugPrint("syncTodayCallLogsToApi result => $isSynced");
-
-    if (!mounted) return;
-
-    await _callLogsCubit.getCallLog(
-      context,
-      1,
-      _selectedProjectNotifier.value.projectId,
-      _payTrackCubit.state.bookingData?.bookingId ?? 0,
-    );
   }
 
   @override
@@ -451,9 +442,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           screenTitle: 'Pay Track',
           authorization: _routeAuthorizationModel,
           onProjectChangeCallback: (value) {
-            // setState(() {
             _selectedProjectNotifier.value = value;
-            // });
 
             _searchC.clear();
             _payTrackCubit.clearSearch();
