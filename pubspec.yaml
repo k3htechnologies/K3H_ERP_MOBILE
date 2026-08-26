@@ -144,7 +144,7 @@ dependency_overrides:
   device_info_plus: 12.3.0
 
 flutter_launcher_icons:
-  android: "launcher_icon"
+  android: "ic_launcher"
   ios: true
   image_path: "assets/images/appLogo.png"
 
