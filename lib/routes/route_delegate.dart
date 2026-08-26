@@ -3,9 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/approval_log_history.model.dart';
 import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/modules_workflow_approval.model.dart';
@@ -322,7 +324,6 @@ import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/a
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_partner_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_view.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/view_company_partner_screen.dart';
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/cubit/department_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/add_department_screen.dart';
@@ -466,9 +467,6 @@ import 'package:k3h_erp_app/features/vendor_management/presentation/pages/docume
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
 import 'package:k3h_erp_app/main.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
-import 'package:k3h_erp_app/utils/storage_key.dart';
-
 import '../features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
 import '../features/sales/sales_reports/achievement/presentation/pages/achievement_report_screen.dart';
 
@@ -796,24 +794,6 @@ final GoRouter goRouter = GoRouter(
                 } else {
                   return Scaffold();
                 }
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewCompanyPartner,
-              path: AppRoutes.viewCompanyPartner,
-              builder: (context, state) {
-                final queryParameterCompany =
-                    state.uri.queryParameters['company'];
-                if (queryParameterCompany != null) {
-                  final decodedJson = jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeQueryComponent(queryParameterCompany),
-                    ),
-                  );
-                  final companyModel = CompanyModel.fromJson(decodedJson);
-                  return ViewCompanyPartnerScreen(company: companyModel);
-                }
-                return Scaffold();
               },
             ),
             GoRoute(
