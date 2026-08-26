@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/data/model/local_term_sheet.model.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -19,7 +19,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddLocalTermSheet extends StatefulWidget {
   final bool isEdit;
-  final TermSheetModel? termSheetModel;
+  final LocalTermSheetModel? termSheetModel;
   const AddLocalTermSheet({
     super.key,
     this.termSheetModel,
@@ -46,12 +46,12 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
       _remarkC;
 
   // NOTIFIERS
-
   ValueNotifier<Map<String, dynamic>?> selectedType = ValueNotifier(null);
-  final ValueNotifier<DateTime?> _sanctionFromDateNotifier =
+  final ValueNotifier<DateTime?> _loanFromDateNotifier =
       ValueNotifier<DateTime?>(null);
-  final ValueNotifier<DateTime?> _sanctionToDateNotifier =
-      ValueNotifier<DateTime?>(null);
+  final ValueNotifier<DateTime?> _loanToDateNotifier = ValueNotifier<DateTime?>(
+    null,
+  );
 
   // DATE PICKERS
   DateTime? termSheetDate, sanctionDate;
@@ -67,7 +67,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
   void initState() {
     super.initState();
     initialiseControllers();
-    if (widget.termSheetModel != null) {
+    if (widget.isEdit && widget.termSheetModel != null) {
       _prefillTermSheet(widget.termSheetModel!);
     }
   }
@@ -111,20 +111,20 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
     final termSheet = LocalTermSheetModel(
       nameOfInstitutionBankNBFC: _nameOfInstitutionBankNBFC.text.trim(),
       loanTakenBy: _loanTakenByC.text.trim(),
-      loanStartDate: _sanctionFromDateNotifier.value?.toIso8601String() ?? "",
-      loanEndDate: _sanctionToDateNotifier.value?.toIso8601String() ?? "",
+      loanStartDate: _loanFromDateNotifier.value,
+      loanEndDate: _loanToDateNotifier.value,
       loanTenureInMonth: _loanTenureC.text.trim(),
       rateOfInterestInPercentage: _rateOfInterestC.text.trim(),
       remark: _remarkC.text.trim(),
-      termSheetDate: termSheetDate?.toIso8601String() ?? "",
-      sanctionDate: sanctionDate?.toIso8601String() ?? "",
+      termSheetDate: termSheetDate,
+      sanctionDate: sanctionDate,
       minimumSellingPrice: _minimumSellingPriceC.text.trim(),
       legalAndDocumentationFees: _legalAndDocumentationFeesC.text.trim(),
       monotoriumPeriodInMonth: _monotoriumPeriodC.text.trim(),
       emiAmount: _emiAmountC.text.trim(),
       otherImportantTermsIfAny: _termsIfAnyC.text.trim(),
       type: selectedType.value?["DisplayName"].toString() ?? "",
-      facilityAmount: _facilityAmountC.text.trim(),
+      facilityAmount: double.tryParse(_facilityAmountC.text.trim()) ?? 0.0,
       processingFeesInPercentage: _processingFeesC.text.trim(),
       termSheetURL: [],
       termSheetFiles: _termSheetDocument,
@@ -133,7 +133,72 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
     goRouter.pop(termSheet);
   }
 
-  void _prefillTermSheet(TermSheetModel termSheetModel) {}
+  void _prefillTermSheet(LocalTermSheetModel termSheet) {
+    _loanTakenByC.text = termSheet.loanTakenBy;
+
+    _nameOfInstitutionBankNBFC.text = termSheet.nameOfInstitutionBankNBFC;
+
+    _facilityAmountC.text = termSheet.facilityAmount.toString();
+
+    _rateOfInterestC.text = termSheet.rateOfInterestInPercentage;
+
+    _processingFeesC.text = termSheet.processingFeesInPercentage;
+
+    _legalAndDocumentationFeesC.text = termSheet.legalAndDocumentationFees;
+
+    _monotoriumPeriodC.text = termSheet.monotoriumPeriodInMonth;
+
+    _loanTenureC.text = termSheet.loanTenureInMonth;
+
+    _minimumSellingPriceC.text = termSheet.minimumSellingPrice;
+
+    _emiAmountC.text = termSheet.emiAmount;
+
+    _termsIfAnyC.text = termSheet.otherImportantTermsIfAny;
+
+    _remarkC.text = termSheet.remark;
+
+    termSheetDate = termSheet.termSheetDate;
+
+    sanctionDate = termSheet.sanctionDate;
+
+    _loanFromDateNotifier.value = termSheet.loanStartDate;
+
+    _loanToDateNotifier.value = termSheet.loanEndDate;
+
+    selectedType.value = typeList.firstWhere(
+      (e) => e["DisplayName"] == termSheet.type,
+      orElse: () => typeList.first,
+    );
+
+    _termSheetDocument.fileNameList = List<String>.from(
+      termSheet.termSheetFiles.fileNameList,
+    );
+
+    _termSheetDocument.fileBytesList = List.from(
+      termSheet.termSheetFiles.fileBytesList,
+    );
+
+    _termSheetDocument.deletedFileList =
+        termSheet.termSheetFiles.deletedFileList;
+  }
+
+  String? validateSanctionDate() {
+    final loanStartDate = _loanFromDateNotifier.value;
+    final loanEndDate = _loanToDateNotifier.value;
+    final isLoanDateEntered = loanStartDate != null || loanEndDate != null;
+    if (isLoanDateEntered && sanctionDate == null) {
+      return "Sanction Date is required when Loan Start Date is entered";
+    }
+    if (sanctionDate == null) {
+      return null;
+    }
+    if (termSheetDate != null && sanctionDate!.isBefore(termSheetDate!)) {
+      return "Sanction Date must be greater than or equal to Term Sheet Date";
+    }
+
+    return null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -177,13 +242,14 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                         return null;
                       },
                     ),
-                    ValueListenableBuilder(
+                    ValueListenableBuilder<Map<String, dynamic>?>(
                       valueListenable: selectedType,
                       builder: (context, value, child) {
                         return CustomDropDownWidget(
                           isRequired: true,
                           title: "Type",
                           hintText: "Select Type",
+                          initialValue: value,
                           dataList: typeList,
                           onSelected: (value) {
                             selectedType.value = value;
@@ -217,6 +283,9 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Faciltiy Amount (₹)",
                       hint: "Enter Facilty Amount (₹)",
                       textController: _facilityAmountC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(15),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Faciltiy Amount is required";
@@ -229,6 +298,9 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Rate Of Interest (%)",
                       hint: "Enter Rate Of Interest",
                       textController: _rateOfInterestC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(2),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Rate Of Interest (%) is required";
@@ -241,6 +313,9 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Processing Fees (%)",
                       hint: "Enter Processing Fees",
                       textController: _processingFeesC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(2),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Processing Fees (%) is required";
@@ -253,6 +328,9 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Legal & Documentation Fees (₹)",
                       hint: "Enter Legal & Documentation Fees",
                       textController: _legalAndDocumentationFeesC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(15),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Legal & Documentation Fees (₹) is required";
@@ -264,12 +342,16 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Monotorium Period (In Month)",
                       hint: "Enter Monotorium Period",
                       textController: _monotoriumPeriodC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(4),
                     ),
                     CustomTextField(
                       isRequired: true,
                       title: "Loan Tenure (In Month)",
                       hint: "Enter Loan Tenure",
                       textController: _loanTenureC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(4),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Loan Tenure (In Month) is required";
@@ -282,6 +364,9 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Minimum Selling Price (₹)",
                       hint: "Enter Minimum Selling Price",
                       textController: _minimumSellingPriceC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(15),
                     ),
                     CustomMultiFilePicker(
                       title: "Term Sheet",
@@ -312,22 +397,31 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                     CustomDatePicker(
                       title: 'Sanction Date',
                       initialDate: sanctionDate,
-                      setValue: (value) => sanctionDate = value,
+                      setValue: (value) {
+                        sanctionDate = value;
+                        // REVALIDATE THE FORM
+                        _formKey.currentState?.validate();
+                      },
+                      validator: (value) {
+                        return validateSanctionDate();
+                      },
                     ),
                     CustomTextField(
                       title: "EMI Amount (₹)",
                       hint: "Enter EMI Amount",
                       textController: _emiAmountC,
+                      inputFormatterList:
+                          inputFormatterListForDecimalValuesFixedToTwo(15),
                     ),
                     CustomFromToDatePicker(
                       fromDateTitle: "Loan Start Date",
                       toDateTitle: "Loan End Date",
                       removeBottomMargin: false,
-                      initialFromDate: _sanctionFromDateNotifier.value,
-                      initialToDate: _sanctionToDateNotifier.value,
+                      initialFromDate: _loanFromDateNotifier.value,
+                      initialToDate: _loanToDateNotifier.value,
                       onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
-                        _sanctionFromDateNotifier.value = fromDate;
-                        _sanctionToDateNotifier.value = toDate;
+                        _loanFromDateNotifier.value = fromDate;
+                        _loanToDateNotifier.value = toDate;
                       },
                     ),
                     CustomTextField(

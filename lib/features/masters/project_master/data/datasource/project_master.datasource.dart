@@ -18,6 +18,7 @@ abstract interface class ProjectMasterDatasource {
 
   Future<Map<String, dynamic>> apicallGetProjectWithCompany({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   });
 
   Future<Map<String, dynamic>> apicallGetProjectWithBankDetails({
@@ -139,9 +140,12 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
   @override
   Future<Map<String, dynamic>> apicallGetProjectWithCompany({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   }) async {
     String pullProjectWithCompanyUrl({required int projectId}) {
-      return "Project/PullProjectWithCompany?ProjectId=$projectId";
+      String url = "Project/PullProjectWithCompany?ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
     }
 
     try {
@@ -183,7 +187,9 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
       );
       return {
         'data': List<ProjectWithBankDetailsModel>.from(
-          networkResponse["data"].map((e) => ProjectWithBankDetailsModel.fromJson(e)),
+          networkResponse["data"].map(
+            (e) => ProjectWithBankDetailsModel.fromJson(e),
+          ),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

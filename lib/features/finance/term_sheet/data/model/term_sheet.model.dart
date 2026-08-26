@@ -20,8 +20,8 @@ class TermSheetModel {
   double rateOfInterestInPercentage;
   double processingFeesInPercentage;
   double legalAndDoumentationFees;
-  double monotoriumPeriodInMonth;
-  double loanTenureInMonth;
+  int monotoriumPeriodInMonth;
+  int loanTenureInMonth;
   double minimumSellingPrice;
   String otherImportantTermsIfAny;
   String remark;
@@ -116,13 +116,10 @@ class TermSheetModel {
     ),
     legalAndDoumentationFees: parseValue<double>(
       json,
-      "LegalAndDoumentationFees",
+      "LegalAndDocumentationFees",
     ),
-    monotoriumPeriodInMonth: parseValue<double>(
-      json,
-      "MonotoriumPeriodInMonth",
-    ),
-    loanTenureInMonth: parseValue<double>(json, "LoanTenureInMonth"),
+    monotoriumPeriodInMonth: parseValue<int>(json, "MonotoriumPeriodInMonth"),
+    loanTenureInMonth: parseValue<int>(json, "LoanTenureInMonth"),
     minimumSellingPrice: parseValue<double>(json, "MinimumSellingPrice"),
     otherImportantTermsIfAny: parseValue<String>(
       json,
@@ -174,7 +171,7 @@ class TermSheetModel {
     "FacilityAmount": facilityAmount,
     "RateOfInterestInPercentage": rateOfInterestInPercentage,
     "ProcessingFeesInPercentage": processingFeesInPercentage,
-    "LegalAndDoumentationFees": legalAndDoumentationFees,
+    "LegalAndDocumentationFees": legalAndDoumentationFees,
     "MonotoriumPeriodInMonth": monotoriumPeriodInMonth,
     "LoanTenureInMonth": loanTenureInMonth,
     "MinimumSellingPrice": minimumSellingPrice,

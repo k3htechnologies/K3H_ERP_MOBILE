@@ -529,3 +529,25 @@ const termSheetTypeValues = [
   'Lease Rental Discounting (LRD)',
   'Overdraft Facility (OD)',
 ];
+
+//DSRA TERM LIST VALUES
+const dsraTermListValues = ['Mutual Fund (MF)', 'Fixed Deposit (FD)'];
+
+//TERM SHEET DOCUMENT VALUES
+const termSheetDocumentsValues = [
+  'Board Resolution',
+  'CA Certificate - Cost incurred till date & Outstanding debt Certificate',
+  'Deed Of Corporate Guarantee',
+  'Deed Of Hypothecation',
+  'Deed Of Personal Guarantee',
+  'Demand Promissory Note',
+  'Disbursement Request Letter as per format of NBFC or Bank',
+  'Escrow Agreement',
+  'Indenture of Mortgage',
+  'Loan Agreement',
+  'Other documents as per Sanction Letter',
+  'PDC to be given as per Sanction Letter',
+  'Power Of Attorney',
+  'Promoters Undertaking',
+];
+const approvalStatusValues = ['Term Sheet', 'Sanction', 'Closed'];

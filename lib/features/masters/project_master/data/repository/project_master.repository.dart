@@ -17,6 +17,7 @@ abstract interface class ProjectMasterRepository {
 
   Future<Either<Failure, Map<String, dynamic>>> getProjectWithCompany({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   });
 
   Future<Either<Failure, Map<String, dynamic>>> getProjectWithBankDetails({
@@ -103,10 +104,12 @@ class ProjectMasterRepositoryImpl implements ProjectMasterRepository {
   @override
   Future<Either<Failure, Map<String, dynamic>>> getProjectWithCompany({
     required int projectId,
+    Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await projectMasterDatasource.apicallGetProjectWithCompany(
         projectId: projectId,
+        queryParams: queryParams,
       );
       return right(result);
     } catch (error) {

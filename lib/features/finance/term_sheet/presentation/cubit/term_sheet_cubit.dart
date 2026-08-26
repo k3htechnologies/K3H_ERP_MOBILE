@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/data/model/local_term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/data/repository/term_sheet.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -26,14 +27,78 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     emit(state.copyWith(companyByProject: [], isFetchingCompany: false));
   }
 
+  int updateTermSheetFilterCount(TermSheetState state) {
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByCompanyName.trim().isNotEmpty,
+      state.filterByStatus.trim().isNotEmpty,
+      state.filterByInstitutionName.trim().isNotEmpty,
+    ]);
+  }
+
+  void clearSearch() {
+    emit(state.copyWith(searchText: "", termSheetList: [], currentPage: 1));
+  }
+
+  Future searchTermSheet(BuildContext context, String value) async {
+    emit(state.copyWith(searchText: value, termSheetList: []));
+    await getTermSheet(context, 1);
+  }
+
+  Future applyTermSheetFilterAndSort({
+    required BuildContext context,
+    String? projectName,
+    String? companyName,
+    String? status,
+    String? institutionName,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          searchText: "",
+          filterByProjectName: "",
+          filterByCompanyName: "",
+          filterByStatus: "",
+          filterByInstitutionName: "",
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          searchText: projectName ?? state.searchText,
+          filterByCompanyName: companyName ?? state.filterByCompanyName,
+          filterByStatus: status ?? state.filterByStatus,
+          filterByInstitutionName:
+              institutionName ?? state.filterByInstitutionName,
+        ),
+      );
+    }
+    await getTermSheet(context, 1);
+  }
+
+  void clearLocalTermSheetData() {
+    emit(
+      state.copyWith(localTermSheetList: [], hasUnsavedTermSheetChanges: false),
+    );
+  }
+
+  // TAB CHANGED
+  void onTabChanged(BuildContext context, int index) {
+    if (index == 1) {}
+  }
+
   Future<void> getProjectWithCompany({
     required BuildContext context,
     required int projectId,
   }) async {
     emit(state.copyWith(isLoading: true));
+    Map<String, dynamic> queryParams = {"IsCheckPermission": false};
     var result = await _projectMasterRepository.getProjectWithCompany(
       projectId: projectId,
+      queryParams: queryParams,
     );
+
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -59,7 +124,13 @@ class TermSheetCubit extends Cubit<TermSheetState> {
   Future<void> getTermSheet(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
 
-    final Map<String, dynamic> queryParams = {"IsCheckPermission": false};
+    final Map<String, dynamic> queryParams = {
+      "IsCheckPermission": false,
+      "ProjectName": state.searchText,
+      "CompanyName": state.filterByCompanyName,
+      "ApprovalStatus": state.filterByStatus,
+      "NameOfInstitutionBankNbfc": state.filterByInstitutionName,
+    };
 
     try {
       final result = await _termSheetRepository.getTermSheet(
@@ -71,7 +142,6 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       result.fold(
         (failure) {
           emit(state.copyWith(isLoading: false));
-
           showErrorMessage(context, "Error", failure.message);
         },
         (response) {
@@ -81,7 +151,9 @@ class TermSheetCubit extends Cubit<TermSheetState> {
           emit(
             state.copyWith(
               termSheetList: updatedList,
-              totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
+              termSheetOverview: logs.isNotEmpty ? logs.first : null,
+              totalNumberOfRecord: response['totalNumberOfRecord'],
+              currentPage: pageNumber,
               isLoading: false,
             ),
           );
@@ -93,6 +165,68 @@ class TermSheetCubit extends Cubit<TermSheetState> {
 
       emit(state.copyWith(isLoading: false));
     }
+  }
+
+  void addTermSheetLocally(LocalTermSheetModel termSheet) {
+    final updatedList = List<LocalTermSheetModel>.from(
+      state.localTermSheetList,
+    );
+
+    updatedList.add(termSheet);
+
+    emit(
+      state.copyWith(
+        localTermSheetList: updatedList,
+        hasUnsavedTermSheetChanges: true,
+      ),
+    );
+  }
+
+  void updateTermSheetLocally({
+    required int index,
+    required LocalTermSheetModel termSheet,
+  }) {
+    final updatedList = List<LocalTermSheetModel>.from(
+      state.localTermSheetList,
+    );
+
+    if (index < 0 || index >= updatedList.length) {
+      return;
+    }
+
+    updatedList[index] = termSheet;
+
+    emit(
+      state.copyWith(
+        localTermSheetList: updatedList,
+        hasUnsavedTermSheetChanges: true,
+      ),
+    );
+  }
+
+  void deleteTermSheetLocally(int index) {
+    final updatedList = List<LocalTermSheetModel>.from(
+      state.localTermSheetList,
+    );
+
+    if (index < 0 || index >= updatedList.length) {
+      return;
+    }
+
+    updatedList.removeAt(index);
+
+    emit(
+      state.copyWith(
+        localTermSheetList: updatedList,
+        hasUnsavedTermSheetChanges: updatedList.isNotEmpty,
+      ),
+    );
+  }
+
+  void clearLocalTermSheets() {
+    emit(
+      state.copyWith(localTermSheetList: [], hasUnsavedTermSheetChanges: false),
+    );
   }
 
   Future addTermSheet({
@@ -108,12 +242,9 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       "ProjectId": projectId,
       "CompanyId": companyId,
     };
-
     List<Map<String, dynamic>> fileList = [];
     for (int index = 0; index < termSheetList.length; index++) {
       final termSheet = termSheetList[index];
-
-      // DETAIL IDENTIFICATION FIELDS
       requestBody["AddUpdateTermSheetDetails[$index].TermSheetDetailsId"] = "0";
 
       requestBody["AddUpdateTermSheetDetails[$index].Uniquekey"] = "";
@@ -121,61 +252,39 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       requestBody["AddUpdateTermSheetDetails[$index].TermSheetId"] = "0";
 
       requestBody["AddUpdateTermSheetDetails[$index].ProjectId"] = projectId;
-
-      // BASIC DETAILS
       requestBody["AddUpdateTermSheetDetails[$index].LoanTakenBy"] =
           termSheet.loanTakenBy;
-
       requestBody["AddUpdateTermSheetDetails[$index].NameOfInstitutionBankNBFC"] =
           termSheet.nameOfInstitutionBankNBFC;
       requestBody["AddUpdateTermSheetDetails[$index].Type"] = termSheet.type;
-
-      // DATES
       requestBody["AddUpdateTermSheetDetails[$index].TermSheetDate"] =
-          termSheet.termSheetDate;
-
+          termSheet.termSheetDate?.toIso8601String() ?? "";
       requestBody["AddUpdateTermSheetDetails[$index].SanctionDate"] =
-          termSheet.sanctionDate;
-
+          termSheet.sanctionDate?.toIso8601String() ?? "";
       requestBody["AddUpdateTermSheetDetails[$index].LoanStartDate"] =
-          termSheet.loanStartDate;
-
+          termSheet.loanStartDate?.toIso8601String() ?? "";
       requestBody["AddUpdateTermSheetDetails[$index].LoanEndDate"] =
-          termSheet.loanEndDate;
-
-      // AMOUNTS
+          termSheet.loanEndDate?.toIso8601String() ?? "";
       requestBody["AddUpdateTermSheetDetails[$index].FacilityAmount"] =
           termSheet.facilityAmount.toString();
-
       requestBody["AddUpdateTermSheetDetails[$index].RateOfInterestInPercentage"] =
           termSheet.rateOfInterestInPercentage.toString();
-
       requestBody["AddUpdateTermSheetDetails[$index].ProcessingFeesInPercentage"] =
           termSheet.processingFeesInPercentage.toString();
-
       requestBody["AddUpdateTermSheetDetails[$index].LegalAndDocumentationFees"] =
           termSheet.legalAndDocumentationFees.toString();
-
       requestBody["AddUpdateTermSheetDetails[$index].EMIAmount"] =
           termSheet.emiAmount.toString();
-
       requestBody["AddUpdateTermSheetDetails[$index].MinimumSellingPrice"] =
           termSheet.minimumSellingPrice.toString();
-
-      // MONTHS
       requestBody["AddUpdateTermSheetDetails[$index].MonotoriumPeriodInMonth"] =
           termSheet.monotoriumPeriodInMonth.toString();
-
       requestBody["AddUpdateTermSheetDetails[$index].LoanTenureInMonth"] =
           termSheet.loanTenureInMonth.toString();
-
-      // OTHER TEXT
       requestBody["AddUpdateTermSheetDetails[$index].OtherImportantTermsIfAny"] =
           termSheet.otherImportantTermsIfAny;
-
       requestBody["AddUpdateTermSheetDetails[$index].Remark"] =
           termSheet.remark;
-
       requestBody["AddUpdateTermSheetDetails[$index].RemoveTermSheetURL"] = "";
       final files = termSheet.termSheetFiles;
       for (int i = 0; i < files.fileNameList.length; i++) {
@@ -202,8 +311,192 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(context, subTitle: "Invoice Added Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
         getTermSheet(context, 1);
+      },
+    );
+  }
+
+  Future<void> getTermSheetView(
+    BuildContext context,
+    int projectId,
+    int termSheetId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+
+    final Map<String, dynamic> queryParams = {};
+
+    final result = await _termSheetRepository.getTermSheetView(
+      projectId: projectId,
+      termSheetId: termSheetId,
+      queryParams: queryParams,
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final List<TermSheetViewModel> newList =
+            response['data'] as List<TermSheetViewModel>;
+
+        emit(
+          state.copyWith(
+            termSheetViewList: newList,
+            termSheetDetailsViewModel:
+                newList.isNotEmpty &&
+                        newList.first.termSheetDetailsData.isNotEmpty
+                    ? newList.first.termSheetDetailsData.first
+                    : null,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+            isLoading: false,
+          ),
+        );
+      },
+    );
+  }
+
+  Future deleteTermSheet({
+    required BuildContext context,
+    required TermSheetModel termSheet,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var deleteResult = await _termSheetRepository.deleteTermSheet(
+      projectId: termSheet.projectId,
+      termSheetId: termSheet.termSheetId,
+      termSheetDetailsId: termSheet.termSheetDetailsId,
+    );
+    goRouter.pop();
+    deleteResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: response["message"]);
+        final updatedList = List<TermSheetModel>.from(state.termSheetList);
+        updatedList.removeAt(index);
+
+        emit(
+          state.copyWith(
+            termSheetList: updatedList,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> deleteTermSheetDetails({
+    required BuildContext context,
+    required int projectId,
+    required int termSheetId,
+    required int termSheetDetailsId,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final deleteResult = await _termSheetRepository.deleteTermSheet(
+      projectId: projectId,
+      termSheetId: termSheetId,
+      termSheetDetailsId: termSheetDetailsId,
+    );
+
+    if (context.mounted) {
+      goRouter.pop();
+    }
+
+    await deleteResult.fold(
+      (failure) async {
+        if (context.mounted) {
+          showErrorMessage(context, 'Error', failure.message);
+        }
+      },
+      (response) async {
+        if (context.mounted) {
+          showSuccessMessage(context, subTitle: response["message"]);
+        }
+
+        await getTermSheetView(context, projectId, termSheetId);
+      },
+    );
+  }
+
+  Future<void> finalizeTermSheetApproval(
+    BuildContext context, {
+    required int termSheetId,
+    required int projectId,
+    DateTime? closingDate,
+    String? closingRemark,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+
+    final Map<String, dynamic> body = {
+      "TermSheetId": termSheetId,
+      "ProjectId": projectId,
+      "ActionType": "FINAL APPROVAL",
+    };
+    if (closingDate != null) {
+      body["ClosingDate"] = closingDate.apiDate;
+    }
+
+    if (closingRemark != null && closingRemark.trim().isNotEmpty) {
+      body["ClosingRemark"] = closingRemark.trim();
+    }
+
+    debugPrint("FINALIZE BODY: $body");
+
+    final result = await _termSheetRepository.finalizeApproval(body: body);
+
+    if (context.mounted) {
+      goRouter.pop();
+    }
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        showSuccessMessage(context, subTitle: response["message"]);
+        getTermSheet(context, 1);
+        if (context.mounted) {
+          goRouter.pop();
+        }
+      },
+    );
+  }
+
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _termSheetRepository.exportTermSheet(
+      pageNumber: 1,
+      pageSize: state.totalNumberOfRecord,
+      queryParams:
+          state.searchText != ""
+              ? {"ApplicantName": state.searchText, "ExportType": exportType}
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "TermSheet ${DateTime.now()}.pdf"
+              : "TermSheet ${DateTime.now()}.xlsx",
+        );
       },
     );
   }

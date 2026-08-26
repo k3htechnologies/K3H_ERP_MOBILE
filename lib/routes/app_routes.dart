@@ -532,6 +532,20 @@ class AppRoutes {
   static String addTermSheet = "/addTermSheet";
   static String addLocalTermSheet = "/addLocalTermSheet";
   static String viewTermSheet = "/viewTermSheet";
+  static String closeTermSheet = "/closeTermSheet";
+  //DISBURSEMENT
+  static String addDisbursement = "/addDisbursement";
+  // SWEEP RATIO
+  static String addSweepRatio = "/addSweepRatio";
+  // DSA
+  static String addDsa = "/addDsa";
+  // REPAYMENT
+  static String addRepayment = "/addRepayment";
+  // DSRA
+  static String addDsra = "/addDsra";
+  // DOCUMENTS
+  static String termSheetDocuments = "/termSheetDocuments";
+  static String addDocuments = "/addDocuments";
 
   // otp LOGS
   static String otpLogs = "/otpLogs";

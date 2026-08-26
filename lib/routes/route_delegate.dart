@@ -60,10 +60,27 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
+import 'package:k3h_erp_app/features/finance/disbursement/presentation/cubit/disbursement_cubit.dart';
+import 'package:k3h_erp_app/features/finance/disbursement/presentation/pages/add_disbursement.screen.dart';
+import 'package:k3h_erp_app/features/finance/document/data/model/term_sheet_documents.model.dart';
+import 'package:k3h_erp_app/features/finance/document/presentation/cubit/documents_cubit.dart';
+import 'package:k3h_erp_app/features/finance/document/presentation/pages/add_documents.screen.dart';
+import 'package:k3h_erp_app/features/finance/document/presentation/pages/document.screen.dart';
+import 'package:k3h_erp_app/features/finance/dsa/presentation/cubit/dsa_cubit.dart';
+import 'package:k3h_erp_app/features/finance/dsa/presentation/pages/add_dsa.screen.dart';
+import 'package:k3h_erp_app/features/finance/dsra/presentation/cubit/dsra_cubit.dart';
+import 'package:k3h_erp_app/features/finance/dsra/presentation/pages/add_dsra.screen.dart';
+import 'package:k3h_erp_app/features/finance/repayment/presentation/cubit/repayment_cubit.dart';
+import 'package:k3h_erp_app/features/finance/repayment/presentation/pages/add_repayment.screen.dart';
+import 'package:k3h_erp_app/features/finance/sweep_ratio/presentation/cubit/sweep_ratio_cubit.dart';
+import 'package:k3h_erp_app/features/finance/sweep_ratio/presentation/pages/add_sweep_ratio.screen.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/data/model/local_term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/presentation/cubit/term_sheet_cubit.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/add_local_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/add_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/close_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/view_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
@@ -7484,7 +7501,15 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return MultiBlocProvider(
-              providers: [BlocProvider(create: (_) => TermSheetCubit())],
+              providers: [
+                BlocProvider(create: (_) => TermSheetCubit()),
+                BlocProvider(create: (_) => DisbursementCubit()),
+                BlocProvider(create: (_) => SweepRatioCubit()),
+                BlocProvider(create: (_) => DsaCubit()),
+                BlocProvider(create: (_) => RepaymentCubit()),
+                BlocProvider(create: (_) => DsraCubit()),
+                BlocProvider(create: (_) => DocumentsCubit()),
+              ],
               child: child,
             );
           },
@@ -7507,10 +7532,18 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addLocalTermSheet,
               path: AppRoutes.addLocalTermSheet,
               builder: (context, state) {
-                final termSheetModel = state.extra as TermSheetModel?;
-                return AddLocalTermSheet(
-                  isEdit: termSheetModel != null,
-                  termSheetModel: termSheetModel,
+                final extra = state.extra;
+
+                if (extra is Map<String, dynamic>) {
+                  return AddLocalTermSheet(
+                    isEdit: extra["isEdit"] ?? false,
+                    termSheetModel: extra["termSheet"] as LocalTermSheetModel?,
+                  );
+                }
+
+                return const AddLocalTermSheet(
+                  isEdit: false,
+                  termSheetModel: null,
                 );
               },
             ),
@@ -7518,7 +7551,133 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.viewTermSheet,
               path: AppRoutes.viewTermSheet,
               builder: (context, state) {
-                return const ViewTermSheetScreen();
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+
+                return ViewTermSheetScreen(
+                  termSheetModel: extra["termSheet"] as TermSheetModel,
+                  termSheetDetailsView:
+                      extra["termSheetDetailsView"] as TermSheetDetailsView?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.closeTermSheet,
+              path: AppRoutes.closeTermSheet,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+
+                return CloseTermSheetScreen(
+                  termSheetId: extra["termSheetId"] ?? 0,
+                  projectId: extra["projectId"] ?? 0,
+                );
+              },
+            ),
+            //  DISBURSEMENT
+            GoRoute(
+              name: AppRoutes.addDisbursement,
+              path: AppRoutes.addDisbursement,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddDisbursementScreen(
+                  isEdit: extra['isEdit'] as bool? ?? false,
+                  termSheetDetailsView:
+                      extra['termSheetDetailsView'] as TermSheetDetailsView?,
+                  disbursementData:
+                      extra['disbursementData']
+                          as TermSheetDisbursedAmountDetailsData?,
+                );
+              },
+            ),
+            // SWEEP RATIO
+            GoRoute(
+              name: AppRoutes.addSweepRatio,
+              path: AppRoutes.addSweepRatio,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddSweepRatioScreen(
+                  isEdit: extra['isEdit'] as bool? ?? false,
+                  termSheetDetailsView:
+                      extra['termSheetDetailsView'] as TermSheetDetailsView?,
+                  termSheetSweepRatioDetailsData:
+                      extra['sweepRatioData']
+                          as TermSheetSweepRatioDetailsData?,
+                );
+              },
+            ),
+            // DSA
+            GoRoute(
+              name: AppRoutes.addDsa,
+              path: AppRoutes.addDsa,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddDsaScreen(
+                  isEdit: extra['isEdit'] as bool? ?? false,
+                  termSheetDetailsView:
+                      extra['termSheetDetailsView'] as TermSheetDetailsView?,
+                  termSheetDirectSellingAgentData:
+                      extra['dsaData'] as TermSheetDirectSellingAgentData?,
+                );
+              },
+            ),
+            // REPAYMENT
+            GoRoute(
+              name: AppRoutes.addRepayment,
+              path: AppRoutes.addRepayment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddRepaymentScreen(
+                  isEdit: extra['isEdit'] as bool? ?? false,
+                  termSheetDetailsView:
+                      extra['termSheetDetailsView'] as TermSheetDetailsView?,
+                  termSheetRepayLedgerData:
+                      extra['repaymentData'] as TermSheetRepayLedgerData?,
+                );
+              },
+            ),
+            // DSRA
+            GoRoute(
+              name: AppRoutes.addDsra,
+              path: AppRoutes.addDsra,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddDsraScreen(
+                  isEdit: extra['isEdit'] as bool? ?? false,
+                  termSheetDetailsView:
+                      extra['termSheetDetailsView'] as TermSheetDetailsView?,
+                  termSheetDebtServiceReserveAccountData:
+                      extra['dsraData']
+                          as TermSheetDebtServiceReserveAccountData?,
+                );
+              },
+            ),
+            // DOCUMENTS
+            GoRoute(
+              name: AppRoutes.termSheetDocuments,
+              path: AppRoutes.termSheetDocuments,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>;
+
+                return TermSheetDocumentScreen(
+                  termSheetDetailsView:
+                      extra["termSheetDetailsView"] as TermSheetDetailsView,
+                  termSheetModel: extra["termSheetModel"] as TermSheetModel,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addDocuments,
+              path: AppRoutes.addDocuments,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+
+                return AddDocumentsScreen(
+                  isEdit: extra['isEdit'] as bool? ?? false,
+                  termSheetDetailsView:
+                      extra['termSheetDetailsView'] as TermSheetDetailsView?,
+                  termSheetDocumentModel:
+                      extra['documentData'] as TermSheetDocumentModel?,
+                  termSheetModel: extra['termSheetModel'] as TermSheetModel?,
+                );
               },
             ),
           ],

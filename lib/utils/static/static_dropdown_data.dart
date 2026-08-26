@@ -259,3 +259,16 @@ final List<Map<String, dynamic>> applicantTypeList = createAttributeList(
 final List<Map<String, dynamic>> typeList = createAttributeList(
   termSheetTypeValues,
 );
+
+//DSRA
+final List<Map<String, dynamic>> dsraTermList = createAttributeList(
+  dsraTermListValues,
+);
+
+// TERM SHEET DOCUMENT
+final List<Map<String, dynamic>> termSheetDocumentList = createAttributeList(
+  termSheetDocumentsValues,
+);
+final List<Map<String, dynamic>> approvalStatus = createAttributeList(
+  approvalStatusValues,
+);
