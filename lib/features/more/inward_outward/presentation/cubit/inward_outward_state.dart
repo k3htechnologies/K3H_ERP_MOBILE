@@ -49,13 +49,6 @@ class InwardOutwardState extends BaseState {
     inwardOutwardTotalRecords: 0,
     inwardOutwardCurrentPage: 1,
 
-    // inwardList: [],
-    // inwardTotalRecords: 0,
-    // inwardCurrentPage: 1,
-
-    // outwardList: [],
-    // outwardTotalRecords: 0,
-    // outwardCurrentPage: 1,
     searchText: "",
     currentTabIndex: 0,
 

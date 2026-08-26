@@ -54,7 +54,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   Timer? _inwardOutwardDebounce;
 
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
+  List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
 
   @override
   void initState() {
@@ -65,7 +65,7 @@ List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() => _handleTabChange());
     _initializeTextEditingController();
-    _initializePagination();
+    _onScroll();
     _inwardOutwardCubit.getInwardOutwardList(context, 1);
     super.initState();
   }
@@ -115,13 +115,9 @@ List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
     }
   }
 
-  void _initializePagination() {
+  void _onScroll() {
     _inwardOutwardScrollController = ScrollController();
 
-    _setupInwardOutwardPagination();
-  }
-
-  void _setupInwardOutwardPagination() {
     _inwardOutwardScrollController.addListener(() {
       final state = _inwardOutwardCubit.state;
       if (_inwardOutwardScrollController.position.pixels >=
