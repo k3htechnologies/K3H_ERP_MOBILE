@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/model/company_bank.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master/company_master_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -27,9 +28,13 @@ class CompanyBankDetails extends StatefulWidget {
 
 class _CompanyBankDetailsState extends State<CompanyBankDetails> {
   late CompanyMasterCubit _companyMasterCubit;
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _companyMasterCubit = context.read<CompanyMasterCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.companyMaster] ??
+        AuthorizationModel();
     super.initState();
   }
 
@@ -65,11 +70,12 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
               child: Row(
                 children: [
                   Text(
-                    "${state.bankDetailList.isEmpty ? 'Add' : 'Update'} Bank Details",
+                    "${(state.bankDetailList?.isEmpty ?? true) ? 'Add' : 'Update'} Bank Details",
                     style: AppTextStyle.ts16SB(),
                   ),
                   Spacer(),
                   CustomButton(
+                    isDisable: !_routeAuthorizationModel.isAction,
                     onPressed: () {
                       goRouter.pushNamed(AppRoutes.addCompanyBankDetails);
                     },
@@ -84,20 +90,19 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
             Expanded(
               child: Builder(
                 builder: (context) {
-                  if ((state.isLoading ?? false) &&
-                      state.bankDetailList.isEmpty) {
+                  if (state.bankDetailList == null) {
                     return loader();
                   }
-                  if (state.bankDetailList.isEmpty) {
+                  if (state.bankDetailList!.isEmpty) {
                     return Center(
                       child: noDataWidget(message: "No Bank's Found"),
                     );
                   }
                   return ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: state.bankDetailList.length,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: state.bankDetailList!.length,
                     itemBuilder: (context, index) {
-                      final bank = state.bankDetailList[index];
+                      final bank = state.bankDetailList![index];
                       return Container(
                         margin: EdgeInsets.only(bottom: 16),
                         padding: EdgeInsets.all(12),
@@ -132,8 +137,8 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                                 Row(
                                   children: [
                                     CustomIconButton.edit(
-                                      // isDisabled:
-                                      //     !_bankDetailsRouteAuthorizationModel.isAction,
+                                      isDisabled:
+                                          !_routeAuthorizationModel.isAction,
                                       onPressed: () {
                                         goRouter.pushNamed(
                                           AppRoutes.addCompanyBankDetails,
@@ -150,8 +155,8 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                                     ),
                                     horizontalSpacing(),
                                     CustomIconButton.delete(
-                                      // isDisabled:
-                                      // !_bankDetailsRouteAuthorizationModel.isAction,
+                                      isDisabled:
+                                          !_routeAuthorizationModel.isAction,
                                       onPressed: () {
                                         _showDeleteCompanyBankDetailsDialog(
                                           context,

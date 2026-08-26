@@ -69,7 +69,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
 
   // GET COMPANIES
   Future<void> getCompanyMaster(BuildContext context, int pageNumber) async {
-    // Clear list on fresh load to avoid duplicates (e.g., after add)
     emit(
       state.copyWith(
         isLoading: true,
@@ -123,7 +122,13 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   }
 
   Future<void> getCompanyById(BuildContext context, int companyId) async {
-    emit(state.copyWith(isLoading: true, clearOverview: true));
+    emit(
+      state.copyWith(
+        isLoading: true,
+        clearOverview: true,
+        clearBankDetails: true,
+      ),
+    );
     final result = await _companyMasterRepository.pullCompanyList(
       pageNumber: 1,
       pageSize: 10,
@@ -499,9 +504,10 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  Future<void> addUpdateProjectWithBankDetails({
+  Future<void> addUpdateCompanyWithBankDetails({
     required int companyWithBankDetailsId,
     String? uniqueKey,
+    int? index,
     required String beneficiaryAccountHolderName,
     required int bankListMasterId,
     required String accountNumber,
@@ -509,12 +515,15 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     required String ifscCode,
     required String natureOfAccount,
     required String accountType,
+    required String micrCode,
+    required String status,
     required BuildContext context,
     required MultiFilePickerModel cancelChequeFile,
+    required int companyId,
   }) async {
     final Map<String, String> bankRequestBody = {
       "CompanyWithBankDetailsId": companyWithBankDetailsId.toString(),
-
+      "CompanyId": companyId.toString(),
       if (uniqueKey != null) "Uniquekey": uniqueKey,
 
       "BeneficiaryAccountHolderName": beneficiaryAccountHolderName.trim(),
@@ -527,9 +536,11 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
 
       "IFSCCode": ifscCode.trim(),
 
-      "NatureOfAccount": natureOfAccount,
-
       "AcType": accountType,
+      "NatureOfAccount": natureOfAccount,
+      "MICRCode": micrCode,
+      "Status": status,
+      "RemoveCancelChequeURL": cancelChequeFile.deletedFileList,
     };
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < cancelChequeFile.fileNameList.length; i++) {
@@ -558,6 +569,30 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
+        final updatedBankDetails =
+            (response['data'] as List<CompanyBankModel>).first;
+
+        if (uniqueKey != null && uniqueKey.isNotEmpty) {
+          if (state.bankDetailList != null &&
+              state.bankDetailList!.isNotEmpty &&
+              index! < state.bankDetailList!.length) {
+            final updatedList = List<CompanyBankModel>.from(
+              state.bankDetailList ?? [],
+            );
+
+            updatedList[index] = updatedBankDetails;
+
+            emit(state.copyWith(isLoading: false, bankDetailList: updatedList));
+          }
+        } else {
+          final updatedList = List<CompanyBankModel>.from(
+            state.bankDetailList ?? [],
+          );
+          updatedList.insert(0, updatedBankDetails);
+
+          emit(state.copyWith(isLoading: false, bankDetailList: updatedList));
+        }
+        goRouter.pop();
         showSuccessMessage(context, subTitle: response["message"]);
       },
     );
@@ -583,7 +618,9 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final updatedList = List<CompanyBankModel>.from(state.bankDetailList);
+        final updatedList = List<CompanyBankModel>.from(
+          state.bankDetailList ?? [],
+        );
         updatedList.removeAt(index);
         emit(state.copyWith(bankDetailList: updatedList));
         showSuccessMessage(context, subTitle: response["message"]);

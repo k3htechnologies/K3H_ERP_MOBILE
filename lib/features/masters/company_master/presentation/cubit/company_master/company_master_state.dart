@@ -13,7 +13,7 @@ class CompanyMasterState extends BaseState {
   final String filterByMobileNumber;
   final String filterByCityName;
   final CompanyModel? companyOverview;
-  final List<CompanyBankModel> bankDetailList;
+  final List<CompanyBankModel>? bankDetailList;
 
   const CompanyMasterState({
     super.isLoading,
@@ -47,7 +47,7 @@ class CompanyMasterState extends BaseState {
     filterByCityName: "",
     isLoading: true,
     companyOverview: null,
-    bankDetailList: [],
+    bankDetailList: null,
   );
 
   CompanyMasterState copyWith({
@@ -90,7 +90,9 @@ class CompanyMasterState extends BaseState {
               ? null
               : companyOverview ?? this.companyOverview,
       bankDetailList:
-          clearBankDetails == true ? [] : bankDetailList ?? this.bankDetailList,
+          clearBankDetails == true
+              ? null
+              : bankDetailList ?? this.bankDetailList,
     );
   }
 
