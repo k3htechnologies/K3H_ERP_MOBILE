@@ -55,6 +55,7 @@ class PendingApprovalsScreen extends StatelessWidget {
                     cardData.map((item) {
                       return buildRowTitleValue(
                         fixesWidth: 110,
+                        singleLine: false,
                         title: item["title"] ?? "",
                         value: item["value"] ?? "",
                       );

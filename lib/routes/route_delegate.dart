@@ -578,18 +578,14 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.pendingApprovalScreen,
 
               builder: (context, state) {
-                /// Encrypted Data
                 final queryParameterPendingApprovalData =
                     state.uri.queryParameters['pendingApproval'];
 
-                /// Screen Title
                 final queryParameterTitle = state.uri.queryParameters['title'];
 
-                /// onView Route / Type
                 final queryParameterOnView =
                     state.uri.queryParameters['onViewRoute'];
 
-                /// Parsed Data
                 List<List<Map<String, String>>> data = [];
 
                 if (queryParameterPendingApprovalData != null) {

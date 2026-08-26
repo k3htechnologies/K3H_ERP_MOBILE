@@ -16,7 +16,6 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-/// ---- Config model for each approval module ----
 class _ApprovalModuleConfig {
   final String title;
   final String keyword;
@@ -153,24 +152,20 @@ final List<_ApprovalModuleConfig> _approvalModuleConfigs = [
   ),
 ];
 
-/// ---- Widget ----
 Widget pendingApprovalWidget() {
   return BlocBuilder<DashboardCubit, DashboardState>(
     builder: (context, state) {
       final table13 = state.userData?.table13 ?? [];
 
-      // Filter once per config, independently against the full list
-      // (preserves original overlap behavior, e.g. "Parking Modification"
-      // rows also counting toward "Parking").
       final visibleModules =
           _approvalModuleConfigs
               .map((config) {
                 final items =
                     table13
                         .where(
-                          (i) => i.moduleName.toLowerCase().contains(
-                            config.keyword,
-                          ),
+                          (i) =>
+                              i.moduleName.trim().toLowerCase() ==
+                              config.keyword.trim().toLowerCase(),
                         )
                         .toList();
                 return (config: config, items: items);
