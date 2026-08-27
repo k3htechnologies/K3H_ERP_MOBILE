@@ -5,8 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
@@ -14,15 +12,15 @@ import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.d
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor_add/vendor_add_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -35,17 +33,12 @@ class AddVendorScreen extends StatefulWidget {
   State<AddVendorScreen> createState() => _AddVendorScreenState();
 }
 
-class _AddVendorScreenState extends State<AddVendorScreen> {
+class _AddVendorScreenState extends State<AddVendorScreen>
+    with SingleTickerProviderStateMixin {
   // CUBIT
   late VendorAddCubit _vendorAddCubit;
 
-  // FORM KEYS (one per section)
-  final _formKeys = [
-    GlobalKey<FormState>(), // BASIC DETAILS
-    GlobalKey<FormState>(), // GOVERNMENT IDENTIFIERS
-    GlobalKey<FormState>(), // ADDRESS
-  ];
-
+  final _formKey = GlobalKey<FormState>();
   // TEXT EDITING CONTROLLERS
   late TextEditingController nameC,
       companyNameC,
@@ -55,7 +48,8 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       panC,
       gstC,
       addressC,
-      searchC;
+      searchC,
+      contractSearchC;
 
   // COMPANY TYPE DROPDOWN
   List<Map<String, dynamic>> companyTypeList = [
@@ -91,18 +85,15 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   String districtMasterId = '';
   String cityMasterId = '';
 
-  // TAB CHANGE VARIABLE
-  int selectedTab = 0;
+  late final TabController _tabController;
+  List<SubMaterialModel> allSubMaterialList = [];
 
-  // MATERIAL LIST
-  List<Map<String, dynamic>> materialList = [];
-  // THIS LIST IS JUST MADE TO SELECT THE SUB MATERIALS
-
-  List<SubMaterialModel> subMaterialListForSelection = [];
-  ValueNotifier<List<SubMaterialModel>> subMaterialListForSelectionWithSearch =
+  final ValueNotifier<List<SubMaterialModel>> filteredMaterialList =
       ValueNotifier([]);
 
-  Map<int, List<SubMaterialModel>> materialMap = {};
+  final ValueNotifier<Set<int>> selectedMaterialIds = ValueNotifier({});
+
+  List<SubMaterialModel> subMaterialListForSelection = [];
 
   // EDIT MODE
   bool get _isEditMode => widget.vendor != null;
@@ -111,6 +102,7 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   void initState() {
     super.initState();
     _vendorAddCubit = context.read<VendorAddCubit>();
+    _tabController = TabController(length: 2, vsync: this);
     initializeTextEditingControllers();
     getMaterialList();
     if (_isEditMode) {
@@ -122,10 +114,11 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
   void dispose() {
     super.dispose();
     disposeControllers();
-    subMaterialListForSelectionWithSearch.dispose();
+    filteredMaterialList.dispose();
+    selectedMaterialIds.dispose();
+    _tabController.dispose();
   }
 
-  // --------------------------- DISPOSE CONTROLLERS --------------------------- //
   void disposeControllers() {
     nameC.dispose();
     mobileC.dispose();
@@ -136,9 +129,9 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     addressC.dispose();
     companyNameC.dispose();
     searchC.dispose();
+    contractSearchC.dispose();
   }
 
-  // --------------------------- INITIALIZATION METHODS --------------------------- //
   void initializeTextEditingControllers() {
     nameC = TextEditingController();
     companyNameC = TextEditingController();
@@ -149,30 +142,28 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
     gstC = TextEditingController();
     addressC = TextEditingController();
     searchC = TextEditingController();
+    contractSearchC = TextEditingController();
   }
 
-  // --------------------------- FETCHING METHODS --------------------------- //
   Future<void> getMaterialList() async {
     var response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
       context,
     );
-    materialMap = await compute(
-      (s) =>
-          groupBy(s as List<SubMaterialModel>, (obj) => obj.materialMasterId),
-      response["MaterialMasterSubMaterialMasterData"],
+
+    final subMaterials =
+        (response["MaterialMasterSubMaterialMasterData"]
+            as List<SubMaterialModel>?) ??
+        [];
+
+    await compute(
+      (s) => groupBy(s, (obj) => obj.materialMasterId),
+      subMaterials,
     );
-    materialList = [
-      {'zAttributesId': -1, 'DisplayName': 'Select Material'},
-      ...materialMap.keys.map(
-        (e) => {
-          'zAttributesId': materialMap[e]!.first.materialMasterId,
-          'DisplayName': materialMap[e]!.first.materialName,
-        },
-      ),
-    ];
+
+    allSubMaterialList = subMaterials;
+    filteredMaterialList.value = List.from(allSubMaterialList);
   }
 
-  // --------------------------- PREFILL METHODS --------------------------- //
   Future prefillVendorDetails(VendorModel vendor) async {
     nameC.text = vendor.vendorName;
     companyNameC.text = vendor.companyName;
@@ -216,740 +207,46 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
       (_) => Uint8List(0),
     );
 
-    subMaterialListForSelection = vendor.submaterialList;
-    subMaterialListForSelectionWithSearch.value = List.from(
-      vendor.submaterialList,
-    );
+    subMaterialListForSelection = List.from(vendor.submaterialList);
+    selectedMaterialIds.value =
+        subMaterialListForSelection.map((e) => e.subMaterialMasterId).toSet();
   }
 
-  // --------------------------- SHOW DIALOG METHODS --------------------------- //
-  Future showDialogToAddMaterialSubMaterialForVendor() async {
-    final initialValue =
-        subMaterialListForSelection.map((subMaterial) {
-          return {
-            'zAttributesId': subMaterial.subMaterialMasterId,
-            'DisplayName': subMaterial.subMaterialName,
-            'materialMasterId': subMaterial.materialMasterId,
-            'materialName': subMaterial.materialName,
-          };
-        }).toList();
-
-    final selectedItems = await CustomMultipleSelectPopup.showBottomSheet(
-      context: context,
-      title: "Add Materials and Sub-Materials",
-      dataList: null,
-      initialValue: initialValue,
-      isMultiSelect: true,
-      dataFetchCallBack: (pageNumber, {String? value}) async {
-        final response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
-          context,
-        );
-
-        if (!response["isSuccess"]) {
-          return {
-            'itemList': <Map<String, dynamic>>[],
-            'totalNumberOfRecord': 0,
-          };
-        }
-
-        final allSubMaterials =
-            response["MaterialMasterSubMaterialMasterData"]
-                as List<SubMaterialModel>;
-
-        List<Map<String, dynamic>> dataList =
-            allSubMaterials.map((subMaterial) {
-              return {
-                'zAttributesId': subMaterial.subMaterialMasterId,
-                'DisplayName':
-                    '${subMaterial.materialName} - ${subMaterial.subMaterialName}',
-                'materialMasterId': subMaterial.materialMasterId,
-                'materialName': subMaterial.materialName,
-              };
-            }).toList();
-
-        // APPLY FILTER IF PROVIDED
-        if (value != null && value.isNotEmpty) {
-          dataList =
-              dataList.where((item) {
-                final displayName =
-                    (item['DisplayName'] ?? '').toString().toLowerCase();
-                return displayName.contains(value.toLowerCase());
-              }).toList();
-        }
-
-        return {'itemList': dataList, 'totalNumberOfRecord': dataList.length};
-      },
-    );
-
-    if (selectedItems != null) {
-      final response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
-        // ignore: use_build_context_synchronously
-        context,
-      );
-
-      if (response["isSuccess"]) {
-        final allSubMaterials =
-            response["MaterialMasterSubMaterialMasterData"]
-                as List<SubMaterialModel>;
-
-        // Convert selected items back to SubMaterialModel format
-        final selectedSubMaterials = <SubMaterialModel>[];
-        for (var selectedItem in selectedItems) {
-          final materialId = selectedItem['materialMasterId'] as int;
-          final subMaterialId = selectedItem['zAttributesId'] as int;
-
-          // Find the SubMaterialModel from the API response
-          final subMaterial = allSubMaterials.firstWhere(
-            (s) =>
-                s.subMaterialMasterId == subMaterialId &&
-                s.materialMasterId == materialId,
-            orElse: () {
-              final sameMaterialSubMaterial = allSubMaterials.firstWhere(
-                (s) => s.materialMasterId == materialId,
-                orElse:
-                    () => SubMaterialModel(
-                      materialMasterId: materialId,
-                      materialName: selectedItem['materialName'] ?? '',
-                      subMaterialMasterId: subMaterialId,
-                      subMaterialName: selectedItem['DisplayName'] ?? '',
-                      materialMasterIdIdRef: materialId,
-                      uomMasterId: 0,
-                      uomCode: '',
-                      uom: '',
-                    ),
-              );
-              return SubMaterialModel(
-                materialMasterId: materialId,
-                materialName: selectedItem['materialName'] ?? '',
-                subMaterialMasterId: subMaterialId,
-                subMaterialName: selectedItem['DisplayName'] ?? '',
-                materialMasterIdIdRef: materialId,
-                uomMasterId: sameMaterialSubMaterial.uomMasterId,
-                uomCode: sameMaterialSubMaterial.uomCode,
-                uom: sameMaterialSubMaterial.uom,
-              );
-            },
-          );
-          selectedSubMaterials.add(subMaterial);
-        }
-
-        // UPDATE SELECTED LIST
-        setState(() {
-          subMaterialListForSelection = selectedSubMaterials;
-          _searchMaterial();
-        });
-      }
+  void _searchMaterialList() {
+    final query = searchC.text.trim().toLowerCase();
+    if (query.isEmpty) {
+      filteredMaterialList.value = List.from(allSubMaterialList);
+    } else {
+      filteredMaterialList.value =
+          allSubMaterialList.where((item) {
+            return item.subMaterialName.toLowerCase().contains(query) ||
+                item.materialName.toLowerCase().contains(query);
+          }).toList();
     }
   }
 
-  // --------------------------- SEARCH METHODS --------------------------- //
-  void _searchMaterial() {
-    if (searchC.text.trim().isEmpty) {
-      subMaterialListForSelectionWithSearch.value = List.from(
-        subMaterialListForSelection,
+  void _toggleMaterialSelection(SubMaterialModel item) {
+    final ids = Set<int>.from(selectedMaterialIds.value);
+    if (ids.contains(item.subMaterialMasterId)) {
+      ids.remove(item.subMaterialMasterId);
+      subMaterialListForSelection.removeWhere(
+        (e) => e.subMaterialMasterId == item.subMaterialMasterId,
       );
     } else {
-      subMaterialListForSelectionWithSearch.value =
-          subMaterialListForSelection
-              .where(
-                (element) => element.materialName.toLowerCase().contains(
-                  searchC.text.trim().toLowerCase(),
-                ),
-              )
-              .toList();
+      ids.add(item.subMaterialMasterId);
+      subMaterialListForSelection.add(item);
     }
+    selectedMaterialIds.value = ids;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Vendor Management",
-        authorization: AuthorizationModel(),
-      ),
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildBasicDetailsSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(
-                _buildGovernmentIdentifiersSection(),
-              ),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildAddressSection()),
-            ),
-            SliverToBoxAdapter(child: SizedBox(height: 12)),
-            ..._buildMaterialAndContractSectionSlivers(),
-            SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: SizedBox(height: 50)),
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: 70,
-          padding: EdgeInsets.all(16),
-          child: CustomButton(
-            leading: Icon(
-              widget.vendor != null ? Icons.edit : Icons.add,
-              color: AppColor.white,
-              size: 18,
-            ),
-            text: _isEditMode ? 'Add' : 'Update',
-            onPressed: _handleSubmit,
-            backgroundColor: AppColor.primary,
-          ),
-        ),
-      ),
-    );
-  }
-
-  // BUILD SECTION CONTAINER
-  Widget _buildSectionContainer(Widget child) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16),
-      decoration: commonCardDecoration(),
-      child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        child: child,
-      ),
-    );
-  }
-
-  // BUILD SECTION HEADER
-  Widget _buildSectionHeader(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(title, style: AppTextStyle.ts16M(color: AppColor.black)),
-    );
-  }
-
-  // BUILD BASIC DETAILS SECTION
-  Widget _buildBasicDetailsSection() {
-    return Form(
-      key: _formKeys[0],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader('Basic Details'),
-          CustomTextField(
-            inputFormatterList: InputValidator.textOnly(50),
-            textController: nameC,
-            title: "Vendor Name",
-            isRequired: true,
-            hint: "Enter Vendor Name",
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "Vendor Name is required";
-              }
-              return null;
-            },
-          ),
-          ValueListenableBuilder(
-            valueListenable: selectedCompanyType,
-            builder: (context, value, child) {
-              return CustomDropDownWidget(
-                title: "Company Type",
-                hintText: "Select Company Type",
-                initialValue: selectedCompanyType.value,
-                isRequired: true,
-                dataList: companyTypeList,
-                onSelected: (value) {
-                  selectedCompanyType.value = value;
-                },
-                validator: (value) {
-                  if (value == null || value['zAttributesId'] == -1) {
-                    return 'Company Type is required';
-                  }
-                  return null;
-                },
-                onValueClear: () {
-                  selectedCompanyType.value = null;
-                },
-              );
-            },
-          ),
-          CustomTextField(
-            title: "Company Name",
-            hint: "Enter Company Name",
-            inputFormatterList: InputValidator.textDigit(50),
-            isRequired: true,
-            textController: companyNameC,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "Company Name is required";
-              }
-              return null;
-            },
-          ),
-          CustomTextField(
-            title: 'Mobile Number',
-            hint: "Enter Mobile Number",
-            isRequired: true,
-            textController: mobileC,
-            inputFormatterList: InputValidator.digit(10),
-            prefixWidget: IntrinsicHeight(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 10),
-                  const Text("+91"),
-                  VerticalDivider(
-                    color: AppColor.black,
-                    thickness: 0.5,
-                    width: 15,
-                    indent: 5,
-                    endIndent: 5,
-                  ),
-                ],
-              ),
-            ),
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "Mobile Number is required";
-              }
-              if (value.length != 10) {
-                return "Mobile Number is invalid";
-              }
-              return null;
-            },
-          ),
-          CustomTextField(
-            textController: emailC,
-            title: "E-mail ID",
-            hint: "Enter E-mail ID",
-            isRequired: true,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "Email Id is required";
-              }
-              if (!InputValidator.isValidEmail(value)) {
-                return "Invalid email address";
-              }
-              return null;
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD GOVERNMENT IDENTIFIERS SECTION
-  Widget _buildGovernmentIdentifiersSection() {
-    return Form(
-      key: _formKeys[1],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader('Government Identifiers'),
-          CustomTextField(
-            inputFormatterList: InputValidator.aadhaarNumberInputFormatter(),
-            textController: aadhaarC,
-            title: "Aadhaar Card Number",
-            hint: "Enter Aadhaar Card Number",
-            isRequired: true,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "Aadhaar Card number is required";
-              }
-              if (!InputValidator.isValidAadharNumber(value)) {
-                return "Invalid Aadhaar Card Number";
-              }
-              return null;
-            },
-          ),
-          CustomMultiFilePicker(
-            maxFiles: 3,
-            initialFileList: aadhaarCard.fileNameList,
-            filePickType: FilePickType.kycDocument,
-            title: "Aadhaar Card",
-            isRequired: true,
-            onFilePickedCallback: (bytesList, fileList) {
-              aadhaarCard.fileBytesList = bytesList;
-              aadhaarCard.fileNameList = fileList;
-            },
-            validator: (file) {
-              if (file == null || file.isEmpty) {
-                return "Aadhaar Card required";
-              }
-              return null;
-            },
-            onFileDeleteCallback: (fileBytesList, fileNamelist, deletedFiles) {
-              aadhaarCard.fileBytesList = fileBytesList;
-              aadhaarCard.fileNameList = fileNamelist;
-              aadhaarCard.deletedFileList = deletedFiles;
-            },
-          ),
-          CustomTextField(
-            inputFormatterList: InputValidator.panInputFormatters(),
-            textController: panC,
-            title: "PAN Card Number",
-            hint: "Enter PAN Card Number",
-            isRequired: true,
-            validator: (value) {
-              if ((value == null || value.trim().isEmpty)) {
-                return "PAN Number is required";
-              }
-              if (value.trim().isNotEmpty &&
-                  !InputValidator.isValidPAN(value)) {
-                return "Invalid PAN Number";
-              }
-              return null;
-            },
-          ),
-          CustomMultiFilePicker(
-            maxFiles: 3,
-            initialFileList: panCard.fileNameList,
-            title: "PAN Card",
-            filePickType: FilePickType.kycDocument,
-            isRequired: true,
-            onFilePickedCallback: (bytesList, filesList) {
-              panCard.fileBytesList = bytesList;
-              panCard.fileNameList = filesList;
-            },
-            validator: (file) {
-              if (file == null || file.isEmpty) {
-                return "Pan Card required";
-              }
-              return null;
-            },
-            onFileDeleteCallback: (fileBytesList, fileNameList, deletedFiles) {
-              panCard.fileBytesList = fileBytesList;
-              panCard.fileNameList = fileNameList;
-              panCard.deletedFileList = deletedFiles;
-            },
-          ),
-          CustomTextField(
-            inputFormatterList: InputValidator.gstInputFormatters(),
-            textController: gstC,
-            title: "GST Number",
-            hint: "Enter GST Number",
-            isRequired: true,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'GST number is required';
-              }
-              if (!InputValidator.isValidGST(value)) {
-                return 'Enter a valid GST number';
-              }
-              return null;
-            },
-          ),
-          CustomMultiFilePicker(
-            maxFiles: 3,
-            initialFileList: gstCertificate.fileNameList,
-            filePickType: FilePickType.kycDocument,
-            title: "GST Certificate",
-            isRequired: true,
-            onFilePickedCallback: (fileByteList, fileNameList) {
-              gstCertificate.fileBytesList = fileByteList;
-              gstCertificate.fileNameList = fileNameList;
-            },
-            onFileDeleteCallback: (fileBytesList, fileNameList, deletedUrl) {
-              gstCertificate.fileBytesList = fileBytesList;
-              gstCertificate.fileNameList = fileNameList;
-              gstCertificate.deletedFileList = deletedUrl;
-            },
-            validator: (file) {
-              if (file == null || file.isEmpty) {
-                return "GST Certificate required";
-              }
-              return null;
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD ADDRESS SECTION
-  Widget _buildAddressSection() {
-    return Form(
-      key: _formKeys[2],
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionHeader('Address Details'),
-          CustomTextField(
-            textController: addressC,
-            title: "Address",
-            hint: "Enter Address",
-            minLines: 3,
-            maxLines: 3,
-            isRequired: true,
-            inputFormatterList: [LengthLimitingTextInputFormatter(500)],
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return "Address is required";
-              }
-              return null;
-            },
-          ),
-          AddressWidget(
-            formKey: _formKeys[2],
-            incomingCountryId: widget.vendor?.countryMasterId ?? 1,
-            incomingStateId: widget.vendor?.stateMasterId,
-            incomingDistrictId: widget.vendor?.districtMasterId,
-            incomingCityId: widget.vendor?.cityMasterId,
-            countryChange: (selectedCountry) {
-              countryMasterId = selectedCountry['zAttributesId'].toString();
-            },
-            stateChange: (selectedState) {
-              stateMasterId = selectedState['zAttributesId'].toString();
-            },
-            districtChange: (selectedDistrict) {
-              districtMasterId = selectedDistrict['zAttributesId'].toString();
-            },
-            cityChange: (selectedCity) {
-              cityMasterId = selectedCity['zAttributesId'].toString();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD MATERIAL AND CONTRACT SECTION SLIVERS
-  List<Widget> _buildMaterialAndContractSectionSlivers() {
-    return [
-      SliverToBoxAdapter(
-        child: _buildSectionContainer(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildSectionHeader('Material And Contract Management'),
-              verticalSpacing(),
-              Container(
-                height: 50,
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Text("Select:", style: AppTextStyle.ts14M()),
-                    ),
-
-                    // MATERIAL
-                    Expanded(
-                      flex: 2,
-                      child: InkWell(
-                        splashColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        onTap: () {
-                          setState(() {
-                            selectedTab = 0;
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Radio<int>(
-                              value: 0,
-                              groupValue: selectedTab,
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedTab = value!;
-                                });
-                              },
-                              activeColor: AppColor.info,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                            Text("Material", style: AppTextStyle.ts14M()),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    // CONTRACT
-                    Expanded(
-                      flex: 2,
-                      child: InkWell(
-                        splashColor: Colors.transparent,
-                        hoverColor: Colors.transparent,
-                        onTap: () {
-                          setState(() {
-                            selectedTab = 1;
-                          });
-                        },
-                        child: Row(
-                          children: [
-                            Radio<int>(
-                              value: 1,
-                              groupValue: selectedTab,
-                              onChanged: (value) {
-                                setState(() {
-                                  selectedTab = value!;
-                                });
-                              },
-                              activeColor: AppColor.info,
-                              visualDensity: VisualDensity.compact,
-                            ),
-                            Text("Contract", style: AppTextStyle.ts14M()),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Flexible(
-                    flex: 4,
-                    child: CustomTextField(
-                      hint: "Search Material",
-                      textController: searchC,
-                      onChangeFunction: (value) {
-                        _searchMaterial();
-                      },
-                    ),
-                  ),
-                  horizontalSpacing(),
-                  Expanded(
-                    flex: 2,
-                    child: GestureDetector(
-                      onTap: () async {
-                        await showDialogToAddMaterialSubMaterialForVendor();
-                      },
-                      child: SizedBox(
-                        height: 40,
-                        child: Text(
-                          'Select Material',
-                          style: AppTextStyle.ts14M(color: AppColor.info),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-      ValueListenableBuilder<List<SubMaterialModel>>(
-        valueListenable: subMaterialListForSelectionWithSearch,
-        builder: (context, value, child) {
-          if (value.isEmpty) {
-            return SliverToBoxAdapter(child: SizedBox());
-          }
-
-          // Use for-loop grouping logic as provided
-          final materialWidgets = <Widget>[];
-          int index = 0;
-          while (index < value.length) {
-            final currentItem = value[index];
-
-            // Build children by grouping items with the same materialMasterId
-            final itemWidgets = <Widget>[];
-            do {
-              itemWidgets.add(
-                Container(
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                    child: Row(
-                      children: [
-                        horizontalSpacing(width: 5),
-                        SvgPicture.asset(
-                          AppAssets.subMaterialSubSubmodule,
-                          height: 18,
-                        ),
-                        horizontalSpacing(),
-                        Expanded(
-                          child: Text(
-                            value[index].subMaterialName,
-                            style: AppTextStyle.ts14R(color: AppColor.grey),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-              // If the next item exists and belongs to the same group, process it.
-              if ((index + 1) < value.length &&
-                  value[index].materialMasterId ==
-                      value[index + 1].materialMasterId) {
-                index++;
-              } else {
-                break;
-              }
-            } while (true);
-
-            materialWidgets.add(
-              Container(
-                margin: EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 4.0,
-                  vertical: 4.0,
-                ),
-                child: Theme(
-                  data: Theme.of(
-                    context,
-                  ).copyWith(dividerColor: Colors.transparent),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: AppColor.lightBlue,
-                    ),
-                    child: ExpansionTile(
-                      minTileHeight: 50,
-                      tilePadding: const EdgeInsets.only(left: 8, right: 10),
-                      childrenPadding: EdgeInsets.zero,
-                      title: SizedBox(
-                        height: 50,
-                        child: Row(
-                          children: [
-                            horizontalSpacing(width: 5),
-                            SvgPicture.asset(
-                              AppAssets.materialSubSubmodule,
-                              height: 18,
-                            ),
-                            horizontalSpacing(),
-                            Expanded(
-                              child: Text(
-                                currentItem.materialName,
-                                style: AppTextStyle.ts16R(color: AppColor.blue),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      children: itemWidgets,
-                    ),
-                  ),
-                ),
-              ),
-            );
-
-            index++; // Move to next group
-          }
-
-          return SliverList(delegate: SliverChildListDelegate(materialWidgets));
-        },
-      ),
-    ];
-  }
-
-  // --------------------------- SUBMIT HANDLER --------------------------- //
-  void _handleSubmit() {
-    final isBasicValid = _formKeys[0].currentState?.validate() ?? false;
-    final isGovValid = _formKeys[1].currentState?.validate() ?? false;
-    final isAddressValid = _formKeys[2].currentState?.validate() ?? false;
-
-    if (!isBasicValid || !isGovValid || !isAddressValid) {
-      return;
-    }
-
+  void _saveForm() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
     if (subMaterialListForSelection.isEmpty) {
-      showErrorMessage(context, 'Selection Error', "Please select a material");
+      showErrorMessage(
+        context,
+        'Error',
+        "Please select at least one material.",
+      );
       return;
     }
 
@@ -1008,5 +305,486 @@ class _AddVendorScreenState extends State<AddVendorScreen> {
         gstCertificate: gstCertificate,
       );
     }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBarWithBackButton(
+        screenTitle: "Vendor Management",
+        authorization: AuthorizationModel(),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              spacing: 16,
+              children: [
+                _card("Basic Details", [
+                  CustomTextField(
+                    inputFormatterList: InputValidator.textOnly(50),
+                    textController: nameC,
+                    title: "Vendor Name",
+                    isRequired: true,
+                    hint: "Enter Vendor Name",
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Vendor Name is required";
+                      }
+                      return null;
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: selectedCompanyType,
+                    builder: (context, value, child) {
+                      return CustomDropDownWidget(
+                        title: "Company Type",
+                        hintText: "Select Company Type",
+                        initialValue: selectedCompanyType.value,
+                        isRequired: true,
+                        dataList: companyTypeList,
+                        onSelected: (value) {
+                          selectedCompanyType.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value['zAttributesId'] == -1) {
+                            return 'Company Type is required';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          selectedCompanyType.value = null;
+                        },
+                      );
+                    },
+                  ),
+                  CustomTextField(
+                    title: "Company Name",
+                    hint: "Enter Company Name",
+                    inputFormatterList: InputValidator.textDigit(50),
+                    isRequired: true,
+                    textController: companyNameC,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Company Name is required";
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    title: 'Mobile Number',
+                    hint: "Enter Mobile Number",
+                    isRequired: true,
+                    textController: mobileC,
+                    inputFormatterList: InputValidator.digit(10),
+                    prefixWidget: IntrinsicHeight(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(width: 10),
+                          const Text("+91"),
+                          VerticalDivider(
+                            color: AppColor.black,
+                            thickness: 0.5,
+                            width: 15,
+                            indent: 5,
+                            endIndent: 5,
+                          ),
+                        ],
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Mobile Number is required";
+                      }
+                      if (value.length != 10) {
+                        return "Mobile Number is invalid";
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    textController: emailC,
+                    title: "E-mail ID",
+                    hint: "Enter E-mail ID",
+                    isRequired: true,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Email Id is required";
+                      }
+                      if (!InputValidator.isValidEmail(value)) {
+                        return "Invalid email address";
+                      }
+                      return null;
+                    },
+                  ),
+                ]),
+                _card("Government Identifiers", [
+                  CustomTextField(
+                    inputFormatterList:
+                        InputValidator.aadhaarNumberInputFormatter(),
+                    textController: aadhaarC,
+                    title: "Aadhaar Card Number",
+                    hint: "Enter Aadhaar Card Number",
+                    isRequired: true,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Aadhaar Card number is required";
+                      }
+                      if (!InputValidator.isValidAadharNumber(value)) {
+                        return "Invalid Aadhaar Card Number";
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    maxFiles: 3,
+                    initialFileList: aadhaarCard.fileNameList,
+                    filePickType: FilePickType.kycDocument,
+                    title: "Aadhaar Card",
+                    isRequired: true,
+                    onFilePickedCallback: (bytesList, fileList) {
+                      aadhaarCard.fileBytesList = bytesList;
+                      aadhaarCard.fileNameList = fileList;
+                    },
+                    validator: (file) {
+                      if (file == null || file.isEmpty) {
+                        return "Aadhaar Card required";
+                      }
+                      return null;
+                    },
+                    onFileDeleteCallback: (
+                      fileBytesList,
+                      fileNamelist,
+                      deletedFiles,
+                    ) {
+                      aadhaarCard.fileBytesList = fileBytesList;
+                      aadhaarCard.fileNameList = fileNamelist;
+                      aadhaarCard.deletedFileList = deletedFiles;
+                    },
+                  ),
+                  CustomTextField(
+                    inputFormatterList: InputValidator.panInputFormatters(),
+                    textController: panC,
+                    title: "PAN Card Number",
+                    hint: "Enter PAN Card Number",
+                    isRequired: true,
+                    validator: (value) {
+                      if ((value == null || value.trim().isEmpty)) {
+                        return "PAN Number is required";
+                      }
+                      if (value.trim().isNotEmpty &&
+                          !InputValidator.isValidPAN(value)) {
+                        return "Invalid PAN Number";
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    maxFiles: 3,
+                    initialFileList: panCard.fileNameList,
+                    title: "PAN Card",
+                    filePickType: FilePickType.kycDocument,
+                    isRequired: true,
+                    onFilePickedCallback: (bytesList, filesList) {
+                      panCard.fileBytesList = bytesList;
+                      panCard.fileNameList = filesList;
+                    },
+                    validator: (file) {
+                      if (file == null || file.isEmpty) {
+                        return "Pan Card required";
+                      }
+                      return null;
+                    },
+                    onFileDeleteCallback: (
+                      fileBytesList,
+                      fileNameList,
+                      deletedFiles,
+                    ) {
+                      panCard.fileBytesList = fileBytesList;
+                      panCard.fileNameList = fileNameList;
+                      panCard.deletedFileList = deletedFiles;
+                    },
+                  ),
+                  CustomTextField(
+                    inputFormatterList: InputValidator.gstInputFormatters(),
+                    textController: gstC,
+                    title: "GST Number",
+                    hint: "Enter GST Number",
+                    isRequired: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'GST number is required';
+                      }
+                      if (!InputValidator.isValidGST(value)) {
+                        return 'Enter a valid GST number';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    maxFiles: 3,
+                    initialFileList: gstCertificate.fileNameList,
+                    filePickType: FilePickType.kycDocument,
+                    title: "GST Certificate",
+                    isRequired: true,
+                    onFilePickedCallback: (fileByteList, fileNameList) {
+                      gstCertificate.fileBytesList = fileByteList;
+                      gstCertificate.fileNameList = fileNameList;
+                    },
+                    onFileDeleteCallback: (
+                      fileBytesList,
+                      fileNameList,
+                      deletedUrl,
+                    ) {
+                      gstCertificate.fileBytesList = fileBytesList;
+                      gstCertificate.fileNameList = fileNameList;
+                      gstCertificate.deletedFileList = deletedUrl;
+                    },
+                    validator: (file) {
+                      if (file == null || file.isEmpty) {
+                        return "GST Certificate required";
+                      }
+                      return null;
+                    },
+                  ),
+                ]),
+                _card("Address Details", [
+                  CustomTextField(
+                    textController: addressC,
+                    title: "Address",
+                    hint: "Enter Address",
+                    minLines: 3,
+                    maxLines: 3,
+                    isRequired: true,
+                    inputFormatterList: [LengthLimitingTextInputFormatter(500)],
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Address is required";
+                      }
+                      return null;
+                    },
+                  ),
+                  AddressWidget(
+                    formKey: _formKey,
+                    incomingCountryId: widget.vendor?.countryMasterId ?? 1,
+                    incomingStateId: widget.vendor?.stateMasterId,
+                    incomingDistrictId: widget.vendor?.districtMasterId,
+                    incomingCityId: widget.vendor?.cityMasterId,
+                    countryChange: (selectedCountry) {
+                      countryMasterId =
+                          selectedCountry['zAttributesId'].toString();
+                    },
+                    stateChange: (selectedState) {
+                      stateMasterId = selectedState['zAttributesId'].toString();
+                    },
+                    districtChange: (selectedDistrict) {
+                      districtMasterId =
+                          selectedDistrict['zAttributesId'].toString();
+                    },
+                    cityChange: (selectedCity) {
+                      cityMasterId = selectedCity['zAttributesId'].toString();
+                    },
+                  ),
+                ]),
+                _card('Material and Contract Management', [
+                  ChipStyleTabBar(
+                    controller: _tabController,
+                    tabs: ['Material', 'Contract'],
+                    style: ChipTabBarStyle.underline,
+                  ),
+                  verticalSpacing(),
+                  SizedBox(
+                    height: 400,
+                    child: TabBarView(
+                      controller: _tabController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: [
+                        _buildMaterialTabContent(),
+                        _buildContractTabContent(),
+                      ],
+                    ),
+                  ),
+                ]),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.all(16),
+          child: CustomButton(
+            leading: Icon(
+              widget.vendor != null ? Icons.edit : Icons.add,
+              color: AppColor.white,
+              size: 18,
+            ),
+            text: _isEditMode ? 'Update' : 'Add',
+            onPressed: _saveForm,
+            backgroundColor: AppColor.primary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMaterialTabContent() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SearchWidget(
+            textController: searchC,
+            hintText: "Search By Material Name",
+            onSubmit: (v) {
+              _searchMaterialList();
+            },
+          ),
+          verticalSpacing(),
+          Expanded(
+            child: BlocBuilder<VendorAddCubit, VendorAddState>(
+              builder: (context, state) {
+                return ValueListenableBuilder<List<SubMaterialModel>>(
+                  valueListenable: filteredMaterialList,
+                  builder: (context, list, child) {
+                    if (state.isLoading ?? false) {
+                      return Center(child: loader());
+                    }
+                    if (list.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No data found',
+                          style: AppTextStyle.ts14R(color: AppColor.grey),
+                        ),
+                      );
+                    }
+                    return ValueListenableBuilder<Set<int>>(
+                      valueListenable: selectedMaterialIds,
+                      builder: (context, selectedIds, _) {
+                        return ListView.separated(
+                          padding: EdgeInsets.zero,
+                          itemCount: list.length,
+                          separatorBuilder:
+                              (_, __) => verticalSpacing(height: 8),
+                          itemBuilder: (context, index) {
+                            final item = list[index];
+                            final isSelected = selectedIds.contains(
+                              item.subMaterialMasterId,
+                            );
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.subMaterialName,
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                        Text(
+                                          item.materialName,
+                                          style: AppTextStyle.ts14R(
+                                            color: AppColor.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed:
+                                        () => _toggleMaterialSelection(item),
+                                    icon: Icon(
+                                      isSelected
+                                          ? Icons.delete_outline
+                                          : Icons.add,
+                                      size: 18,
+                                      color:
+                                          isSelected
+                                              ? Colors.red
+                                              : AppColor.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContractTabContent() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          IgnorePointer(
+            child: CustomTextField(
+              hint: "Search By Contract Name",
+              textController: contractSearchC,
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                'Contract management coming soon',
+                style: AppTextStyle.ts14R(color: AppColor.grey),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _card(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
+      ),
+    );
   }
 }

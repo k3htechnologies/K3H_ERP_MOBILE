@@ -10,5 +10,5 @@ class VendorAddState extends BaseState {
   }
 
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [isLoading];
 }

@@ -31,6 +31,7 @@ class VendorAddCubit extends Cubit<VendorAddState> {
   Future<Map<String, dynamic>> getMaterialSubMaterialUOMMaster(
     BuildContext context,
   ) async {
+    emit(state.copyWith(isLoading: true));
     int projectId = 0;
     try {
       final projectString = LocalStorageManager().getString(
@@ -65,6 +66,8 @@ class VendorAddCubit extends Cubit<VendorAddState> {
             "isSuccess": false,
           };
         }
+        emit(state.copyWith(isLoading: false));
+
         return {
           "MaterialMasterSubMaterialMasterData": List<SubMaterialModel>.from(
             (await compute(
