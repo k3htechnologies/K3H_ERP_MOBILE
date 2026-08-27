@@ -691,7 +691,7 @@ class TermSheetDebtServiceReserveAccountData {
   DateTime? date;
   double rateOfInterestInPercentage;
   double redemptionValue;
-  int maturityPeriod;
+  double maturityPeriod;
   double withdrawAmount;
   dynamic withdrawDate;
   String remark;
@@ -747,7 +747,7 @@ class TermSheetDebtServiceReserveAccountData {
       "RateOfInterestInPercentage",
     ),
     redemptionValue: parseValue<double>(json, "RedemptionValue"),
-    maturityPeriod: parseValue<int>(json, "MaturityPeriod"),
+    maturityPeriod: parseValue<double>(json, "MaturityPeriod"),
     withdrawAmount: parseValue<double>(json, "WithdrawAmount"),
     withdrawDate:
         json["WithdrawDate"] == null

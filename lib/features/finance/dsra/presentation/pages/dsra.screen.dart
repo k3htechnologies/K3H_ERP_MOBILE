@@ -203,11 +203,55 @@ class _DSRAScreenState extends State<DSRAScreen> {
                                       )
                                       : SizedBox.shrink(),
                                   buildRowTitleValue(
-                                    title: "Name Of Consultant",
+                                    title: "Term",
+                                    value: dsra.term,
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Term",
                                     value: dsra.amount.toIndianCurrency(),
                                     singleLine: false,
                                   ),
-
+                                  buildRowTitleValue(
+                                    title: "Date",
+                                    value: formatDateTimeAsDDMMMYYYY(dsra.date),
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Rate Of Interest",
+                                    value:
+                                        " ${dsra.rateOfInterestInPercentage.toString()} %",
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Redemption Value",
+                                    value:
+                                        dsra.redemptionValue.toIndianCurrency(),
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Maturity Period",
+                                    value: dsra.maturityPeriod.toString(),
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Withdraw Amount",
+                                    value:
+                                        dsra.withdrawAmount.toIndianCurrency(),
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Withdraw Date",
+                                    value: formatDateTimeAsDDMMMYYYY(
+                                      dsra.withdrawDate,
+                                    ),
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Remark",
+                                    value: dsra.remark,
+                                    singleLine: false,
+                                  ),
                                   buildRowTitleValue(
                                     title: "Last Modified By",
                                     value: dsra.createdBy,

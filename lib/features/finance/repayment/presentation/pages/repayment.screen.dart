@@ -150,8 +150,9 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   CustomButton(
                     text: "Add",
                     isDisable:
+                        termSheet.totalDisbursedAmount > 0 &&
                         termSheet.totalDisbursedAmount ==
-                        termSheet.totalRepayLedgerAmount,
+                            termSheet.totalRepayLedgerAmount,
                     onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.addRepayment,

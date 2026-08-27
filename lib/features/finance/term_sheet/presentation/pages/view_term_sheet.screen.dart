@@ -96,8 +96,12 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
   // HANDLE TAB CHANGE
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _termSheetCubit.onTabChanged(context, _tabController.index);
+      onTabChanged(context, _tabController.index);
     }
+  }
+
+  void onTabChanged(BuildContext context, int index) {
+    if (index == 1) {}
   }
 
   @override
@@ -206,27 +210,30 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
   }
 
   Widget _overviewTab(BuildContext context, TermSheetState state) {
-    final termSheetView = _termSheetCubit.state.termSheetViewList.first;
+    final termSheetView = state.termSheetViewList.first;
 
-    final approvalStatus =
-        widget.termSheetDetailsView?.approvalStatus.toLowerCase();
+    // Main Term Sheet status
+    final mainApprovalStatus =
+        widget.termSheetModel.approvalStatus.trim().toLowerCase();
 
-    final isApproved = approvalStatus == "approved";
+    // Details/overall status
+    final detailsApprovalStatus =
+        widget.termSheetDetailsView?.approvalStatus.trim().toLowerCase() ?? "";
 
-    final isAnyBankApproved = termSheetView.termSheetDetailsData.any(
-      (bank) => bank.approvalStatus.toLowerCase() == "approved",
-    );
-    final isClosed =
-        widget.termSheetDetailsView?.approvalStatus.trim().toLowerCase() ==
-        "closed";
-
+    // At least one bank approved
     final hasAtLeastOneBankApproved = termSheetView.termSheetDetailsData.any(
       (bank) => bank.approvalStatus.trim().toLowerCase() == "approved",
     );
 
-    final showFinalizeApproval = hasAtLeastOneBankApproved && !isClosed;
-    final bool showFinalizedApprovalButton =
-        !isApproved && !isClosed && !isAnyBankApproved;
+    // Main term sheet finalized
+    final isMainTermSheetApproved = mainApprovalStatus == "approved";
+
+    // Term sheet closed
+    final isClosed = detailsApprovalStatus == "closed";
+
+    final showFinalizeApproval =
+        hasAtLeastOneBankApproved && !isMainTermSheetApproved && !isClosed;
+
     double parseAmount(dynamic value) {
       if (value == null) return 0.0;
 
@@ -254,6 +261,9 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
     final bool areAmountsEqual =
         disbursedAmount == repaymentAmount && repaymentAmount == facilityAmount;
     final bool showCloseButton = isApproved && !isClosed && areAmountsEqual;
+
+    final bool isEditDisbaled = mainApprovalStatus == "pending";
+
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: Column(
@@ -470,12 +480,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomIconButton.edit(
-                              isDisabled:
-                                  termSheetView.approvalStatus.toLowerCase() !=
-                                      "pending" &&
-                                  widget.termSheetDetailsView?.approvalStatus
-                                          .toLowerCase() ==
-                                      "closed",
+                              isDisabled: isEditDisbaled,
                               onPressed: () async {
                                 final localTermSheet =
                                     LocalTermSheetModel.fromTermSheetViewModel(
@@ -488,6 +493,9 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       extra: {
                                         "isEdit": true,
                                         "termSheet": localTermSheet,
+                                        "termSheetModel": widget.termSheetModel,
+                                        "termSheetDetailsView":
+                                            widget.termSheetDetailsView,
                                       },
                                     );
 

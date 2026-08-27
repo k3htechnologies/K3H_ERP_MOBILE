@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/term_sheet/data/model/local_term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -20,10 +22,14 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddLocalTermSheet extends StatefulWidget {
   final bool isEdit;
   final LocalTermSheetModel? termSheetModel;
+  final TermSheetModel? termSheet;
+  final TermSheetDetailsView? termSheetDetailsView;
   const AddLocalTermSheet({
     super.key,
     this.termSheetModel,
     required this.isEdit,
+    this.termSheet,
+    this.termSheetDetailsView,
   });
 
   @override
@@ -200,6 +206,22 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
     return null;
   }
 
+  bool get isBothApproved {
+    final termSheetStatus =
+        widget.termSheet?.approvalStatus.trim().toLowerCase();
+
+    final detailsStatus =
+        widget.termSheetDetailsView?.approvalStatus.trim().toLowerCase();
+
+    return termSheetStatus == "approved" && detailsStatus == "approved";
+  }
+
+  bool get shouldLockApprovedFields {
+    return widget.isEdit && isBothApproved;
+  }
+
+  bool get lockFields => shouldLockApprovedFields;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -229,11 +251,13 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Loan Taken By",
                       hint: "Enter Loan Taken By",
                       textController: _loanTakenByC,
+                      readOnly: lockFields,
                     ),
                     CustomTextField(
                       title: "Name Of Institution / Bank / NBFC",
                       hint: "Enter Name Of Institution / Bank / NBFC",
                       textController: _nameOfInstitutionBankNBFC,
+                      readOnly: lockFields,
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -249,6 +273,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                           isRequired: true,
                           title: "Type",
                           hintText: "Select Type",
+                          isDisabled: lockFields,
                           initialValue: value,
                           dataList: typeList,
                           onSelected: (value) {
@@ -271,6 +296,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       isRequired: true,
                       initialDate: termSheetDate,
                       setValue: (value) => termSheetDate = value,
+                      readOnly: lockFields,
                       validator: (value) {
                         if (value == null) {
                           return 'Term Sheet Date is required';
@@ -283,6 +309,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Faciltiy Amount (₹)",
                       hint: "Enter Facilty Amount (₹)",
                       textController: _facilityAmountC,
+                      readOnly: lockFields,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(15),
@@ -299,6 +326,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       hint: "Enter Rate Of Interest",
                       textController: _rateOfInterestC,
                       keyboardType: TextInputType.number,
+                      readOnly: lockFields,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(2),
                       validator: (value) {
@@ -312,6 +340,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       isRequired: true,
                       title: "Processing Fees (%)",
                       hint: "Enter Processing Fees",
+                      readOnly: lockFields,
                       textController: _processingFeesC,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
@@ -328,6 +357,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Legal & Documentation Fees (₹)",
                       hint: "Enter Legal & Documentation Fees",
                       textController: _legalAndDocumentationFeesC,
+                      readOnly: lockFields,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(15),
@@ -342,6 +372,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Monotorium Period (In Month)",
                       hint: "Enter Monotorium Period",
                       textController: _monotoriumPeriodC,
+                      readOnly: lockFields,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(4),
                     ),
@@ -350,6 +381,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Loan Tenure (In Month)",
                       hint: "Enter Loan Tenure",
                       textController: _loanTenureC,
+                      readOnly: lockFields,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(4),
                       validator: (value) {
@@ -364,6 +396,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Minimum Selling Price (₹)",
                       hint: "Enter Minimum Selling Price",
                       textController: _minimumSellingPriceC,
+                      readOnly: lockFields,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(15),
@@ -371,6 +404,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                     CustomMultiFilePicker(
                       title: "Term Sheet",
                       isRequired: true,
+                      readOnly: !lockFields,
                       filePickType: FilePickType.document,
                       initialFileList: _termSheetDocument.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {

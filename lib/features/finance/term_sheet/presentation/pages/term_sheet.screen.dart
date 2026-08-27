@@ -34,7 +34,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
       _filterProjectNameC,
       _filterByCompanyNameC,
       _nameOfInstitutionBankNBFCC;
-  final ValueNotifier<Map<String, dynamic>?> _selectedCallStatus =
+  final ValueNotifier<Map<String, dynamic>?> _selectedApprovalStatus =
       ValueNotifier(null);
   // PAGINATION
   late ScrollController scrollController;
@@ -113,21 +113,21 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     }
   }
 
-  Future<void> _showBottomSheetToFilterPayTrack(BuildContext context) async {
+  Future<void> _showBottomSheetToFilterTermSheet(BuildContext context) async {
     final state = _termSheetCubit.state;
 
     _searchC.text = state.searchText;
     _filterProjectNameC.text = state.searchText;
     _filterByCompanyNameC.text = state.filterByCompanyName;
     _nameOfInstitutionBankNBFCC.text = state.filterByInstitutionName;
-
-    final String initialProjectName = _searchC.text;
+    final String initialName = _searchC.text;
+    final String initialProjectName = _filterProjectNameC.text;
     final String initialCompanyName = _filterByCompanyNameC.text;
     final String initialInstitionName = _nameOfInstitutionBankNBFCC.text;
-    final initialCallStatus = state.filterByStatus;
-    if (initialCallStatus.isNotEmpty) {
-      _selectedCallStatus.value = approvalStatus.firstWhere(
-        (e) => e['DisplayName'] == initialCallStatus,
+    final initialApprovalStatus = state.filterByStatus;
+    if (initialApprovalStatus.isNotEmpty) {
+      _selectedApprovalStatus.value = approvalStatus.firstWhere(
+        (e) => e['DisplayName'] == initialApprovalStatus,
         orElse: () => approvalStatus.first,
       );
     }
@@ -136,13 +136,15 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     bool applied = false;
 
     void updateApplyState(StateSetter innerState) {
-      final currentCallStatus = _selectedCallStatus.value?['DisplayName'] ?? '';
+      final currentApprovalStatus =
+          _selectedApprovalStatus.value?['DisplayName'] ?? '';
 
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialProjectName) ||
+            (_filterProjectNameC.text.trim() != initialName) ||
             (_filterByCompanyNameC.text.trim() != initialCompanyName) ||
-            (currentCallStatus != initialCallStatus) ||
+            (currentApprovalStatus != initialApprovalStatus) ||
             (_nameOfInstitutionBankNBFCC.text.trim() != initialInstitionName);
         applyEnabled.value = manualClose;
       });
@@ -171,19 +173,19 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 ValueListenableBuilder(
-                  valueListenable: _selectedCallStatus,
+                  valueListenable: _selectedApprovalStatus,
                   builder: (context, value, child) {
                     return CustomDropDownWidget(
-                      title: "Call Status",
-                      hintText: "Select Call Status",
+                      title: "Status",
+                      hintText: "Call Status",
                       initialValue: value,
                       dataList: approvalStatus,
                       onSelected: (value) {
-                        _selectedCallStatus.value = value;
+                        _selectedApprovalStatus.value = value;
                         updateApplyState(innerState);
                       },
                       onValueClear: () {
-                        _selectedCallStatus.value = null;
+                        _selectedApprovalStatus.value = null;
                         updateApplyState(innerState);
                       },
                     );
@@ -205,8 +207,9 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
         _searchC.clear();
         _filterProjectNameC.clear();
         _filterByCompanyNameC.clear();
-        _selectedCallStatus.value = null;
+        _selectedApprovalStatus.value = null;
         _nameOfInstitutionBankNBFCC.clear();
+        _searchC.clear();
         _termSheetCubit.applyTermSheetFilterAndSort(
           context: context,
           isClear: true,
@@ -218,9 +221,9 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
 
         _termSheetCubit.applyTermSheetFilterAndSort(
           context: context,
-          projectName: _searchC.text.trim(),
+          projectName: _filterProjectNameC.text.trim(),
           companyName: _filterByCompanyNameC.text.trim(),
-          status: _selectedCallStatus.value?["DisplayName"] ?? "",
+          status: _selectedApprovalStatus.value?["DisplayName"] ?? "",
           institutionName: _nameOfInstitutionBankNBFCC.text.trim(),
         );
       },
@@ -254,7 +257,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
           textController: _searchC,
           isFilterOn: true,
           onFilterTap: () {
-            _showBottomSheetToFilterPayTrack(context);
+            _showBottomSheetToFilterTermSheet(context);
           },
           onExportCallback: (value) {
             _termSheetCubit.exportExcelPdf(context, value);

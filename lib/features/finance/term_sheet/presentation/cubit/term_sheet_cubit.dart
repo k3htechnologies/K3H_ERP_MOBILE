@@ -57,7 +57,6 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       emit(
         state.copyWith(
           searchText: "",
-          filterByProjectName: "",
           filterByCompanyName: "",
           filterByStatus: "",
           filterByInstitutionName: "",
@@ -81,11 +80,6 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     emit(
       state.copyWith(localTermSheetList: [], hasUnsavedTermSheetChanges: false),
     );
-  }
-
-  // TAB CHANGED
-  void onTabChanged(BuildContext context, int index) {
-    if (index == 1) {}
   }
 
   Future<void> getProjectWithCompany({

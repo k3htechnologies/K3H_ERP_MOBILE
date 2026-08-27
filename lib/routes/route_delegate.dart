@@ -7538,12 +7538,17 @@ final GoRouter goRouter = GoRouter(
                   return AddLocalTermSheet(
                     isEdit: extra["isEdit"] ?? false,
                     termSheetModel: extra["termSheet"] as LocalTermSheetModel?,
+                    termSheet: extra["termSheetModel"] as TermSheetModel?,
+                    termSheetDetailsView:
+                        extra["termSheetDetailsView"] as TermSheetDetailsView?,
                   );
                 }
 
                 return const AddLocalTermSheet(
                   isEdit: false,
                   termSheetModel: null,
+                  termSheet: null,
+                  termSheetDetailsView: null,
                 );
               },
             ),

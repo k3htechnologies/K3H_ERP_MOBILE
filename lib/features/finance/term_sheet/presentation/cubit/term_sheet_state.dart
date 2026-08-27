@@ -11,7 +11,6 @@ class TermSheetState extends BaseState {
   final bool isFetchingCompany;
   final int currentPage;
   final String searchText;
-  final String filterByProjectName;
   final String filterByCompanyName;
   final String filterByStatus;
   final String filterByInstitutionName;
@@ -31,7 +30,6 @@ class TermSheetState extends BaseState {
     this.termSheetDetailsViewModel,
     required this.searchText,
     required this.filterByCompanyName,
-    required this.filterByProjectName,
     required this.filterByStatus,
     required this.filterByInstitutionName,
   });
@@ -49,7 +47,6 @@ class TermSheetState extends BaseState {
     termSheetDetailsViewModel: null,
     searchText: '',
     filterByCompanyName: '',
-    filterByProjectName: '',
     filterByStatus: '',
     filterByInstitutionName: '',
   );
@@ -67,7 +64,6 @@ class TermSheetState extends BaseState {
     TermSheetDetailsView? termSheetDetailsViewModel,
     String? searchText,
     String? filterByCompanyName,
-    String? filterByProjectName,
     String? filterByStatus,
     String? filterByInstitutionName,
   }) {
@@ -87,7 +83,6 @@ class TermSheetState extends BaseState {
           termSheetDetailsViewModel ?? this.termSheetDetailsViewModel,
       searchText: searchText ?? this.searchText,
       filterByCompanyName: filterByCompanyName ?? this.filterByCompanyName,
-      filterByProjectName: filterByProjectName ?? this.filterByProjectName,
 
       filterByStatus: filterByStatus ?? this.filterByStatus,
 
@@ -110,7 +105,6 @@ class TermSheetState extends BaseState {
     hasUnsavedTermSheetChanges,
     termSheetDetailsViewModel,
     searchText,
-    filterByProjectName,
     filterByCompanyName,
     filterByStatus,
     filterByInstitutionName,
