@@ -30,27 +30,6 @@ class CustomModuleTile extends StatefulWidget {
 }
 
 class _CustomModuleTileState extends State<CustomModuleTile> {
-  final Map<String, String> filledIconMap = {
-    "assets/sideDrawer/dashboard.svg": AppAssets.dashboardFilledIcon,
-    "assets/sideDrawer/inventoryModule.svg":
-        AppAssets.inventoryDashboardFilledIcon,
-    "assets/sideDrawer/projectDocumentModule.svg":
-        AppAssets.projectDocumentFilledIcon,
-    "assets/sideDrawer/legalModule.svg": AppAssets.legalDashboardFilledIcon,
-    "assets/sideDrawer/marketingModule.svg":
-        AppAssets.marketingDashboardFilledIcon,
-    "assets/sideDrawer/procurementModule.svg":
-        AppAssets.procurementDashboardFilledIcon,
-    "assets/sideDrawer/projectModule.svg": AppAssets.projectDashboardFilledIcon,
-    "assets/sideDrawer/channelPartnerModule.svg":
-        AppAssets.channelPartnerDashboardFilledIcon,
-    "assets/sideDrawer/saleModule.svg": AppAssets.saleDashboardFilledIcon,
-    "assets/sideDrawer/crmModule.svg": AppAssets.dashboardFilledIcon,
-    "assets/sideDrawer/settingsModule.svg":
-        AppAssets.settingDashboardFilledIcon,
-    "assets/sideDrawer/payRollModule.svg": AppAssets.payRollDashboardFilledIcon,
-    "assets/sideDrawer/moreModule.svg": AppAssets.moreFilledIcon,
-  };
   // Helper method to get the correct icon path
   String _getIconPath(String iconPath) {
     // If the path already includes "assets/", use it as is
@@ -61,15 +40,22 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
     return '${AppAssets.sideDrawerIconsPath}/$iconPath';
   }
 
-  // Helper method to build the icon widget
-  Widget _buildIcon(String iconPath) {
+  String _getFilledIconPath(String iconPath) {
     final fullPath = _getIconPath(iconPath);
 
-    String finalPath = fullPath;
+    final fileName = fullPath.split('/').last;
 
-    if (widget.isActive && filledIconMap.containsKey(fullPath)) {
-      finalPath = filledIconMap[fullPath]!;
-    }
+    final filledFileName = fileName.replaceFirst('.svg', 'FilledIcon.svg');
+
+    return '${AppAssets.sideDrawerFilledIconsPath}/$filledFileName';
+  }
+
+  // Helper method to build the icon widget
+  Widget _buildIcon(String iconPath) {
+    final normalPath = _getIconPath(iconPath);
+
+    final finalPath =
+        widget.isActive ? _getFilledIconPath(iconPath) : normalPath;
 
     if (finalPath.toLowerCase().endsWith('.svg')) {
       return SvgPicture.asset(

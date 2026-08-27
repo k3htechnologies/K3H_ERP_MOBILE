@@ -156,6 +156,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/sideDrawer/
+    - assets/sideDrawer/filledIcons/
     - assets/icons/common/
     - assets/icons/procurement/
     - assets/icons/procurement/requisition_enquiry/

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master/company_master_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -40,104 +41,160 @@ class _CompanyPartnersState extends State<CompanyPartners> {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.all(16),
               decoration: commonCardDecoration(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      NetworkImageWidget(
-                        imageUrl: p.photoURL,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        borderRadius: BorderRadius.circular(55),
-                      ),
-                      horizontalSpacing(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              p.fullName,
-                              style: AppTextStyle.ts16M(color: AppColor.grey),
-                            ),
+              child:   Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              NetworkImageWidget(
+                                                imageUrl: p.photoURL,
+                                                width: 60,
+                                                height: 60,
+                                                fit: BoxFit.cover,
+                                                borderRadius:
+                                                    BorderRadius.circular(55),
+                                              ),
+                                              horizontalSpacing(width: 16),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      p.fullName,
+                                                      style:
+                                                          AppTextStyle.ts16M(),
+                                                    ),
+                                                    if (p.partnerPercentage > 0)
+                                                      Container(
+                                                        margin: EdgeInsets.only(
+                                                          top: 5,
+                                                        ),
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              horizontal: 8,
+                                                              vertical: 2,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color: AppColor
+                                                              .darkGreen10
+                                                              .withValues(
+                                                                alpha: 0.1,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                10,
+                                                              ),
+                                                        ),
+                                                        child: Text(
+                                                          "${p.partnerPercentage.addCommas()}% Share",
+                                                          style: AppTextStyle.ts12M(
+                                                            color:
+                                                                AppColor
+                                                                    .darkGreen10,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Divider(
+                                            height: 20.h,
+                                            color: AppColor.lightBlue,
+                                          ),
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Mobile Number",
+                                                value: p.mobileNumber,
+                                                customValueWidget:
+                                                    CustomClickToContactText(
+                                                      countryCode: "+91",
+                                                      value: p.mobileNumber,
+                                                    ),
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "E-mail ID",
+                                                value: p.emailId,
+                                                customValueWidget:
+                                                    CustomClickToContactText(
+                                                      value: p.emailId,
+                                                      type: ContactType.email,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                          verticalSpacing(),
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "DOB",
+                                                value:
+                                                    formatDateTimeAsDDMMMYYYY(
+                                                      p.dateOfBirth,
+                                                    ),
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Gender",
+                                                value: p.gender,
+                                              ),
+                                            ],
+                                          ),
+                                          verticalSpacing(),
+                                          Row(
+                                            spacing: 10,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "PAN Card Number",
+                                                value:
+                                                    p.panNumber.isEmpty
+                                                        ? "-"
+                                                        : p.panNumber,
+                                                customValueWidget:
+                                                    buildDocumentRow(
+                                                      iconWithoutBg: true,
 
-                            CustomClickToContactText(
-                              countryCode: "+91",
-                              value: p.mobileNumber,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 12),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Share %",
-                        value: "${p.partnerPercentage.toStringAsFixed(1)}%",
-                      ),
-                      buildColumnTitleValue(
-                        title: "E-mail ID",
-                        value: p.emailId,
-                        customValueWidget: CustomClickToContactText(
-                          value: p.emailId,
-                          type: ContactType.email,
-                        ),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "DOB",
-                        value: formatDateTimeAsDDMMMYYYY(p.dateOfBirth),
-                      ),
-                      buildColumnTitleValue(title: "Gender", value: p.gender),
-                    ],
-                  ),
-                  verticalSpacing(),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "PAN Card Number",
-                        value: p.panNumber.isEmpty ? "-" : p.panNumber,
-                        customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
-
-                          title: "PAN Card",
-                          context: context,
-                          docNumber: p.panNumber.isEmpty ? "-" : p.panNumber,
-                          url: p.panCardURL,
-                        ),
-                      ),
-                      buildColumnTitleValue(
-                        title: "Aadhar Number",
-                        value:
-                            p.aadharCardNumber.isEmpty
-                                ? "-"
-                                : p.aadharCardNumber,
-                        customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
-                          title: "Aadhar Number",
-                          context: context,
-                          docNumber:
-                              p.aadharCardURL.isEmpty
-                                  ? "-"
-                                  : p.aadharCardNumber,
-                          url: p.aadharCardURL,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
+                                                      title: "PAN Card",
+                                                      context: context,
+                                                      docNumber:
+                                                          p.panNumber.isEmpty
+                                                              ? "-"
+                                                              : p.panNumber,
+                                                      url: p.panCardURL,
+                                                    ),
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Aadhar Number",
+                                                value:
+                                                    p.aadharCardNumber.isEmpty
+                                                        ? "-"
+                                                        : p.aadharCardNumber,
+                                                customValueWidget:
+                                                    buildDocumentRow(
+                                                      iconWithoutBg: true,
+                                                      title: "Aadhar Number",
+                                                      context: context,
+                                                      docNumber:
+                                                          p
+                                                                  .aadharCardURL
+                                                                  .isEmpty
+                                                              ? "-"
+                                                              : p.aadharCardNumber,
+                                                      url: p.aadharCardURL,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      );
           },
         );
       },

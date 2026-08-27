@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/services/paytrack_call_log_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/cubit/call_logs_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track_summary.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
@@ -37,7 +36,6 @@ class PayTrackScreen extends StatefulWidget {
 
 class _PayTrackScreenState extends State<PayTrackScreen> {
   late PayTrackCubit _payTrackCubit;
-  late CallLogsCubit _callLogsCubit;
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
   late TextEditingController _searchC,
       _filterApplicantNameC,
@@ -72,7 +70,6 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
   void initState() {
     super.initState();
     _payTrackCubit = context.read<PayTrackCubit>();
-    _callLogsCubit = context.read<CallLogsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.payTrackMaster]!;
     _payTrackCallLogService = serviceLocator<PayTrackCallLogService>();

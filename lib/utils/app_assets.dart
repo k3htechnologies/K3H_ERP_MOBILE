@@ -4,6 +4,8 @@ class AppAssets {
   static const String svgPath = "assets/icons";
   static const String redevelopmentSvgPath = "assets/icons/redevelopment";
   static const String sideDrawerIconsPath = "assets/sideDrawer";
+  static const String sideDrawerFilledIconsPath =
+      "assets/sideDrawer/filledIcons";
 
   //PNG IMAGES
   static const String appLogo = '$pngPath/appLogo.png';
@@ -219,7 +221,7 @@ class AppAssets {
   static const String activitySubSubmodule =
       "$sideDrawerIconsPath/activitySubSubmodule.svg";
 
-  // REDEVELOPMENT (UNUSED)
+  // REDEVELOPMENT
   static const String buildingSubmodule =
       "$sideDrawerIconsPath/buildingSubmodule.svg";
   static const String tenantSubmodule =
@@ -230,7 +232,7 @@ class AppAssets {
 
   // -- SALES
   static const String otherCharges =
-      "$sideDrawerIconsPath/otherChargesSubmodule.svg"; // UNUSED
+      "$sideDrawerIconsPath/otherChargesSubmodule.svg";
   static const String booking = "$sideDrawerIconsPath/bookingSubmodule.svg";
   static const String whatsAppIcon = "$sideDrawerIconsPath/whatsapp.svg";
 
@@ -238,29 +240,6 @@ class AppAssets {
   static const String splashLogoGif = "$pngPath/splash.gif";
   static const String splashLogoGif2 = "$pngPath/splash2.gif";
 
-  // SIDE DRAWER
-  static const String dashboardFilledIcon = "$svgPath/dashboardFilledIcon.svg";
-  static const String inventoryDashboardFilledIcon =
-      "$svgPath/inventoryDashboardFilledIcon.svg";
-  static const String projectDocumentFilledIcon =
-      "$svgPath/projectDocumentFilledIcon.svg";
-  static const String legalDashboardFilledIcon =
-      "$svgPath/legalDashboardFilledIcon.svg";
-  static const String marketingDashboardFilledIcon =
-      "$svgPath/marketingDashboardFilledIcon.svg";
-  static const String procurementDashboardFilledIcon =
-      "$svgPath/procurementDashboardFilledIcon.svg";
-  static const String projectDashboardFilledIcon =
-      "$svgPath/projectDashboardFilledIcon.svg";
-  static const String channelPartnerDashboardFilledIcon =
-      "$svgPath/channelPartnerDashboardFilledIcon.svg";
-  static const String saleDashboardFilledIcon =
-      "$svgPath/saleDashboardFilledIcon.svg";
-  static const String settingDashboardFilledIcon =
-      "$svgPath/settingDashboardFilledIcon.svg";
-  static const String payRollDashboardFilledIcon =
-      "$svgPath/payRollModuleFillIcon.svg";
-  static const String moreFilledIcon = "$svgPath/moreModuleFilledIcon.svg";
   static const String boxIcon = "$svgPath/box.svg";
   static const String tickIcon = "$pngPath/tick.png";
 
@@ -307,7 +286,4 @@ class AppAssets {
 
   static const String shiftingDetailsIcon =
       "$redevelopmentSvgPath/shifting_details.svg";
-
-  // MORE
-  static const String moreModule = "$sideDrawerIconsPath/moreModule.svg";
 }
