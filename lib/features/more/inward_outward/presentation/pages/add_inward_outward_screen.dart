@@ -487,8 +487,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         ),
                         CustomTextField(
                           textController: _amountC,
-                          title: "Amount (₹)",
+                          title: "Amount",
                           isRequired: !isOther,
+                          prefixType: CustomTextFieldPrefix.rupees,
                           hint: "Enter Amount",
                           keyboardType: TextInputType.numberWithOptions(),
                           inputFormatterList: InputValidator.digitWithDecimal(

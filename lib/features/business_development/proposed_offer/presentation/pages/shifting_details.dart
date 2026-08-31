@@ -252,11 +252,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
             /// STAGE %
             CustomTextField(
-              title: "Stage Percentage (%)",
+              title: "Stage Percentage",
               isRequired: true,
               hint: "Enter Stage Percentage",
               textController: _stagePercentageController,
               keyboardType: TextInputType.number,
+              prefixType: CustomTextFieldPrefix.percentage,
               inputFormatterList: inputFormatterListForDecimalValuesFixedToTwo(
                 3,
               ),
@@ -296,9 +297,10 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
             /// AMOUNT
             CustomTextField(
-              title: "Amount (₹)",
+              title: "Amount",
               hint: "Enter Amount",
               isRequired: true,
+              prefixType: CustomTextFieldPrefix.rupees,
               textController: _amountController,
               keyboardType: TextInputType.number,
               readOnly: true,
@@ -585,10 +587,11 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
 
                         verticalSpacing(),
                         CustomTextField(
-                          title: "Residential Shifting Amount (₹)",
+                          title: "Residential Shifting Amount",
                           hint: "Enter Residential Shifting Amount",
                           isRequired: true,
                           textController: _residentialAmountC,
+                          prefixType: CustomTextFieldPrefix.rupees,
                           keyboardType: TextInputType.number,
                           readOnly:
                               (_shiftingListNotifier.value.any(
@@ -615,10 +618,11 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                           },
                         ),
                         CustomTextField(
-                          title: "Commercial Shifting Amount (₹)",
+                          title: "Commercial Shifting Amount",
                           hint: "Enter Commercial Shifting Amount",
                           isRequired: true,
                           textController: _commercialAmountC,
+                          prefixType: CustomTextFieldPrefix.rupees,
                           keyboardType: TextInputType.number,
                           readOnly:
                               (_shiftingListNotifier.value.any(

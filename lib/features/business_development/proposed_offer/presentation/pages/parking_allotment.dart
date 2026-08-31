@@ -156,13 +156,13 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                           },
                         ),
                         CustomTextField(
-                          title:
-                              "Total Parking Percentage Allotted to Society (%)",
+                          title: "Total Parking Percentage Allotted to Society",
                           isRequired: true,
                           readOnly: disableAction,
                           hint:
-                              "Enter Total Parking Percentage Allotted to Society (%)",
+                              "Enter Total Parking Percentage Allotted to Society",
                           textController: _totalParkingPercentageC,
+                          prefixType: CustomTextFieldPrefix.percentage,
                           keyboardType: TextInputType.number,
                           inputFormatterList:
                               inputFormatterListForDecimalValuesFixedToTwo(3),

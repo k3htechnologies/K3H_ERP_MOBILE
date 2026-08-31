@@ -60,29 +60,29 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
-import 'package:k3h_erp_app/features/finance/disbursement/presentation/cubit/disbursement_cubit.dart';
-import 'package:k3h_erp_app/features/finance/disbursement/presentation/pages/add_disbursement.screen.dart';
-import 'package:k3h_erp_app/features/finance/document/data/model/term_sheet_documents.model.dart';
-import 'package:k3h_erp_app/features/finance/document/presentation/cubit/documents_cubit.dart';
-import 'package:k3h_erp_app/features/finance/document/presentation/pages/add_documents.screen.dart';
-import 'package:k3h_erp_app/features/finance/document/presentation/pages/document.screen.dart';
-import 'package:k3h_erp_app/features/finance/dsa/presentation/cubit/dsa_cubit.dart';
-import 'package:k3h_erp_app/features/finance/dsa/presentation/pages/add_dsa.screen.dart';
-import 'package:k3h_erp_app/features/finance/dsra/presentation/cubit/dsra_cubit.dart';
-import 'package:k3h_erp_app/features/finance/dsra/presentation/pages/add_dsra.screen.dart';
-import 'package:k3h_erp_app/features/finance/repayment/presentation/cubit/repayment_cubit.dart';
-import 'package:k3h_erp_app/features/finance/repayment/presentation/pages/add_repayment.screen.dart';
-import 'package:k3h_erp_app/features/finance/sweep_ratio/presentation/cubit/sweep_ratio_cubit.dart';
-import 'package:k3h_erp_app/features/finance/sweep_ratio/presentation/pages/add_sweep_ratio.screen.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/data/model/local_term_sheet.model.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet.model.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/data/model/term_sheet_view.model.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/presentation/cubit/term_sheet_cubit.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/add_local_term_sheet.screen.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/add_term_sheet.screen.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/close_term_sheet.screen.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/term_sheet.screen.dart';
-import 'package:k3h_erp_app/features/finance/term_sheet/presentation/pages/view_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/disbursement/presentation/cubit/disbursement_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/disbursement/presentation/pages/add_disbursement.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/data/model/term_sheet_documents.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsa/presentation/cubit/dsa_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsa/presentation/pages/add_dsa.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsra/presentation/cubit/dsra_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsra/presentation/pages/add_dsra.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/repayment/presentation/cubit/repayment_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/repayment/presentation/pages/add_repayment.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/sweep_ratio/presentation/cubit/sweep_ratio_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/sweep_ratio/presentation/pages/add_sweep_ratio.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/local_term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/cubit/term_sheet_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/add_local_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/add_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/close_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/view_term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/presentation/cubit/term_sheet_document_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/presentation/pages/add_term_sheet_document.screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/presentation/pages/term_sheet_document.screen.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/model/project_with_bank_details.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -7508,7 +7508,7 @@ final GoRouter goRouter = GoRouter(
                 BlocProvider(create: (_) => DsaCubit()),
                 BlocProvider(create: (_) => RepaymentCubit()),
                 BlocProvider(create: (_) => DsraCubit()),
-                BlocProvider(create: (_) => DocumentsCubit()),
+                BlocProvider(create: (_) => TermSheetDocumentCubit()),
               ],
               child: child,
             );
@@ -7536,7 +7536,6 @@ final GoRouter goRouter = GoRouter(
 
                 if (extra is Map<String, dynamic>) {
                   return AddLocalTermSheet(
-                    isEdit: extra["isEdit"] ?? false,
                     termSheetModel: extra["termSheet"] as LocalTermSheetModel?,
                     termSheet: extra["termSheetModel"] as TermSheetModel?,
                     termSheetDetailsView:
@@ -7545,7 +7544,6 @@ final GoRouter goRouter = GoRouter(
                 }
 
                 return const AddLocalTermSheet(
-                  isEdit: false,
                   termSheetModel: null,
                   termSheet: null,
                   termSheetDetailsView: null,
@@ -7559,7 +7557,7 @@ final GoRouter goRouter = GoRouter(
                 final extra = state.extra as Map<String, dynamic>? ?? {};
 
                 return ViewTermSheetScreen(
-                  termSheetModel: extra["termSheet"] as TermSheetModel,
+                  termSheetModel: extra["termSheet"] as TermSheetModel?,
                   termSheetDetailsView:
                       extra["termSheetDetailsView"] as TermSheetDetailsView?,
                 );
@@ -7584,7 +7582,6 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return AddDisbursementScreen(
-                  isEdit: extra['isEdit'] as bool? ?? false,
                   termSheetDetailsView:
                       extra['termSheetDetailsView'] as TermSheetDetailsView?,
                   disbursementData:
@@ -7600,7 +7597,6 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return AddSweepRatioScreen(
-                  isEdit: extra['isEdit'] as bool? ?? false,
                   termSheetDetailsView:
                       extra['termSheetDetailsView'] as TermSheetDetailsView?,
                   termSheetSweepRatioDetailsData:
@@ -7616,7 +7612,6 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return AddDsaScreen(
-                  isEdit: extra['isEdit'] as bool? ?? false,
                   termSheetDetailsView:
                       extra['termSheetDetailsView'] as TermSheetDetailsView?,
                   termSheetDirectSellingAgentData:
@@ -7631,7 +7626,6 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return AddRepaymentScreen(
-                  isEdit: extra['isEdit'] as bool? ?? false,
                   termSheetDetailsView:
                       extra['termSheetDetailsView'] as TermSheetDetailsView?,
                   termSheetRepayLedgerData:
@@ -7646,7 +7640,6 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return AddDsraScreen(
-                  isEdit: extra['isEdit'] as bool? ?? false,
                   termSheetDetailsView:
                       extra['termSheetDetailsView'] as TermSheetDetailsView?,
                   termSheetDebtServiceReserveAccountData:
@@ -7675,8 +7668,7 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final extra = state.extra as Map<String, dynamic>? ?? {};
 
-                return AddDocumentsScreen(
-                  isEdit: extra['isEdit'] as bool? ?? false,
+                return AddTermSheetDocumentScreen(
                   termSheetDetailsView:
                       extra['termSheetDetailsView'] as TermSheetDetailsView?,
                   termSheetDocumentModel:

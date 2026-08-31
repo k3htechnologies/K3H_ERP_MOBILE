@@ -223,9 +223,10 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
 
                             // STAGE %
                             CustomTextField(
-                              title: "Stage Percentage (%)",
+                              title: "Stage Percentage",
                               isRequired: true,
                               hint: "Enter Stage Percentage",
+                              prefixType: CustomTextFieldPrefix.percentage,
                               textController: _stagePercentageC,
                               keyboardType: TextInputType.number,
                               inputFormatterList:
@@ -277,8 +278,9 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
 
                             // AMOUNT
                             CustomTextField(
-                              title: "Amount (₹)",
+                              title: "Amount",
                               textController: _amountC,
+                              prefixType: CustomTextFieldPrefix.rupees,
                               hint: "Enter Amount",
                               keyboardType: TextInputType.number,
                               readOnly: true,

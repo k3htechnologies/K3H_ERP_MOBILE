@@ -215,14 +215,10 @@ class _AddLeaveEncashmentMasterScreenState
                       },
                     ),
                     CustomTextField(
-                      title: "Encashment Rate (%)",
+                      title: "Encashment Rate",
                       textController: _encashmentRateC,
                       hint: "Enter Encashment Rate",
-                      prefixWidget: Icon(
-                        Icons.percent,
-                        size: 16,
-                        color: AppColor.grey,
-                      ),
+                      prefixType: CustomTextFieldPrefix.percentage,
                       inputFormatterList: InputValidator.percentage(),
                       keyboardType: TextInputType.number,
                       isRequired: true,
@@ -245,15 +241,11 @@ class _AddLeaveEncashmentMasterScreenState
                       },
                     ),
                     CustomTextField(
-                      title: "Minimum Salary (₹)",
+                      title: "Minimum Salary",
                       textController: _minSalaryC,
                       hint: "Enter minimum salary",
                       inputFormatterList: InputValidator.digit(10),
-                      prefixWidget: Icon(
-                        Icons.currency_rupee,
-                        size: 16,
-                        color: AppColor.grey,
-                      ),
+                      prefixType: CustomTextFieldPrefix.rupees,
                       keyboardType: TextInputType.number,
                       isRequired: true,
                       validator: (value) {
@@ -265,14 +257,10 @@ class _AddLeaveEncashmentMasterScreenState
                       },
                     ),
                     CustomTextField(
-                      title: "Maximum Salary (₹)",
+                      title: "Maximum Salary",
                       textController: _maxSalaryC,
                       hint: "Enter Maximum Salary",
-                      prefixWidget: Icon(
-                        Icons.currency_rupee,
-                        size: 16,
-                        color: AppColor.grey,
-                      ),
+                      prefixType: CustomTextFieldPrefix.rupees,
                       inputFormatterList: InputValidator.digit(10),
                       keyboardType: TextInputType.number,
                       isRequired: true,

@@ -174,13 +174,13 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
       ),
     ];
     _valueC.text = earningMasterModel.value.toString();
-    if(earningMasterModel.branchName.isNotEmpty) {
+    if (earningMasterModel.branchName.isNotEmpty) {
       selectedBranch = [
-      {
-        'zAttributesId': earningMasterModel.branchMasterId,
-        'DisplayName': earningMasterModel.branchName,
-      },
-    ];
+        {
+          'zAttributesId': earningMasterModel.branchMasterId,
+          'DisplayName': earningMasterModel.branchName,
+        },
+      ];
     }
     _minSalaryC.text = earningMasterModel.minSalary.toString();
     _maxSalaryC.text = earningMasterModel.maxSalary.toString();
@@ -476,13 +476,17 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                               textController: _valueC,
                               hint:
                                   value == "Percentage"
-                                      ? "Enter Percentage (%)"
+                                      ? "Enter Percentage"
                                       : "Enter Amount",
                               title:
                                   value == "Percentage"
-                                      ? "Value (%)"
+                                      ? "Value"
                                       : "Value (Lumpsum)",
                               keyboardType: TextInputType.number,
+                              prefixType:
+                                  value == "Percentage"
+                                      ? CustomTextFieldPrefix.percentage
+                                      : CustomTextFieldPrefix.rupees,
                               isRequired: true,
                               inputFormatterList:
                                   value == "Percentage"

@@ -199,9 +199,10 @@ class _SecurityDepositState extends State<SecurityDeposit> {
 
                 /// AMOUNT
                 CustomTextField(
-                  title: "Amount (₹)",
+                  title: "Amount",
                   isRequired: true,
                   hint: "Enter Amount",
+                  prefixType: CustomTextFieldPrefix.rupees,
                   textController: _amountController,
                   keyboardType: TextInputType.number,
                   inputFormatterList:
@@ -210,12 +211,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                     if (value == null || value.trim().isEmpty) {
                       return "Amount is required";
                     }
-
-                    // if (_isSecurityAmountExceeding(index)) {
-                    //   return "Total amount cannot exceed "
-                    //       "${_securityDepositAmountC.text}";
-                    // }
-
                     return null;
                   },
                 ),
@@ -428,9 +423,10 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           },
                         ),
                         CustomTextField(
-                          title: 'Interest Amount (₹)',
-                          hint: 'Enter Interest Amount (₹)',
+                          title: 'Interest Amount',
+                          hint: 'Enter Interest Amount',
                           readOnly: disableAction,
+                          prefixType: CustomTextFieldPrefix.rupees,
                           textController: _interestAmountC,
                           keyboardType: TextInputType.number,
                           inputFormatterList: InputValidator.digitWithDecimal(

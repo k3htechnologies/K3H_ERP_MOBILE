@@ -242,10 +242,12 @@ class _ChannelPartnerCategoryScreenState
                                                       ),
                                                       textController:
                                                           _bookingRevenueC[index],
-                                                      title:
-                                                          "Booking Revenue (₹)",
+                                                      title: "Booking Revenue",
                                                       hint:
-                                                          "Enter Booking Revenue (₹)",
+                                                          "Enter Booking Revenue",
+                                                      prefixType:
+                                                          CustomTextFieldPrefix
+                                                              .rupees,
                                                       inputFormatterList:
                                                           InputValidator.digitWithDecimal(
                                                             maxDigitsBeforeDecimal:

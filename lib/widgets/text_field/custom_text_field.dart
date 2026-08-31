@@ -8,6 +8,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
+enum CustomTextFieldPrefix { mobile, location, rupees, percentage }
+
 class CustomTextField extends StatelessWidget {
   final TextEditingController textController;
   final bool? isRequired;
@@ -21,6 +23,7 @@ class CustomTextField extends StatelessWidget {
   final bool readOnly;
   final FocusNode? focusNode;
   final Widget? prefixWidget;
+  final CustomTextFieldPrefix? prefixType;
   final Widget? suffixWidget;
   final Function(String)? onChangeFunction;
   final Function(String)? onSubmitFunction;
@@ -44,6 +47,7 @@ class CustomTextField extends StatelessWidget {
     this.readOnly = false,
     this.focusNode,
     this.prefixWidget,
+    this.prefixType,
     this.suffixWidget,
     this.onChangeFunction,
     this.onSubmitFunction,
@@ -53,6 +57,58 @@ class CustomTextField extends StatelessWidget {
     this.selectedCountry,
     this.onCountryChanged,
   });
+
+  Widget? _buildPrefixWidget() {
+    switch (prefixType) {
+      case CustomTextFieldPrefix.mobile:
+        return IntrinsicHeight(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(width: 10),
+              Text("+91"),
+              VerticalDivider(
+                color: AppColor.black,
+                thickness: 0.5,
+                width: 15,
+                indent: 5,
+                endIndent: 5,
+              ),
+            ],
+          ),
+        );
+
+      case CustomTextFieldPrefix.location:
+        return Container(
+          decoration: BoxDecoration(
+            border: Border(right: BorderSide(color: AppColor.grey, width: .5)),
+          ),
+          child: Icon(
+            Icons.location_on_outlined,
+            color: AppColor.grey,
+            size: 18,
+          ),
+        );
+
+      case CustomTextFieldPrefix.rupees:
+        return Container(
+          decoration: BoxDecoration(
+            border: Border(right: BorderSide(color: AppColor.grey, width: .5)),
+          ),
+          child: Icon(Icons.currency_rupee, color: AppColor.grey, size: 18),
+        );
+
+      case CustomTextFieldPrefix.percentage:
+        return Container(
+          decoration: BoxDecoration(
+            border: Border(right: BorderSide(color: AppColor.grey, width: .5)),
+          ),
+          child: Icon(Icons.percent, color: AppColor.grey, size: 18),
+        );
+      case null:
+        return prefixWidget;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +247,7 @@ class CustomTextField extends StatelessWidget {
                               ],
                             ),
                           )
-                          : prefixWidget,
+                          : _buildPrefixWidget(),
                   suffixIcon: suffixWidget,
 
                   //  APPLY hasError HERE

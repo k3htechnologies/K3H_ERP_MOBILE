@@ -277,10 +277,11 @@ class _AddBookingPaymentScheduleScreenState
   /// PERCENTAGE FIELD
   Widget _percentageField() {
     return CustomTextField(
-      title: "Percentage (%)",
+      title: "Percentage",
       isRequired: true,
       hint: "Enter Percentage",
       textController: _percentageC,
+      prefixType: CustomTextFieldPrefix.percentage,
       inputFormatterList: InputValidator.percentage(),
       keyboardType: TextInputType.number,
       validator: (value) {

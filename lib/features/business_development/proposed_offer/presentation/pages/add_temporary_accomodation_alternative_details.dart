@@ -82,8 +82,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
     _carpetAreaController.text = taaDetailsModel.carpetAreaSqFt.toString();
     _taaStartDate.value =
         taaDetailsModel.temporaryAlternateAccommodationStartDate;
-    _taaEndDate.value =
-        taaDetailsModel.temporaryAlternateAccommodationEndDate;
+    _taaEndDate.value = taaDetailsModel.temporaryAlternateAccommodationEndDate;
     _isAdditionalTemporaryAccommodationAlternative.value =
         taaDetailsModel.isAdditionalTemporaryAlternateAccommodation;
     _isPayBrokerage.value = taaDetailsModel.isPayBrokerage;
@@ -442,14 +441,15 @@ class _AddTemporaryAccommodationAlternativeDetailsState
       verticalSpacing(height: 16),
 
       CustomTextField(
-        title: "Amount (₹)",
+        title: "Amount",
+        prefixType: CustomTextFieldPrefix.rupees,
         textController: _amountController,
         isRequired: true,
         keyboardType: TextInputType.numberWithOptions(),
         inputFormatterList: InputValidator.digitWithDecimal(
           maxDigitsBeforeDecimal: 16,
         ),
-        hint: "Enter Amount (₹)",
+        hint: "Enter Amount",
         validator:
             (v) => (v == null || v.isEmpty) ? "Amount is required" : null,
       ),

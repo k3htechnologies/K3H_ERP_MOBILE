@@ -313,9 +313,10 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                             return Column(
                               children: [
                                 CustomTextField(
-                                  title: "Residential Hardship Amount (₹)",
+                                  title: "Residential Hardship Amount",
                                   isRequired: true,
-                                  hint: "Enter Residential Hardship Amount (₹)",
+                                  hint: "Enter Residential Hardship Amount",
+                                  prefixType: CustomTextFieldPrefix.rupees,
                                   textController: _residentialAmountC,
                                   keyboardType: TextInputType.number,
                                   readOnly:
@@ -340,9 +341,10 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                   },
                                 ),
                                 CustomTextField(
-                                  title: "Commercial Hardship Amount (₹)",
+                                  title: "Commercial Hardship Amount",
                                   isRequired: true,
-                                  hint: "Enter Commercial Hardship Amount (₹)",
+                                  hint: "Enter Commercial Hardship Amount",
+                                  prefixType: CustomTextFieldPrefix.rupees,
                                   textController: _commercialAmountC,
                                   keyboardType: TextInputType.number,
                                   readOnly:

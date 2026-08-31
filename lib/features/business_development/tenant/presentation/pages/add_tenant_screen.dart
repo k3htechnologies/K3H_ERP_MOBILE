@@ -627,8 +627,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                     ),
                     verticalSpacing(),
                     CustomTextField(
-                      title: 'Extra Free Carpet Area Offered (%)',
+                      title: 'Extra Free Carpet Area Offered',
                       hint: 'Enter Extra Free Carpet Area Offered',
+                      prefixType: CustomTextFieldPrefix.percentage,
                       inputFormatterList: InputValidator.percentage(),
                       keyboardType: TextInputType.numberWithOptions(),
                       textController: _extraFreeCarpetAreaOfferedC,

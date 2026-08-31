@@ -131,22 +131,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       title: "Mobile Number",
                                       hint: "Enter Mobile Number",
                                       readOnly: state.isSendOtp,
-                                      prefixWidget: IntrinsicHeight(
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            SizedBox(width: 10),
-                                            Text("+91"),
-                                            VerticalDivider(
-                                              color: AppColor.black,
-                                              thickness: 0.5,
-                                              width: 15,
-                                              indent: 5,
-                                              endIndent: 5,
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                      prefixType: CustomTextFieldPrefix.mobile,
                                       inputFormatterList: InputValidator.digit(
                                         10,
                                       ),

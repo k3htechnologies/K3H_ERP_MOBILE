@@ -244,8 +244,9 @@ class _EditCallLogsScreenState extends State<UpdateCallLogsScreen> {
                     ),
                     CustomTextField(
                       textController: _promisedAmountC,
-                      title: "Promise Amount (₹)",
-                      hint: "Enter Promise Amount (₹)",
+                      title: "Promise Amount",
+                      hint: "Enter Promise Amount",
+                      prefixType: CustomTextFieldPrefix.rupees,
                       keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList: InputValidator.decimal(2),
                     ),

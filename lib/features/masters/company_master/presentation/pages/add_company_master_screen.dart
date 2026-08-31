@@ -499,22 +499,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             hint: "Enter Mobile Number",
             isRequired: true,
             inputFormatterList: InputValidator.digit(10),
-            prefixWidget: IntrinsicHeight(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(width: 10),
-                  const Text("+91"),
-                  VerticalDivider(
-                    color: AppColor.black,
-                    thickness: 0.5,
-                    width: 15,
-                    indent: 5,
-                    endIndent: 5,
-                  ),
-                ],
-              ),
-            ),
+            prefixType: CustomTextFieldPrefix.mobile,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return "Mobile Number is required";

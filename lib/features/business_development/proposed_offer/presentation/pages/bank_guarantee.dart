@@ -209,9 +209,10 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
 
             /// AMOUNT
             CustomTextField(
-              title: "Amount (₹)",
+              title: "Amount",
               hint: "Enter Amount",
               isRequired: true,
+              prefixType: CustomTextFieldPrefix.rupees,
               textController: _amountController,
               keyboardType: TextInputType.number,
               validator: (value) {
@@ -407,10 +408,10 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                           valueListenable: _bankGuaranteeListNotifier,
                           builder: (context, bankGuaranteeListNotifier, child) {
                             return CustomTextField(
-                              title: "Bank Guarantee Amount (₹)",
+                              title: "Bank Guarantee Amount",
                               hint: "Enter Bank Guarantee Amount",
                               isRequired: true,
-
+                              prefixType: CustomTextFieldPrefix.rupees,
                               textController: _bankGuaranteeAmountController,
                               keyboardType: TextInputType.number,
                               readOnly:

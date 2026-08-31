@@ -186,11 +186,12 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                         ),
                         verticalSpacing(),
                         CustomTextField(
-                          title: "Residential Extra Carpet (%)",
-                          hint: "Enter Residential Extra Carpet (%)",
+                          title: "Residential Extra Carpet",
+                          hint: "Enter Residential Extra Carpet",
                           isRequired: true,
                           readOnly: disableAction,
                           textController: _residentialPercentC,
+                          prefixType: CustomTextFieldPrefix.percentage,
                           keyboardType: TextInputType.number,
                           inputFormatterList: InputValidator.percentage(),
                           validator: (value) {
@@ -204,12 +205,13 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                           },
                         ),
                         CustomTextField(
-                          title: "Commercial Extra Carpet (%)",
-                          hint: "Enter Commercial Extra Carpet (%)",
+                          title: "Commercial Extra Carpet",
+                          hint: "Enter Commercial Extra Carpet",
                           isRequired: true,
                           readOnly: disableAction,
                           keyboardType: TextInputType.number,
                           textController: _commercialPercentC,
+                          prefixType: CustomTextFieldPrefix.percentage,
                           inputFormatterList: InputValidator.percentage(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
