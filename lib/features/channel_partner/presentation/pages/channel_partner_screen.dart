@@ -702,7 +702,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                           ],
                         ),
                         buildRowTitleValue(
-                          title: "CP Code  ",
+                          title: "CP Code",
                           value: channelPartner.systemGeneratedCode,
                           customValueWidget: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,

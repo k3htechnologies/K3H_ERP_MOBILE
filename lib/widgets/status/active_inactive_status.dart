@@ -13,4 +13,12 @@ final Map<String, StatusConfig> activeInactiveStatusConfig = {
     backgroundColor: AppColor.red.withValues(alpha: 0.2),
     textColor: AppColor.red, // red-600
   ),
+  'verified': StatusConfig(
+    backgroundColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+    textColor: AppColor.darkGreen10,
+  ),
+  'non verified': StatusConfig(
+    backgroundColor: AppColor.red.withValues(alpha: 0.2),
+    textColor: AppColor.red, // red-600
+  ),
 };

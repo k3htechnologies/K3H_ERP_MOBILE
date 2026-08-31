@@ -461,9 +461,7 @@ import 'package:k3h_erp_app/features/stock_management/presentation/pages/view_st
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
-import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor_add/vendor_add_cubit.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/add_vendor_screen.dart';
-import 'package:k3h_erp_app/features/vendor_management/presentation/pages/documents_view_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
 import 'package:k3h_erp_app/main.dart';
@@ -3368,7 +3366,6 @@ final GoRouter goRouter = GoRouter(
             return MultiBlocProvider(
               providers: [
                 BlocProvider<VendorCubit>(create: (_) => VendorCubit()),
-                BlocProvider<VendorAddCubit>(create: (_) => VendorAddCubit()),
               ],
               child: child,
             );
@@ -3403,10 +3400,7 @@ final GoRouter goRouter = GoRouter(
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
-                return BlocProvider(
-                  create: (_) => VendorAddCubit(),
-                  child: AddVendorScreen(vendor: vendor, index: index),
-                );
+                return AddVendorScreen(vendor: vendor, index: index);
               },
             ),
             // ---------------- VIEW DETAILS ----------------
@@ -3426,25 +3420,6 @@ final GoRouter goRouter = GoRouter(
                 );
 
                 return ViewDetailsVendorScreen(vendor: vendor);
-              },
-            ),
-            // ---------------- VIEW DOCUMENTS ----------------
-            GoRoute(
-              path: AppRoutes.viewVendorDocument,
-              name: AppRoutes.viewVendorDocument,
-              builder: (context, state) {
-                final queryParameterVendor =
-                    state.uri.queryParameters['vendor'];
-
-                final vendor = VendorModel.fromJson(
-                  jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeComponent(queryParameterVendor!),
-                    ),
-                  ),
-                );
-
-                return DocumentsViewVendorScreen(vendorModel: vendor);
               },
             ),
           ],
@@ -3754,12 +3729,9 @@ final GoRouter goRouter = GoRouter(
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
-                return BlocProvider(
-                  create: (_) => VendorAddCubit(),
-                  child: AddChannelPartnerScreen(
-                    channelPartnerModel: channelPartner,
-                    index: index,
-                  ),
+                return AddChannelPartnerScreen(
+                  channelPartnerModel: channelPartner,
+                  index: index,
                 );
               },
             ),

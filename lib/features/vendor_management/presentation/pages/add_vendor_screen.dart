@@ -5,15 +5,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
-import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor_add/vendor_add_cubit.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
@@ -36,7 +38,7 @@ class AddVendorScreen extends StatefulWidget {
 class _AddVendorScreenState extends State<AddVendorScreen>
     with SingleTickerProviderStateMixin {
   // CUBIT
-  late VendorAddCubit _vendorAddCubit;
+  late VendorCubit _vendorCubit;
 
   final _formKey = GlobalKey<FormState>();
   // TEXT EDITING CONTROLLERS
@@ -51,14 +53,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       searchC,
       contractSearchC;
 
-  // COMPANY TYPE DROPDOWN
-  List<Map<String, dynamic>> companyTypeList = [
-    {"zAttributesId": 1, "DisplayName": "LLP"},
-    {"zAttributesId": 2, "DisplayName": "Private Limited Company"},
-    {"zAttributesId": 3, "DisplayName": "Proprietorship"},
-  ];
-
   // DROPDOWN VARIABLES
+  final ValueNotifier<Map<String, dynamic>?> selectedVendorType = ValueNotifier(
+    null,
+  );
   final ValueNotifier<Map<String, dynamic>?> selectedCompanyType =
       ValueNotifier(null);
 
@@ -80,7 +78,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
   );
 
   // LOCATION MASTER IDS
-  String countryMasterId = '';
+  String countryMasterId = '1';
   String stateMasterId = '';
   String districtMasterId = '';
   String cityMasterId = '';
@@ -94,19 +92,22 @@ class _AddVendorScreenState extends State<AddVendorScreen>
   final ValueNotifier<Set<int>> selectedMaterialIds = ValueNotifier({});
 
   List<SubMaterialModel> subMaterialListForSelection = [];
-
+  ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
+    countryList.firstWhere((e) => e.code == "+91"),
+  );
+  final ValueNotifier<bool> _isMobileNumberAlreadyExist = ValueNotifier(false);
   // EDIT MODE
   bool get _isEditMode => widget.vendor != null;
 
   @override
   void initState() {
     super.initState();
-    _vendorAddCubit = context.read<VendorAddCubit>();
+    _vendorCubit = context.read<VendorCubit>();
     _tabController = TabController(length: 2, vsync: this);
     initializeTextEditingControllers();
     getMaterialList();
     if (_isEditMode) {
-      prefillVendorDetails(widget.vendor!);
+      _populateFormFields(widget.vendor!);
     }
   }
 
@@ -146,9 +147,11 @@ class _AddVendorScreenState extends State<AddVendorScreen>
   }
 
   Future<void> getMaterialList() async {
-    var response = await _vendorAddCubit.getMaterialSubMaterialUOMMaster(
+    final response = await _vendorCubit.getMaterialSubMaterialUOMMaster(
       context,
     );
+
+    if (!mounted) return;
 
     final subMaterials =
         (response["MaterialMasterSubMaterialMasterData"]
@@ -160,11 +163,15 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       subMaterials,
     );
 
+    if (!mounted) return;
+
     allSubMaterialList = subMaterials;
     filteredMaterialList.value = List.from(allSubMaterialList);
+
+    _vendorCubit.closeLoader();
   }
 
-  Future prefillVendorDetails(VendorModel vendor) async {
+  Future _populateFormFields(VendorModel vendor) async {
     nameC.text = vendor.vendorName;
     companyNameC.text = vendor.companyName;
     mobileC.text = vendor.mobileNumber;
@@ -179,11 +186,27 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     districtMasterId = vendor.districtMasterId.toString();
     cityMasterId = vendor.cityMasterId.toString();
 
-    selectedCompanyType.value = companyTypeList.firstWhere(
+    selectedCompanyType.value = firmTypeList.firstWhere(
       (element) => element['DisplayName'] == vendor.companyType,
-      orElse: () => companyTypeList.first,
+      orElse: () => firmTypeList.first,
     );
-
+    selectedVendorType.value = vendorTypeList.firstWhere(
+      (element) => element['DisplayName'] == vendor.vendorType,
+      orElse: () => vendorTypeList.first,
+    );
+    if (vendor.mobileNumberCountryCode.isNotEmpty) {
+      selectedMobileNoCountry.value = countryList.firstWhere(
+        (e) => e.code == vendor.mobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
     aadhaarCard.fileNameList =
         vendor.aadharCardUrl == "" ? [] : vendor.aadharCardUrl.split(",");
     aadhaarCard.fileBytesList = List.generate(
@@ -259,7 +282,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         .substring(0, selectedSubMaterialCommaSeperatedIds.length - 1);
 
     if (widget.vendor == null) {
-      _vendorAddCubit.addVendor(
+      _vendorCubit.addVendor(
         context: context,
         companyName: companyNameC.value.text,
         companyType: selectedCompanyType.value?["DisplayName"],
@@ -279,15 +302,20 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         aadharCard: aadhaarCard,
         panCard: panCard,
         gstCertificate: gstCertificate,
+        vendorType: selectedVendorType.value?['DisplayName'],
+        mobileNumberCountryCode: selectedMobileNoCountry.value.code,
       );
     } else {
-      _vendorAddCubit.updateVendor(
+      _vendorCubit.updateVendor(
         index: widget.index ?? 0,
-        vendor: widget.vendor,
+        vendorId: widget.vendor!.vendorId,
+        uniquekey: widget.vendor!.uniquekey,
         context: context,
         companyName: companyNameC.value.text,
         companyType: selectedCompanyType.value?["DisplayName"],
         vendorName: nameC.value.text,
+        vendorType: selectedVendorType.value?['DisplayName'],
+        mobileNumberCountryCode: selectedMobileNoCountry.value.code,
         mobileNumber: mobileC.value.text,
         emailId: emailC.value.text,
         aadharCardNumber: aadhaarC.value.text,
@@ -323,6 +351,33 @@ class _AddVendorScreenState extends State<AddVendorScreen>
               spacing: 16,
               children: [
                 _card("Basic Details", [
+                  ValueListenableBuilder(
+                    valueListenable: selectedVendorType,
+                    builder: (context, selectedVendorT, child) {
+                      return CustomDropDownWidget(
+                        key: ValueKey(
+                          'type_${selectedVendorT?['zAttributesId'] ?? ""}',
+                        ),
+                        title: "Vendor Type",
+                        hintText: "Select Vendor Type",
+                        initialValue: selectedVendorT,
+                        isRequired: true,
+                        dataList: vendorTypeList,
+                        onSelected: (value) {
+                          selectedVendorType.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Vendor Type is required';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          selectedVendorType.value = null;
+                        },
+                      );
+                    },
+                  ),
                   CustomTextField(
                     inputFormatterList: InputValidator.textOnly(50),
                     textController: nameC,
@@ -344,12 +399,12 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         hintText: "Select Company Type",
                         initialValue: selectedCompanyType.value,
                         isRequired: true,
-                        dataList: companyTypeList,
+                        dataList: firmTypeList,
                         onSelected: (value) {
                           selectedCompanyType.value = value;
                         },
                         validator: (value) {
-                          if (value == null || value['zAttributesId'] == -1) {
+                          if (value == null) {
                             return 'Company Type is required';
                           }
                           return null;
@@ -373,36 +428,57 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                       return null;
                     },
                   ),
-                  CustomTextField(
-                    title: 'Mobile Number',
-                    hint: "Enter Mobile Number",
-                    isRequired: true,
-                    textController: mobileC,
-                    inputFormatterList: InputValidator.digit(10),
-                    prefixWidget: IntrinsicHeight(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(width: 10),
-                          const Text("+91"),
-                          VerticalDivider(
-                            color: AppColor.black,
-                            thickness: 0.5,
-                            width: 15,
-                            indent: 5,
-                            endIndent: 5,
-                          ),
+                  ValueListenableBuilder(
+                    valueListenable: selectedMobileNoCountry,
+                    builder: (context, value, child) {
+                      return CustomTextField(
+                        title: 'Mobile Number',
+                        hint: "Enter Mobile Number",
+                        isRequired: true,
+                        textController: mobileC,
+                        showCountryDropdown: true,
+                        readOnly: _isEditMode,
+                        keyboardType: TextInputType.number,
+                        selectedCountry: value,
+                        onCountryChanged: (country) {
+                          if (country == null) return;
+                          selectedMobileNoCountry.value = country;
+                        },
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(value.mobileLength),
+                          FilteringTextInputFormatter.digitsOnly,
                         ],
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Mobile Number is required";
-                      }
-                      if (value.length != 10) {
-                        return "Mobile Number is invalid";
-                      }
-                      return null;
+                        validator: (value) {
+                          final mobile = value?.trim() ?? "";
+                          final country = selectedMobileNoCountry.value;
+                          if (value == null || value.isEmpty) {
+                            return "Mobile Number is required";
+                          }
+                          if (mobile.isNotEmpty) {
+                            if ((mobile.length != country.mobileLength) ||
+                                country.regex != null &&
+                                    !country.regex!.hasMatch(mobile)) {
+                              return "Invalid Mobile Number";
+                            }
+                            if (_isMobileNumberAlreadyExist.value) {
+                              return "Mobile number already exists";
+                            }
+                          }
+                          return null;
+                        },
+                        onChangeFunction: (value) async {
+                          final country = selectedMobileNoCountry.value;
+                          if (value.isNotEmpty &&
+                              country.mobileLength == value.length) {
+                            _isMobileNumberAlreadyExist.value =
+                                (await _vendorCubit.fetchVendorByMobile(
+                                  value,
+                                )).isNotEmpty;
+                          } else {
+                            _isMobileNumberAlreadyExist.value = false;
+                          }
+                        },
+                      );
                     },
                   ),
                   CustomTextField(
@@ -410,6 +486,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     title: "E-mail ID",
                     hint: "Enter E-mail ID",
                     isRequired: true,
+                    keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Email Id is required";
@@ -429,6 +506,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     title: "Aadhaar Card Number",
                     hint: "Enter Aadhaar Card Number",
                     isRequired: true,
+                    keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Aadhaar Card number is required";
@@ -451,7 +529,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     },
                     validator: (file) {
                       if (file == null || file.isEmpty) {
-                        return "Aadhaar Card required";
+                        return "Aadhaar Card file required";
                       }
                       return null;
                     },
@@ -494,7 +572,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     },
                     validator: (file) {
                       if (file == null || file.isEmpty) {
-                        return "Pan Card required";
+                        return "Pan Card file required";
                       }
                       return null;
                     },
@@ -545,7 +623,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     },
                     validator: (file) {
                       if (file == null || file.isEmpty) {
-                        return "GST Certificate required";
+                        return "GST Certificate file required";
                       }
                       return null;
                     },
@@ -563,6 +641,9 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return "Address is required";
+                      }
+                      if (value.length < 25) {
+                        return "Address must be at least 25 characters long.";
                       }
                       return null;
                     },
@@ -652,19 +733,19 @@ class _AddVendorScreenState extends State<AddVendorScreen>
           ),
           verticalSpacing(),
           Expanded(
-            child: BlocBuilder<VendorAddCubit, VendorAddState>(
+            child: BlocBuilder<VendorCubit, VendorState>(
               builder: (context, state) {
                 return ValueListenableBuilder<List<SubMaterialModel>>(
                   valueListenable: filteredMaterialList,
                   builder: (context, list, child) {
                     if (state.isLoading ?? false) {
-                      return Center(child: loader());
+                      return Center(child: CircularProgressIndicator());
                     }
                     if (list.isEmpty) {
                       return Center(
-                        child: Text(
-                          'No data found',
-                          style: AppTextStyle.ts14R(color: AppColor.grey),
+                        child: noDataWidget(
+                          message: 'No data found',
+                          iconSize: 120,
                         ),
                       );
                     }

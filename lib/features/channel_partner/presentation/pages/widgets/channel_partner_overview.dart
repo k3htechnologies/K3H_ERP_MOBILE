@@ -40,7 +40,7 @@ Widget channelPartnerOverview(ChannelPartnerModel channelPartnerModel) {
                       Stack(
                         children: [
                           CircleAvatar(
-                            radius: 28,
+                            radius: 25.r,
                             child: Text(
                               getInitials(channelPartnerModel.name),
                               style: AppTextStyle.ts18SB(color: AppColor.white),

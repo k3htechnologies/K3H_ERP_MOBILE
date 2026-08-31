@@ -48,7 +48,14 @@ class RequisitionVendorModel extends VendorModel {
     this.isSelected = false,
     required this.magicLinkURL,
     required this.vendorFinalizedApproval,
-  }) : super(villageMasterId: 0, villageName: '');
+  }) : super(
+         villageMasterId: 0,
+         villageName: '',
+         vendorType: '',
+         mobileNumberCountryCode: '',
+         verifiedNonVerified: '',
+         systemGeneratedCode: '',
+       );
 
   factory RequisitionVendorModel.fromJson(Map<String, dynamic> json) =>
       RequisitionVendorModel(

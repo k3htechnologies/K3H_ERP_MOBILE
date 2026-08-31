@@ -529,3 +529,5 @@ const extraCarpetAreaValues = ['MOFA', 'RERA'];
 const projectCategoryValues = ['Direct', 'Tender'];
 
 const statusValues = ['Active', 'Inactive'];
+
+const vendorTypeValues = ['Material', 'Contractor', 'Both'];

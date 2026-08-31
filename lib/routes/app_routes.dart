@@ -60,7 +60,6 @@ class AppRoutes {
   static String vendor = "/vendor";
   static String addVendor = "/addVendor";
   static String viewVendorDetails = "/viewVendorDetails";
-  static String viewVendorDocument = "/viewVendorDocument";
 
   // TERMS AND CONDITIONS
   static String termsAndConditions = "/tnc";

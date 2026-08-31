@@ -56,7 +56,7 @@ class VendorRepositoryImpl implements VendorRepository {
     required List<Map<String, dynamic>> fileList,
   }) async {
     try {
-      var result = await vendorDatasource.apiCallToAddNewVendor(
+      var result = await vendorDatasource.apiCallAddUpdateVendor(
         payload: payload,
         fileList: fileList,
       );
@@ -73,7 +73,7 @@ class VendorRepositoryImpl implements VendorRepository {
     required String uniqueKey,
   }) async {
     try {
-      var result = await vendorDatasource.apiCallToDeleteVendor(
+      var result = await vendorDatasource.apiCallDeleteVendor(
         vendorId: vendorId,
         uniqueKey: uniqueKey,
       );

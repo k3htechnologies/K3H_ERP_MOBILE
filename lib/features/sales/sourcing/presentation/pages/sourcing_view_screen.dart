@@ -1113,6 +1113,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                           ? first['number']!
                           : "-",
                   customValueWidget: buildDocumentRow(
+                    iconWithoutBg: true,
                     context: context,
                     docNumber:
                         (first['number'] != null && first['number']!.isNotEmpty)
@@ -1132,6 +1133,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                               : "-",
                       customValueWidget: buildDocumentRow(
                         context: context,
+                        iconWithoutBg: true,
                         docNumber:
                             (second['number'] != null &&
                                     second['number']!.isNotEmpty)

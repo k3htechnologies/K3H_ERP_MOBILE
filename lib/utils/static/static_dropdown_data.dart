@@ -267,3 +267,7 @@ final List<Map<String, dynamic>> projectCategoryList = createAttributeList(
   projectCategoryValues,
 );
 final List<Map<String, dynamic>> statusList = createAttributeList(statusValues);
+
+final List<Map<String, dynamic>> vendorTypeList = createAttributeList(
+  vendorTypeValues,
+);

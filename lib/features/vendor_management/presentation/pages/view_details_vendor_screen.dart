@@ -1,19 +1,20 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+import '../../../../widgets/custom_chip_for_status_widget.dart';
 
 class ViewDetailsVendorScreen extends StatefulWidget {
   final VendorModel vendor;
@@ -24,7 +25,15 @@ class ViewDetailsVendorScreen extends StatefulWidget {
       _ViewDetailsVendorScreenState();
 }
 
-class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
+class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,16 +42,138 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
-              _buildBasicInformationSection(),
-              _buildGovernmentIdentifiersSection(),
-              _buildAddressSection(),
-              _buildDocumentSection(),
-              _buildMaterialAndContractSection(),
-              _buildActionDetailsSection(),
+              Container(
+                decoration: commonCardDecoration(),
+                padding: const EdgeInsets.all(16),
+                margin: EdgeInsets.only(bottom: 12.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 25.r,
+                              child: Text(
+                                getInitials(widget.vendor.vendorName),
+                                style: AppTextStyle.ts18SB(
+                                  color: AppColor.white,
+                                ),
+                              ),
+                            ),
+                            if (widget.vendor.verifiedNonVerified
+                                    .toLowerCase() ==
+                                'verified')
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    LucideIcons.badgeCheck,
+                                    size: 18,
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+
+                        horizontalSpacing(width: 12),
+
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      widget.vendor.vendorName,
+                                      style: AppTextStyle.ts18SB(),
+                                    ),
+                                  ),
+                                  activeInactiveStatusWidget(
+                                    widget.vendor.verifiedNonVerified,
+                                  ),
+                                ],
+                              ),
+
+                              verticalSpacing(height: 2),
+
+                              Text(
+                                widget.vendor.companyName,
+                                style: AppTextStyle.ts14R(color: AppColor.grey),
+                              ),
+
+                              verticalSpacing(height: 4),
+
+                              Row(
+                                children: [
+                                  Icon(
+                                    LucideIcons.mapPin,
+                                    size: 14,
+                                    color: AppColor.grey,
+                                  ),
+                                  horizontalSpacing(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      "${widget.vendor.cityName}, ${widget.vendor.stateName}",
+                                      style: AppTextStyle.ts12R(
+                                        color: AppColor.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                    statusChip(
+                      widget.vendor.vendorType,
+                      AppColor.lightOrangeBg.withValues(alpha: 0.5),
+                      AppColor.orange,
+                      textStyle: AppTextStyle.ts12M().copyWith(
+                        color: AppColor.orange,
+                      ),
+                      leading: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: AppColor.orange,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      _buildBasicInformationSection(),
+                      _buildGovernmentIdentifiersSection(),
+                      _buildAddressSection(),
+                      _buildMaterialAndContractSection(),
+                      _buildActionDetailsSection(),
+                    ],
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -50,240 +181,322 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen> {
     );
   }
 
-  // BUILD TITLE WIDGET
-  Widget _buildTitle({required String title}) {
-    return Text(title, style: AppTextStyle.ts16SB(color: AppColor.black));
-  }
-
   // BUILD BASIC INFORMATION SECTION
   Widget _buildBasicInformationSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle(title: "Basic Information"),
-          verticalSpacing(height: 15),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumnTitleValue(
-                title: "Vendor Name",
-                value: widget.vendor.vendorName,
-              ),
-              Expanded(child: SizedBox()),
-            ],
+    return SectionCard(
+      title: "Personal Information",
+      iconContainerColor: AppColor.lightBlue,
+      iconColor: AppColor.primary,
+      icon: LucideIcons.user,
+      childSpacing: 0,
+      children: [
+        buildRowTitleValue(
+          title: "Vendor Name",
+          fixesWidth: 120.w,
+          value: widget.vendor.vendorName,
+          singleLine: false,
+        ),
+
+        buildRowTitleValue(
+          title: "Company Name",
+          fixesWidth: 120.w,
+          value: widget.vendor.companyName,
+          singleLine: false,
+        ),
+        buildRowTitleValue(
+          fixesWidth: 120.w,
+          title: "Company Type",
+          value: widget.vendor.companyType,
+          singleLine: false,
+        ),
+        buildRowTitleValue(
+          title: "Mobile Number",
+          fixesWidth: 120.w,
+          value: widget.vendor.mobileNumber,
+          customValueWidget: CustomClickToContactText(
+            countryCode: widget.vendor.mobileNumberCountryCode,
+            value: widget.vendor.mobileNumber,
           ),
-          verticalSpacing(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumnTitleValue(
-                title: "Company Name",
-                value: widget.vendor.companyName,
-              ),
-              buildColumnTitleValue(
-                title: "Company Type",
-                value: widget.vendor.companyType,
-              ),
-            ],
+        ),  
+        buildRowTitleValue(
+          title: "E-mail ID",
+          fixesWidth: 120.w,
+          value: widget.vendor.emailId,
+          customValueWidget: CustomClickToContactText(
+            value: widget.vendor.emailId,
+            type: ContactType.email,
           ),
-          verticalSpacing(),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Mobile Number",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    CustomClickToContactText(
-                      countryCode: "+91",
-                      value: widget.vendor.mobileNumber,
-                    ),
-                  ],
-                ),
-              ),
-              buildColumnTitleValue(
-                title: "E-mail ID",
-                value: widget.vendor.emailId,
-                customValueWidget: CustomClickToContactText(
-                  value: widget.vendor.emailId,
-                  type: ContactType.email,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   // BUILD GOVERNMENT IDENTIFIERS SECTION
   Widget _buildGovernmentIdentifiersSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle(title: "Government Identifiers"),
-          verticalSpacing(height: 15),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Aadhaar Card Number",
-                value: widget.vendor.aadharCardNumber,
+    final List<Map<String, String>> documents = [
+      {
+        "title": "PAN Card",
+        "number": widget.vendor.panCardNumber,
+        "url": widget.vendor.panCardUrl,
+      },
+      {
+        "title": "Aadhaar Card",
+        "number": widget.vendor.aadharCardNumber,
+        "url": widget.vendor.aadharCardUrl,
+      },
+      {
+        "title": "GST Certificate",
+        "number": widget.vendor.gstNumber,
+        "url": widget.vendor.gstCertificateUrl,
+      },
+    ];
+
+    final validDocuments =
+        documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
+
+    if (validDocuments.isEmpty) {
+      return Center(
+        child: noDataWidget(message: "No Documents Available", iconSize: 100),
+      );
+    }
+    return SectionCard(
+      title: "Government Identifiers",
+      iconColor: AppColor.darkGreen10,
+      iconContainerColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+      icon: LucideIcons.badgeCheck,
+      childSpacing: 0,
+      children:
+          List.generate((validDocuments.length), (index) {
+            final doc = validDocuments[index];
+
+            return buildRowTitleValue(
+              title: doc['title'] ?? "-",
+              value:
+                  (doc['number'] != null && doc['number']!.isNotEmpty)
+                      ? doc['number']!
+                      : "-",
+              fixesWidth: 120.w,
+              customValueWidget: buildDocumentRow(
+                iconWithoutBg: true,
+                context: context,
+                docNumber:
+                    (doc['number'] != null && doc['number']!.isNotEmpty)
+                        ? doc['number']!
+                        : "-",
+                url: doc['url'] ?? "-",
+                title: doc['title']!,
               ),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "PAN Card Number",
-                value: widget.vendor.panCardNumber,
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "GST Number",
-                value: widget.vendor.gstNumber,
-              ),
-            ],
-          ),
-        ],
-      ),
+            );
+          }).toList(),
     );
   }
 
   // BUILD ADDRESS SECTION
   Widget _buildAddressSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildTitle(title: "Address Details"),
-          verticalSpacing(height: 15),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Address",
-                value: widget.vendor.address,
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Country",
-                value: widget.vendor.countryName,
-              ),
-              buildColumnTitleValue(
-                title: "State",
-                value: widget.vendor.stateName,
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "District",
-                value: widget.vendor.districtName,
-              ),
-              buildColumnTitleValue(
-                title: "City",
-                value: widget.vendor.cityName,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+    return SectionCard(
+      title: "Address Details",
+      iconContainerColor: AppColor.lightOrange.withValues(alpha: 0.4),
+      iconColor: AppColor.rustOrange,
+      icon: LucideIcons.mapPin,
+      childSpacing: 0,
+      children: [
+        buildRowTitleValue(
+          singleLine: false,
+          title: "Country",
+          fixesWidth: 120.w,
+          value: widget.vendor.countryName,
+        ),
+        buildRowTitleValue(
+          singleLine: false,
+          title: "State",
+          fixesWidth: 120.w,
+          value: widget.vendor.stateName,
+        ),
 
-  // BUILD DOCUMENT SECTION
-  Widget _buildDocumentSection() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildTitle(title: "Document"),
-          CustomIconButton(
-            onPressed: () async {
-              await goRouter.pushNamed(
-                AppRoutes.viewVendorDocument,
-                queryParameters: {
-                  "vendor": Uri.encodeQueryComponent(
-                    EncryptionManager.encryptData(jsonEncode(widget.vendor)),
-                  ),
-                },
-              );
-            },
-            icon: Icon(Icons.file_copy, size: 16, color: AppColor.primary),
-            backgroundColor: AppColor.lightBlue,
-          ),
-        ],
-      ),
+        buildRowTitleValue(
+          singleLine: false,
+          title: "District",
+          fixesWidth: 120.w,
+          value: widget.vendor.districtName,
+        ),
+        buildRowTitleValue(
+          singleLine: false,
+          title: "City",
+          fixesWidth: 120.w,
+          value: widget.vendor.cityName,
+        ),
+
+        buildRowTitleValue(
+          singleLine: false,
+          title: "Office Address",
+          fixesWidth: 120.w,
+          value: widget.vendor.address,
+        ),
+      ],
     );
   }
 
   // BUILD MATERIAL AND CONTRACT SECTION
   Widget _buildMaterialAndContractSection() {
+    return SectionCard(
+      title: "Material and Contract Management",
+      icon: LucideIcons.filePenLine300,
+      iconColor: AppColor.darkGreen10,
+      iconContainerColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+      children: [
+        Column(
+          children: [
+            ChipStyleTabBar(
+              controller: _tabController,
+              tabs: [
+                'Material (${widget.vendor.submaterialList.length})',
+                'Contract',
+              ],
+              margin: EdgeInsets.zero,
+              style: ChipTabBarStyle.underline,
+            ),
+            verticalSpacing(),
+            SizedBox(
+              height: widget.vendor.submaterialList.length > 1 ? 320.h : 200.h,
+              child: TabBarView(
+                controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
+                children: [
+                  _buildMaterialTabContent(),
+                  _buildContractTabContent(),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMaterialTabContent() {
     return Container(
-      padding: EdgeInsets.all(16),
-      margin: EdgeInsets.only(bottom: 10),
-      decoration: commonCardDecoration(),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildTitle(title: "Material & Contract"),
-          verticalSpacing(height: 15),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Available Material",
-                value: widget.vendor.submaterialList
-                    .map((e) => e.materialName)
-                    .join(","),
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          Row(
-            children: [
-              buildColumnTitleValue(title: "Available Contract", value: "-"),
-            ],
+          Expanded(
+            child: Builder(
+              builder: (context) {
+                if (widget.vendor.submaterialList.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: 'No data found',
+                      iconSize: 120,
+                    ),
+                  );
+                }
+                final list = widget.vendor.submaterialList;
+                return ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemCount: list.length,
+                  separatorBuilder: (_, __) => verticalSpacing(height: 8),
+                  itemBuilder: (context, index) {
+                    final item = list[index];
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColor.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColor.lightGrey),
+                      ),
+                      child: Row(
+                        spacing: 10,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: AppColor.lightBlue,
+                            child: Icon(
+                              LucideIcons.package,
+                              size: 18,
+                              color: AppColor.primary,
+                            ),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  item.subMaterialName,
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.black,
+                                  ),
+                                ),
+                                Text(
+                                  item.materialName,
+                                  style: AppTextStyle.ts12R(
+                                    color: AppColor.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
     );
   }
 
+  Widget _buildContractTabContent() {
+    return Center(child: noDataWidget(iconSize: 140));
+  }
+
   // BUILD ACTION DETAILS SECTION
   Widget _buildActionDetailsSection() {
-    return actionCardWidget(
-      createdBy: widget.vendor.createdBy,
-      createdDate: widget.vendor.createdDate,
-      modifiedBy: widget.vendor.modifiedBy,
-      modifiedDate: widget.vendor.modifiedDate,
+    return SectionCard(
+      title: "Action Details",
+      iconContainerColor: AppColor.greyBackground,
+      iconColor: AppColor.grey,
+      icon: LucideIcons.history,
+      childSpacing: 0,
+      children: [
+        buildRowTitleValue(
+          title: "Created By",
+          value: widget.vendor.createdBy,
+          fixesWidth: 120.w,
+          singleLine: false,
+        ),
+        buildRowTitleValue(
+          title: "Created Date",
+          value: formatDate(widget.vendor.createdDate),
+          fixesWidth: 120.w,
+          singleLine: false,
+        ),
+
+        buildRowTitleValue(
+          title: "Modified By",
+          fixesWidth: 120.w,
+          value:
+              (widget.vendor.modifiedBy.isNotEmpty)
+                  ? widget.vendor.modifiedBy
+                  : "-",
+          singleLine: false,
+        ),
+        buildRowTitleValue(
+          title: "Modified Date",
+          fixesWidth: 120.w,
+          value:
+              (widget.vendor.modifiedDate == null ||
+                      widget.vendor.modifiedDate.toString().trim().isEmpty)
+                  ? "-"
+                  : formatDate(widget.vendor.modifiedDate),
+          singleLine: false,
+        ),
+      ],
     );
   }
 }

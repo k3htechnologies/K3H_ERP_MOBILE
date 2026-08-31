@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class VendorDatasource {
   Future<Map<String, dynamic>> apiCallPullVendor({
@@ -9,12 +10,12 @@ abstract interface class VendorDatasource {
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Map<String, dynamic>> apiCallToAddNewVendor({
+  Future<Map<String, dynamic>> apiCallAddUpdateVendor({
     required Map<String, String> payload,
     required List<Map<String, dynamic>> fileList,
   });
 
-  Future<Map<String, dynamic>> apiCallToDeleteVendor({
+  Future<Map<String, dynamic>> apiCallDeleteVendor({
     required int vendorId,
     required String uniqueKey,
   });
@@ -42,7 +43,7 @@ class VendorDataSourceImpl implements VendorDatasource {
     }) {
       String url =
           "Vendor/PullVendor?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -73,7 +74,7 @@ class VendorDataSourceImpl implements VendorDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apiCallToAddNewVendor({
+  Future<Map<String, dynamic>> apiCallAddUpdateVendor({
     required Map<String, String> payload,
     required List<Map<String, dynamic>> fileList,
   }) async {
@@ -86,17 +87,23 @@ class VendorDataSourceImpl implements VendorDatasource {
             fileList,
             payload,
           );
-      return {'totalNumberOfRecord': networkResponse['totalNumberOfRecord']};
+      return {
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'data': List<VendorModel>.from(
+          networkResponse["data"].map((e) => VendorModel.fromJson(e)),
+        ),
+        'message': networkResponse['message'],
+      };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apiCallToAddNewVendor(payload: payload, fileList: fileList);
+        return apiCallAddUpdateVendor(payload: payload, fileList: fileList);
       }
       rethrow;
     }
   }
 
   @override
-  Future<Map<String, dynamic>> apiCallToDeleteVendor({
+  Future<Map<String, dynamic>> apiCallDeleteVendor({
     required int vendorId,
     required String uniqueKey,
   }) async {
@@ -112,7 +119,7 @@ class VendorDataSourceImpl implements VendorDatasource {
       return {'message': networkResponse['message']};
     } catch (error) {
       if (error is TokenExpiredException) {
-        apiCallToDeleteVendor(vendorId: vendorId, uniqueKey: uniqueKey);
+        apiCallDeleteVendor(vendorId: vendorId, uniqueKey: uniqueKey);
       }
       rethrow;
     }

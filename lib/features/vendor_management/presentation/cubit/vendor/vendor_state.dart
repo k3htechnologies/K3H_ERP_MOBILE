@@ -7,6 +7,7 @@ class VendorState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
+  final String filterByVendorCode;
   final String filterByCompanyName;
   final String filterByCompanyType;
   final String filterByMobileNumber;
@@ -24,6 +25,7 @@ class VendorState extends BaseState {
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.filterByVendorCode,
     required this.filterByCompanyName,
     required this.filterByCompanyType,
     required this.filterByMobileNumber,
@@ -41,6 +43,7 @@ class VendorState extends BaseState {
     searchText: "",
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
+    filterByVendorCode: "",
     filterByCompanyName: "",
     filterByCompanyType: "",
     filterByMobileNumber: "",
@@ -59,6 +62,7 @@ class VendorState extends BaseState {
     String? searchText,
     String? currentSortColumn,
     String? currentSortDirection,
+    String? filterByVendorCode,
     String? filterByCompanyName,
     String? filterByCompanyType,
     String? filterByMobileNumber,
@@ -76,6 +80,7 @@ class VendorState extends BaseState {
       searchText: searchText ?? this.searchText,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterByVendorCode: filterByVendorCode ?? this.filterByVendorCode,
       filterByCompanyName: filterByCompanyName ?? this.filterByCompanyName,
       filterByCompanyType: filterByCompanyType ?? this.filterByCompanyType,
       filterByMobileNumber: filterByMobileNumber ?? this.filterByMobileNumber,
@@ -98,6 +103,7 @@ class VendorState extends BaseState {
     searchText,
     currentSortColumn,
     currentSortDirection,
+    filterByVendorCode,
     filterByCompanyName,
     filterByCompanyType,
     filterByMobileNumber,

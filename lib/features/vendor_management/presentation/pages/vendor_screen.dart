@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
@@ -41,6 +42,7 @@ class _VendorScreenState extends State<VendorScreen> {
 
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
+      _filterVendorCodeC,
       _filterCompanyNameC,
       _filterCompanyTypeC,
       _filterMobileNumberC,
@@ -54,16 +56,12 @@ class _VendorScreenState extends State<VendorScreen> {
   void initState() {
     super.initState();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.vendor]!;
+        Authorization.routeAuthorizationMap[AppRoutes.vendor] ??
+        AuthorizationModel();
     _vendorCubit = context.read<VendorCubit>();
     _initializeTextEditingController();
     _onScroll();
     _vendorCubit.getVendors(context, 1);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
   }
 
   @override
@@ -78,6 +76,7 @@ class _VendorScreenState extends State<VendorScreen> {
     _filterAadhaarCardNumberC.dispose();
     _filterPanCardNumberC.dispose();
     _filterCount.dispose();
+    _filterVendorCodeC.dispose();
     scrollController.dispose();
   }
 
@@ -104,7 +103,8 @@ class _VendorScreenState extends State<VendorScreen> {
 
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
-    _searchC = TextEditingController(); // Vendor Name
+    _searchC = TextEditingController();
+    _filterVendorCodeC = TextEditingController();
     _filterCompanyTypeC = TextEditingController();
     _filterCompanyNameC = TextEditingController();
     _filterMobileNumberC = TextEditingController();
@@ -139,6 +139,7 @@ class _VendorScreenState extends State<VendorScreen> {
     final state = _vendorCubit.state;
 
     _searchC.text = state.searchText;
+    _filterVendorCodeC.text = state.filterByVendorCode;
     _filterCompanyNameC.text = state.filterByCompanyName;
     _filterCompanyTypeC.text = state.filterByCompanyType;
     _filterMobileNumberC.text = state.filterByMobileNumber;
@@ -152,6 +153,7 @@ class _VendorScreenState extends State<VendorScreen> {
             : null;
 
     final String initialVendorName = _searchC.text;
+    final String initialVendorCode = _filterVendorCodeC.text;
     final String initialCompanyName = _filterCompanyNameC.text;
     final String initialCompanyType = _filterCompanyTypeC.text;
     final String initialMobileNumber = _filterMobileNumberC.text;
@@ -168,6 +170,7 @@ class _VendorScreenState extends State<VendorScreen> {
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialVendorName) ||
+            (_filterVendorCodeC.text.trim() != initialVendorCode) ||
             (_filterCompanyNameC.text.trim() != initialCompanyName) ||
             (_filterCompanyTypeC.text.trim() != initialCompanyType) ||
             (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
@@ -249,6 +252,12 @@ class _VendorScreenState extends State<VendorScreen> {
                   textController: _searchC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                CustomTextField(
+                  title: "vendor Code",
+                  hint: "Enter Vendor Code",
+                  textController: _filterVendorCodeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
 
                 CustomTextField(
                   title: "Company Name",
@@ -269,6 +278,7 @@ class _VendorScreenState extends State<VendorScreen> {
                   hint: "Enter Mobile Number",
                   keyboardType: TextInputType.number,
                   textController: _filterMobileNumberC,
+                  inputFormatterList: InputValidator.digit(10),
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
 
@@ -307,6 +317,7 @@ class _VendorScreenState extends State<VendorScreen> {
       ),
       onClear: () {
         _searchC.clear();
+        _filterVendorCodeC.clear();
         _filterCompanyNameC.clear();
         _filterCompanyTypeC.clear();
         _filterMobileNumberC.clear();
@@ -322,6 +333,7 @@ class _VendorScreenState extends State<VendorScreen> {
         _vendorCubit.sortVendor(
           context: context,
           vendorName: _searchC.text.trim(),
+          vendorCode: _filterVendorCodeC.text.trim(),
           companyName: _filterCompanyNameC.text.trim(),
           companyType: _filterCompanyTypeC.text.trim(),
           mobileNumber: _filterMobileNumberC.text.trim(),
@@ -340,6 +352,7 @@ class _VendorScreenState extends State<VendorScreen> {
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _searchC.clear();
+      _filterVendorCodeC.clear();
       _filterCompanyNameC.clear();
       _filterCompanyTypeC.clear();
       _filterMobileNumberC.clear();
@@ -370,9 +383,6 @@ class _VendorScreenState extends State<VendorScreen> {
           },
           onAddCallback: () async {
             await goRouter.pushNamed(AppRoutes.addVendor);
-            if (context.mounted) {
-              _vendorCubit.searchVendor(context, "");
-            }
           },
           searchHintText: "Search by Vendor Name",
           onSearchSubmit: (value) {
@@ -450,6 +460,20 @@ class _VendorScreenState extends State<VendorScreen> {
                               Row(
                                 spacing: 10,
                                 children: [
+                                  if (vendor.verifiedNonVerified
+                                          .toLowerCase() !=
+                                      'verified') ...[
+                                    CustomIconButton(
+                                      onPressed: () {},
+                                      icon: Icon(
+                                        Icons.warning_amber_outlined,
+                                        color: AppColor.yellow,
+                                        size: 16,
+                                      ),
+                                      backgroundColor: AppColor.yellow
+                                          .withValues(alpha: .2),
+                                    ),
+                                  ],
                                   CustomIconButton.edit(
                                     onPressed: () async {
                                       await goRouter.pushNamed(
@@ -460,14 +484,9 @@ class _VendorScreenState extends State<VendorScreen> {
                                               jsonEncode(vendor),
                                             ),
                                           ),
+                                          "index": index.toString(),
                                         },
                                       );
-                                      if (context.mounted) {
-                                        _vendorCubit.getVendors(
-                                          context,
-                                          state.currentPage,
-                                        );
-                                      }
                                     },
                                   ),
                                   CustomIconButton.delete(
@@ -485,24 +504,62 @@ class _VendorScreenState extends State<VendorScreen> {
                           ],
                         ),
                         buildRowTitleValue(
+                          title: "Vendor Code",
+                          fixesWidth: 120.w,
+                          value: vendor.systemGeneratedCode,
+                          customValueWidget: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  vendor.systemGeneratedCode,
+                                  style: AppTextStyle.ts14M(),
+                                ),
+                              ),
+                              horizontalSpacing(width: 2),
+                              InkWell(
+                                onTap: () {
+                                  copy(
+                                    context: context,
+                                    text: vendor.systemGeneratedCode,
+                                  );
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5),
+                                  child: Icon(
+                                    Icons.copy,
+                                    size: 16,
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        buildRowTitleValue(
+                          fixesWidth: 120.w,
                           title: "Company Name",
                           value: vendor.companyName,
                           singleLine: false,
                         ),
                         buildRowTitleValue(
+                          fixesWidth: 120.w,
                           title: "Company Type",
                           value: vendor.companyType,
                           singleLine: false,
                         ),
                         buildRowTitleValue(
+                          fixesWidth: 120.w,
                           title: "Mobile Number",
                           value: vendor.mobileNumber,
                           customValueWidget: CustomClickToContactText(
-                            countryCode: "+91",
+                            countryCode: vendor.mobileNumberCountryCode,
                             value: vendor.mobileNumber,
                           ),
                         ),
                         buildRowTitleValue(
+                          fixesWidth: 120.w,
                           title: "Email ID",
                           value: vendor.emailId,
                           customValueWidget: CustomClickToContactText(
