@@ -13,13 +13,11 @@ import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
-
 import '../../../../widgets/custom_chip_for_status_widget.dart';
 
 class ViewDetailsVendorScreen extends StatefulWidget {
   final VendorModel vendor;
   const ViewDetailsVendorScreen({super.key, required this.vendor});
-
   @override
   State<ViewDetailsVendorScreen> createState() =>
       _ViewDetailsVendorScreenState();
@@ -87,9 +85,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
                               ),
                           ],
                         ),
-
                         horizontalSpacing(width: 12),
-
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,16 +104,12 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
                                   ),
                                 ],
                               ),
-
                               verticalSpacing(height: 2),
-
                               Text(
                                 widget.vendor.companyName,
                                 style: AppTextStyle.ts14R(color: AppColor.grey),
                               ),
-
                               verticalSpacing(height: 4),
-
                               Row(
                                 children: [
                                   Icon(
@@ -142,22 +134,23 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
                       ],
                     ),
                     verticalSpacing(),
-                    statusChip(
-                      widget.vendor.vendorType,
-                      AppColor.lightOrangeBg.withValues(alpha: 0.5),
-                      AppColor.orange,
-                      textStyle: AppTextStyle.ts12M().copyWith(
-                        color: AppColor.orange,
-                      ),
-                      leading: Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
+                    if (widget.vendor.vendorType.isNotEmpty)
+                      statusChip(
+                        widget.vendor.vendorType,
+                        AppColor.lightOrangeBg.withValues(alpha: 0.5),
+                        AppColor.orange,
+                        textStyle: AppTextStyle.ts12M().copyWith(
                           color: AppColor.orange,
-                          shape: BoxShape.circle,
+                        ),
+                        leading: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: AppColor.orange,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -181,7 +174,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
     );
   }
 
-  // BUILD BASIC INFORMATION SECTION
   Widget _buildBasicInformationSection() {
     return SectionCard(
       title: "Personal Information",
@@ -196,7 +188,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
           value: widget.vendor.vendorName,
           singleLine: false,
         ),
-
         buildRowTitleValue(
           title: "Company Name",
           fixesWidth: 120.w,
@@ -217,7 +208,7 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
             countryCode: widget.vendor.mobileNumberCountryCode,
             value: widget.vendor.mobileNumber,
           ),
-        ),  
+        ),
         buildRowTitleValue(
           title: "E-mail ID",
           fixesWidth: 120.w,
@@ -231,7 +222,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
     );
   }
 
-  // BUILD GOVERNMENT IDENTIFIERS SECTION
   Widget _buildGovernmentIdentifiersSection() {
     final List<Map<String, String>> documents = [
       {
@@ -250,10 +240,8 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
         "url": widget.vendor.gstCertificateUrl,
       },
     ];
-
     final validDocuments =
         documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
-
     if (validDocuments.isEmpty) {
       return Center(
         child: noDataWidget(message: "No Documents Available", iconSize: 100),
@@ -268,7 +256,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
       children:
           List.generate((validDocuments.length), (index) {
             final doc = validDocuments[index];
-
             return buildRowTitleValue(
               title: doc['title'] ?? "-",
               value:
@@ -291,7 +278,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
     );
   }
 
-  // BUILD ADDRESS SECTION
   Widget _buildAddressSection() {
     return SectionCard(
       title: "Address Details",
@@ -312,7 +298,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
           fixesWidth: 120.w,
           value: widget.vendor.stateName,
         ),
-
         buildRowTitleValue(
           singleLine: false,
           title: "District",
@@ -325,7 +310,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
           fixesWidth: 120.w,
           value: widget.vendor.cityName,
         ),
-
         buildRowTitleValue(
           singleLine: false,
           title: "Office Address",
@@ -336,7 +320,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
     );
   }
 
-  // BUILD MATERIAL AND CONTRACT SECTION
   Widget _buildMaterialAndContractSection() {
     return SectionCard(
       title: "Material and Contract Management",
@@ -397,7 +380,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
                   separatorBuilder: (_, __) => verticalSpacing(height: 8),
                   itemBuilder: (context, index) {
                     final item = list[index];
-
                     return Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -455,7 +437,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
     return Center(child: noDataWidget(iconSize: 140));
   }
 
-  // BUILD ACTION DETAILS SECTION
   Widget _buildActionDetailsSection() {
     return SectionCard(
       title: "Action Details",
@@ -476,7 +457,6 @@ class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
           fixesWidth: 120.w,
           singleLine: false,
         ),
-
         buildRowTitleValue(
           title: "Modified By",
           fixesWidth: 120.w,

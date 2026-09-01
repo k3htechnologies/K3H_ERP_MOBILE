@@ -130,7 +130,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Name is required";
+                          return "Name is required.";
                         }
                         return null;
                       },
@@ -147,7 +147,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Mobile number is required";
+                          return "Mobile number is required.";
                         }
                         if (isValidMobileNumber(value.trim()) == false) {
                           return "Mobile number is invalid";
@@ -182,7 +182,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
                           },
                           validator: (value) {
                             if (value == null) {
-                              return "Source is required";
+                              return "Source is required.";
                             }
                             return null;
                           },

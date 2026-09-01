@@ -303,7 +303,7 @@ class _AddHolidayMappingMasterScreenState
                             dataFetchCallBack: _fetchHolidays,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return "Holiday is required";
+                                return "Holiday is required.";
                               }
                               return null;
                             },
@@ -319,7 +319,7 @@ class _AddHolidayMappingMasterScreenState
                             },
                             validator: (value) {
                               if (value == null) {
-                                return "Holiday Date is required";
+                                return "Holiday Date is required.";
                               }
                               return null;
                             },

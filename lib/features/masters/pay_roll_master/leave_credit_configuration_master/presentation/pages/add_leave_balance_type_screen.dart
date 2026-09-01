@@ -187,7 +187,7 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Leave Type is required';
+                              return 'Leave Type is required.';
                             }
                             return null;
                           },
@@ -204,7 +204,7 @@ class _AddLeaveBalanceTypeScreenState extends State<AddLeaveBalanceTypeScreen> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Leave Credit is required";
+                          return "Leave Credit is required.";
                         }
                         if (int.tryParse(value) == null) {
                           return "Please enter a valid number";

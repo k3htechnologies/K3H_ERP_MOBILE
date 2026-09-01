@@ -93,7 +93,7 @@ String htmlToPlainText(String html) {
 ///   onChange: (value) => _descriptionC.text = value,
 ///   validator: (value) {
 ///     if (value == null || value.trim().isEmpty) {
-///       return 'Description is required';
+///       return 'Description is required.';
 ///     }
 ///     return null;
 ///   },

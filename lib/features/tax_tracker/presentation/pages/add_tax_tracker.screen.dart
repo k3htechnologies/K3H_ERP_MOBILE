@@ -178,7 +178,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       textController: _companyNameC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Company Name is required';
+                          return 'Company Name is required.';
                         }
                         return null;
                       },
@@ -190,7 +190,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       textController: _financialYearC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Financial Year is required';
+                          return 'Financial Year is required.';
                         }
                         return null;
                       },
@@ -206,7 +206,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       dataFetchCallBack: _fetchDepartment,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Department is required';
+                          return 'Department is required.';
                         }
                         return null;
                       },
@@ -218,7 +218,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       textController: _responsiblePersonC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Responsible Person is required';
+                          return 'Responsible Person is required.';
                         }
                         return null;
                       },
@@ -251,7 +251,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       onSelected: (value) {},
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Notice Type is required';
+                          return 'Notice Type is required.';
                         }
                         return null;
                       },
@@ -264,7 +264,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       onSelected: (value) {},
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Notice U/S is required';
+                          return 'Notice U/S is required.';
                         }
                         return null;
                       },
@@ -276,7 +276,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       textController: _authorityC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Authority is required';
+                          return 'Authority is required.';
                         }
                         return null;
                       },
@@ -289,7 +289,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       setValue: (value) => _noticeDate = value,
                       validator: (value) {
                         if (value == null) {
-                          return 'Authority is required';
+                          return 'Authority is required.';
                         }
                         return null;
                       },
@@ -302,7 +302,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       setValue: (value) => _dueDate = value,
                       validator: (value) {
                         if (value == null) {
-                          return 'Due Date is required';
+                          return 'Due Date is required.';
                         }
                         return null;
                       },
@@ -315,7 +315,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                       onSelected: (value) {},
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Notice Status is required';
+                          return 'Notice Status is required.';
                         }
                         return null;
                       },
@@ -365,7 +365,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
 
                       validator: (fileList) {
                         if ((fileList == null || fileList.isEmpty)) {
-                          return "Notice Document is required";
+                          return "Notice Document is required.";
                         }
 
                         return null;
@@ -396,7 +396,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
 
                       validator: (fileList) {
                         if ((fileList == null || fileList.isEmpty)) {
-                          return "Notice Document is required";
+                          return "Notice Document is required.";
                         }
 
                         return null;

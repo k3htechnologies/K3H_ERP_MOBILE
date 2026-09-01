@@ -460,7 +460,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       inputFormatterList: InputValidator.textOnly(100),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Building name is required';
+                          return 'Building name is required.';
                         }
                         if (value.trim().length < 2) {
                           return 'Building name must be at least 2 characters';
@@ -478,7 +478,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'CTS number is required';
+                          return 'CTS number is required.';
                         }
                         return null;
                       },
@@ -497,7 +497,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                           },
                           validator: (value) {
                             if (value == null || value['zAttributesId'] == -1) {
-                              return 'Road width is required';
+                              return 'Road width is required.';
                             }
                             return null;
                           },
@@ -533,7 +533,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Google Location is required";
+                          return "Google Location is required.";
                         }
                         final googleMapRegex = RegExp(
                           r'^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps(\?|\/)|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps|share\.google)\/?.*$',
@@ -612,7 +612,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                           },
                           validator: (value) {
                             if (value == null) {
-                              return "Category is required";
+                              return "Category is required.";
                             }
                             return null;
                           },
@@ -970,7 +970,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                           inputFormatterListForDecimalValuesFixedToTwo(7),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Total plot area is required';
+                          return 'Total plot area is required.';
                         }
                         return null;
                       },
@@ -1095,7 +1095,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               validator: (value) {
                                 if ((value == null || value.trim().isEmpty) &&
                                     isGarden) {
-                                  return 'Garden Area is required';
+                                  return 'Garden Area is required.';
                                 }
                                 return null;
                               },
@@ -1139,7 +1139,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               validator: (value) {
                                 if ((value == null || value.trim().isEmpty) &&
                                     isReligiousStructure) {
-                                  return 'Religious Structure Area is required';
+                                  return 'Religious Structure Area is required.';
                                 }
                                 return null;
                               },
@@ -1176,7 +1176,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               validator: (value) {
                                 if (isLitigation) {
                                   if ((value == null || value.trim().isEmpty)) {
-                                    return 'Litigation remark is required';
+                                    return 'Litigation remark is required.';
                                   }
                                 }
                                 return null;

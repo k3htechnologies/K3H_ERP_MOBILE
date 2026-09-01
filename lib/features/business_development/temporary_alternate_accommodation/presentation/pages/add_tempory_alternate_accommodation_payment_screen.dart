@@ -323,7 +323,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                                       .getBankList,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Bank is required';
+                                  return 'Bank is required.';
                                 }
                                 return null;
                               },
@@ -373,7 +373,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Payment Mode for is required';
+                              return 'Payment Mode for is required.';
                             }
                             return null;
                           },
@@ -390,7 +390,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Amount Type is required';
+                              return 'Amount Type is required.';
                             }
                             return null;
                           },
@@ -537,7 +537,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                                           .getProjectWithBankDropdown,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Project Wise Bank is required';
+                                      return 'Project Wise Bank is required.';
                                     }
                                     return null;
                                   },

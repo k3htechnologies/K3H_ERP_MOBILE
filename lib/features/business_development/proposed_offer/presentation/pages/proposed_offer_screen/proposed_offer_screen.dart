@@ -189,7 +189,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                               dataFetchCallBack: _fetchBuildings,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Building is required";
+                                  return "Building is required.";
                                 }
                                 return null;
                               },

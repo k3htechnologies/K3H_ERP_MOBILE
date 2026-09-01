@@ -371,7 +371,7 @@ class _AddClassificationParameterScreenState
                               () => _selectedPossessionNotifier.value = null,
                           validator: (value) {
                             if (value == null) {
-                              return 'Possession Type is required';
+                              return 'Possession Type is required.';
                             }
                             return null;
                           },
@@ -410,7 +410,7 @@ class _AddClassificationParameterScreenState
                               },
                               validator: (value) {
                                 if (value == null) {
-                                  return 'Requirement is required';
+                                  return 'Requirement is required.';
                                 }
                                 return null;
                               },
@@ -447,7 +447,7 @@ class _AddClassificationParameterScreenState
 
                                     validator: (value) {
                                       if (value == null) {
-                                        return '${selectedRequirement?["DisplayName"]} is required';
+                                        return '${selectedRequirement?["DisplayName"]} is required.';
                                       }
                                       return null;
                                     },
@@ -477,7 +477,7 @@ class _AddClassificationParameterScreenState
                       onSelected: (value) => _selectedLocations = value,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Location is required';
+                          return 'Location is required.';
                         }
                         return null;
                       },
@@ -497,7 +497,7 @@ class _AddClassificationParameterScreenState
                               () => _selectedTimelineNotifier.value = null,
                           validator: (value) {
                             if (value == null) {
-                              return 'Timeline of Purchase is required';
+                              return 'Timeline of Purchase is required.';
                             }
                             return null;
                           },

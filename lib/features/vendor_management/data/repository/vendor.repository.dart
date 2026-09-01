@@ -9,17 +9,14 @@ abstract interface class VendorRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateVendor({
     required Map<String, String> payload,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteVendor({
     required int vendorId,
     required String uniqueKey,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> exportVendor({
     required int pageNumber,
     required int pageSize,
@@ -29,9 +26,7 @@ abstract interface class VendorRepository {
 
 class VendorRepositoryImpl implements VendorRepository {
   final VendorDatasource vendorDatasource;
-
   VendorRepositoryImpl({required this.vendorDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getVendorsList({
     required int pageNumber,
@@ -60,7 +55,6 @@ class VendorRepositoryImpl implements VendorRepository {
         payload: payload,
         fileList: fileList,
       );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -77,7 +71,6 @@ class VendorRepositoryImpl implements VendorRepository {
         vendorId: vendorId,
         uniqueKey: uniqueKey,
       );
-
       return right(result);
     } catch (e) {
       return left(Failure(message: ErrorHandler.getErrorMessage(e)));

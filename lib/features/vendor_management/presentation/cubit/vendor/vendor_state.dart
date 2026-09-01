@@ -15,7 +15,6 @@ class VendorState extends BaseState {
   final String filterByGstNumber;
   final String filterByAadhaarCardNumber;
   final String filterByPanCardNumber;
-
   const VendorState({
     super.isLoading,
     super.stateType,
@@ -34,7 +33,6 @@ class VendorState extends BaseState {
     required this.filterByAadhaarCardNumber,
     required this.filterByPanCardNumber,
   });
-
   factory VendorState.initial() => VendorState(
     isLoading: true,
     vendorList: [],
@@ -52,7 +50,6 @@ class VendorState extends BaseState {
     filterByAadhaarCardNumber: "",
     filterByPanCardNumber: "",
   );
-
   VendorState copyWith({
     bool? isLoading,
     StateType? stateType,

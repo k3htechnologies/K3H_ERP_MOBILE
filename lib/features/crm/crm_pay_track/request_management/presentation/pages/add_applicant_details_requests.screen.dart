@@ -537,7 +537,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Proof Of Document is required";
+                          return "Proof Of Document is required.";
                         }
                         return null;
                       },
@@ -556,7 +556,7 @@ class _AddApplicantDetailsRequestsScreenState
                               (value) => selectedApplicantType.value = value,
                           validator: (value) {
                             if (value == null || value['zAttributesId'] == -1) {
-                              return "Applicant Type is required";
+                              return "Applicant Type is required.";
                             }
                             return null;
                           },
@@ -573,7 +573,7 @@ class _AddApplicantDetailsRequestsScreenState
                       inputFormatterList: InputValidator.textOnly(100),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Applicant Name is required";
+                          return "Applicant Name is required.";
                         }
                         return null;
                       },
@@ -607,7 +607,7 @@ class _AddApplicantDetailsRequestsScreenState
                             final mobile = value?.trim() ?? "";
                             final country = selectedMobileNoCountry.value;
                             if (value == null || value.isEmpty) {
-                              return "Mobile Number is required";
+                              return "Mobile Number is required.";
                             }
                             if (mobile.isNotEmpty) {
                               // LENGTH AND REGEX VALIDATION
@@ -631,7 +631,7 @@ class _AddApplicantDetailsRequestsScreenState
                       inputFormatterList: InputValidator.emailInputFormatters(),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Email Id is required";
+                          return "Email Id is required.";
                         }
                         if (!InputValidator.isValidEmail(value)) {
                           return "Invalid email address";
@@ -665,7 +665,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Applicant Photo is required";
+                          return "Applicant Photo is required.";
                         }
                         return null;
                       },
@@ -679,7 +679,7 @@ class _AddApplicantDetailsRequestsScreenState
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Aadhaar Card is required";
+                          return "Aadhaar Card is required.";
                         }
 
                         if (!InputValidator.isValidAadharNumber(value.trim())) {
@@ -716,7 +716,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Aadhaar document is required";
+                          return "Aadhaar document is required.";
                         }
                         return null;
                       },
@@ -729,7 +729,7 @@ class _AddApplicantDetailsRequestsScreenState
                       inputFormatterList: InputValidator.panInputFormatters(),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "PAN Card is required";
+                          return "PAN Card is required.";
                         }
 
                         if (!InputValidator.isValidPAN(value.trim())) {
@@ -761,7 +761,7 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "PAN document is required";
+                          return "PAN document is required.";
                         }
                         return null;
                       },
@@ -775,7 +775,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (passportFile.fileNameList.isNotEmpty) {
                           if (value == null || value.isEmpty) {
-                            return "Passport Number is required";
+                            return "Passport Number is required.";
                           }
                           if (!InputValidator.isValidPassport(value)) {
                             return "Enter a valid Passport Number";
@@ -816,7 +816,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (_passportC.text.trim().isNotEmpty &&
                             passportFile.fileNameList.isEmpty) {
-                          return "Passport document is required";
+                          return "Passport document is required.";
                         }
 
                         return null;
@@ -831,7 +831,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (drivingLicenseFile.fileNameList.isNotEmpty) {
                           if (value == null || value.isEmpty) {
-                            return "Driving License Number is required";
+                            return "Driving License Number is required.";
                           }
                           if (!InputValidator.isValidDrivingLicence(value)) {
                             return "Enter a valid Driving License Number";
@@ -872,7 +872,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (_drivingLicenseC.text.trim().isNotEmpty &&
                             drivingLicenseFile.fileNameList.isEmpty) {
-                          return "Driving License document is required";
+                          return "Driving License document is required.";
                         }
 
                         return null;
@@ -887,7 +887,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (votingIdFile.fileNameList.isNotEmpty) {
                           if (value == null || value.isEmpty) {
-                            return "Voting ID Number is required";
+                            return "Voting ID Number is required.";
                           }
                           if (!InputValidator.isValidVoterId(value)) {
                             return "Enter a valid Voting Id Number";
@@ -928,7 +928,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (_votingIdC.text.trim().isNotEmpty &&
                             votingIdFile.fileNameList.isEmpty) {
-                          return "Voting ID document is required";
+                          return "Voting ID document is required.";
                         }
 
                         return null;
@@ -942,7 +942,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (gstFile.fileNameList.isNotEmpty) {
                           if (value == null || value.isEmpty) {
-                            return "GST Number is required";
+                            return "GST Number is required.";
                           }
                           if (!InputValidator.isValidGST(value)) {
                             return "Enter a valid GST Number";
@@ -979,7 +979,7 @@ class _AddApplicantDetailsRequestsScreenState
                       validator: (value) {
                         if (_gstC.text.trim().isNotEmpty &&
                             gstFile.fileNameList.isEmpty) {
-                          return "GST document is required";
+                          return "GST document is required.";
                         }
 
                         return null;

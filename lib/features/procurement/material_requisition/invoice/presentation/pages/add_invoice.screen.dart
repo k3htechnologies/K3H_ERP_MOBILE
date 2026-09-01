@@ -290,7 +290,7 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
                           textController: _invoiceNumberC,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Invoice No. is required";
+                              return "Invoice No. is required.";
                             }
                             return null;
                           },
@@ -302,7 +302,7 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
                           setValue: (value) => _invoiceDate = value,
                           validator: (value) {
                             if (value == null) {
-                              return 'Invoice Date is required';
+                              return 'Invoice Date is required.';
                             }
 
                             return null;
@@ -315,7 +315,7 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
                           textController: _invoiceAmountC,
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Invoice Amount is required";
+                              return "Invoice Amount is required.";
                             }
                             return null;
                           },
@@ -327,7 +327,7 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
                           setValue: (value) => _dueDate = value,
                           validator: (value) {
                             if (value == null) {
-                              return "Due Date is required";
+                              return "Due Date is required.";
                             }
                             return null;
                           },
@@ -352,7 +352,7 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
                           },
                           validator: (fileList) {
                             if ((fileList == null || fileList.isEmpty)) {
-                              return "Invoice document is required";
+                              return "Invoice document is required.";
                             }
                             return null;
                           },

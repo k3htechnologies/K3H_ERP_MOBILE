@@ -225,7 +225,7 @@ class _AddSubMaterialMasterScreenState
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Sub Material Name is required';
+                          return 'Sub Material Name is required.';
                         }
                         return null;
                       },
@@ -244,7 +244,7 @@ class _AddSubMaterialMasterScreenState
                       },
                       validator: (selected) {
                         if (selected == null || selected.isEmpty) {
-                          return 'Material is required';
+                          return 'Material is required.';
                         }
                         return null;
                       },
@@ -263,7 +263,7 @@ class _AddSubMaterialMasterScreenState
                       },
                       validator: (selected) {
                         if (selected == null || selected.isEmpty) {
-                          return 'UOM is required';
+                          return 'UOM is required.';
                         }
                         return null;
                       },

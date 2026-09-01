@@ -177,7 +177,7 @@ class _AddTermsAndConditionsScreenState
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Title is required';
+                          return 'Title is required.';
                         }
                         return null;
                       },
@@ -194,7 +194,7 @@ class _AddTermsAndConditionsScreenState
                       },
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Description is required';
+                          return 'Description is required.';
                         }
                         return null;
                       },

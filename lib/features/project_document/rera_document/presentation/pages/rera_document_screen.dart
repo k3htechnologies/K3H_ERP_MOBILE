@@ -169,7 +169,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
               textController: _reraDocumentC,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Document Name is required";
+                  return "Document Name is required.";
                 }
                 return null;
               },

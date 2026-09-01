@@ -736,7 +736,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         inputFormatterList: InputValidator.textDigit(50),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Project Name is required';
+                            return 'Project Name is required.';
                           }
                           return null;
                         },
@@ -756,7 +756,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             validator: (value) {
                               if (!isRedevelopment &&
                                   (value == null || value.isEmpty)) {
-                                return 'CTS number is required';
+                                return 'CTS number is required.';
                               }
                               return null;
                             },
@@ -779,7 +779,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Project Photo is required";
+                            return "Project Photo is required.";
                           }
                           return null;
                         },
@@ -876,7 +876,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                             },
                             validator: (value) {
                               if (value == null) {
-                                return "Category is required";
+                                return "Category is required.";
                               }
                               return null;
                             },
@@ -1382,7 +1382,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         ],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Project Location is required";
+                            return "Project Location is required.";
                           }
                           return null;
                         },
@@ -1412,7 +1412,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         ],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Google Location is required";
+                            return "Google Location is required.";
                           }
 
                           final googleMapRegex = RegExp(

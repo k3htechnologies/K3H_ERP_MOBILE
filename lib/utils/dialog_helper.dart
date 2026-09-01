@@ -855,6 +855,7 @@ class DialogHelper {
     Widget? icon,
     Widget? bottomSection, // optional
     bool barrierDismissible = true,
+    double? spacingBetweenContentAndBottomSection,
     void Function()? onDismiss,
   }) {
     return showDialog(
@@ -895,7 +896,7 @@ class DialogHelper {
 
                 // OPTIONAL BOTTOM SECTION
                 if (bottomSection != null) ...[
-                  const SizedBox(height: 16),
+                  SizedBox(height: spacingBetweenContentAndBottomSection ?? 16),
                   bottomSection,
                 ],
               ],

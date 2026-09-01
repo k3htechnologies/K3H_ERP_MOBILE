@@ -128,7 +128,7 @@ class _AddRERADocumentCategoryScreenState
                   textController: _reraDocumentCategoryC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Project Document RERA Category is required";
+                      return "Project Document RERA Category is required.";
                     }
                     return null;
                   },
@@ -141,7 +141,7 @@ class _AddRERADocumentCategoryScreenState
                   textController: _orderByC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Sequence is required";
+                      return "Sequence is required.";
                     }
                     return null;
                   },

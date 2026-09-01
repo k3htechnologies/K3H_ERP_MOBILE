@@ -287,7 +287,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Week Off Policy Name is required";
+                          return "Week Off Policy Name is required.";
                         }
 
                         return null;
@@ -305,7 +305,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Week Off Policy Code is required";
+                          return "Week Off Policy Code is required.";
                         }
 
                         return null;
@@ -322,7 +322,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Weekdays is required';
+                          return 'Weekdays is required.';
                         }
                         return null;
                       },
@@ -357,7 +357,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Weekday Starts On is required';
+                          return 'Weekday Starts On is required.';
                         }
 
                         return null;
@@ -403,7 +403,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Week Off 1 is required';
+                          return 'Week Off 1 is required.';
                         }
 
                         final weekOff1 =
@@ -521,7 +521,7 @@ class _AddWeekOffMasterScreenState extends State<AddWeekOffMasterScreen> {
                             validator: (value) {
                               if (_selectWeekOff2.isNotEmpty &&
                                   (value == null || value.isEmpty)) {
-                                return 'Weekly Off2 Type is required';
+                                return 'Weekly Off2 Type is required.';
                               }
                               return null;
                             },

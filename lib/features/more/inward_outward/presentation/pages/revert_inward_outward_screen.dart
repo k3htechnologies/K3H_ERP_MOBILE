@@ -98,7 +98,7 @@ class _RevertInwardOutwardScreenState extends State<RevertInwardOutwardScreen> {
                 },
                 validator: (value) {
                   if (value == null) {
-                    return "Revert Date is required";
+                    return "Revert Date is required.";
                   }
                   return null;
                 },
@@ -126,7 +126,7 @@ class _RevertInwardOutwardScreenState extends State<RevertInwardOutwardScreen> {
 
                 validator: (fileList) {
                   if (fileList == null || fileList.isEmpty) {
-                    return "Document is required";
+                    return "Document is required.";
                   }
                   return null;
                 },
@@ -141,7 +141,7 @@ class _RevertInwardOutwardScreenState extends State<RevertInwardOutwardScreen> {
                 maxLines: 4,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Remark is required";
+                    return "Remark is required.";
                   }
                   return null;
                 },

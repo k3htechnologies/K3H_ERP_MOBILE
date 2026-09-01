@@ -253,7 +253,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Payment Mode is required";
+                              return "Payment Mode is required.";
                             }
                             return null;
                           },
@@ -275,7 +275,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Bank Name is required";
+                              return "Bank Name is required.";
                             }
                             return null;
                           },
@@ -291,7 +291,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Account Number is required";
+                          return "Account Number is required.";
                         }
                         return null;
                       },
@@ -303,7 +303,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "IFSC Code is required";
+                          return "IFSC Code is required.";
                         }
                         return null;
                       },
@@ -353,7 +353,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Payment Type is required";
+                              return "Payment Type is required.";
                             }
                             return null;
                           },
@@ -382,7 +382,7 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
 
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Amount Paid is required";
+                              return "Amount Paid is required.";
                             }
 
                             final enteredAmount = double.tryParse(value) ?? 0;

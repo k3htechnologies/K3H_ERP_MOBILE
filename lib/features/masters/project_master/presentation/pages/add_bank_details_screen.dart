@@ -224,7 +224,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     inputFormatterList: InputValidator.textOnly(100),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Beneficiary Account Holder Name is required";
+                        return "Beneficiary Account Holder Name is required.";
                       }
                       return null;
                     },
@@ -245,7 +245,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                         dataFetchCallBack: _fetchBanks,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Bank Name is required";
+                            return "Bank Name is required.";
                           }
                           return null;
                         },
@@ -266,7 +266,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                         },
                         validator: (value) {
                           if (value == null || value['zAttributesId'] == -1) {
-                            return 'Account Type is required';
+                            return 'Account Type is required.';
                           }
                           return null;
                         },
@@ -290,7 +290,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                         },
                         validator: (value) {
                           if (value == null || value['zAttributesId'] == -1) {
-                            return 'Nature of Account is required';
+                            return 'Nature of Account is required.';
                           }
                           return null;
                         },
@@ -310,7 +310,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     inputFormatterList: InputValidator.digit(18),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Account Number is required";
+                        return "Account Number is required.";
                       }
                       return null;
                     },
@@ -323,7 +323,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     inputFormatterList: [LengthLimitingTextInputFormatter(200)],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Bank Branch Name is required";
+                        return "Bank Branch Name is required.";
                       }
                       return null;
                     },
@@ -337,7 +337,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                     inputFormatterList: InputValidator.ifscInputFormatters(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "IFSC Code is required";
+                        return "IFSC Code is required.";
                       }
                       if (value.trim().length != 11) {
                         return "IFSC Code must be 11 characters";

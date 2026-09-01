@@ -137,7 +137,7 @@ class _DuplicateBuildingProposedPlanScreenState
                           dataFetchCallBack: _fetchBuildings,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Applicable Buildings is required";
+                              return "Applicable Buildings is required.";
                             }
                             return null;
                           },

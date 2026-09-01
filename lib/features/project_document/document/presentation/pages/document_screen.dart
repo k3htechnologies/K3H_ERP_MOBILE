@@ -188,7 +188,7 @@ class _DocumentScreenState extends State<DocumentScreen>
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Document Name is required";
+                  return "Document Name is required.";
                 }
                 return null;
               },

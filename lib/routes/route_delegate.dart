@@ -464,9 +464,9 @@ import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/add_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
-import 'package:k3h_erp_app/main.dart';
 import '../features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
 import '../features/sales/sales_reports/achievement/presentation/pages/achievement_report_screen.dart';
+import 'package:k3h_erp_app/main.dart';
 
 String? authenticateAndAuthorizeRoute(GoRouterState state) {
   // SPLASH || LOGIN

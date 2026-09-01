@@ -189,7 +189,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
                       dataFetchCallBack: fetchStages,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Stage is required";
+                          return "Stage is required.";
                         }
                         return null;
                       },
@@ -207,7 +207,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
                       inputFormatterList: InputValidator.percentage(),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Percentage is required";
+                          return "Percentage is required.";
                         }
 
                         final number = double.tryParse(value);

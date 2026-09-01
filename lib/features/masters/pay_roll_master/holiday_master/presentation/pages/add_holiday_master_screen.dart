@@ -122,7 +122,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
                       inputFormatterList: InputValidator.textDigit(200),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Holiday Name is required";
+                          return "Holiday Name is required.";
                         }
                         return null;
                       },
@@ -147,7 +147,7 @@ class _AddHolidayMasterScreenState extends State<AddHolidayMasterScreen> {
                       },
                       validator: (file) {
                         if (file == null || file.isEmpty) {
-                          return "Holiday Image is required";
+                          return "Holiday Image is required.";
                         }
                         return null;
                       },

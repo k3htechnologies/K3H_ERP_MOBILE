@@ -989,7 +989,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             textController: _firstNameC,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'First name is required';
+                return 'First name is required.';
               }
               return null;
             },
@@ -1002,7 +1002,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             inputFormatterList: InputValidator.textOnly(50),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Middle name is required';
+                return 'Middle name is required.';
               }
               return null;
             },
@@ -1015,7 +1015,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             textController: _lastNameC,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Last name is required';
+                return 'Last name is required.';
               }
               return null;
             },
@@ -1034,7 +1034,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 },
                 validator: (value) {
                   if (value == null || value["zAttributesId"] == -1) {
-                    return 'Gender is required';
+                    return 'Gender is required.';
                   }
                   return null;
                 },
@@ -1061,7 +1061,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 },
                 validator: (val) {
                   if (val == null || val["zAttributesId"] == -1) {
-                    return 'Marital Status is required';
+                    return 'Marital Status is required.';
                   }
                   return null;
                 },
@@ -1085,7 +1085,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 },
                 validator: (val) {
                   if (val == null || val["zAttributesId"] == -1) {
-                    return 'Blood Group is required';
+                    return 'Blood Group is required.';
                   }
                   return null;
                 },
@@ -1098,7 +1098,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             initialDate: dateOfBirth,
             validator: (value) {
               if (value == null) {
-                return 'DOB is required';
+                return 'DOB is required.';
               }
               if (!InputValidator.isValidAge(value)) {
                 return 'Age should be greater than or equal to 18.';
@@ -1115,7 +1115,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Email Id is required';
+                return 'Email Id is required.';
               }
               if (!InputValidator.isValidEmail(value)) {
                 return 'Email Id is not valid';
@@ -1137,7 +1137,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             keyboardType: TextInputType.phone,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Personal Mobile Number is required';
+                return 'Personal Mobile Number is required.';
               }
               if (!InputValidator.isValidMobileNumber(value)) {
                 return 'Mobile number is not valid';
@@ -1186,7 +1186,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 },
                 validator: (val) {
                   if (val == null || val["zAttributesId"] == -1) {
-                    return 'Employment Type is required';
+                    return 'Employment Type is required.';
                   }
                   return null;
                 },
@@ -1210,7 +1210,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 },
                 validator: (val) {
                   if (val == null || val["zAttributesId"] == -1) {
-                    return 'Relation to Emergency Contact is required';
+                    return 'Relation to Emergency Contact is required.';
                   }
                   return null;
                 },
@@ -1226,7 +1226,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             inputFormatterList: InputValidator.digit(10),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Emergency Contact Number is required';
+                return 'Emergency Contact Number is required.';
               }
               if (!InputValidator.isValidMobileNumber(value)) {
                 return 'Mobile number is not valid';
@@ -1276,7 +1276,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Company is required';
+                return 'Company is required.';
               }
               return null;
             },
@@ -1294,7 +1294,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Department is required';
+                return 'Department is required.';
               }
               return null;
             },
@@ -1312,7 +1312,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Branch is required';
+                return 'Branch is required.';
               }
               return null;
             },
@@ -1330,7 +1330,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Designation is required';
+                return 'Designation is required.';
               }
               return null;
             },
@@ -1342,7 +1342,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             setValue: (value) => joiningDate = value,
             validator: (value) {
               if (value == null) {
-                return 'Joining Date is required';
+                return 'Joining Date is required.';
               }
               return null;
             },
@@ -1375,7 +1375,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Reporting Person is required';
+                        return 'Reporting Person is required.';
                       }
                       return null;
                     },
@@ -1473,7 +1473,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             inputFormatterList: [LengthLimitingTextInputFormatter(500)],
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Communication Address is required';
+                return 'Communication Address is required.';
               }
               return null;
             },
@@ -1488,7 +1488,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             inputFormatterList: [LengthLimitingTextInputFormatter(500)],
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Permanent Address is required';
+                return 'Permanent Address is required.';
               }
               return null;
             },
@@ -1541,7 +1541,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Bank Name is required';
+                return 'Bank Name is required.';
               }
               return null;
             },
@@ -1554,7 +1554,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             inputFormatterList: InputValidator.textDigit(50),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Bank Branch Name is required';
+                return 'Bank Branch Name is required.';
               }
               return null;
             },
@@ -1568,10 +1568,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             keyboardType: TextInputType.number,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Account Number is required';
+                return 'Account Number is required.';
               }
               if (!InputValidator.isValidAccountNumber(value)) {
-                return 'Valid Account Number is required';
+                return 'Valid Account Number is required.';
               }
               return null;
             },
@@ -1584,10 +1584,10 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             inputFormatterList: InputValidator.ifscInputFormatters(),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'IFSC Code is required';
+                return 'IFSC Code is required.';
               }
               if (!InputValidator.isValidIFSC(value)) {
-                return 'Valid IFSC Code is required';
+                return 'Valid IFSC Code is required.';
               }
               return null;
             },

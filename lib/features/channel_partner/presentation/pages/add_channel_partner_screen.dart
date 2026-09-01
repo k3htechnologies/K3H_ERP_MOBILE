@@ -711,7 +711,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Full Name is required";
+                      return "Full Name is required.";
                     }
                     return null;
                   },
@@ -767,7 +767,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         final mobile = value?.trim() ?? "";
                         final country = selectedMobileNoCountry.value;
                         if (value == null || value.isEmpty) {
-                          return "Mobile Number is required";
+                          return "Mobile Number is required.";
                         }
                         if (mobile.isNotEmpty) {
                           if ((mobile.length != country.mobileLength) ||
@@ -850,7 +850,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         },
                         validator: (value) {
                           if (value == null || value['zAttributesId'] == -1) {
-                            return "Company Type is required";
+                            return "Company Type is required.";
                           }
                           return null;
                         },
@@ -907,7 +907,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               if (companyTypeId == 2 &&
                                   (selectedValue == null ||
                                       selectedValue.isEmpty)) {
-                                return "Company is required";
+                                return "Company is required.";
                               }
                               return null;
                             },
@@ -926,7 +926,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                             validator: (value) {
                               if (companyTypeId == 1 &&
                                   (value == null || value.trim().isEmpty)) {
-                                return "Company Name is required";
+                                return "Company Name is required.";
                               }
                               return null;
                             },
@@ -950,7 +950,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                   if (companyTypeId == 1 &&
                                       (value == null ||
                                           value['zAttributesId'] == -1)) {
-                                    return "Firms Type is required";
+                                    return "Firms Type is required.";
                                   }
                                   return null;
                                 },
@@ -996,7 +996,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                       },
                       validator: (val) {
                         if (val == null) {
-                          return "Designation is required";
+                          return "Designation is required.";
                         }
                         return null;
                       },
@@ -1023,7 +1023,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           },
                           validator: (value) {
                             if (value == null) {
-                              return "Type is required";
+                              return "Type is required.";
                             }
                             return null;
                           },
@@ -1092,7 +1092,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               validator: (value) {
                                 if (hasRera &&
                                     (value == null || value.trim().isEmpty)) {
-                                  return "RERA Number is required";
+                                  return "RERA Number is required.";
                                 }
                                 return null;
                               },
@@ -1117,7 +1117,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   },
                   validator: (value) {
                     if (value == null || value["zAttributesId"] == -1) {
-                      return "Speciality is required";
+                      return "Speciality is required.";
                     }
                     return null;
                   },
@@ -1148,7 +1148,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               InputValidator.aadhaarNumberInputFormatter(),
                           validator: (value) {
                             if (hasFile && (value == null || value.isEmpty)) {
-                              return "Aadhaar Card Number is required";
+                              return "Aadhaar Card Number is required.";
                             }
 
                             if (value != null && value.isNotEmpty) {
@@ -1195,7 +1195,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           validator: (fileList) {
                             if (hasAadhaar &&
                                 (fileList == null || fileList.isEmpty)) {
-                              return "Aadhaar Card document is required";
+                              return "Aadhaar Card document is required.";
                             }
 
                             return null;
@@ -1223,7 +1223,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               InputValidator.panInputFormatters(),
                           validator: (value) {
                             if (hasFile && (value == null || value.isEmpty)) {
-                              return "PAN Number is required";
+                              return "PAN Number is required.";
                             }
 
                             if (value != null && value.isNotEmpty) {
@@ -1268,7 +1268,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                           validator: (fileList) {
                             if (hasPan &&
                                 (fileList == null || fileList.isEmpty)) {
-                              return "PAN Card document is required";
+                              return "PAN Card document is required.";
                             }
                             return null;
                           },
@@ -1303,7 +1303,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
 
                                 if (hasFile &&
                                     (value == null || value.isEmpty)) {
-                                  return "GST Number is required";
+                                  return "GST Number is required.";
                                 }
 
                                 if (value != null && value.isNotEmpty) {
@@ -1367,7 +1367,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                               validator: (fileList) {
                                 if (hasGst &&
                                     (fileList == null || fileList.isEmpty)) {
-                                  return "GST Certificate document is required";
+                                  return "GST Certificate document is required.";
                                 }
                                 return null;
                               },
@@ -1418,7 +1418,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   hint: "Enter Office Address",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Office Address is required";
+                      return "Office Address is required.";
                     }
                     return null;
                   },

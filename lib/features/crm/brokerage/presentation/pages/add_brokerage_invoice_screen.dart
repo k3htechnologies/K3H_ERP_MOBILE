@@ -177,7 +177,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   inputFormatterList: InputValidator.digitAndCharacterOnly(15),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Invoice Number is required";
+                      return "Invoice Number is required.";
                     }
                     if (value.trim().isNotEmpty &&
                         !InputValidator.isValidInvoiceNumber(value.trim())) {
@@ -194,7 +194,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   setValue: (value) => invoiceDate = value,
                   validator: (value) {
                     if (value == null) {
-                      return 'Invoice Date is required';
+                      return 'Invoice Date is required.';
                     }
                     return null;
                   },
@@ -222,7 +222,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
 
                   validator: (fileList) {
                     if (fileList == null || fileList.isEmpty) {
-                      return "Invoice document is required";
+                      return "Invoice document is required.";
                     }
                     return null;
                   },
@@ -244,7 +244,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                       dataFetchCallBack: _fetchBanks,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Bank Name is required";
+                          return "Bank Name is required.";
                         }
                         return null;
                       },
@@ -260,7 +260,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Account Holder Name is required";
+                      return "Account Holder Name is required.";
                     }
                     return null;
                   },
@@ -274,7 +274,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   inputFormatterList: InputValidator.digit(18),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Account Number is required";
+                      return "Account Number is required.";
                     }
                     return null;
                   },
@@ -287,10 +287,10 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   inputFormatterList: InputValidator.ifscInputFormatters(),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return 'IFSC Code is required';
+                      return 'IFSC Code is required.';
                     }
                     if (!InputValidator.isValidIFSC(value)) {
-                      return 'Valid IFSC Code is required';
+                      return 'Valid IFSC Code is required.';
                     }
                     return null;
                   },
@@ -304,7 +304,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Invoice Amount is required";
+                      return "Invoice Amount is required.";
                     }
                     if ((double.tryParse(value) ?? 0) >
                         widget.brokerageModel.brokerageAmount) {

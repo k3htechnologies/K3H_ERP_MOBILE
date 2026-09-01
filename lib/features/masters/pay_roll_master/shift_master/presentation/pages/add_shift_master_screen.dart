@@ -454,7 +454,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             initialTime: parseTimeOfDayFromHHmm(shiftBeginTime),
             validator: (value) {
               if (value == null) {
-                return "Shift Begin Time is required";
+                return "Shift Begin Time is required.";
               }
               return null;
             },
@@ -471,7 +471,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             initialTime: parseTimeOfDayFromHHmm(shiftEndTime),
             validator: (value) {
               if (value == null) {
-                return "Shift End Time is required";
+                return "Shift End Time is required.";
               }
 
               final selected = formatTimeOfDayHHmm(value);
@@ -517,7 +517,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             initialTime: parseTimeOfDayFromHHmm(breakBeginTime),
             validator: (value) {
               if (value == null) {
-                return "Break Begin Time is required";
+                return "Break Begin Time is required.";
               }
               return null;
             },
@@ -532,7 +532,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             initialTime: parseTimeOfDayFromHHmm(breakEndTime),
             validator: (value) {
               if (value == null) {
-                return "Break End Time is required";
+                return "Break End Time is required.";
               }
 
               final selected = formatTimeOfDayHHmm(value);
@@ -585,7 +585,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             initialTime: parseTimeOfDayFromHHmm(firstHalfUpTo),
             validator: (value) {
               if (value == null) {
-                return "First Half Up To is required";
+                return "First Half Up To is required.";
               }
               return null;
             },
@@ -721,7 +721,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
             },
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return "Grace Time is required";
+                return "Grace Time is required.";
               }
               return null;
             },
@@ -742,7 +742,7 @@ class _AddShiftMasterScreenState extends State<AddShiftMasterScreen> {
               validator: (value) {
                 if (_selectedLateArrivalAction != null &&
                     (value == null || value.trim().isEmpty)) {
-                  return "Late Count is required";
+                  return "Late Count is required.";
                 }
                 return null;
               },

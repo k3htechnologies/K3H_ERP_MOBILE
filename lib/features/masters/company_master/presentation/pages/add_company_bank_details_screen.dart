@@ -271,7 +271,7 @@ class _AddCompanyBankDetailsScreenState
                         inputFormatterList: InputValidator.textOnly(100),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Beneficiary Account Holder Name is required";
+                            return "Beneficiary Account Holder Name is required.";
                           }
                           return null;
                         },
@@ -292,7 +292,7 @@ class _AddCompanyBankDetailsScreenState
                             dataFetchCallBack: _fetchBanks,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return "Bank Name is required";
+                                return "Bank Name is required.";
                               }
                               return null;
                             },
@@ -314,7 +314,7 @@ class _AddCompanyBankDetailsScreenState
                             validator: (value) {
                               if (value == null ||
                                   value['zAttributesId'] == -1) {
-                                return 'Account Type is required';
+                                return 'Account Type is required.';
                               }
                               return null;
                             },
@@ -339,7 +339,7 @@ class _AddCompanyBankDetailsScreenState
                             validator: (value) {
                               if (value == null ||
                                   value['zAttributesId'] == -1) {
-                                return 'Nature of Account is required';
+                                return 'Nature of Account is required.';
                               }
                               return null;
                             },
@@ -359,7 +359,7 @@ class _AddCompanyBankDetailsScreenState
                         inputFormatterList: InputValidator.digit(18),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Account Number is required";
+                            return "Account Number is required.";
                           }
                           return null;
                         },
@@ -374,7 +374,7 @@ class _AddCompanyBankDetailsScreenState
                         ],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Bank Branch Name is required";
+                            return "Bank Branch Name is required.";
                           }
                           return null;
                         },
@@ -388,7 +388,7 @@ class _AddCompanyBankDetailsScreenState
                             InputValidator.ifscInputFormatters(),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "IFSC Code is required";
+                            return "IFSC Code is required.";
                           }
                           if (value.trim().length != 11) {
                             return "IFSC Code must be 11 characters";
@@ -404,7 +404,7 @@ class _AddCompanyBankDetailsScreenState
                         inputFormatterList: InputValidator.digit(10),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "MICR Code is required";
+                            return "MICR Code is required.";
                           }
                           if (value.trim().length != 10) {
                             return "MICR Code must be at most 10 Digit";
@@ -426,7 +426,7 @@ class _AddCompanyBankDetailsScreenState
                             },
                             validator: (value) {
                               if (value == null) {
-                                return 'Status is required';
+                                return 'Status is required.';
                               }
                               return null;
                             },
@@ -457,7 +457,7 @@ class _AddCompanyBankDetailsScreenState
                         },
                         validator: (value) {
                           if ((value == null || value.isEmpty)) {
-                            return "Cancel Cheque is required";
+                            return "Cancel Cheque is required.";
                           }
                           return null;
                         },

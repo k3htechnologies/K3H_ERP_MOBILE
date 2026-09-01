@@ -243,7 +243,7 @@ class _AddWeekOffMappingMasterScreenState
                               _weekOffMappingMasterCubit.fetchWeekOff,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Week off Policy Name is required";
+                              return "Week off Policy Name is required.";
                             }
                             return null;
                           },
@@ -305,7 +305,7 @@ class _AddWeekOffMappingMasterScreenState
                                       if ((state.selectedOption.toLowerCase() ==
                                               state.options[0].toLowerCase()) &&
                                           (value == null || value.isEmpty)) {
-                                        return "Employee is required";
+                                        return "Employee is required.";
                                       }
                                       return null;
                                     },
@@ -417,7 +417,7 @@ class _AddWeekOffMappingMasterScreenState
                                       if ((state.selectedOption.toLowerCase() ==
                                               state.options[1].toLowerCase()) &&
                                           (value == null || value.isEmpty)) {
-                                        return "Department is required";
+                                        return "Department is required.";
                                       }
                                       return null;
                                     },

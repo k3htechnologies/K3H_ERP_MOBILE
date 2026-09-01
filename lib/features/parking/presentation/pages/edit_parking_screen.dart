@@ -373,7 +373,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Parking Number is required';
+                      return 'Parking Number is required.';
                     }
                     return null;
                   },
@@ -393,7 +393,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       dataList: _parkingCategoryList,
                       validator: (value) {
                         if (value == null || value['zAttributesId'] == -1) {
-                          return 'Parking Category is required';
+                          return 'Parking Category is required.';
                         }
                         return null;
                       },
@@ -426,7 +426,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       validator: (value) {
                         if (typeValue == null ||
                             selectedType.value!['zAttributesId'] == -1) {
-                          return 'Parking Type is required';
+                          return 'Parking Type is required.';
                         }
                         return null;
                       },
@@ -455,7 +455,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       dataList: _parkingSizeTypeList,
                       validator: (value) {
                         if (value == null || value['zAttributesId'] == -1) {
-                          return 'Parking Sub Type is required';
+                          return 'Parking Sub Type is required.';
                         }
                         return null;
                       },
@@ -478,7 +478,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Parking Dimensions are required';
+                      return 'Parking Dimensions are required.';
                     }
                     return null;
                   },
@@ -496,7 +496,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                       dataList: _parkingStatusList,
                       validator: (value) {
                         if (value == null || value['zAttributesId'] == -1) {
-                          return 'Parking Status is required';
+                          return 'Parking Status is required.';
                         }
                         return null;
                       },

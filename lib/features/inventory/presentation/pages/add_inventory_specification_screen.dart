@@ -523,7 +523,7 @@ class _AddInventorySpecificationScreenState
                           ],
                           validator: (string) {
                             if (string == null) {
-                              return 'Unit is required';
+                              return 'Unit is required.';
                             }
                             return null;
                           },
@@ -549,7 +549,7 @@ class _AddInventorySpecificationScreenState
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Unit Type is required';
+                              return 'Unit Type is required.';
                             }
                             return null;
                           },
@@ -584,7 +584,7 @@ class _AddInventorySpecificationScreenState
                                 },
                                 validator: (value) {
                                   if (value == null) {
-                                    return 'Unit Configuration is required';
+                                    return 'Unit Configuration is required.';
                                   }
                                   return null;
                                 },
@@ -610,7 +610,7 @@ class _AddInventorySpecificationScreenState
                                 },
                                 validator: (value) {
                                   if (value == null) {
-                                    return 'Unit Configuration is required';
+                                    return 'Unit Configuration is required.';
                                   }
                                   return null;
                                 },
@@ -642,7 +642,7 @@ class _AddInventorySpecificationScreenState
 
                         final recalculated = _flatSqftC.text.trim();
                         if (recalculated.isEmpty) {
-                          return 'Area is required';
+                          return 'Area is required.';
                         }
 
                         final parsed = double.tryParse(recalculated);
@@ -684,7 +684,7 @@ class _AddInventorySpecificationScreenState
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Facing is required';
+                              return 'Facing is required.';
                             }
                             return null;
                           },
@@ -712,7 +712,7 @@ class _AddInventorySpecificationScreenState
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Status is required';
+                              return 'Status is required.';
                             }
                             return null;
                           },

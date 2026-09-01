@@ -339,7 +339,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                           InputValidator.vehicleInputFormatters(),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Vehicle Number is required";
+                          return "Vehicle Number is required.";
                         }
 
                         if (value.isNotEmpty) {
@@ -360,7 +360,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                           InputValidator.challanInputFormatters(),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Challan Number is required";
+                          return "Challan Number is required.";
                         }
 
                         if (value.isNotEmpty) {
@@ -394,7 +394,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       },
                       validator: (fileList) {
                         if (fileList == null || fileList.isEmpty) {
-                          return "Challan Document is required";
+                          return "Challan Document is required.";
                         }
                         return null;
                       },
@@ -409,7 +409,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       minLines: 3,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Remark is required";
+                          return "Remark is required.";
                         }
 
                         return null;

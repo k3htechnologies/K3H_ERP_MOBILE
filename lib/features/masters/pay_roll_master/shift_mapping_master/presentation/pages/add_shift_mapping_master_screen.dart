@@ -229,7 +229,7 @@ class _AddShiftMappingMasterScreenState
                       dataFetchCallBack: _shiftMappingMasterCubit.fetchShift,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Shift Name is required";
+                          return "Shift Name is required.";
                         }
                         return null;
                       },

@@ -165,7 +165,7 @@ class _CopyMaterialRequisitionScreenState
                           keyboardType: TextInputType.numberWithOptions(),
                           validator: (value) {
                             if (value == null || value == "") {
-                              return "Quantity is required";
+                              return "Quantity is required.";
                             }
                             return null;
                           },

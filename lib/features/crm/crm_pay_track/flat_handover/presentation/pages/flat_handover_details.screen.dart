@@ -431,7 +431,7 @@ class _FlatHandoverDetailsScreenState extends State<FlatHandoverDetailsScreen> {
                   isRequired: true,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Remark is required";
+                      return "Remark is required.";
                     }
                     return null;
                   },

@@ -271,7 +271,7 @@ class ApproveRejectWidget extends StatelessWidget {
               textController: remarkController,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Remark is required';
+                  return 'Remark is required.';
                 }
                 if (value.trim().length < 10) {
                   return 'Remark must be at least 10 characters';

@@ -212,7 +212,7 @@ class _UpdateRegistrationDateParkingScreenState
                                   (value) => finalRegisterationDate = value,
                               validator: (value) {
                                 if (isChecked && value == null) {
-                                  return "Final Registration Date is required";
+                                  return "Final Registration Date is required.";
                                 }
                                 return null;
                               },
@@ -312,7 +312,7 @@ class _UpdateRegistrationDateParkingScreenState
                                   },
                                   validator: (fileList) {
                                     if (fileList == null || fileList.isEmpty) {
-                                      return "Final Registered Agreement is required";
+                                      return "Final Registered Agreement is required.";
                                     }
                                     return null;
                                   },

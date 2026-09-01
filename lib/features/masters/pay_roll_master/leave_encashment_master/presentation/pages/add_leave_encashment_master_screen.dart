@@ -209,7 +209,7 @@ class _AddLeaveEncashmentMasterScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Earning Name is required";
+                          return "Earning Name is required.";
                         }
                         return null;
                       },
@@ -228,7 +228,7 @@ class _AddLeaveEncashmentMasterScreenState
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Encashment rate is required";
+                          return "Encashment rate is required.";
                         }
 
                         final rate = double.tryParse(value.trim());

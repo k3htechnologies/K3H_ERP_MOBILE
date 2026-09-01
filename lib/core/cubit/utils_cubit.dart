@@ -118,4 +118,31 @@ class UtilsCubit extends Cubit<UtilsState> {
       },
     );
   }
+
+  Future<String> getMagicLinkWithValidate({
+    required BuildContext context,
+    required String magicLinkType,
+    required int clientRegistrationId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    emit(state.copyWith(isLoading: true));
+    var result = await utilsRepository.getMagicLinkWithValidate(
+      clientRegistrationId: clientRegistrationId,
+      magicLinkType: magicLinkType,
+      queryParams: queryParams,
+    );
+    goRouter.pop();
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return '';
+      },
+      (response) {
+        emit(state.copyWith(isLoading: false));
+        return response['data'] ?? '';
+      },
+    );
+  }
 }

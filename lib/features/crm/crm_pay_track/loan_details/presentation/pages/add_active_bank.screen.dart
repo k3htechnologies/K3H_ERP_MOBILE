@@ -210,7 +210,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                           dataFetchCallBack: _fetchBanks,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Bank Name is required";
+                              return "Bank Name is required.";
                             }
                             return null;
                           },
@@ -228,7 +228,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       inputFormatterList: InputValidator.textDigit(50),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Bank Branch Name is required";
+                          return "Bank Branch Name is required.";
                         }
                         return null;
                       },
@@ -242,7 +242,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       inputFormatterList: InputValidator.digit(18),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Account Number is required";
+                          return "Account Number is required.";
                         }
                         return null;
                       },
@@ -258,7 +258,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Loan Sanction Amount is required";
+                          return "Loan Sanction Amount is required.";
                         }
 
                         final enteredAmount = double.tryParse(
@@ -286,7 +286,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       setValue: (value) => sanctionDate = value,
                       validator: (value) {
                         if (value == null) {
-                          return 'Sanction Date is required';
+                          return 'Sanction Date is required.';
                         }
                         return null;
                       },
@@ -304,7 +304,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Address is required";
+                          return "Address is required.";
                         }
                         return null;
                       },

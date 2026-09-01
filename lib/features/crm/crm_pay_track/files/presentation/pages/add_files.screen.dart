@@ -127,7 +127,7 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "File Name is required";
+                          return "File Name is required.";
                         }
                         return null;
                       },
@@ -153,7 +153,7 @@ class _AddFilesScreenState extends State<AddFilesScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "File is required";
+                          return "File is required.";
                         }
                         return null;
                       },

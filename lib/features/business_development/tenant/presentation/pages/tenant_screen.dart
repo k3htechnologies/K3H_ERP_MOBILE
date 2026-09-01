@@ -533,7 +533,7 @@ class _TenantScreenState extends State<TenantScreen> {
                             dataFetchCallBack: _fetchBuildings,
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return "Building is required";
+                                return "Building is required.";
                               }
                               return null;
                             },

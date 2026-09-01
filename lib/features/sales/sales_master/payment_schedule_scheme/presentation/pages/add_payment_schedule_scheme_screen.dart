@@ -189,7 +189,7 @@ class _AddPaymentScheduleSchemeScreenState
                       textController: _schemeNameC,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Scheme name is required";
+                          return "Scheme name is required.";
                         }
                         return null;
                       },

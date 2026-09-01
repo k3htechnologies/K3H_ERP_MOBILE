@@ -134,7 +134,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Branch Name is required';
+                          return 'Branch Name is required.';
                         }
                         return null;
                       },
@@ -151,7 +151,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Branch Code is required';
+                          return 'Branch Code is required.';
                         }
                         return null;
                       },
@@ -168,7 +168,7 @@ class _AddBranchMasterScreenState extends State<AddBranchMasterScreen> {
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Location is required';
+                          return 'Location is required.';
                         }
                         return null;
                       },

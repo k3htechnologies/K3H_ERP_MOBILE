@@ -1111,7 +1111,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Document Name is required";
+                  return "Document Name is required.";
                 }
                 if (value.length < 3) {
                   return "Document Name must be at least 3 characters long";
@@ -1267,7 +1267,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               setValue: (value) => closureDate = value,
                               validator: (value) {
                                 if (value == null) {
-                                  return "Closure Date is required";
+                                  return "Closure Date is required.";
                                 }
                                 return null;
                               },
@@ -1290,7 +1290,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "File is required";
+                                  return "File is required.";
                                 }
                                 return null;
                               },
@@ -1306,7 +1306,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                               minLines: 3,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return "Remarks is required";
+                                  return "Remarks is required.";
                                 }
                                 return null;
                               },

@@ -709,7 +709,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                 },
                                 validator: (value) {
                                   if (value == null) {
-                                    return "Punch In Time Required";
+                                    return "Punch In Time required.";
                                   }
                                   return null;
                                 },
@@ -730,7 +730,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                 },
                                 validator: (value) {
                                   if (value == null) {
-                                    return "Punch Out Time Required";
+                                    return "Punch Out Time required.";
                                   }
                                   return null;
                                 },
@@ -743,7 +743,7 @@ class _AttendanceScreenState extends State<AttendanceScreen>
                                 textController: reasonC,
                                 validator: (value) {
                                   if (value == null || value.isEmpty) {
-                                    return "Reason Required";
+                                    return "Reason required.";
                                   }
                                   return null;
                                 },

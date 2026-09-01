@@ -405,7 +405,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                               validator: (value) {
                                 if ((value == null || value.isEmpty) &&
                                     _selectedMaterial.value == null) {
-                                  return "Material is required";
+                                  return "Material is required.";
                                 }
                                 return null;
                               },
@@ -436,7 +436,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                                   validator: (value) {
                                     if ((value == null || value.isEmpty) &&
                                         _selectedSubMaterial.value == null) {
-                                      return "Sub material is required";
+                                      return "Sub material is required.";
                                     }
                                     return null;
                                   },
@@ -472,7 +472,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
                             if (value == null ||
                                 value.trim().isEmpty ||
                                 value == '0') {
-                              return "Received Quantity is required";
+                              return "Received Quantity is required.";
                             }
 
                             final receivedQty = double.tryParse(value) ?? 0;

@@ -203,7 +203,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Leave Type is required';
+                              return 'Leave Type is required.';
                             }
                             return null;
                           },
@@ -227,7 +227,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                 },
                                 validator: (value) {
                                   if (value == null) {
-                                    return 'Start Date is required';
+                                    return 'Start Date is required.';
                                   }
                                   return null;
                                 },
@@ -253,7 +253,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                                     },
                                     validator: (value) {
                                       if (value == null) {
-                                        return 'End Date is required';
+                                        return 'End Date is required.';
                                       }
 
                                       if (startDate != null) {
@@ -300,7 +300,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           },
                           validator: (value) {
                             if (value == null || value["zAttributesId"] == -1) {
-                              return 'Start Duration is required';
+                              return 'Start Duration is required.';
                             }
                             return null;
                           },
@@ -326,7 +326,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                           },
                           validator: (value) {
                             if (value == null || value["zAttributesId"] == -1) {
-                              return 'End Duration is required';
+                              return 'End Duration is required.';
                             }
                             return null;
                           },
@@ -340,7 +340,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                     FormField<String>(
                       validator: (_) {
                         if (_totalDaysC.text.isEmpty) {
-                          return 'Total Days is required';
+                          return 'Total Days is required.';
                         }
                         return null;
                       },
@@ -368,7 +368,7 @@ class _ApplyLeaveScreenState extends State<ApplyLeaveScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Reason is required';
+                          return 'Reason is required.';
                         }
                         return null;
                       },

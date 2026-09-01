@@ -275,7 +275,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Material is required";
+                                  return "Material is required.";
                                 }
                                 return null;
                               },
@@ -304,7 +304,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Sub material is required";
+                                      return "Sub material is required.";
                                     }
                                     return null;
                                   },
@@ -333,7 +333,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                               },
                               validator: (value) {
                                 if (value == null) {
-                                  return 'Date is required';
+                                  return 'Date is required.';
                                 }
                                 return null;
                               },
@@ -349,7 +349,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                           textController: _quantityC,
                           validator: (value) {
                             if (value == null || value == "") {
-                              return "Quantity is required";
+                              return "Quantity is required.";
                             }
                             return null;
                           },

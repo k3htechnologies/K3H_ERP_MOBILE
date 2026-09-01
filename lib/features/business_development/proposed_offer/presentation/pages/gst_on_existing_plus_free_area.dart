@@ -144,7 +144,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                           onChangeFunction: (p0) => updateTotal(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "GST on area by member percent is required";
+                              return "GST on area by member percent is required.";
                             }
                             return null;
                           },
@@ -162,7 +162,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                           inputFormatterList: InputValidator.percentage(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "GST on area by developer percent is required";
+                              return "GST on area by developer percent is required.";
                             }
                             return null;
                           },

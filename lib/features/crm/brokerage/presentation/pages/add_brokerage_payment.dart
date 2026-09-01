@@ -155,7 +155,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Payment Mode is required";
+                          return "Payment Mode is required.";
                         }
                         return null;
                       },
@@ -181,7 +181,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                       dataFetchCallBack: _fetchBanks,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Bank Name is required";
+                          return "Bank Name is required.";
                         }
                         return null;
                       },
@@ -222,7 +222,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Payment Type is required";
+                          return "Payment Type is required.";
                         }
                         return null;
                       },
@@ -270,7 +270,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
 
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Brokerage Amount is required";
+                          return "Brokerage Amount is required.";
                         }
                         return null;
                       },
@@ -295,7 +295,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                   hint: "Enter Transaction/Cheque/Demand Draft No.",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Transaction/Cheque/Demand Draft No.is required";
+                      return "Transaction/Cheque/Demand Draft No.is required.";
                     }
                     return null;
                   },
@@ -312,7 +312,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Transaction/Cheque/Demand Draft Image is required";
+                      return "Transaction/Cheque/Demand Draft Image is required.";
                     }
                     return null;
                   },

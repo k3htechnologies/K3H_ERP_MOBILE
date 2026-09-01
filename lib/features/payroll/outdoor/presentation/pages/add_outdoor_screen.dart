@@ -272,7 +272,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                       initialDate: outdoorDate,
                       validator: (value) {
                         if (value == null) {
-                          return 'Outdoor Date is required';
+                          return 'Outdoor Date is required.';
                         }
                         return null;
                       },
@@ -288,7 +288,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                       initialTime: initialMeetingTime,
                       validator: (value) {
                         if (value == null) {
-                          return "Meeting Time is required";
+                          return "Meeting Time is required.";
                         }
                         return null;
                       },
@@ -302,7 +302,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                       maxLines: 3,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Company Address is required';
+                          return 'Company Address is required.';
                         }
                         return null;
                       },
@@ -330,7 +330,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                               },
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Employee is required';
+                                  return 'Employee is required.';
                                 }
                                 return null;
                               },
@@ -346,7 +346,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                       textController: _companyNameC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Company Name is required';
+                          return 'Company Name is required.';
                         }
                         return null;
                       },
@@ -370,7 +370,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Department is required';
+                              return 'Department is required.';
                             }
                             return null;
                           },
@@ -403,7 +403,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
                       textController: _purposeC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Purpose is required';
+                          return 'Purpose is required.';
                         }
                         return null;
                       },

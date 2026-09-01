@@ -89,6 +89,11 @@ abstract interface class UtilsRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getMagicLinkWithValidate({
+    required String magicLinkType,
+    required int clientRegistrationId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class UtilsRepositoryImpl implements UtilsRepository {
@@ -404,6 +409,24 @@ class UtilsRepositoryImpl implements UtilsRepository {
       var result = await _utilsDatasource.apiCallPullVillage(
         pageNumber: pageNumber,
         pageSize: pageSize,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getMagicLinkWithValidate({
+    required String magicLinkType,
+    required int clientRegistrationId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await _utilsDatasource.apiCallPullMagicLinkWithValidate(
+        magicLinkType: magicLinkType,
+        clientRegistrationId: clientRegistrationId,
         queryParams: queryParams,
       );
       return right(result);

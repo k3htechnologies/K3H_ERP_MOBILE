@@ -277,7 +277,7 @@ class _AssignTicketMasterState extends State<AssignTicketMaster> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Primary Assignee is required";
+                                      return "Primary Assignee is required.";
                                     }
                                     return null;
                                   },
@@ -340,7 +340,7 @@ class _AssignTicketMasterState extends State<AssignTicketMaster> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Payment Mode is required";
+                                      return "Payment Mode is required.";
                                     }
                                     return null;
                                   },

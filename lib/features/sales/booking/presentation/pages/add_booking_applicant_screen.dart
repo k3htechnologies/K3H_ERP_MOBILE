@@ -378,7 +378,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                             (value) => selectedApplicantType.value = value,
                         validator: (value) {
                           if (value == null) {
-                            return "Applicant Type is required";
+                            return "Applicant Type is required.";
                           }
                           return null;
                         },
@@ -402,7 +402,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     inputFormatterList: InputValidator.textOnly(100),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Applicant Name is required";
+                        return "Applicant Name is required.";
                       }
                       return null;
                     },
@@ -432,7 +432,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                           final mobile = value?.trim() ?? "";
                           final country = selectedMobileNoCountry.value;
                           if (value == null || value.isEmpty) {
-                            return "Mobile Number is required";
+                            return "Mobile Number is required.";
                           }
                           if (mobile.isNotEmpty) {
                             // LENGTH AND REGEX VALIDATION
@@ -456,7 +456,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     inputFormatterList: InputValidator.emailInputFormatters(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Email Id is required";
+                        return "Email Id is required.";
                       }
                       if (!InputValidator.isValidEmail(value)) {
                         return "Invalid Email Id";
@@ -485,7 +485,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Profile Photo is required";
+                        return "Profile Photo is required.";
                       }
                       return null;
                     },
@@ -500,7 +500,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Aadhaar Card Number is required";
+                        return "Aadhaar Card Number is required.";
                       }
                       if (value.trim().isNotEmpty &&
                           !InputValidator.isValidAadharNumber(value.trim())) {
@@ -530,7 +530,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                     validator: (fileList) {
                       if (fileList == null || fileList.isEmpty) {
-                        return "Aadhaar Card document is required";
+                        return "Aadhaar Card document is required.";
                       }
                       return null;
                     },
@@ -543,7 +543,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "PAN Number is required";
+                        return "PAN Number is required.";
                       }
                       if (!InputValidator.isValidPAN(value)) {
                         return "PAN Number is invalid";
@@ -573,12 +573,12 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                     validator: (fileList) {
                       if (fileList == null || fileList.isEmpty) {
-                        return "PAN Card document is required";
+                        return "PAN Card document is required.";
                       }
                       if (_panC.text.isNotEmpty &&
                           InputValidator.isValidPAN(_panC.text.trim()) &&
                           (fileList.isEmpty)) {
-                        return "PAN Card document is required";
+                        return "PAN Card document is required.";
                       }
                       return null;
                     },
@@ -592,7 +592,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     validator: (value) {
                       if (passportFile.fileNameList.isNotEmpty) {
                         if (value == null || value.isEmpty) {
-                          return "Passport Number is required";
+                          return "Passport Number is required.";
                         }
                         if (!InputValidator.isValidPassport(value)) {
                           return "Passport Number is invalid";
@@ -631,7 +631,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                             _passportC.text.trim(),
                           ) &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Passport document is required";
+                        return "Passport document is required.";
                       }
                       return null;
                     },
@@ -645,7 +645,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     validator: (value) {
                       if (drivingLicenseFile.fileNameList.isNotEmpty) {
                         if (value == null || value.isEmpty) {
-                          return "Driving License Number is required";
+                          return "Driving License Number is required.";
                         }
                         if (!InputValidator.isValidDrivingLicence(value)) {
                           return "Driving License Number invalid";
@@ -684,7 +684,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                             _drivingLicenseC.text.trim(),
                           ) &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Driving License document is required";
+                        return "Driving License document is required.";
                       }
                       return null;
                     },
@@ -697,7 +697,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     validator: (value) {
                       if (votingIdFile.fileNameList.isNotEmpty) {
                         if (value == null || value.isEmpty) {
-                          return "Voting Id is required";
+                          return "Voting Id is required.";
                         }
                         if (!InputValidator.isValidVoterId(value)) {
                           return "Voting Id is invalid";
@@ -736,7 +736,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                             _votingIdC.text.trim(),
                           ) &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Voting Id document is required";
+                        return "Voting Id document is required.";
                       }
                       return null;
                     },
@@ -749,7 +749,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     validator: (value) {
                       if (gstFile.fileNameList.isNotEmpty) {
                         if (value == null || value.isEmpty) {
-                          return "GST Number is required";
+                          return "GST Number is required.";
                         }
                         if (!InputValidator.isValidGST(value)) {
                           return "GST Number is invalid";
@@ -786,7 +786,7 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                       if (_gstC.text.isNotEmpty &&
                           InputValidator.isValidGST(_gstC.text.trim()) &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "GST Certificate document is required";
+                        return "GST Certificate document is required.";
                       }
                       return null;
                     },

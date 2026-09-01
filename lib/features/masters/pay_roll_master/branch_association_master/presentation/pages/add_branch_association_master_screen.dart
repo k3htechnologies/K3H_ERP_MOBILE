@@ -278,7 +278,7 @@ class _AddBranchAssociationMasterScreenState
                           dataFetchCallBack: _fetchBranch,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Branch is required";
+                              return "Branch is required.";
                             }
                             return null;
                           },
@@ -305,7 +305,7 @@ class _AddBranchAssociationMasterScreenState
                               dataFetchCallBack: _fetchEmployees,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Employee is required";
+                                  return "Employee is required.";
                                 }
                                 return null;
                               },

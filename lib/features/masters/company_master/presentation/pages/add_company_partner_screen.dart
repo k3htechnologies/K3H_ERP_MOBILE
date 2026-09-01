@@ -249,7 +249,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     initialDate: dateOfBirth,
                     setValue: (value) => dateOfBirth = value,
                     validator: (value) {
-                      if (value == null) return "Date of Birth is required";
+                      if (value == null) return "Date of Birth is required.";
                       if (!InputValidator.isValidAge(value)) {
                         return 'Age should be greater than or equal to 18.';
                       }
@@ -270,7 +270,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                         },
                         validator: (value) {
                           if (value == null || value["zAttributesId"] == -1) {
-                            return 'Gender is required';
+                            return 'Gender is required.';
                           }
                           return null;
                         },
@@ -289,7 +289,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     inputFormatterList: InputValidator.digit(10),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Mobile is required";
+                        return "Mobile is required.";
                       }
                       if (!InputValidator.isValidMobileNumber(value)) {
                         return "Invalid mobile number";
@@ -305,7 +305,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     inputFormatterList: InputValidator.emailInputFormatters(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Email Id is required";
+                        return "Email Id is required.";
                       }
                       if (!InputValidator.isValidEmail(value)) {
                         return "Invalid email address";
@@ -326,7 +326,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     ],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Share % is required";
+                        return "Share % is required.";
                       }
                       final parsed = double.tryParse(value);
                       if (parsed == null || parsed <= 0 || parsed > 100) {
@@ -364,7 +364,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
                       if ((value == null || value.trim().isEmpty)) {
-                        return "PAN Number is required";
+                        return "PAN Number is required.";
                       }
                       if (value.trim().isNotEmpty &&
                           !InputValidator.isValidPAN(value)) {
@@ -394,7 +394,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "PAN Document is required";
+                        return "PAN Document is required.";
                       }
                       return null;
                     },
@@ -408,7 +408,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Aadhaar Card Number is required";
+                        return "Aadhaar Card Number is required.";
                       }
                       if (!InputValidator.isValidAadharNumber(value.trim())) {
                         return "Invalid Aadhaar Card Number";
@@ -437,7 +437,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Aadhaar Document is required";
+                        return "Aadhaar Document is required.";
                       }
                       return null;
                     },
@@ -464,7 +464,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                     },
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return "Partner Photo is required";
+                        return "Partner Photo is required.";
                       }
                       return null;
                     },

@@ -181,7 +181,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
               inputFormatterList: [LengthLimitingTextInputFormatter(150)],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Stage is required";
+                  return "Stage is required.";
                 }
                 return null;
               },
@@ -206,7 +206,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Amount is required";
+                  return "Amount is required.";
                 }
                 return null;
               },
@@ -421,7 +421,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                                   ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return "Bank Guarantee Amount is required";
+                                  return "Bank Guarantee Amount is required.";
                                 }
                                 return null;
                               },

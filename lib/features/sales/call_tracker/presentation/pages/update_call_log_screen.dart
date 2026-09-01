@@ -217,7 +217,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
                           validator: (value) {
                             if (value == null ||
                                 value.toString().trim().isEmpty) {
-                              return "Status is required";
+                              return "Status is required.";
                             }
                             return null;
                           },
@@ -324,7 +324,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
                                     validator: (value) {
                                       if (value == null ||
                                           value.toString().trim().isEmpty) {
-                                        return "${selectedRequirement?["DisplayName"]} Type is required";
+                                        return "${selectedRequirement?["DisplayName"]} Type is required.";
                                       }
                                       return null;
                                     },

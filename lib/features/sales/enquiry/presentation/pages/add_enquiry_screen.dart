@@ -1222,7 +1222,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             hint: "Enter Name",
             isRequired: true,
             validator: (val) {
-              if (val == null || val.trim().isEmpty) return "Name is required";
+              if (val == null || val.trim().isEmpty) return "Name is required.";
               return null;
             },
           ),
@@ -1279,7 +1279,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   final mobile = value?.trim() ?? "";
                   final country = selectedMobileNoCountry.value;
                   if (value == null || value.isEmpty) {
-                    return "Mobile Number is required";
+                    return "Mobile Number is required.";
                   }
                   if (mobile.isNotEmpty) {
                     // LENGTH AND REGEX VALIDATION
@@ -1429,7 +1429,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               isRequired: true,
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
-                  return "Country of residence is required";
+                  return "Country of residence is required.";
                 }
                 return null;
               },
@@ -1441,7 +1441,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
               isRequired: true,
               validator: (val) {
                 if (val == null || val.trim().isEmpty) {
-                  return "City of residence is required";
+                  return "City of residence is required.";
                 }
                 return null;
               },
@@ -1493,7 +1493,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                     },
                     validator: (value) {
                       if (value == null) {
-                        return "Source is required";
+                        return "Source is required.";
                       }
                       return null;
                     },
@@ -1522,7 +1522,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                       },
                       validator: (value) {
                         if (value == null) {
-                          return "Sub source is required";
+                          return "Sub source is required.";
                         }
                         return null;
                       },
@@ -1547,7 +1547,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                         if (val == null ||
                             val.trim().isEmpty ||
                             val.length != 18) {
-                          return "Channel Partner code is required";
+                          return "Channel Partner code is required.";
                         }
 
                         if (!_isChannelPartnerAlreadyExist.value &&
@@ -1705,7 +1705,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                 .isNotEmpty &&
                                             (val == null ||
                                                 val.trim().isEmpty)) {
-                                          return "Team member name is required";
+                                          return "Team member name is required.";
                                         }
                                         return null;
                                       },
@@ -1772,7 +1772,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                                     .text
                                                     .isNotEmpty &&
                                                 mobile.isEmpty) {
-                                              return "Team Member Mobile Number is required";
+                                              return "Team Member Mobile Number is required.";
                                             }
 
                                             if (mobile.isNotEmpty) {
@@ -1853,7 +1853,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               (v) => _selectedSubSubSourceNotifier.value = v,
                           validator: (value) {
                             if (value == null) {
-                              return "Sub Sub Source is required";
+                              return "Sub Sub Source is required.";
                             }
                             return null;
                           },
@@ -1884,7 +1884,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               dataFetchCallBack: _fetchEmployees,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Employee Reference Name is required";
+                                  return "Employee Reference Name is required.";
                                 }
                                 return null;
                               },
@@ -2000,7 +2000,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               dataFetchCallBack: _fetchProjects,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Project is required";
+                                  return "Project is required.";
                                 }
                                 return null;
                               },
@@ -2045,7 +2045,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Unit Number is required";
+                                      return "Unit Number is required.";
                                     }
                                     return null;
                                   },
@@ -2094,7 +2094,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                               dataFetchCallBack: _fetchProjects,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Referral Project Name is required";
+                                  return "Referral Project Name is required.";
                                 }
                                 return null;
                               },
@@ -2139,7 +2139,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                   },
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return "Referral Unit Number is required";
+                                      return "Referral Unit Number is required.";
                                     }
                                     return null;
                                   },
@@ -2323,7 +2323,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                   },
                   validator: (value) {
                     if (value == null || value.toString().trim().isEmpty) {
-                      return "${selectedRequirement?["DisplayName"]} Type is required";
+                      return "${selectedRequirement?["DisplayName"]} Type is required.";
                     }
                     return null;
                   },

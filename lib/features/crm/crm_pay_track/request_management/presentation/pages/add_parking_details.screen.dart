@@ -178,7 +178,7 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Proof Of Document is required";
+                              return "Proof Of Document is required.";
                             }
                             return null;
                           },
@@ -200,7 +200,7 @@ class _AddParkingDetailsScreenState extends State<AddParkingDetailsScreen> {
                               dataFetchCallBack: _fetchParking,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Parking is required";
+                                  return "Parking is required.";
                                 }
                                 return null;
                               },

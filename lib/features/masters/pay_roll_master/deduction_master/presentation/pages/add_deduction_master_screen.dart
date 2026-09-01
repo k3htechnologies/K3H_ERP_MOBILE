@@ -439,7 +439,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Deduction Name is required";
+                          return "Deduction Name is required.";
                         }
                         return null;
                       },
@@ -580,7 +580,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                                   ],
                           validator: (valueText) {
                             if (valueText == null || valueText.trim().isEmpty) {
-                              return "Value is required";
+                              return "Value is required.";
                             }
 
                             if (value == "Percentage") {
@@ -604,7 +604,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                       isRequired: true,
                       validator: (p0) {
                         if (_minSalaryC.text.isEmpty) {
-                          return 'Min Salary is required';
+                          return 'Min Salary is required.';
                         }
                         return null;
                       },
@@ -621,7 +621,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                       isRequired: true,
                       validator: (p0) {
                         if (_maxSalaryC.text.isEmpty) {
-                          return 'Max Salary is required';
+                          return 'Max Salary is required.';
                         }
                         return null;
                       },

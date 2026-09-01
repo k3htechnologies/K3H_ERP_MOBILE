@@ -131,7 +131,7 @@ class _AddFlatSpecificationRemarkScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Proof Of Document is required";
+                          return "Proof Of Document is required.";
                         }
                         return null;
                       },
@@ -145,7 +145,7 @@ class _AddFlatSpecificationRemarkScreenState
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Unit / Modulation / Customization Remark is required";
+                          return "Unit / Modulation / Customization Remark is required.";
                         }
                         return null;
                       },

@@ -298,7 +298,7 @@ class _AddMaterialRequisitionScreenState
                       },
                       validator: (fileList) {
                         if (fileList == null || fileList.isEmpty) {
-                          return "Document is required";
+                          return "Document is required.";
                         }
                         return null;
                       },

@@ -127,7 +127,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Department Code is required';
+                          return 'Department Code is required.';
                         }
                         return null;
                       },
@@ -142,7 +142,7 @@ class _AddDepartmentScreenState extends State<AddDepartmentScreen> {
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Department Name is required';
+                          return 'Department Name is required.';
                         }
                         if (string.trim().length < 3) {
                           return 'Must be at least 3 characters long';

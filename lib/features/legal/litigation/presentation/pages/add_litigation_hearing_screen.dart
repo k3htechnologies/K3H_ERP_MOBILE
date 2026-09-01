@@ -136,7 +136,7 @@ class _AddLitigationHearingScreenState
                   setValue: (value) => hearingDate = value,
                   validator: (value) {
                     if (value == null) {
-                      return "Hearing Date is required";
+                      return "Hearing Date is required.";
                     }
 
                     final filingDate = DateUtils.dateOnly(
@@ -172,7 +172,7 @@ class _AddLitigationHearingScreenState
                   validator: (val) {
                     if ((val == null || val.trim().isEmpty) &&
                         hearingDocument.fileNameList.isNotEmpty) {
-                      return 'File Name is required';
+                      return 'File Name is required.';
                     }
                     return null;
                   },
@@ -193,7 +193,7 @@ class _AddLitigationHearingScreenState
                   validator: (value) {
                     if ((value == null || value.isEmpty) &&
                         _fileName.text.isNotEmpty) {
-                      return "File is required";
+                      return "File is required.";
                     }
                     return null;
                   },
@@ -207,7 +207,7 @@ class _AddLitigationHearingScreenState
                   maxLines: 5,
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Remark is required';
+                      return 'Remark is required.';
                     }
                     return null;
                   },

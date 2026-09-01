@@ -128,7 +128,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                             if (value == null ||
                                 value.trim().isEmpty ||
                                 int.parse(value) <= 0) {
-                              return "Completion timeline is required";
+                              return "Completion timeline is required.";
                             }
                             return null;
                           },
@@ -145,7 +145,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                             if (value == null ||
                                 value.trim().isEmpty ||
                                 int.parse(value) <= 0) {
-                              return "Grace period is required";
+                              return "Grace period is required.";
                             }
                             return null;
                           },

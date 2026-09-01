@@ -349,7 +349,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Name is required";
+                              return "Name is required.";
                             }
                             return null;
                           },
@@ -499,7 +499,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                               validator: (valueText) {
                                 if (valueText == null ||
                                     valueText.trim().isEmpty) {
-                                  return "Value is required";
+                                  return "Value is required.";
                                 }
 
                                 if (value == "Percentage") {
@@ -522,7 +522,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                           isRequired: true,
                           validator: (p0) {
                             if (_minSalaryC.text.isEmpty) {
-                              return 'Min Salary is required';
+                              return 'Min Salary is required.';
                             }
                             return null;
                           },
@@ -539,7 +539,7 @@ class _AddEarningMasterScreenState extends State<AddEarningMasterScreen> {
                           isRequired: true,
                           validator: (p0) {
                             if (_maxSalaryC.text.isEmpty) {
-                              return 'Max Salary is required';
+                              return 'Max Salary is required.';
                             }
                             return null;
                           },

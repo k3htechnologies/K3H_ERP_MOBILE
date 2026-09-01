@@ -574,7 +574,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Payment For is required";
+                              return "Payment For is required.";
                             }
                             return null;
                           },
@@ -684,7 +684,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           validator: (value) {
                             if (selectedOtherCharge.value == null ||
                                 selectedOtherCharge.value!.isEmpty) {
-                              return "Other Charge is required";
+                              return "Other Charge is required.";
                             }
 
                             return null;
@@ -737,7 +737,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           validator: (value) {
                             if (selectedOtherCharge.value == null ||
                                 selectedOtherCharge.value!.isEmpty) {
-                              return "Other Charge is required";
+                              return "Other Charge is required.";
                             }
 
                             return null;
@@ -767,7 +767,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Payment Mode is required";
+                              return "Payment Mode is required.";
                             }
                             return null;
                           },
@@ -794,7 +794,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           dataFetchCallBack: _fetchBanks,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Bank Name is required";
+                              return "Bank Name is required.";
                             }
                             return null;
                           },
@@ -821,7 +821,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Payment Received From is required";
+                              return "Payment Received From is required.";
                             }
                             return null;
                           },
@@ -837,7 +837,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       inputFormatterList: InputValidator.decimal(2),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Received Amount is required";
+                          return "Received Amount is required.";
                         }
 
                         final receivedAmount = double.tryParse(value) ?? 0;
@@ -861,7 +861,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                       inputFormatterList: InputValidator.digit(25),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Transaction / Cheque / Demand Draft No. is required";
+                          return "Transaction / Cheque / Demand Draft No. is required.";
                         }
                         return null;
                       },
@@ -895,7 +895,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           },
                           validator: (fileList) {
                             if (fileList == null || fileList.isEmpty) {
-                              return "Transaction / Cheque / Demand Draft Image is required";
+                              return "Transaction / Cheque / Demand Draft Image is required.";
                             }
                             return null;
                           },
@@ -916,7 +916,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Transaction / Cheque / Demand Draft Date is required';
+                              return 'Transaction / Cheque / Demand Draft Date is required.';
                             }
                             return null;
                           },
@@ -985,7 +985,7 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                             validator: (value) {
                               if (_isDeveloperBankRequired &&
                                   (value == null || value.isEmpty)) {
-                                return "Project Bank Name is required";
+                                return "Project Bank Name is required.";
                               }
                               return null;
                             },

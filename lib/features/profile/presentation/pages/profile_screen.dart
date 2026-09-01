@@ -158,7 +158,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   inputFormatterList: [LengthLimitingTextInputFormatter(250)],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Qualification is required';
+                      return 'Qualification is required.';
                     }
                     return null;
                   },
@@ -171,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   textController: _collageNameC,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'College Name is required';
+                      return 'College Name is required.';
                     }
                     return null;
                   },
@@ -185,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   textController: _passingC,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Passing Year is required';
+                      return 'Passing Year is required.';
                     }
                     return null;
                   },
@@ -296,7 +296,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   textController: _companyNameC,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Company Name is required';
+                      return 'Company Name is required.';
                     }
                     return null;
                   },
@@ -308,7 +308,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   textController: _roleC,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Role is required';
+                      return 'Role is required.';
                     }
                     return null;
                   },
@@ -321,7 +321,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   textController: _tenureC,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Tenure is required';
+                      return 'Tenure is required.';
                     }
                     return null;
                   },

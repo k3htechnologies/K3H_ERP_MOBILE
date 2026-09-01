@@ -287,7 +287,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                             if (value == null ||
                                                 value.trim().isEmpty ||
                                                 double.parse(value) < 0) {
-                                              return "Residential amount is required";
+                                              return "Residential amount is required.";
                                             }
                                             return null;
                                           },
@@ -326,7 +326,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                             if (value == null ||
                                                 value.trim().isEmpty ||
                                                 double.parse(value) < 0) {
-                                              return "Commercial amount is required";
+                                              return "Commercial amount is required.";
                                             }
                                             return null;
                                           },

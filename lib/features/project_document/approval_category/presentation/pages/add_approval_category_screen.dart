@@ -132,7 +132,7 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
                   textController: _documentCategoryC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Approval Document Category is required";
+                      return "Approval Document Category is required.";
                     }
                     return null;
                   },
@@ -145,7 +145,7 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
                   textController: _orderByC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Sequence is required";
+                      return "Sequence is required.";
                     }
                     return null;
                   },

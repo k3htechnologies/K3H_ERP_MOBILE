@@ -139,7 +139,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       textController: _designationNameC,
                       validator: (value) {
                         if ((value == null || value.isEmpty)) {
-                          return 'Designation Name is required';
+                          return 'Designation Name is required.';
                         }
                         if (value.trim().length < 3) {
                           return "Must be at least 3 characters";
@@ -156,7 +156,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       inputFormatterList: InputValidator.digit(3),
                       validator: (value) {
                         if ((value == null || value.trim().isEmpty)) {
-                          return 'Notice Period is required';
+                          return 'Notice Period is required.';
                         }
                         final numValue = int.tryParse(value);
                         if (numValue == null ||
@@ -176,7 +176,7 @@ class _AddDesignationScreenState extends State<AddDesignationScreen> {
                       inputFormatterList: InputValidator.digit(3),
                       validator: (value) {
                         if ((value == null || value.trim().isEmpty)) {
-                          return 'Probation Period is required';
+                          return 'Probation Period is required.';
                         }
                         final numValue = int.tryParse(value);
                         if (numValue == null ||

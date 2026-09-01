@@ -153,7 +153,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                               },
                               validator: (value) {
                                 if (value == null) {
-                                  return "Extra Carpet Area Type is required";
+                                  return "Extra Carpet Area Type is required.";
                                 }
                                 return null;
                               },
@@ -179,7 +179,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                           inputFormatterList: InputValidator.percentage(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Residential Extra Carpet is required";
+                              return "Residential Extra Carpet is required.";
                             }
                             if (double.parse(value) > 100) {
                               return "Percentage should be less than 100";
@@ -197,7 +197,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                           inputFormatterList: InputValidator.percentage(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Commercial Extra Carpet is required";
+                              return "Commercial Extra Carpet is required.";
                             }
                             if (double.parse(value) > 100) {
                               return "Percentage should be less than 100";

@@ -197,7 +197,7 @@ class _AddRefundScreenState extends State<AddRefundScreen> {
                     inputFormatterList: InputValidator.decimal(2),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Refund amount is required";
+                        return "Refund amount is required.";
                       }
 
                       final refundAmount = double.tryParse(value) ?? 0.0;

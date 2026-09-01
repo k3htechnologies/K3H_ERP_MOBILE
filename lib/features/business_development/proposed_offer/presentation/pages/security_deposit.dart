@@ -160,7 +160,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                   hintText: "Select Type",
                   validator: (value) {
                     if (value == null || value['zAttributesId'] == -1) {
-                      return "Type is required";
+                      return "Type is required.";
                     }
                     return null;
                   },
@@ -173,7 +173,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                   textController: _stageController,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Stage is required";
+                      return "Stage is required.";
                     }
                     return null;
                   },
@@ -188,7 +188,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                       inputFormatterListForDecimalValuesFixedToTwo(10),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Amount is required";
+                      return "Amount is required.";
                     }
                     return null;
                   },

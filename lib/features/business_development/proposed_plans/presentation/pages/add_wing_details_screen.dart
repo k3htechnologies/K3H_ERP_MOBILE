@@ -124,7 +124,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                         textController: wing.wingName,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Wing Name is required";
+                            return "Wing Name is required.";
                           }
                           if (_isDuplicateWingName()) {
                             return "Wing Name already exists.";

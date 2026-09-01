@@ -145,7 +145,7 @@ class _FlatHandoverChecklistScreenState
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Status is required";
+                          return "Status is required.";
                         }
                         return null;
                       },
@@ -175,7 +175,7 @@ class _FlatHandoverChecklistScreenState
                       validator: (value) {
                         if (isPending &&
                             (value == null || value.trim().isEmpty)) {
-                          return "Remark is required";
+                          return "Remark is required.";
                         }
                         return null;
                       },

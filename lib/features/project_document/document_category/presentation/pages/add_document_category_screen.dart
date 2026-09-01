@@ -142,7 +142,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                       textController: _documentCategoryC,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Project Document Category is required";
+                          return "Project Document Category is required.";
                         }
                         return null;
                       },
@@ -156,7 +156,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                       textController: _orderByC,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Sequence is required";
+                          return "Sequence is required.";
                         }
                         return null;
                       },

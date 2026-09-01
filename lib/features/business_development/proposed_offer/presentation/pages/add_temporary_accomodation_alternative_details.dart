@@ -308,7 +308,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                         validator: (v) {
                           if (isAdditionalRent) return null;
                           if (v == null || v['zAttributesId'] == -1) {
-                            return "Tenure is required";
+                            return "Tenure is required.";
                           }
                           return null;
                         },

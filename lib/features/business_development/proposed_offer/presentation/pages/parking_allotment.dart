@@ -161,7 +161,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                                 if (value == null ||
                                     value.trim().isEmpty ||
                                     int.parse(value) < 0) {
-                                  return "Number of parking is required";
+                                  return "Number of parking is required.";
                                 }
                                 return null;
                               },
@@ -193,7 +193,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                                 if (value == null ||
                                     value.trim().isEmpty ||
                                     double.parse(value) <= 0) {
-                                  return "Total parking percentage is required";
+                                  return "Total parking percentage is required.";
                                 }
                                 return null;
                               },

@@ -470,7 +470,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       textController: _unitNumberC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Unit Number is required";
+                          return "Unit Number is required.";
                         }
                         return null;
                       },
@@ -496,7 +496,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Unit Type is required';
+                              return 'Unit Type is required.';
                             }
                             return null;
                           },
@@ -526,7 +526,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                 },
                                 validator: (val) {
                                   if (selectedFlatConfiguration.value == null) {
-                                    return 'Flat Configuration is required';
+                                    return 'Flat Configuration is required.';
                                   }
                                   return null;
                                 },
@@ -556,7 +556,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                 },
                                 validator: (val) {
                                   if (val == null) {
-                                    return 'Flat Configuration is required';
+                                    return 'Flat Configuration is required.';
                                   }
                                   return null;
                                 },
@@ -581,7 +581,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                       keyboardType: TextInputType.numberWithOptions(),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Carpet Area is required";
+                          return "Carpet Area is required.";
                         }
                         return null;
                       },
@@ -603,7 +603,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Unit Facing is required';
+                              return 'Unit Facing is required.';
                             }
                             return null;
                           },

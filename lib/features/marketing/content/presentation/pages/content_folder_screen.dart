@@ -92,7 +92,7 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
               inputFormatterList: [LengthLimitingTextInputFormatter(100)],
               validator: (string) {
                 if (string == null || string.trim().isEmpty) {
-                  return 'Content name is required';
+                  return 'Content name is required.';
                 }
                 return null;
               },

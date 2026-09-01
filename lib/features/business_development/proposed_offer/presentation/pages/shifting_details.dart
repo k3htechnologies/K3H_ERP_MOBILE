@@ -225,7 +225,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                   hintText: "Select Type",
                   validator: (value) {
                     if (value == null || value['zAttributesId'] == -1) {
-                      return "Type is required";
+                      return "Type is required.";
                     }
                     return null;
                   },
@@ -244,7 +244,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               inputFormatterList: [LengthLimitingTextInputFormatter(150)],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Stage is required";
+                  return "Stage is required.";
                 }
                 return null;
               },
@@ -260,7 +260,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                 if (value == null ||
                     value.trim().isEmpty ||
                     double.tryParse(value) == 0) {
-                  return "Stage Percentage is required";
+                  return "Stage Percentage is required.";
                 }
                 return null;
               },
@@ -506,7 +506,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                     if (value == null ||
                                         value.trim().isEmpty ||
                                         double.parse(value) < 0) {
-                                      return "Residential amount is required";
+                                      return "Residential amount is required.";
                                     }
                                     return null;
                                   },
@@ -547,7 +547,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                     if (value == null ||
                                         value.trim().isEmpty ||
                                         double.parse(value) < 0) {
-                                      return "Commercial amount is required";
+                                      return "Commercial amount is required.";
                                     }
                                     return null;
                                   },

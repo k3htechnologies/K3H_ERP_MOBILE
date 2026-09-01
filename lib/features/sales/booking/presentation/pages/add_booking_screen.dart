@@ -1308,7 +1308,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             },
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Enquiry Code is required';
+                                return 'Enquiry Code is required.';
                               }
                               return null;
                             },
@@ -1662,7 +1662,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     textController: _permanentAddressC,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Permanent Address is required";
+                        return "Permanent Address is required.";
                       }
                       if (value.trim().length < 25) {
                         return "Permanent Address must be at least 25 characters";
@@ -1678,7 +1678,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     textController: _communicationAddressC,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Communication Address is required";
+                        return "Communication Address is required.";
                       }
                       if (value.trim().length < 25) {
                         return "Communication Address must be at least 25 characters";
@@ -1764,7 +1764,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     },
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Agreement Value (with TDS) is required";
+                        return "Agreement Value (with TDS) is required.";
                       }
 
                       final parsed = double.tryParse(value.trim());
@@ -1843,7 +1843,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         inputFormatterList: InputValidator.percentage(),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Agreement GST Percentage is required";
+                            return "Agreement GST Percentage is required.";
                           }
 
                           final parsed = double.tryParse(value);
@@ -1893,7 +1893,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         textController: _stampDutyPercentageC,
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Stamp Duty Percentage is required";
+                            return "Stamp Duty Percentage is required.";
                           }
                           return null;
                         },
@@ -2159,7 +2159,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Handover Type is required";
+                            return "Handover Type is required.";
                           }
                           return null;
                         },
@@ -2183,7 +2183,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         },
                         validator: (value) {
                           if (value == null) {
-                            return "Expected Registration Date is required";
+                            return "Expected Registration Date is required.";
                           }
                           return null;
                         },
@@ -2204,7 +2204,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return "Funding Source is required";
+                            return "Funding Source is required.";
                           }
                           return null;
                         },
@@ -2291,7 +2291,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                           validator: (value) {
                             if (value == null ||
                                 value["zAttributesId"] == null) {
-                              return "Payment Schedule Scheme is required";
+                              return "Payment Schedule Scheme is required.";
                             }
                             return null;
                           },
@@ -2851,7 +2851,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       dataFetchCallBack: _fetchTerms,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Terms & Conditions is required";
+                          return "Terms & Conditions is required.";
                         }
                         return null;
                       },
@@ -2921,7 +2921,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       textController: _unitModCustomizationRemarkC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Unit / Modulation / Customization Remark is required";
+                          return "Unit / Modulation / Customization Remark is required.";
                         }
                         return null;
                       },
@@ -2935,7 +2935,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       textController: _paymentRemarkC,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Payment Related Remark is required";
+                          return "Payment Related Remark is required.";
                         }
                         return null;
                       },

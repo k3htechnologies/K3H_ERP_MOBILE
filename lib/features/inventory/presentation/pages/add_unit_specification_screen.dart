@@ -178,7 +178,7 @@ class _AddUnitSpecificationScreenState
                       },
                       validator: (value) {
                         if (value == null || value["zAttributesId"] == -1) {
-                          return 'Layout is required';
+                          return 'Layout is required.';
                         }
                         return null;
                       },
@@ -198,7 +198,7 @@ class _AddUnitSpecificationScreenState
                       inputFormatterListForDecimalValuesFixedToTwo(10),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Area is required';
+                      return 'Area is required.';
                     }
                     return null;
                   },

@@ -187,7 +187,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                   },
                   validator: (value) {
                     if (value == null || value['zAttributesId'] == -1) {
-                      return "Status is required";
+                      return "Status is required.";
                     }
                     return null;
                   },
@@ -228,7 +228,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                                 .toLowerCase()
                                 .contains('issued') &&
                             (value == null || value.isEmpty)) {
-                          return "File is required";
+                          return "File is required.";
                         }
                         return null;
                       },

@@ -412,7 +412,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.toString().trim().isEmpty) {
-                          return "Document Type is required";
+                          return "Document Type is required.";
                         }
                         return null;
                       },
@@ -427,7 +427,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   hint: "Enter Document Title",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Document Title is required";
+                      return "Document Title is required.";
                     }
                     return null;
                   },
@@ -464,7 +464,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                             }
                             if (isOther) return null;
                             if (value == null || value.trim().isEmpty) {
-                              return "Invoice Number is required";
+                              return "Invoice Number is required.";
                             }
                             return null;
                           },
@@ -480,7 +480,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           validator: (value) {
                             if (isOther) return null;
                             if (value == null) {
-                              return 'Invoice Date is required';
+                              return 'Invoice Date is required.';
                             }
                             return null;
                           },
@@ -498,7 +498,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           validator: (value) {
                             if (isOther) return null;
                             if (value == null || value.trim().isEmpty) {
-                              return "Amount is required";
+                              return "Amount is required.";
                             }
                             return null;
                           },
@@ -517,7 +517,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                               hint: "Enter Cheque No",
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return "Cheque No is required";
+                                  return "Cheque No is required.";
                                 }
                                 if (value.trim().isNotEmpty &&
                                     !InputValidator.isValidChequeNumber(
@@ -575,7 +575,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         final mobile = value?.trim() ?? "";
                         final country = _selectedSenderCountry.value;
                         if (value == null || value.isEmpty) {
-                          return "Sender Mobile Number is required";
+                          return "Sender Mobile Number is required.";
                         }
                         if (mobile.isNotEmpty) {
                           if ((mobile.length != country.mobileLength) ||
@@ -600,7 +600,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Sender Name is required";
+                      return "Sender Name is required.";
                     }
                     if (_receiverNameC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
@@ -617,7 +617,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   hint: "Enter Sender Email-Id",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Sender Email-Id is required";
+                      return "Sender Email-Id is required.";
                     }
                     if (!InputValidator.isValidEmail(value)) {
                       return "Sender Invalid Email Id";
@@ -637,7 +637,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Sender Address is required";
+                      return "Sender Address is required.";
                     }
                     if (_receiverAddressC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
@@ -689,7 +689,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         final mobile = value?.trim() ?? "";
                         final country = _selectedReceiverCountry.value;
                         if (value == null || value.isEmpty) {
-                          return "Receiver Mobile Number is required";
+                          return "Receiver Mobile Number is required.";
                         }
                         if (mobile.isNotEmpty) {
                           if ((mobile.length != country.mobileLength) ||
@@ -714,7 +714,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Receiver Name is required";
+                      return "Receiver Name is required.";
                     }
                     if (_senderNameC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
@@ -731,7 +731,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   hint: "Enter Receiver Email-Id",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Receiver Email-Id is required";
+                      return "Receiver Email-Id is required.";
                     }
                     if (!InputValidator.isValidEmail(value)) {
                       return "Receiver Invalid Email Id";
@@ -751,7 +751,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Receiver Address is required";
+                      return "Receiver Address is required.";
                     }
                     if (_senderAddressC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
@@ -783,7 +783,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   },
                   validator: (fileList) {
                     if (fileList == null || fileList.isEmpty) {
-                      return "Document is required";
+                      return "Document is required.";
                     }
                     return null;
                   },
@@ -796,7 +796,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
                     if (value == null || value.toString().trim().isEmpty) {
-                      return "Document Description is required";
+                      return "Document Description is required.";
                     }
                     return null;
                   },
@@ -822,7 +822,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           dataFetchCallBack: _inwardOutwardCubit.fetchEmployees,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return "Assign Employee is required";
+                              return "Assign Employee is required.";
                             }
                             return null;
                           },

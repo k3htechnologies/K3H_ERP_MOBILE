@@ -155,7 +155,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       validator: (value) {
                                         if (value == null ||
                                             value.trim().isEmpty) {
-                                          return "Mobile number is required";
+                                          return "Mobile number is required.";
                                         } else if (!isValidMobileNumber(
                                           value,
                                         )) {
@@ -215,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               value.trim().isEmpty) {
                                             return isMpin
                                                 ? "MPIN is required"
-                                                : "OTP is required";
+                                                : "OTP is required.";
                                           }
 
                                           return null;

@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/widgets/custom_file_preview_dialogue_content.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 export 'common_date_function.dart';
 export 'common_extension_helpers.dart';
 
@@ -414,11 +415,26 @@ String formatDateTimeReadable(DateTime? date) {
   return DateFormat('dd MMMM yyyy h:mm a').format(date);
 }
 
-void copy({required BuildContext context, required String text}) async {
+void copy({
+  required BuildContext context,
+  required String text,
+  String? snackBarTitle,
+}) async {
   await Clipboard.setData(ClipboardData(text: text));
   if (context.mounted) {
-    showSuccessMessage(context, subTitle: '$text is Copied');
+    showSuccessMessage(context, subTitle: '${snackBarTitle ?? text} is Copied');
   }
+}
+
+void share({
+  required BuildContext context,
+  required String text,
+  String? title,
+  String? subject,
+}) async {
+  await SharePlus.instance.share(
+    ShareParams(text: text, title: title, subject: subject),
+  );
 }
 
 // HELPER: Find item in list by DisplayName

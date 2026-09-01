@@ -365,7 +365,7 @@ class _AddAssetMappingMasterScreenState
                               dataFetchCallBack: _fetchAssets,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Asset is required";
+                                  return "Asset is required.";
                                 }
                                 return null;
                               },
@@ -495,7 +495,7 @@ class _AddAssetMappingMasterScreenState
                               dataFetchCallBack: _fetchEmployees,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return "Employee Name is required";
+                                  return "Employee Name is required.";
                                 }
                                 return null;
                               },
@@ -610,7 +610,7 @@ class _AddAssetMappingMasterScreenState
                           },
                           validator: (value) {
                             if (value == null) {
-                              return "Assigned Date is required";
+                              return "Assigned Date is required.";
                             }
                             // CHECK JOINING DATE
                             if (_selectedEmployeeNotifier.value.isNotEmpty) {
@@ -651,7 +651,7 @@ class _AddAssetMappingMasterScreenState
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Condition on Issue is required";
+                          return "Condition on Issue is required.";
                         }
                         return null;
                       },
@@ -712,7 +712,7 @@ class _AddAssetMappingMasterScreenState
                                     if ((value == null ||
                                             value.trim().isEmpty) &&
                                         isInactive) {
-                                      return "Condition on Return is required";
+                                      return "Condition on Return is required.";
                                     }
                                     return null;
                                   },
@@ -733,7 +733,7 @@ class _AddAssetMappingMasterScreenState
                                           },
                                           validator: (value) {
                                             if (value == null && isInactive) {
-                                              return "Return Date is required";
+                                              return "Return Date is required.";
                                             }
                                             if (assignedDate != null &&
                                                 isInactive &&

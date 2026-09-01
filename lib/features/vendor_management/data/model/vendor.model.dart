@@ -38,7 +38,6 @@ class VendorModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   VendorModel({
     required this.vendorId,
     required this.uniquekey,
@@ -77,7 +76,6 @@ class VendorModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory VendorModel.fromJson(Map<String, dynamic> json) => VendorModel(
     vendorId: parseValue<int>(json, "VendorId"),
     uniquekey: parseValue<String>(json, "Uniquekey"),
@@ -126,7 +124,6 @@ class VendorModel {
             ? null
             : DateTime.parse(json["ModifiedDate"]),
   );
-
   Map<String, dynamic> toJson() => {
     "VendorId": vendorId,
     "Uniquekey": uniquekey,

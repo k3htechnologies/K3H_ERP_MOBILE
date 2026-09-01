@@ -219,7 +219,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   textController: _firstNameC,
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'First Name is required';
+                      return 'First Name is required.';
                     }
                     return null;
                   },
@@ -231,7 +231,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   textController: _middleNameC,
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Middle Name is required';
+                      return 'Middle Name is required.';
                     }
                     return null;
                   },
@@ -243,7 +243,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   textController: _lastNameC,
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Last Name is required';
+                      return 'Last Name is required.';
                     }
                     return null;
                   },
@@ -260,7 +260,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                       onSelected: (value) => selectedGender.value = value,
                       validator: (value) {
                         if (value == null || value["zAttributesId"] == -1) {
-                          return 'Gender is required';
+                          return 'Gender is required.';
                         }
                         return null;
                       },
@@ -283,7 +283,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                           (value) => selectedMaritalStatus.value = value,
                       validator: (value) {
                         if (value == null || value["zAttributesId"] == -1) {
-                          return 'Marital Status is required';
+                          return 'Marital Status is required.';
                         }
                         return null;
                       },
@@ -305,7 +305,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                       onSelected: (value) => selectedBloodGroup.value = value,
                       validator: (value) {
                         if (value == null || value["zAttributesId"] == -1) {
-                          return 'Blood Group is required';
+                          return 'Blood Group is required.';
                         }
                         return null;
                       },
@@ -323,7 +323,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                       isRequired: true,
                       initialDate: value,
                       validator: (value) {
-                        if (value == null) return 'DOB is required';
+                        if (value == null) return 'DOB is required.';
                         if (!InputValidator.isValidAge(value)) {
                           return 'Age should be greater than or equal to 18.';
                         }
@@ -341,7 +341,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Email Id is required';
+                      return 'Email Id is required.';
                     }
                     if (!InputValidator.isValidEmail(value)) {
                       return 'Email Id is not valid';
@@ -358,7 +358,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   readOnly: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Personal Mobile Number is required';
+                      return 'Personal Mobile Number is required.';
                     }
                     if (!InputValidator.isValidMobileNumber(value)) {
                       return 'Mobile number is not valid';
@@ -392,7 +392,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                       InputValidator.aadhaarNumberInputFormatter(),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Aadhaar Card Number is required';
+                      return 'Aadhaar Card Number is required.';
                     }
                     if (!InputValidator.isValidAadharNumber(value)) {
                       return 'Aadhaar Card Number is not valid';
@@ -408,7 +408,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   inputFormatterList: InputValidator.panInputFormatters(),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'PAN Card Number is required';
+                      return 'PAN Card Number is required.';
                     }
                     if (!InputValidator.isValidPAN(value)) {
                       return 'PAN Card Number is not valid';
@@ -470,7 +470,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(500)],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Communication Address is required';
+                      return 'Communication Address is required.';
                     }
                     return null;
                   },
@@ -483,7 +483,7 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(500)],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Permanent Address is required';
+                      return 'Permanent Address is required.';
                     }
                     return null;
                   },

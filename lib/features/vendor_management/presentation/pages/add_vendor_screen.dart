@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use
-
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,18 +29,14 @@ class AddVendorScreen extends StatefulWidget {
   final VendorModel? vendor;
   final int? index;
   const AddVendorScreen({super.key, required this.vendor, this.index});
-
   @override
   State<AddVendorScreen> createState() => _AddVendorScreenState();
 }
 
 class _AddVendorScreenState extends State<AddVendorScreen>
     with SingleTickerProviderStateMixin {
-  // CUBIT
   late VendorCubit _vendorCubit;
-
   final _formKey = GlobalKey<FormState>();
-  // TEXT EDITING CONTROLLERS
   late TextEditingController nameC,
       companyNameC,
       mobileC,
@@ -52,15 +47,11 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       addressC,
       searchC,
       contractSearchC;
-
-  // DROPDOWN VARIABLES
   final ValueNotifier<Map<String, dynamic>?> selectedVendorType = ValueNotifier(
     null,
   );
   final ValueNotifier<Map<String, dynamic>?> selectedCompanyType =
       ValueNotifier(null);
-
-  // STRINGS TO STORE THE PICKED FILE PATH
   MultiFilePickerModel aadhaarCard = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -76,29 +67,21 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     fileNameList: [],
     deletedFileList: "",
   );
-
-  // LOCATION MASTER IDS
   String countryMasterId = '1';
   String stateMasterId = '';
   String districtMasterId = '';
   String cityMasterId = '';
-
   late final TabController _tabController;
   List<SubMaterialModel> allSubMaterialList = [];
-
   final ValueNotifier<List<SubMaterialModel>> filteredMaterialList =
       ValueNotifier([]);
-
   final ValueNotifier<Set<int>> selectedMaterialIds = ValueNotifier({});
-
   List<SubMaterialModel> subMaterialListForSelection = [];
   ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
   final ValueNotifier<bool> _isMobileNumberAlreadyExist = ValueNotifier(false);
-  // EDIT MODE
   bool get _isEditMode => widget.vendor != null;
-
   @override
   void initState() {
     super.initState();
@@ -150,24 +133,18 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     final response = await _vendorCubit.getMaterialSubMaterialUOMMaster(
       context,
     );
-
     if (!mounted) return;
-
     final subMaterials =
         (response["MaterialMasterSubMaterialMasterData"]
             as List<SubMaterialModel>?) ??
         [];
-
     await compute(
       (s) => groupBy(s, (obj) => obj.materialMasterId),
       subMaterials,
     );
-
     if (!mounted) return;
-
     allSubMaterialList = subMaterials;
     filteredMaterialList.value = List.from(allSubMaterialList);
-
     _vendorCubit.closeLoader();
   }
 
@@ -180,12 +157,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     panC.text = vendor.panCardNumber;
     gstC.text = vendor.gstNumber;
     addressC.text = vendor.address;
-
     countryMasterId = vendor.countryMasterId.toString();
     stateMasterId = vendor.stateMasterId.toString();
     districtMasterId = vendor.districtMasterId.toString();
     cityMasterId = vendor.cityMasterId.toString();
-
     selectedCompanyType.value = firmTypeList.firstWhere(
       (element) => element['DisplayName'] == vendor.companyType,
       orElse: () => firmTypeList.first,
@@ -213,14 +188,12 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       aadhaarCard.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     panCard.fileNameList =
         vendor.panCardUrl == "" ? [] : vendor.panCardUrl.split(",");
     panCard.fileBytesList = List.generate(
       panCard.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     gstCertificate.fileNameList =
         vendor.gstCertificateUrl == ""
             ? []
@@ -229,7 +202,6 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       gstCertificate.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     subMaterialListForSelection = List.from(vendor.submaterialList);
     selectedMaterialIds.value =
         subMaterialListForSelection.map((e) => e.subMaterialMasterId).toSet();
@@ -272,7 +244,6 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       );
       return;
     }
-
     String selectedSubMaterialCommaSeperatedIds = '';
     for (var item in subMaterialListForSelection) {
       selectedSubMaterialCommaSeperatedIds +=
@@ -280,7 +251,6 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     }
     selectedSubMaterialCommaSeperatedIds = selectedSubMaterialCommaSeperatedIds
         .substring(0, selectedSubMaterialCommaSeperatedIds.length - 1);
-
     if (widget.vendor == null) {
       _vendorCubit.addVendor(
         context: context,
@@ -368,7 +338,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         },
                         validator: (value) {
                           if (value == null) {
-                            return 'Vendor Type is required';
+                            return 'Vendor Type is required.';
                           }
                           return null;
                         },
@@ -386,7 +356,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     hint: "Enter Vendor Name",
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Vendor Name is required";
+                        return "Vendor Name is required.";
                       }
                       return null;
                     },
@@ -405,7 +375,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         },
                         validator: (value) {
                           if (value == null) {
-                            return 'Company Type is required';
+                            return 'Company Type is required.';
                           }
                           return null;
                         },
@@ -423,7 +393,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     textController: companyNameC,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Company Name is required";
+                        return "Company Name is required.";
                       }
                       return null;
                     },
@@ -452,7 +422,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                           final mobile = value?.trim() ?? "";
                           final country = selectedMobileNoCountry.value;
                           if (value == null || value.isEmpty) {
-                            return "Mobile Number is required";
+                            return "Mobile Number is required.";
                           }
                           if (mobile.isNotEmpty) {
                             if ((mobile.length != country.mobileLength) ||
@@ -489,7 +459,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Email Id is required";
+                        return "Email Id is required.";
                       }
                       if (!InputValidator.isValidEmail(value)) {
                         return "Invalid email address";
@@ -509,7 +479,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Aadhaar Card number is required";
+                        return "Aadhaar Card number is required.";
                       }
                       if (!InputValidator.isValidAadharNumber(value)) {
                         return "Invalid Aadhaar Card Number";
@@ -529,7 +499,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     },
                     validator: (file) {
                       if (file == null || file.isEmpty) {
-                        return "Aadhaar Card file required";
+                        return "Aadhaar Card file required.";
                       }
                       return null;
                     },
@@ -551,7 +521,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     isRequired: true,
                     validator: (value) {
                       if ((value == null || value.trim().isEmpty)) {
-                        return "PAN Number is required";
+                        return "PAN Number is required.";
                       }
                       if (value.trim().isNotEmpty &&
                           !InputValidator.isValidPAN(value)) {
@@ -572,7 +542,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     },
                     validator: (file) {
                       if (file == null || file.isEmpty) {
-                        return "Pan Card file required";
+                        return "Pan Card file required.";
                       }
                       return null;
                     },
@@ -594,7 +564,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     isRequired: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'GST number is required';
+                        return 'GST number is required.';
                       }
                       if (!InputValidator.isValidGST(value)) {
                         return 'Enter a valid GST number';
@@ -623,7 +593,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     },
                     validator: (file) {
                       if (file == null || file.isEmpty) {
-                        return "GST Certificate file required";
+                        return "GST Certificate file required.";
                       }
                       return null;
                     },
@@ -640,7 +610,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     inputFormatterList: [LengthLimitingTextInputFormatter(500)],
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Address is required";
+                        return "Address is required.";
                       }
                       if (value.length < 25) {
                         return "Address must be at least 25 characters long.";

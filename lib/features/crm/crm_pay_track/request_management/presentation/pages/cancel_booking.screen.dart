@@ -88,7 +88,7 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
 
                 validator: (fileList) {
                   if ((fileList == null || fileList.isEmpty)) {
-                    return "Proof Of Document is required";
+                    return "Proof Of Document is required.";
                   }
                   return null;
                 },
@@ -103,7 +103,7 @@ class _CancelBookingScreenState extends State<CancelBookingScreen> {
                 textController: _remarkC,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return "Remark is required";
+                    return "Remark is required.";
                   }
                   return null;
                 },

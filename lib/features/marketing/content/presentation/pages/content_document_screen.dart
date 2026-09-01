@@ -159,7 +159,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
               hint: "Enter title",
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Title is required";
+                  return "Title is required.";
                 }
                 return null;
               },
@@ -173,7 +173,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
               hint: "Enter remark",
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Remark is required";
+                  return "Remark is required.";
                 }
                 return null;
               },
@@ -193,7 +193,7 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Attachment is required";
+                  return "Attachment is required.";
                 }
                 return null;
               },

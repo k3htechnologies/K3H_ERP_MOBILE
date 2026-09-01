@@ -291,7 +291,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             setValue: (v) => dateOfFilling = v,
             validator: (value) {
               if (value == null) {
-                return 'Date Of Filing is required';
+                return 'Date Of Filing is required.';
               }
               return null;
             },
@@ -306,7 +306,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             onSelected: (v) => selectedCaseType = v,
             validator: (value) {
               if (value == null || value["zAttributesId"] == -1) {
-                return "Case Type is required";
+                return "Case Type is required.";
               }
               return null;
             },
@@ -370,7 +370,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             onSelected: (v) => selectedCourtType = v,
             validator: (value) {
               if (value == null || value["zAttributesId"] == -1) {
-                return "Court Type is required";
+                return "Court Type is required.";
               }
               return null;
             },

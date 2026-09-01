@@ -183,7 +183,7 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                   inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
-                      return 'Title is required';
+                      return 'Title is required.';
                     }
                     return null;
                   },
@@ -198,7 +198,7 @@ class _ApprovedBankFieScreenState extends State<ApprovedBankFieScreen> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Attachment* is required";
+                      return "Attachment* is required.";
                     }
                     return null;
                   },

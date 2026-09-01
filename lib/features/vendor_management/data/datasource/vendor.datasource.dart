@@ -9,17 +9,14 @@ abstract interface class VendorDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apiCallAddUpdateVendor({
     required Map<String, String> payload,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> apiCallDeleteVendor({
     required int vendorId,
     required String uniqueKey,
   });
-
   Future<Map<String, dynamic>> apicallPullVendorForExport({
     required int pageNumber,
     required int pageSize,
@@ -29,7 +26,6 @@ abstract interface class VendorDatasource {
 
 class VendorDataSourceImpl implements VendorDatasource {
   BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apiCallPullVendor({
     required int pageNumber,
@@ -79,7 +75,6 @@ class VendorDataSourceImpl implements VendorDatasource {
     required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateVendorUrl = "Vendor/AddUpdateVendor";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
@@ -115,7 +110,6 @@ class VendorDataSourceImpl implements VendorDatasource {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
         deleteVendorUrl(vendorId: vendorId, uniqueKey: uniqueKey),
       );
-
       return {'message': networkResponse['message']};
     } catch (error) {
       if (error is TokenExpiredException) {

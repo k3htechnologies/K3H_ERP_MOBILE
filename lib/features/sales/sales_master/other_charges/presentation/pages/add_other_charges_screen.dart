@@ -182,7 +182,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                           },
                           validator: (value) {
                             if (value == null) {
-                              return 'Calculated On is required';
+                              return 'Calculated On is required.';
                             }
                             return null;
                           },

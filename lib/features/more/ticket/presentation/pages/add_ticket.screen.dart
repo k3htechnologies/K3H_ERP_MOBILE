@@ -177,7 +177,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                           validator: (value) {
                             if ((value == null ||
                                 value['zAttributesId'] == -1)) {
-                              return "Platform is required";
+                              return "Platform is required.";
                             }
                             return null;
                           },
@@ -207,7 +207,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                             ],
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return "Module is required";
+                                return "Module is required.";
                               }
                               return null;
                             },
@@ -228,7 +228,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                               validator: (value) {
                                 if ((value == null ||
                                     value['zAttributesId'] == -1)) {
-                                  return "Module is required";
+                                  return "Module is required.";
                                 }
                                 return null;
                               },
@@ -253,7 +253,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Description is required";
+                          return "Description is required.";
                         }
                         return null;
                       },
@@ -274,7 +274,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                       },
                       validator: (fileList) {
                         if (fileList == null || fileList.isEmpty) {
-                          return "File is required";
+                          return "File is required.";
                         }
                         return null;
                       },
@@ -282,7 +282,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                     FormField<String>(
                       validator: (_) {
                         if (selectedPriority.value == null) {
-                          return "Priority is required";
+                          return "Priority is required.";
                         }
                         return null;
                       },
@@ -367,7 +367,7 @@ class _AddTicketScreenState extends State<AddTicketScreen> {
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Remark is required";
+                          return "Remark is required.";
                         }
                         return null;
                       },

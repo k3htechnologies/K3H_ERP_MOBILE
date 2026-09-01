@@ -165,7 +165,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                       initialDate: DateTime.now(),
                       validator: (value) {
                         if (value == null) {
-                          return 'Resignation Date is required';
+                          return 'Resignation Date is required.';
                         }
                         return null;
                       },
@@ -180,7 +180,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                       hint: 'Enter Reason Of Leaving',
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Reason Of Leaving is required";
+                          return "Reason Of Leaving is required.";
                         }
                         return null;
                       },
@@ -215,7 +215,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                               validator: (value) {
                                 if ((value == null || value.trim().isEmpty) &&
                                     isOfferInHand.value) {
-                                  return "Offer Amoun is required";
+                                  return "Offer Amoun is required.";
                                 }
                                 return null;
                               },
@@ -229,7 +229,7 @@ class _AddResignationScreenState extends State<AddResignationScreen> {
                               validator: (val) {
                                 if ((val == null || val.isEmpty) &&
                                     isOfferInHand.value) {
-                                  return "Offer Letter is required";
+                                  return "Offer Letter is required.";
                                 }
                                 return null;
                               },

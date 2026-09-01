@@ -201,7 +201,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Asset Name is required";
+                          return "Asset Name is required.";
                         }
                         return null;
                       },
@@ -214,7 +214,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Asset Code is required";
+                          return "Asset Code is required.";
                         }
                         return null;
                       },
@@ -227,7 +227,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Asset Type is required";
+                          return "Asset Type is required.";
                         }
                         return null;
                       },
@@ -240,7 +240,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Asset Brand is required";
+                          return "Asset Brand is required.";
                         }
                         return null;
                       },
@@ -253,7 +253,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Asset Model is required";
+                          return "Asset Model is required.";
                         }
                         return null;
                       },
@@ -266,7 +266,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Serial Number is required";
+                          return "Serial Number is required.";
                         }
                         return null;
                       },
@@ -279,7 +279,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Supplier Name is required";
+                          return "Supplier Name is required.";
                         }
                         return null;
                       },
@@ -295,7 +295,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       },
                       validator: (value) {
                         if (value == null) {
-                          return "Purchase Date is required";
+                          return "Purchase Date is required.";
                         }
                         return null;
                       },
@@ -319,7 +319,7 @@ class _AddAssetMasterScreenState extends State<AddAssetMasterScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Asset Cost is required";
+                          return "Asset Cost is required.";
                         }
                         final cost = double.tryParse(value);
                         if (cost == null || cost < 0) {

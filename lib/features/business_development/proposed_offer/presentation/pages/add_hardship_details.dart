@@ -232,7 +232,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                               hintText: "Select Type",
                               validator: (value) {
                                 if (value == null) {
-                                  return "Type is required";
+                                  return "Type is required.";
                                 }
                                 return null;
                               },
@@ -251,7 +251,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                               ],
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return "Stage is required";
+                                  return "Stage is required.";
                                 }
                                 return null;
                               },
@@ -267,7 +267,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                 if (value == null ||
                                     value.trim().isEmpty ||
                                     double.tryParse(value) == 0) {
-                                  return "Stage Percentage is required";
+                                  return "Stage Percentage is required.";
                                 }
                                 return null;
                               },

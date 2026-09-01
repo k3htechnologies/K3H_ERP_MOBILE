@@ -423,7 +423,7 @@ class _ModifiedRequestsMakePaymentScreenState
 
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return "Project Bank Name is required";
+                                          return "Project Bank Name is required.";
                                         }
                                         return null;
                                       },
@@ -553,7 +553,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   isRequired: true,
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return "Account Holder Name is required";
+                                      return "Account Holder Name is required.";
                                     }
                                     return null;
                                   },
@@ -574,7 +574,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                       dataFetchCallBack: _fetchBanks,
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return "Bank Name is required";
+                                          return "Bank Name is required.";
                                         }
                                         return null;
                                       },
@@ -593,7 +593,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   inputFormatterList: InputValidator.digit(18),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return "Account Number is required";
+                                      return "Account Number is required.";
                                     }
                                     return null;
                                   },
@@ -607,7 +607,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                       InputValidator.ifscInputFormatters(),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return "IFSC Code is required";
+                                      return "IFSC Code is required.";
                                     }
                                     return null;
                                   },
@@ -651,7 +651,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                       },
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
-                                          return "Payment Mode is required";
+                                          return "Payment Mode is required.";
                                         }
                                         return null;
                                       },
@@ -672,7 +672,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   inputFormatterList: InputValidator.decimal(2),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return "Refundable Amount is required";
+                                      return "Refundable Amount is required.";
                                     }
 
                                     final enteredAmount =
@@ -717,7 +717,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   inputFormatterList: InputValidator.digit(25),
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return "Transaction No. / Cheque No. / Demand Draft No. is required";
+                                      return "Transaction No. / Cheque No. / Demand Draft No. is required.";
                                     }
                                     return null;
                                   },
@@ -752,7 +752,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   },
                                   validator: (fileList) {
                                     if (fileList == null || fileList.isEmpty) {
-                                      return "Transaction / Cheque / Demand Draft Image is required";
+                                      return "Transaction / Cheque / Demand Draft Image is required.";
                                     }
                                     return null;
                                   },
@@ -767,7 +767,7 @@ class _ModifiedRequestsMakePaymentScreenState
                                   setValue: (value) => transactionDate = value,
                                   validator: (value) {
                                     if (value == null) {
-                                      return 'Transaction / Cheque / Demand Draft Date is required';
+                                      return 'Transaction / Cheque / Demand Draft Date is required.';
                                     }
                                     return null;
                                   },

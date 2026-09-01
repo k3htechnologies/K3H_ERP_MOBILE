@@ -147,7 +147,7 @@ class _AddBankLoanDocumentScreenState extends State<AddBankLoanDocumentScreen> {
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "File Name is required";
+                          return "File Name is required.";
                         }
                         return null;
                       },
@@ -183,7 +183,7 @@ class _AddBankLoanDocumentScreenState extends State<AddBankLoanDocumentScreen> {
 
                           validator: (fileList) {
                             if ((fileList == null || fileList.isEmpty)) {
-                              return "File is required";
+                              return "File is required.";
                             }
 
                             return null;

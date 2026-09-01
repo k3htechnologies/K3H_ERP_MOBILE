@@ -168,7 +168,7 @@ class _EditCallLogsScreenState extends State<UpdateCallLogsScreen> {
                           },
                           validator: (value) {
                             if (value == null || value['zAttributesId'] == -1) {
-                              return 'Call Status is required';
+                              return 'Call Status is required.';
                             }
                             return null;
                           },
@@ -192,7 +192,7 @@ class _EditCallLogsScreenState extends State<UpdateCallLogsScreen> {
                           },
                           validator: (value) {
                             if (value == null || value['zAttributesId'] == -1) {
-                              return 'Call Purpose is required';
+                              return 'Call Purpose is required.';
                             }
                             return null;
                           },
@@ -211,7 +211,7 @@ class _EditCallLogsScreenState extends State<UpdateCallLogsScreen> {
                       ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Remark is required';
+                          return 'Remark is required.';
                         }
                         return null;
                       },

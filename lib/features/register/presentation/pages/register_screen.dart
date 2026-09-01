@@ -108,7 +108,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
-                                        return "Full Name is required";
+                                        return "Full Name is required.";
                                       }
                                       return null;
                                     },
@@ -162,7 +162,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {
-                                        return "Phone Number is required";
+                                        return "Phone Number is required.";
                                       }
                                       return null;
                                     },

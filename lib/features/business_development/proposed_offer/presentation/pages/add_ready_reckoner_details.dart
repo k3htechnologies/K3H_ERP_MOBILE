@@ -277,13 +277,13 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                               },
                               fromDateValidator: (value) {
                                 if (value == null) {
-                                  return 'Effective Start Date is required';
+                                  return 'Effective Start Date is required.';
                                 }
                                 return null;
                               },
                               toDateValidator: (value) {
                                 if (value == null) {
-                                  return 'Effective End Date is required';
+                                  return 'Effective End Date is required.';
                                 }
                                 return null;
                               },

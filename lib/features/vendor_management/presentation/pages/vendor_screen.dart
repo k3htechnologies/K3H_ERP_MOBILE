@@ -1,10 +1,14 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -15,7 +19,9 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -24,23 +30,16 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class VendorScreen extends StatefulWidget {
   const VendorScreen({super.key});
-
   @override
   State<VendorScreen> createState() => _VendorScreenState();
 }
 
 class _VendorScreenState extends State<VendorScreen> {
-  // CUBIT
   late VendorCubit _vendorCubit;
-
-  // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
-  // PAGINATION
+  late UtilsCubit _utilsCubit;
   late ScrollController scrollController;
   Timer? _debounce;
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
       _filterVendorCodeC,
       _filterCompanyNameC,
@@ -51,6 +50,7 @@ class _VendorScreenState extends State<VendorScreen> {
       _filterAadhaarCardNumberC,
       _filterPanCardNumberC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
+  late UserModel? _user;
 
   @override
   void initState() {
@@ -59,6 +59,8 @@ class _VendorScreenState extends State<VendorScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.vendor] ??
         AuthorizationModel();
     _vendorCubit = context.read<VendorCubit>();
+    _utilsCubit = context.read<UtilsCubit>();
+    getCurrentUser();
     _initializeTextEditingController();
     _onScroll();
     _vendorCubit.getVendors(context, 1);
@@ -80,7 +82,13 @@ class _VendorScreenState extends State<VendorScreen> {
     scrollController.dispose();
   }
 
-  // DELETE VENDOR DIALOG
+  Future getCurrentUser() async {
+    var userJson = jsonDecode(
+      LocalStorageManager().getString(StorageKey.currentUser) ?? "",
+    );
+    _user = UserModel.fromJson(userJson);
+  }
+
   void _showPopUpToDeleteVendor(
     BuildContext context,
     VendorModel vendor,
@@ -101,7 +109,6 @@ class _VendorScreenState extends State<VendorScreen> {
     }
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterVendorCodeC = TextEditingController();
@@ -114,7 +121,6 @@ class _VendorScreenState extends State<VendorScreen> {
     _filterPanCardNumberC = TextEditingController();
   }
 
-  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -123,7 +129,6 @@ class _VendorScreenState extends State<VendorScreen> {
           !_vendorCubit.state.isLoading! &&
           _vendorCubit.state.vendorList.length <
               _vendorCubit.state.totalNumberOfRecord) {
-        // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           _vendorCubit.getVendors(context, _vendorCubit.state.currentPage + 1);
@@ -132,12 +137,10 @@ class _VendorScreenState extends State<VendorScreen> {
     });
   }
 
-  // VENDOR FILTER
   Future<void> _showBottomSheetToFilterVendorMaster(
     BuildContext context,
   ) async {
     final state = _vendorCubit.state;
-
     _searchC.text = state.searchText;
     _filterVendorCodeC.text = state.filterByVendorCode;
     _filterCompanyNameC.text = state.filterByCompanyName;
@@ -151,7 +154,6 @@ class _VendorScreenState extends State<VendorScreen> {
         state.currentSortColumn == "Vendor Name"
             ? state.currentSortDirection
             : null;
-
     final String initialVendorName = _searchC.text;
     final String initialVendorCode = _filterVendorCodeC.text;
     final String initialCompanyName = _filterCompanyNameC.text;
@@ -165,7 +167,6 @@ class _VendorScreenState extends State<VendorScreen> {
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
@@ -179,7 +180,6 @@ class _VendorScreenState extends State<VendorScreen> {
             (_filterAadhaarCardNumberC.text.trim() != initialAadhaarNumber) ||
             (_filterPanCardNumberC.text.trim() != initialPanNumber) ||
             (selectedDirection != initialDirection);
-
         applyEnabled.value = manualClose;
       });
     }
@@ -258,21 +258,18 @@ class _VendorScreenState extends State<VendorScreen> {
                   textController: _filterVendorCodeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Company Name",
                   hint: "Enter Company Name",
                   textController: _filterCompanyNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Company Type",
                   hint: "Enter Company Type",
                   textController: _filterCompanyTypeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Mobile Number",
                   hint: "Enter Mobile Number",
@@ -281,21 +278,18 @@ class _VendorScreenState extends State<VendorScreen> {
                   inputFormatterList: InputValidator.digit(10),
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "City",
                   hint: "Enter City",
                   textController: _filterCityC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "GST Number",
                   hint: "Enter GST Number",
                   textController: _filterGstNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Aadhaar Card Number",
                   hint: "Enter Aadhaar Card Number",
@@ -303,7 +297,6 @@ class _VendorScreenState extends State<VendorScreen> {
                   textController: _filterAadhaarCardNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   title: "Pan Card Number",
                   hint: "Enter Pan Card Number",
@@ -325,7 +318,6 @@ class _VendorScreenState extends State<VendorScreen> {
         _filterGstNumberC.clear();
         _filterAadhaarCardNumberC.clear();
         _filterPanCardNumberC.clear();
-
         _vendorCubit.sortVendor(context: context, isClear: true);
       },
       onApply: () {
@@ -348,8 +340,6 @@ class _VendorScreenState extends State<VendorScreen> {
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
-    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _searchC.clear();
       _filterVendorCodeC.clear();
@@ -361,6 +351,71 @@ class _VendorScreenState extends State<VendorScreen> {
       _filterAadhaarCardNumberC.clear();
       _filterPanCardNumberC.clear();
     }
+  }
+
+  void _showPopUpToShareLink() {
+    final String magicLinkType = "VENDOR MANAGEMENT";
+    final int clientRegistrationId = _user?.clientRegistrationId ?? 0;
+    _utilsCubit
+        .getMagicLinkWithValidate(
+          context: context,
+          magicLinkType: magicLinkType,
+          clientRegistrationId: clientRegistrationId,
+        )
+        .then((magicLink) {
+          if (magicLink.isNotEmpty) {
+            DialogHelper.showCustomDialogue(
+              context,
+              title: "Share Link",
+              spacingBetweenContentAndBottomSection: 0,
+              childContent: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomTextField(
+                    title: "Magic Link",
+                    hint: "Enter Link",
+                    minLines: 6,
+                    maxLines: 6,
+                    textController: TextEditingController(text: magicLink),
+                    readOnly: true,
+                  ),
+                ],
+              ),
+              bottomSection: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: CustomButton(
+                      text: "Copy Link",
+                      onPressed: () {
+                        copy(
+                          context: context,
+                          text: magicLink,
+                          snackBarTitle: "Magic Link",
+                        );
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: CustomButton(
+                      text: "Share Link",
+                      backgroundColor: AppColor.grey.withValues(alpha: .8),
+                      onPressed: () {
+                        share(
+                          context: context,
+                          text: magicLink,
+                          title: "Share Link",
+                          subject: "Check out this link!",
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+        });
   }
 
   @override
@@ -394,185 +449,222 @@ class _VendorScreenState extends State<VendorScreen> {
             _showBottomSheetToFilterVendorMaster(context);
           },
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            _searchC.clear();
-            await _vendorCubit.searchVendor(context, "");
-          },
-          child: BlocBuilder<VendorCubit, VendorState>(
-            builder: (context, state) {
-              if (state.isLoading == true && state.vendorList.isEmpty) {
-                return loader();
-              }
-              if (state.vendorList.isEmpty) {
-                return Center(
-                  child: noDataWidget(message: "No Vendors Data Found"),
-                );
-              }
-              return ListView.builder(
-                controller: scrollController,
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                itemCount: state.vendorList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == state.vendorList.length) {
-                    return state.vendorList.length < state.totalNumberOfRecord
-                        ? Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                        : const SizedBox.shrink();
-                  }
-                  var vendor = state.vendorList[index];
-                  return Container(
-                    decoration: commonCardDecoration(),
-                    margin: EdgeInsets.only(bottom: 10),
-                    padding: EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          spacing: 10,
-                          children: [
-                            Flexible(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.viewVendorDetails,
-                                    queryParameters: {
-                                      "vendor": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(vendor),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  CustomButton(
+                    isDisable: !_routeAuthorizationModel.isAction,
+                    onPressed: () {
+                      _showPopUpToShareLink();
+                    },
+                    leading: Icon(
+                      Icons.share,
+                      size: 16,
+                      color:
+                          !_routeAuthorizationModel.isAction
+                              ? AppColor.grey2
+                              : AppColor.white,
+                    ),
+                    text: "Share",
+                  ),
+                ],
+              ),
+              verticalSpacing(height: 10),
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    _searchC.clear();
+                    await _vendorCubit.searchVendor(context, "");
+                  },
+                  child: BlocBuilder<VendorCubit, VendorState>(
+                    builder: (context, state) {
+                      if (state.isLoading == true && state.vendorList.isEmpty) {
+                        return loader();
+                      }
+                      if (state.vendorList.isEmpty) {
+                        return Center(
+                          child: noDataWidget(message: "No Vendors Data Found"),
+                        );
+                      }
+                      return ListView.builder(
+                        controller: scrollController,
+                        itemCount: state.vendorList.length + 1,
+                        itemBuilder: (context, index) {
+                          if (index == state.vendorList.length) {
+                            return state.vendorList.length <
+                                    state.totalNumberOfRecord
+                                ? Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+                          var vendor = state.vendorList[index];
+                          return Container(
+                            decoration: commonCardDecoration(),
+                            margin: EdgeInsets.only(bottom: 10),
+                            padding: EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  spacing: 10,
+                                  children: [
+                                    Flexible(
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          await goRouter.pushNamed(
+                                            AppRoutes.viewVendorDetails,
+                                            queryParameters: {
+                                              "vendor": Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(vendor),
+                                                ),
+                                              ),
+                                              "index": "$index",
+                                            },
+                                          );
+                                        },
+                                        child: Text(
+                                          vendor.vendorName,
+                                          style: AppTextStyle.ts16M(
+                                            color: AppColor.primary,
+                                          ),
                                         ),
                                       ),
-                                      "index": "$index",
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  vendor.vendorName,
-                                  style: AppTextStyle.ts16M(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            if (_routeAuthorizationModel.isAction) ...[
-                              Row(
-                                spacing: 10,
-                                children: [
-                                  if (vendor.verifiedNonVerified
-                                          .toLowerCase() !=
-                                      'verified') ...[
-                                    CustomIconButton(
-                                      onPressed: () {},
-                                      icon: Icon(
-                                        Icons.warning_amber_outlined,
-                                        color: AppColor.yellow,
-                                        size: 16,
-                                      ),
-                                      backgroundColor: AppColor.yellow
-                                          .withValues(alpha: .2),
+                                    ),
+                                    Row(
+                                      spacing: 10,
+                                      children: [
+                                        if (vendor.verifiedNonVerified
+                                                .toLowerCase() !=
+                                            'verified') ...[
+                                          CustomIconButton(
+                                            onPressed: () {},
+                                            icon: Icon(
+                                              Icons.warning_amber_outlined,
+                                              color: AppColor.yellow,
+                                              size: 16,
+                                            ),
+                                            backgroundColor: AppColor.yellow
+                                                .withValues(alpha: .2),
+                                          ),
+                                        ],
+                                        CustomIconButton.edit(
+                                          isDisabled:
+                                              !_routeAuthorizationModel
+                                                  .isAction,
+                                          onPressed: () async {
+                                            await goRouter.pushNamed(
+                                              AppRoutes.addVendor,
+                                              queryParameters: {
+                                                "vendor": Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(vendor),
+                                                  ),
+                                                ),
+                                                "index": index.toString(),
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        CustomIconButton.delete(
+                                          isDisabled:
+                                              !_routeAuthorizationModel
+                                                  .isAction,
+                                          onPressed: () {
+                                            _showPopUpToDeleteVendor(
+                                              context,
+                                              vendor,
+                                              index,
+                                            );
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ],
-                                  CustomIconButton.edit(
-                                    onPressed: () async {
-                                      await goRouter.pushNamed(
-                                        AppRoutes.addVendor,
-                                        queryParameters: {
-                                          "vendor": Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(vendor),
-                                            ),
-                                          ),
-                                          "index": index.toString(),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Vendor Code",
+                                  fixesWidth: 120.w,
+                                  value: vendor.systemGeneratedCode,
+                                  customValueWidget: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          vendor.systemGeneratedCode,
+                                          style: AppTextStyle.ts14M(),
+                                        ),
+                                      ),
+                                      horizontalSpacing(width: 2),
+                                      InkWell(
+                                        onTap: () {
+                                          copy(
+                                            context: context,
+                                            text: vendor.systemGeneratedCode,
+                                          );
                                         },
-                                      );
-                                    },
-                                  ),
-                                  CustomIconButton.delete(
-                                    onPressed: () {
-                                      _showPopUpToDeleteVendor(
-                                        context,
-                                        vendor,
-                                        index,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ],
-                        ),
-                        buildRowTitleValue(
-                          title: "Vendor Code",
-                          fixesWidth: 120.w,
-                          value: vendor.systemGeneratedCode,
-                          customValueWidget: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  vendor.systemGeneratedCode,
-                                  style: AppTextStyle.ts14M(),
-                                ),
-                              ),
-                              horizontalSpacing(width: 2),
-                              InkWell(
-                                onTap: () {
-                                  copy(
-                                    context: context,
-                                    text: vendor.systemGeneratedCode,
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(5),
-                                  child: Icon(
-                                    Icons.copy,
-                                    size: 16,
-                                    color: AppColor.primary,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(5),
+                                          child: Icon(
+                                            Icons.copy,
+                                            size: 16,
+                                            color: AppColor.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        buildRowTitleValue(
-                          fixesWidth: 120.w,
-                          title: "Company Name",
-                          value: vendor.companyName,
-                          singleLine: false,
-                        ),
-                        buildRowTitleValue(
-                          fixesWidth: 120.w,
-                          title: "Company Type",
-                          value: vendor.companyType,
-                          singleLine: false,
-                        ),
-                        buildRowTitleValue(
-                          fixesWidth: 120.w,
-                          title: "Mobile Number",
-                          value: vendor.mobileNumber,
-                          customValueWidget: CustomClickToContactText(
-                            countryCode: vendor.mobileNumberCountryCode,
-                            value: vendor.mobileNumber,
-                          ),
-                        ),
-                        buildRowTitleValue(
-                          fixesWidth: 120.w,
-                          title: "Email ID",
-                          value: vendor.emailId,
-                          customValueWidget: CustomClickToContactText(
-                            value: vendor.emailId,
-                            type: ContactType.email,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
+                                buildRowTitleValue(
+                                  fixesWidth: 120.w,
+                                  title: "Company Name",
+                                  value: vendor.companyName,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  fixesWidth: 120.w,
+                                  title: "Company Type",
+                                  value: vendor.companyType,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  fixesWidth: 120.w,
+                                  title: "Mobile Number",
+                                  value: vendor.mobileNumber,
+                                  customValueWidget: CustomClickToContactText(
+                                    countryCode: vendor.mobileNumberCountryCode,
+                                    value: vendor.mobileNumber,
+                                  ),
+                                ),
+                                buildRowTitleValue(
+                                  fixesWidth: 120.w,
+                                  title: "Email ID",
+                                  value: vendor.emailId,
+                                  customValueWidget: CustomClickToContactText(
+                                    value: vendor.emailId,
+                                    type: ContactType.email,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),

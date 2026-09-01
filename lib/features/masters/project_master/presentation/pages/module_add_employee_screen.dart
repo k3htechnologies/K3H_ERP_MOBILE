@@ -120,7 +120,7 @@ class _ModuleAddEmployeeScreenState extends State<ModuleAddEmployeeScreen> {
                   dataFetchCallBack: _fetchEmployees,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Employee is required";
+                      return "Employee is required.";
                     }
                     return null;
                   },

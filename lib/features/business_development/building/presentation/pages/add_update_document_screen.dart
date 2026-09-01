@@ -138,7 +138,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
                   },
                   validator: (value) {
                     if ((value == null || value.isEmpty)) {
-                      return "File is required";
+                      return "File is required.";
                     }
                     return null;
                   },

@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -17,30 +16,21 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
-
 part 'vendor_state.dart';
 
 class VendorCubit extends Cubit<VendorState> {
   VendorCubit() : super(VendorState.initial());
-
-  // VENDOR REPOSITORY
   VendorRepository vendorRepository = serviceLocator<VendorRepository>();
   UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
-
-  // COMPANY MASTER REPOSITORY
   CompanyMasterRepository companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
-
-  // SEARCH VENDOR
   Future searchVendor(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, vendorList: []));
     await getVendors(context, 1);
   }
 
-  // GET VENDORS LIST
   Future getVendors(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-
     Map<String, dynamic> queryParams = {
       "VendorName": state.searchText,
       "SystemGeneratedCode": state.filterByVendorCode,
@@ -53,13 +43,11 @@ class VendorCubit extends Cubit<VendorState> {
       "AadharCardNumber": state.filterByAadhaarCardNumber,
       "PanCardNumber": state.filterByPanCardNumber,
     };
-
     var result = await vendorRepository.getVendorsList(
       pageNumber: pageNumber,
       pageSize: 10,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -69,7 +57,6 @@ class VendorCubit extends Cubit<VendorState> {
         final List<VendorModel> newData = List<VendorModel>.from(
           response['data'] ?? [],
         );
-
         final List<VendorModel> updatedList =
             pageNumber == 1
                 ? newData
@@ -77,7 +64,6 @@ class VendorCubit extends Cubit<VendorState> {
                   for (final v in [...state.vendorList, ...newData])
                     v.vendorId: v,
                 }.values.toList();
-
         emit(
           state.copyWith(
             vendorList: updatedList,
@@ -96,15 +82,12 @@ class VendorCubit extends Cubit<VendorState> {
       pageSize: 10,
       queryParams: {"MobileNumber": value ?? "", "IsCheckPermission": false},
     );
-
     return result.fold((failure) => [], (response) {
       final partners = response['data'] as List<VendorModel>;
-
       return partners;
     });
   }
 
-  // DELETE VENDOR
   Future deleteVendor({
     required BuildContext context,
     required int vendorId,
@@ -142,7 +125,6 @@ class VendorCubit extends Cubit<VendorState> {
     emit(state.copyWith(isLoading: false));
   }
 
-  // DROPDOWN FUNCTIONS
   Future<Map<String, dynamic>> getMaterialSubMaterialUOMMaster(
     BuildContext context,
   ) async {
@@ -159,14 +141,12 @@ class VendorCubit extends Cubit<VendorState> {
     } catch (e) {
       projectId = 0;
     }
-
     var result = await utilsRepository
         .getMaterialMasterSubMaterialMasterUOMMaster(projectId: projectId);
     return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        // HANDLE FAILURE
         return {
           "MaterialMasterSubMaterialMasterData": <SubMaterialModel>[],
           "totalNumberOfRecord": 0,
@@ -182,7 +162,6 @@ class VendorCubit extends Cubit<VendorState> {
             "isSuccess": false,
           };
         }
-
         return {
           "MaterialMasterSubMaterialMasterData": List<SubMaterialModel>.from(
             (await compute(
@@ -200,7 +179,6 @@ class VendorCubit extends Cubit<VendorState> {
     );
   }
 
-  // ADD VENDOR
   Future addVendor({
     required BuildContext context,
     required String companyName,
@@ -225,7 +203,6 @@ class VendorCubit extends Cubit<VendorState> {
     required MultiFilePickerModel gstCertificate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     Map<String, String> requestBody = {
       "CompanyName": companyName,
       "CompanyType": companyType,
@@ -248,9 +225,7 @@ class VendorCubit extends Cubit<VendorState> {
       "AvailableMaterialList": subMaterialIds,
       "AvailableContractList": "",
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < aadharCard.fileBytesList.length; i++) {
       fileList.add({
         "key": "AadharCardURL",
@@ -258,7 +233,6 @@ class VendorCubit extends Cubit<VendorState> {
         "fileName": aadharCard.fileNameList[i],
       });
     }
-
     for (int i = 0; i < panCard.fileBytesList.length; i++) {
       fileList.add({
         "key": "PanCardURL",
@@ -266,7 +240,6 @@ class VendorCubit extends Cubit<VendorState> {
         "fileName": panCard.fileNameList[i],
       });
     }
-
     for (int i = 0; i < gstCertificate.fileBytesList.length; i++) {
       fileList.add({
         "key": "GSTCertificateURL",
@@ -274,7 +247,6 @@ class VendorCubit extends Cubit<VendorState> {
         "fileName": gstCertificate.fileNameList[i],
       });
     }
-
     var result = await vendorRepository.addUpdateVendor(
       payload: requestBody,
       fileList: fileList,
@@ -292,7 +264,6 @@ class VendorCubit extends Cubit<VendorState> {
     );
   }
 
-  // UPDATE VENDOR
   Future updateVendor({
     required int index,
     required int vendorId,
@@ -320,7 +291,6 @@ class VendorCubit extends Cubit<VendorState> {
     required MultiFilePickerModel gstCertificate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     Map<String, String> requestBody = {
       "VendorId": vendorId.toString(),
       "UniqueKey": uniquekey,
@@ -345,9 +315,7 @@ class VendorCubit extends Cubit<VendorState> {
       "AvailableMaterialList": subMaterialIds,
       "AvailableContractList": "",
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < aadharCard.fileBytesList.length; i++) {
       if (aadharCard.fileNameList[i].contains("http")) {
         continue;
@@ -358,7 +326,6 @@ class VendorCubit extends Cubit<VendorState> {
         "fileName": aadharCard.fileNameList[i],
       });
     }
-
     for (int i = 0; i < panCard.fileBytesList.length; i++) {
       if (panCard.fileNameList[i].contains("http")) {
         continue;
@@ -369,7 +336,6 @@ class VendorCubit extends Cubit<VendorState> {
         "fileName": panCard.fileNameList[i],
       });
     }
-
     for (int i = 0; i < gstCertificate.fileBytesList.length; i++) {
       if (gstCertificate.fileNameList[i].contains("http")) {
         continue;
@@ -392,20 +358,15 @@ class VendorCubit extends Cubit<VendorState> {
       (response) {
         goRouter.pop();
         final updatedVendor = (response['data'] as List<VendorModel>).first;
-
         if (state.vendorList.isNotEmpty && index < state.vendorList.length) {
           final updatedList = List<VendorModel>.from(state.vendorList);
           updatedList[index] = updatedVendor;
-
           emit(state.copyWith(vendorList: updatedList, isLoading: false));
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
-
-  // <--- SORT VENDOR
 
   Future sortVendor({
     required BuildContext context,
@@ -458,11 +419,9 @@ class VendorCubit extends Cubit<VendorState> {
         ),
       );
     }
-
     await getVendors(context, 1);
   }
 
-  // FILTER CP
   Future filterVendor({
     required BuildContext context,
     required String companyName,
@@ -478,7 +437,6 @@ class VendorCubit extends Cubit<VendorState> {
     await getVendors(context, state.currentPage);
   }
 
-  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await vendorRepository.exportVendor(

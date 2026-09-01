@@ -278,7 +278,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value["zAttributesId"] == -1) {
-                          return 'Leave Period Mode is required';
+                          return 'Leave Period Mode is required.';
                         }
                         return null;
                       },
@@ -302,7 +302,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                                 },
                                 validator: (value) {
                                   if (value == null) {
-                                    return 'Start Date is required';
+                                    return 'Start Date is required.';
                                   }
                                   return null;
                                 },
@@ -327,7 +327,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                                     },
                                     validator: (value) {
                                       if (value == null) {
-                                        return 'End Date is required';
+                                        return 'End Date is required.';
                                       }
                                       if (startDate != null) {
                                         // Compare dates by day (ignoring time)
@@ -376,7 +376,7 @@ class _AddLeaveCreditConfigurationMasterScreenState
                           },
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Department is required';
+                              return 'Department is required.';
                             }
                             return null;
                           },

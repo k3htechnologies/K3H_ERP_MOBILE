@@ -125,7 +125,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Material Name is required';
+                          return 'Material Name is required.';
                         }
                         if (string.trim().length < 3) {
                           return 'Must be at least 3 characters long';
@@ -146,7 +146,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                       ],
                       validator: (string) {
                         if (string == null || string.trim().isEmpty) {
-                          return 'Material Code is required';
+                          return 'Material Code is required.';
                         }
                         return null;
                       },

@@ -160,7 +160,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return "Total Number Of Buildings is required";
+                  return "Total Number Of Buildings is required.";
                 }
                 final count = int.tryParse(value);
                 if (count == null) {

@@ -385,7 +385,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                 widget.countryChange(map);
               },
               validator:
-                  (value) => value == null ? 'Country is required' : null,
+                  (value) => value == null ? 'Country is required.' : null,
               onValueClear: () {
                 countryId.value = null;
                 stateId.value = null;
@@ -430,7 +430,8 @@ class _AddressWidgetState extends State<AddressWidget> {
                         widget.stateChange(map);
                       },
                       validator:
-                          (value) => value == null ? 'State is required' : null,
+                          (value) =>
+                              value == null ? 'State is required.' : null,
                       onValueClear: () {
                         stateId.value = null;
                         districtId.value = null;
@@ -479,7 +480,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                       },
                       validator:
                           (value) =>
-                              value == null ? 'District is required' : null,
+                              value == null ? 'District is required.' : null,
                       onValueClear: () {
                         districtId.value = null;
                         cityId.value = null;
@@ -525,7 +526,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         widget.cityChange(map);
                       },
                       validator:
-                          (value) => value == null ? 'City is required' : null,
+                          (value) => value == null ? 'City is required.' : null,
                       onValueClear: () {
                         cityId.value = null;
                         villageId.value = null;
@@ -573,7 +574,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         },
                         validator:
                             (value) =>
-                                value == null ? 'Village is required' : null,
+                                value == null ? 'Village is required.' : null,
                         onValueClear: () {
                           villageId.value = null;
                           wardId.value = null;
@@ -611,7 +612,7 @@ class _AddressWidgetState extends State<AddressWidget> {
                         hintText: 'Select Ward',
                         validator:
                             (value) =>
-                                value == null ? 'Ward is required' : null,
+                                value == null ? 'Ward is required.' : null,
                         dataList: list,
                         onSelected: (map) {
                           wardId.value = map['zAttributesId'];

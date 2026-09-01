@@ -285,7 +285,7 @@ class _AddBookingPaymentScheduleScreenState
       keyboardType: TextInputType.number,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return "Percentage is required";
+          return "Percentage is required.";
         }
 
         final percent = double.tryParse(value);
@@ -313,7 +313,7 @@ class _AddBookingPaymentScheduleScreenState
               setValue: (value) => _selectedDate.value = value,
               validator: (value) {
                 if (value == null) {
-                  return "Date is required";
+                  return "Date is required.";
                 }
                 return null;
               },
@@ -342,7 +342,7 @@ class _AddBookingPaymentScheduleScreenState
               onSelected: (value) => _selectedStage.value = value,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return "Stage is required";
+                  return "Stage is required.";
                 }
                 return null;
               },
@@ -365,7 +365,7 @@ class _AddBookingPaymentScheduleScreenState
                     textController: _otherStageC,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Other Stage is required";
+                        return "Other Stage is required.";
                       }
                       return null;
                     },

@@ -260,7 +260,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       title: "Type",
                       validator: (value) {
                         if (value == null) {
-                          return "Type is required";
+                          return "Type is required.";
                         }
                         return null;
                       },
@@ -276,7 +276,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Stage is required";
+                          return "Stage is required.";
                         }
                         return null;
                       },
@@ -293,7 +293,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                         if (value == null ||
                             value.trim().isEmpty ||
                             double.parse(value) <= 0) {
-                          return "Carpet Area is required";
+                          return "Carpet Area is required.";
                         }
                         return null;
                       },
@@ -485,7 +485,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Residential area is required";
+                              return "Residential area is required.";
                             }
                             return null;
                           },
@@ -547,7 +547,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           ),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Commercial area is required";
+                              return "Commercial area is required.";
                             }
                             return null;
                           },

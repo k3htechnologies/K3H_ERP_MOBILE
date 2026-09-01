@@ -100,6 +100,12 @@ abstract interface class UtilsDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apiCallPullMagicLinkWithValidate({
+    required String magicLinkType,
+    required int clientRegistrationId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class UtilsDatasourceImpl implements UtilsDatasource {
@@ -589,6 +595,41 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           queryParams: queryParams,
         );
       }
+      rethrow;
+    }
+  }
+
+  // PULL MAGIC LINK WITH VALIDATE
+  @override
+  Future<Map<String, dynamic>> apiCallPullMagicLinkWithValidate({
+    required String magicLinkType,
+    required int clientRegistrationId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullMagicLinkWithValidateUrl({
+      required String magicLinkType,
+      required int clientRegistrationId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "MagicLink/PullMagicLinkWithValidate?MagicLinkType=$magicLinkType&ClientRegistrationId=$clientRegistrationId";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await client.getRequestWithAuthentication(
+        pullMagicLinkWithValidateUrl(
+          magicLinkType: magicLinkType,
+          clientRegistrationId: clientRegistrationId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
       rethrow;
     }
   }

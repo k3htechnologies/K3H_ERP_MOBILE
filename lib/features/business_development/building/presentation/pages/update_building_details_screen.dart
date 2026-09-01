@@ -261,7 +261,7 @@ class _UpdateBuildingDetailsScreenState
                         if (value == null ||
                             value.trim().isEmpty ||
                             ((double.tryParse(value) ?? 0) <= 0)) {
-                          return 'Gross Plot Area is required';
+                          return 'Gross Plot Area is required.';
                         }
                         return null;
                       },
@@ -330,7 +330,7 @@ class _UpdateBuildingDetailsScreenState
                         if (value == null ||
                             value.trim().isEmpty ||
                             ((double.tryParse(value) ?? 0) <= 0)) {
-                          return 'Total Carpet Area is required';
+                          return 'Total Carpet Area is required.';
                         }
                         return null;
                       },

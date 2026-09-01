@@ -450,7 +450,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             isRequired: true,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return "Company Name is required";
+                return "Company Name is required.";
               }
               return null;
             },
@@ -469,7 +469,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 },
                 validator: (value) {
                   if (value == null || value["zAttributesId"] == -1) {
-                    return 'Firms Type is required';
+                    return 'Firms Type is required.';
                   }
                   return null;
                 },
@@ -487,7 +487,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             isRequired: true,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return "Contact Person is required";
+                return "Contact Person is required.";
               }
               return null;
             },
@@ -517,7 +517,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return "Mobile Number is required";
+                return "Mobile Number is required.";
               }
               if (!InputValidator.isValidMobileNumber(value)) {
                 return "Invalid mobile number";
@@ -532,7 +532,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             isRequired: true,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return "Email Id is required";
+                return "Email Id is required.";
               }
               if (!InputValidator.isValidEmail(value)) {
                 return "Invalid email address";
@@ -568,7 +568,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               final hasFile = gstCertificateFile.fileNameList.isNotEmpty;
 
               if (hasFile && (value == null || value.isEmpty)) {
-                return "GST Number is required";
+                return "GST Number is required.";
               }
 
               if (value != null && value.isNotEmpty) {
@@ -597,7 +597,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (fileList) {
               if (_gstNumberC.text.trim().isNotEmpty &&
                   (fileList == null || fileList.isEmpty)) {
-                return "GST Document is required";
+                return "GST Document is required.";
               }
               return null;
             },
@@ -610,7 +610,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (value) {
               if (selectedPANCardFile.fileNameList.isNotEmpty &&
                   (value == null || value.isEmpty)) {
-                return "PAN Number is required";
+                return "PAN Number is required.";
               }
 
               if (value != null && value.isNotEmpty) {
@@ -638,7 +638,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (fileList) {
               if (_panNumberC.text.trim().isNotEmpty &&
                   (fileList == null || fileList.isEmpty)) {
-                return "PAN Card document is required";
+                return "PAN Card document is required.";
               }
               return null;
             },
@@ -651,7 +651,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (value) {
               if (cinPhotoFile.fileNameList.isNotEmpty &&
                   (value == null || value.isEmpty)) {
-                return "CIN Number is required";
+                return "CIN Number is required.";
               }
 
               if (value != null && value.isNotEmpty) {
@@ -679,7 +679,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (value) {
               if (_cinNumberC.text.trim().isNotEmpty &&
                   (value == null || value.isEmpty)) {
-                return "CIN document is required";
+                return "CIN document is required.";
               }
               return null;
             },
@@ -692,7 +692,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (value) {
               if (selectedTANFile.fileNameList.isNotEmpty &&
                   (value == null || value.isEmpty)) {
-                return "TAN Number is required";
+                return "TAN Number is required.";
               }
 
               if (value != null && value.isNotEmpty) {
@@ -720,7 +720,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (value) {
               if (_tanNumberC.text.trim().isNotEmpty &&
                   (value == null || value.isEmpty)) {
-                return "TAN document is required";
+                return "TAN document is required.";
               }
               return null;
             },
@@ -750,7 +750,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return "Company Letter Head Header is required";
+                return "Company Letter Head Header is required.";
               }
               return null;
             },
@@ -772,7 +772,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             },
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return "Company Letter Head Footer is required";
+                return "Company Letter Head Footer is required.";
               }
               return null;
             },
