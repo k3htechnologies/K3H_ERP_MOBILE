@@ -31,10 +31,8 @@ class DisbursementDatasourceImpl extends DisbursementDatasource {
         body,
       );
       return {
-        'data': List<TermSheetDisbursedAmountDetailsData>.from(
-          networkResponse['data'].map(
-            (x) => TermSheetDisbursedAmountDetailsData.fromJson(x),
-          ),
+        'data': List<TermSheetViewModel>.from(
+          networkResponse['data'].map((x) => TermSheetViewModel.fromJson(x)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

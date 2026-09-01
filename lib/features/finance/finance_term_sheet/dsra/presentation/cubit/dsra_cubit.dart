@@ -46,7 +46,6 @@ class DsraCubit extends Cubit<DsraState> {
 
         emit(
           state.copywith(
-            termSheetViewList: newList,
             termSheetDetailsViewModel:
                 newList.isNotEmpty &&
                         newList.first.termSheetDetailsData.isNotEmpty
@@ -172,13 +171,18 @@ class DsraCubit extends Cubit<DsraState> {
         }
       },
       (response) async {
-        if (context.mounted) {
-          showSuccessMessage(context, subTitle: response["message"]);
-        }
-        await getTermSheetView(context, projectId, termSheetId);
-        if (context.mounted) {
-          goRouter.pop();
-        }
+        final newData = (response['data'] as List<TermSheetViewModel>?) ?? [];
+        showSuccessMessage(context, subTitle: response["message"]);
+        emit(
+          state.copywith(
+            termSheetDetailsViewModel:
+                newData.isNotEmpty &&
+                        newData.first.termSheetDetailsData.isNotEmpty
+                    ? newData.first.termSheetDetailsData.first
+                    : null,
+          ),
+        );
+        goRouter.pop();
       },
     );
   }

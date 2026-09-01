@@ -601,6 +601,10 @@ class TermSheetCubit extends Cubit<TermSheetState> {
   }
 
   Future exportExcelPdf(BuildContext context, String exportType) async {
+    if (state.totalNumberOfRecord == 0) {
+      showErrorMessage(context, "Error", "No Data Found");
+      return;
+    }
     DialogHelper.showProcessingOverlay(context);
     var result = await _termSheetRepository.exportTermSheet(
       pageNumber: 1,

@@ -32,10 +32,8 @@ class DsraDatasourceImpl extends DsraDatasource {
         body,
       );
       return {
-        'data': List<TermSheetDebtServiceReserveAccountData>.from(
-          networkResponse['data'].map(
-            (x) => TermSheetDebtServiceReserveAccountData.fromJson(x),
-          ),
+        'data': List<TermSheetViewModel>.from(
+          networkResponse['data'].map((x) => TermSheetViewModel.fromJson(x)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

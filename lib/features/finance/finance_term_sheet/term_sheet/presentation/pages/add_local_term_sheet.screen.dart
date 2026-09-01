@@ -410,7 +410,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                     CustomMultiFilePicker(
                       title: "Term Sheet",
                       isRequired: true,
-                      readOnly: !lockFields,
+                      readOnly: lockFields,
                       filePickType: FilePickType.document,
                       initialFileList: _termSheetDocument.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
@@ -491,6 +491,11 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
           height: 70.0,
           padding: const EdgeInsets.all(16.0),
           child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
             text: _isEditMode ? "Update" : "Add",
             onPressed: _sumbit,
           ),

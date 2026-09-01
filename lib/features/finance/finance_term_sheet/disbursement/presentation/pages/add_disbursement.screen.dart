@@ -198,6 +198,11 @@ class _AddDisbursementScreenState extends State<AddDisbursementScreen> {
           height: 70.0,
           padding: const EdgeInsets.all(16.0),
           child: CustomButton(
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
             text: _isEditMode ? "Update" : "Add",
             onPressed: _submit,
           ),

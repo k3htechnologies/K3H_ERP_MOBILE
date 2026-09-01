@@ -29,10 +29,8 @@ class RepaymentDatasourceImpl extends RepaymentDatasource {
         body,
       );
       return {
-        'data': List<TermSheetRepayLedgerData>.from(
-          networkResponse['data'].map(
-            (x) => TermSheetRepayLedgerData.fromJson(x),
-          ),
+        'data': List<TermSheetViewModel>.from(
+          networkResponse['data'].map((x) => TermSheetViewModel.fromJson(x)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

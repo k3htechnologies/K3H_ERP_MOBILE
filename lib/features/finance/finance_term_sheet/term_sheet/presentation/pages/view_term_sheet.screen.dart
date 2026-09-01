@@ -150,20 +150,23 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
           ),
           BlocBuilder<TermSheetCubit, TermSheetState>(
             builder: (context, state) {
-              if (state.termSheetViewList.isEmpty) {
+              if (state.isLoading == true) {
                 return Expanded(child: Center(child: loader()));
               }
+
               if (state.termSheetViewList.isEmpty) {
-                return Center(
-                  child: noDataWidget(
-                    message: "No Data Found",
-                    iconSize: 160.0,
+                return Expanded(
+                  child: Center(
+                    child: noDataWidget(
+                      message: "No Data Found",
+                      iconSize: 160.0,
+                    ),
                   ),
                 );
               }
               return Expanded(
                 child: TabBarView(
-                  physics: NeverScrollableScrollPhysics(),
+                  physics: const NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   children:
                       isApproved
@@ -212,7 +215,10 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
 
   Widget _overviewTab(BuildContext context, TermSheetState state) {
     final termSheetView = state.termSheetViewList.first;
+    final hasDetails = termSheetView.termSheetDetailsData.isNotEmpty;
 
+    final details =
+        hasDetails ? termSheetView.termSheetDetailsData.first : null;
     // Main Term Sheet status
     final mainApprovalStatus =
         widget.termSheetModel?.approvalStatus.trim().toLowerCase();
@@ -249,15 +255,9 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
       return double.tryParse(cleanedValue) ?? 0.0;
     }
 
-    final disbursedAmount = parseAmount(
-      termSheetView.termSheetDetailsData.first.totalDisbursedAmount,
-    );
-    final repaymentAmount = parseAmount(
-      termSheetView.termSheetDetailsData.first.totalRepayLedgerAmount,
-    );
-    final facilityAmount = parseAmount(
-      termSheetView.termSheetDetailsData.first.facilityAmount,
-    );
+    final disbursedAmount = parseAmount(details?.totalDisbursedAmount);
+    final repaymentAmount = parseAmount(details?.totalRepayLedgerAmount);
+    final facilityAmount = parseAmount(details?.facilityAmount);
 
     final bool areAmountsEqual =
         disbursedAmount == repaymentAmount && repaymentAmount == facilityAmount;

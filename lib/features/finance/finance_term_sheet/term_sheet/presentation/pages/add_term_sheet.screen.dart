@@ -424,7 +424,11 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
           child: Container(
             height: 70.0,
             padding: const EdgeInsets.all(16.0),
-            child: CustomButton(text: "Add", onPressed: _sumbit),
+            child: CustomButton(
+              leading: Icon(Icons.add, size: 18, color: AppColor.white),
+              text: "Add",
+              onPressed: _sumbit,
+            ),
           ),
         ),
       ),

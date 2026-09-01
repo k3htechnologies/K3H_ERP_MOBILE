@@ -30,10 +30,8 @@ class SweepRatioDatasourceImpl extends SweepRatioDatasource {
         body,
       );
       return {
-        'data': List<TermSheetSweepRatioDetailsData>.from(
-          networkResponse['data'].map(
-            (x) => TermSheetSweepRatioDetailsData.fromJson(x),
-          ),
+        'data': List<TermSheetViewModel>.from(
+          networkResponse['data'].map((x) => TermSheetViewModel.fromJson(x)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

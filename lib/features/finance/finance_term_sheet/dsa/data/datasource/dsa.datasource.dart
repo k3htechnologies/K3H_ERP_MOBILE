@@ -30,10 +30,8 @@ class DSADatasourceImpl extends DSADatasource {
         body,
       );
       return {
-        'data': List<TermSheetDirectSellingAgentData>.from(
-          networkResponse['data'].map(
-            (x) => TermSheetDirectSellingAgentData.fromJson(x),
-          ),
+        'data': List<TermSheetViewModel>.from(
+          networkResponse['data'].map((x) => TermSheetViewModel.fromJson(x)),
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };

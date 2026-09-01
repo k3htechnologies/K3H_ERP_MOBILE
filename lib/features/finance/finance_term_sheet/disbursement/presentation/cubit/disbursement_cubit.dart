@@ -47,7 +47,6 @@ class DisbursementCubit extends Cubit<DisbursementState> {
 
         emit(
           state.copywith(
-            termSheetViewList: newList,
             termSheetDetailsViewModel:
                 newList.isNotEmpty &&
                         newList.first.termSheetDetailsData.isNotEmpty
@@ -126,12 +125,19 @@ class DisbursementCubit extends Cubit<DisbursementState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
+        final newData = (response['data'] as List<TermSheetViewModel>?) ?? [];
         showSuccessMessage(context, subTitle: response["message"]);
-        getTermSheetView(context, projectId, termSheetId);
-        if (context.mounted) {
-          goRouter.pop();
-        }
+        emit(
+          state.copywith(
+            termSheetDetailsViewModel:
+                newData.isNotEmpty &&
+                        newData.first.termSheetDetailsData.isNotEmpty
+                    ? newData.first.termSheetDetailsData.first
+                    : null,
+          ),
+        );
+        goRouter.pop();
       },
     );
   }
