@@ -26,6 +26,7 @@ class AppUpdateHelper {
       onNoUpdate();
       return;
     }
+
     final currentVersion = Platform.isAndroid ? androidVersion : iosVersion;
 
     final latestVersion =
@@ -41,7 +42,8 @@ class AppUpdateHelper {
       return;
     }
 
-    final isForceUpdate = updateType == UpdateType.major;
+    final isForceUpdate =
+        (data["IsForce"] == true) || updateType == UpdateType.major;
 
     _showUpdateDialog(
       context: context,
@@ -105,68 +107,73 @@ class AppUpdateHelper {
       context: context,
       barrierDismissible: false,
       builder: (_) {
-        return AlertDialog(
-          insetPadding: isForceUpdate ? null : EdgeInsets.all(10),
-          contentPadding:
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
+            insetPadding: EdgeInsets.symmetric(
+              horizontal: 24.w,
+              vertical: 24.h,
+            ),
+            contentPadding: EdgeInsets.fromLTRB(20.w, 0, 20.w, 20.h),
+            titlePadding: EdgeInsets.fromLTRB(20.w, 20.h, 20.w, 10.h),
+
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+
+            title: Text(
+              isForceUpdate ? "Update Required" : "Update Available",
+              style: AppTextStyle.ts14SB(),
+            ),
+
+            content: Text(
               isForceUpdate
-                  ? EdgeInsets.only(top: 10.h, left: 25.w, bottom: 20.h)
-                  : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+                  ? "A new version of the app is available. Please update to continue."
+                  : "A new version of the app is available.",
+              style: AppTextStyle.ts14R(),
+            ),
 
-          title: Text(
-            isForceUpdate ? "Update Required" : "Update Available",
-            style: AppTextStyle.ts14SB(),
-          ),
+            actions: [
+              Row(
+                spacing: 10,
+                children: [
+                  if (!isForceUpdate)
+                    Expanded(
+                      child: CustomButton(
+                        text: "Skip",
+                        // backgroundColor: AppColor.black.withValues(alpha: 0.5),
+                        backgroundColor: AppColor.grey,
+                        onPressed: () {
+                          goRouter.pop();
+                          onSkip();
+                        },
+                      ),
+                    ),
 
-          content: Text(
-            isForceUpdate
-                ? "A new version of the app is available. Please update to continue."
-                : "A new version of the app is available.",
-            style: AppTextStyle.ts14R(),
-          ),
-
-          actions: [
-            Row(
-              spacing: 10,
-              children: [
-                if (!isForceUpdate)
                   Expanded(
                     child: CustomButton(
-                      text: "Skip",
-                      // backgroundColor: AppColor.black.withValues(alpha: 0.5),
-                      backgroundColor: AppColor.grey,
-                      onPressed: () {
-                        goRouter.pop();
-                        onSkip();
+                      text: "Update",
+                      onPressed: () async {
+                        if (Platform.isIOS) {
+                          final url = Uri.parse(
+                            "itms-apps://itunes.apple.com/app/$appStoreId",
+                          );
+
+                          await launchUrl(url);
+                        } else if (Platform.isAndroid) {
+                          final url = Uri.parse(
+                            "market://details?id=$androidPackageName",
+                          );
+
+                          await launchUrl(url);
+                        }
                       },
                     ),
                   ),
-
-                Expanded(
-                  child: CustomButton(
-                    text: "Update",
-                    onPressed: () async {
-                      if (Platform.isIOS) {
-                        final url = Uri.parse(
-                          "itms-apps://itunes.apple.com/app/$appStoreId",
-                        );
-
-                        await launchUrl(url);
-                      } else if (Platform.isAndroid) {
-                        final url = Uri.parse(
-                          "market://details?id=$androidPackageName",
-                        );
-
-                        await launchUrl(url);
-                      }
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         );
       },
     );
