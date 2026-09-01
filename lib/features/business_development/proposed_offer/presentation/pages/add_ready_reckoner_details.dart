@@ -268,6 +268,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                             return CustomFromToDatePicker(
                               fromDateTitle: "Effective Start Date",
                               toDateTitle: "Effective End Date",
+                              alignVertical: true,
                               initialFromDate: _effectiveStartDate.value,
                               initialToDate: _effectiveEndDate.value,
                               isRequired: true,
@@ -290,7 +291,6 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                             );
                           },
                         ),
-                        verticalSpacing(height: 12),
                         _rateField(
                           "Residential Rate (₹)",
                           _residentialRateController,

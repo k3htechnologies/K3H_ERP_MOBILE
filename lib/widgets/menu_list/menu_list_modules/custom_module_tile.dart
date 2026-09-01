@@ -75,6 +75,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                 finalPath,
                 height: 20,
                 width: 20,
+                color: AppColor.primary,
                 fit: BoxFit.contain,
                 errorBuilder: (context, error, stackTrace) {
                   return Icon(Icons.home, size: 20, color: AppColor.primary);
