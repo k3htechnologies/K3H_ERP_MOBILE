@@ -193,7 +193,7 @@ Widget buildDocumentRow({
     children: [
       Flexible(
         child: Text(
-          docNumber,
+          docNumber.isEmpty ? "-" : docNumber,
           style: AppTextStyle.ts14M(color: AppColor.black),
         ),
       ),

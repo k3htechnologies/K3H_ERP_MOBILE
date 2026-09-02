@@ -73,11 +73,15 @@ class TemporaryAlternateAccommodationCubit
         isLoading: true,
       ),
     );
+
     if (buildingId == null) {
       emit(state.copyWith(isLoading: false));
       return;
     }
-    if (tabName == 'TAA' || tabName == 'Brokerage') {
+
+    final isTaaOrBrokerage = tabName == 'TAA' || tabName == 'Brokerage';
+
+    if (isTaaOrBrokerage) {
       await getTemporaryAccommodationAlternativeDetails(
         context: context,
         projectId: projectId,
@@ -86,13 +90,18 @@ class TemporaryAlternateAccommodationCubit
     } else {
       emit(state.copyWith(tenureList: []));
     }
-    if (context.mounted) {
-      getChargesDetails(
+
+    if (!context.mounted) return;
+
+    if (!isTaaOrBrokerage || state.tenureList.isNotEmpty) {
+      await getChargesDetails(
         context: context,
         pageNumber: 1,
         projectId: projectId,
         buildingId: buildingId,
       );
+    } else {
+      emit(state.copyWith(isLoading: false));
     }
   }
 
@@ -245,7 +254,7 @@ class TemporaryAlternateAccommodationCubit
   }
 
   // PULL RENT DETAILS (For Tenure List)
-  Future getTemporaryAccommodationAlternativeDetails({
+  Future<void> getTemporaryAccommodationAlternativeDetails({
     required BuildContext context,
     required int projectId,
     required int buildingId,
@@ -255,16 +264,17 @@ class TemporaryAlternateAccommodationCubit
           projectId: projectId,
           buildingId: buildingId,
         );
-    return result.fold(
+
+    result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final List<TemporaryAlternativeAccommodationDetailsModel>
-        rentDetailsList =
+        final rentDetailsList =
             List<TemporaryAlternativeAccommodationDetailsModel>.from(
               response['data'] ?? [],
             );
+
         final tenureList =
             rentDetailsList
                 .map((item) => item.tenure.trim())
@@ -274,16 +284,20 @@ class TemporaryAlternateAccommodationCubit
                       ? tenure.substring(6).trim()
                       : tenure;
                 })
+                .where((tenure) => tenure.isNotEmpty)
                 .toSet()
                 .toList()
               ..sort();
+
         final formattedTenureList =
             tenureList.map((tenure) => 'Tenure $tenure').toList();
+
         emit(
           state.copyWith(
             rentDetails: rentDetailsList,
             tenureList: formattedTenureList,
-            selectedTenure: formattedTenureList.first,
+            selectedTenure:
+                formattedTenureList.isNotEmpty ? formattedTenureList.first : '',
           ),
         );
       },
@@ -699,6 +713,10 @@ class TemporaryAlternateAccommodationCubit
     required int projectId,
     required int buildingId,
   }) async {
+    if (state.totalNumberOfRecord == 0) {
+      showErrorMessage(context, "Error", "No Data Found.");
+      return;
+    }
     DialogHelper.showProcessingOverlay(context);
     var result = await _temporaryAlternateAccommodationRepository
         .pullTenantApplicantChargesForExport(

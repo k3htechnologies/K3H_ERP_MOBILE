@@ -653,7 +653,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                 return Column(
                                   children: [
                                     CustomTextField(
-                                      title: 'Amount (₹)',
+                                      title: 'Amount',
                                       textController: _tenderAmountC,
                                       hint: "Enter Amount",
                                       isRequired: true,
@@ -661,21 +661,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                           TextInputType.numberWithOptions(),
                                       inputFormatterList:
                                           InputValidator.decimal(2),
-                                      prefixWidget: Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            right: BorderSide(
-                                              color: AppColor.grey,
-                                              width: .5,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          Icons.currency_rupee,
-                                          color: AppColor.grey,
-                                          size: 18,
-                                        ),
-                                      ),
+                                      prefixType: CustomTextFieldPrefix.rupees,
                                       validator: (value) {
                                         if (value == null || value.isEmpty) {
                                           return "Amount is required.";
@@ -693,6 +679,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                           fromDateTitle: "Purchase Start Date",
                                           toDateTitle: "Purchase End Date",
                                           alignVertical: true,
+                                          isRequired: true,
                                           initialFromDate:
                                               _purchaseStartDate.value,
                                           initialToDate: _purchaseEndDate.value,
@@ -824,28 +811,14 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                 return Column(
                                   children: [
                                     CustomTextField(
-                                      title: 'EMD Amount (₹)',
+                                      title: 'EMD Amount',
                                       textController: _tendorEmdAmountC,
                                       keyboardType:
                                           TextInputType.numberWithOptions(),
                                       hint: "Enter EMD Amount",
                                       inputFormatterList:
                                           InputValidator.decimal(2),
-                                      prefixWidget: Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(
-                                            right: BorderSide(
-                                              color: AppColor.grey,
-                                              width: .5,
-                                            ),
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          Icons.currency_rupee,
-                                          color: AppColor.grey,
-                                          size: 18,
-                                        ),
-                                      ),
+                                      prefixType: CustomTextFieldPrefix.rupees,
                                     ),
                                     ValueListenableBuilder(
                                       valueListenable: _submissionDate,

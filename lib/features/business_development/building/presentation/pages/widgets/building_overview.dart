@@ -110,30 +110,12 @@ class BuildingOverview extends StatelessWidget {
                   customValueWidget:
                       (building.tenderAmountChequeNumber.isEmpty)
                           ? null
-                          : Row(
-                            children: [
-                              Text(
-                                building.tenderAmountChequeNumber,
-                                style: AppTextStyle.ts14M(),
-                              ),
-                              CustomIconButton(
-                                onPressed: () {
-                                  showFilePreviewDialog(
-                                    title: "Transaction / Cheque / DD No",
-                                    context,
-                                    building.tenderAmountChequeNumberURL.split(
-                                      ",",
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.remove_red_eye_outlined,
-                                  size: 16,
-                                  color: AppColor.primary,
-                                ),
-                                backgroundColor: AppColor.white,
-                              ),
-                            ],
+                          : buildDocumentRow(
+                            context: context,
+                            docNumber: building.tenderAmountChequeNumber,
+                            url: building.tenderAmountChequeNumberURL,
+                            iconWithoutBg: true,
+                            title: "Transaction / Cheque / DD No",
                           ),
                 ),
                 buildColumnTitleValue(
@@ -176,30 +158,12 @@ class BuildingOverview extends StatelessWidget {
                   customValueWidget:
                       (building.tenderEMDChequeNumberURL.isEmpty)
                           ? null
-                          : Row(
-                            children: [
-                              Text(
-                                building.tenderEMDChequeNumber,
-                                style: AppTextStyle.ts14M(),
-                              ),
-                              CustomIconButton(
-                                onPressed: () {
-                                  showFilePreviewDialog(
-                                    title: "Transaction / Cheque / DD No",
-                                    context,
-                                    building.tenderEMDChequeNumberURL.split(
-                                      ",",
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.remove_red_eye_outlined,
-                                  size: 16,
-                                  color: AppColor.primary,
-                                ),
-                                backgroundColor: AppColor.white,
-                              ),
-                            ],
+                          : buildDocumentRow(
+                            context: context,
+                            docNumber: building.tenderEMDChequeNumber,
+                            url: building.tenderEMDChequeNumberURL,
+                            iconWithoutBg: true,
+                            title: "Transaction / Cheque / DD No",
                           ),
                 ),
                 buildColumnTitleValue(

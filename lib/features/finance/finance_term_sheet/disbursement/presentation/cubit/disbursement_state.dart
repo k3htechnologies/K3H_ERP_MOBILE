@@ -5,7 +5,8 @@ class DisbursementState extends BaseState {
 
   const DisbursementState({super.isLoading, this.termSheetDetailsViewModel});
 
-  factory DisbursementState.inital() =>
+  factory DisbursementState
+  .inital() =>
       DisbursementState(termSheetDetailsViewModel: null);
   DisbursementState copywith({
     bool? isLoading,

@@ -68,7 +68,6 @@ class _TemporaryAlternateAccommodationScreenState
     'Shifting',
   ];
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-  final ValueNotifier<int> totalNumberOfRecords = ValueNotifier(0);
 
   @override
   void initState() {
@@ -392,7 +391,6 @@ class _TemporaryAlternateAccommodationScreenState
       TemporaryAlternateAccommodationState
     >(
       listener: (context, state) {
-        totalNumberOfRecords.value = state.totalNumberOfRecord;
         _filterCount.value = _temporaryAlternateAccommodationCubit
             .updateFilterCount(state);
       },
@@ -405,6 +403,7 @@ class _TemporaryAlternateAccommodationScreenState
           onProjectChangeCallback: (project) async {
             _project.value = project;
             _selectedBuildingNotifier.value = [];
+            _tabController.animateTo(0);
             _temporaryAlternateAccommodationCubit.resetState();
           },
           onExportCallback: (value) {
@@ -413,9 +412,6 @@ class _TemporaryAlternateAccommodationScreenState
               return;
             } else if (_selectedBuildingNotifier.value.isEmpty) {
               showErrorMessage(context, "Error", "Please select a building");
-              return;
-            } else if (totalNumberOfRecords.value == 0) {
-              showErrorMessage(context, "Error", "No Data Found");
               return;
             }
             _temporaryAlternateAccommodationCubit.exportExcelPdfForTAA(

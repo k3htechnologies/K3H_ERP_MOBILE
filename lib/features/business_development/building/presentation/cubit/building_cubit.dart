@@ -863,6 +863,10 @@ class BuildingCubit extends Cubit<BuildingState> {
     String exportType,
     int projectId,
   ) async {
+    if (state.totalNumberOfRecord == 0) {
+      showErrorMessage(context, "Error", "No Data Found.");
+      return;
+    }
     DialogHelper.showProcessingOverlay(context);
     final result = await _buildingRepository.pullBuildingForExport(
       pageNumber: 1,
