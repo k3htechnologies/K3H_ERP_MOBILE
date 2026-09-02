@@ -36,7 +36,6 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ValueNotifier<List<WingDetailFormModel>> wingsNotifier =
       ValueNotifier<List<WingDetailFormModel>>([]);
-  List<WingDetailFormModel> _cachedWings = [];
   late final AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
@@ -46,9 +45,8 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
         Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
         AuthorizationModel();
     if (widget.details != null) {
-      _cachedWings = List.from(widget.details!);
-      wingsNotifier.value = List.from(_cachedWings);
-      for (final wing in _cachedWings) {
+      wingsNotifier.value = List.from(widget.details!);
+      for (final wing in wingsNotifier.value) {
         _attachWingListeners(wing);
       }
       _totalWingsC.text = widget.details!.length.toString();
@@ -62,7 +60,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
     _totalWingsC.dispose();
     _totalPodiumC.dispose();
     _totalUnitsC.dispose();
-    for (final wing in _cachedWings) {
+    for (final wing in wingsNotifier.value) {
       _detachWingListeners(wing);
       wing.dispose();
     }
@@ -97,17 +95,20 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   }
 
   void generateWingControllers(int count) {
-    while (_cachedWings.length < count) {
+    for (final wing in wingsNotifier.value) {
+      _detachWingListeners(wing);
+      wing.dispose();
+    }
+    final wings = List<WingDetailFormModel>.generate(count, (_) {
       final wing = WingDetailFormModel(buildingName: widget.buildingName);
       _attachWingListeners(wing);
-      _cachedWings.add(wing);
-    }
-    final visibleWings = _cachedWings.take(count).toList();
-    wingsNotifier.value = visibleWings;
+      return wing;
+    });
+    wingsNotifier.value = wings;
     final cubit = context.read<ProposedPlansCubit>();
     final form = cubit.state.proposedPlanForm;
     form.totalWings = count;
-    form.wings = visibleWings;
+    form.wings = wings;
     cubit.updateBuildingForm(form);
     _updateTotalUnits();
   }
@@ -147,6 +148,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                       if (count <= 0) {
                         for (final wing in wingsNotifier.value) {
                           _detachWingListeners(wing);
+                          wing.dispose();
                         }
                         wingsNotifier.value = [];
                         final cubit = context.read<ProposedPlansCubit>();
