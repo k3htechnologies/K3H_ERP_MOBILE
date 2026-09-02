@@ -91,6 +91,17 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
 
+  bool get _isBankNameRequired {
+    final paymentFor =
+        selectedPaymentFor.value?["DisplayName"]
+            ?.toString()
+            .trim()
+            .toLowerCase() ??
+        "";
+
+    return paymentFor != "agreement value tds";
+  }
+
   bool get _isDeveloperBankRequired {
     final paymentFor =
         selectedPaymentFor.value?["DisplayName"]
@@ -777,29 +788,42 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                         );
                       },
                     ),
-                    ValueListenableBuilder<List<Map<String, dynamic>>>(
-                      valueListenable: _selectedBankNotifier,
-                      builder: (context, selectedBank, _) {
-                        return CustomMultipleSelectPopup(
-                          title: 'Bank Name',
-                          hintText: "Select Bank Name",
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue:
-                              selectedBank.isNotEmpty ? selectedBank : null,
-                          dataList: const [],
-                          onSelected: (value) {
-                            _selectedBankNotifier.value = value;
-                          },
-                          dataFetchCallBack: _fetchBanks,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Bank Name is required.";
-                            }
-                            return null;
-                          },
-                          onClear: () {
-                            _selectedBankNotifier.value = [];
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: selectedPaymentFor,
+                      builder: (context, selectedPaymentForValue, _) {
+                        return ValueListenableBuilder<
+                          List<Map<String, dynamic>>
+                        >(
+                          valueListenable: _selectedBankNotifier,
+                          builder: (context, selectedBank, _) {
+                            return CustomMultipleSelectPopup(
+                              title: 'Bank Name',
+                              hintText: "Select Bank Name",
+                              isRequired: _isBankNameRequired,
+                              isMultiSelect: false,
+                              initialValue:
+                                  selectedBank.isNotEmpty ? selectedBank : null,
+                              dataList: const [],
+
+                              onSelected: (value) {
+                                _selectedBankNotifier.value = value;
+                              },
+
+                              dataFetchCallBack: _fetchBanks,
+
+                              validator: (value) {
+                                if (_isBankNameRequired &&
+                                    (value == null || value.isEmpty)) {
+                                  return "Bank Name is required.";
+                                }
+
+                                return null;
+                              },
+
+                              onClear: () {
+                                _selectedBankNotifier.value = [];
+                              },
+                            );
                           },
                         );
                       },

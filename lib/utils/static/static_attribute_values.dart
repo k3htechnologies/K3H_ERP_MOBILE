@@ -429,6 +429,7 @@ const supportValues = [
 
 const paymentModeValues = [
   'Cheque',
+  'Challan',
   'Demand Draft',
   'IMPS',
   'NEFT',
