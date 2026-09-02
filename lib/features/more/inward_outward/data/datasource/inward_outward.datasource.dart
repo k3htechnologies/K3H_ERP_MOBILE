@@ -14,14 +14,21 @@ abstract interface class InwardOutwardDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-  Future<Map<String, dynamic>> apicallAddUpdateInwardOutwardRevert({
-    required Map<String, String> body,
-    required List<Map<String, dynamic>> fileList,
-  });
   Future<Map<String, dynamic>> apicallDeleteInwardOutward({
     required int inwardOutwardId,
     required String uniqueKey,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateInwardOutwardRevert({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Map<String, dynamic>> apicallDeleteRevertInwardOutward({
+    required int inwardOutwardId,
+    required String uniqueKey,
+    required int inwardOutwardRevertId,
+  });
+
   Future<Map<String, dynamic>> apicallPullSenderReceiverByMobileNo({
     required String mobileNumber,
   });
@@ -112,7 +119,7 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
     required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateInwardOutwardRevert =
-        "InwardOutward/AddInwardOutwardRevert";
+        "InwardOutward/AddUpdateInwardOutwardRevert";
 
     try {
       var networkResponse = await baseClient
@@ -131,6 +138,49 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apicallAddUpdateInwardOutwardRevert(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallDeleteRevertInwardOutward({
+    required int inwardOutwardId,
+    required String uniqueKey,
+    required int inwardOutwardRevertId,
+  }) async {
+    String deleteRevertInwardOutwardUrl({
+      required int inwardOutwardId,
+      required String uniqueKey,
+      required int inwardOutwardRevertId,
+    }) {
+      return "InwardOutward/DeleteInwardOutwardRevert?"
+          "Uniquekey=$uniqueKey"
+          "&InwardOutwardId=$inwardOutwardId"
+          "&InwardOutwardRevertId=$inwardOutwardRevertId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteRevertInwardOutwardUrl(
+          uniqueKey: uniqueKey,
+          inwardOutwardId: inwardOutwardId,
+          inwardOutwardRevertId: inwardOutwardRevertId,
+        ),
+      );
+
+      return {
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse["message"],
+      };
+    } catch (error) {
+      // Handle token expiration by retrying once
+      if (error is TokenExpiredException) {
+        return apicallDeleteRevertInwardOutward(
+          uniqueKey: uniqueKey,
+          inwardOutwardId: inwardOutwardId,
+          inwardOutwardRevertId: inwardOutwardRevertId,
+        );
       }
       rethrow;
     }

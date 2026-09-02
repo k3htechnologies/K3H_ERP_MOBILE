@@ -92,7 +92,7 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inwa
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
-import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_revert_inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/otp_logs/presentation/cubit/otp_logs_cubit.dart';
 import 'package:k3h_erp_app/features/more/otp_logs/presentation/pages/otp_logs.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
@@ -3117,6 +3117,8 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.revertInwardOutward,
                   path: AppRoutes.revertInwardOutward,
                   builder: (context, state) {
+                    final queryParameterInwardOutward =
+                        state.uri.queryParameters['revertHistory'];
                     final queryParameterInwardOutwardId =
                         state.uri.queryParameters['inwardOutwardId'];
                     final queryParameterUniquekey =
@@ -3150,10 +3152,24 @@ final GoRouter goRouter = GoRouter(
                               ),
                             )
                             : 0;
-                    return RevertInwardOutwardScreen(
+                    final revertHistory =
+                        queryParameterInwardOutward != null &&
+                                queryParameterInwardOutward.isNotEmpty
+                            ? InwardOutwardRevertHistoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterInwardOutward,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return AddRevertInwardOutwardScreen(
                       inwardOutwardId: inwardOutwardId,
                       uniquekey: uniquekey,
                       index: index,
+                      revertHistoryModel: revertHistory,
                     );
                   },
                 ),

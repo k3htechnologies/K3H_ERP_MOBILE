@@ -33,6 +33,8 @@ class InwardOutwardModel {
   final String documentDescription;
   final String handOverTo;
   final DateTime? handOverDate;
+  final String handoverPersonMobileNumberCountryCode;
+  final String handoverPersonMobileNumber;
   final String acknowledgementRemark;
   final String acknowledgementURL;
   final List<InwardOutwardRevertHistoryModel> inwardOutwardRevertHistory;
@@ -76,6 +78,8 @@ class InwardOutwardModel {
     required this.documentDescription,
     required this.handOverTo,
     required this.handOverDate,
+    required this.handoverPersonMobileNumberCountryCode,
+    required this.handoverPersonMobileNumber,
     required this.acknowledgementRemark,
     required this.acknowledgementURL,
     required this.inwardOutwardRevertHistory,
@@ -138,6 +142,14 @@ class InwardOutwardModel {
               : parseValue<DateTime>(json, "HandOverDate"),
       acknowledgementRemark: parseValue<String>(json, "AcknowledgementRemark"),
       acknowledgementURL: parseValue<String>(json, "AcknowledgementURL"),
+      handoverPersonMobileNumberCountryCode: parseValue<String>(
+        json,
+        "HandoverPersonMobileNumberCountryCode",
+      ),
+      handoverPersonMobileNumber: parseValue<String>(
+        json,
+        "HandoverPersonMobileNumber",
+      ),
       inwardOutwardRevertHistory: List<InwardOutwardRevertHistoryModel>.from(
         (json["InwardOutwardRevertHistory"] ?? []).map(
           (x) => InwardOutwardRevertHistoryModel.fromJson(x),
@@ -190,12 +202,14 @@ class InwardOutwardModel {
       "DocumentDescription": documentDescription,
       "HandOverTo": handOverTo,
       "HandOverDate": handOverDate?.toIso8601String(),
+      "HandoverPersonMobileNumberCountryCode":
+          handoverPersonMobileNumberCountryCode,
+      "HandoverPersonMobileNumber": handoverPersonMobileNumber,
       "AcknowledgementRemark": acknowledgementRemark,
       "AcknowledgementURL": acknowledgementURL,
       "InwardOutwardRevertHistory": List<dynamic>.from(
         inwardOutwardRevertHistory.map((x) => x.toJson()),
       ),
-
       "CreatedById": createdById,
       "CreatedBy": createdBy,
       "CreatedDate": createdDate.toIso8601String(),

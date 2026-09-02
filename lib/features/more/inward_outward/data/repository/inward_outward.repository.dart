@@ -20,6 +20,12 @@ abstract interface class InwardOutwardRepository {
     required List<Map<String, dynamic>> fileList,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> deleteInwardOutwardRevert({
+    required int inwardOutwardId,
+    required String uniqueKey,
+    required int inwardOutwardRevertId,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> deleteInwardOutward({
     required int inwardOutwardId,
     required String uniqueKey,
@@ -82,6 +88,26 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
     try {
       var result = await inwardOutwardDatasource
           .apicallAddUpdateInwardOutwardRevert(body: body, fileList: fileList);
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteInwardOutwardRevert({
+    required int inwardOutwardId,
+    required String uniqueKey,
+    required int inwardOutwardRevertId,
+  }) async {
+    try {
+      var result = await inwardOutwardDatasource
+          .apicallDeleteRevertInwardOutward(
+            inwardOutwardId: inwardOutwardId,
+            uniqueKey: uniqueKey,
+            inwardOutwardRevertId: inwardOutwardRevertId,
+          );
 
       return right(result);
     } catch (error) {

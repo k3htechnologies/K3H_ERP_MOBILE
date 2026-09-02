@@ -21,6 +21,7 @@ class InwardOutwardState extends BaseState {
 
   final String currentSortColumn;
   final String currentSortDirection;
+  final InwardOutwardModel? inwardOutwardDetails;
 
   const InwardOutwardState({
     super.isLoading,
@@ -40,6 +41,7 @@ class InwardOutwardState extends BaseState {
     required this.filterByToDate,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.inwardOutwardDetails,
   });
 
   factory InwardOutwardState.initial() => const InwardOutwardState(
@@ -63,6 +65,7 @@ class InwardOutwardState extends BaseState {
     filterByToDate: null,
     currentSortColumn: "",
     currentSortDirection: "",
+    inwardOutwardDetails: null,
   );
   static const _noChange = Object();
 
@@ -84,6 +87,7 @@ class InwardOutwardState extends BaseState {
     Object? filterByToDate = _noChange,
     String? currentSortColumn,
     String? currentSortDirection,
+    InwardOutwardModel? inwardOutwardDetails,
   }) {
     return InwardOutwardState(
       isLoading: isLoading ?? this.isLoading,
@@ -116,6 +120,7 @@ class InwardOutwardState extends BaseState {
               : filterByToDate as DateTime?,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      inwardOutwardDetails: inwardOutwardDetails ?? this.inwardOutwardDetails,
     );
   }
 
@@ -141,5 +146,6 @@ class InwardOutwardState extends BaseState {
 
     currentSortColumn,
     currentSortDirection,
+    inwardOutwardDetails,
   ];
 }

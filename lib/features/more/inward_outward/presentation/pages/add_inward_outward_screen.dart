@@ -54,6 +54,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
       _documentDescC,
       _receivedByC,
       _handoverToC,
+      _handoverPersonMobileNumberC,
       _remarkC;
   final ValueNotifier<String> _deliveryType = ValueNotifier("Others");
   final ValueNotifier<Map<String, dynamic>?> _selectedDocumentType =
@@ -68,6 +69,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   final ValueNotifier<CountryCode> _selectedReceiverCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
+  final ValueNotifier<CountryCode> _selectedHandoverPersonCountry =
+      ValueNotifier(countryList.firstWhere((e) => e.code == "+91"));
   DateTime? _date, _invoiceDate, _handoverDate;
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -126,6 +129,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _documentDescC.dispose();
     _receivedByC.dispose();
     _handoverToC.dispose();
+    _handoverPersonMobileNumberC.dispose();
     _remarkC.dispose();
     _deliveryType.dispose();
     _selectedDocumentType.dispose();
@@ -153,6 +157,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _documentDescC = TextEditingController();
     _receivedByC = TextEditingController();
     _handoverToC = TextEditingController();
+    _handoverPersonMobileNumberC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
@@ -221,6 +226,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _receivedByC.text = data.acknowledgementBy;
     _handoverToC.text = data.handOverTo;
     _handoverDate = data.handOverDate;
+    _handoverPersonMobileNumberC.text = data.handoverPersonMobileNumber;
     _remarkC.text = data.acknowledgementRemark;
     selectedAcknowlegementSignatureFile.fileNameList =
         data.acknowledgementSignatureURL.isNotEmpty
@@ -246,6 +252,19 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     if (data.receiverMobileNumberCountryCode.isNotEmpty) {
       _selectedReceiverCountry.value = countryList.firstWhere(
         (e) => e.code == data.receiverMobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
+    if (data.handoverPersonMobileNumberCountryCode.isNotEmpty) {
+      _selectedHandoverPersonCountry.value = countryList.firstWhere(
+        (e) => e.code == data.handoverPersonMobileNumberCountryCode,
         orElse:
             () => CountryCode(
               name: "India",
@@ -290,6 +309,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         acknowledgementBy: _receivedByC.text.trim(),
         handOverTo: _handoverToC.text.trim(),
         handOverDate: _handoverDate?.toIso8601String() ?? "",
+        handoverPersonMobileNumberCountryCode:
+            _selectedHandoverPersonCountry.value.code,
+        handoverPersonMobileNumber: _handoverPersonMobileNumberC.text.trim(),
         chequeNumber: _chequeNumberC.text.trim(),
         documentTitle: _documentTitleC.text.trim(),
         documentDescription: _documentDescC.text.trim(),
@@ -322,6 +344,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         acknowledgementBy: _receivedByC.text.trim(),
         handOverTo: _handoverToC.text.trim(),
         handOverDate: _handoverDate?.toIso8601String() ?? "",
+        handoverPersonMobileNumberCountryCode:
+            _selectedHandoverPersonCountry.value.code,
+        handoverPersonMobileNumber: _handoverPersonMobileNumberC.text.trim(),
         chequeNumber: _chequeNumberC.text.trim(),
         documentTitle: _documentTitleC.text.trim(),
         documentDescription: _documentDescC.text.trim(),
@@ -436,9 +461,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Date",
                   initialDate: _date,
                   readOnly: true,
-                  setValue: (value) {
-                    _date = value;
-                  },
+                  setValue: (value) {},
                   isRequired: true,
                 ),
                 ValueListenableBuilder(
@@ -450,7 +473,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         CustomTextField(
                           textController: _invoiceNoC,
                           title: "Invoice Number",
-                          isRequired: !isOther,
                           hint: "Enter Invoice Number",
                           inputFormatterList:
                               InputValidator.digitAndCharacterOnly(15),
@@ -462,16 +484,16 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                                 )) {
                               return "Invoice Number cannot be zero.";
                             }
-                            if (isOther) return null;
-                            if (value == null || value.trim().isEmpty) {
-                              return "Invoice Number is required.";
-                            }
+
                             return null;
                           },
                         ),
                         CustomDatePicker(
                           title: "Invoice Date",
                           initialDate: _invoiceDate,
+                          startDate: DateTime.now().subtract(
+                            const Duration(days: 6),
+                          ),
                           endDate: DateTime.now(),
                           setValue: (value) {
                             _invoiceDate = value;
@@ -498,7 +520,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           ),
                           validator: (value) {
                             if (isOther) return null;
-                            if (value == null || value.trim().isEmpty) {
+                            if (value == null ||
+                                value.trim().isEmpty ||
+                                int.tryParse(value.trim()) == 0) {
                               return "Amount is required.";
                             }
                             return null;
@@ -635,6 +659,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Address",
                   isRequired: true,
                   hint: "Enter Sender Address",
+                  minLines: 3,
+                  maxLines: 3,
                   inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -750,6 +776,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   isRequired: true,
                   hint: "Enter Receiver Address",
                   inputFormatterList: [LengthLimitingTextInputFormatter(100)],
+                  minLines: 3,
+                  maxLines: 3,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Receiver Address is required.";
@@ -794,7 +822,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Document Description",
                   isRequired: true,
                   hint: "Enter Document Description",
-                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                  minLines: 3,
+                  maxLines: 3,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(500)],
                   validator: (value) {
                     if (value == null || value.toString().trim().isEmpty) {
                       return "Document Description is required.";
@@ -921,9 +951,43 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   CustomDatePicker(
                     title: "Handover Date",
                     initialDate: _handoverDate,
-                    startDate: DateTime.now(),
+                    startDate: DateTime.now().subtract(const Duration(days: 2)),
                     setValue: (value) {
                       _handoverDate = value;
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _selectedHandoverPersonCountry,
+                    builder: (context, value, child) {
+                      return CustomTextField(
+                        textController: _handoverPersonMobileNumberC,
+                        title: "Handover Person's Mobile Number",
+                        hint: "Enter Handover Person's Mobile Number",
+                        showCountryDropdown: true,
+                        keyboardType: TextInputType.number,
+                        selectedCountry: value,
+                        onCountryChanged: (country) {
+                          if (country == null) return;
+                          _selectedHandoverPersonCountry.value = country;
+                        },
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(value.mobileLength),
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        validator: (value) {
+                          final mobile = value?.trim() ?? "";
+                          final country = _selectedHandoverPersonCountry.value;
+
+                          if (mobile.isNotEmpty) {
+                            if ((mobile.length != country.mobileLength) ||
+                                country.regex != null &&
+                                    !country.regex!.hasMatch(mobile)) {
+                              return "Invalid Handover Person's Mobile Number";
+                            }
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
                   CustomTextField(
