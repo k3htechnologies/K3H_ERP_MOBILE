@@ -245,7 +245,18 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
               previous.currentBuildingIndex != current.currentBuildingIndex,
       listener: _onProposedPlansStateChanged,
       child: Scaffold(
-        appBar: _buildAppBar(),
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Proposed Plan",
+          isMenuButton: true,
+          authorization: _routeAuthorizationModel,
+          onProjectChangeCallback: (project) {
+            _project = project;
+            _proposedPlansCubit.getProposedPlanList(context, project.projectId);
+            _buildingTabController.animateTo(0);
+            _buildingDetailsTabController.animateTo(0);
+            _totalBuildingC.clear();
+          },
+        ),
         body: SafeArea(
           child: BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
             builder: (context, state) {
@@ -269,21 +280,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
         ),
         bottomNavigationBar: _buildBottomBar(),
       ),
-    );
-  }
-
-  PreferredSizeWidget _buildAppBar() {
-    return CustomAppBarWithBackButton(
-      screenTitle: "Proposed Plan",
-      isMenuButton: true,
-      authorization: _routeAuthorizationModel,
-      onProjectChangeCallback: (project) {
-        _project = project;
-        _proposedPlansCubit.getProposedPlanList(context, project.projectId);
-        _buildingTabController.animateTo(0);
-        _buildingDetailsTabController.animateTo(0);
-        _totalBuildingC.clear();
-      },
     );
   }
 

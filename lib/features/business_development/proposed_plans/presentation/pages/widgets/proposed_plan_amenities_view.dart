@@ -255,7 +255,7 @@ class AmenitiesDetailsViewState extends State<AmenitiesDetailsView>
                 text: TextSpan(
                   children: [
                     TextSpan(
-                      text: "Amenities Category",
+                      text: "Select Amenities",
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
                     TextSpan(
