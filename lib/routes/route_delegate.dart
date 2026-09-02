@@ -487,7 +487,7 @@ import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.d
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/add_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
-import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_view_screen.dart';
 import '../features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
 import '../features/sales/sales_reports/achievement/presentation/pages/achievement_report_screen.dart';
 import 'package:k3h_erp_app/main.dart';
@@ -3443,7 +3443,7 @@ final GoRouter goRouter = GoRouter(
                   ),
                 );
 
-                return ViewDetailsVendorScreen(vendor: vendor);
+                return VendorViewScreen(vendor: vendor);
               },
             ),
           ],

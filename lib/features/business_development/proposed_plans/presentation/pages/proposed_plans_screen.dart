@@ -211,7 +211,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                   totalNumberOfBuilding: count,
                   uniquekey: uniquekey,
                 );
-                goRouter.pop();
               },
             ),
           ),

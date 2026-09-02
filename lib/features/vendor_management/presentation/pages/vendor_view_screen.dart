@@ -15,15 +15,14 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../widgets/custom_chip_for_status_widget.dart';
 
-class ViewDetailsVendorScreen extends StatefulWidget {
+class VendorViewScreen extends StatefulWidget {
   final VendorModel vendor;
-  const ViewDetailsVendorScreen({super.key, required this.vendor});
+  const VendorViewScreen({super.key, required this.vendor});
   @override
-  State<ViewDetailsVendorScreen> createState() =>
-      _ViewDetailsVendorScreenState();
+  State<VendorViewScreen> createState() => _VendorViewScreenState();
 }
 
-class _ViewDetailsVendorScreenState extends State<ViewDetailsVendorScreen>
+class _VendorViewScreenState extends State<VendorViewScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
   @override
