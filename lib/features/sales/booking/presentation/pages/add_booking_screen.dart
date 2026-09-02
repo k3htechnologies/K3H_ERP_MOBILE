@@ -1746,8 +1746,9 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   Text("Agreement Details", style: AppTextStyle.ts16SB()),
                   verticalSpacing(),
                   CustomTextField(
-                    title: "Agreement Value (With TDS) (₹)",
+                    title: "Agreement Value (With TDS)",
                     hint: "Enter Agreement Value (with TDS)",
+                    prefixType: CustomTextFieldPrefix.rupees,
                     isRequired: true,
                     textController: _agreementValueWithTdsC,
                     keyboardType: const TextInputType.numberWithOptions(
@@ -1785,7 +1786,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     builder: (_, tds, __) {
                       return CustomTextField(
                         readOnly: true,
-                        title: "TDS (₹)",
+                        title: "TDS",
+                        prefixType: CustomTextFieldPrefix.rupees,
                         hint: "TDS",
                         textController: _tdsC,
                       );
@@ -1796,9 +1798,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     builder: (_, value, __) {
                       return CustomTextField(
                         readOnly: true,
-                        title: "Agreement Value (Without TDS) (₹)",
+                        title: "Agreement Value (Without TDS)",
                         hint: "Agreement Value (without TDS)",
                         textController: _agreementValueWithoutTdsC,
+                        prefixType: CustomTextFieldPrefix.rupees,
                         onChangeFunction: (value) {
                           _bookingCubit.onUpdateBookingAmount(
                             agreementValueWithTds:
@@ -1834,7 +1837,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     children: [
                       CustomTextField(
                         isRequired: true,
-                        title: "Agreement GST (%)",
+                        title: "Agreement GST",
+                        prefixType: CustomTextFieldPrefix.percentage,
                         hint: "Enter Agreement GST Percentage",
                         textController: _agreementGstPercentageC,
                         keyboardType: TextInputType.numberWithOptions(
@@ -1876,16 +1880,18 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         builder: (_, value, __) {
                           return CustomTextField(
                             readOnly: true,
-                            title: "Agreement GST Amount (₹)",
+                            title: "Agreement GST Amount",
                             hint: "Agreement GST Amount",
                             textController: _agreementGstAmountC,
+                            prefixType: CustomTextFieldPrefix.rupees,
                           );
                         },
                       ),
                       CustomTextField(
                         isRequired: true,
-                        title: "Stamp Duty (%)",
+                        title: "Stamp Duty",
                         hint: "Enter Stamp Duty Percentage",
+                        prefixType: CustomTextFieldPrefix.percentage,
                         keyboardType: TextInputType.numberWithOptions(
                           decimal: true,
                         ),
@@ -1906,9 +1912,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         builder: (_, value, __) {
                           return CustomTextField(
                             readOnly: true,
-                            title: "Stamp Duty Amount (₹)",
+                            title: "Stamp Duty Amount",
                             hint: "Stamp Duty Amount",
                             textController: _stampDutyAmountC,
+                            prefixType: CustomTextFieldPrefix.rupees,
                           );
                         },
                       ),
@@ -1917,9 +1924,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                         builder: (_, value, __) {
                           return CustomTextField(
                             readOnly: true,
-                            title: "Registration Fees (₹)",
+                            title: "Registration Fees",
                             hint: "Registration Fees",
                             textController: _registrationFeesC,
+                            prefixType: CustomTextFieldPrefix.rupees,
                           );
                         },
                       ),
@@ -3417,9 +3425,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               verticalSpacing(),
 
               CustomTextField(
-                title: "$percentageTitle (%)",
+                title: percentageTitle,
                 hint: "Enter Percentage",
                 isRequired: true,
+                prefixType: CustomTextFieldPrefix.percentage,
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 inputFormatterList: InputValidator.percentage(),
                 textController: percentController,
@@ -3441,9 +3450,10 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               CustomTextField(
                 readOnly: true,
                 isRequired: true,
-                title: "$amountTitle (₹)",
+                title: amountTitle,
                 hint: "$title Amount",
                 textController: amountController,
+                prefixType: CustomTextFieldPrefix.rupees,
               ),
             ],
           ),

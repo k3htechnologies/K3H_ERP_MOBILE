@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track_call
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/collection_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/reports.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/finance/term_sheet.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/inventory/inventory_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation/litigation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation_dashboard/litigation_dashboard.dependencies.dart';
@@ -271,4 +272,5 @@ void initDependencies() {
   registerOtpLogsDependencies(serviceLocator);
 
   registerPaytrackCallTrackerDependencies(serviceLocator);
+  registerTermSheetDependencies(serviceLocator);
 }

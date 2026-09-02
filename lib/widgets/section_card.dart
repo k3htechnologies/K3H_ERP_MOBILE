@@ -22,7 +22,11 @@ class SectionCard extends StatelessWidget {
 
   final double? childSpacing;
 
+  final Widget? suffix;
+
   final List<Widget> children;
+
+  final double? margin;
 
   const SectionCard({
     super.key,
@@ -34,7 +38,9 @@ class SectionCard extends StatelessWidget {
     this.iconContainerColor = AppColor.lightBlue,
     this.iconColor,
     this.headerBackgroundColor,
+    this.suffix,
     this.childSpacing,
+    this.margin,
   });
 
   @override
@@ -45,7 +51,7 @@ class SectionCard extends StatelessWidget {
   Widget _buildViewCard() {
     return Container(
       width: double.infinity,
-      margin: EdgeInsets.only(bottom: 16.h),
+      margin: EdgeInsets.only(bottom: margin ?? 16.h),
       clipBehavior: Clip.antiAlias,
       decoration: commonCardDecoration(),
       child: Column(
@@ -60,9 +66,18 @@ class SectionCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: headerBackgroundColor ?? AppColor.lightBlue,
-      child: Text(
-        title,
-        style: AppTextStyle.ts14SB(color: titleTextColor ?? AppColor.primary),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: AppTextStyle.ts14SB(
+                color: titleTextColor ?? AppColor.primary,
+              ),
+            ),
+          ),
+          if (suffix != null) suffix!,
+        ],
       ),
     );
   }

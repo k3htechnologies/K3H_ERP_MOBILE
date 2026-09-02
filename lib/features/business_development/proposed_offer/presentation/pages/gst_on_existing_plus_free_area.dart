@@ -132,11 +132,12 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                         ),
                         verticalSpacing(height: 15),
                         CustomTextField(
-                          title: 'GST on Area by Member Percent (%)',
+                          title: 'GST on Area by Member Percent',
                           isRequired: true,
                           readOnly: disableAction,
-                          hint: "Enter GST on Area by Member Percent (%)",
+                          hint: "Enter GST on Area by Member Percent",
                           textController: _gstOnAreaByMemberPercentC,
+                          prefixType: CustomTextFieldPrefix.percentage,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -150,11 +151,12 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                           },
                         ),
                         CustomTextField(
-                          title: 'GST on Area by Developer Percent (%)',
+                          title: 'GST on Area by Developer Percent',
                           isRequired: true,
-                          hint: "Enter GST on Area by Developer Percent (%)",
+                          hint: "Enter GST on Area by Developer Percent",
                           readOnly: disableAction,
                           textController: _gstOnAreaByDeveloperPercentC,
+                          prefixType: CustomTextFieldPrefix.percentage,
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
                           ),
@@ -168,9 +170,10 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                           },
                         ),
                         CustomTextField(
-                          title: 'Total GST (%)',
+                          title: 'Total GST',
                           isRequired: true,
                           textController: _totalGstC,
+                          prefixType: CustomTextFieldPrefix.percentage,
                           readOnly: true,
                           inputFormatterList: InputValidator.percentage(),
                           validator: (value) {

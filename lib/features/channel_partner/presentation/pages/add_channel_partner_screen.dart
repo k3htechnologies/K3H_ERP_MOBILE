@@ -808,23 +808,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   textController: _alternateMobileNumberC,
                   keyboardType: TextInputType.phone,
                   inputFormatterList: InputValidator.digit(10),
-                  prefixWidget: IntrinsicHeight(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-
-                      children: [
-                        SizedBox(width: 10),
-                        Text("+91"),
-                        VerticalDivider(
-                          color: AppColor.black,
-                          thickness: 0.5,
-                          width: 15,
-                          indent: 5,
-                          endIndent: 5,
-                        ),
-                      ],
-                    ),
-                  ),
+                  prefixType: CustomTextFieldPrefix.mobile,
                 ),
                 if (!_isEditMode)
                   ValueListenableBuilder<Map<String, dynamic>?>(

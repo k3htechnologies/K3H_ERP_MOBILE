@@ -187,9 +187,10 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
               },
             ),
             CustomTextField(
-              title: "Amount (₹)",
+              title: "Amount",
               hint: "Enter Amount",
               isRequired: true,
+              prefixType: CustomTextFieldPrefix.rupees,
               textController: _amountController,
               keyboardType: TextInputType.number,
               prefixWidget: Container(
@@ -392,24 +393,10 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                           valueListenable: _bankGuaranteeListNotifier,
                           builder: (context, bankGuaranteeListNotifier, child) {
                             return CustomTextField(
-                              title: "Bank Guarantee Amount (₹)",
+                              title: "Bank Guarantee Amount",
                               hint: "Enter Bank Guarantee Amount",
                               isRequired: true,
-                              prefixWidget: Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    right: BorderSide(
-                                      color: AppColor.grey,
-                                      width: .5,
-                                    ),
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.currency_rupee,
-                                  color: AppColor.grey,
-                                  size: 18,
-                                ),
-                              ),
+                             
                               textController: _bankGuaranteeAmountController,
                               keyboardType: TextInputType.number,
                               readOnly:

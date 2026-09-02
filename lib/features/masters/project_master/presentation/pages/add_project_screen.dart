@@ -924,8 +924,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                   return Column(
                                     children: [
                                       CustomTextField(
-                                        title: 'Amount (₹)',
+                                        title: 'Amount',
                                         textController: _tenderAmountC,
+                                        prefixType:
+                                            CustomTextFieldPrefix.rupees,
                                         hint: "Enter Amount",
                                         isRequired: true,
                                         keyboardType:
@@ -1103,8 +1105,10 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                   return Column(
                                     children: [
                                       CustomTextField(
-                                        title: 'EMD Amount (₹)',
+                                        title: 'EMD Amount',
                                         textController: _tendorEmdAmountC,
+                                        prefixType:
+                                            CustomTextFieldPrefix.rupees,
                                         keyboardType:
                                             TextInputType.numberWithOptions(),
                                         hint: "Enter EMD Amount",
@@ -1244,22 +1248,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         textController: _liasoningMobileNumberC,
                         keyboardType: TextInputType.number,
                         hint: "Enter Mobile Number",
-                        prefixWidget: IntrinsicHeight(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 10),
-                              Text("+91"),
-                              VerticalDivider(
-                                color: AppColor.black,
-                                thickness: 0.5,
-                                width: 15,
-                                indent: 5,
-                                endIndent: 5,
-                              ),
-                            ],
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.mobile,
                         inputFormatterList: InputValidator.digit(10),
                       ),
                     ],
@@ -1290,22 +1279,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         textController: _designingMobileNumberC,
                         hint: "Enter Mobile Number",
                         keyboardType: TextInputType.number,
-                        prefixWidget: IntrinsicHeight(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 10),
-                              Text("+91"),
-                              VerticalDivider(
-                                color: AppColor.black,
-                                thickness: 0.5,
-                                width: 15,
-                                indent: 5,
-                                endIndent: 5,
-                              ),
-                            ],
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.mobile,
                         inputFormatterList: InputValidator.digit(10),
                       ),
                     ],
@@ -1336,22 +1310,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         textController: _rccConsultantMobileNumberC,
                         hint: "Enter Mobile Number",
                         keyboardType: TextInputType.number,
-                        prefixWidget: IntrinsicHeight(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 10),
-                              Text("+91"),
-                              VerticalDivider(
-                                color: AppColor.black,
-                                thickness: 0.5,
-                                width: 15,
-                                indent: 5,
-                                endIndent: 5,
-                              ),
-                            ],
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.mobile,
                         inputFormatterList: InputValidator.digit(10),
                       ),
                     ],
@@ -1390,21 +1349,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       CustomTextField(
                         title: 'Google Location',
                         isRequired: true,
-                        prefixWidget: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(
-                                color: AppColor.grey,
-                                width: .5,
-                              ),
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.location_on_outlined,
-                            color: AppColor.grey,
-                            size: 18,
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.location,
                         textController: _googleLocationC,
                         hint: "Enter Google Location",
                         inputFormatterList: [
@@ -1600,42 +1545,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                       verticalSpacing(),
                       CustomTextField(
                         title: 'Project Estimate Cost',
-                        prefixWidget: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(
-                                color: AppColor.grey,
-                                width: .5,
-                              ),
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.currency_rupee,
-                            color: AppColor.grey,
-                            size: 18,
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.rupees,
                         hint: "Enter Estimate Cost",
                         textController: _projectEstimateCostC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
                       CustomTextField(
                         title: 'On Going Budget Cost',
-                        prefixWidget: Container(
-                          decoration: BoxDecoration(
-                            border: Border(
-                              right: BorderSide(
-                                color: AppColor.grey,
-                                width: .5,
-                              ),
-                            ),
-                          ),
-                          child: Icon(
-                            Icons.currency_rupee,
-                            color: AppColor.grey,
-                            size: 18,
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.rupees,
                         hint: "Enter Budget Cost",
                         textController: _onGoingBudgetCostC,
                         inputFormatterList: InputValidator.decimal(2),
@@ -1670,21 +1587,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 title: 'Project Project Federation Amount',
                                 isRequired: isPayTAA,
                                 readOnly: !isPayTAA,
-                                prefixWidget: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      right: BorderSide(
-                                        color: AppColor.grey,
-                                        width: .5,
-                                      ),
-                                    ),
-                                  ),
-                                  child: Icon(
-                                    Icons.currency_rupee,
-                                    color: AppColor.grey,
-                                    size: 18,
-                                  ),
-                                ),
+                                prefixType: CustomTextFieldPrefix.rupees,
                                 hint:
                                     isPayTAA
                                         ? "Enter Project Federation Amount"
@@ -1762,22 +1665,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         hint: "Enter Mobile Number",
                         textController: _siteContact1MobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
-                        prefixWidget: IntrinsicHeight(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 10),
-                              Text("+91"),
-                              VerticalDivider(
-                                color: AppColor.black,
-                                thickness: 0.5,
-                                width: 15,
-                                indent: 5,
-                                endIndent: 5,
-                              ),
-                            ],
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.mobile,
                       ),
                       CustomTextField(
                         title: 'Designation',
@@ -1796,22 +1684,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         hint: "Enter Mobile Number",
                         textController: _siteContact2MobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
-                        prefixWidget: IntrinsicHeight(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 10),
-                              Text("+91"),
-                              VerticalDivider(
-                                color: AppColor.black,
-                                thickness: 0.5,
-                                width: 15,
-                                indent: 5,
-                                endIndent: 5,
-                              ),
-                            ],
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.mobile,
                       ),
                       CustomTextField(
                         title: 'Designation 2',
@@ -1830,22 +1703,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         hint: "Enter Mobile Number",
                         textController: _siteContact3MobileNumberC,
                         inputFormatterList: InputValidator.digit(10),
-                        prefixWidget: IntrinsicHeight(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(width: 10),
-                              Text("+91"),
-                              VerticalDivider(
-                                color: AppColor.black,
-                                thickness: 0.5,
-                                width: 15,
-                                indent: 5,
-                                endIndent: 5,
-                              ),
-                            ],
-                          ),
-                        ),
+                        prefixType: CustomTextFieldPrefix.mobile,
                       ),
                       CustomTextField(
                         title: 'Designation 3',

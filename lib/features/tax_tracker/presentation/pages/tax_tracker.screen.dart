@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master/company_master_cubit.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -21,11 +22,14 @@ class TaxTrackerScreen extends StatefulWidget {
 
 class _TaxTrackerScreenState extends State<TaxTrackerScreen> {
   late CompanyMasterCubit _companyMasterCubit;
+  late TaxTrackerCubit _taxTrackerCubit;
   List<Map<String, dynamic>> _selectedCompany = [];
   @override
   void initState() {
     super.initState();
     _companyMasterCubit = context.read<CompanyMasterCubit>();
+    _taxTrackerCubit = context.read<TaxTrackerCubit>();
+    _taxTrackerCubit.getTrackTrackerList(context, 1);
   }
 
   // FETCH COMPANIES

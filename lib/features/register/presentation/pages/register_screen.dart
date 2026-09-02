@@ -142,23 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     inputFormatterList: InputValidator.digit(
                                       10,
                                     ),
-                                    prefixWidget: IntrinsicHeight(
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-
-                                        children: [
-                                          SizedBox(width: 10),
-                                          Text("+91"),
-                                          VerticalDivider(
-                                            color: AppColor.black,
-                                            thickness: 0.5,
-                                            width: 15,
-                                            indent: 5,
-                                            endIndent: 5,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
+                                    prefixType: CustomTextFieldPrefix.mobile,
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {

@@ -558,14 +558,18 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
                           textController: _valueC,
                           hint:
                               value == "Percentage"
-                                  ? "Enter Percentage (%)"
+                                  ? "Enter Percentage"
                                   : "Enter Amount",
                           title:
                               value == "Percentage"
-                                  ? "Value (%)"
+                                  ? "Value"
                                   : "Value (Lumpsum)",
                           keyboardType: TextInputType.number,
                           isRequired: true,
+                          prefixType:
+                              value == "Percentage"
+                                  ? CustomTextFieldPrefix.percentage
+                                  : CustomTextFieldPrefix.rupees,
                           inputFormatterList:
                               value == "Percentage"
                                   ? [

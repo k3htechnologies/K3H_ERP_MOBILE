@@ -226,8 +226,9 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                     ),
                     CustomTextField(
                       readOnly: true,
-                      title: "Value + GST Value (₹)",
+                      title: "Value + GST Value",
                       hint: "0",
+                      prefixType: CustomTextFieldPrefix.rupees,
                       textController: _totalValuePlusGst,
                     ),
                   ],

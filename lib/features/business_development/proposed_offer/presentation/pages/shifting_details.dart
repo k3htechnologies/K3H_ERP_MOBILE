@@ -250,11 +250,12 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               },
             ),
             CustomTextField(
-              title: "Stage Percentage (%)",
+              title: "Stage Percentage",
               isRequired: true,
               hint: "Enter Stage Percentage",
               textController: _stagePercentageController,
               keyboardType: TextInputType.number,
+              prefixType: CustomTextFieldPrefix.percentage,
               inputFormatterList: InputValidator.percentage(),
               validator: (value) {
                 if (value == null ||
@@ -269,9 +270,10 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               },
             ),
             CustomTextField(
-              title: "Amount (₹)",
+              title: "Amount",
               hint: "Calculated Amount",
               isRequired: true,
+              prefixType: CustomTextFieldPrefix.rupees,
               textController: _amountC,
               keyboardType: TextInputType.number,
               readOnly: true,

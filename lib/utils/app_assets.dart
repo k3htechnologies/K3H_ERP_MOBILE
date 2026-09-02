@@ -286,4 +286,8 @@ class AppAssets {
 
   static const String shiftingDetailsIcon =
       "$redevelopmentSvgPath/shifting_details.svg";
+  static const String companyIcon = "$svgPath/companyIcon.svg";
+
+  // MORE
+  static const String moreModule = "$sideDrawerIconsPath/moreModule.svg";
 }

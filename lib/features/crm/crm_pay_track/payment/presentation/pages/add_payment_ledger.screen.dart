@@ -831,8 +831,9 @@ class _AddPaymentLedgerScreenState extends State<AddPaymentLedgerScreen> {
                     CustomTextField(
                       textController: _receivedAmountC,
                       hint: "Enter Received Amount",
-                      title: "Received Amount (₹)",
+                      title: "Received Amount",
                       isRequired: true,
+                      prefixType: CustomTextFieldPrefix.rupees,
                       keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList: InputValidator.decimal(2),
                       validator: (value) {

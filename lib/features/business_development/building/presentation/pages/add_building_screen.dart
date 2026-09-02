@@ -526,11 +526,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                       title: "Google Location",
                       isRequired: true,
                       hint: "Enter Google Location",
-                      suffixWidget: Icon(
-                        Icons.location_on_outlined,
-                        size: 16,
-                        color: AppColor.grey,
-                      ),
+                      prefixType: CustomTextFieldPrefix.location,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Google Location is required.";

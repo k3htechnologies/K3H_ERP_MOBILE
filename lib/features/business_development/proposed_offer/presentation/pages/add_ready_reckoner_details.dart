@@ -292,19 +292,19 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                           },
                         ),
                         _rateField(
-                          "Residential Rate (₹)",
+                          "Residential Rate",
                           _residentialRateController,
                         ),
                         _rateField(
-                          "Commercial Rate (₹)",
+                          "Commercial Rate",
                           _commercialRateController,
                         ),
-                        _rateField("Shop Rate (₹)", _shopRateController),
+                        _rateField("Shop Rate", _shopRateController),
                         _rateField(
-                          "Industrial Rate (₹)",
+                          "Industrial Rate",
                           _industrialRateController,
                         ),
-                        _rateField("Land Rate (₹)", _landRateController),
+                        _rateField("Land Rate", _landRateController),
                         CustomTextField(
                           title: "Remark",
                           textController: _remarkController,
@@ -344,6 +344,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
     return CustomTextField(
       title: title,
       textController: controller,
+      prefixType: CustomTextFieldPrefix.rupees,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatterList: InputValidator.digitWithDecimal(
         maxDigitsBeforeDecimal: 16,
