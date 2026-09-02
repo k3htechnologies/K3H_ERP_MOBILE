@@ -50,6 +50,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/setting_dashboard/setting_da
 import 'package:k3h_erp_app/di/feature_dependencies/stock_management/stock_management.dependency.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/tax_tracker/tax_tracker.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/visitor_management/gate_pass/gate_pass.dependencies.dart';
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
 import 'feature_dependencies/channel_partner/channel_partner.dependencies.dart';
 import 'feature_dependencies/crm/brokerage/brokerage.dependencies.dart';
@@ -273,4 +274,8 @@ void initDependencies() {
 
   registerPaytrackCallTrackerDependencies(serviceLocator);
   registerTermSheetDependencies(serviceLocator);
+
+  // VISITOR MANAGEMENT
+  // GATE PASS
+  registerGatePassDependencies(serviceLocator);
 }

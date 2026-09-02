@@ -562,3 +562,12 @@ const termSheetDocumentsValues = [
   'Promoters Undertaking',
 ];
 const approvalStatusValues = ['Term Sheet', 'Sanction', 'Closed'];
+// VISITOR MANAGEMENT
+// GATE PASS
+const gatePassPurposeValues = [
+  'Delivery',
+  'Guest',
+  'Interview',
+  'Meeting',
+  'Others',
+];

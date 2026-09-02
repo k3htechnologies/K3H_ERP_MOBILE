@@ -3,6 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/add_gate_pass.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/gate_pass.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/view_gate_pass.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -7614,6 +7619,41 @@ final GoRouter goRouter = GoRouter(
                   termSheetDocumentModel:
                       extra['documentData'] as TermSheetDocumentModel?,
                   termSheetModel: extra['termSheetModel'] as TermSheetModel?,
+                );
+              },
+            ),
+          ],
+        ),
+        //  GATE PASS
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => GatePassCubit())],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.gatePass,
+              path: AppRoutes.gatePass,
+              builder: (context, state) {
+                return const GatePassScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addGatePass,
+              path: AppRoutes.addGatePass,
+              builder: (context, state) {
+                return const AddGatePassScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewGatePass,
+              path: AppRoutes.viewGatePass,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return ViewGatePassScreen(
+                  gatePassModel: extra["gatePass"] as GatePassModel?,
                 );
               },
             ),

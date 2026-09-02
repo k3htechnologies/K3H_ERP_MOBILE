@@ -208,7 +208,6 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
         _filterByCompanyNameC.clear();
         _selectedApprovalStatus.value = null;
         _nameOfInstitutionBankNBFCC.clear();
-        _searchC.clear();
         _termSheetCubit.applyTermSheetFilterAndSort(
           context: context,
           isClear: true,
