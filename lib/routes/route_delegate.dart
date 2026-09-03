@@ -7470,7 +7470,11 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addTermSheet,
               path: AppRoutes.addTermSheet,
               builder: (context, state) {
-                return AddTermSheetScreen();
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+
+                return AddTermSheetScreen(
+                  termSheet: extra["termSheet"] as TermSheetModel?,
+                );
               },
             ),
             GoRoute(
@@ -7481,8 +7485,9 @@ final GoRouter goRouter = GoRouter(
 
                 if (extra is Map<String, dynamic>) {
                   return AddLocalTermSheet(
-                    termSheetModel: extra["termSheet"] as LocalTermSheetModel?,
-                    termSheet: extra["termSheetModel"] as TermSheetModel?,
+                    termSheet: extra["termSheet"] as TermSheetModel?,
+                    termSheetModel:
+                        extra["termSheetModel"] as LocalTermSheetModel?,
                     termSheetDetailsView:
                         extra["termSheetDetailsView"] as TermSheetDetailsView?,
                   );

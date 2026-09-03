@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -225,6 +223,10 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     );
   }
 
+  void setLocalTermSheetList(List<LocalTermSheetModel> list) {
+    emit(state.copyWith(localTermSheetList: list));
+  }
+
   Future addTermSheet({
     required BuildContext context,
     required String projectId,
@@ -313,17 +315,11 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     );
   }
 
-  Future<void> updateTermSheet({
+  Future updateTermSheet({
     required BuildContext context,
-    required TermSheetModel? termSheetModel,
-    required TermSheetDetailsView? termSheetDetailsView,
-    required LocalTermSheetModel updatedTermSheet,
+    required TermSheetModel termSheetModel,
+    required List<LocalTermSheetModel> termSheetList,
   }) async {
-    if (termSheetModel == null) {
-      showErrorMessage(context, "Error", "Term Sheet data not found");
-      return;
-    }
-
     DialogHelper.showProcessingOverlay(context);
 
     final String projectId = termSheetModel.projectId.toString();
@@ -334,94 +330,97 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       "Uniquekey": termSheetModel.uniquekey,
       "ProjectId": projectId,
       "CompanyId": companyId,
-
-      "AddUpdateTermSheetDetails[0].TermSheetDetailsId":
-          updatedTermSheet.termSheetDetailsId.toString(),
-
-      "AddUpdateTermSheetDetails[0].Uniquekey": updatedTermSheet.uniquekey,
-
-      "AddUpdateTermSheetDetails[0].TermSheetId":
-          termSheetModel.termSheetId.toString(),
-
-      "AddUpdateTermSheetDetails[0].ProjectId": projectId,
-
-      "AddUpdateTermSheetDetails[0].LoanTakenBy": updatedTermSheet.loanTakenBy,
-
-      "AddUpdateTermSheetDetails[0].NameOfInstitutionBankNBFC":
-          updatedTermSheet.nameOfInstitutionBankNBFC,
-
-      "AddUpdateTermSheetDetails[0].Type": updatedTermSheet.type,
-
-      "AddUpdateTermSheetDetails[0].TermSheetDate":
-          updatedTermSheet.termSheetDate?.apiDate ?? "",
-
-      "AddUpdateTermSheetDetails[0].SanctionDate":
-          updatedTermSheet.sanctionDate?.apiDate ?? "",
-
-      "AddUpdateTermSheetDetails[0].LoanStartDate":
-          updatedTermSheet.loanStartDate?.apiDate ?? "",
-
-      "AddUpdateTermSheetDetails[0].LoanEndDate":
-          updatedTermSheet.loanEndDate?.apiDate ?? "",
-
-      "AddUpdateTermSheetDetails[0].FacilityAmount":
-          updatedTermSheet.facilityAmount.toString(),
-
-      "AddUpdateTermSheetDetails[0].RateOfInterestInPercentage":
-          updatedTermSheet.rateOfInterestInPercentage.toString(),
-
-      "AddUpdateTermSheetDetails[0].ProcessingFeesInPercentage":
-          updatedTermSheet.processingFeesInPercentage.toString(),
-
-      "AddUpdateTermSheetDetails[0].LegalAndDocumentationFees":
-          updatedTermSheet.legalAndDocumentationFees.toString(),
-
-      "AddUpdateTermSheetDetails[0].EMIAmount":
-          updatedTermSheet.emiAmount.toString(),
-
-      "AddUpdateTermSheetDetails[0].MinimumSellingPrice":
-          updatedTermSheet.minimumSellingPrice.toString(),
-
-      "AddUpdateTermSheetDetails[0].MonotoriumPeriodInMonth":
-          updatedTermSheet.monotoriumPeriodInMonth.toString(),
-
-      "AddUpdateTermSheetDetails[0].LoanTenureInMonth":
-          updatedTermSheet.loanTenureInMonth.toString(),
-
-      "AddUpdateTermSheetDetails[0].OtherImportantTermsIfAny":
-          updatedTermSheet.otherImportantTermsIfAny,
-
-      "AddUpdateTermSheetDetails[0].Remark": updatedTermSheet.remark,
-
-      "AddUpdateTermSheetDetails[0].RemoveTermSheetURL":
-          updatedTermSheet.termSheetFiles.deletedFileList,
     };
-    List<Map<String, dynamic>> fileList = [];
-    final files = updatedTermSheet.termSheetFiles;
-    debugPrint("FILE NAMES: ${files.fileNameList}");
-    debugPrint("FILE BYTES COUNT: ${files.fileBytesList.length}");
-    debugPrint("FILE NAMES COUNT: ${files.fileNameList.length}");
-    debugPrint("DELETED FILES: ${files.deletedFileList}");
-    for (int i = 0; i < files.fileNameList.length; i++) {
-      if (files.fileNameList[i].contains("http")) {
-        continue;
+
+    final List<Map<String, dynamic>> fileList = [];
+
+    for (int index = 0; index < termSheetList.length; index++) {
+      final termSheet = termSheetList[index];
+
+      requestBody["AddUpdateTermSheetDetails[$index].TermSheetDetailsId"] =
+          termSheet.termSheetDetailsId.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].Uniquekey"] =
+          termSheet.uniquekey;
+
+      requestBody["AddUpdateTermSheetDetails[$index].TermSheetId"] =
+          termSheetModel.termSheetId.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].ProjectId"] = projectId;
+
+      requestBody["AddUpdateTermSheetDetails[$index].LoanTakenBy"] =
+          termSheet.loanTakenBy;
+
+      requestBody["AddUpdateTermSheetDetails[$index].NameOfInstitutionBankNBFC"] =
+          termSheet.nameOfInstitutionBankNBFC;
+
+      requestBody["AddUpdateTermSheetDetails[$index].Type"] = termSheet.type;
+
+      requestBody["AddUpdateTermSheetDetails[$index].TermSheetDate"] =
+          termSheet.termSheetDate?.apiDate ?? "";
+
+      requestBody["AddUpdateTermSheetDetails[$index].SanctionDate"] =
+          termSheet.sanctionDate?.apiDate ?? "";
+
+      requestBody["AddUpdateTermSheetDetails[$index].LoanStartDate"] =
+          termSheet.loanStartDate?.apiDate ?? "";
+
+      requestBody["AddUpdateTermSheetDetails[$index].LoanEndDate"] =
+          termSheet.loanEndDate?.apiDate ?? "";
+
+      requestBody["AddUpdateTermSheetDetails[$index].FacilityAmount"] =
+          termSheet.facilityAmount.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].RateOfInterestInPercentage"] =
+          termSheet.rateOfInterestInPercentage.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].ProcessingFeesInPercentage"] =
+          termSheet.processingFeesInPercentage.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].LegalAndDocumentationFees"] =
+          termSheet.legalAndDocumentationFees.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].EMIAmount"] =
+          termSheet.emiAmount.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].MinimumSellingPrice"] =
+          termSheet.minimumSellingPrice.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].MonotoriumPeriodInMonth"] =
+          termSheet.monotoriumPeriodInMonth.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].LoanTenureInMonth"] =
+          termSheet.loanTenureInMonth.toString();
+
+      requestBody["AddUpdateTermSheetDetails[$index].OtherImportantTermsIfAny"] =
+          termSheet.otherImportantTermsIfAny;
+
+      requestBody["AddUpdateTermSheetDetails[$index].Remark"] =
+          termSheet.remark;
+
+      requestBody["AddUpdateTermSheetDetails[$index].RemoveTermSheetURL"] =
+          termSheet.termSheetFiles.deletedFileList;
+
+      // FILES
+      final files = termSheet.termSheetFiles;
+
+      for (int i = 0; i < files.fileNameList.length; i++) {
+        if (files.fileNameList[i].contains("http")) {
+          continue;
+        }
+
+        fileList.add({
+          "key": "AddUpdateTermSheetDetails[$index].TermSheetURL",
+          "value": files.fileBytesList[i],
+          "fileName": files.fileNameList[i],
+        });
       }
-      fileList.add({
-        "key": "AddUpdateTermSheetDetails[0].TermSheetURL",
-        "value": files.fileBytesList[i],
-        "fileName": files.fileNameList[i],
-      });
     }
 
-    log("UPDATE TERM SHEET BODY: $requestBody");
-    debugPrint("DETAIL ID: ${updatedTermSheet.termSheetDetailsId}");
-
-    debugPrint("DETAIL UNIQUEKEY: ${updatedTermSheet.uniquekey}");
     final result = await _termSheetRepository.addUpdateTermSheet(
       body: requestBody,
       fileList: fileList,
     );
-
     if (context.mounted) {
       goRouter.pop();
     }
@@ -433,15 +432,14 @@ class TermSheetCubit extends Cubit<TermSheetState> {
         }
       },
       (response) async {
-        if (!context.mounted) return;
-
         showSuccessMessage(context, subTitle: response["message"]);
-
-        await getTermSheet(context, 1);
-
-        if (context.mounted) {
-          goRouter.pop();
-        }
+        emit(
+          state.copyWith(
+            termSheetOverview: termSheetModel,
+            localTermSheetList: termSheetList,
+          ),
+        );
+        goRouter.pop();
       },
     );
   }

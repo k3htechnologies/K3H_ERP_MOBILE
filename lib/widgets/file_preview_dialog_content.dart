@@ -11,8 +11,9 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class CommonFileViewerMobile extends StatefulWidget {
   final List<String> urls;
@@ -68,16 +69,24 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
   }
 
   // CHECK IF ITS IMAGE OR NOT
-  bool isImage(String url, {Uint8List? bytes}) {
-    if (bytes != null && bytes.isNotEmpty) return true;
+  bool isImage(String url) {
+    final cleanUrl = url.split('?').first.split('#').first;
 
-    final ext = url.split('.').last.toLowerCase();
+    final ext =
+        cleanUrl.contains('.')
+            ? cleanUrl.split('.').last.toLowerCase().trim()
+            : '';
+
     return ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif', 'gif'].contains(ext);
   }
 
   bool isPdf(String url) {
-    final fileName = url.split('/').last.toLowerCase();
-    final ext = fileName.contains('.') ? fileName.split('.').last : '';
+    final cleanUrl = url.split('?').first.split('#').first;
+
+    final ext =
+        cleanUrl.contains('.')
+            ? cleanUrl.split('.').last.toLowerCase().trim()
+            : '';
 
     return ext == 'pdf';
   }
@@ -130,27 +139,28 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
       } else {
         // PDF / OTHER FILE → SAVE TO DOWNLOADS
 
-        final dir = Directory('/storage/emulated/0/Download');
-        if (!await dir.exists()) {
-          await dir.create(recursive: true);
-        }
+        final dir = await getTemporaryDirectory();
 
         final filePath = '${dir.path}/$fileName';
 
         final file = File(filePath);
+
         await file.writeAsBytes(fileData, flush: true);
-
-        debugPrint("Saved to Downloads: $filePath");
-        if (mounted) {
-          showSuccessMessage(
-            context,
-            subTitle: "Saved to Downloads: $filePath",
-          );
+        debugPrint("File created: $filePath");
+        final result = await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(filePath, name: fileName)],
+            title: fileName,
+          ),
+        );
+        if (result.status == ShareResultStatus.success) {
+          if (mounted) {
+            showSuccessMessage(
+              context,
+              subTitle: "Choose 'Save to Files' to save the document",
+            );
+          }
         }
-
-        await Future.delayed(const Duration(milliseconds: 500));
-
-        await OpenFilex.open(filePath);
       }
     } catch (e) {
       debugPrint("Download error: $e");
@@ -252,7 +262,7 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                     itemBuilder: (context, index) {
                       final url = widget.urls[index];
 
-                      if (isImage(url, bytes: widget.fileBytes?[index])) {
+                      if (isImage(url)) {
                         return Container(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
@@ -270,20 +280,7 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
                       }
 
                       if (isPdf(url)) {
-                        // Auto open PDF and close dialog
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          downloadFile(
-                            url,
-                            bytes:
-                                widget.fileBytes != null &&
-                                        widget.fileBytes!.length > index
-                                    ? widget.fileBytes![index]
-                                    : null,
-                          );
-                          goRouter.pop();
-                        });
-
-                        return const SizedBox();
+                        return _buildPdf(index, url);
                       }
 
                       // Other files
@@ -381,5 +378,19 @@ class _CommonFileViewerMobileState extends State<CommonFileViewerMobile> {
         ),
       ),
     );
+  }
+
+  Widget _buildPdf(int index, String url) {
+    if (widget.fileBytes != null &&
+        widget.fileBytes!.length > index &&
+        widget.fileBytes![index].isNotEmpty) {
+      return SfPdfViewer.memory(widget.fileBytes![index]);
+    }
+
+    if (url.startsWith('http')) {
+      return SfPdfViewer.network(url);
+    }
+
+    return const Center(child: Text("Unable to load PDF"));
   }
 }

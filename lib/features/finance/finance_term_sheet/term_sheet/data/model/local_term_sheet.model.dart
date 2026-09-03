@@ -22,6 +22,7 @@ class LocalTermSheetModel {
   final String type;
   final double facilityAmount;
   final String processingFeesInPercentage;
+  final String approvalStatus;
 
   final List<String> termSheetURL;
 
@@ -49,6 +50,7 @@ class LocalTermSheetModel {
     required this.termSheetFiles,
     required this.termSheetDetailsId,
     required this.uniquekey,
+    required this.approvalStatus,
   });
 
   factory LocalTermSheetModel.fromTermSheetModel(TermSheetModel model) {
@@ -95,6 +97,7 @@ class LocalTermSheetModel {
         fileNameList: model.termSheetUrl.isNotEmpty ? [model.termSheetUrl] : [],
         deletedFileList: "",
       ),
+      approvalStatus: model.approvalStatus,
     );
   }
 
@@ -106,38 +109,23 @@ class LocalTermSheetModel {
       uniquekey: model.uniquekey,
       nameOfInstitutionBankNBFC: model.nameOfInstitutionBankNbfc,
       loanTakenBy: model.loanTakenBy,
-
       loanStartDate: model.loanStartDate,
+      approvalStatus: model.approvalStatus,
       loanEndDate: model.loanEndDate,
-
       loanTenureInMonth: model.loanTenureInMonth.toString(),
-
       rateOfInterestInPercentage: model.rateOfInterestInPercentage.toString(),
-
       remark: model.remark,
-
       termSheetDate: model.termSheetDate,
-
       sanctionDate: model.sanctionDate,
-
       minimumSellingPrice: model.minimumSellingPrice.toString(),
-
       legalAndDocumentationFees: model.legalAndDocumentationFees.toString(),
-
       monotoriumPeriodInMonth: model.monotoriumPeriodInMonth.toString(),
-
       emiAmount: model.emiAmount.toString(),
-
       otherImportantTermsIfAny: model.otherImportantTermsIfAny,
-
       type: model.type,
-
       facilityAmount: model.facilityAmount,
-
       processingFeesInPercentage: model.processingFeesInPercentage.toString(),
-
       termSheetURL: model.termSheetUrl.isNotEmpty ? [model.termSheetUrl] : [],
-
       termSheetFiles: MultiFilePickerModel(
         fileBytesList: [],
         fileNameList: model.termSheetUrl.isNotEmpty ? [model.termSheetUrl] : [],
@@ -166,6 +154,7 @@ class LocalTermSheetModel {
     double? facilityAmount,
     String? processingFeesInPercentage,
     List<String>? termSheetURL,
+    String? approvalStatus,
     MultiFilePickerModel? termSheetFiles,
   }) {
     return LocalTermSheetModel(
@@ -196,6 +185,7 @@ class LocalTermSheetModel {
       termSheetFiles: termSheetFiles ?? this.termSheetFiles,
       termSheetDetailsId: termSheetDetailsId ?? this.termSheetDetailsId,
       uniquekey: uniquekey ?? this.uniquekey,
+      approvalStatus: approvalStatus ?? this.approvalStatus,
     );
   }
 
@@ -224,6 +214,7 @@ class LocalTermSheetModel {
       "FacilityAmount": facilityAmount,
       "TermSheetURL": termSheetURL,
       "ProcessingFeesInPercentage": processingFeesInPercentage,
+      "ApprovalStatus": approvalStatus,
     };
   }
 }

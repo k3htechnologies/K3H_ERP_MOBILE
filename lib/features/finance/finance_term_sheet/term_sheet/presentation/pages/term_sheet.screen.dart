@@ -311,6 +311,16 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
 
   Widget termSheetCard(BuildContext context, TermSheetState state, int index) {
     final termSheet = state.termSheetList[index];
+    final mainApprovalStatus = termSheet.approvalStatus.trim().toLowerCase();
+    final bool isEditDisbaled = mainApprovalStatus == "pending";
+    final termSheetView =
+        state.termSheetViewList
+            .expand((e) => e.termSheetDetailsData)
+            .where((detail) => detail.termSheetId == termSheet.termSheetId)
+            .firstOrNull;
+    final detailApprovalStatus =
+        termSheetView?.approvalStatus.trim().toLowerCase() ?? "";
+    final bool isDeleteDisabled = detailApprovalStatus != "pending";
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: const EdgeInsets.all(16),
@@ -348,9 +358,18 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CustomIconButton.edit(
+                      isDisabled: isEditDisbaled,
+                      onPressed: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.addTermSheet,
+                          extra: {"termSheet": termSheet},
+                        );
+                      },
+                    ),
+                    horizontalSpacing(),
                     CustomIconButton.delete(
-                      isDisabled:
-                          termSheet.approvalStatus.toLowerCase() != "pending",
+                      isDisabled: isDeleteDisabled,
                       onPressed: () {
                         _showPopupToDeleteTermSheet(context, termSheet, index);
                       },

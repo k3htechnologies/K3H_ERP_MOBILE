@@ -11,7 +11,6 @@ import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsa/presentation
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsra/presentation/pages/dsra.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/repayment/presentation/pages/repayment.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/sweep_ratio/presentation/pages/sweep_ratio.screen.dart';
-import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/local_term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/cubit/term_sheet_cubit.dart';
@@ -21,12 +20,10 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -109,28 +106,6 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
   void dispose() {
     _tabController.dispose();
     super.dispose();
-  }
-
-  Future<void> _showPopupToDeleteIndividualTermSheet(
-    BuildContext context,
-    TermSheetDetailsView termSheetView,
-    int index,
-  ) async {
-    final result = await DialogHelper.deleteDialog(
-      context,
-      'You are about to delete a Term Sheet Details?',
-      'Deleting this Term Sheet Details will permanently remove all associated data.',
-    );
-
-    if (result && context.mounted) {
-      await _termSheetCubit.deleteTermSheetDetails(
-        context: context,
-        projectId: termSheetView.projectId,
-        termSheetId: termSheetView.termSheetId,
-        termSheetDetailsId: termSheetView.termSheetDetailsId,
-        index: index,
-      );
-    }
   }
 
   @override
@@ -262,8 +237,6 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
     final bool areAmountsEqual =
         disbursedAmount == repaymentAmount && repaymentAmount == facilityAmount;
     final bool showCloseButton = isApproved && !isClosed && areAmountsEqual;
-
-    final bool isEditDisbaled = mainApprovalStatus == "pending";
 
     return Padding(
       padding: EdgeInsets.all(20.0),
@@ -472,58 +445,6 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                       return SectionCard(
                         margin: 0,
                         title: termSheetView.nameOfInstitutionBankNbfc,
-                        suffix: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomIconButton.edit(
-                              isDisabled: isEditDisbaled,
-                              onPressed: () async {
-                                final localTermSheet =
-                                    LocalTermSheetModel.fromTermSheetViewModel(
-                                      termSheetView,
-                                    );
-
-                                final result = await goRouter
-                                    .pushNamed<LocalTermSheetModel>(
-                                      AppRoutes.addLocalTermSheet,
-                                      extra: {
-                                        "isEdit": true,
-                                        "termSheet": localTermSheet,
-                                        "termSheetModel": widget.termSheetModel,
-                                        "termSheetDetailsView":
-                                            widget.termSheetDetailsView,
-                                      },
-                                    );
-
-                                if (result != null && context.mounted) {
-                                  context
-                                      .read<TermSheetCubit>()
-                                      .updateTermSheet(
-                                        context: context,
-                                        termSheetModel: widget.termSheetModel,
-                                        termSheetDetailsView:
-                                            widget.termSheetDetailsView,
-                                        updatedTermSheet: result,
-                                      );
-                                }
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              isDisabled:
-                                  termSheetView.approvalStatus.toLowerCase() !=
-                                  "pending",
-                              onPressed: () {
-                                _showPopupToDeleteIndividualTermSheet(
-                                  context,
-                                  termSheetView,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
                         children: [
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/local_term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/cubit/term_sheet_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -25,7 +26,8 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddTermSheetScreen extends StatefulWidget {
-  const AddTermSheetScreen({super.key});
+  final TermSheetModel? termSheet;
+  const AddTermSheetScreen({super.key, this.termSheet});
 
   @override
   State<AddTermSheetScreen> createState() => _AddTermSheetScreenState();
@@ -45,11 +47,25 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
 
   late UserModel? _user;
 
+  // EDIT MODE
+  bool get _isEditMode => widget.termSheet != null;
+  // MAIN TERM SHEET APPROVAL STATUS
+  String get mainApprovalStatus =>
+      widget.termSheet?.approvalStatus.trim().toLowerCase() ?? "";
+
+  // SAME CONDITION AS OVERVIEW TAB
+  bool get isEditDisabled => mainApprovalStatus == "pending";
+
+  // ADD BUTTON SHOULD DISAPPEAR AFTER MAIN APPROVAL
+  bool get isMainTermSheetApproved => mainApprovalStatus == "approved";
   @override
   void initState() {
     super.initState();
     _termSheetCubit = context.read<TermSheetCubit>();
     getCurrentUser();
+    if (_isEditMode) {
+      prefillTermSheet();
+    }
   }
 
   @override
@@ -59,7 +75,54 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
     super.dispose();
   }
 
-  void _sumbit() {
+  void prefillTermSheet() {
+    if (widget.termSheet == null) return;
+
+    final termSheet = widget.termSheet!;
+
+    _selectedProjectNotifier.value = [
+      {
+        "zAttributesId": termSheet.projectId,
+        "DisplayName": termSheet.projectName,
+      },
+    ];
+
+    _termSheetCubit.getProjectWithCompany(
+      context: context,
+      projectId: termSheet.projectId,
+    );
+
+    _fetchTermSheetDetails();
+  }
+
+  Future<void> _fetchTermSheetDetails() async {
+    if (widget.termSheet == null) return;
+
+    await _termSheetCubit.getTermSheetView(
+      context,
+      widget.termSheet!.projectId,
+      widget.termSheet!.termSheetId,
+    );
+
+    if (!mounted) return;
+
+    final state = _termSheetCubit.state;
+
+    if (state.termSheetViewList.isEmpty) {
+      return;
+    }
+
+    final termSheetView = state.termSheetViewList.first;
+
+    final localList =
+        termSheetView.termSheetDetailsData
+            .map((detail) => LocalTermSheetModel.fromTermSheetViewModel(detail))
+            .toList();
+
+    _termSheetCubit.setLocalTermSheetList(localList);
+  }
+
+  void _submit() {
     if (_selectedProjectNotifier.value.isEmpty) {
       showErrorMessage(context, "Error", "Please select a project");
       return;
@@ -82,14 +145,20 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
 
     final companyId = state.companyByProject.first.companyId.toString();
 
-    _termSheetCubit.addTermSheet(
-      context: context,
-      projectId: projectId,
-      companyId: companyId,
-
-      // IMPORTANT
-      termSheetList: state.localTermSheetList,
-    );
+    if (_isEditMode) {
+      _termSheetCubit.updateTermSheet(
+        context: context,
+        termSheetModel: widget.termSheet!,
+        termSheetList: state.localTermSheetList,
+      );
+    } else {
+      _termSheetCubit.addTermSheet(
+        context: context,
+        projectId: projectId,
+        companyId: companyId,
+        termSheetList: state.localTermSheetList,
+      );
+    }
   }
 
   Future getCurrentUser() async {
@@ -247,33 +316,35 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
                     },
                   ),
                   verticalSpacing(),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Term Sheet",
-                        style: AppTextStyle.ts14M(
-                          color: AppColor.greyTitleAndValueColor,
+                  if (!isMainTermSheetApproved) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Term Sheet",
+                          style: AppTextStyle.ts14M(
+                            color: AppColor.greyTitleAndValueColor,
+                          ),
                         ),
-                      ),
-                      horizontalSpacing(),
-                      CustomButton.add(
-                        onPressed: () async {
-                          final result = await goRouter
-                              .pushNamed<LocalTermSheetModel>(
-                                AppRoutes.addLocalTermSheet,
-                                extra: {"isEdit": false, "termSheet": null},
-                              );
+                        horizontalSpacing(),
+                        CustomButton.add(
+                          onPressed: () async {
+                            final result = await goRouter
+                                .pushNamed<LocalTermSheetModel>(
+                                  AppRoutes.addLocalTermSheet,
+                                  extra: {"isEdit": false, "termSheet": null},
+                                );
 
-                          if (result != null && context.mounted) {
-                            _termSheetCubit.addTermSheetLocally(result);
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(),
+                            if (result != null && context.mounted) {
+                              _termSheetCubit.addTermSheetLocally(result);
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                    verticalSpacing(),
+                  ],
                   BlocBuilder<TermSheetCubit, TermSheetState>(
                     buildWhen:
                         (previous, current) =>
@@ -317,19 +388,19 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
                                         ),
                                       ),
                                     ),
-
                                     horizontalSpacing(),
-
                                     Row(
                                       children: [
                                         CustomIconButton.edit(
+                                          isDisabled: isEditDisabled,
                                           onPressed: () async {
                                             final result = await goRouter
                                                 .pushNamed<LocalTermSheetModel>(
                                                   AppRoutes.addLocalTermSheet,
                                                   extra: {
-                                                    "isEdit": true,
-                                                    "termSheet": termSheet,
+                                                    "termSheet":
+                                                        widget.termSheet,
+                                                    "termSheetModel": termSheet,
                                                   },
                                                 );
 
@@ -346,6 +417,11 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
 
                                         horizontalSpacing(),
                                         CustomIconButton.delete(
+                                          isDisabled:
+                                              termSheet.approvalStatus
+                                                  .trim()
+                                                  .toLowerCase() !=
+                                              "pending",
                                           onPressed: () {
                                             _termSheetCubit
                                                 .deleteTermSheetLocally(index);
@@ -425,9 +501,13 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
             height: 70.0,
             padding: const EdgeInsets.all(16.0),
             child: CustomButton(
-              leading: Icon(Icons.add, size: 18, color: AppColor.white),
-              text: "Add",
-              onPressed: _sumbit,
+              leading: Icon(
+                _isEditMode ? Icons.edit : Icons.add,
+                size: 18,
+                color: AppColor.white,
+              ),
+              text: _isEditMode ? "Update" : "Add",
+              onPressed: _submit,
             ),
           ),
         ),
