@@ -44,7 +44,6 @@ class InwardOutwardModel {
   final int modifiedById;
   final String modifiedBy;
   final DateTime? modifiedDate;
-
   const InwardOutwardModel({
     required this.inwardOutwardId,
     required this.uniqueKey,
@@ -90,7 +89,6 @@ class InwardOutwardModel {
     required this.modifiedBy,
     this.modifiedDate,
   });
-
   factory InwardOutwardModel.fromJson(Map<String, dynamic> json) {
     return InwardOutwardModel(
       inwardOutwardId: parseValue<int>(json, "InwardOutwardId"),
@@ -155,7 +153,6 @@ class InwardOutwardModel {
           (x) => InwardOutwardRevertHistoryModel.fromJson(x),
         ),
       ),
-
       createdById: parseValue<int>(json, "CreatedById"),
       createdBy: parseValue<String>(json, "CreatedBy"),
       createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -167,7 +164,6 @@ class InwardOutwardModel {
               : parseValue<DateTime>(json, "ModifiedDate"),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       "InwardOutwardId": inwardOutwardId,
@@ -227,7 +223,6 @@ class InwardOutwardRevertHistoryModel {
   final DateTime revertDate;
   final String revertRemark;
   final String revertDocumentURL;
-
   const InwardOutwardRevertHistoryModel({
     required this.inwardOutwardRevertId,
     required this.inwardOutwardId,
@@ -236,7 +231,6 @@ class InwardOutwardRevertHistoryModel {
     required this.revertRemark,
     required this.revertDocumentURL,
   });
-
   factory InwardOutwardRevertHistoryModel.fromJson(Map<String, dynamic> json) {
     return InwardOutwardRevertHistoryModel(
       inwardOutwardRevertId: parseValue<int>(json, "InwardOutwardRevertId"),
@@ -247,7 +241,6 @@ class InwardOutwardRevertHistoryModel {
       revertDocumentURL: parseValue<String>(json, "RevertDocumentURL"),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       "InwardOutwardRevertId": inwardOutwardRevertId,

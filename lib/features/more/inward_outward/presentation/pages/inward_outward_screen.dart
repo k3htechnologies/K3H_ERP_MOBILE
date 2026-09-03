@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,7 +26,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class InwardOutwardScreen extends StatefulWidget {
   const InwardOutwardScreen({super.key});
-
   @override
   State<InwardOutwardScreen> createState() => _InwardOutwardScreenState();
 }
@@ -39,9 +37,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   late AuthorizationModel
   _inwardOutwardAdministrativeAccessRouteAuthorizationModel;
   late AuthorizationModel _routeAuthorizationModel;
-
   late InwardOutwardCubit _inwardOutwardCubit;
-
   late TabController _tabController;
   late TextEditingController _searchC,
       _senderNameC,
@@ -51,15 +47,11 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       _statusC,
       _senderMobileNumberC,
       _receiverMobileNumberC;
-
   DateTime? _selectedFromDate, _selectedToDate;
-
   late ScrollController _inwardOutwardScrollController;
   Timer? _inwardOutwardDebounce;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
   List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
-
   @override
   void initState() {
     _inwardOutwardRouteAuthorizationModel =
@@ -101,7 +93,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   void dispose() {
     _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
-
     _searchC.dispose();
     _senderNameC.dispose();
     _receiverNameC.dispose();
@@ -111,9 +102,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _senderMobileNumberC.dispose();
     _receiverMobileNumberC.dispose();
     _inwardOutwardScrollController.dispose();
-
     _inwardOutwardDebounce?.cancel();
-
     _filterCount.dispose();
     super.dispose();
   }
@@ -144,7 +133,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
 
   void _onScroll() {
     _inwardOutwardScrollController = ScrollController();
-
     _inwardOutwardScrollController.addListener(() {
       final state = _inwardOutwardCubit.state;
       if (_inwardOutwardScrollController.position.pixels >=
@@ -154,7 +142,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
         if (_inwardOutwardDebounce?.isActive ?? false) {
           _inwardOutwardDebounce?.cancel();
         }
-
         _inwardOutwardDebounce = Timer(const Duration(milliseconds: 300), () {
           switch (_tabController.index) {
             case 0:
@@ -185,7 +172,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     BuildContext context,
   ) async {
     final state = _inwardOutwardCubit.state;
-
     final initialDocumentId = state.searchText;
     final initialDocumentType = state.filterByDocumentType;
     final initialSenderName = state.filterBySenderName;
@@ -196,12 +182,10 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     final initialReceiverMobileNumber = state.filterByReceiverMobileNumber;
     final initialFromDate = state.filterByFromDate;
     final initialToDate = state.filterByToDate;
-
     final String? initialDirection =
         state.currentSortColumn == "IO Code"
             ? state.currentSortDirection
             : null;
-
     _searchC.text = initialDocumentId;
     _documentTypeC.text = initialDocumentType;
     _senderNameC.text = initialSenderName;
@@ -212,14 +196,10 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _receiverMobileNumberC.text = initialReceiverMobileNumber;
     _selectedFromDate = initialFromDate;
     _selectedToDate = initialToDate;
-
     String? selectedDirection = initialDirection;
-
     bool applied = false;
     bool manualClose = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState() {
       final bool onlyOneDateSet =
           (_selectedFromDate != null && _selectedToDate == null) ||
@@ -236,14 +216,12 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           (_selectedFromDate != initialFromDate) ||
           (_selectedToDate != initialToDate) ||
           (selectedDirection != initialDirection);
-
       applyEnabled.value = manualClose && !onlyOneDateSet;
     }
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Inward Outward",
-
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -259,9 +237,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text("Sort By IO Code", style: AppTextStyle.ts14M()),
-
                 verticalSpacing(),
-
                 Row(
                   children: [
                     GestureDetector(
@@ -282,9 +258,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                         child: Text("A-Z", style: AppTextStyle.ts12R()),
                       ),
                     ),
-
                     horizontalSpacing(),
-
                     GestureDetector(
                       onTap: () => selectDirection("DESC"),
                       child: Container(
@@ -305,30 +279,25 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     ),
                   ],
                 ),
-
                 verticalSpacing(height: 20),
-
                 CustomTextField(
                   textController: _searchC,
                   title: "IO Code",
                   hint: "Enter IO Code",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _senderNameC,
                   title: "Sender Name",
                   hint: "Enter Sender Name",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _receiverNameC,
                   title: "Receiver Name",
                   hint: "Enter Receiver Name",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 if (_tabController.index == 0)
                   CustomTextField(
                     textController: _documentTypeC,
@@ -336,21 +305,18 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     hint: "Enter Document Type",
                     onChangeFunction: (_) => updateApplyState(),
                   ),
-
                 CustomTextField(
                   textController: _documentTitleC,
                   title: "Document Title",
                   hint: "Enter Document Title",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _statusC,
                   title: "Status",
                   hint: "Enter Status",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _senderMobileNumberC,
                   title: "Sender Mobile Number",
@@ -359,7 +325,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _receiverMobileNumberC,
                   title: "Receiver Mobile Number",
@@ -368,7 +333,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   inputFormatterList: InputValidator.digit(10),
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomFromToDatePicker(
                   fromDateTitle: "From Date",
                   toDateTitle: "To Date",
@@ -387,7 +351,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           );
         },
       ),
-
       onClear: () async {
         _searchC.clear();
         _documentTypeC.clear();
@@ -397,19 +360,15 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
         _statusC.clear();
         _senderMobileNumberC.clear();
         _receiverMobileNumberC.clear();
-
         _selectedFromDate = null;
         selectedDirection = null;
-
         await _inwardOutwardCubit.applyInwardOutwardFilterAndSort(
           context: context,
           isClear: true,
         );
       },
-
       onApply: () {
         applied = true;
-
         _inwardOutwardCubit.applyInwardOutwardFilterAndSort(
           context: context,
           documentId: _searchC.text.trim(),
@@ -426,11 +385,9 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           sortDirection: selectedDirection ?? "",
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     if (!applied && manualClose) {
       _searchC.clear();
       _documentTypeC.clear();
@@ -440,7 +397,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       _statusC.clear();
       _senderMobileNumberC.clear();
       _receiverMobileNumberC.clear();
-
       _selectedFromDate = null;
       selectedDirection = null;
     }
@@ -457,7 +413,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       'You are about to delete this Inward Outward ?',
       'Deleting this Inward Outward will permanently remove its contents.',
     );
-
     if (result && context.mounted) {
       _inwardOutwardCubit.deleteInwardOutward(
         index: index,
@@ -513,11 +468,9 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     return BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
       builder: (context, state) {
         final list = state.inwardOutwardList;
-
         if ((state.isLoading ?? true) && list.isEmpty) {
           return Center(child: loader());
         }
-
         if (list.isEmpty) {
           return Center(
             child: noDataWidget(
@@ -530,7 +483,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
             ),
           );
         }
-
         return RefreshIndicator(
           onRefresh: () => _inwardOutwardCubit.handleApiCall(context: context),
           child: ListView.separated(
@@ -547,14 +499,11 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     )
                     : const SizedBox.shrink();
               }
-
               final inwardOutward = list[index];
-
               final documentModeStyle =
                   inwardOutward.documentType.toLowerCase() == 'inward'
                       ? AppTextStyle.ts14B(color: AppColor.darkBlue29)
                       : AppTextStyle.ts14B(color: AppColor.darkRed);
-
               return inwardOutwardCard(
                 index: index,
                 inwardOutward: inwardOutward,
@@ -607,7 +556,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   ),
                 ),
               ),
-
               Row(
                 spacing: 10,
                 children: [
@@ -627,7 +575,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                       );
                     },
                   ),
-
                   CustomIconButton.delete(
                     isDisabled: disable,
                     onPressed:
@@ -638,7 +585,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                           uniqueKey: inwardOutward.uniqueKey,
                         ),
                   ),
-
                   Stack(
                     clipBehavior: Clip.none,
                     children: [
@@ -674,7 +620,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                                   : AppColor.darkGreen,
                         ),
                       ),
-
                       if (revertCount > 0)
                         Positioned(
                           top: -6,
@@ -710,19 +655,16 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
               ),
             ],
           ),
-
           buildRowTitleValue(
             title: "Document Type",
             value: inwardOutward.documentType,
             valueTextStyle: documentModeStyle,
           ),
-
           buildRowTitleValue(
             title: "Document Title",
             value: inwardOutward.documentTitle,
             singleLine: false,
           ),
-
           buildRowTitleValue(
             title: "Status",
             value: inwardOutward.deliveryStatus,

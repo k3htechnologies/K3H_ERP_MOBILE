@@ -131,7 +131,7 @@ class DialogHelper {
                       "Your access has been modified, please restart to use the application.",
                       style: AppTextStyle.ts16R(color: AppColor.grey),
                       textAlign: TextAlign.center,
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

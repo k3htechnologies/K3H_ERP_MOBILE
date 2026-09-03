@@ -9,28 +9,23 @@ abstract interface class InwardOutwardRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateInwardOutward({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateInwardOutwardRevert({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteInwardOutwardRevert({
     required int inwardOutwardId,
     required String uniqueKey,
     required int inwardOutwardRevertId,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteInwardOutward({
     required int inwardOutwardId,
     required String uniqueKey,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> getSenderReceiverByMobileNo({
     required String mobileNumber,
   });
@@ -43,9 +38,7 @@ abstract interface class InwardOutwardRepository {
 
 class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
   final InwardOutwardDatasource inwardOutwardDatasource;
-
   InwardOutwardRepositoryImpl({required this.inwardOutwardDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getInwardOutwardList({
     required int pageNumber,
@@ -58,7 +51,6 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
         pageSize: pageSize,
         queryParams: queryParams,
       );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -73,7 +65,6 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
     try {
       var result = await inwardOutwardDatasource
           .apicallAddUpdateInwardOutwardMaster(body: body, fileList: fileList);
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -88,7 +79,6 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
     try {
       var result = await inwardOutwardDatasource
           .apicallAddUpdateInwardOutwardRevert(body: body, fileList: fileList);
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -108,7 +98,6 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
             uniqueKey: uniqueKey,
             inwardOutwardRevertId: inwardOutwardRevertId,
           );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -125,7 +114,6 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
         inwardOutwardId: inwardOutwardId,
         uniqueKey: uniqueKey,
       );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -139,7 +127,6 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
     try {
       var result = await inwardOutwardDatasource
           .apicallPullSenderReceiverByMobileNo(mobileNumber: mobileNumber);
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -159,7 +146,6 @@ class InwardOutwardRepositoryImpl implements InwardOutwardRepository {
             pageSize: pageSize,
             queryParams: queryParams,
           );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

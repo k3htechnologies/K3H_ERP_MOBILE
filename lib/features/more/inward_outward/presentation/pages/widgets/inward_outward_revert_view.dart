@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,7 +26,6 @@ class RevertSection extends StatefulWidget {
     required this.inwardOutward,
     required this.routeAuthorizationModel,
   });
-
   @override
   State<RevertSection> createState() => _RevertSectionState();
 }
@@ -92,7 +90,6 @@ class _RevertSectionState extends State<RevertSection> {
                           ),
                         ),
                       ),
-
                       if (index == 0)
                         Row(
                           spacing: 10.w,

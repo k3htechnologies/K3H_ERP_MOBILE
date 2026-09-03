@@ -22,13 +22,11 @@ abstract interface class InwardOutwardDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> apicallDeleteRevertInwardOutward({
     required int inwardOutwardId,
     required String uniqueKey,
     required int inwardOutwardRevertId,
   });
-
   Future<Map<String, dynamic>> apicallPullSenderReceiverByMobileNo({
     required String mobileNumber,
   });
@@ -90,7 +88,6 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
     required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateInwardOutwardUrl = "InwardOutward/AddUpdateInwardOutward";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
@@ -120,7 +117,6 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
   }) async {
     String addUpdateInwardOutwardRevert =
         "InwardOutward/AddUpdateInwardOutwardRevert";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
@@ -168,7 +164,6 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
           inwardOutwardRevertId: inwardOutwardRevertId,
         ),
       );
-
       return {
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
         'message': networkResponse["message"],
@@ -207,7 +202,6 @@ class InwardOutwardDatasourceImp implements InwardOutwardDatasource {
           inwardOutwardId: inwardOutwardId,
         ),
       );
-
       return {
         'data': networkResponse["data"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],

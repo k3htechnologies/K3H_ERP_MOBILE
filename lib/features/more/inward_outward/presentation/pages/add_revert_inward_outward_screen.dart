@@ -18,7 +18,6 @@ class AddRevertInwardOutwardScreen extends StatefulWidget {
   final int inwardOutwardId;
   final String uniquekey;
   final InwardOutwardRevertHistoryModel? revertHistoryModel;
-
   const AddRevertInwardOutwardScreen({
     super.key,
     required this.index,
@@ -26,7 +25,6 @@ class AddRevertInwardOutwardScreen extends StatefulWidget {
     required this.uniquekey,
     this.revertHistoryModel,
   });
-
   @override
   State<AddRevertInwardOutwardScreen> createState() =>
       _AddRevertInwardOutwardScreenState();
@@ -36,17 +34,13 @@ class _AddRevertInwardOutwardScreenState
     extends State<AddRevertInwardOutwardScreen> {
   late InwardOutwardCubit _inwardOutwardCubit;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   DateTime? _revertDate;
-
   late TextEditingController _remarkC;
-
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
   bool get _isEditMode => widget.revertHistoryModel != null;
   @override
   void initState() {
@@ -77,7 +71,6 @@ class _AddRevertInwardOutwardScreenState
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
     if (_isEditMode) {
       _inwardOutwardCubit.updateRevertInwardOutward(
         index: widget.index,
@@ -134,18 +127,15 @@ class _AddRevertInwardOutwardScreenState
                   return null;
                 },
               ),
-
               CustomMultiFilePicker(
                 title: "Upload Document",
                 isRequired: true,
                 initialFileList: selectedDocumentFile.fileNameList,
                 filePickType: FilePickType.both,
-
                 onFilePickedCallback: (bytesList, fileNameList) {
                   selectedDocumentFile.fileBytesList = bytesList;
                   selectedDocumentFile.fileNameList = fileNameList;
                 },
-
                 onFileDeleteCallback: (
                   fileBytesList,
                   fileNameList,
@@ -155,7 +145,6 @@ class _AddRevertInwardOutwardScreenState
                   selectedDocumentFile.fileNameList = fileNameList;
                   selectedDocumentFile.deletedFileList = deletedFile;
                 },
-
                 validator: (fileList) {
                   if (fileList == null || fileList.isEmpty) {
                     return "Document is required.";
@@ -163,7 +152,6 @@ class _AddRevertInwardOutwardScreenState
                   return null;
                 },
               ),
-
               CustomTextField(
                 title: "Remark",
                 textController: _remarkC,

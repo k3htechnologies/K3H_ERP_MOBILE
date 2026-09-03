@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,7 +41,6 @@ class AddInwardOutwardScreen extends StatefulWidget {
 
 class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   late InwardOutwardCubit _inwardOutwardCubit;
-
   late AuthorizationModel _inwardOutwardRouteAuthorizationModel;
   late AuthorizationModel _acknowlegmentRouteAuthorizationModel;
   late AuthorizationModel
@@ -189,29 +187,23 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   bool get disableInwardOutward {
     final isCreator =
         _user.employeeId == widget.inwardOutwardModel?.createdById;
-
     final canEditAsCreator =
         isCreator &&
         _isEditMode &&
         _acknowlegmentRouteAuthorizationModel.isAction;
-
     final canEditFromAcknowledgment =
         !_isEditMode &&
         !_inwardOutwardRouteAuthorizationModel.isAction &&
         _acknowlegmentRouteAuthorizationModel.isAction;
-
     final hasInwardOutwardAccess =
         _inwardOutwardRouteAuthorizationModel.isAction;
-
     final hasAdministrativeAccess =
         _inwardOutwardAdministrativeAccessRouteAuthorizationModel.isAction;
-
     final disable =
         !(canEditAsCreator ||
             canEditFromAcknowledgment ||
             hasInwardOutwardAccess ||
             hasAdministrativeAccess);
-
     return disable;
   }
 
@@ -448,6 +440,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                     return Row(
                       children: [
                         Radio<String>(
+                          enabled: !disableInwardOutward,
                           value: 'Others',
                           // ignore: deprecated_member_use
                           groupValue: value,
@@ -461,6 +454,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         Text("Others", style: AppTextStyle.ts14M()),
                         horizontalSpacing(width: 16),
                         Radio<String>(
+                          enabled: !disableInwardOutward,
                           value: 'Cheque',
                           // ignore: deprecated_member_use
                           groupValue: value,
@@ -544,7 +538,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                                 )) {
                               return "Invoice Number cannot be zero.";
                             }
-
                             return null;
                           },
                         ),
@@ -1051,7 +1044,6 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         validator: (value) {
                           final mobile = value?.trim() ?? "";
                           final country = _selectedHandoverPersonCountry.value;
-
                           if (mobile.isNotEmpty) {
                             if ((mobile.length != country.mobileLength) ||
                                 country.regex != null &&

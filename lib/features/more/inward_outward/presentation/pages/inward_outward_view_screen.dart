@@ -17,7 +17,6 @@ import '../../../../../widgets/app_bar/custom_app_bar_with_back_button.dart';
 class InwardOutwardViewScreen extends StatefulWidget {
   final InwardOutwardModel inwardOutwardModel;
   const InwardOutwardViewScreen({super.key, required this.inwardOutwardModel});
-
   @override
   State<InwardOutwardViewScreen> createState() =>
       _InwardOutwardViewScreenState();
@@ -29,7 +28,6 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
   late AuthorizationModel _routeAuthorizationModel;
   late TabController _tabController;
   List<String> inwardOutwardViewTabs = const ['Overview', 'Document', 'Revert'];
-
   @override
   void initState() {
     _inwardOutwardCubit = context.read<InwardOutwardCubit>();
@@ -64,12 +62,13 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: Text(
               widget.inwardOutwardModel.systemGeneratedCode,
               style: AppTextStyle.ts16M(),
             ),
           ),
+          verticalSpacing(height: 5),
           ChipStyleTabBar(
             style: ChipTabBarStyle.underline,
             controller: _tabController,
@@ -81,7 +80,6 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
                   state.inwardOutwardDetails == null) {
                 return Expanded(child: Center(child: loader()));
               }
-
               return Expanded(
                 child: TabBarView(
                   controller: _tabController,

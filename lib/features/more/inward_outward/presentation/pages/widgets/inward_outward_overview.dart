@@ -35,7 +35,6 @@ Widget overviewSection(BuildContext context, InwardOutwardModel inwardOutward) {
               title: "Document Title",
               value: inwardOutward.documentTitle,
             ),
-
             Row(
               spacing: 10,
               children: [
@@ -115,7 +114,6 @@ Widget overviewSection(BuildContext context, InwardOutwardModel inwardOutward) {
                 Spacer(),
               ],
             ),
-
             Row(
               spacing: 10,
               children: [
@@ -203,7 +201,6 @@ Widget overviewSection(BuildContext context, InwardOutwardModel inwardOutward) {
             ),
           ],
         ),
-
         SectionCard(
           title: 'Assigned Employee',
           titleTextColor: AppColor.darkGreen10,
