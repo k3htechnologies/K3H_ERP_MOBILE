@@ -496,70 +496,37 @@ class DesignationMasterCubit extends Cubit<DesignationMasterState> {
 
   // PERMISSION UPDATE JSON
   String getPermissionUpdateJson() {
-    List<Map<String, dynamic>> result = [];
+    final List<Map<String, dynamic>> result = [];
 
-    for (var module in state.modulesPermissionsList) {
-      for (var subModule in module.subModuleData) {
-        if (subModule.subSubModuleData.isEmpty) {
-          bool subModuleFound = false;
-          if (!subModuleFound &&
-              (subModule.isAction || subModule.isExport || subModule.isView)) {
-            // ADDING ENTRY FOR MODULE
+    for (final module in state.modulesPermissionsList) {
+      final moduleId = module.modulesMasterId;
+
+      for (final subModule in module.subModuleData) {
+        final subModuleId = subModule.subModulesMasterId;
+
+        // Add SubModule permission
+        if (subModule.isAction || subModule.isView || subModule.isExport) {
+          result.add({
+            "ModulesMasterId": moduleId,
+            "SubModuleMasterId": subModuleId,
+            "SubSubModuleMasterId": 0,
+            "IsAction": subModule.isAction,
+            "IsView": subModule.isView,
+            "IsExport": subModule.isExport,
+          });
+        }
+
+        // Add SubSubModule permissions
+        for (final subSub in subModule.subSubModuleData) {
+          if (subSub.isAction || subSub.isView || subSub.isExport) {
             result.add({
-              "ModulesMasterId": module.modulesMasterId,
-              "SubModuleMasterId": 0,
-              "SubSubModuleMasterId": 0,
-              "IsAction": true,
-              "IsView": true,
-              "IsExport": true,
+              "ModulesMasterId": moduleId,
+              "SubModuleMasterId": subModuleId,
+              "SubSubModuleMasterId": subSub.subSubModulesMasterId,
+              "IsAction": subSub.isAction,
+              "IsView": subSub.isView,
+              "IsExport": subSub.isExport,
             });
-            subModuleFound = true;
-          }
-          if (subModule.isAction || subModule.isExport || subModule.isView) {
-            result.add({
-              "ModulesMasterId": module.modulesMasterId,
-              "SubModuleMasterId": subModule.subModulesMasterId,
-              "SubSubModuleMasterId": 0,
-              "IsAction": subModule.isAction,
-              "IsView": subModule.isView,
-              "IsExport": subModule.isExport,
-            });
-          }
-        } else {
-          for (var subSub in subModule.subSubModuleData) {
-            bool subSubModuleFound = false;
-            if (!subSubModuleFound &&
-                (subSub.isAction || subSub.isExport || subSub.isView)) {
-              // ADDING ENTRY FOR MODULE
-              result.add({
-                "ModulesMasterId": module.modulesMasterId,
-                "SubModuleMasterId": 0,
-                "SubSubModuleMasterId": 0,
-                "IsAction": true,
-                "IsView": true,
-                "IsExport": true,
-              });
-              // ADDING ENTRY FOR SUB MODULE
-              result.add({
-                "ModulesMasterId": module.modulesMasterId,
-                "SubModuleMasterId": subModule.subModulesMasterId,
-                "SubSubModuleMasterId": 0,
-                "IsAction": true,
-                "IsView": true,
-                "IsExport": true,
-              });
-              subSubModuleFound = true;
-            }
-            if (subSub.isAction || subSub.isExport || subSub.isView) {
-              result.add({
-                "ModulesMasterId": module.modulesMasterId,
-                "SubModuleMasterId": subModule.subModulesMasterId,
-                "SubSubModuleMasterId": subSub.subSubModulesMasterId,
-                "IsAction": subSub.isAction,
-                "IsView": subSub.isView,
-                "IsExport": subSub.isExport,
-              });
-            }
           }
         }
       }
