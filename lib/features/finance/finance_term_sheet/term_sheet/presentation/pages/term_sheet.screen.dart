@@ -313,14 +313,6 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     final termSheet = state.termSheetList[index];
     final mainApprovalStatus = termSheet.approvalStatus.trim().toLowerCase();
     final bool isEditDisbaled = mainApprovalStatus == "pending";
-    final termSheetView =
-        state.termSheetViewList
-            .expand((e) => e.termSheetDetailsData)
-            .where((detail) => detail.termSheetId == termSheet.termSheetId)
-            .firstOrNull;
-    final detailApprovalStatus =
-        termSheetView?.approvalStatus.trim().toLowerCase() ?? "";
-    final bool isDeleteDisabled = detailApprovalStatus != "pending";
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: const EdgeInsets.all(16),
@@ -369,7 +361,8 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                     ),
                     horizontalSpacing(),
                     CustomIconButton.delete(
-                      isDisabled: isDeleteDisabled,
+                      isDisabled:
+                          termSheet.approvalStatus.toLowerCase() != "pending",
                       onPressed: () {
                         _showPopupToDeleteTermSheet(context, termSheet, index);
                       },

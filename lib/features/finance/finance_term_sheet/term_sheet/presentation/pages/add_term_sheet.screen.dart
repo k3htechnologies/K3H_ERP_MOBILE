@@ -431,9 +431,7 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
                                     ),
                                   ],
                                 ),
-
                                 verticalSpacing(),
-
                                 Row(
                                   children: [
                                     Expanded(
