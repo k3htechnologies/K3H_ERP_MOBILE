@@ -7360,8 +7360,16 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : null;
+                final brokerageAmount =
+                    double.tryParse(
+                      state.uri.queryParameters['brokerageAmount'] ?? '',
+                    ) ??
+                    0;
 
-                return AddBrokeragePayment(invoiceModel: invoice!);
+                return AddBrokeragePayment(
+                  invoiceModel: invoice!,
+                  brokerageAmount: brokerageAmount,
+                );
               },
             ),
           ],

@@ -14,6 +14,8 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -155,180 +157,271 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
         screenTitle: "Brokerage Invoice",
         authorization: AuthorizationModel(),
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _isEditMode ? "Update Invoice" : "Add Invoice",
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
-                ),
-                verticalSpacing(),
-                CustomTextField(
-                  title: "Invoice Number",
-                  hint: "Enter Invoice Number",
-                  isRequired: true,
-                  inputFormatterList: InputValidator.digitAndCharacterOnly(15),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Invoice Number is required.";
-                    }
-                    if (value.trim().isNotEmpty &&
-                        !InputValidator.isValidInvoiceNumber(value.trim())) {
-                      return "Invoice Number cannot be zero.";
-                    }
-                    return null;
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BlocBuilder<BrokerageCubit, BrokerageState>(
+              builder: (context, state) {
+                final invoiceAmount = state.brokerageInvoiceList.fold(
+                  0.0,
+                  (a, b) => a + b.invoiceAmount,
+                );
+                final paymentPaidAmount = state.brokerageInvoiceList.fold(
+                  0.0,
+                  (a, b) => a + b.paymentAmount,
+                );
+                final pendingAmount =
+                    (widget.brokerageModel.brokerageAmount -
+                        state.brokerageInvoiceList.fold(
+                          0.0,
+                          (a, b) => a + b.paymentAmount,
+                        ));
+                return infoCard([
+                  {
+                    "title": "CP Name",
+                    "value": widget.brokerageModel.channelPartnerName,
                   },
-                  textController: _invoiceNumberC,
-                ),
-                CustomDatePicker(
-                  title: 'Invoice Date',
-                  isRequired: true,
-                  initialDate: invoiceDate,
-                  setValue: (value) => invoiceDate = value,
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Invoice Date is required.';
-                    }
-                    return null;
+                  {
+                    "title": "CP Company",
+                    "value": widget.brokerageModel.channelPartnerCompany,
                   },
-                ),
-                CustomMultiFilePicker(
-                  title: "Invoice Document",
-                  isRequired: true,
-                  filePickType: FilePickType.both,
-                  initialFileList: _invoiceDocument.fileNameList,
-
-                  onFilePickedCallback: (bytesList, fileNameList) {
-                    _invoiceDocument.fileNameList = fileNameList;
-                    _invoiceDocument.fileBytesList = bytesList;
+                  {
+                    "title": "CP Mobile Number",
+                    "value": widget.brokerageModel.channelPartnerMobileNumber,
+                    "widget": CustomClickToContactText(
+                      countryCode:
+                          widget
+                              .brokerageModel
+                              .channelPartnerMobileNumberCountryCode,
+                      value: widget.brokerageModel.channelPartnerMobileNumber,
+                    ),
                   },
-
-                  onFileDeleteCallback: (
-                    fileBytesList,
-                    fileNameList,
-                    deletedFile,
-                  ) {
-                    _invoiceDocument.fileNameList = fileNameList;
-                    _invoiceDocument.fileBytesList = fileBytesList;
-                    _invoiceDocument.deletedFileList = deletedFile;
+                  {
+                    "title": "Agreement Value",
+                    "value":
+                        widget.brokerageModel.agreementValue.toIndianCurrency(),
                   },
-
-                  validator: (fileList) {
-                    if (fileList == null || fileList.isEmpty) {
-                      return "Invoice document is required.";
-                    }
-                    return null;
+                  {
+                    "title": "Brokerage Amount",
+                    "value":
+                        widget.brokerageModel.brokerageAmount
+                            .toIndianCurrency(),
                   },
-                ),
-
-                ValueListenableBuilder(
-                  valueListenable: _selectedBankNotifier,
-                  builder: (context, selectedBank, _) {
-                    return CustomMultipleSelectPopup(
-                      title: 'Bank',
-                      hintText: "Select Bank",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: selectedBank,
-                      dataList: const [],
-                      onSelected: (value) {
-                        _selectedBankNotifier.value = value;
-                      },
-                      dataFetchCallBack: _fetchBanks,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Bank Name is required.";
-                        }
-                        return null;
-                      },
-                      onClear: () {
-                        _selectedBankNotifier.value = [];
-                      },
-                    );
+                  {
+                    "title": "Generated Invoice Amount",
+                    "value": invoiceAmount.toIndianCurrency(),
                   },
-                ),
-                CustomTextField(
-                  title: "Account Holder Name",
-                  hint: "Enter Account Holder Name",
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Account Holder Name is required.";
-                    }
-                    return null;
+                  {
+                    "title": "Payment Paid Amount",
+                    "value": paymentPaidAmount.toIndianCurrency(),
                   },
-                  textController: _accountNameC,
-                ),
-                CustomTextField(
-                  title: "Account Number",
-                  hint: "Enter Account Number",
-                  isRequired: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(18),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Account Number is required.";
-                    }
-                    return null;
+                  {
+                    "title": "Pending Amount",
+                    "value": pendingAmount.toIndianCurrency(),
                   },
-                  textController: _accountNumberC,
-                ),
-                CustomTextField(
-                  title: "IFSC Code",
-                  hint: "Enter IFSC Code",
-                  isRequired: true,
-                  inputFormatterList: InputValidator.ifscInputFormatters(),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'IFSC Code is required.';
-                    }
-                    if (!InputValidator.isValidIFSC(value)) {
-                      return 'Valid IFSC Code is required.';
-                    }
-                    return null;
-                  },
-                  textController: _ifscCodeC,
-                ),
-                CustomTextField(
-                  title: "Invoice Amount",
-                  hint: "Enter Invoice Amount",
-                  keyboardType: TextInputType.numberWithOptions(),
-                  inputFormatterList: InputValidator.decimal(2),
-                  isRequired: true,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Invoice Amount is required.";
-                    }
-                    if ((double.tryParse(value) ?? 0) >
-                        widget.brokerageModel.brokerageAmount) {
-                      return "Invoice amount exceeds the brokerage amount.";
-                    }
-                    return null;
-                  },
-                  textController: _invoiceAmountC,
-                ),
-                CustomDatePicker(
-                  title: 'Due Date',
-                  initialDate: dueDate,
-                  setValue: (value) => dueDate = value,
-                ),
-                CustomTextField(
-                  title: "Remark",
-                  hint: "Enter Remark",
-                  minLines: 3,
-                  maxLines: 3,
-                  textController: _remarkC,
-                ),
-              ],
+                ]);
+              },
             ),
-          ),
+            verticalSpacing(),
+            Text(
+              _isEditMode ? "Update Invoice" : "Add Invoice",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Container(
+                    decoration: commonCardDecoration(),
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CustomTextField(
+                          title: "Invoice Number",
+                          hint: "Enter Invoice Number",
+                          isRequired: true,
+                          inputFormatterList:
+                              InputValidator.digitAndCharacterOnly(15),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Invoice Number is required.";
+                            }
+                            if (value.trim().isNotEmpty &&
+                                !InputValidator.isValidInvoiceNumber(
+                                  value.trim(),
+                                )) {
+                              return "Invoice Number cannot be zero.";
+                            }
+                            return null;
+                          },
+                          textController: _invoiceNumberC,
+                        ),
+                        CustomDatePicker(
+                          title: 'Invoice Date',
+                          isRequired: true,
+                          initialDate: invoiceDate,
+                          setValue: (value) => invoiceDate = value,
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Invoice Date is required.';
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomMultiFilePicker(
+                          title: "Invoice Document",
+                          isRequired: true,
+                          filePickType: FilePickType.both,
+                          initialFileList: _invoiceDocument.fileNameList,
+
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            _invoiceDocument.fileNameList = fileNameList;
+                            _invoiceDocument.fileBytesList = bytesList;
+                          },
+
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            _invoiceDocument.fileNameList = fileNameList;
+                            _invoiceDocument.fileBytesList = fileBytesList;
+                            _invoiceDocument.deletedFileList = deletedFile;
+                          },
+
+                          validator: (fileList) {
+                            if (fileList == null || fileList.isEmpty) {
+                              return "Invoice Document is required.";
+                            }
+                            return null;
+                          },
+                        ),
+
+                        ValueListenableBuilder(
+                          valueListenable: _selectedBankNotifier,
+                          builder: (context, selectedBank, _) {
+                            return CustomMultipleSelectPopup(
+                              title: 'Bank',
+                              hintText: "Select Bank",
+                              isRequired: true,
+                              isMultiSelect: false,
+                              initialValue: selectedBank,
+                              dataList: const [],
+                              onSelected: (value) {
+                                _selectedBankNotifier.value = value;
+                              },
+                              dataFetchCallBack: _fetchBanks,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Bank Name is required.";
+                                }
+                                return null;
+                              },
+                              onClear: () {
+                                _selectedBankNotifier.value = [];
+                              },
+                            );
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Account Holder Name",
+                          hint: "Enter Account Holder Name",
+                          isRequired: true,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Account Holder Name is required.";
+                            }
+                            return null;
+                          },
+                          textController: _accountNameC,
+                        ),
+                        CustomTextField(
+                          title: "Account Number",
+                          hint: "Enter Account Number",
+                          isRequired: true,
+                          keyboardType: TextInputType.number,
+                          inputFormatterList: InputValidator.digit(18),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Account Number is required.";
+                            }
+                            return null;
+                          },
+                          textController: _accountNumberC,
+                        ),
+                        CustomTextField(
+                          title: "IFSC Code",
+                          hint: "Enter IFSC Code",
+                          isRequired: true,
+                          inputFormatterList:
+                              InputValidator.ifscInputFormatters(),
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'IFSC Code is required.';
+                            }
+                            if (!InputValidator.isValidIFSC(value)) {
+                              return 'Enter a valid IFSC Code.';
+                            }
+                            return null;
+                          },
+                          textController: _ifscCodeC,
+                        ),
+                        CustomTextField(
+                          title: "Invoice Amount",
+                          hint: "Enter Invoice Amount",
+                          keyboardType: TextInputType.numberWithOptions(),
+                          inputFormatterList: InputValidator.decimal(2),
+                          isRequired: true,
+                          validator: (value) {
+                            if (value == null ||
+                                value.trim().isEmpty ||
+                                double.parse(value) == 0) {
+                              return "Invoice Amount is required.";
+                            }
+                            if ((double.tryParse(value) ?? 0) >
+                                widget.brokerageModel.brokerageAmount) {
+                              return "Invoice amount exceeds the brokerage amount.";
+                            }
+                            return null;
+                          },
+                          textController: _invoiceAmountC,
+                        ),
+                        CustomDatePicker(
+                          title: 'Due Date',
+                          initialDate: dueDate,
+                          isRequired: true,
+                          setValue: (value) => dueDate = value,
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Due Date is required.';
+                            }
+                            return null;
+                          },
+                        ),
+                        CustomTextField(
+                          title: "Remark",
+                          hint: "Enter Remark",
+                          isRequired: true,
+                          minLines: 3,
+                          maxLines: 3,
+                          textController: _remarkC,
+                          validator:
+                              (v) =>
+                                  (v == null || v.isEmpty)
+                                      ? 'Remark is required.'
+                                      : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(

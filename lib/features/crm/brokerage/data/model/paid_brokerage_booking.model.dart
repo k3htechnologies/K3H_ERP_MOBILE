@@ -18,6 +18,7 @@ class PaidBrokerageBookingModel {
   String ifscCode;
   String transactionNumber;
   String transactionReceiptURL;
+  DateTime transactionChequeDemandDraftDate;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -43,6 +44,7 @@ class PaidBrokerageBookingModel {
     required this.ifscCode,
     required this.transactionNumber,
     required this.transactionReceiptURL,
+    required this.transactionChequeDemandDraftDate,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -73,6 +75,9 @@ class PaidBrokerageBookingModel {
           json,
           "TransactionReceiptURL",
         ),
+        transactionChequeDemandDraftDate: DateTime.parse(
+          json["TransactionChequeDemandDraftDate"],
+        ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: DateTime.parse(json["CreatedDate"]),
@@ -100,6 +105,8 @@ class PaidBrokerageBookingModel {
     "IFSCCode": ifscCode,
     "TransactionNumber": transactionNumber,
     "TransactionReceiptURL": transactionReceiptURL,
+    "TransactionChequeDemandDraftDate":
+        transactionChequeDemandDraftDate.toIso8601String(),
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

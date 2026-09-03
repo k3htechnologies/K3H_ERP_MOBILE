@@ -354,7 +354,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                 children: [
                   TextSpan(
                     text: widget.brokerageModel.channelPartnerName,
-                    style: AppTextStyle.ts14M(),
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
 
                   TextSpan(
@@ -364,7 +364,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
 
                   TextSpan(
                     text: widget.brokerageModel.channelPartnerCompany,
-                    style: AppTextStyle.ts14M(),
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
                 ],
               ),
@@ -574,6 +574,11 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                                                       ),
                                                     ),
                                                   ),
+                                              "brokerageAmount":
+                                                  widget
+                                                      .brokerageModel
+                                                      .brokerageAmount
+                                                      .toString(),
                                             },
                                           );
                                         }
@@ -1097,6 +1102,13 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                 ),
               ),
             ],
+          ),
+          buildColumnTitleValue(
+            removeExpanded: true,
+            title: "Transaction / Cheque / Demand Draft Date",
+            value: formatDateTimeAsDDMMMYYYY(
+              payment.transactionChequeDemandDraftDate,
+            ),
           ),
           Divider(height: 1, color: AppColor.grey50),
           Text("Action Details", style: AppTextStyle.ts14M()),

@@ -412,6 +412,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     required String tDSAmount,
     required String transactionNumber,
     required MultiFilePickerModel transactionReceiptFiles,
+    required DateTime transactionChequeDemandDraftDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -425,6 +426,8 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "AmountPaid": amountPaid,
       "TDSAmount": tDSAmount.trim().isEmpty ? "0" : tDSAmount,
       "TransactionNumber": transactionNumber,
+      "TransactionChequeDemandDraftDate":
+          transactionChequeDemandDraftDate.toIso8601String(),
     };
 
     List<Map<String, dynamic>> fileList = [];
