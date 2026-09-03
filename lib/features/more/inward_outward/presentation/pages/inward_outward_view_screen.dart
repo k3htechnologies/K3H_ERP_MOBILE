@@ -34,10 +34,13 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
   void initState() {
     _inwardOutwardCubit = context.read<InwardOutwardCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.inwardOutward] ??
+        Authorization.routeAuthorizationMap[AppRoutes
+            .inwardOutwardAdministrativeAccess] ??
+        Authorization.routeAuthorizationMap[AppRoutes
+            .inwardOutwardAcknowledgement] ??
         AuthorizationModel();
     _tabController = TabController(length: 3, vsync: this);
-    _inwardOutwardCubit.getInwardOutward(
+    _inwardOutwardCubit.getInwardOutwardView(
       context,
       widget.inwardOutwardModel.inwardOutwardId,
     );
@@ -74,7 +77,8 @@ class _InwardOutwardViewScreenState extends State<InwardOutwardViewScreen>
           ),
           BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
             builder: (context, state) {
-              if (state.inwardOutwardDetails == null) {
+              if ((state.isLoading ?? false) ||
+                  state.inwardOutwardDetails == null) {
                 return Expanded(child: Center(child: loader()));
               }
 

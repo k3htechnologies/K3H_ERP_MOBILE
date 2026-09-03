@@ -339,7 +339,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                     termSheet.nameOfInstitutionBankNbfc.isEmpty
                         ? "-"
                         : termSheet.nameOfInstitutionBankNbfc,
-                    style: AppTextStyle.ts16SB(color: AppColor.primary),
+                    style: AppTextStyle.ts16M(color: AppColor.primary),
                   ),
                 ),
               ),

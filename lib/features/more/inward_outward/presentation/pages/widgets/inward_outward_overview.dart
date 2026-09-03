@@ -314,14 +314,14 @@ Widget overviewSection(BuildContext context, InwardOutwardModel inwardOutward) {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 buildColumnTitleValue(
-                  title: "Attachment",
+                  title: "Acknowledge Document",
                   value: inwardOutward.acknowledgementURL,
                   customValueWidget: CustomButton.documentOutline(
                     onPressed: () {
                       if (inwardOutward.acknowledgementURL.isNotEmpty) {
                         showFilePreviewDialog(
                           context,
-                          title: "Acknowlegement Document",
+                          title: "Acknowledge Document",
                           inwardOutward.acknowledgementURL.split(","),
                         );
                       }
@@ -336,8 +336,18 @@ Widget overviewSection(BuildContext context, InwardOutwardModel inwardOutward) {
               ],
             ),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
               children: [
+                buildColumnTitleValue(
+                  title: "Handover Person's Mobile Number",
+                  value: inwardOutward.handoverPersonMobileNumber,
+                  customValueWidget: CustomClickToContactText(
+                    countryCode:
+                        inwardOutward.handoverPersonMobileNumberCountryCode,
+                    value: inwardOutward.handoverPersonMobileNumber,
+                  ),
+                ),
                 buildColumnTitleValue(
                   title: "Handover Date",
                   value: formatDateTimeAsDDMMMYYYY(inwardOutward.handOverDate),

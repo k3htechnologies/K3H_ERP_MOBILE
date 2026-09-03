@@ -27,7 +27,7 @@ class InwardOutwardModel {
   final String acknowledgementSignatureURL;
   final String chequeNumber;
   final String documentTitle;
-  final int amount;
+  final double amount;
   final String deliveryMode;
   final String deliveryStatus;
   final String documentDescription;
@@ -131,7 +131,7 @@ class InwardOutwardModel {
       ),
       chequeNumber: parseValue<String>(json, "ChequeNumber"),
       documentTitle: parseValue<String>(json, "DocumentTitle"),
-      amount: parseValue<int>(json, "Amount"),
+      amount: parseValue<double>(json, "Amount"),
       deliveryMode: parseValue<String>(json, "DeliveryMode"),
       deliveryStatus: parseValue<String>(json, "DeliveryStatus"),
       documentDescription: parseValue<String>(json, "DocumentDescription"),

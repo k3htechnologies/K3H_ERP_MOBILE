@@ -133,7 +133,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     await handleApiCall(context: context);
   }
 
-  Future<void> getInwardOutward(
+  Future<void> getInwardOutwardView(
     BuildContext context,
     int inwardOutwardId,
   ) async {
@@ -983,13 +983,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
 
-    int totalRecords = switch (state.currentTabIndex) {
-      0 => state.inwardOutwardTotalRecords,
-      1 => state.inwardOutwardTotalRecords,
-      2 => state.inwardOutwardTotalRecords,
-      _ => state.inwardOutwardTotalRecords,
-    };
-
     Map<String, dynamic> queryParams = {"ExportType": exportType};
 
     if (state.searchText.isNotEmpty) {
@@ -1008,7 +1001,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
     final result = await _repository.getInwardOutwardListForExport(
       pageNumber: 1,
-      pageSize: totalRecords,
+      pageSize: state.inwardOutwardTotalRecords,
       queryParams: queryParams,
     );
 
@@ -1027,8 +1020,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "Inward Outward Master ${DateTime.now()}.pdf"
-              : "Inward Outward Master ${DateTime.now()}.xlsx",
+              ? "Inward Outward ${DateTime.now()}.pdf"
+              : "Inward Outward ${DateTime.now()}.xlsx",
         );
       },
     );
@@ -1036,7 +1029,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   int updateFilterCount(InwardOutwardState state) {
     final hasSort =
-        state.currentSortColumn == "Document Id" &&
+        state.currentSortColumn == "IO Code" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
 
