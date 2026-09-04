@@ -9,9 +9,7 @@ import 'package:k3h_erp_app/widgets/section_card.dart';
 
 class MaterialMasterViewScreen extends StatelessWidget {
   final MaterialMasterModel material;
-
   const MaterialMasterViewScreen({super.key, required this.material});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +23,7 @@ class MaterialMasterViewScreen extends StatelessWidget {
           child: Column(
             children: [
               SectionCard(
-                title: "Material Details",
+                title: "Basic Details",
                 children: [
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,

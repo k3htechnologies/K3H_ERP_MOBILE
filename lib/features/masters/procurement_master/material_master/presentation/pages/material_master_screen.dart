@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -19,7 +18,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class MaterialMasterScreen extends StatefulWidget {
   const MaterialMasterScreen({super.key});
-
   @override
   State<MaterialMasterScreen> createState() => _MaterialMasterScreenState();
 }
@@ -27,17 +25,13 @@ class MaterialMasterScreen extends StatefulWidget {
 class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
   // CUBIT
   late MaterialMasterCubit _materialMasterCubit;
-
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
-
   @override
   void initState() {
     super.initState();
@@ -188,7 +182,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                                   },
                                 );
                               },
-
                               child: Text(
                                 material.materialName,
                                 style: AppTextStyle.ts16M(

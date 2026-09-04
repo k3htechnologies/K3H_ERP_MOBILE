@@ -9,16 +9,13 @@ abstract interface class SubMaterialMasterDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apicallAddUpdateSubMaterialMaster({
     required Map<String, dynamic> body,
   });
-
   Future<Map<String, dynamic>> apicallDeleteSubMaterialMaster({
     required int subMaterialMasterId,
     required String uniqueKey,
   });
-
   Future<Map<String, dynamic>> apicallPullSubMaterialMasterForExport({
     required int pageNumber,
     required int pageSize,
@@ -28,7 +25,6 @@ abstract interface class SubMaterialMasterDatasource {
 
 class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullSubMaterialMaster({
     required int pageNumber,
@@ -54,7 +50,6 @@ class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
           queryParams: queryParams,
         ),
       );
-
       return {
         'data': List<SubMaterialMasterModel>.from(
           networkResponse["data"].map(
@@ -81,7 +76,6 @@ class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
   }) async {
     String addUpdateSubMaterialMasterUrl =
         "SubMaterialMaster/AddUpdateSubMaterialMaster";
-
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
         addUpdateSubMaterialMasterUrl,
@@ -93,6 +87,7 @@ class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
             (e) => SubMaterialMasterModel.fromJson(e),
           ),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -124,6 +119,7 @@ class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -162,7 +158,6 @@ class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
           queryParams: queryParams,
         ),
       );
-
       return {
         'data': networkResponse["data"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],

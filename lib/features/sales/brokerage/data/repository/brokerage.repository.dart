@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/data/datasource/brokerage.datasource.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/data/datasource/brokerage.datasource.dart';
 abstract interface class BrokerageRepository {
   Future<Either<Failure, Map<String, dynamic>>> getBrokerageBookingList({
     required int pageNumber,

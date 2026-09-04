@@ -11,8 +11,10 @@ import 'package:k3h_erp_app/features/masters/procurement_master/uom_master/data/
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -20,13 +22,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddSubMaterialMasterScreen extends StatefulWidget {
   final SubMaterialMasterModel? subMaterial;
   final int index;
-
   const AddSubMaterialMasterScreen({
     super.key,
     this.subMaterial,
     this.index = 0,
   });
-
   @override
   State<AddSubMaterialMasterScreen> createState() =>
       _AddSubMaterialMasterScreenState();
@@ -40,20 +40,19 @@ class _AddSubMaterialMasterScreenState
       serviceLocator<MaterialMasterRepository>();
   final UOMMasterRepository _uomMasterRepository =
       serviceLocator<UOMMasterRepository>();
-
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _subMaterialNameC;
-
+  late TextEditingController _subMaterialNameC, _leadTimeInDaysC;
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   //EDIT MODE
   bool get _isEditMode => widget.subMaterial != null;
-
   // SELECTED VALUES
-  List<Map<String, dynamic>>? _selectedMaterial;
-  List<Map<String, dynamic>>? _selectedUOM;
-
+  final ValueNotifier<List<Map<String, dynamic>>?> _selectedMaterial =
+      ValueNotifier(null);
+  final ValueNotifier<List<Map<String, dynamic>>?> _selectedUOM = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<bool> _isTolerant = ValueNotifier(false);
   @override
   void initState() {
     super.initState();
@@ -67,32 +66,33 @@ class _AddSubMaterialMasterScreenState
   @override
   void dispose() {
     _subMaterialNameC.dispose();
+    _leadTimeInDaysC.dispose();
     super.dispose();
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _subMaterialNameC = TextEditingController();
+    _leadTimeInDaysC = TextEditingController();
   }
 
-  // PREFILL FORM
   void _prefillForm(SubMaterialMasterModel subMaterial) {
     _subMaterialNameC.text = subMaterial.subMaterialName;
-    _selectedMaterial = [
+    _selectedMaterial.value = [
       {
         "zAttributesId": subMaterial.materialMasterId,
         "DisplayName": subMaterial.materialName,
       },
     ];
-    _selectedUOM = [
+    _selectedUOM.value = [
       {
         "zAttributesId": subMaterial.uomMasterId,
-        "DisplayName": subMaterial.uom,
+        "DisplayName": "${subMaterial.uom} (${subMaterial.uomCode})",
       },
     ];
+    _leadTimeInDaysC.text = subMaterial.leadTimeInDays.toString();
+    _isTolerant.value = subMaterial.isTolerant;
   }
 
-  // FETCH MATERIAL LIST FOR DROPDOWN
   Future<Map<String, dynamic>> _fetchMaterialList(
     int pageNumber, {
     String? value,
@@ -123,7 +123,6 @@ class _AddSubMaterialMasterScreenState
     );
   }
 
-  // FETCH UOM LIST FOR DROPDOWN
   Future<Map<String, dynamic>> _fetchUOMList(
     int pageNumber, {
     String? value,
@@ -142,7 +141,7 @@ class _AddSubMaterialMasterScreenState
                 .map(
                   (uom) => {
                     "zAttributesId": uom.uomMasterId,
-                    "DisplayName": uom.uom,
+                    "DisplayName": "${uom.uom} (${uom.uomCode})",
                   },
                 )
                 .toList();
@@ -154,38 +153,40 @@ class _AddSubMaterialMasterScreenState
     );
   }
 
-  // ADD/UPDATE SUB MATERIAL
   Future<void> _addUpdateSubMaterial() async {
     if (_formKey.currentState!.validate()) {
-      if (_selectedMaterial == null || _selectedMaterial!.isEmpty) {
+      if (_selectedMaterial.value == null || _selectedMaterial.value!.isEmpty) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Please select Material')));
         return;
       }
-      if (_selectedUOM == null || _selectedUOM!.isEmpty) {
+      if (_selectedUOM.value == null || _selectedUOM.value!.isEmpty) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Please select UOM')));
         return;
       }
-
       if (_isEditMode) {
         await _subMaterialMasterCubit.updateSubMaterialMaster(
           context: context,
           subMaterialMasterId: widget.subMaterial!.subMaterialMasterId,
           uniqueKey: widget.subMaterial!.uniquekey,
           subMaterialName: _subMaterialNameC.text.trim(),
-          materialMasterId: _selectedMaterial!.first['zAttributesId'],
-          uomMasterId: _selectedUOM!.first['zAttributesId'],
+          materialMasterId: _selectedMaterial.value!.first['zAttributesId'],
+          uomMasterId: _selectedUOM.value!.first['zAttributesId'],
+          leadTimeInDays: int.parse(_leadTimeInDaysC.text),
+          isTolerant: _isTolerant.value,
           index: widget.index,
         );
       } else {
         await _subMaterialMasterCubit.addSubMaterialMaster(
           context: context,
           subMaterialName: _subMaterialNameC.text.trim(),
-          materialMasterId: _selectedMaterial!.first['zAttributesId'],
-          uomMasterId: _selectedUOM!.first['zAttributesId'],
+          materialMasterId: _selectedMaterial.value!.first['zAttributesId'],
+          uomMasterId: _selectedUOM.value!.first['zAttributesId'],
+          leadTimeInDays: int.parse(_leadTimeInDaysC.text),
+          isTolerant: _isTolerant.value,
         );
       }
     }
@@ -199,7 +200,7 @@ class _AddSubMaterialMasterScreenState
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Form(
           key: _formKey,
           child: Column(
@@ -207,13 +208,14 @@ class _AddSubMaterialMasterScreenState
             children: [
               Text(
                 _isEditMode ? "Update Sub Material" : "Add Sub Material",
-                style: AppTextStyle.ts16SB(),
+                style: AppTextStyle.ts14M(),
               ),
               verticalSpacing(),
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: commonCardDecoration(),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomTextField(
                       title: 'Sub Material Name',
@@ -230,42 +232,78 @@ class _AddSubMaterialMasterScreenState
                         return null;
                       },
                     ),
-                    CustomMultipleSelectPopup(
-                      title: "Material",
-                      hintText: "Select Material",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      dataFetchCallBack: _fetchMaterialList,
-                      initialValue: _selectedMaterial,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedMaterial = selected;
-                        });
+                    ValueListenableBuilder(
+                      valueListenable: _selectedMaterial,
+                      builder: (context, value, child) {
+                        return CustomMultipleSelectPopup(
+                          title: "Material",
+                          hintText: "Select Material",
+                          isRequired: true,
+                          isMultiSelect: false,
+                          dataFetchCallBack: _fetchMaterialList,
+                          initialValue: value,
+                          onSelected: (selected) {
+                            _selectedMaterial.value = selected;
+                          },
+                          onClear: () => _selectedMaterial.value = null,
+                          validator: (selected) {
+                            if (selected == null || selected.isEmpty) {
+                              return 'Material is required.';
+                            }
+                            return null;
+                          },
+                        );
                       },
-                      validator: (selected) {
-                        if (selected == null || selected.isEmpty) {
-                          return 'Material is required.';
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _selectedUOM,
+                      builder: (context, value, child) {
+                        return CustomMultipleSelectPopup(
+                          title: "UOM",
+                          hintText: "Select UOM",
+                          isRequired: true,
+                          isMultiSelect: false,
+                          dataFetchCallBack: _fetchUOMList,
+                          initialValue: value,
+                          onSelected: (selected) {
+                            _selectedUOM.value = selected;
+                          },
+                          onClear: () => _selectedUOM.value = null,
+                          validator: (selected) {
+                            if (selected == null || selected.isEmpty) {
+                              return 'UOM is required.';
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _leadTimeInDaysC,
+                      title: "Lead Time (Days)",
+                      hint: "Enter Lead Time (Days)",
+                      keyboardType: TextInputType.number,
+                      isRequired: true,
+                      inputFormatterList: InputValidator.digit(5),
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            int.parse(value) == 0) {
+                          return 'Lead Time is required.';
                         }
                         return null;
                       },
                     ),
-                    CustomMultipleSelectPopup(
-                      title: "UOM",
-                      hintText: "Select UOM",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      dataFetchCallBack: _fetchUOMList,
-                      initialValue: _selectedUOM,
-                      onSelected: (selected) {
-                        setState(() {
-                          _selectedUOM = selected;
-                        });
-                      },
-                      validator: (selected) {
-                        if (selected == null || selected.isEmpty) {
-                          return 'UOM is required.';
-                        }
-                        return null;
+                    ValueListenableBuilder(
+                      valueListenable: _isTolerant,
+                      builder: (context, isTolerant, child) {
+                        return CustomCheckBox(
+                          isSelected: isTolerant,
+                          title: "Is Tolerant?",
+                          onChanged: (value) {
+                            _isTolerant.value = value;
+                          },
+                        );
                       },
                     ),
                   ],
