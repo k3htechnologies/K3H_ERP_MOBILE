@@ -16,9 +16,7 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddMaterialMasterScreen extends StatefulWidget {
   final MaterialMasterModel? material;
   final int index;
-
   const AddMaterialMasterScreen({super.key, this.material, this.index = 0});
-
   @override
   State<AddMaterialMasterScreen> createState() =>
       _AddMaterialMasterScreenState();
@@ -27,17 +25,13 @@ class AddMaterialMasterScreen extends StatefulWidget {
 class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
   // CUBIT
   late MaterialMasterCubit _materialMasterCubit;
-
   // TEXT EDITING CONTROLLERS
   late TextEditingController _materialNameC;
   late TextEditingController _materialCodeC;
-
   // FORM KEY
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   //EDIT MODE
   bool get _isEditMode => widget.material != null;
-
   @override
   void initState() {
     super.initState();
@@ -55,23 +49,19 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
     super.dispose();
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingControllers() {
     _materialNameC = TextEditingController();
     _materialCodeC = TextEditingController();
   }
 
-  // PREFILL FORM
   void _prefillForm(MaterialMasterModel material) {
     _materialNameC.text = material.materialName;
     _materialCodeC.text = material.materialCode;
   }
 
-  // ADD/UPDATE MATERIAL
   Future<void> _addUpdateMaterial() async {
     if (_formKey.currentState!.validate()) {
       if (_isEditMode) {
-        // UPDATE
         _materialMasterCubit.updateMaterialMaster(
           context: context,
           materialName: _materialNameC.text.trim(),
@@ -81,7 +71,6 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
           index: widget.index,
         );
       } else {
-        // ADD
         _materialMasterCubit.addMaterialMaster(
           context: context,
           materialName: _materialNameC.text.trim(),

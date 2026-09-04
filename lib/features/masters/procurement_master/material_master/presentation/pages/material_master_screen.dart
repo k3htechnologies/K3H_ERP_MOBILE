@@ -43,7 +43,8 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     super.initState();
     _materialMasterCubit = context.read<MaterialMasterCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.materialMaster]!;
+        Authorization.routeAuthorizationMap[AppRoutes.materialMaster] ??
+        AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
     _materialMasterCubit.getMaterialMasterList(context, 1);
@@ -57,12 +58,10 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     super.dispose();
   }
 
-  // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
   }
 
-  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -83,7 +82,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
     });
   }
 
-  // DELETE MATERIAL
   Future<void> _showPopupToDeleteMaterialMaster(
     BuildContext context,
     MaterialMasterModel material,
@@ -200,51 +198,64 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                             ),
                           ),
                           horizontalSpacing(),
-                          if (_routeAuthorizationModel.isAction) ...[
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addMaterialMaster,
-                                      queryParameters: {
-                                        'material': Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(material.toJson()),
-                                          ),
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CustomIconButton.edit(
+                                isDisabled: !_routeAuthorizationModel.isAction,
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.addMaterialMaster,
+                                    queryParameters: {
+                                      'material': Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(material.toJson()),
                                         ),
-                                        'index': index.toString(),
-                                      },
-                                    );
-                                  },
-                                ),
-                                horizontalSpacing(),
-                                CustomIconButton.delete(
-                                  onPressed: () {
-                                    _showPopupToDeleteMaterialMaster(
-                                      context,
-                                      material,
-                                      state.currentPage,
-                                      index,
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                                      ),
+                                      'index': index.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                              horizontalSpacing(),
+                              CustomIconButton.delete(
+                                isDisabled: !_routeAuthorizationModel.isAction,
+                                onPressed: () {
+                                  _showPopupToDeleteMaterialMaster(
+                                    context,
+                                    material,
+                                    state.currentPage,
+                                    index,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       verticalSpacing(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildInfoChip(
-                            label: "Code",
-                            value: material.materialCode,
-                          ),
-                        ],
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.grey10,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              "Code : ",
+                              style: AppTextStyle.ts12R(color: AppColor.grey),
+                            ),
+                            Text(
+                              material.materialCode,
+                              style: AppTextStyle.ts12R(),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -253,24 +264,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  // BUILD INFO CHIP
-  Widget _buildInfoChip({required String label, required String value}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColor.grey10,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("$label: ", style: AppTextStyle.ts12R(color: AppColor.grey)),
-          Text(value, style: AppTextStyle.ts12R()),
-        ],
       ),
     );
   }
