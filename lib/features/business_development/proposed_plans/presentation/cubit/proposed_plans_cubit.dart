@@ -95,7 +95,14 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
           response['data'] ?? [],
         );
         emit(state.copyWith(isLoading: false, proposedPlansList: list));
-        showSuccessMessage(context, subTitle: response['message']);
+        if (totalNumberOfBuilding == 0) {
+          showSuccessMessage(
+            context,
+            subTitle: "Proposed Plan updated successfully",
+          );
+        } else {
+          showSuccessMessage(context, subTitle: response['message']);
+        }
         goRouter.pop();
       },
     );
