@@ -21,7 +21,6 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
 import '../cubit/brokerage_cubit.dart';
 
 class AddBrokeragePayment extends StatefulWidget {
@@ -32,7 +31,6 @@ class AddBrokeragePayment extends StatefulWidget {
     required this.invoiceModel,
     required this.brokerageAmount,
   });
-
   @override
   State<AddBrokeragePayment> createState() => _AddBrokeragePaymentState();
 }
@@ -40,10 +38,8 @@ class AddBrokeragePayment extends StatefulWidget {
 class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
-
   late BrokerageCubit _brokerageCubit;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   late TextEditingController _pendingAmountC,
       _amountC,
       _tdsAmountC,
@@ -53,18 +49,15 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
       _projectBranchC,
       _projectAccountType,
       _projectNatureOfAccountC;
-
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentModeNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   late ValueNotifier<List<Map<String, dynamic>>> _selectedPaymentTypeNotifier;
-
   MultiFilePickerModel selectedTransactionOrChequeFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
   DateTime? selectedTransactionDate;
-
   @override
   void initState() {
     super.initState();
@@ -115,7 +108,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
       projectId: widget.invoiceModel.projectId,
       queryParams: value != null && value.isNotEmpty ? {"BankName": value} : {},
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
@@ -123,7 +115,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
       },
       (response) {
         final banks = response['data'] as List<ProjectWithBankDetailsModel>;
-
         return {
           "itemList":
               banks.map((bank) {
@@ -152,7 +143,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
       projectId: widget.invoiceModel.projectId.toString(),
       brokerageInvoiceId: widget.invoiceModel.brokerageInvoiceId.toString(),
       paymentMode: _selectedPaymentModeNotifier.value.first['DisplayName'],
-      bankListMasterId:
+      projectBankListMasterId:
           _selectedBankNotifier.value.first['zAttributesId'].toString(),
       paymentType: _selectedPaymentTypeNotifier.value.first['DisplayName'],
       amountPaid: _amountC.text,
@@ -211,7 +202,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                     "value": paymentPaidAmount.toIndianCurrency(),
                   },
                   {
-                    "title": "Pending Amount",
+                    "title": "Outstanding Amount",
                     "value": pendingAmount.toIndianCurrency(),
                   },
                 ]);
@@ -253,7 +244,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                                     _selectedBankNotifier.value = value;
                                     if (value.isNotEmpty) {
                                       final item = value.first;
-
                                       _projectAccountNumberC.text =
                                           (item["AccountNumber"] ?? "")
                                               .toString();
@@ -314,7 +304,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           );
                         },
                       ),
-
                       _card('Make Payment', [
                         ValueListenableBuilder(
                           valueListenable: _selectedPaymentModeNotifier,
@@ -343,7 +332,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                             );
                           },
                         ),
-
                         ValueListenableBuilder(
                           valueListenable: _selectedPaymentTypeNotifier,
                           builder: (context, selectedPaymentType, _) {
@@ -409,12 +397,10 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                               prefixType: CustomTextFieldPrefix.rupees,
                               onChangeFunction: (v) {
                                 final enteredAmount = double.tryParse(v) ?? 0.0;
-
                                 final calculatedPendingAmount =
                                     (widget.invoiceModel.invoiceAmount -
                                         widget.invoiceModel.paymentAmount) -
                                     enteredAmount;
-
                                 _pendingAmountC
                                     .text = (calculatedPendingAmount >= 0
                                         ? calculatedPendingAmount
@@ -423,9 +409,10 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                               },
                               keyboardType: TextInputType.numberWithOptions(),
                               inputFormatterList: InputValidator.decimal(2),
-
                               validator: (value) {
-                                if (value == null || value.trim().isEmpty) {
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    double.parse(value) == 0) {
                                   return "Brokerage Amount is required.";
                                 }
                                 return null;
@@ -461,7 +448,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                         ),
                         CustomMultiFilePicker(
                           title: 'Transaction/Cheque/Demand Draft Image',
-                          filePickType: FilePickType.both,
+                          filePickType: FilePickType.kycDocument,
                           maxFiles: 1,
                           isRequired: true,
                           initialFileList:
@@ -495,6 +482,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           isRequired: true,
                           title: "Transaction / Cheque / Demand Draft Date",
                           initialDate: selectedTransactionDate,
+                          startDate: DateTime.now(),
                           setValue: (value) {
                             selectedTransactionDate = value;
                           },

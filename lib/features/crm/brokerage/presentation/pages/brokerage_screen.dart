@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -24,7 +23,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BrokerageScreen extends StatefulWidget {
   const BrokerageScreen({super.key});
-
   @override
   State<BrokerageScreen> createState() => _BrokerageScreenState();
 }
@@ -32,14 +30,11 @@ class BrokerageScreen extends StatefulWidget {
 class _BrokerageScreenState extends State<BrokerageScreen> {
   // CUBIT
   late BrokerageCubit _brokerageCubit;
-
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
       _filterCpCompanyC,
@@ -50,8 +45,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
       _filterFlatC,
       _filterAgreementValueC,
       _filterBookingTypeC;
-
-  // PROJECT MODEL
   late ProjectModel _project;
   final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier<DateTime?>(
     null,
@@ -60,7 +53,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     null,
   );
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -87,7 +79,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _filterBookingTypeC.dispose();
     _filterCount.dispose();
     scrollController.dispose();
-
     super.dispose();
   }
 
@@ -127,7 +118,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
 
   Future<void> _showBottomSheetToFilterBrokerage(BuildContext context) async {
     final s = _brokerageCubit.state;
-
     _searchC.text = s.searchText;
     _filterCpCompanyC.text = s.filterCpCompany;
     _filterCpMobileNoC.text = s.filterCpMobileNo;
@@ -135,23 +125,17 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
     _filterApplicantMobileNoC.text = s.filterApplicantMobileNo;
     _filterWingC.text = s.filterWing;
     _filterFlatC.text = s.filterFlat;
-
     _filterAgreementValueC.text =
         s.filterAgreementValue == 0 ? '' : s.filterAgreementValue.toString();
-
     _filterBookingTypeC.text = s.filterBookingType;
-
     _startDateNotifier.value = s.filterByFromDate;
     _endDateNotifier.value = s.filterByToDate;
-
     String? selectedDirection =
         s.currentSortColumn == "CP Name" ? s.currentSortDirection : null;
     final String? initialDirection = selectedDirection;
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
@@ -171,14 +155,13 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
             _startDateNotifier.value != s.filterByFromDate ||
             _endDateNotifier.value != s.filterByToDate ||
             (selectedDirection != initialDirection);
-
         applyEnabled.value = manualClose;
       });
     }
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Brokerage",
+      title: "Filter - Brokerage",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -193,9 +176,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Full Name", style: AppTextStyle.ts14M()),
+                Text("Sort By CP Name", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
-
                 Row(
                   children: [
                     GestureDetector(
@@ -216,9 +198,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                         child: Text("A-Z", style: AppTextStyle.ts12R()),
                       ),
                     ),
-
                     horizontalSpacing(),
-
                     GestureDetector(
                       onTap: () => selectDirection("DESC"),
                       child: Container(
@@ -240,7 +220,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                   ],
                 ),
                 verticalSpacing(),
-
                 CustomTextField(
                   textController: _searchC,
                   title: "CP Name",
@@ -253,7 +232,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                   hint: 'Enter CP Company',
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   textController: _filterCpMobileNoC,
                   title: "CP Mobile Number",
@@ -262,14 +240,12 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                   keyboardType: TextInputType.phone,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   textController: _filterApplicantNameC,
                   title: "Applicant Name",
                   hint: 'Enter Applicant Name',
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   textController: _filterApplicantMobileNoC,
                   title: "Applicant Mobile Number",
@@ -278,21 +254,18 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                   keyboardType: TextInputType.phone,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   textController: _filterWingC,
                   title: "Wing",
                   hint: 'Enter Wing',
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   textController: _filterFlatC,
                   title: "Flat",
                   hint: 'Enter Flat',
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   textController: _filterAgreementValueC,
                   title: "Agreement Value",
@@ -300,14 +273,12 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                   keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 CustomTextField(
                   textController: _filterBookingTypeC,
                   title: "Booking Type",
                   hint: 'Enter Booking Type',
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 Row(
                   children: [
                     Expanded(
@@ -319,7 +290,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                             initialDate: startDate,
                             setValue: (value) {
                               _startDateNotifier.value = value;
-
                               updateApplyState(innerState);
                             },
                             validator: (value) => null,
@@ -327,9 +297,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                         },
                       ),
                     ),
-
                     horizontalSpacing(),
-
                     Expanded(
                       child: ValueListenableBuilder<DateTime?>(
                         valueListenable: _endDateNotifier,
@@ -343,32 +311,27 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                 initialDate: endDate,
                                 setValue: (value) {
                                   _endDateNotifier.value = value;
-
                                   updateApplyState(innerState);
                                 },
                                 validator: (value) {
                                   if (value == null) {
                                     return null;
                                   }
-
                                   if (startDate != null) {
                                     final startDateOnly = DateTime(
                                       startDate.year,
                                       startDate.month,
                                       startDate.day,
                                     );
-
                                     final endDateOnly = DateTime(
                                       value.year,
                                       value.month,
                                       value.day,
                                     );
-
                                     if (endDateOnly.isBefore(startDateOnly)) {
                                       return 'End Date cannot be before Start Date';
                                     }
                                   }
-
                                   return null;
                                 },
                               );
@@ -384,7 +347,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           );
         },
       ),
-
       onClear: () {
         _filterCpCompanyC.clear();
         _filterCpMobileNoC.clear();
@@ -395,10 +357,8 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
         _filterAgreementValueC.clear();
         _filterBookingTypeC.clear();
         _searchC.clear();
-
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
-
         _brokerageCubit.applyFilterAndSort(
           context: context,
           filterCpName: '',
@@ -417,33 +377,26 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           sortDirection: '',
         );
       },
-
       onApply: () {
         applied = true;
         final startDate = _startDateNotifier.value;
-
         final endDate = _endDateNotifier.value;
-
         if (startDate != null && endDate != null) {
           final startOnly = DateTime(
             startDate.year,
             startDate.month,
             startDate.day,
           );
-
           final endOnly = DateTime(endDate.year, endDate.month, endDate.day);
-
           if (endOnly.isBefore(startOnly)) {
             showErrorMessage(
               context,
               "Invalid dates",
               "End Date cannot be before Start Date",
             );
-
             return;
           }
         }
-
         _brokerageCubit.applyFilterAndSort(
           context: context,
           projectId: _project.projectId,
@@ -463,7 +416,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
           sortDirection: selectedDirection,
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
@@ -548,7 +500,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                         }
                         return ListView.builder(
                           controller: scrollController,
-
                           padding: EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 10,
@@ -568,7 +519,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                   : const SizedBox.shrink();
                             }
                             var brokerage = state.brokerageList[index];
-
                             return Container(
                               margin: EdgeInsets.only(bottom: 10),
                               padding: EdgeInsets.all(12),
@@ -682,7 +632,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                         brokerage.invoiceAmount
                                             .toIndianCurrency(),
                                   ),
-
                                   buildRowTitleValue(
                                     title: "Paid Amount",
                                     value:
@@ -738,9 +687,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                                 ),
                                               ],
                                             ),
-
                                             verticalSpacing(),
-
                                             Row(
                                               children: [
                                                 buildColumnTitleValue(
@@ -756,7 +703,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                               ],
                                             ),
                                             verticalSpacing(),
-
                                             Row(
                                               children: [
                                                 buildColumnTitleValue(
@@ -774,7 +720,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                               ],
                                             ),
                                             verticalSpacing(),
-
                                             Row(
                                               children: [
                                                 buildColumnTitleValue(

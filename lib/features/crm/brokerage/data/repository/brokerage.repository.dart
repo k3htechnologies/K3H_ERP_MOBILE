@@ -2,14 +2,12 @@ import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/crm/brokerage/data/datasource/brokerage.datasource.dart';
-
 abstract interface class BrokerageRepository {
   Future<Either<Failure, Map<String, dynamic>>> getBrokerageBookingList({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> pullBrokerageInvoice({
     required int pageNumber,
     required int pageSize,
@@ -17,19 +15,16 @@ abstract interface class BrokerageRepository {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateBrokerageInvoice({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteBrokerageInvoice({
     required int projectId,
     required int brokerageInvoiceId,
     required int bookingId,
     required String uniqueKey,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> pullPaidBrokerageBooking({
     required int pageNumber,
     required int pageSize,
@@ -37,12 +32,10 @@ abstract interface class BrokerageRepository {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdatePaidBrokerageBooking({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deletePaidBrokerageBooking({
     required int projectId,
     required int paidBrokerageBookingId,
@@ -50,14 +43,12 @@ abstract interface class BrokerageRepository {
     required int brokerageInvoiceId,
     required String uniqueKey,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> exportBrokerageBooking({
     required int pageNumber,
     required int pageSize,
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> exportBrokerageInvoice({
     required int pageNumber,
     required int pageSize,
@@ -65,7 +56,6 @@ abstract interface class BrokerageRepository {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> exportPaidBrokerageBooking({
     required int pageNumber,
     required int pageSize,
@@ -74,12 +64,9 @@ abstract interface class BrokerageRepository {
     Map<String, dynamic>? queryParams,
   });
 }
-
 class BrokerageRepositoryImp extends BrokerageRepository {
   final BrokerageDatasource brokerageDatasource;
-
   BrokerageRepositoryImp({required this.brokerageDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getBrokerageBookingList({
     required int pageNumber,
@@ -97,7 +84,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullBrokerageInvoice({
     required int pageNumber,
@@ -119,7 +105,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdateBrokerageInvoice({
     required Map<String, String> body,
@@ -135,7 +120,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> deleteBrokerageInvoice({
     required int projectId,
@@ -155,7 +139,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullPaidBrokerageBooking({
     required int pageNumber,
@@ -177,7 +160,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> addUpdatePaidBrokerageBooking({
     required Map<String, String> body,
@@ -193,7 +175,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> deletePaidBrokerageBooking({
     required int projectId,
@@ -215,7 +196,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportBrokerageBooking({
     required int pageNumber,
@@ -236,7 +216,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportBrokerageInvoice({
     required int pageNumber,
@@ -254,13 +233,11 @@ class BrokerageRepositoryImp extends BrokerageRepository {
             bookingId: bookingId,
             queryParams: queryParams,
           );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
     }
   }
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> exportPaidBrokerageBooking({
     required int pageNumber,
@@ -278,7 +255,6 @@ class BrokerageRepositoryImp extends BrokerageRepository {
             bookingId: bookingId,
             queryParams: queryParams,
           );
-
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

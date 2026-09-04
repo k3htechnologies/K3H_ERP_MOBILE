@@ -1,5 +1,4 @@
 part of 'brokerage_cubit.dart';
-
 class BrokerageState extends BaseState {
   final List<BrokerageModel> brokerageList;
   final int totalNumberOfRecord;
@@ -24,7 +23,6 @@ class BrokerageState extends BaseState {
   final DateTime? filterByToDate;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const BrokerageState({
     super.isLoading,
     required this.brokerageList,
@@ -51,7 +49,6 @@ class BrokerageState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
-
   factory BrokerageState.initial() => BrokerageState(
     isLoading: true,
     brokerageList: [],
@@ -79,7 +76,6 @@ class BrokerageState extends BaseState {
     currentSortDirection: "",
   );
   static const _noChange = Object();
-
   BrokerageState copyWith({
     bool? isLoading,
     List<BrokerageModel>? brokerageList,
@@ -114,60 +110,45 @@ class BrokerageState extends BaseState {
       searchText: searchText ?? this.searchText,
       viewSearchText: viewSearchText ?? this.viewSearchText,
       brokerageInvoiceList: brokerageInvoiceList ?? this.brokerageInvoiceList,
-
       totalNumberOfRecordInvoice:
           totalNumberOfRecordInvoice ?? this.totalNumberOfRecordInvoice,
-
       currentPageInvoice: currentPageInvoice ?? this.currentPageInvoice,
-
       brokeragePaidList: brokeragePaidList ?? this.brokeragePaidList,
-
       totalNumberOfRecordPaid:
           totalNumberOfRecordPaid ?? this.totalNumberOfRecordPaid,
-
       currentPagePaid: currentPagePaid ?? this.currentPagePaid,
-
       filterCpCompany:
           filterCpCompany == _noChange
               ? this.filterCpCompany
               : filterCpCompany as String,
-
       filterCpMobileNo:
           filterCpMobileNo == _noChange
               ? this.filterCpMobileNo
               : filterCpMobileNo as String,
-
       filterApplicantName:
           filterApplicantName == _noChange
               ? this.filterApplicantName
               : filterApplicantName as String,
-
       filterApplicantMobileNo:
           filterApplicantMobileNo == _noChange
               ? this.filterApplicantMobileNo
               : filterApplicantMobileNo as String,
-
       filterWing:
           filterWing == _noChange ? this.filterWing : filterWing as String,
-
       filterFlat:
           filterFlat == _noChange ? this.filterFlat : filterFlat as String,
-
       filterAgreementValue:
           filterAgreementValue == _noChange
               ? this.filterAgreementValue
               : filterAgreementValue as double,
-
       filterBookingType:
           filterBookingType == _noChange
               ? this.filterBookingType
               : filterBookingType as String,
-
       filterByFromDate:
           filterByFromDate == _noChange
               ? this.filterByFromDate
               : filterByFromDate as DateTime?,
-
       filterByToDate:
           filterByToDate == _noChange
               ? this.filterByToDate
@@ -176,7 +157,6 @@ class BrokerageState extends BaseState {
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
-
   @override
   List<Object?> get props => [
     isLoading,

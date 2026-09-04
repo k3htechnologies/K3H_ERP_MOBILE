@@ -11,7 +11,6 @@ abstract interface class BrokerageDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apicallPullBrokerageInvoice({
     required int pageNumber,
     required int pageSize,
@@ -19,19 +18,16 @@ abstract interface class BrokerageDatasource {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> addUpdateBrokerageInvoice({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> deleteBrokerageInvoice({
     required int projectId,
     required int brokerageInvoiceId,
     required int bookingId,
     required String uniqueKey,
   });
-
   Future<Map<String, dynamic>> pullPaidBrokerageBooking({
     required int pageNumber,
     required int pageSize,
@@ -39,12 +35,10 @@ abstract interface class BrokerageDatasource {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> addUpdatePaidBrokerageBooking({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> deletePaidBrokerageBooking({
     required int projectId,
     required int bookingId,
@@ -52,7 +46,6 @@ abstract interface class BrokerageDatasource {
     required int brokerageInvoiceId,
     required String uniqueKey,
   });
-
   Future<Map<String, dynamic>> apicallPullBrokerageBookingForExport({
     required int pageNumber,
     required int pageSize,
@@ -66,7 +59,6 @@ abstract interface class BrokerageDatasource {
     required int bookingId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> pullPaidBrokerageBookingForExport({
     required int pageNumber,
     required int pageSize,
@@ -78,7 +70,6 @@ abstract interface class BrokerageDatasource {
 
 class BrokerageDatasourceImpl extends BrokerageDatasource {
   final baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullBrokerageBooking({
     required int pageNumber,
@@ -181,7 +172,6 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateBrokerageInvoiceUrl = "Brokerage/AddUpdateBrokerageInvoice";
-
     try {
       final networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
@@ -195,6 +185,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
             (e) => BrokerageInvoiceModel.fromJson(e),
           ),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -308,7 +299,6 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
   }) async {
     String addUpdatePaidCrmBrokerageBookingURL =
         "Brokerage/AddUpdatePaidBrokerageBooking";
-
     try {
       final networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
@@ -437,9 +427,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     }) {
       String url =
           "Brokerage/PullBrokerageInvoice?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
-
       url += queryParamsFormatter(queryParams: queryParams);
-
       return url;
     }
 
@@ -453,7 +441,6 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           queryParams: queryParams,
         ),
       );
-
       return {
         'data': networkResponse['data'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
@@ -489,9 +476,7 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
     }) {
       String url =
           "Brokerage/PullPaidBrokerageBooking?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&BookingId=$bookingId";
-
       url += queryParamsFormatter(queryParams: queryParams);
-
       return url;
     }
 
@@ -505,7 +490,6 @@ class BrokerageDatasourceImpl extends BrokerageDatasource {
           queryParams: queryParams,
         ),
       );
-
       return {
         'data': networkResponse['data'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],

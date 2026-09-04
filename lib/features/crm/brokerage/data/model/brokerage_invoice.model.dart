@@ -25,7 +25,6 @@ class BrokerageInvoiceModel {
   DateTime? modifiedDate;
   String approvalStatus;
   bool isApproval;
-
   BrokerageInvoiceModel({
     required this.brokerageInvoiceId,
     required this.uniqueKey,
@@ -52,7 +51,6 @@ class BrokerageInvoiceModel {
     required this.approvalStatus,
     required this.isApproval,
   });
-
   factory BrokerageInvoiceModel.fromJson(Map<String, dynamic> json) {
     return BrokerageInvoiceModel(
       brokerageInvoiceId: parseValue<int>(json, "BrokerageInvoiceId"),
@@ -84,7 +82,6 @@ class BrokerageInvoiceModel {
       isApproval: parseValue<bool>(json, "IsApproval"),
     );
   }
-
   Map<String, dynamic> toJson() => {
     "BrokerageInvoiceId": brokerageInvoiceId,
     "Uniquekey": uniqueKey,

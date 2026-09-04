@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,7 +31,6 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 class BrokerageViewScreen extends StatefulWidget {
   final BrokerageModel brokerageModel;
   const BrokerageViewScreen({super.key, required this.brokerageModel});
-
   @override
   State<BrokerageViewScreen> createState() => _BrokerageViewScreenState();
 }
@@ -52,15 +50,12 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
   late ScrollController _paymentScrollController;
   Timer? _paymentDebounce;
   late List<BrokerageTab> _tabs;
-
   @override
   void initState() {
     super.initState();
     _searchC = TextEditingController();
-
     _brokerageCubit = context.read<BrokerageCubit>();
     _utilsCubit = context.read<UtilsCubit>();
-
     _invoiceRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.brokerageInvoice] ??
         AuthorizationModel();
@@ -87,7 +82,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
           widget.brokerageModel.projectId,
           widget.brokerageModel.bookingId,
         );
-
         break;
       case (BrokerageTab.payment):
         _brokerageCubit.getBrokeragePaidList(
@@ -205,7 +199,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
 
   double get raisedInvoiceTotal => _brokerageCubit.state.brokerageInvoiceList
       .fold(0.0, (sum, e) => sum + e.invoiceAmount);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -356,12 +349,10 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                     text: widget.brokerageModel.channelPartnerName,
                     style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
-
                   TextSpan(
                     text: " | ",
                     style: AppTextStyle.ts14R(color: AppColor.grey),
                   ),
-
                   TextSpan(
                     text: widget.brokerageModel.channelPartnerCompany,
                     style: AppTextStyle.ts14M(color: AppColor.grey),
@@ -513,7 +504,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                           ],
                         ),
                       ),
-
                       buildRowTitleValue(
                         fixesWidth: 100.w,
                         title: "Invoice Date",
@@ -605,7 +595,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                                           isApproved: true,
                                           remark: remark.trim(),
                                         );
-
                                     if (context.mounted && isSuccess) {
                                       _brokerageCubit.getBrokerageInvoiceList(
                                         context,
@@ -626,7 +615,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                                           isApproved: false,
                                           remark: remark.trim(),
                                         );
-
                                     if (context.mounted && isSuccess) {
                                       _brokerageCubit.getBrokerageInvoiceList(
                                         context,
@@ -718,7 +706,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                     ),
                 ],
               ),
-
               Row(
                 children: [
                   buildColumnTitleValue(
@@ -774,7 +761,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                           );
                         }
                       },
-
                       isDisable: invoice.uploadInvoiceURL.isEmpty,
                     ),
                   ),
@@ -912,7 +898,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
             (_) => ValueNotifier(false),
           ),
         );
-
         if ((state.isLoading ?? true) && state.brokeragePaidList.isEmpty) {
           return Center(child: loader());
         }
@@ -946,6 +931,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                       buildRowTitleValue(
                         title: "Invoice No.",
                         value: payment.invoiceNumber,
+                        fixesWidth: 120.w,
                         customValueWidget: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -959,18 +945,19 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                             Row(
                               spacing: 10,
                               children: [
-                                CustomIconButton.delete(
-                                  isDisabled:
-                                      !_makePaymentRouteAuthorizationModel
-                                          .isAction,
-                                  onPressed: () {
-                                    _showPopupToDeletePayment(
-                                      context,
-                                      payment,
-                                      index,
-                                    );
-                                  },
-                                ),
+                                if (index == 0)
+                                  CustomIconButton.delete(
+                                    isDisabled:
+                                        !_makePaymentRouteAuthorizationModel
+                                            .isAction,
+                                    onPressed: () {
+                                      _showPopupToDeletePayment(
+                                        context,
+                                        payment,
+                                        index,
+                                      );
+                                    },
+                                  ),
                                 GestureDetector(
                                   onTap: () => notifier.value = !isExpanded,
                                   child: Icon(
@@ -988,8 +975,8 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                       buildRowTitleValue(
                         title: "Invoice Amount",
                         value: payment.invoiceAmount.toIndianCurrency(),
+                        fixesWidth: 120.w,
                       ),
-
                       AnimatedSwitcher(
                         duration: const Duration(milliseconds: 250),
                         child:
@@ -1022,21 +1009,30 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 10,
         children: [
-          Text(
-            "Payment Details",
-            style: AppTextStyle.ts14M(color: AppColor.black),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Payment Details",
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+              paymentModeStatusWidget(payment.paymentMode),
+            ],
           ),
           Row(
             children: [
               buildColumnTitleValue(
                 title: "Bank Name",
-                value: payment.bankName,
+                value: payment.projectBankName,
               ),
             ],
           ),
-          buildRowTitleValue(title: "Payment Type", value: payment.paymentType),
-          buildRowTitleValue(title: "Payment Mode", value: payment.paymentMode),
-
+          buildColumnTitleValue(
+            removeExpanded: true,
+            title: "Payment Type",
+            value: payment.paymentType,
+          ),
           Row(
             children: [
               buildColumnTitleValue(
@@ -1053,7 +1049,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
               ),
             ],
           ),
-
           Row(
             children: [
               buildColumnTitleValue(
@@ -1075,30 +1070,12 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
               buildColumnTitleValue(
                 title: "Transaction/Cheque/Demand Draft No.",
                 value: payment.transactionReceiptURL,
-                customValueWidget: GestureDetector(
-                  onTap: () {
-                    if (payment.transactionReceiptURL.isNotEmpty) {
-                      showFilePreviewDialog(
-                        title: "Transaction/Cheque/Demand Draft",
-                        context,
-                        payment.transactionReceiptURL.split(","),
-                      );
-                    }
-                  },
-                  child: Row(
-                    spacing: 5,
-                    children: [
-                      Text(
-                        payment.transactionNumber,
-                        style: AppTextStyle.ts14M(color: AppColor.primary),
-                      ),
-                      Icon(
-                        Icons.remove_red_eye_outlined,
-                        color: AppColor.primary,
-                        size: 18,
-                      ),
-                    ],
-                  ),
+                customValueWidget: buildDocumentRow(
+                  iconWithoutBg: true,
+                  context: context,
+                  docNumber: payment.transactionNumber,
+                  url: payment.transactionReceiptURL,
+                  title: "Transaction/Cheque/Demand Draft No.",
                 ),
               ),
             ],

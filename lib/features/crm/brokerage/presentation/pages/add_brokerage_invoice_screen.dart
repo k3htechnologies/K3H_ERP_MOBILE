@@ -36,7 +36,6 @@ class AddBrokerageInvoiceScreen extends StatefulWidget {
     required this.bookingId,
     required this.projectId,
   });
-
   @override
   State<AddBrokerageInvoiceScreen> createState() =>
       _AddBrokerageInvoiceScreenState();
@@ -45,29 +44,24 @@ class AddBrokerageInvoiceScreen extends StatefulWidget {
 class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   late TextEditingController _invoiceNumberC,
       _accountNameC,
       _accountNumberC,
       _ifscCodeC,
       _invoiceAmountC,
       _remarkC;
-
   DateTime? invoiceDate;
   DateTime? dueDate;
-
   late ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
+  late double _availableBrokerageAmount;
   final MultiFilePickerModel _invoiceDocument = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
   late BrokerageCubit _brokerageCubit;
   bool get _isEditMode => widget.brokerageInvoiceModel != null;
-
   @override
   void initState() {
     super.initState();
@@ -107,7 +101,6 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
       pageSize: 15,
       query: value != null && value.isNotEmpty ? {"BankName": value} : {},
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
@@ -115,7 +108,6 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
       },
       (response) {
         final banks = response['data'] as List<BankListMasterModel>;
-
         return {
           "itemList":
               banks.map((bank) {
@@ -168,6 +160,8 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                   0.0,
                   (a, b) => a + b.invoiceAmount,
                 );
+                _availableBrokerageAmount =
+                    widget.brokerageModel.brokerageAmount - invoiceAmount;
                 final paymentPaidAmount = state.brokerageInvoiceList.fold(
                   0.0,
                   (a, b) => a + b.paymentAmount,
@@ -214,11 +208,11 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                     "value": invoiceAmount.toIndianCurrency(),
                   },
                   {
-                    "title": "Payment Paid Amount",
+                    "title": "Paid Invoice Amount",
                     "value": paymentPaidAmount.toIndianCurrency(),
                   },
                   {
-                    "title": "Pending Amount",
+                    "title": "Outstanding Amount",
                     "value": pendingAmount.toIndianCurrency(),
                   },
                 ]);
@@ -275,14 +269,12 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                         CustomMultiFilePicker(
                           title: "Invoice Document",
                           isRequired: true,
-                          filePickType: FilePickType.both,
+                          filePickType: FilePickType.kycDocument,
                           initialFileList: _invoiceDocument.fileNameList,
-
                           onFilePickedCallback: (bytesList, fileNameList) {
                             _invoiceDocument.fileNameList = fileNameList;
                             _invoiceDocument.fileBytesList = bytesList;
                           },
-
                           onFileDeleteCallback: (
                             fileBytesList,
                             fileNameList,
@@ -292,7 +284,6 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                             _invoiceDocument.fileBytesList = fileBytesList;
                             _invoiceDocument.deletedFileList = deletedFile;
                           },
-
                           validator: (fileList) {
                             if (fileList == null || fileList.isEmpty) {
                               return "Invoice Document is required.";
@@ -300,7 +291,6 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                             return null;
                           },
                         ),
-
                         ValueListenableBuilder(
                           valueListenable: _selectedBankNotifier,
                           builder: (context, selectedBank, _) {
@@ -384,7 +374,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                             }
                             if ((double.tryParse(value) ?? 0) >
                                 widget.brokerageModel.brokerageAmount) {
-                              return "Invoice amount exceeds the brokerage amount.";
+                              return "Invoice amount exceeds the brokerage amount ${_availableBrokerageAmount == 0 ? '' : _availableBrokerageAmount.toIndianCurrency()}.";
                             }
                             return null;
                           },
@@ -393,6 +383,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                         CustomDatePicker(
                           title: 'Due Date',
                           initialDate: dueDate,
+                          startDate: DateTime.now(),
                           isRequired: true,
                           setValue: (value) => dueDate = value,
                           validator: (value) {

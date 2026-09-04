@@ -10,15 +10,12 @@ import 'package:k3h_erp_app/features/crm/brokerage/data/repository/brokerage.rep
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 part 'brokerage_state.dart';
 
 class BrokerageCubit extends Cubit<BrokerageState> {
   BrokerageCubit() : super(BrokerageState.initial());
-
   final BrokerageRepository _brokerageRepository =
       serviceLocator<BrokerageRepository>();
-
   void resetState() {
     emit(BrokerageState.initial());
   }
@@ -64,7 +61,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
           isLoading: true,
         ),
       );
-
       await getBrokerageInvoiceList(context, 1, projectId, bookingId);
     } else {
       emit(
@@ -112,7 +108,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       pageSize: 10,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -122,7 +117,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         final List<BrokerageModel> newData = List<BrokerageModel>.from(
           response['data'] ?? [],
         );
-
         final List<BrokerageModel> updatedList =
             pageNumber == 1 ? newData : [...state.brokerageList, ...newData];
         emit(
@@ -151,7 +145,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       bookingId: bookingId,
       queryParams: {"InvoiceNumber": state.viewSearchText},
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -160,7 +153,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       (response) {
         final List<BrokerageInvoiceModel> newData =
             List<BrokerageInvoiceModel>.from(response['data'] ?? []);
-
         final List<BrokerageInvoiceModel> updatedList =
             pageNumber == 1
                 ? newData
@@ -207,9 +199,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "DueDate": dueDate,
       "Remark": remark,
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < invoiceFiles.fileNameList.length; i++) {
       if (invoiceFiles.fileNameList[i].contains("http")) {
         continue;
@@ -220,7 +210,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         "fileName": invoiceFiles.fileNameList[i],
       });
     }
-
     var updateResult = await _brokerageRepository.addUpdateBrokerageInvoice(
       body: requestBody,
       fileList: fileList,
@@ -234,7 +223,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(context, subTitle: "Invoice Added Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
         getBrokerageInvoiceList(
           context,
           1,
@@ -280,9 +269,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "Remark": remark,
       "RemoveUploadInvoiceURL": invoiceFiles.deletedFileList,
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < invoiceFiles.fileNameList.length; i++) {
       if (invoiceFiles.fileNameList[i].contains("http")) {
         continue;
@@ -293,7 +280,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         "fileName": invoiceFiles.fileNameList[i],
       });
     }
-
     var updateResult = await _brokerageRepository.addUpdateBrokerageInvoice(
       body: requestBody,
       fileList: fileList,
@@ -317,7 +303,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
           updatedList[index] = updatedBrokerageInvoice;
           emit(state.copyWith(brokerageInvoiceList: updatedList));
         }
-        showSuccessMessage(context, subTitle: "Invoice Updated Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -341,12 +327,11 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         return;
       },
       (response) {
-        showSuccessMessage(context, subTitle: 'Invoice Deleted Successfully');
+        showSuccessMessage(context, subTitle: response['message']);
         final updatedList = List<BrokerageInvoiceModel>.from(
           state.brokerageInvoiceList,
         );
         updatedList.removeAt(index);
-
         emit(
           state.copyWith(
             brokerageInvoiceList: updatedList,
@@ -374,7 +359,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       projectId: projectId,
       queryParams: {"InvoiceNumber": state.viewSearchText},
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -383,7 +367,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       (response) {
         final List<PaidBrokerageBookingModel> newData =
             List<PaidBrokerageBookingModel>.from(response['data'] ?? []);
-
         final List<PaidBrokerageBookingModel> updatedList =
             pageNumber == 1
                 ? newData
@@ -406,7 +389,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     required String projectId,
     required String brokerageInvoiceId,
     required String paymentMode,
-    required String bankListMasterId,
+    required String projectBankListMasterId,
     required String paymentType,
     required String amountPaid,
     required String tDSAmount,
@@ -421,7 +404,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "ProjectId": projectId,
       "BrokerageInvoiceId": brokerageInvoiceId,
       "PaymentMode": paymentMode,
-      "BankListMasterId": bankListMasterId,
+      "ProjectBankListMasterId": projectBankListMasterId,
       "PaymentType": paymentType,
       "AmountPaid": amountPaid,
       "TDSAmount": tDSAmount.trim().isEmpty ? "0" : tDSAmount,
@@ -429,9 +412,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "TransactionChequeDemandDraftDate":
           transactionChequeDemandDraftDate.toIso8601String(),
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < transactionReceiptFiles.fileNameList.length; i++) {
       if (transactionReceiptFiles.fileNameList[i].contains("http")) {
         continue;
@@ -442,7 +423,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         "fileName": transactionReceiptFiles.fileNameList[i],
       });
     }
-
     var updateResult = await _brokerageRepository.addUpdatePaidBrokerageBooking(
       body: requestBody,
       fileList: fileList,
@@ -498,9 +478,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       "TransactionNumber": transactionNumber,
       "RemoveTransactionReceiptURL": transactionReceiptFiles.deletedFileList,
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < transactionReceiptFiles.fileNameList.length; i++) {
       if (transactionReceiptFiles.fileNameList[i].contains("http")) {
         continue;
@@ -511,7 +489,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         "fileName": transactionReceiptFiles.fileNameList[i],
       });
     }
-
     var updateResult = await _brokerageRepository.addUpdatePaidBrokerageBooking(
       body: requestBody,
       fileList: fileList,
@@ -551,7 +528,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
       paidBrokerageBookingId: payment.paidBrokerageBookingId,
       bookingId: payment.bookingId,
       brokerageInvoiceId: payment.brokerageInvoiceId,
-      uniqueKey: payment.uniqueKey,
+      uniqueKey: payment.uniquekey,
     );
     goRouter.pop();
     deleteResult.fold(
@@ -564,7 +541,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
           state.brokeragePaidList,
         );
         updatedList.removeAt(index);
-
         emit(
           state.copyWith(
             brokeragePaidList: updatedList,
@@ -613,7 +589,6 @@ class BrokerageCubit extends Cubit<BrokerageState> {
         currentSortDirection: sortDirection ?? '',
       ),
     );
-
     getBrokerageBookingList(context, 1, projectId);
   }
 
@@ -660,12 +635,10 @@ class BrokerageCubit extends Cubit<BrokerageState> {
     required String tabName,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final queryParams = {
       "InvoiceNumber": state.viewSearchText,
       "ExportType": exportType,
     };
-
     final result =
         tabName.toLowerCase() == "invoice"
             ? await _brokerageRepository.exportBrokerageInvoice(
@@ -682,9 +655,7 @@ class BrokerageCubit extends Cubit<BrokerageState> {
               bookingId: bookingId,
               queryParams: queryParams,
             );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
