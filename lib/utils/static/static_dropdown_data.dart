@@ -296,3 +296,7 @@ final List<Map<String, dynamic>> approvalStatus = createAttributeList(
 final List<Map<String, dynamic>> gatePassPurpose = createAttributeList(
   gatePassPurposeValues,
 );
+
+final List<Map<String, dynamic>> existingBuildingType = createAttributeList(
+  existingBuildingTypeValues,
+);

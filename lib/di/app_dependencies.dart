@@ -33,6 +33,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_ca
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_document/approval_document.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/rebuild/project_lead/project_lead.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/dashboard/redevelopment_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/register/register.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
@@ -278,4 +279,8 @@ void initDependencies() {
   // VISITOR MANAGEMENT
   // GATE PASS
   registerGatePassDependencies(serviceLocator);
+
+  // REBUILD
+  // PROJECT LEAD
+  registerProjectLeadDependencies(serviceLocator);
 }

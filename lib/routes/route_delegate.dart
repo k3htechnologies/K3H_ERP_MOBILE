@@ -3,6 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/project_lead.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/add_redevelopment.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/add_gate_pass.screen.dart';
@@ -7660,6 +7665,42 @@ final GoRouter goRouter = GoRouter(
                 return ViewGatePassScreen(
                   gatePassModel: extra["gatePass"] as GatePassModel?,
                 );
+              },
+            ),
+          ],
+        ),
+        //  PROJECT LEAD
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => ProjectLeadCubit())],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.projectLead,
+              path: AppRoutes.projectLead,
+              builder: (context, state) {
+                return const ProjectLeadScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addRedevelopment,
+              path: AppRoutes.addRedevelopment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddRedevelopmentScreen(
+                  redevelopment: extra["redevelopment"] as RedevelopmentModel?,
+                  index: extra["index"] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addLand,
+              path: AppRoutes.addLand,
+              builder: (context, state) {
+                return const AddLandScreen();
               },
             ),
           ],

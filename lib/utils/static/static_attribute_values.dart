@@ -571,3 +571,4 @@ const gatePassPurposeValues = [
   'Meeting',
   'Others',
 ];
+const existingBuildingTypeValues = ['Commercial', 'Mixed Use', 'Residential'];
