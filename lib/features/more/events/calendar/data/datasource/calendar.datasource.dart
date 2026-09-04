@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class CalendarDatasource {
   Future<Map<String, dynamic>> apicallPullEvent({
@@ -35,7 +36,7 @@ class CalendarDatasourceImpl implements CalendarDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url = "Events/PullEvent?FromDate=$fromDate&ToDate=$toDate";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

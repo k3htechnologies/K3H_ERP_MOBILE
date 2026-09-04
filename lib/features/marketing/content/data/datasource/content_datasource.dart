@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/marketing/content/data/model/content_docume
 import 'package:k3h_erp_app/features/marketing/content/data/model/content_folder.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ContentDataSource {
   Future<Map<String, dynamic>> apicallPullMarketingContentFolder({
@@ -61,7 +62,7 @@ class ContentDataSourceImpl implements ContentDataSource {
       }) {
         String url =
             "MarketingContent/PullMarketingContentFolder?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 
@@ -109,7 +110,7 @@ class ContentDataSourceImpl implements ContentDataSource {
     }) {
       String url =
           "MarketingContent/PullMarketingContent?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&MarketingContentFolderId=$marketingContentFolderId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

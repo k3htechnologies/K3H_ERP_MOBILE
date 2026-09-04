@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/data/model/purchase_order.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract class PurchaseOrderDatasource {
   Future<Map<String, dynamic>> apiCallToPullMaterialPurchaseOrder({
@@ -43,7 +44,7 @@ class PurchaseOrderDatasourceImpl implements PurchaseOrderDatasource {
       }) {
         String url =
             "MaterialRequisitionPurchaseOrder/PullMaterialRequisitionPurchaseOrder?MaterialRequisitionId=$materialRequisitionId&Uniquekey=$uniqueKey&ProjectId=$projectId";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 

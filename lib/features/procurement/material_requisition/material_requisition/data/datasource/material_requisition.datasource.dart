@@ -177,7 +177,7 @@ class MaterialRequisitionDataSourceImpl
     }) {
       String url =
           "MaterialRequisition/PullMaterialRequisition?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

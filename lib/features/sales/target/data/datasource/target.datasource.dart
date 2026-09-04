@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_closin
 import 'package:k3h_erp_app/features/sales/target/data/model/sales_target_sourcing.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class TargetDatasource {
   Future<Map<String, dynamic>> apicallPullSaleTargetClosing({
@@ -45,7 +46,7 @@ class TargetDatasourceImpl extends TargetDatasource {
     String pullSaleTargetClosingUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "SaleTarget/PullSaleTargetClosing?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -83,7 +84,7 @@ class TargetDatasourceImpl extends TargetDatasource {
     String pullSaleTargetSourcingUrl({Map<String, dynamic>? queryParams}) {
       String url =
           "SaleTarget/PullSaleTargetSourcing?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -126,7 +127,7 @@ class TargetDatasourceImpl extends TargetDatasource {
     }) {
       String url =
           "SaleTarget/PullSaleTargetSourcing?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -171,7 +172,7 @@ class TargetDatasourceImpl extends TargetDatasource {
     }) {
       String url =
           "SaleTarget/PullSaleTargetClosing?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

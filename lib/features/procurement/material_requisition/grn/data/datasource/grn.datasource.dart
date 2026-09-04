@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class GrnDatasource {
   Future<Map<String, dynamic>> apiCallToGetAllGRN({
@@ -48,7 +49,7 @@ class GrnDatasourceImpl implements GrnDatasource {
       }) {
         String url =
             "MaterialRequisitionGRN/PullMaterialRequisitionGRN?MaterialRequisitionId=$materialRequisitionId&Uniquekey=$uniqueyKey&ProjectId=$projectId";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 

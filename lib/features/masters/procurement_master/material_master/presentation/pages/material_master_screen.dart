@@ -46,7 +46,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.materialMaster]!;
     _initializeTextEditingController();
     _onScroll();
-    _materialMasterCubit.getMaterialMasterList(context, 1, 10);
+    _materialMasterCubit.getMaterialMasterList(context, 1);
   }
 
   @override
@@ -77,7 +77,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
           _materialMasterCubit.getMaterialMasterList(
             context,
             _materialMasterCubit.state.currentPage + 1,
-            10,
           );
         });
       }
@@ -101,7 +100,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
         context: context,
         materialMasterId: material.materialMasterId,
         uniqueKey: material.uniquekey,
-        pageSize: 10,
         index: index,
       );
     }
@@ -123,9 +121,6 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
         },
         onAddCallback: () async {
           await goRouter.pushNamed(AppRoutes.addMaterialMaster);
-          if (context.mounted) {
-            _materialMasterCubit.searchMaterial(context, "");
-          }
         },
         onSearchSubmit: (value) {
           _materialMasterCubit.searchMaterial(context, value);

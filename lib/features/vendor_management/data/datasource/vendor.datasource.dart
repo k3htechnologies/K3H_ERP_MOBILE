@@ -132,7 +132,7 @@ class VendorDataSourceImpl implements VendorDatasource {
     }) {
       String url =
           "Vendor/PullVendor?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

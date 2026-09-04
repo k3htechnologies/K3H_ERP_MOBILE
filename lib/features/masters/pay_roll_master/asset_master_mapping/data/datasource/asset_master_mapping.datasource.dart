@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/data/model/asset_mapping.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class AssetMasterMappingDatasource {
   Future<Map<String, dynamic>> apiCallPullMappedAssets({
@@ -41,7 +42,7 @@ class AssetMasterMappingDatasourceImpl extends AssetMasterMappingDatasource {
     }) {
       String url =
           "AssetMasterMappingMapping/PullAssetMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -138,7 +139,7 @@ class AssetMasterMappingDatasourceImpl extends AssetMasterMappingDatasource {
     }) {
       String url =
           "AssetMasterMappingMapping/PullAssetMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

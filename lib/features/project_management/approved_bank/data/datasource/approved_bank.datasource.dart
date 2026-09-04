@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/data/model
 import 'package:k3h_erp_app/features/project_management/approved_bank/data/model/approved_bank_folder.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ApprovedBankDatasource {
   Future<Map<String, dynamic>> apicallPullApprovedBankFolder({
@@ -59,7 +60,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
     }) {
       String url =
           "ApprovedBank/PullApprovedBankFolder?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -109,7 +110,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
       }) {
         String url =
             "ApprovedBank/PullApprovedBankFile?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 

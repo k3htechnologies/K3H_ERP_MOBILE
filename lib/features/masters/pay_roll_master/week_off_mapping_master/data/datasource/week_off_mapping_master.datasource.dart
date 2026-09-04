@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_master/data/model/week_off_mapping.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class WeekOffMappingMasterDataSource {
   Future<Map<String, dynamic>> apiCallPullWeekOffMappedWeekOff({
@@ -39,7 +40,7 @@ class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDataSource {
     }) {
       String url =
           "WeekOffPolicyMasterMapping/PullWeekOffPolicyMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -136,7 +137,7 @@ class WeekOffMappingMasterDataSourceImp extends WeekOffMappingMasterDataSource {
     }) {
       String url =
           "WeekOffPolicyMasterMapping/PullWeekOffPolicyMasterMapping?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

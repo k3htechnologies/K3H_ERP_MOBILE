@@ -99,7 +99,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Form(
           key: _formKey,
           child: Column(
@@ -107,7 +107,7 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
             children: [
               Text(
                 _isEditMode ? "Update Material Master" : "Add Material Master",
-                style: AppTextStyle.ts16SB(),
+                style: AppTextStyle.ts14M(),
               ),
               verticalSpacing(),
               Container(
@@ -115,6 +115,23 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                 decoration: commonCardDecoration(),
                 child: Column(
                   children: [
+                    CustomTextField(
+                      title: 'Material Code',
+                      isRequired: true,
+                      hint: "Enter Material Code",
+                      textController: _materialCodeC,
+                      inputFormatterList: [
+                        UpperCaseTextFormatter(),
+                        LengthLimitingTextInputFormatter(4),
+                        AlphaNumericWithoutSpacesFormatter(),
+                      ],
+                      validator: (string) {
+                        if (string == null || string.trim().isEmpty) {
+                          return 'Material Code is required.';
+                        }
+                        return null;
+                      },
+                    ),
                     CustomTextField(
                       title: 'Material Name',
                       isRequired: true,
@@ -129,24 +146,6 @@ class _AddMaterialMasterScreenState extends State<AddMaterialMasterScreen> {
                         }
                         if (string.trim().length < 3) {
                           return 'Must be at least 3 characters long';
-                        }
-                        return null;
-                      },
-                    ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: 'Material Code',
-                      isRequired: true,
-                      hint: "Enter Material Code",
-                      textController: _materialCodeC,
-                      inputFormatterList: [
-                        UpperCaseTextFormatter(),
-                        LengthLimitingTextInputFormatter(4),
-                        AlphaNumericWithoutSpacesFormatter(),
-                      ],
-                      validator: (string) {
-                        if (string == null || string.trim().isEmpty) {
-                          return 'Material Code is required.';
                         }
                         return null;
                       },

@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/stock_management/data/model/stock_managemen
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management_summary.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class StockManagementDatasource {
   Future<Map<String, dynamic>> apicallPullStock({
@@ -57,7 +58,7 @@ class StockManagementDatasourceImpl implements StockManagementDatasource {
     }) {
       String url =
           "Stock/PullStock?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -104,7 +105,7 @@ class StockManagementDatasourceImpl implements StockManagementDatasource {
     }) {
       String url =
           "Stock/PullStockHistory?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -153,7 +154,7 @@ class StockManagementDatasourceImpl implements StockManagementDatasource {
     }) {
       String url =
           "Stock/PullStockSummary?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -251,7 +252,7 @@ class StockManagementDatasourceImpl implements StockManagementDatasource {
     }) {
       String url =
           "DepartmentMaster/PullDepartmentMaster?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

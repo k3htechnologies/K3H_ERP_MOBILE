@@ -20,15 +20,11 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
   // SEARCH MATERIAL
   Future searchMaterial(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, materialList: []));
-    await getMaterialMasterList(context, 1, 20);
+    await getMaterialMasterList(context, 1);
   }
 
   // GET MATERIAL MASTER
-  Future getMaterialMasterList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
+  Future getMaterialMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "MaterialName": state.searchText,
@@ -36,7 +32,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     };
     var result = await _materialMasterRepository.getMaterialList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 20,
       queryParams: queryParams,
     );
     result.fold(
@@ -140,7 +136,6 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     required BuildContext context,
     required int materialMasterId,
     required String uniqueKey,
-    required int pageSize,
     int? index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
@@ -164,7 +159,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
           updatedList.removeAt(index);
           emit(state.copyWith(isLoading: false, materialList: updatedList));
         } else {
-          getMaterialMasterList(context, state.currentPage, pageSize);
+          getMaterialMasterList(context, state.currentPage);
         }
       },
     );

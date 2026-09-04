@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class SubMaterialMasterDatasource {
   Future<Map<String, dynamic>> apicallPullSubMaterialMaster({
@@ -41,7 +42,7 @@ class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
     }) {
       String url =
           "SubMaterialMaster/PullSubMaterialMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -149,7 +150,7 @@ class SubMaterialMasterDataSourceImpl implements SubMaterialMasterDatasource {
     }) {
       String url =
           "SubMaterialMaster/PullSubMaterialMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
