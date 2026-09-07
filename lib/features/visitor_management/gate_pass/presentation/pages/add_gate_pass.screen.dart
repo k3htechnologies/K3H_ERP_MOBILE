@@ -151,7 +151,7 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

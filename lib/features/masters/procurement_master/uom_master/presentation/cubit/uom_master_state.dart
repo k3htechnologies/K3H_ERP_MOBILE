@@ -5,6 +5,8 @@ class UOMMasterState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
+  final String currentSortColumn;
+  final String currentSortDirection;
 
   const UOMMasterState({
     super.isLoading,
@@ -12,6 +14,8 @@ class UOMMasterState extends BaseState {
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory UOMMasterState.initial() => UOMMasterState(
@@ -20,6 +24,8 @@ class UOMMasterState extends BaseState {
     currentPage: 1,
     searchText: "",
     isLoading: true,
+    currentSortColumn: "Created Date",
+    currentSortDirection: "DESC",
   );
 
   UOMMasterState copyWith({
@@ -30,6 +36,8 @@ class UOMMasterState extends BaseState {
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return UOMMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -37,6 +45,8 @@ class UOMMasterState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -47,7 +57,7 @@ class UOMMasterState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     searchText,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }
-
-

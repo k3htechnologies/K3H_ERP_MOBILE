@@ -545,10 +545,11 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           title: "Invoice Date",
                           initialDate: _invoiceDate,
                           readOnly: disableInwardOutward,
-                          startDate: DateTime.now().subtract(
-                            const Duration(days: 6),
-                          ),
-                          endDate: DateTime.now(),
+                          // TODO : TEMPORARY COMMENTED
+                          // startDate: DateTime.now().subtract(
+                          //   const Duration(days: 6),
+                          // ),
+                          // endDate: DateTime.now(),
                           setValue: (value) {
                             _invoiceDate = value;
                           },

@@ -20,7 +20,10 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
   // GET UOM MASTER
   Future getUOMMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"Uom": state.searchText};
+    Map<String, dynamic> queryParams = {
+      "Uom": state.searchText,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     var result = await _uomMasterRepository.getUOMList(
       pageNumber: pageNumber,
       pageSize: 20,
@@ -80,5 +83,30 @@ class UOMMasterCubit extends Cubit<UOMMasterState> {
         );
       },
     );
+  }
+
+  Future applyFilterAndSortMaterial({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String uomName,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: uomName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        uomList: [],
+      ),
+    );
+    await getUOMMasterList(context, 1);
+  }
+
+  int updateFilterCount(UOMMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "UOM" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }
