@@ -333,6 +333,7 @@ class DialogHelper {
     String cancelText = "Cancel",
     Color confirmColor = AppColor.primary,
     IconData icon = CupertinoIcons.question_circle,
+    double iconSize = 32,
   }) async {
     final result = await showDialog<bool>(
       context: context,
@@ -361,7 +362,7 @@ class DialogHelper {
                     spacing: 8,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(icon, color: confirmColor, size: 32),
+                      Icon(icon, color: confirmColor, size: iconSize),
                       Expanded(
                         child: Text(
                           title,

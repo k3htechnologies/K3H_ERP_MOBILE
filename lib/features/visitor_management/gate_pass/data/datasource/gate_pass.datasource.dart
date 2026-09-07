@@ -123,6 +123,7 @@ class GatePassDatasourceImpl extends GatePassDatasource {
         'data': List<GatePassModel>.from(
           networkResponse['data'].map((x) => GatePassModel.fromJson(x)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

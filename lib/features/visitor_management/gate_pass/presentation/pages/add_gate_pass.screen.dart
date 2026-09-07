@@ -277,9 +277,9 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
                       isRequired: true,
                       minLines: 3,
                       maxLines: 10,
-                      inputFormatterList: InputValidator.digitAndCharacterOnly(
-                        250,
-                      ),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(250),
+                      ],
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Address is required";

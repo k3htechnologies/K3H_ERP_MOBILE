@@ -222,8 +222,17 @@ class GatePassCubit extends Cubit<GatePassState> {
       },
       (response) {
         goRouter.pop();
+        final updatedGatePass = (response['data'] as List<GatePassModel>).first;
+
+        if (state.gatePassList.isNotEmpty &&
+            index < state.gatePassList.length) {
+          final updatedList = List<GatePassModel>.from(state.gatePassList);
+
+          updatedList[index] = updatedGatePass;
+
+          emit(state.copyWith(isLoading: false, gatePassList: updatedList));
+        }
         showSuccessMessage(context, subTitle: response['message']);
-        getGatePass(context, 1);
       },
     );
   }
@@ -233,6 +242,7 @@ class GatePassCubit extends Cubit<GatePassState> {
     required int externalId,
     required String uniquekey,
     required String type,
+    required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -255,10 +265,17 @@ class GatePassCubit extends Cubit<GatePassState> {
         }
       },
       (response) async {
-        final newData = (response['data'] as List<GatePassModel>?) ?? [];
         showSuccessMessage(context, subTitle: response["message"]);
-        emit(state.copyWith(gatePassList: newData));
-        getGatePass(context, 1);
+        final updatedGatePass = (response['data'] as List<GatePassModel>).first;
+
+        if (state.gatePassList.isNotEmpty &&
+            index < state.gatePassList.length) {
+          final updatedList = List<GatePassModel>.from(state.gatePassList);
+
+          updatedList[index] = updatedGatePass;
+
+          emit(state.copyWith(isLoading: false, gatePassList: updatedList));
+        }
       },
     );
   }

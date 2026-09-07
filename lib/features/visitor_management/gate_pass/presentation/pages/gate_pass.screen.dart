@@ -135,11 +135,14 @@ class _GatePassScreenState extends State<GatePassScreen> {
     GatePassModel obj,
     int index,
   ) async {
-    var result = await DialogHelper.deleteDialog(
-      context,
-      'You are about to mark this Gate Pass Out?',
-      'Marking this Gate Pass Out will confirm that the visitor has exited. Do you want to continue?',
-      deleteButtonTxt: "Out",
+    var result = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'You are about to mark this Gate Pass Out?',
+      message:
+          'Marking this Gate Pass Out will confirm that the visitor has exited. Do you want to continue?',
+      confirmText: "Out",
+      icon: Icons.logout,
+      confirmColor: AppColor.error,
     );
     if (result && context.mounted) {
       _gatePassCubit.updateGatePassOut(
@@ -147,6 +150,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
         externalId: obj.externalId,
         uniquekey: obj.uniquekey,
         type: "Out",
+        index: index,
       );
     }
   }
@@ -156,11 +160,14 @@ class _GatePassScreenState extends State<GatePassScreen> {
     GatePassModel obj,
     int index,
   ) async {
-    var result = await DialogHelper.deleteDialog(
-      context,
-      'Notify Appointment person',
-      'The appointment contact will be notified that their visitor has arrived at reception',
-      deleteButtonTxt: "Notify",
+    var result = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Notify Appointment person',
+      message:
+          'The appointment contact will be notified that their visitor has arrived at reception',
+      confirmText: "Notify",
+      icon: LucideIcons.bell,
+      iconSize: 28,
     );
     if (result && context.mounted) {
       _gatePassCubit.updateGatePassOut(
@@ -168,6 +175,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
         externalId: obj.externalId,
         uniquekey: obj.uniquekey,
         type: "Bell",
+        index: index,
       );
     }
   }
@@ -373,7 +381,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
                 itemCount: state.gatePassList.length + 1,
                 shrinkWrap: true,
                 physics: AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
+                padding: EdgeInsets.symmetric(horizontal: 12.0),
                 itemBuilder: (context, index) {
                   if (index == state.gatePassList.length) {
                     return state.gatePassList.length < state.totalNumberOfRecord
@@ -399,7 +407,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
     final canGatePassOut = _canGatePassOut(gatePass);
     final canNotify = _canNotifyGatePass(gatePass);
     return Container(
-      margin: EdgeInsets.only(bottom: 10.0),
+      margin: EdgeInsets.only(bottom: 12.0),
       padding: const EdgeInsets.all(16),
       decoration: commonCardDecoration(),
       child: Column(
@@ -486,10 +494,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
               ),
             ],
           ),
-          Divider(
-            thickness: 1.0,
-            color: AppColor.grey10.withValues(alpha: 0.5),
-          ),
+          Divider(thickness: 1.0, color: AppColor.grey50),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
