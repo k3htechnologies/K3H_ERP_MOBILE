@@ -177,11 +177,8 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                   (a, b) => a + b.paymentAmount,
                 );
                 final pendingAmount =
-                    (widget.brokerageAmount -
-                        state.brokerageInvoiceList.fold(
-                          0.0,
-                          (a, b) => a + b.paymentAmount,
-                        ));
+                    (widget.invoiceModel.invoiceAmount -
+                        widget.invoiceModel.paymentAmount);
                 return infoCard([
                   {
                     "title": "Invoice Number",
