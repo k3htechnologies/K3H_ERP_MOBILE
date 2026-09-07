@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -223,6 +224,9 @@ class _GatePassScreenState extends State<GatePassScreen> {
                   title: "Mobile Number",
                   hint: "Enter Mobile Number",
                   textController: _mobileNumberC,
+                  inputFormatterList: InputValidator.digit(10),
+                  prefixType: CustomTextFieldPrefix.mobile,
+                  keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -305,21 +309,18 @@ class _GatePassScreenState extends State<GatePassScreen> {
 
   // GETTERS
   bool _canDeleteGatePass(GatePassModel gatePass) {
-    return _gatePassRouteAuthorizationModel.isAction &&
-        _gatePassAdministrativeRouteAuthorizationModel.isAction &&
-        gatePass.passDateTime.isAfter(DateTime.now());
+    return (_gatePassRouteAuthorizationModel.isAction ||
+            _gatePassAdministrativeRouteAuthorizationModel.isAction) &&
+        gatePass.isDelete;
   }
 
   bool _canGatePassOut(GatePassModel gatePass) {
-    return _gatePassRouteAuthorizationModel.isAction &&
-        _gatePassAdministrativeRouteAuthorizationModel.isAction &&
-        !gatePass.passDateTime.isAfter(DateTime.now()) &&
-        gatePass.outDateTime == null;
+    return gatePass.outDateTime == null && !gatePass.isDelete;
   }
 
   bool _canNotifyGatePass(GatePassModel gatePass) {
-    return _gatePassRouteAuthorizationModel.isAction &&
-        _gatePassAdministrativeRouteAuthorizationModel.isAction &&
+    return (_gatePassRouteAuthorizationModel.isAction ||
+            _gatePassAdministrativeRouteAuthorizationModel.isAction) &&
         gatePass.outDateTime == null;
   }
 
@@ -427,8 +428,22 @@ class _GatePassScreenState extends State<GatePassScreen> {
               horizontalSpacing(),
               Expanded(
                 child: Row(
+                  spacing: 10,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    CustomIconButton.edit(
+                      isDisabled:
+                          gatePass.passDateTime.isBefore(DateTime.now()) ||
+                          !(_gatePassRouteAuthorizationModel.isAction ||
+                              _gatePassAdministrativeRouteAuthorizationModel
+                                  .isAction),
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addGatePass,
+                          extra: {"gatePass": gatePass, "index": index},
+                        );
+                      },
+                    ),
                     CustomIconButton.delete(
                       isDisabled: !canDelete,
                       onPressed: () {

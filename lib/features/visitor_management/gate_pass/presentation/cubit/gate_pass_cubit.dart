@@ -55,8 +55,8 @@ class GatePassCubit extends Cubit<GatePassState> {
           filterByPurpose: purpose ?? state.filterByPurpose,
           filterByAppointmentWith:
               appointmentWith ?? state.filterByAppointmentWith,
-          filterStartDate: startDate ?? state.filterStartDate,
-          filterEndDate: endDate ?? state.filterEndDate,
+          filterStartDate: startDate,
+          filterEndDate: endDate,
         ),
       );
     }
@@ -85,8 +85,8 @@ class GatePassCubit extends Cubit<GatePassState> {
       "Address": state.filterByAddress,
       "Purpose": state.filterByPurpose,
       "EmployeeName": state.filterByAppointmentWith,
-      "FromDate": state.filterStartDate,
-      "ToDate": state.filterEndDate,
+      "FromDate": state.filterStartDate.apiDate,
+      "ToDate": state.filterEndDate.apiDate,
     };
 
     final result = await _gatePassRepository.getGatePass(
@@ -136,8 +136,67 @@ class GatePassCubit extends Cubit<GatePassState> {
       "Purpose": purpose,
       "Remark": remark,
       "EmployeeId": employeeId.toString(),
-      "PassDateTime": passDateTime.apiDate!,
+      "PassDateTime": passDateTime.toIso8601String(),
       "NoOfParticipants": noOfParticipants.toString(),
+    };
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < file.fileNameList.length; i++) {
+      if (file.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "PhotoURL",
+        "value": file.fileBytesList[i],
+        "fileName": file.fileNameList[i],
+      });
+    }
+    var updateResult = await _gatePassRepository.addUpdateGatePass(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    updateResult.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+        getGatePass(context, 1);
+      },
+    );
+  }
+
+  Future updateGatePass({
+    required BuildContext context,
+    required int externalId,
+    required String uniquekey,
+    required int index,
+    required String fullName,
+    required String mobileNumber,
+    required String address,
+    required String purpose,
+    required String remark,
+    required int employeeId,
+    required DateTime passDateTime,
+    required int noOfParticipants,
+    required MultiFilePickerModel file,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    final Map<String, String> requestBody = {
+      "ExternalId": externalId.toString(),
+      "Uniquekey": uniquekey,
+      "FullName": fullName,
+      "MobileNumber": mobileNumber,
+      "Address": address,
+      "Purpose": purpose,
+      "Remark": remark,
+      "EmployeeId": employeeId.toString(),
+      "PassDateTime": passDateTime.toIso8601String(),
+      "NoOfParticipants": noOfParticipants.toString(),
+      "RemovePhotoURL": file.deletedFileList,
     };
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < file.fileNameList.length; i++) {

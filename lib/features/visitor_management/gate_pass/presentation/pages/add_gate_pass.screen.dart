@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/c
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -25,7 +26,8 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddGatePassScreen extends StatefulWidget {
   final GatePassModel? gatePass;
-  const AddGatePassScreen({super.key, this.gatePass});
+  final int? index;
+  const AddGatePassScreen({super.key, this.gatePass, this.index});
 
   @override
   State<AddGatePassScreen> createState() => _AddGatePassScreenState();
@@ -54,18 +56,20 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
   );
 
   // TIME VARIABLE
-  String? _appointmentTimeC;
+  final ValueNotifier<String?> _appointmentTimeNotifier = ValueNotifier(null);
   // DATE VARIABLE
   DateTime? _enquiryDate;
+  bool get _isEditMode => widget.gatePass != null;
   @override
   void initState() {
     _gatePassCubit = context.read<GatePassCubit>();
     initialiseControllers();
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
-
-    _appointmentTimeC =
-        DateTime.now().toIso8601String().split("T")[1].split(".")[0];
-    _enquiryDate = DateTime.now();
+    if (_isEditMode) {
+      _populateFormFields(widget.gatePass!);
+    } else {
+      _enquiryDate = DateTime.now();
+    }
 
     super.initState();
   }
@@ -90,20 +94,102 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
     _remarkC = TextEditingController();
   }
 
+  void _populateFormFields(GatePassModel getPass) async {
+    _visitorNameC.text = getPass.fullName;
+    _addressC.text = getPass.address;
+    _mobileNumberC.text = getPass.mobileNumber;
+    _numberOFParticipantsC.text = getPass.noOfParticipants.toString();
+    _remarkC.text = getPass.remark;
+    _appointmentTimeNotifier.value =
+        getPass.passDateTime.toIso8601String().split("T")[1].split(".")[0];
+    selectedFileForUpload.fileNameList =
+        getPass.photoUrl.isEmpty ? [] : getPass.photoUrl.split(',');
+    _selectedGatePassPurpose.value =
+        getPass.purpose.isEmpty
+            ? null
+            : gatePassPurpose.firstWhere(
+              (item) => item["DisplayName"] == getPass.purpose,
+            );
+    _enquiryDate = getPass.passDateTime;
+    final employee = await _fetchEmployeesById(employeedId: getPass.employeeId);
+
+    _selectedEmployeeNotifier.value = employee["itemList"] ?? [];
+  }
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final time = _appointmentTimeNotifier.value!.split(':');
 
-    _gatePassCubit.addGatePass(
-      context: context,
-      file: selectedFileForUpload,
-      fullName: _visitorNameC.text.trim(),
-      mobileNumber: _mobileNumberC.text.trim(),
-      address: _addressC.text.trim(),
-      purpose: _selectedGatePassPurpose.value!["DisplayName"],
-      remark: _remarkC.text.trim(),
-      employeeId: _selectedEmployeeNotifier.value.first["zAttributesId"],
-      passDateTime: _enquiryDate!,
-      noOfParticipants: int.parse(_numberOFParticipantsC.text.trim()),
+    final passDateTime = DateTime(
+      _enquiryDate!.year,
+      _enquiryDate!.month,
+      _enquiryDate!.day,
+      int.parse(time[0]),
+      int.parse(time[1]) + 2,
+    );
+    if (!_isEditMode) {
+      _gatePassCubit.addGatePass(
+        context: context,
+        file: selectedFileForUpload,
+        fullName: _visitorNameC.text.trim(),
+        mobileNumber: _mobileNumberC.text.trim(),
+        address: _addressC.text.trim(),
+        purpose: _selectedGatePassPurpose.value!["DisplayName"],
+        remark: _remarkC.text.trim(),
+        employeeId: _selectedEmployeeNotifier.value.first["zAttributesId"],
+        passDateTime: passDateTime,
+        noOfParticipants: int.parse(_numberOFParticipantsC.text.trim()),
+      );
+    } else {
+      _gatePassCubit.updateGatePass(
+        context: context,
+        externalId: widget.gatePass!.externalId,
+        uniquekey: widget.gatePass!.uniquekey,
+        index: widget.index!,
+        file: selectedFileForUpload,
+        fullName: _visitorNameC.text.trim(),
+        mobileNumber: _mobileNumberC.text.trim(),
+        address: _addressC.text.trim(),
+        purpose: _selectedGatePassPurpose.value!["DisplayName"],
+        remark: _remarkC.text.trim(),
+        employeeId: _selectedEmployeeNotifier.value.first["zAttributesId"],
+        passDateTime: passDateTime,
+        noOfParticipants: int.parse(_numberOFParticipantsC.text.trim()),
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> _fetchEmployeesById({
+    required int employeedId,
+  }) async {
+    final result = await _employeeMasterRepository.getEmployeeMasterList(
+      pageNumber: 1,
+      pageSize: 15,
+      queryParams: {"EmployeeId": employeedId, "IsCheckPermission": false},
+    );
+
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final banks = response['data'] as List<UserModel>;
+
+        return {
+          "itemList":
+              banks.map((employee) {
+                return {
+                  "zAttributesId": employee.employeeId,
+                  "DisplayName": employee.fullName,
+                  "Department": employee.department,
+                  "Designation": employee.designation,
+                  "PersonalMobileNumber": employee.personalMobileNumber,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
     );
   }
 
@@ -115,7 +201,9 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
       pageNumber: pageNumber,
       pageSize: 15,
       queryParams:
-          value != null && value.isNotEmpty ? {"EmployeeName": value} : {},
+          value != null && value.isNotEmpty
+              ? {"EmployeeName": value, "IsCheckPermission": false}
+              : {"IsCheckPermission": false},
     );
 
     return result.fold(
@@ -156,7 +244,7 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Add Gate Pass",
+              "${_isEditMode ? 'Update' : 'Add'} Gate Pass",
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
             verticalSpacing(),
@@ -172,6 +260,8 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
                       title: "Visitor Name",
                       hint: "Enter Visitor Name",
                       textController: _visitorNameC,
+                      inputFormatterList: InputValidator.textOnly(100),
+                      keyboardType: TextInputType.text,
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -187,6 +277,9 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
                       isRequired: true,
                       minLines: 3,
                       maxLines: 10,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        250,
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Address is required";
@@ -223,6 +316,7 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
                             CustomMultipleSelectPopup(
                               title: "Appointment With",
                               hintText: "Select Appointment With",
+                              initialValue: value,
                               dataList: const [],
                               isMultiSelect: false,
                               dataFetchCallBack: _fetchEmployees,
@@ -296,6 +390,8 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
                       title: "Number Of Participants",
                       hint: "Enter Number Of Participants",
                       textController: _numberOFParticipantsC,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(3),
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -312,23 +408,42 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
                       isRequired: true,
                       initialDate: _enquiryDate,
                       setValue: (v) => _enquiryDate = v,
+                      validator:
+                          (value) =>
+                              value == null
+                                  ? 'Appointment Date is required'
+                                  : null,
                     ),
-                    CustomTimePicker(
-                      title: 'Customer Time In',
-                      isRequired: true,
-                      initialTime: parseTimeOfDayFromHHmm(_appointmentTimeC),
-                      setValue:
-                          (val) => _appointmentTimeC = formatTimeOfDayHHmm(val),
+                    ValueListenableBuilder(
+                      valueListenable: _appointmentTimeNotifier,
+                      builder: (context, appointmentTime, child) {
+                        return CustomTimePicker(
+                          title: 'Appointment Time',
+                          isRequired: true,
+                          initialTime: parseTimeOfDayFromHHmm(appointmentTime),
+                          setValue:
+                              (val) =>
+                                  _appointmentTimeNotifier
+                                      .value = formatTimeOfDayHHmm(val),
+                          validator: (value) {
+                            if (value == null) {
+                              return "Appointment Time is required.";
+                            }
+                            return null;
+                          },
+                        );
+                      },
                     ),
                     CustomMultiFilePicker(
-                      title: "File",
-                      filePickType: FilePickType.kycDocument,
+                      title: "Photo",
+                      filePickType: FilePickType.image,
                       initialFileList: selectedFileForUpload.fileNameList,
                       initialFileBytes: selectedFileForUpload.fileBytesList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedFileForUpload.fileNameList = fileNameList;
                         selectedFileForUpload.fileBytesList = bytesList;
                       },
+                      maxFiles: 1,
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
@@ -358,8 +473,12 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
           height: 70.0,
           padding: const EdgeInsets.all(16.0),
           child: CustomButton(
-            leading: Icon(Icons.add, size: 18, color: AppColor.white),
-            text: "Add",
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _submit,
           ),
         ),

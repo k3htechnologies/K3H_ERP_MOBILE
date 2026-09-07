@@ -7678,7 +7678,11 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addGatePass,
               path: AppRoutes.addGatePass,
               builder: (context, state) {
-                return const AddGatePassScreen();
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddGatePassScreen(
+                  gatePass: extra['gatePass'] as GatePassModel?,
+                  index: extra['index'] as int?,
+                );
               },
             ),
             GoRoute(

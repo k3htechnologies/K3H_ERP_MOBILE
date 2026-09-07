@@ -878,7 +878,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   },
                   validator: (fileList) {
                     if (fileList == null || fileList.isEmpty) {
-                      return "Document is required.";
+                      return "Document File is required.";
                     }
                     return null;
                   },

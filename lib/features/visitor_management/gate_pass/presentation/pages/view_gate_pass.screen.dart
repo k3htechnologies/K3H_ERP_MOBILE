@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
@@ -45,10 +45,12 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                     buildColumnTitleValue(
                       title: "Visitor Name",
                       value: widget.gatePassModel!.fullName,
-                      customValueWidget: DocumentPreviewText(
+                      customValueWidget: buildDocumentRow(
+                        iconWithoutBg: true,
+                        context: context,
                         title: widget.gatePassModel!.fullName,
-                        text: widget.gatePassModel!.fullName,
-                        fileUrl: widget.gatePassModel!.photoUrl,
+                        docNumber: widget.gatePassModel!.fullName,
+                        url: widget.gatePassModel!.photoUrl,
                       ),
                     ),
                     buildColumnTitleValue(
@@ -64,6 +66,10 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                     buildColumnTitleValue(
                       title: "Mobile Number",
                       value: widget.gatePassModel!.mobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
+                        value: widget.gatePassModel!.mobileNumber,
+                      ),
                     ),
                     buildColumnTitleValue(
                       title: "Appointment With",
@@ -84,6 +90,11 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                       value: formatDate(widget.gatePassModel!.outDateTime),
                     ),
                   ],
+                ),
+                buildColumnTitleValue(
+                  removeExpanded: true,
+                  title: "Remark",
+                  value: widget.gatePassModel!.remark,
                 ),
               ],
             ),
