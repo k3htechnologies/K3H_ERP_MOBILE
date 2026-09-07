@@ -20,7 +20,11 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
 
   Future getSubMaterialMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"SubMaterialName": state.searchText};
+    Map<String, dynamic> queryParams = {
+      "SubMaterialName": state.searchText,
+      "MaterialName": state.filterByMaterialName,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+    };
     var result = await _subMaterialMasterRepository.getSubMaterialList(
       pageNumber: pageNumber,
       pageSize: 20,
@@ -171,6 +175,25 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
     );
   }
 
+  Future applyFilterAndSortSubMaterial({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String subMaterialName,
+    required String materialName,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: subMaterialName,
+        filterByMaterialName: materialName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        subMaterialList: [],
+      ),
+    );
+    await getSubMaterialMasterList(context, 1);
+  }
+
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _subMaterialMasterRepository.exportSubmaterial(
@@ -199,5 +222,17 @@ class SubMaterialMasterCubit extends Cubit<SubMaterialMasterState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(SubMaterialMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Sub Material Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.isNotEmpty,
+      state.filterByMaterialName.isNotEmpty,
+      hasSort,
+    ]);
   }
 }

@@ -179,4 +179,29 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
       },
     );
   }
+
+  Future applyFilterAndSortMaterial({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String materialName,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: materialName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        materialList: [],
+      ),
+    );
+    await getMaterialMasterList(context, 1);
+  }
+
+  int updateFilterCount(MaterialMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Material Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
+  }
 }

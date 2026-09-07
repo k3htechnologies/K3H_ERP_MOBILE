@@ -110,7 +110,6 @@ import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pa
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
 import 'package:k3h_erp_app/features/sales/brokerage/data/model/brokerage.model.dart';
@@ -7442,7 +7441,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.taxTracker,
               path: AppRoutes.taxTracker,
               builder: (context, state) {
-                return const TaxTrackerScreen();
+                // return const TaxTrackerScreen();
+                return ComingSoonScreen(title: "Tax Tracker");
               },
             ),
             GoRoute(
