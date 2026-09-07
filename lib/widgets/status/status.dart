@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/widgets/status/call_log_status.dart';
 import 'package:k3h_erp_app/widgets/status/channel_partner_category_status.dart';
 import 'package:k3h_erp_app/widgets/status/enquiry_status.dart';
 import 'package:k3h_erp_app/widgets/status/flat_handover_checklist.dart';
+import 'package:k3h_erp_app/widgets/status/gate_pass_purpose_status.dart';
 import 'package:k3h_erp_app/widgets/status/inward_outward_status.dart';
 import 'package:k3h_erp_app/widgets/status/payment_mode_status.dart';
 import 'package:k3h_erp_app/widgets/status/project_status.dart';
@@ -166,5 +167,14 @@ Widget paymentModeStatusWidget(
     textStyle: textStyle,
     leading: leading,
     trailing: trailing,
+  );
+}
+
+Widget gatePassPurposeWidget(String status, {TextStyle? textStyle}) {
+  final formatted = formattedStatus(status.trim());
+  return commonStatusWidget(
+    status: formatted,
+    config: gatePassPurposeStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }

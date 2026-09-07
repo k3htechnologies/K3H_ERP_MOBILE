@@ -113,6 +113,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
 
   void _sumbit() {
     if (!_formKey.currentState!.validate()) return;
+    final existingTermSheet = widget.termSheetModel;
 
     final termSheet = LocalTermSheetModel(
       nameOfInstitutionBankNBFC: _nameOfInstitutionBankNBFC.text.trim(),
@@ -134,10 +135,10 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
       processingFeesInPercentage: _processingFeesC.text.trim(),
       termSheetURL: [],
       termSheetFiles: _termSheetDocument,
-      termSheetDetailsId: 0,
-      uniquekey: '',
+      termSheetDetailsId: existingTermSheet?.termSheetDetailsId ?? 0,
+      uniquekey: existingTermSheet?.uniquekey ?? '',
+      approvalStatus: existingTermSheet?.approvalStatus ?? "pending",
     );
-
     goRouter.pop(termSheet);
   }
 
@@ -208,21 +209,18 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
     return null;
   }
 
-  bool get isBothApproved {
-    final termSheetStatus =
-        widget.termSheet?.approvalStatus.trim().toLowerCase();
-
-    final detailsStatus =
-        widget.termSheetDetailsView?.approvalStatus.trim().toLowerCase();
-
-    return termSheetStatus == "approved" && detailsStatus == "approved";
+  bool get isMainApproved {
+    return widget.termSheet?.approvalStatus.trim().toLowerCase() == "approved";
   }
 
-  bool get shouldLockApprovedFields {
-    return _isEditMode && isBothApproved;
+  bool get isDetailsApproved {
+    return widget.termSheetModel?.approvalStatus.trim().toLowerCase() ==
+        "approved";
   }
 
-  bool get lockFields => shouldLockApprovedFields;
+  bool get lockFields {
+    return _isEditMode && isMainApproved && isDetailsApproved;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -411,6 +409,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "Term Sheet",
                       isRequired: true,
                       readOnly: lockFields,
+
                       filePickType: FilePickType.document,
                       initialFileList: _termSheetDocument.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {

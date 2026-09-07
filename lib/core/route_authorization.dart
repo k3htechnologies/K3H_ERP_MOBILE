@@ -62,6 +62,7 @@ class Authorization {
     AppRoutes.weekOffMaster: AuthorizationModel(),
     AppRoutes.weekOffMappingMaster: AuthorizationModel(),
     AppRoutes.leaveEncashmentMaster: AuthorizationModel(),
+    AppRoutes.gatePass: AuthorizationModel(),
   };
   static Map<String, AuthorizationModel> getDefaultAuthorizationMap() {
     return {
@@ -109,6 +110,7 @@ class Authorization {
       AppRoutes.weekOffMaster: AuthorizationModel(),
       AppRoutes.weekOffMappingMaster: AuthorizationModel(),
       AppRoutes.leaveEncashmentMaster: AuthorizationModel(),
+      AppRoutes.gatePass: AuthorizationModel(),
     };
   }
 

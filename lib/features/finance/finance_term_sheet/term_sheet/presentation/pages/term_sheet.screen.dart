@@ -208,7 +208,6 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
         _filterByCompanyNameC.clear();
         _selectedApprovalStatus.value = null;
         _nameOfInstitutionBankNBFCC.clear();
-        _searchC.clear();
         _termSheetCubit.applyTermSheetFilterAndSort(
           context: context,
           isClear: true,
@@ -312,6 +311,8 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
 
   Widget termSheetCard(BuildContext context, TermSheetState state, int index) {
     final termSheet = state.termSheetList[index];
+    final mainApprovalStatus = termSheet.approvalStatus.trim().toLowerCase();
+    final bool isEditDisbaled = mainApprovalStatus == "pending";
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: const EdgeInsets.all(16),
@@ -349,6 +350,16 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    CustomIconButton.edit(
+                      isDisabled: isEditDisbaled,
+                      onPressed: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.addTermSheet,
+                          extra: {"termSheet": termSheet},
+                        );
+                      },
+                    ),
+                    horizontalSpacing(),
                     CustomIconButton.delete(
                       isDisabled:
                           termSheet.approvalStatus.toLowerCase() != "pending",

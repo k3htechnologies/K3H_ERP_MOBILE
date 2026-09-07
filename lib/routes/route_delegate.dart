@@ -3,6 +3,16 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/project_lead.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/add_redevelopment.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/add_gate_pass.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/gate_pass.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/view_gate_pass.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -7489,7 +7499,11 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addTermSheet,
               path: AppRoutes.addTermSheet,
               builder: (context, state) {
-                return AddTermSheetScreen();
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+
+                return AddTermSheetScreen(
+                  termSheet: extra["termSheet"] as TermSheetModel?,
+                );
               },
             ),
             GoRoute(
@@ -7500,8 +7514,9 @@ final GoRouter goRouter = GoRouter(
 
                 if (extra is Map<String, dynamic>) {
                   return AddLocalTermSheet(
-                    termSheetModel: extra["termSheet"] as LocalTermSheetModel?,
-                    termSheet: extra["termSheetModel"] as TermSheetModel?,
+                    termSheet: extra["termSheet"] as TermSheetModel?,
+                    termSheetModel:
+                        extra["termSheetModel"] as LocalTermSheetModel?,
                     termSheetDetailsView:
                         extra["termSheetDetailsView"] as TermSheetDetailsView?,
                   );
@@ -7639,6 +7654,77 @@ final GoRouter goRouter = GoRouter(
                       extra['documentData'] as TermSheetDocumentModel?,
                   termSheetModel: extra['termSheetModel'] as TermSheetModel?,
                 );
+              },
+            ),
+          ],
+        ),
+        //  GATE PASS
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => GatePassCubit())],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.gatePass,
+              path: AppRoutes.gatePass,
+              builder: (context, state) {
+                return const GatePassScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addGatePass,
+              path: AppRoutes.addGatePass,
+              builder: (context, state) {
+                return const AddGatePassScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewGatePass,
+              path: AppRoutes.viewGatePass,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return ViewGatePassScreen(
+                  gatePassModel: extra["gatePass"] as GatePassModel?,
+                );
+              },
+            ),
+          ],
+        ),
+        //  PROJECT LEAD
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => ProjectLeadCubit())],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.projectLead,
+              path: AppRoutes.projectLead,
+              builder: (context, state) {
+                return const ProjectLeadScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addRedevelopment,
+              path: AppRoutes.addRedevelopment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddRedevelopmentScreen(
+                  redevelopment: extra["redevelopment"] as RedevelopmentModel?,
+                  index: extra["index"] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addLand,
+              path: AppRoutes.addLand,
+              builder: (context, state) {
+                return const AddLandScreen();
               },
             ),
           ],
