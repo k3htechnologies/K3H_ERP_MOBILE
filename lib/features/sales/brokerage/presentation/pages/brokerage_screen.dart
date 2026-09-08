@@ -583,36 +583,6 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                     title: "Enquiry Code",
                                     value: brokerage.systemGeneratedCode,
                                     singleLine: false,
-                                    customValueWidget: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            brokerage.systemGeneratedCode,
-                                            style: AppTextStyle.ts14M(),
-                                          ),
-                                        ),
-                                        horizontalSpacing(width: 2),
-                                        InkWell(
-                                          onTap: () {
-                                            copy(
-                                              context: context,
-                                              text:
-                                                  brokerage.systemGeneratedCode,
-                                            );
-                                          },
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(5),
-                                            child: Icon(
-                                              Icons.copy,
-                                              size: 16,
-                                              color: AppColor.primary,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
                                   ),
                                   buildRowTitleValue(
                                     title: "Agreement Amount (₹)",

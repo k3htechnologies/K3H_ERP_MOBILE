@@ -1009,23 +1009,45 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 10,
         children: [
+          Text("Developer Bank Details", style: AppTextStyle.ts14M()),
+          buildColumnTitleValue(
+            title: "Bank Name",
+            removeExpanded: true,
+            value: payment.projectBankName,
+          ),
+          buildColumnTitleValue(
+            title: "Account Number",
+            removeExpanded: true,
+            value: payment.projectAccountNumber,
+          ),
+          buildColumnTitleValue(
+            title: "IFSC Code",
+            removeExpanded: true,
+            value: payment.projectIFSCCode,
+          ),
+          buildColumnTitleValue(
+            title: "Nature Of Account",
+            removeExpanded: true,
+            value: payment.projectNatureOfAccount,
+          ),
+          buildColumnTitleValue(
+            title: "Account Type",
+            removeExpanded: true,
+            value: payment.projectAcType,
+          ),
+          Divider(height: 1, color: AppColor.grey50),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            spacing: 10,
             children: [
-              Text(
-                "Payment Details",
-                style: AppTextStyle.ts14M(color: AppColor.black),
+              Expanded(
+                child: Text(
+                  "Customer Bank Details",
+                  style: AppTextStyle.ts14M(color: AppColor.black),
+                ),
               ),
               paymentModeStatusWidget(payment.paymentMode),
-            ],
-          ),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Bank Name",
-                value: payment.projectBankName,
-              ),
             ],
           ),
           buildColumnTitleValue(

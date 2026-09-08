@@ -232,7 +232,8 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                                         : selectedProjectWiseList
                                             .first['zAttributesId'],
                                   ),
-                                  title: "Project Wise Bank",
+                                  title: "Project Bank Name",
+                                  hintText: "Select Project Bank Name",
                                   isRequired: true,
                                   isMultiSelect: false,
                                   initialValue: selectedProjectWiseList,
@@ -259,7 +260,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                                       _fetchProjectBanksForDropdown,
                                   validator: (value) {
                                     if (value == null || value.isEmpty) {
-                                      return 'Project Wise Bank is required.';
+                                      return 'Project Bank Name is required.';
                                     }
                                     return null;
                                   },
@@ -389,8 +390,8 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                                   value.isEmpty
                                       ? false
                                       : value.first['DisplayName'] == 'Full',
-                              title: "Brokerage Amount",
-                              hint: "Enter Brokerage Amount",
+                              title: "Amount",
+                              hint: "Enter Amount",
                               prefixType: CustomTextFieldPrefix.rupees,
                               onChangeFunction: (v) {
                                 final enteredAmount = double.tryParse(v) ?? 0.0;
@@ -410,7 +411,12 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                                 if (value == null ||
                                     value.trim().isEmpty ||
                                     double.parse(value) == 0) {
-                                  return "Brokerage Amount is required.";
+                                  return "Amount is required.";
+                                }
+                                if ((widget.invoiceModel.invoiceAmount -
+                                        widget.invoiceModel.paymentAmount) <
+                                    double.parse(value)) {
+                                  return "TDS amount cannot be greater than Paid Amount.";
                                 }
                                 return null;
                               },
