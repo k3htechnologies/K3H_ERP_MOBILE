@@ -403,7 +403,8 @@ String getInitials(String name) {
   final parts = name.trim().split(' ');
 
   if (parts.length == 1) {
-    return parts.first[0].toUpperCase() + parts.first[1].toUpperCase();
+    return parts.first[0].toUpperCase() +
+        (parts.first.length == 2 ? parts.first[1].toUpperCase() : '');
   }
 
   return (parts.first[0] + parts.last[0]).toUpperCase();

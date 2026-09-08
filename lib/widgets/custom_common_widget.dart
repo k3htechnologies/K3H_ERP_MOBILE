@@ -209,7 +209,7 @@ Widget buildDocumentRow({
                 padding: const EdgeInsets.only(left: 10, top: 2),
                 child: Icon(
                   Icons.remove_red_eye_outlined,
-                  size: 16,
+                  size: 18,
                   color: AppColor.primary,
                 ),
               ),
