@@ -82,11 +82,11 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Appointment Date",
+                      title: "Appointment Date / Time",
                       value: formatDate(widget.gatePassModel!.passDateTime),
                     ),
                     buildColumnTitleValue(
-                      title: "Out Date",
+                      title: "Out Date / Time",
                       value: formatDate(widget.gatePassModel!.outDateTime),
                     ),
                   ],

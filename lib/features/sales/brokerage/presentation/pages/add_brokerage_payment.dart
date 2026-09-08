@@ -156,6 +156,8 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
 
   @override
   Widget build(BuildContext context) {
+    final pendingAmount =
+        (widget.invoiceModel.invoiceAmount - widget.invoiceModel.paymentAmount);
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Brokerage",
@@ -166,45 +168,30 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            BlocBuilder<BrokerageCubit, BrokerageState>(
-              builder: (context, state) {
-                final invoiceAmount = state.brokerageInvoiceList.fold(
-                  0.0,
-                  (a, b) => a + b.invoiceAmount,
-                );
-                final paymentPaidAmount = state.brokerageInvoiceList.fold(
-                  0.0,
-                  (a, b) => a + b.paymentAmount,
-                );
-                final pendingAmount =
-                    (widget.invoiceModel.invoiceAmount -
-                        widget.invoiceModel.paymentAmount);
-                return infoCard([
-                  {
-                    "title": "Invoice Number",
-                    "value": widget.invoiceModel.invoiceNumber,
-                  },
-                  {
-                    "title": "Invoice Date",
-                    "value": formatDateTimeAsDDMMMYYYY(
-                      widget.invoiceModel.invoiceDate,
-                    ),
-                  },
-                  {
-                    "title": "Invoice Amount",
-                    "value": invoiceAmount.toIndianCurrency(),
-                  },
-                  {
-                    "title": "Paid invoice Amount",
-                    "value": paymentPaidAmount.toIndianCurrency(),
-                  },
-                  {
-                    "title": "Outstanding Amount",
-                    "value": pendingAmount.toIndianCurrency(),
-                  },
-                ]);
+            infoCard([
+              {
+                "title": "Invoice Number",
+                "value": widget.invoiceModel.invoiceNumber,
               },
-            ),
+              {
+                "title": "Invoice Date",
+                "value": formatDateTimeAsDDMMMYYYY(
+                  widget.invoiceModel.invoiceDate,
+                ),
+              },
+              {
+                "title": "Invoice Amount",
+                "value": widget.invoiceModel.invoiceAmount.toIndianCurrency(),
+              },
+              {
+                "title": "Paid invoice Amount",
+                "value": widget.invoiceModel.paymentAmount.toIndianCurrency(),
+              },
+              {
+                "title": "Outstanding Amount",
+                "value": pendingAmount.toIndianCurrency(),
+              },
+            ]),
             verticalSpacing(),
             Text(
               "Add Payment Details",
@@ -416,7 +403,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                                 if ((widget.invoiceModel.invoiceAmount -
                                         widget.invoiceModel.paymentAmount) <
                                     double.parse(value)) {
-                                  return "TDS amount cannot be greater than Paid Amount.";
+                                  return "Amount cannot be greater than pending amount of ${pendingAmount.toIndianCurrency()}.";
                                 }
                                 return null;
                               },
@@ -430,6 +417,18 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           prefixType: CustomTextFieldPrefix.rupees,
                           keyboardType: TextInputType.numberWithOptions(),
                           inputFormatterList: InputValidator.decimal(2),
+                          validator: (value) {
+                            if (value == null ||
+                                value.isEmpty ||
+                                double.tryParse(_amountC.text) == 0) {
+                              return null;
+                            }
+                            if ((double.tryParse(_amountC.text) ?? 0) <=
+                                double.parse(value)) {
+                              return "TDS amount cannot be greater than Paid Amount.";
+                            }
+                            return null;
+                          },
                         ),
                         CustomTextField(
                           textController: _transactionNumberC,
@@ -446,6 +445,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                             if (value == null || value.trim().isEmpty) {
                               return "Transaction/Cheque/Demand Draft No.is required.";
                             }
+
                             return null;
                           },
                         ),

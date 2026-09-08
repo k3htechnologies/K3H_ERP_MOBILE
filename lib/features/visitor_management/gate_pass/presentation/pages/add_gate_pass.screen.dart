@@ -56,14 +56,16 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
   );
 
   // TIME VARIABLE
-  final ValueNotifier<String?> _appointmentTimeNotifier = ValueNotifier(null);
+  final ValueNotifier<String?> _appointmentTimeNotifier = ValueNotifier(
+    DateTime.now().toIso8601String().split("T")[1].split(".")[0],
+  );
   // DATE VARIABLE
   DateTime? _enquiryDate;
   bool get _isEditMode => widget.gatePass != null;
   @override
   void initState() {
     _gatePassCubit = context.read<GatePassCubit>();
-    initialiseControllers();
+    initializeControllers();
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     if (_isEditMode) {
       _populateFormFields(widget.gatePass!);
@@ -86,11 +88,11 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
     super.dispose();
   }
 
-  void initialiseControllers() {
+  void initializeControllers() {
     _visitorNameC = TextEditingController();
     _addressC = TextEditingController();
     _mobileNumberC = TextEditingController();
-    _numberOFParticipantsC = TextEditingController();
+    _numberOFParticipantsC = TextEditingController(text: "0");
     _remarkC = TextEditingController();
   }
 
@@ -125,7 +127,7 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
       _enquiryDate!.month,
       _enquiryDate!.day,
       int.parse(time[0]),
-      int.parse(time[1]) + 2,
+      int.parse(time[1]),
     );
     if (!_isEditMode) {
       _gatePassCubit.addGatePass(
@@ -454,12 +456,24 @@ class _AddGatePassScreenState extends State<AddGatePassScreen> {
                         selectedFileForUpload.deletedFileList = deleted;
                       },
                     ),
-                    CustomTextField(
-                      title: "Remark",
-                      hint: "Enter Remark",
-                      textController: _remarkC,
-                      minLines: 3,
-                      maxLines: 10,
+                    ValueListenableBuilder(
+                      valueListenable: _selectedGatePassPurpose,
+                      builder: (context, purpose, child) {
+                        return CustomTextField(
+                          title: "Remark",
+                          isRequired: (purpose?['DisplayName'] == 'Others'),
+                          hint: "Enter Remark",
+                          textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 10,
+                          validator:
+                              (v) =>
+                                  ((v == null || v.isEmpty) &&
+                                          purpose?['DisplayName'] == 'Others')
+                                      ? 'Remark is required.'
+                                      : null,
+                        );
+                      },
                     ),
                   ],
                 ),

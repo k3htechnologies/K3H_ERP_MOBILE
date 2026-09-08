@@ -323,13 +323,16 @@ class _GatePassScreenState extends State<GatePassScreen> {
   }
 
   bool _canGatePassOut(GatePassModel gatePass) {
-    return gatePass.outDateTime == null && !gatePass.isDelete;
+    return gatePass.outDateTime == null &&
+        !gatePass.isDelete &&
+        !gatePass.passDateTime.isAfter(DateTime.now());
   }
 
   bool _canNotifyGatePass(GatePassModel gatePass) {
     return (_gatePassRouteAuthorizationModel.isAction ||
             _gatePassAdministrativeRouteAuthorizationModel.isAction) &&
-        gatePass.outDateTime == null;
+        gatePass.outDateTime == null &&
+        !gatePass.passDateTime.isAfter(DateTime.now());
   }
 
   @override
@@ -404,6 +407,10 @@ class _GatePassScreenState extends State<GatePassScreen> {
   Widget gatePassCard(BuildContext context, GatePassState state, int index) {
     final gatePass = state.gatePassList[index];
     final canDelete = _canDeleteGatePass(gatePass);
+    final disableEdit =
+        gatePass.passDateTime.isBefore(DateTime.now()) ||
+        !(_gatePassRouteAuthorizationModel.isAction ||
+            _gatePassAdministrativeRouteAuthorizationModel.isAction);
     final canGatePassOut = _canGatePassOut(gatePass);
     final canNotify = _canNotifyGatePass(gatePass);
     return Container(
@@ -440,13 +447,9 @@ class _GatePassScreenState extends State<GatePassScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     CustomIconButton.edit(
-                      isDisabled:
-                          gatePass.passDateTime.isBefore(DateTime.now()) ||
-                          !(_gatePassRouteAuthorizationModel.isAction ||
-                              _gatePassAdministrativeRouteAuthorizationModel
-                                  .isAction),
+                      isDisabled: disableEdit,
                       onPressed: () {
-                        goRouter.pushNamed(
+                        goRouter.pushNamed( 
                           AppRoutes.addGatePass,
                           extra: {"gatePass": gatePass, "index": index},
                         );
