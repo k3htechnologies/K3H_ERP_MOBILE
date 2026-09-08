@@ -443,7 +443,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           hint: "Enter Transaction/Cheque/Demand Draft No.",
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return "Transaction/Cheque/Demand Draft No.is required.";
+                              return "Transaction/Cheque/Demand Draft No. is required.";
                             }
 
                             return null;
