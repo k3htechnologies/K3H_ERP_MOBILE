@@ -52,33 +52,22 @@ Widget overviewSection(BuildContext context, InwardOutwardModel inwardOutward) {
               spacing: 10,
               children: [
                 buildColumnTitleValue(
-                  title: "Date",
-                  value: formatDateTimeAsDDMMMYYYY(
-                    inwardOutward.inwardOutwardDate,
-                  ),
-                ),
-                buildColumnTitleValue(
                   title: "Invoice Number",
                   value: inwardOutward.invoiceNumber,
                 ),
-              ],
-            ),
-            Row(
-              spacing: 10,
-              children: [
                 buildColumnTitleValue(
                   title: "Invoice Date",
                   value: formatDateTimeAsDDMMMYYYY(inwardOutward.invoiceDate),
                 ),
-                buildColumnTitleValue(
-                  title: "Amount",
-                  value: inwardOutward.amount.toIndianCurrency(),
-                ),
               ],
             ),
             Row(
               spacing: 10,
               children: [
+                buildColumnTitleValue(
+                  title: "Amount",
+                  value: inwardOutward.amount.toIndianCurrency(),
+                ),
                 buildColumnTitleValue(
                   title: "Cheque No.",
                   value: inwardOutward.chequeNumber,
@@ -118,7 +107,7 @@ Widget overviewSection(BuildContext context, InwardOutwardModel inwardOutward) {
               spacing: 10,
               children: [
                 buildColumnTitleValue(
-                  title: "Document Description",
+                  title: "${inwardOutward.documentType} Document Description",
                   value: inwardOutward.documentDescription,
                 ),
               ],
