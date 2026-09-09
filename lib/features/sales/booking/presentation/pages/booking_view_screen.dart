@@ -98,7 +98,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: EdgeInsets.all(20.0),
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -191,18 +191,21 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                     child: showSiteSelectedWidget(),
                   ),
-                  ChipStyleTabBar(
-                    style: ChipTabBarStyle.underline,
-                    controller: _tabController,
-                    tabs: [
-                      'Overview',
-                      'Applicant Details',
-                      'Other Charges',
-                      'Payment Schedule',
-                      'Remark',
-                      'Terms & Condition',
-                      'Payment Details',
-                    ],
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ChipStyleTabBar(
+                      style: ChipTabBarStyle.underline,
+                      controller: _tabController,
+                      tabs: [
+                        'Overview',
+                        'Applicant Details',
+                        'Other Charges',
+                        'Payment Schedule',
+                        'Remark',
+                        'Terms & Condition',
+                        'Payment Details',
+                      ],
+                    ),
                   ),
                   Expanded(
                     child: TabBarView(
