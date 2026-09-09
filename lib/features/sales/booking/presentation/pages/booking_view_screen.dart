@@ -2189,27 +2189,32 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                   children: [
                     buildRowTitleValue(
                       title: "Percentage (%)",
-                      value: totalPercentage.toString(),
+                      value: totalPercentage.addCommas(),
+                      singleLine: false,
                       valueTextStyle: AppTextStyle.ts14SB(),
                     ),
                     buildRowTitleValue(
                       title: "Amount Without TDS (₹)",
+                      singleLine: false,
                       value: totalAmount.toIndianCurrency(),
                       valueTextStyle: AppTextStyle.ts14SB(),
                     ),
                     buildRowTitleValue(
                       title: "GST Amount (₹)",
+                      singleLine: false,
                       value: totalGSTAmount.toIndianCurrency(),
                       valueTextStyle: AppTextStyle.ts14SB(),
                     ),
 
                     buildRowTitleValue(
                       title: "TDS Amount (₹)",
+                      singleLine: false,
                       value: totalTDSAmount.toIndianCurrency(),
                       valueTextStyle: AppTextStyle.ts14SB(),
                     ),
 
                     buildRowTitleValue(
+                      singleLine: false,
                       title: "Total Amount With TDS (₹)",
                       value: totalAmountWithTDS.toIndianCurrency(),
                       valueTextStyle: AppTextStyle.ts14SB(),
