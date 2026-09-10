@@ -42,7 +42,14 @@ class _VendorViewScreenState extends State<VendorViewScreen>
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Text(
+                widget.vendor.systemGeneratedCode,
+                style: AppTextStyle.ts16SB(color: AppColor.primary),
+                overflow: TextOverflow.ellipsis,
+              ),
+              verticalSpacing(),
               Container(
                 decoration: commonCardDecoration(),
                 padding: const EdgeInsets.all(16),
@@ -224,17 +231,17 @@ class _VendorViewScreenState extends State<VendorViewScreen>
   Widget _buildGovernmentIdentifiersSection() {
     final List<Map<String, String>> documents = [
       {
-        "title": "PAN Card",
+        "title": "PAN Number",
         "number": widget.vendor.panCardNumber,
         "url": widget.vendor.panCardUrl,
       },
       {
-        "title": "Aadhaar Card",
+        "title": "Aadhaar Card Number",
         "number": widget.vendor.aadharCardNumber,
         "url": widget.vendor.aadharCardUrl,
       },
       {
-        "title": "GST Certificate",
+        "title": "GST Number",
         "number": widget.vendor.gstNumber,
         "url": widget.vendor.gstCertificateUrl,
       },

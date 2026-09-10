@@ -67,7 +67,7 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
       if (_makePaymentRouteAuthorizationModel.isView) BrokerageTab.payment,
     ];
     _tabController = TabController(length: _tabs.length, vsync: this);
-    _loadInitialTabData();
+    if (_tabController.length > 0) _loadInitialTabData();
     _tabController.addListener(_onTabChanged);
     _onScroll();
   }
@@ -212,135 +212,142 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
           spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ChipStyleTabBar(
-              margin: EdgeInsets.zero,
-              controller: _tabController,
-              tabs: _tabs.map((m) => m.title).toList(),
-            ),
-            Row(
-              spacing: 10,
-              children: [
-                Expanded(
-                  child: SearchWidget(
-                    hintText: "Search By Invoice No.",
-                    onSubmit: (val) {
-                      _brokerageCubit.searchInvoice(
-                        context,
-                        val,
-                        widget.brokerageModel.projectId,
-                        widget.brokerageModel.bookingId,
-                        _tabController.index,
-                      );
-                    },
-                    textController: _searchC,
+            if (_tabs.isNotEmpty) ...[
+              ChipStyleTabBar(
+                margin: EdgeInsets.zero,
+                controller: _tabController,
+                tabs: _tabs.map((m) => m.title).toList(),
+              ),
+              Row(
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: SearchWidget(
+                      hintText: "Search By Invoice No.",
+                      onSubmit: (val) {
+                        _brokerageCubit.searchInvoice(
+                          context,
+                          val,
+                          widget.brokerageModel.projectId,
+                          widget.brokerageModel.bookingId,
+                          _tabController.index,
+                        );
+                      },
+                      textController: _searchC,
+                    ),
                   ),
-                ),
-                BlocBuilder<BrokerageCubit, BrokerageState>(
-                  builder: (context, state) {
-                    return AnimatedBuilder(
-                      animation: _tabController,
-                      builder: (context, _) {
-                        final disableAdd =
-                            raisedInvoiceTotal ==
-                            widget.brokerageModel.brokerageAmount;
-                        return (_tabController.index == 0)
-                            ? Row(
-                              spacing: 10,
-                              children: [
-                                CustomIconButton(
-                                  isDisable:
-                                      !_invoiceRouteAuthorizationModel
-                                          .isAction ||
-                                      disableAdd,
-                                  onPressed: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.addBrokerageInvoice,
-                                      queryParameters: {
-                                        "bookingId": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            widget.brokerageModel.bookingId
-                                                .toString(),
-                                          ),
-                                        ),
-                                        "projectId": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            widget.brokerageModel.projectId
-                                                .toString(),
-                                          ),
-                                        ),
-                                        "brokerage": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(
-                                              widget.brokerageModel.toJson(),
+                  BlocBuilder<BrokerageCubit, BrokerageState>(
+                    builder: (context, state) {
+                      return AnimatedBuilder(
+                        animation: _tabController,
+                        builder: (context, _) {
+                          final disableAdd =
+                              raisedInvoiceTotal ==
+                              widget.brokerageModel.brokerageAmount;
+                          return (_tabController.index == 0)
+                              ? Row(
+                                spacing: 10,
+                                children: [
+                                  CustomIconButton(
+                                    isDisable:
+                                        !_invoiceRouteAuthorizationModel
+                                            .isAction ||
+                                        disableAdd,
+                                    onPressed: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.addBrokerageInvoice,
+                                        queryParameters: {
+                                          "bookingId": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              widget.brokerageModel.bookingId
+                                                  .toString(),
                                             ),
                                           ),
-                                        ),
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(
-                                    Icons.add,
-                                    size: 16,
-                                    color:
-                                        !_invoiceRouteAuthorizationModel
-                                                    .isAction ||
-                                                disableAdd
-                                            ? AppColor.grey2
-                                            : AppColor.primary,
-                                  ),
-                                ),
-                                CustomExportButton(
-                                  isDisabled:
-                                      !_invoiceRouteAuthorizationModel.isExport,
-                                  onExport: (v) {
-                                    if (state.brokerageInvoiceList.isEmpty) {
-                                      showErrorMessage(
-                                        context,
-                                        "Error",
-                                        "No Data Found",
+                                          "projectId": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              widget.brokerageModel.projectId
+                                                  .toString(),
+                                            ),
+                                          ),
+                                          "brokerage": Uri.encodeQueryComponent(
+                                            EncryptionManager.encryptData(
+                                              jsonEncode(
+                                                widget.brokerageModel.toJson(),
+                                              ),
+                                            ),
+                                          ),
+                                        },
                                       );
-                                      return;
-                                    }
-                                    _brokerageCubit.exportExcelForInvoiceOrPaid(
-                                      context: context,
-                                      exportType: v,
-                                      projectId:
-                                          widget.brokerageModel.projectId,
-                                      bookingId:
-                                          widget.brokerageModel.bookingId,
-                                      tabName: _tabs[_tabController.index].name,
+                                    },
+                                    icon: Icon(
+                                      Icons.add,
+                                      size: 16,
+                                      color:
+                                          !_invoiceRouteAuthorizationModel
+                                                      .isAction ||
+                                                  disableAdd
+                                              ? AppColor.grey2
+                                              : AppColor.primary,
+                                    ),
+                                  ),
+                                  CustomExportButton(
+                                    isDisabled:
+                                        !_invoiceRouteAuthorizationModel
+                                            .isExport,
+                                    onExport: (v) {
+                                      if (state.brokerageInvoiceList.isEmpty) {
+                                        showErrorMessage(
+                                          context,
+                                          "Error",
+                                          "No Data Found",
+                                        );
+                                        return;
+                                      }
+                                      _brokerageCubit
+                                          .exportExcelForInvoiceOrPaid(
+                                            context: context,
+                                            exportType: v,
+                                            projectId:
+                                                widget.brokerageModel.projectId,
+                                            bookingId:
+                                                widget.brokerageModel.bookingId,
+                                            tabName:
+                                                _tabs[_tabController.index]
+                                                    .name,
+                                          );
+                                    },
+                                  ),
+                                ],
+                              )
+                              : CustomExportButton(
+                                isDisabled:
+                                    !_makePaymentRouteAuthorizationModel
+                                        .isExport,
+                                onExport: (v) {
+                                  if (state.brokeragePaidList.isEmpty) {
+                                    showErrorMessage(
+                                      context,
+                                      "Error",
+                                      "No Data Found",
                                     );
-                                  },
-                                ),
-                              ],
-                            )
-                            : CustomExportButton(
-                              isDisabled:
-                                  !_makePaymentRouteAuthorizationModel.isExport,
-                              onExport: (v) {
-                                if (state.brokeragePaidList.isEmpty) {
-                                  showErrorMessage(
-                                    context,
-                                    "Error",
-                                    "No Data Found",
+                                    return;
+                                  }
+                                  _brokerageCubit.exportExcelForInvoiceOrPaid(
+                                    context: context,
+                                    exportType: v,
+                                    projectId: widget.brokerageModel.projectId,
+                                    bookingId: widget.brokerageModel.bookingId,
+                                    tabName: _tabs[_tabController.index].name,
                                   );
-                                  return;
-                                }
-                                _brokerageCubit.exportExcelForInvoiceOrPaid(
-                                  context: context,
-                                  exportType: v,
-                                  projectId: widget.brokerageModel.projectId,
-                                  bookingId: widget.brokerageModel.bookingId,
-                                  tabName: _tabs[_tabController.index].name,
-                                );
-                              },
-                            );
-                      },
-                    );
-                  },
-                ),
-              ],
-            ),
+                                },
+                              );
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
             RichText(
               text: TextSpan(
                 style: AppTextStyle.ts14R(),
@@ -490,15 +497,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                                     );
                                   },
                                 ),
-                                GestureDetector(
-                                  onTap: () => notifier.value = !isExpanded,
-                                  child: Icon(
-                                    isExpanded
-                                        ? Icons.keyboard_arrow_up
-                                        : Icons.keyboard_arrow_down,
-                                    size: 26,
-                                  ),
-                                ),
                               ],
                             ),
                           ],
@@ -535,133 +533,176 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                           textStyle: AppTextStyle.ts12M(),
                         ),
                       ),
-                      AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child:
-                            isExpanded
-                                ? _invoiceDetailCard(invoice)
-                                : invoice.approvalStatus.toLowerCase() ==
-                                    'approved'
-                                ? Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    CustomButton(
-                                      isDisable: disableMakePayment,
-                                      backgroundColor: AppColor.green,
-                                      text: "Make Payment",
-                                      textColor: AppColor.white,
-                                      onPressed: () {
-                                        if (invoice.invoiceAmount !=
-                                            invoice.paymentAmount) {
-                                          goRouter.pushNamed(
-                                            AppRoutes.addBrokeragePayment,
-                                            queryParameters: {
-                                              "brokerageInvoice":
-                                                  Uri.encodeQueryComponent(
-                                                    EncryptionManager.encryptData(
-                                                      jsonEncode(
-                                                        invoice.toJson(),
-                                                      ),
-                                                    ),
-                                                  ),
-                                              "brokerageAmount":
-                                                  widget
-                                                      .brokerageModel
-                                                      .brokerageAmount
-                                                      .toString(),
-                                            },
-                                          );
-                                        }
-                                      },
-                                    ),
-                                  ],
-                                )
-                                : ApproveRejectWidget(
-                                  isActionAlreadyPerformed:
-                                      isActionAlreadyPerformed,
-                                  actionTitle:
-                                      invoice.isApproval
-                                          ? "Approval"
-                                          : "History",
-                                  showApproval: invoice.isApproval,
-                                  onApprove: (remark) async {
-                                    final isSuccess = await _utilsCubit
-                                        .updateModulesWorkflowApproval(
-                                          context: context,
-                                          moduleName:
-                                              'BROKERAGE INVOICE APPROVAL',
-                                          id: invoice.brokerageInvoiceId,
-                                          projectId: invoice.projectId,
-                                          isApproved: true,
-                                          remark: remark.trim(),
-                                        );
-                                    if (context.mounted && isSuccess) {
-                                      _brokerageCubit.getBrokerageInvoiceList(
-                                        context,
-                                        1,
-                                        widget.brokerageModel.projectId,
-                                        widget.brokerageModel.bookingId,
-                                      );
-                                    }
-                                  },
-                                  onReject: (remark) async {
-                                    final isSuccess = await _utilsCubit
-                                        .updateModulesWorkflowApproval(
-                                          context: context,
-                                          moduleName:
-                                              'BROKERAGE INVOICE APPROVAL',
-                                          id: invoice.brokerageInvoiceId,
-                                          projectId: invoice.projectId,
-                                          isApproved: false,
-                                          remark: remark.trim(),
-                                        );
-                                    if (context.mounted && isSuccess) {
-                                      _brokerageCubit.getBrokerageInvoiceList(
-                                        context,
-                                        1,
-                                        widget.brokerageModel.projectId,
-                                        widget.brokerageModel.bookingId,
-                                      );
-                                    }
-                                  },
-                                  onThirdTap: () async {
-                                    final approvalLogHistoryList =
-                                        await _utilsCubit.getApprovalLogHistory(
-                                          context: context,
-                                          id: invoice.brokerageInvoiceId,
-                                          projectId: invoice.projectId,
-                                          moduleName:
-                                              'BROKERAGE INVOICE APPROVAL',
-                                        );
-                                    if (context.mounted) {
-                                      goRouter.pushNamed(
-                                        AppRoutes.approvalLogHistory,
-                                        queryParameters: {
-                                          "title": Uri.encodeComponent(
-                                            EncryptionManager.encryptData(
-                                              "Invoice Log History",
-                                            ),
-                                          ),
-                                          "subTitle": Uri.encodeComponent(
-                                            EncryptionManager.encryptData(
-                                              "${widget.brokerageModel.channelPartnerName} > ${widget.brokerageModel.channelPartnerCompany} > ${invoice.invoiceAmount.toIndianCurrency()}",
-                                            ),
-                                          ),
-                                          "approvalList": Uri.encodeComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(
-                                                approvalLogHistoryList
-                                                    .map((e) => e.toJson())
-                                                    .toList(),
+                      invoice.approvalStatus.toLowerCase() == 'approved'
+                          ? Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              CustomButton(
+                                isDisable: disableMakePayment,
+                                backgroundColor: AppColor.green,
+                                text: "Make Payment",
+                                textColor: AppColor.white,
+                                onPressed: () {
+                                  if (invoice.invoiceAmount !=
+                                      invoice.paymentAmount) {
+                                    goRouter.pushNamed(
+                                      AppRoutes.addBrokeragePayment,
+                                      queryParameters: {
+                                        "brokerageInvoice":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(invoice.toJson()),
                                               ),
                                             ),
-                                          ),
-                                        },
-                                      );
-                                    }
+                                        "brokerageAmount":
+                                            widget
+                                                .brokerageModel
+                                                .brokerageAmount
+                                                .toString(),
+                                      },
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          )
+                          : invoice.approvalStatus.toLowerCase() != 'pending'
+                          ? SizedBox.shrink()
+                          : ApproveRejectWidget(
+                            isActionAlreadyPerformed: isActionAlreadyPerformed,
+                            actionTitle:
+                                invoice.isApproval ? "Approval" : "History",
+                            showApproval: invoice.isApproval,
+                            onApprove: (remark) async {
+                              final isSuccess = await _utilsCubit
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    moduleName: 'BROKERAGE INVOICE APPROVAL',
+                                    id: invoice.brokerageInvoiceId,
+                                    projectId: invoice.projectId,
+                                    isApproved: true,
+                                    remark: remark.trim(),
+                                  );
+                              if (context.mounted && isSuccess) {
+                                _brokerageCubit.getBrokerageInvoiceList(
+                                  context,
+                                  1,
+                                  widget.brokerageModel.projectId,
+                                  widget.brokerageModel.bookingId,
+                                );
+                              }
+                            },
+                            onReject: (remark) async {
+                              final isSuccess = await _utilsCubit
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    moduleName: 'BROKERAGE INVOICE APPROVAL',
+                                    id: invoice.brokerageInvoiceId,
+                                    projectId: invoice.projectId,
+                                    isApproved: false,
+                                    remark: remark.trim(),
+                                  );
+                              if (context.mounted && isSuccess) {
+                                _brokerageCubit.getBrokerageInvoiceList(
+                                  context,
+                                  1,
+                                  widget.brokerageModel.projectId,
+                                  widget.brokerageModel.bookingId,
+                                );
+                              }
+                            },
+                            onThirdTap: () async {
+                              final approvalLogHistoryList = await _utilsCubit
+                                  .getApprovalLogHistory(
+                                    context: context,
+                                    id: invoice.brokerageInvoiceId,
+                                    projectId: invoice.projectId,
+                                    moduleName: 'BROKERAGE INVOICE APPROVAL',
+                                  );
+                              if (context.mounted) {
+                                goRouter.pushNamed(
+                                  AppRoutes.approvalLogHistory,
+                                  queryParameters: {
+                                    "title": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        "Invoice Log History",
+                                      ),
+                                    ),
+                                    "subTitle": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        "${widget.brokerageModel.channelPartnerName} > ${widget.brokerageModel.channelPartnerCompany} > ${invoice.invoiceAmount.toIndianCurrency()}",
+                                      ),
+                                    ),
+                                    "approvalList": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(
+                                          approvalLogHistoryList
+                                              .map((e) => e.toJson())
+                                              .toList(),
+                                        ),
+                                      ),
+                                    ),
                                   },
-                                  popupTitle: "Invoice Approval",
+                                );
+                              }
+                            },
+                            popupTitle: "Invoice Approval",
+                          ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColor.grey10.withValues(alpha: 0.08),
+                        ),
+                        padding: EdgeInsets.all(12),
+                        margin: EdgeInsets.only(top: 10),
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Invoice Details",
+                                        style: AppTextStyle.ts14M(
+                                          color: AppColor.black,
+                                        ),
+                                      ),
+                                      if ((invoice.invoiceAmount -
+                                              invoice.paymentAmount) ==
+                                          0)
+                                        Text(
+                                          "Fully Paid",
+                                          style: AppTextStyle.ts12B(
+                                            color: AppColor.green20,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
+                                horizontalSpacing(),
+                                GestureDetector(
+                                  onTap: () => notifier.value = !isExpanded,
+                                  child: Icon(
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up
+                                        : Icons.keyboard_arrow_down,
+                                    size: 26,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 250),
+                              child:
+                                  isExpanded
+                                      ? _invoiceDetailCard(invoice)
+                                      : SizedBox.shrink(),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -681,31 +722,10 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
       children: [
         Container(
           key: ValueKey(true),
-          decoration: BoxDecoration(
-            color: AppColor.grey10.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppColor.grey10),
-          ),
-          padding: EdgeInsets.all(12),
-          margin: EdgeInsets.only(top: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Invoice Details",
-                    style: AppTextStyle.ts14M(color: AppColor.black),
-                  ),
-                  if ((invoice.invoiceAmount - invoice.paymentAmount) == 0)
-                    Text(
-                      "Full Paid",
-                      style: AppTextStyle.ts12M(color: AppColor.green20),
-                    ),
-                ],
-              ),
               Row(
                 children: [
                   buildColumnTitleValue(

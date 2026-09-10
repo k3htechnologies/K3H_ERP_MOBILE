@@ -70,10 +70,18 @@ class _CustomSignatureWidgetState extends State<CustomSignatureWidget> {
 
     final fileName = "signature_${DateTime.now().millisecondsSinceEpoch}.png";
 
+    final oldBytes = signatureBytes;
+    final oldFileName = signatureFileName;
+    final deletedUrl =
+        oldFileName?.contains("http") == true ? oldFileName! : "";
     setState(() {
       signatureBytes = result;
       signatureFileName = fileName;
     });
+
+    if (deletedUrl.isNotEmpty) {
+      widget.onSignatureDelete?.call(oldBytes, oldFileName, deletedUrl);
+    }
 
     widget.onSignatureSaved?.call(result, fileName);
   }

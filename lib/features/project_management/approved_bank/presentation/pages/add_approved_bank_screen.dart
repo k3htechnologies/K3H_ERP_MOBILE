@@ -4,23 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class AddBankScreen extends StatefulWidget {
-  const AddBankScreen({super.key});
+class AddApprovedBankScreen extends StatefulWidget {
+  const AddApprovedBankScreen({super.key});
 
   @override
-  State<AddBankScreen> createState() => _AddBankScreenState();
+  State<AddApprovedBankScreen> createState() => _AddApprovedBankScreenState();
 }
 
-class _AddBankScreenState extends State<AddBankScreen> {
+class _AddApprovedBankScreenState extends State<AddApprovedBankScreen> {
   // CUBIT
   late ApprovedBankFolderCubit _approvedBankFolderCubit;
 
@@ -32,7 +33,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
   late TextEditingController _searchC;
 
   // SELECTED BANKS FOR ADD API (multiple, comma-separated)
-  final Set<int> _selectedBankIds = {};
+  final ValueNotifier<Set<int>> _selectedBankIds = ValueNotifier({});
   late ProjectModel _project;
 
   @override
@@ -76,6 +77,16 @@ class _AddBankScreenState extends State<AddBankScreen> {
     });
   }
 
+  void _toggleBank(int bankId) {
+    final updated = Set<int>.from(_selectedBankIds.value);
+    if (updated.contains(bankId)) {
+      updated.remove(bankId);
+    } else {
+      updated.add(bankId);
+    }
+    _selectedBankIds.value = updated; // new reference -> triggers rebuild
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,6 +99,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: SearchWidget(
+              hintText: "Search By Bank Name",
               onSubmit: (value) {
                 _approvedBankFolderCubit.searchBank(
                   context,
@@ -127,43 +139,28 @@ class _AddBankScreenState extends State<AddBankScreen> {
                           : const SizedBox.shrink();
                     }
                     final bank = list[index];
-                    final isSelected = _selectedBankIds.contains(
-                      bank.bankListMasterId,
-                    );
-                    return InkWell(
-                      onTap: () {
-                        setState(() {
-                          if (isSelected) {
-                            _selectedBankIds.remove(bank.bankListMasterId);
-                          } else {
-                            _selectedBankIds.add(bank.bankListMasterId);
-                          }
-                        });
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(16),
-                        margin: EdgeInsets.only(bottom: 10),
-                        decoration: commonCardDecoration(),
-                        child: Row(
-                          children: [
-                            Checkbox(
-                              value: isSelected,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  if (value == true) {
-                                    _selectedBankIds.add(bank.bankListMasterId);
-                                  } else {
-                                    _selectedBankIds.remove(
-                                      bank.bankListMasterId,
-                                    );
-                                  }
-                                });
-                              },
+
+                    return ValueListenableBuilder(
+                      valueListenable: _selectedBankIds,
+                      builder: (context, selectedBankIds, child) {
+                        final isSelected = selectedBankIds.contains(
+                          bank.bankListMasterId,
+                        );
+                        return InkWell(
+                          onTap: () => _toggleBank(bank.bankListMasterId),
+                          child: Container(
+                            padding: EdgeInsets.all(16),
+                            margin: EdgeInsets.only(bottom: 10),
+                            decoration: commonCardDecoration(),
+                            child: CustomCheckBox(
+                              isSelected: isSelected,
+                              title: bank.bankNameWithCode,
+                              onChanged:
+                                  (_) => _toggleBank(bank.bankListMasterId),
                             ),
-                            Expanded(child: Text(bank.bankNameWithCode)),
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     );
                   },
                 );
@@ -180,7 +177,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
             leading: Icon(Icons.add, color: AppColor.white, size: 18),
             text: "Add Bank",
             onPressed: () {
-              if (_selectedBankIds.isEmpty) {
+              if (_selectedBankIds.value.isEmpty) {
                 showErrorMessage(
                   context,
                   'Error',
@@ -191,7 +188,7 @@ class _AddBankScreenState extends State<AddBankScreen> {
               _approvedBankFolderCubit.addApproveBankFolder(
                 context: context,
                 projectId: _project.projectId,
-                bankListMasterId: _selectedBankIds.join(','),
+                bankListMasterId: _selectedBankIds.value.join(','),
               );
             },
           ),

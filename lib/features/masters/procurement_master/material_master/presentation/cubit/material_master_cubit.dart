@@ -145,7 +145,16 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         showSuccessMessage(context, subTitle: response['message']);
         final updatedList = List<MaterialMasterModel>.from(state.materialList);
         updatedList.removeAt(index);
-        emit(state.copyWith(isLoading: false, materialList: updatedList));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            materialList: updatedList,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
       },
     );
   }

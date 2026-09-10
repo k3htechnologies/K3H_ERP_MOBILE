@@ -117,8 +117,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
               senderMobileNumber ?? state.filterBySenderMobileNumber,
           filterByReceiverMobileNumber:
               receiverMobileNumber ?? state.filterByReceiverMobileNumber,
-          filterByFromDate: fromDate ?? state.filterByFromDate,
-          filterByToDate: toDate ?? state.filterByToDate,
+          filterByFromDate: fromDate,
+          filterByToDate: toDate,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
           inwardOutwardCurrentPage: 1,

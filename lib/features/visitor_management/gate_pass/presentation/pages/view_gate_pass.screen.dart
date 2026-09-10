@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
@@ -31,8 +34,6 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            gatePassPurposeWidget(widget.gatePassModel!.purpose),
-            verticalSpacing(),
             SectionCard(
               title: 'Gate Pass Details',
               titleTextColor: AppColor.purple,
@@ -45,13 +46,6 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                     buildColumnTitleValue(
                       title: "Visitor Name",
                       value: widget.gatePassModel!.fullName,
-                      customValueWidget: buildDocumentRow(
-                        iconWithoutBg: true,
-                        context: context,
-                        title: widget.gatePassModel!.fullName,
-                        docNumber: widget.gatePassModel!.fullName,
-                        url: widget.gatePassModel!.photoUrl,
-                      ),
                     ),
                     buildColumnTitleValue(
                       title: "Address",
@@ -95,6 +89,36 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                   removeExpanded: true,
                   title: "Remark",
                   value: widget.gatePassModel!.remark,
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: 'Purpose',
+                      value: widget.gatePassModel!.purpose,
+                      customValueWidget: gatePassPurposeWidget(
+                        widget.gatePassModel!.purpose,
+                        textStyle: AppTextStyle.ts12M(),
+                      ),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Photo",
+                      value: widget.gatePassModel!.photoUrl,
+                      customValueWidget: CustomButton.documentOutline(
+                        isDisable: widget.gatePassModel!.photoUrl.isEmpty,
+                        onPressed: () {
+                          if (widget.gatePassModel!.photoUrl.isNotEmpty) {
+                            showFilePreviewDialog(
+                              title: "Photo",
+                              context,
+                              widget.gatePassModel!.photoUrl.split(","),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

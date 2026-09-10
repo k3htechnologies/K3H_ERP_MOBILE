@@ -23,6 +23,9 @@ class ChipStyleTabBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (tabs.isEmpty) {
+      return SizedBox.shrink();
+    }
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(

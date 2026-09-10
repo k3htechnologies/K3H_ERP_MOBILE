@@ -553,6 +553,14 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                                     ),
                                               },
                                             );
+                                            if (context.mounted) {
+                                              _brokerageCubit
+                                                  .getBrokerageBookingList(
+                                                    context,
+                                                    1,
+                                                    _project.projectId,
+                                                  );
+                                            }
                                           },
                                           child: Text(
                                             brokerage.channelPartnerName,
@@ -569,7 +577,7 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                     value: brokerage.channelPartnerCompany,
                                   ),
                                   buildRowTitleValue(
-                                    title: "Mobile No.",
+                                    title: "Mobile Number",
                                     value: brokerage.channelPartnerMobileNumber,
                                     customValueWidget: CustomClickToContactText(
                                       countryCode:
@@ -585,40 +593,40 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                     singleLine: false,
                                   ),
                                   buildRowTitleValue(
+                                    title: "Brokerage (%)",
+                                    value:
+                                        "${brokerage.brokeragePercentage.addCommas()}%",
+                                  ),
+                                  buildRowTitleValue(
                                     title: "Agreement Amount (₹)",
                                     value:
                                         brokerage.agreementValue
                                             .toIndianCurrency(),
                                   ),
                                   buildRowTitleValue(
-                                    title: "Brokerage Amount",
+                                    title: "Brokerage Amount (₹)",
                                     value:
                                         brokerage.brokerageAmount
                                             .toIndianCurrency(),
                                   ),
                                   buildRowTitleValue(
-                                    title: "Raised Invoice Amount",
+                                    title: "Raised Invoice Amount (₹)",
                                     value:
                                         brokerage.invoiceAmount
                                             .toIndianCurrency(),
                                   ),
                                   buildRowTitleValue(
-                                    title: "Paid Amount",
+                                    title: "Paid Amount (₹)",
                                     value:
                                         brokerage.paymentPaidAmount
                                             .toIndianCurrency(),
                                   ),
                                   buildRowTitleValue(
-                                    title: "Outstanding Amount",
+                                    title: "Outstanding Amount (₹)",
                                     value:
                                         (brokerage.brokerageAmount -
                                                 brokerage.paymentPaidAmount)
                                             .toIndianCurrency(),
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "TDS Amount",
-                                    value:
-                                        brokerage.tdsAmount.toIndianCurrency(),
                                   ),
                                   verticalSpacing(height: 10),
                                   ExpansionTile(
@@ -705,11 +713,12 @@ class _BrokerageScreenState extends State<BrokerageScreen> {
                                                 ),
                                               ],
                                             ),
+                                            verticalSpacing(),
                                             Row(
                                               children: [
                                                 buildColumnTitleValue(
                                                   title:
-                                                      "RERA Carpet Area (Sq FT)",
+                                                      "RERA Carpet Area (SqFt)",
                                                   value:
                                                       brokerage
                                                           .reraCarpetAreaSqFt

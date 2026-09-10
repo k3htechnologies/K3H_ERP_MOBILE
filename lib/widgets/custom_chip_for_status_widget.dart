@@ -33,10 +33,12 @@ Widget statusChip(
         if (leading != null) leading,
         if (leading != null) SizedBox(width: spacing),
 
-        Text(
-          text,
-          textAlign: TextAlign.center,
-          style: (textStyle ?? AppTextStyle.ts10M()).copyWith(color: txtC),
+        Flexible(
+          child: Text(
+            text,
+            textAlign: TextAlign.center,
+            style: (textStyle ?? AppTextStyle.ts10M()).copyWith(color: txtC),
+          ),
         ),
 
         if (trailing != null) SizedBox(width: spacing),

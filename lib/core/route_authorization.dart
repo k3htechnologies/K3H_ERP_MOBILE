@@ -20,7 +20,6 @@ class Authorization {
     // COMPANY SETUP
     AppRoutes.departmentMaster: AuthorizationModel(),
     AppRoutes.companyMaster: AuthorizationModel(),
-    AppRoutes.addCompany: AuthorizationModel(),
     AppRoutes.designationMaster: AuthorizationModel(),
     AppRoutes.projectMaster: AuthorizationModel(),
     AppRoutes.employeeMaster: AuthorizationModel(),
@@ -70,7 +69,6 @@ class Authorization {
       // MASTERS
       AppRoutes.departmentMaster: AuthorizationModel(),
       AppRoutes.companyMaster: AuthorizationModel(),
-      AppRoutes.addCompany: AuthorizationModel(),
       AppRoutes.designationMaster: AuthorizationModel(),
       AppRoutes.projectMaster: AuthorizationModel(),
       AppRoutes.employeeMaster: AuthorizationModel(),

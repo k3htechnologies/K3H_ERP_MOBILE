@@ -98,7 +98,7 @@ Widget documentSection(BuildContext context, InwardOutwardModel inwardOutward) {
                                 .isNotEmpty) {
                               showFilePreviewDialog(
                                 context,
-                                title: "Acknowleger's Signature",
+                                title: "Acknowledger's Signature",
                                 inwardOutward.acknowledgementSignatureURL.split(
                                   ",",
                                 ),

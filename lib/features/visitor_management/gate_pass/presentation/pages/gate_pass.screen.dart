@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
@@ -436,7 +437,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
                     gatePass.noOfParticipants == 0
                         ? gatePass.fullName
                         : "${gatePass.fullName} +${gatePass.noOfParticipants}",
-                    style: AppTextStyle.ts14M(color: AppColor.primary),
+                    style: AppTextStyle.ts16M(color: AppColor.primary),
                   ),
                 ),
               ),
@@ -449,7 +450,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
                     CustomIconButton.edit(
                       isDisabled: disableEdit,
                       onPressed: () {
-                        goRouter.pushNamed( 
+                        goRouter.pushNamed(
                           AppRoutes.addGatePass,
                           extra: {"gatePass": gatePass, "index": index},
                         );
@@ -474,6 +475,10 @@ class _GatePassScreenState extends State<GatePassScreen> {
               buildColumnTitleValue(
                 title: "Mobile Number",
                 value: gatePass.mobileNumber,
+                customValueWidget: CustomClickToContactText(
+                  countryCode: "+91",
+                  value: gatePass.mobileNumber,
+                ),
               ),
               buildColumnTitleValue(
                 title: "Purpose",
@@ -500,7 +505,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
           Divider(thickness: 1.0, color: AppColor.grey50),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               buildColumnTitleValue(
                 title: "Out Date / Time",
@@ -512,8 +517,9 @@ class _GatePassScreenState extends State<GatePassScreen> {
                   mainAxisAlignment: MainAxisAlignment.end,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap:
+                    CustomIconButton(
+                      isDisable: !canGatePassOut,
+                      onPressed:
                           canGatePassOut
                               ? () {
                                 _showPopupToGatePassOut(
@@ -522,17 +528,18 @@ class _GatePassScreenState extends State<GatePassScreen> {
                                   index,
                                 );
                               }
-                              : null,
-                      child: Icon(
+                              : () {},
+                      icon: Icon(
                         LucideIcons.logOut,
-                        size: 18,
+                        size: 16,
                         color:
-                            canGatePassOut ? AppColor.primary : AppColor.grey,
+                            canGatePassOut ? AppColor.primary : AppColor.grey2,
                       ),
                     ),
                     horizontalSpacing(),
-                    GestureDetector(
-                      onTap:
+                    CustomIconButton(
+                      isDisable: !canNotify,
+                      onPressed:
                           canNotify
                               ? () {
                                 _showPopupToGatePassNotify(
@@ -541,11 +548,11 @@ class _GatePassScreenState extends State<GatePassScreen> {
                                   index,
                                 );
                               }
-                              : null,
-                      child: Icon(
+                              : () {},
+                      icon: Icon(
                         LucideIcons.bell,
-                        size: 18,
-                        color: canNotify ? AppColor.primary : AppColor.grey,
+                        size: 16,
+                        color: canNotify ? AppColor.primary : AppColor.grey2,
                       ),
                     ),
                   ],

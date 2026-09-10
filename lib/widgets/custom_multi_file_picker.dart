@@ -362,7 +362,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                                           .isNotEmpty
                                                       ? [fileBytesList[index]]
                                                       : null,
-                                                      
+
                                               title:
                                                   widget.title ?? "View File",
                                             );
@@ -464,7 +464,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
         showErrorMessage(
           context,
           "File limit exceeded",
-          "You can only upload up to ${widget.maxFiles} files.",
+          "Maximum ${widget.maxFiles} files allowed.",
         );
       }
       return;

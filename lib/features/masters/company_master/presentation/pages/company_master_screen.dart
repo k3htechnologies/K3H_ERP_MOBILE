@@ -51,7 +51,8 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     initialiseControllers();
     _companyMasterCubit = context.read<CompanyMasterCubit>();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.companyMaster]!;
+        Authorization.routeAuthorizationMap[AppRoutes.companyMaster] ??
+        AuthorizationModel();
     _companyMasterCubit.getCompanyMaster(context, 1);
     // PAGINATION
     scrollController = ScrollController();

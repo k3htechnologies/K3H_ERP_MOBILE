@@ -256,6 +256,7 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
     }
     if (dir == null) throw Exception("Cannot find storage directory");
     final filePath = '${dir.path}/$fileName';
+    print("File Path: $filePath");
     final file = File(filePath);
     await file.writeAsBytes(bytes);
     await OpenFilex.open(filePath);
@@ -398,16 +399,25 @@ String formattedAmount(num value, {bool showRupeeSymbol = true}) {
 }
 
 String getInitials(String name) {
-  if (name.trim().isEmpty) return '';
+  final trimmedName = name.trim();
 
-  final parts = name.trim().split(' ');
+  if (trimmedName.isEmpty) return '';
 
-  if (parts.length == 1) {
-    return parts.first[0].toUpperCase() +
-        (parts.first.length == 2 ? parts.first[1].toUpperCase() : '');
+  final parts = trimmedName.split(RegExp(r'\s+'));
+
+  // Multiple words
+  if (parts.length > 1) {
+    return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
-  return (parts.first[0] + parts.last[0]).toUpperCase();
+  // Single word
+  final word = parts.first;
+
+  if (word.length == 1) {
+    return word.toUpperCase();
+  }
+
+  return word.substring(0, 2).toUpperCase();
 }
 
 String formatDateTimeReadable(DateTime? date) {

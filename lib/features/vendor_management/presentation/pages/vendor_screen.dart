@@ -96,8 +96,8 @@ class _VendorScreenState extends State<VendorScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      "You are about to delete a vendor ",
-      "Deleting this vendor will permanently remove its contents.",
+      "You are about to delete a vendor ?",
+      "Deleting this vendor will permanently remove all associated data.",
     );
     if (result && context.mounted) {
       _vendorCubit.deleteVendor(
@@ -247,15 +247,15 @@ class _VendorScreenState extends State<VendorScreen> {
                 ),
                 verticalSpacing(height: 20),
                 CustomTextField(
-                  title: "Vendor Name",
-                  hint: "Enter Vendor Name",
-                  textController: _searchC,
+                  title: "Vendor Code",
+                  hint: "Enter Vendor Code",
+                  textController: _filterVendorCodeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
-                  title: "vendor Code",
-                  hint: "Enter Vendor Code",
-                  textController: _filterVendorCodeC,
+                  title: "Vendor Name",
+                  hint: "Enter Vendor Name",
+                  textController: _searchC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -387,6 +387,8 @@ class _VendorScreenState extends State<VendorScreen> {
                 children: [
                   Expanded(
                     child: CustomButton(
+                      backgroundColor: AppColor.lightBlue,
+                      textColor: AppColor.primary,
                       text: "Copy Link",
                       onPressed: () {
                         copy(
@@ -400,7 +402,6 @@ class _VendorScreenState extends State<VendorScreen> {
                   Expanded(
                     child: CustomButton(
                       text: "Share Link",
-                      backgroundColor: AppColor.grey.withValues(alpha: .8),
                       onPressed: () {
                         share(
                           context: context,

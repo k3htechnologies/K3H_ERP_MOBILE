@@ -106,7 +106,10 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
   }) async {
     final result = await _projectMasterRepository.getProjectWithBankDetails(
       projectId: widget.invoiceModel.projectId,
-      queryParams: value != null && value.isNotEmpty ? {"BankName": value} : {},
+      queryParams:
+          value != null && value.isNotEmpty
+              ? {"BankName": value, "IsCheckPermission": false}
+              : {"IsCheckPermission": false},
     );
     return result.fold(
       (failure) => {
@@ -358,15 +361,7 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                             );
                           },
                         ),
-                        CustomTextField(
-                          textController: _pendingAmountC,
-                          readOnly: true,
-                          title: "Pending Amount",
-                          hint: "0",
-                          prefixType: CustomTextFieldPrefix.rupees,
-                          keyboardType: TextInputType.numberWithOptions(),
-                          inputFormatterList: InputValidator.decimal(2),
-                        ),
+
                         ValueListenableBuilder(
                           valueListenable: _selectedPaymentTypeNotifier,
                           builder: (context, value, child) {
@@ -411,6 +406,15 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           },
                         ),
                         CustomTextField(
+                          textController: _pendingAmountC,
+                          readOnly: true,
+                          title: "Pending Amount",
+                          hint: "0",
+                          prefixType: CustomTextFieldPrefix.rupees,
+                          keyboardType: TextInputType.numberWithOptions(),
+                          inputFormatterList: InputValidator.decimal(2),
+                        ),
+                        CustomTextField(
                           textController: _tdsAmountC,
                           title: "TDS Amount",
                           hint: "Enter TDS Amount",
@@ -435,9 +439,6 @@ class _AddBrokeragePaymentState extends State<AddBrokeragePayment> {
                           isRequired: true,
                           inputFormatterList: [
                             LengthLimitingTextInputFormatter(25),
-                            FilteringTextInputFormatter.allow(
-                              RegExp(r'[a-zA-Z0-9]'),
-                            ),
                           ],
                           title: "Transaction/Cheque/Demand Draft No.",
                           hint: "Enter Transaction/Cheque/Demand Draft No.",

@@ -408,11 +408,10 @@ import 'package:k3h_erp_app/features/project_document/rera_document_category/pre
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/add_rera_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/rera_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/view_document_category_screen.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_bank_screen.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder_cubit.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_approved_bank_screen.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/view_approved_bank_screen.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/presentation/cubit/building_cubit.dart';
@@ -756,8 +755,14 @@ final GoRouter goRouter = GoRouter(
         // COMPANY MASTER
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => CompanyMasterCubit(),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => CompanyMasterCubit(), child: child),
+                BlocProvider(
+                  create: (context) => CompanyMasterAddCubit(),
+                  child: child,
+                ),
+              ],
               child: child,
             );
           },
@@ -785,10 +790,7 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : null;
-                return BlocProvider(
-                  create: (context) => CompanyMasterAddCubit(),
-                  child: AddCompanyMasterScreen(company: companyModel),
-                );
+                return AddCompanyMasterScreen(company: companyModel);
               },
             ),
             GoRoute(
@@ -3360,15 +3362,8 @@ final GoRouter goRouter = GoRouter(
         // PROJECT MANAGEMENT APPROVED BANK
         ShellRoute(
           builder: (context, state, child) {
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider<ApprovedBankFolderCubit>(
-                  create: (_) => ApprovedBankFolderCubit(),
-                ),
-                BlocProvider<ApprovedBankFileCubit>(
-                  create: (_) => ApprovedBankFileCubit(),
-                ),
-              ],
+            return BlocProvider(
+              create: (_) => ApprovedBankFolderCubit(),
               child: child,
             );
           },
@@ -3377,14 +3372,14 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.approvedBank,
               name: AppRoutes.approvedBank,
               builder: (context, state) {
-                return ApprovedBankFolderScreen();
+                return ApprovedBankScreen();
               },
             ),
             GoRoute(
               path: AppRoutes.addBankScreen,
               name: AppRoutes.addBankScreen,
               builder: (context, state) {
-                return AddBankScreen();
+                return AddApprovedBankScreen();
               },
             ),
             GoRoute(
@@ -3393,16 +3388,13 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameter =
                     state.uri.queryParameters['approvedBankFolderId'];
-                if (queryParameter == null) {
-                  return TestScreen();
-                }
 
                 final decodedJsonApprovedBankFolderId = jsonDecode(
                   EncryptionManager.decryptData(
-                    Uri.decodeQueryComponent(queryParameter),
+                    Uri.decodeQueryComponent(queryParameter!),
                   ),
                 );
-                return ApprovedBankFieScreen(
+                return ViewApprovedBankScreen(
                   approvedBankFolderId: decodedJsonApprovedBankFolderId,
                 );
               },
