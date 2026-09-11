@@ -43,7 +43,7 @@ class _AddApprovedBankScreenState extends State<AddApprovedBankScreen> {
     _approvedBankFolderCubit = context.read<ApprovedBankFolderCubit>();
     _project = getProject();
     _onScroll();
-    _approvedBankFolderCubit.getBankList(context, 1);
+    _approvedBankFolderCubit.getBankList(context, 1, clearSearch: true);
   }
 
   @override

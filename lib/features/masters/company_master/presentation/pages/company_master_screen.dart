@@ -341,7 +341,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           },
           child: BlocBuilder<CompanyMasterCubit, CompanyMasterState>(
             builder: (context, state) {
-              if ((state.isLoading ?? true) && state.companyList.isEmpty) {
+              if ((state.isLoading ?? false) && state.companyList.isEmpty) {
                 return Center(child: loader());
               }
               if (state.companyList.isEmpty) {
@@ -451,7 +451,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                           singleLine: false,
                         ),
                         buildRowTitleValue(
-                          title: "Company Type",
+                          title: "Firms Type",
                           value: company.firmsType,
                           singleLine: false,
                         ),

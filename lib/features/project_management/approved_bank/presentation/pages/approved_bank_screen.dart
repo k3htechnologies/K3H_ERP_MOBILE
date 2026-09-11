@@ -78,12 +78,12 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
               scrollController.position.maxScrollExtent - 100 &&
           !_approvedBankCubit.state.isLoading! &&
           _approvedBankCubit.state.approvedBankFolderList.length <
-              _approvedBankCubit.state.totalNumberOfRecordBank) {
+              _approvedBankCubit.state.totalNumberOfRecordBankFolder) {
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
           _approvedBankCubit.getApprovedBankFolderList(
             context,
-            _approvedBankCubit.state.currentPageBank + 1,
+            _approvedBankCubit.state.currentPageBankFolder + 1,
             _project.projectId,
           );
         });
@@ -122,7 +122,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
     _searchC.text = state.searchTextFolder;
 
     String? selectedDirection =
-        state.currentSortColumnBankFolder == "Bank Name"
+        state.currentSortColumnBankFolder == "BankName"
             ? state.currentSortDirectionBankFolder
             : null;
 
@@ -237,7 +237,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
 
         _approvedBankCubit.applyFilterAndSortApprovedBankFolder(
           context: context,
-          column: selectedDirection != null ? "Bank Name" : "Created Date",
+          column: selectedDirection != null ? "BankName" : "Created Date",
           direction: selectedDirection ?? "DESC",
           bankName: _searchC.text.trim(),
           projectId: _project.projectId,
@@ -261,7 +261,6 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
         _filterCount.value = _approvedBankCubit.updateFilterCountFolder(state);
       },
       child: Scaffold(
-        backgroundColor: AppColor.greyBackground,
         appBar: CustomAppBar(
           screenTitle: 'Approved Bank',
           authorization: _routeAuthorizationModel,
@@ -333,7 +332,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
                           itemBuilder: (_, index) {
                             if (index == state.approvedBankFolderList.length) {
                               return state.approvedBankFolderList.length <
-                                      state.totalNumberOfRecordBank
+                                      state.totalNumberOfRecordBankFolder
                                   ? Padding(
                                     padding: const EdgeInsets.all(16),
                                     child: Center(
@@ -370,6 +369,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
                                                         ),
                                                       ),
                                                     ),
+                                                "bankName": folder.bankName,
                                               },
                                             );
                                             if (context.mounted) {
@@ -391,9 +391,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
                                       ),
                                       CustomIconButton.delete(
                                         isDisabled:
-                                            state
-                                                    .approvedBankFolderList[index]
-                                                    .numberOfApprovedBankFile >
+                                            folder.numberOfApprovedBankFile !=
                                                 0 ||
                                             !_routeAuthorizationModel.isAction,
                                         onPressed: () {

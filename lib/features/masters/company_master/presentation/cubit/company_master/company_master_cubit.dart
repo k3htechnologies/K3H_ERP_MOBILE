@@ -97,18 +97,10 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
-        final fetched = response['data'] as List<CompanyModel>;
+        final newData = response['data'] as List<CompanyModel>;
+        final List<CompanyModel> updatedList =
+            pageNumber == 1 ? newData : [...state.companyList, ...newData];
 
-        Map<String, CompanyModel> map = {};
-        if (pageNumber > 1) {
-          for (final c in state.companyList) {
-            map[c.uniquekey] = c;
-          }
-        }
-        for (final c in fetched) {
-          map[c.uniquekey] = c;
-        }
-        final updatedList = map.values.toList();
         emit(
           state.copyWith(
             isLoading: false,

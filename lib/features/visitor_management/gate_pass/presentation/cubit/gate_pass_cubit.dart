@@ -44,6 +44,7 @@ class GatePassCubit extends Cubit<GatePassState> {
           filterByAppointmentWith: "",
           filterStartDate: null,
           filterEndDate: null,
+          gatePassList: [],
         ),
       );
     } else {
@@ -57,6 +58,7 @@ class GatePassCubit extends Cubit<GatePassState> {
               appointmentWith ?? state.filterByAppointmentWith,
           filterStartDate: startDate,
           filterEndDate: endDate,
+          gatePassList: [],
         ),
       );
     }

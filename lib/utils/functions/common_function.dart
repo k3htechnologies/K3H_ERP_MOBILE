@@ -256,7 +256,6 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
     }
     if (dir == null) throw Exception("Cannot find storage directory");
     final filePath = '${dir.path}/$fileName';
-    print("File Path: $filePath");
     final file = File(filePath);
     await file.writeAsBytes(bytes);
     await OpenFilex.open(filePath);

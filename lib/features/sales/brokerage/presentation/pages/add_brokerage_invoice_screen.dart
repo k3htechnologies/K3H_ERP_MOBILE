@@ -366,7 +366,10 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                           title: "Invoice Amount",
                           hint: "Enter Invoice Amount",
                           keyboardType: TextInputType.numberWithOptions(),
-                          inputFormatterList: InputValidator.decimal(2),
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            decimalPlaces: 2,
+                            maxDigitsBeforeDecimal: 16,
+                          ),
                           isRequired: true,
                           validator: (value) {
                             if (value == null ||

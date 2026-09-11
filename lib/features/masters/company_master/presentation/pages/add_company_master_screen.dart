@@ -394,6 +394,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               ),
               Flexible(
                 child: CustomButton(
+                  isDisable: true,
                   text: 'Add Company Partner',
                   onPressed: () async {
                     goRouter.pushNamed(
@@ -566,7 +567,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             },
           ),
           CustomMultiFilePicker(
-            maxFiles: 3,
+            maxFiles: 5,
             filePickType: FilePickType.both,
             initialFileList: gstCertificateFile.fileNameList,
             title: "GST Certificate",
@@ -610,6 +611,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           CustomMultiFilePicker(
             title: 'PAN Card',
             filePickType: FilePickType.both,
+            maxFiles: 5,
             initialFileList: selectedPANCardFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               selectedPANCardFile.fileNameList = fileNameList;
@@ -650,6 +652,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'CIN',
+            maxFiles: 5,
             filePickType: FilePickType.both,
             initialFileList: cinPhotoFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
@@ -691,6 +694,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'TAN',
+            maxFiles: 5,
             filePickType: FilePickType.both,
             initialFileList: selectedTANFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
@@ -942,6 +946,8 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               Row(
                 children: [
                   CustomIconButton.edit(
+                    //TODO
+                    isDisabled: true,
                     onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.addCompanyPartner,
@@ -955,6 +961,8 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   ),
                   horizontalSpacing(width: 8),
                   CustomIconButton.delete(
+                    // TODO:
+                    isDisabled: true,
                     onPressed: () {
                       if (index != null) {
                         _showPopupToDeleteCompanyPartner(context, index);

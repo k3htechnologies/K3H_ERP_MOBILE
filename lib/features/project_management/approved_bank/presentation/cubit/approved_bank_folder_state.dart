@@ -5,6 +5,8 @@ class ApprovedBankFolderState extends BaseState {
   final int totalNumberOfRecordBank;
   final int currentPageBank;
   final List<ApprovedBankFolderModel> approvedBankFolderList;
+  final int totalNumberOfRecordBankFolder;
+  final int currentPageBankFolder;
   final String searchTextFolder;
   final String searchTextBank;
   final List<ApprovedBankFileModel> approvedBankFileList;
@@ -22,6 +24,8 @@ class ApprovedBankFolderState extends BaseState {
     required this.totalNumberOfRecordBank,
     required this.currentPageBank,
     required this.approvedBankFolderList,
+    required this.totalNumberOfRecordBankFolder,
+    required this.currentPageBankFolder,
     required this.searchTextFolder,
     required this.searchTextBank,
     required this.approvedBankFileList,
@@ -39,6 +43,8 @@ class ApprovedBankFolderState extends BaseState {
     totalNumberOfRecordBank: 0,
     currentPageBank: 1,
     approvedBankFolderList: [],
+    totalNumberOfRecordBankFolder: 0,
+    currentPageBankFolder: 1,
     isLoading: true,
     searchTextFolder: "",
     searchTextBank: "",
@@ -58,6 +64,8 @@ class ApprovedBankFolderState extends BaseState {
     int? totalNumberOfRecordBank,
     int? currentPageBank,
     List<ApprovedBankFolderModel>? approvedBankFolderList,
+    int? totalNumberOfRecordBankFolder,
+    int? currentPageBankFolder,
     String? searchTextFolder,
     String? searchTextBank,
     List<ApprovedBankFileModel>? approvedBankFileList,
@@ -77,6 +85,10 @@ class ApprovedBankFolderState extends BaseState {
       currentPageBank: currentPageBank ?? this.currentPageBank,
       approvedBankFolderList:
           approvedBankFolderList ?? this.approvedBankFolderList,
+      totalNumberOfRecordBankFolder:
+          totalNumberOfRecordBankFolder ?? this.totalNumberOfRecordBankFolder,
+      currentPageBankFolder:
+          currentPageBankFolder ?? this.currentPageBankFolder,
       searchTextFolder: searchTextFolder ?? this.searchTextFolder,
       searchTextBank: searchTextBank ?? this.searchTextBank,
       approvedBankFileList: approvedBankFileList ?? this.approvedBankFileList,
@@ -102,6 +114,8 @@ class ApprovedBankFolderState extends BaseState {
     totalNumberOfRecordBank,
     currentPageBank,
     approvedBankFolderList,
+    totalNumberOfRecordBankFolder,
+    currentPageBankFolder,
     searchTextFolder,
     searchTextBank,
     approvedBankFileList,

@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
-import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/project_lead.screen.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/add_redevelopment.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
@@ -29,19 +28,14 @@ import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_update_document_screen.dart';
-import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/offer_hardship_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_hardship_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
-import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_view_screen.dart';
-import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
@@ -69,7 +63,6 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report_overall.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
-import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/model/company_bank.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_bank_details_screen.dart';
@@ -91,7 +84,6 @@ import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/prese
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/add_local_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/add_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/close_term_sheet.screen.dart';
-import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/view_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/presentation/cubit/term_sheet_document_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/presentation/pages/add_term_sheet_document.screen.dart';
@@ -337,7 +329,6 @@ import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/add_
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/resignation_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/add_material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/add_material_screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_view_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/generate_purchase_order.screen.dart';
@@ -411,7 +402,6 @@ import 'package:k3h_erp_app/features/project_document/rera_document_category/pre
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder_cubit.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/view_approved_bank_screen.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/presentation/cubit/building_cubit.dart';
@@ -488,7 +478,6 @@ import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_view
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management.model.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/cubit/stock_management_cubit.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/add_stock_management.screen.dart';
-import 'package:k3h_erp_app/features/stock_management/presentation/pages/stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/view_stock_management.screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
@@ -772,6 +761,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.companyMaster,
               builder: (context, state) {
                 return CompanyMasterScreen();
+                // return ComingSoonScreen(title: "Company Master");
               },
             ),
             GoRoute(
@@ -2373,8 +2363,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.building,
               path: AppRoutes.building,
               builder: (context, state) {
-                return const BuildingScreen();
-                // return const ComingSoonScreen(title: "Building");
+                // return const BuildingScreen();
+                return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
@@ -2511,8 +2501,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.tenant,
               path: AppRoutes.tenant,
               builder: (context, state) {
-                return const TenantScreen();
-                // return const ComingSoonScreen(title: "Tenant");
+                // return const TenantScreen();
+                return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2592,8 +2582,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                return TemporaryAlternateAccommodationScreen();
-                // return const ComingSoonScreen(title: "TAA");
+                // return TemporaryAlternateAccommodationScreen();
+                return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2722,8 +2712,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedPlan,
               path: AppRoutes.proposedPlan,
               builder: (context, state) {
-                return const ProposedPlansScreen();
-                // return const ComingSoonScreen(title: "Proposed Plan");
+                // return const ProposedPlansScreen();
+                return const ComingSoonScreen(title: "Proposed Plan");
               },
             ),
             GoRoute(
@@ -2766,8 +2756,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedOffer,
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
-                return const ProposedOfferScreen();
-                // return const ComingSoonScreen(title: "Proposed Offer");
+                // return const ProposedOfferScreen();
+                return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(
@@ -3300,15 +3290,22 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // NOTIFICATION
-        GoRoute(
-          path: AppRoutes.notificationScreenMobile,
-          name: AppRoutes.notificationScreenMobile,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider(
-              create: (context) => NotificationCubit(),
-              child: NotificationScreen(),
+              create: (_) => NotificationCubit(),
+              child: child,
             );
           },
+          routes: [
+            GoRoute(
+              path: AppRoutes.notificationScreenMobile,
+              name: AppRoutes.notificationScreenMobile,
+              builder: (context, state) {
+                return NotificationScreen();
+              },
+            ),
+          ],
         ),
         // MARKETING CONTENT DOCUMENT
         ShellRoute(
@@ -3372,7 +3369,8 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.approvedBank,
               name: AppRoutes.approvedBank,
               builder: (context, state) {
-                return ApprovedBankScreen();
+                // return ApprovedBankScreen();
+                return ComingSoonScreen(title: "Approved Bank");
               },
             ),
             GoRoute(
@@ -3388,6 +3386,8 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameter =
                     state.uri.queryParameters['approvedBankFolderId'];
+                final approvedBankName =
+                    state.uri.queryParameters['bankName'] ?? '';
 
                 final decodedJsonApprovedBankFolderId = jsonDecode(
                   EncryptionManager.decryptData(
@@ -3396,6 +3396,7 @@ final GoRouter goRouter = GoRouter(
                 );
                 return ViewApprovedBankScreen(
                   approvedBankFolderId: decodedJsonApprovedBankFolderId,
+                  approvedBankName: approvedBankName,
                 );
               },
             ),
@@ -6067,7 +6068,9 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.stockManagement,
               path: AppRoutes.stockManagement,
               builder: (context, state) {
-                return StockManagementScreen();
+                return ComingSoonScreen(title: "Stock Management");
+
+                // return StockManagementScreen();
               },
             ),
             GoRoute(
@@ -6165,7 +6168,10 @@ final GoRouter goRouter = GoRouter(
             GoRoute(
               path: AppRoutes.materialRequisition,
               name: AppRoutes.materialRequisition,
-              builder: (context, state) => MaterialRequisitonScreen(),
+              builder:
+                  (context, state) =>
+                      ComingSoonScreen(title: "Material Requisition"),
+              // MaterialRequisitonScreen(),
             ),
             GoRoute(
               name: AppRoutes.addMaterialRequisition,
@@ -7394,7 +7400,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.dailyCollectionReport,
               path: AppRoutes.dailyCollectionReport,
               builder: (context, state) {
-                return DCRScreen();
+                return ComingSoonScreen(title: "Daily Collection Report");
+                // return DCRScreen();
               },
             ),
             GoRoute(
@@ -7484,7 +7491,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.termSheet,
               path: AppRoutes.termSheet,
               builder: (context, state) {
-                return const TermSheetScreen();
+                return ComingSoonScreen(title: "Term Sheet");
+                // return const TermSheetScreen();
               },
             ),
             GoRoute(
@@ -7702,7 +7710,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.projectLead,
               path: AppRoutes.projectLead,
               builder: (context, state) {
-                return const ProjectLeadScreen();
+                return ComingSoonScreen(title: "Project Lead");
+                // return const ProjectLeadScreen();
               },
             ),
             GoRoute(

@@ -64,8 +64,8 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
           state.copyWith(
             isLoading: false,
             approvedBankFolderList: updatedList,
-            totalNumberOfRecordBank: response["totalNumberOfRecord"],
-            currentPageBank: pageNumber,
+            totalNumberOfRecordBankFolder: response["totalNumberOfRecord"],
+            currentPageBankFolder: pageNumber,
           ),
         );
       },
@@ -73,7 +73,14 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
   }
 
   // GET BANK LIST
-  Future getBankList(BuildContext context, int pageNumber) async {
+  Future getBankList(
+    BuildContext context,
+    int pageNumber, {
+    bool clearSearch = false,
+  }) async {
+    if (clearSearch) {
+      emit(state.copyWith(searchTextBank: "", bankList: []));
+    }
     emit(state.copyWith(isLoading: true));
 
     var result = await _employeeMasterRepository.getBankList(
@@ -178,7 +185,10 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
         emit(
           state.copyWith(
             approvedBankFolderList: updatedList,
-            totalNumberOfRecordBank: state.totalNumberOfRecordBank - 1,
+            totalNumberOfRecordBankFolder:
+                state.totalNumberOfRecordBankFolder == 0
+                    ? 0
+                    : state.totalNumberOfRecordBankFolder - 1,
           ),
         );
       },
@@ -192,9 +202,20 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     BuildContext context,
     int pageNumber,
     int projectId,
-    int approvedBankFolderId,
-  ) async {
-    emit(state.copyWith(isLoading: true, approvedBankFileList: []));
+    int approvedBankFolderId, {
+    bool clearSearch = false,
+  }) async {
+    if (clearSearch) {
+      emit(
+        state.copyWith(
+          searchTextFile: "",
+          approvedBankFileList: [],
+          currentSortColumnBankFile: "",
+          currentSortDirectionBankFile: "",
+        ),
+      );
+    }
+    emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "ApprovedBankFolderId": approvedBankFolderId,
       "ApprovedBankFileName": state.searchTextFile,
@@ -491,7 +512,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
 
   int updateFilterCountFolder(ApprovedBankFolderState state) {
     final hasSort =
-        state.currentSortColumnBankFolder == "Bank Name" &&
+        state.currentSortColumnBankFolder == "BankName" &&
         (state.currentSortDirectionBankFolder == "ASC" ||
             state.currentSortDirectionBankFolder == "DESC");
     return getActiveFilterCount([

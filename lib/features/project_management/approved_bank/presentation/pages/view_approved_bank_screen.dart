@@ -25,7 +25,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewApprovedBankScreen extends StatefulWidget {
   final int approvedBankFolderId;
-  const ViewApprovedBankScreen({super.key, required this.approvedBankFolderId});
+  final String approvedBankName;
+  const ViewApprovedBankScreen({
+    super.key,
+    required this.approvedBankFolderId,
+    required this.approvedBankName,
+  });
 
   @override
   State<ViewApprovedBankScreen> createState() => _ViewApprovedBankScreenState();
@@ -54,6 +59,7 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -70,6 +76,7 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
       1,
       _project.projectId,
       widget.approvedBankFolderId,
+      clearSearch: true,
     );
   }
 
@@ -78,6 +85,7 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
     super.dispose();
     _searchC.dispose();
     _titleC.dispose();
+    _filterCount.dispose();
   }
 
   void _initializeTextControllers() {
@@ -254,186 +262,362 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.greyBackground,
-      appBar: CustomAppBar(
-        screenTitle: 'Approved Bank Document',
-        textController: _searchC,
-        searchHintText: "Search By Title",
-        showMenuIcon: false,
-        authorization: _routeAuthorizationModel,
-        extraHeight: 10,
-        onSearchSubmit: (value) {
-          _approvedBankFileCubit.searchFile(
-            context,
-            value,
-            _project.projectId,
-            widget.approvedBankFolderId,
+  Future<void> _showBottomSheetToFilterBankFileMaster(
+    BuildContext context,
+  ) async {
+    final state = _approvedBankFileCubit.state;
+
+    _searchC.text = state.searchTextFolder;
+
+    String? selectedDirection =
+        state.currentSortColumnBankFolder == "ApprovedBankFileName"
+            ? state.currentSortDirectionBankFolder
+            : null;
+
+    final String initialMaterialName = _searchC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    bool applied = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            _searchC.text.trim() != initialMaterialName ||
+            selectedDirection != initialDirection;
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Approved Bank Documents",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Sort By Title", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+
+              verticalSpacing(height: 20),
+
+              CustomTextField(
+                textController: _searchC,
+                hint: "Enter Title",
+                title: "Title",
+                onChangeFunction: (_) => updateApplyState(innerState),
+              ),
+            ],
           );
         },
-        onAddCallback: () async {
-          await _showDialogToAddUpdateApprovedBankFile();
-        },
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: BlocBuilder<
-              ApprovedBankFolderCubit,
-              ApprovedBankFolderState
-            >(
-              builder: (context, state) {
-                if ((state.isLoading ?? true) &&
-                    state.approvedBankFileList.isEmpty) {
-                  return Center(child: loader());
-                }
-                if (state.approvedBankFileList.isEmpty) {
-                  return Center(
-                    child: noDataWidget(message: "No Approved Bank File Found"),
-                  );
-                }
-                return ListView.separated(
-                  controller: scrollController,
-                  separatorBuilder:
-                      (context, index) => verticalSpacing(height: 16),
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  itemCount:
-                      _approvedBankFileCubit.state.approvedBankFileList.length +
-                      1,
-                  itemBuilder: (context, index) {
-                    if (index == state.approvedBankFileList.length) {
-                      return state.approvedBankFileList.length <
-                              state.totalNumberOfRecordBankFile
-                          ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
+
+      onClear: () {
+        applied = true;
+
+        _searchC.clear();
+
+        _approvedBankFileCubit.applyFilterAndSortApprovedBankFile(
+          context: context,
+          column: "Created Date",
+          direction: "DESC",
+          title: '',
+          projectId: _project.projectId,
+          approvedBankFolderId: widget.approvedBankFolderId,
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _approvedBankFileCubit.applyFilterAndSortApprovedBankFile(
+          context: context,
+          column:
+              selectedDirection != null
+                  ? "ApprovedBankFileName"
+                  : "Created Date",
+          direction: selectedDirection ?? "DESC",
+          title: _searchC.text.trim(),
+          projectId: _project.projectId,
+          approvedBankFolderId: widget.approvedBankFolderId,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // User closed bottom sheet without clicking Apply/Clear
+    if (!applied && manualClose) {
+      _searchC.text = initialMaterialName;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<ApprovedBankFolderCubit, ApprovedBankFolderState>(
+      listener: (context, state) {
+        _filterCount.value = _approvedBankFileCubit.updateFilterCountFile(
+          state,
+        );
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: 'Approved Bank Document',
+          textController: _searchC,
+          searchHintText: "Search By Title",
+          showMenuIcon: false,
+          authorization: _routeAuthorizationModel,
+          extraHeight: 10,
+          isFilterOn: true,
+          filterCountNotifier: _filterCount,
+          onFilterTap: () {
+            _showBottomSheetToFilterBankFileMaster(context);
+          },
+          onSearchSubmit: (value) {
+            _approvedBankFileCubit.searchFile(
+              context,
+              value,
+              _project.projectId,
+              widget.approvedBankFolderId,
+            );
+          },
+          onAddCallback: () async {
+            await _showDialogToAddUpdateApprovedBankFile();
+          },
+        ),
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              Text(
+                widget.approvedBankName,
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              Expanded(
+                child: BlocBuilder<
+                  ApprovedBankFolderCubit,
+                  ApprovedBankFolderState
+                >(
+                  builder: (context, state) {
+                    if ((state.isLoading ?? true) &&
+                        state.approvedBankFileList.isEmpty) {
+                      return Center(child: loader());
                     }
-                    var doc = state.approvedBankFileList[index];
-                    return Container(
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.only(
-                              right: 16,
-                              left: 16,
-                              top: 16,
-                              bottom: 10,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColor.lightBluebg.withValues(
-                                alpha: 0.5,
-                              ),
-                              border: Border.all(color: AppColor.lightBlue),
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(8),
-                                topRight: Radius.circular(8),
-                              ),
-                            ),
-                            child: Row(
-                              spacing: 10,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    doc.approvedBankFileName,
-                                    style: AppTextStyle.ts14M(),
+                    if (state.approvedBankFileList.isEmpty) {
+                      return Center(
+                        child: noDataWidget(
+                          message: "No Approved Bank File Found",
+                        ),
+                      );
+                    }
+                    return ListView.separated(
+                      controller: scrollController,
+                      separatorBuilder:
+                          (context, index) => verticalSpacing(height: 16),
+                      itemCount:
+                          _approvedBankFileCubit
+                              .state
+                              .approvedBankFileList
+                              .length +
+                          1,
+                      itemBuilder: (context, index) {
+                        if (index == state.approvedBankFileList.length) {
+                          return state.approvedBankFileList.length <
+                                  state.totalNumberOfRecordBankFile
+                              ? Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        var doc = state.approvedBankFileList[index];
+                        return Container(
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.only(
+                                  right: 16,
+                                  left: 16,
+                                  top: 16,
+                                  bottom: 10,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColor.lightBluebg.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                  border: Border.all(color: AppColor.lightBlue),
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(8),
+                                    topRight: Radius.circular(8),
                                   ),
                                 ),
-                                Row(
+                                child: Row(
                                   spacing: 10,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    CustomIconButton(
-                                      isDisable:
-                                          doc.approvedBankFileUrl.isEmpty,
-                                      onPressed: () {
-                                        showFilePreviewDialog(
-                                          title: doc.approvedBankFileName,
-                                          context,
-                                          doc.approvedBankFileUrl.split(","),
-                                        );
-                                      },
-                                      backgroundColor: Colors.transparent,
-                                      icon: Icon(
-                                        Icons.remove_red_eye_outlined,
-                                        color:
-                                            doc.approvedBankFileUrl.isEmpty
-                                                ? AppColor.grey2
-                                                : AppColor.primary,
-                                        size: 18,
+                                    Expanded(
+                                      child: Text(
+                                        doc.approvedBankFileName,
+                                        style: AppTextStyle.ts14M(),
                                       ),
                                     ),
-                                    CustomIconButton.edit(
-                                      isDisabled:
-                                          !_routeAuthorizationModel.isAction,
-                                      onPressed: () {
-                                        _showDialogToAddUpdateApprovedBankFile(
-                                          doc: doc,
-                                          index: index,
-                                        );
-                                      },
-                                    ),
-                                    CustomIconButton.delete(
-                                      isDisabled:
-                                          !_routeAuthorizationModel.isAction,
-                                      onPressed: () {
-                                        _showPopupToDeleteApprovedBankFile(
-                                          context,
-                                          doc,
-                                          state.currentPageBankFile,
-                                          index,
-                                        );
-                                      },
+                                    Row(
+                                      spacing: 10,
+                                      children: [
+                                        CustomIconButton(
+                                          isDisable:
+                                              doc.approvedBankFileUrl.isEmpty,
+                                          onPressed: () {
+                                            showFilePreviewDialog(
+                                              title: doc.approvedBankFileName,
+                                              context,
+                                              doc.approvedBankFileUrl.split(
+                                                ",",
+                                              ),
+                                            );
+                                          },
+                                          backgroundColor: Colors.transparent,
+                                          icon: Icon(
+                                            Icons.remove_red_eye_outlined,
+                                            color:
+                                                doc.approvedBankFileUrl.isEmpty
+                                                    ? AppColor.grey2
+                                                    : AppColor.primary,
+                                            size: 18,
+                                          ),
+                                        ),
+                                        CustomIconButton.edit(
+                                          isDisabled:
+                                              !_routeAuthorizationModel
+                                                  .isAction,
+                                          onPressed: () {
+                                            _showDialogToAddUpdateApprovedBankFile(
+                                              doc: doc,
+                                              index: index,
+                                            );
+                                          },
+                                        ),
+                                        CustomIconButton.delete(
+                                          isDisabled:
+                                              !_routeAuthorizationModel
+                                                  .isAction,
+                                          onPressed: () {
+                                            _showPopupToDeleteApprovedBankFile(
+                                              context,
+                                              doc,
+                                              state.currentPageBankFile,
+                                              index,
+                                            );
+                                          },
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              right: 16,
-                              left: 16,
-                              bottom: 16,
-                            ),
-                            child: Column(
-                              children: [
-                                buildRowTitleValue(
-                                  title: "Document Count",
-                                  fixesWidth: 140.w,
-                                  value:
-                                      doc.approvedBankFileUrl
-                                          .split(',')
-                                          .length
-                                          .toString(),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(
+                                  right: 16,
+                                  left: 16,
+                                  bottom: 16,
                                 ),
-                                buildRowTitleValue(
-                                  title: "Upload By / Date",
-                                  fixesWidth: 140.w,
-                                  singleLine: false,
-                                  value:
-                                      doc.modifiedDate == null
-                                          ? '${doc.createdBy} / ${formatDate(doc.createdDate)}'
-                                          : '${doc.modifiedBy} / ${formatDate(doc.modifiedDate)}',
+                                child: Column(
+                                  children: [
+                                    buildRowTitleValue(
+                                      title: "Document Count",
+                                      fixesWidth: 140.w,
+                                      value:
+                                          doc.approvedBankFileUrl
+                                              .split(',')
+                                              .length
+                                              .toString(),
+                                    ),
+                                    buildRowTitleValue(
+                                      title: "Modified By / Date",
+                                      fixesWidth: 140.w,
+                                      singleLine: false,
+                                      value:
+                                          doc.modifiedDate == null
+                                              ? '${doc.createdBy} / ${formatDate(doc.createdDate)}'
+                                              : '${doc.modifiedBy} / ${formatDate(doc.modifiedDate)}',
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
