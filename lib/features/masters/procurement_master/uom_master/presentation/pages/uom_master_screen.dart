@@ -228,7 +228,7 @@ class _UOMMasterScreenState extends State<UOMMasterScreen> {
       child: Scaffold(
         backgroundColor: AppColor.lightGreyBackground,
         appBar: CustomAppBar(
-          screenTitle: 'UOM',
+          screenTitle: 'UOM Master',
           searchHintText: "Search by UOM Name",
           authorization: _routeAuthorizationModel,
           filterCountNotifier: _filterCount,
