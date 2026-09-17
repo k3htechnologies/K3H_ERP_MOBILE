@@ -463,6 +463,10 @@ class AppRoutes {
 
   // RERA DOCUMENT
   static String rera = "/rera";
+  // TEST DOCUMENT
+  static String testDocument = "/testDocument";
+  static String viewTestDocument = "/viewTestDocument";
+  static String addTestDocument = "/addTestDocument";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 

@@ -3,6 +3,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/cubit/test_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/add_test_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/test_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/view_test_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/cubit/test_document_category_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -3828,6 +3834,7 @@ final GoRouter goRouter = GoRouter(
             return MultiBlocProvider(
               providers: [
                 BlocProvider<DocumentCubit>(create: (_) => DocumentCubit()),
+
                 BlocProvider<DocumentCategoryCubit>(
                   create: (_) => DocumentCategoryCubit(),
                 ),
@@ -3842,6 +3849,12 @@ final GoRouter goRouter = GoRouter(
                 ),
                 BlocProvider<ApprovalCategoryCubit>(
                   create: (_) => ApprovalCategoryCubit(),
+                ),
+                BlocProvider<TestDocumentCubit>(
+                  create: (_) => TestDocumentCubit(),
+                ),
+                BlocProvider<TestDocumentCategoryCubit>(
+                  create: (_) => TestDocumentCategoryCubit(),
                 ),
               ],
               child: child,
@@ -4006,6 +4019,94 @@ final GoRouter goRouter = GoRouter(
 
                     return ViewDocumentCategoryScreen(
                       documentCategoryModel: documentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // TEST DOCUMENT
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<TestDocumentCubit>.value(
+                  value: context.read<TestDocumentCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.testDocument,
+                  path: AppRoutes.testDocument,
+                  builder: (context, state) {
+                    return TestDocumentScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewTestDocument,
+                  path: AppRoutes.viewTestDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['document'];
+                    final TestDocumentModel? document =
+                        queryParameterDocument != null
+                            ? TestDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ViewTestDocumentScreen(
+                      testDocumentModel: document!,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addTestDocument,
+                  path: AppRoutes.addTestDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['document'];
+
+                    final TestDocumentModel? document =
+                        queryParameterDocument != null
+                            ? TestDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              state.uri.queryParameters['index'] ?? '0',
+                            ),
+                          ),
+                        ) ??
+                        0;
+
+                    final isEdit = bool.parse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['isEdit'] ?? 'false',
+                        ),
+                      ),
+                    );
+                    return AddTestDocumentScreen(
+                      testDocumentModel: document,
+                      index: index,
+                      isEdit: isEdit,
                     );
                   },
                 ),
