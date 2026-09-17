@@ -162,6 +162,84 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
     );
   }
 
+  Future updateSubTestDocument({
+    required int index,
+    required BuildContext context,
+    required int testDocumentId,
+    required String uniqueKey,
+    required String testDocumentName,
+    required int testDocumentCategoryId,
+    DateTime? testDocumentExpiryDate,
+    String? testDocumentRemark,
+    MultiFilePickerModel? documents,
+  }) async {
+    List<Map<String, dynamic>> fileList = [];
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "TestDocumentId": testDocumentId.toString(),
+      "Uniquekey": uniqueKey,
+      "ProjectId": getProject().projectId.toString(),
+      "TestDocumentName": testDocumentName,
+      "TestDocumentCategoryId": testDocumentCategoryId.toString(),
+      "IsMaster": 0.toString(),
+      "TestDocumentExpiryDate":
+          testDocumentExpiryDate != null
+              ? testDocumentExpiryDate.toIso8601String()
+              : '',
+      "RemoveTestDocumentURL": documents?.deletedFileList ?? '',
+      "TestDocumentRemark": testDocumentRemark ?? '',
+    };
+    if (documents != null) {
+      for (int i = 0; i < documents.fileNameList.length; i++) {
+        if (documents.fileNameList[i].contains("http")) {
+          continue;
+        }
+        fileList.add({
+          "key": "TestDocumentURL",
+          "value": documents.fileBytesList[i],
+          "fileName": documents.fileNameList[i],
+        });
+      }
+    }
+
+    var result = await _testDocumentRepository.addUpdateTestDocument(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+
+        final updatedDocument = response['data'][0] as TestDocumentModel;
+
+        if (state.subTestDocumentList.isNotEmpty &&
+            index < state.subTestDocumentList.length) {
+          final updatedListModel = List<TestDocumentModel>.from(
+            state.subTestDocumentList,
+          );
+
+          updatedListModel[index] = updatedDocument;
+          emit(
+            state.copywith(
+              isLoading: false,
+              subTestDocumentList: updatedListModel,
+            ),
+          );
+        }
+
+        showSuccessMessage(
+          context,
+          subTitle: "Test Document Updated Successfully",
+        );
+      },
+    );
+  }
+
   Future addSubDocument({
     required int index,
     required BuildContext context,
@@ -197,7 +275,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
           continue;
         }
         fileList.add({
-          "key": "ProjectDocumentURL",
+          "key": "TestDocumentURL",
           "value": documents.fileBytesList[i],
           "fileName": documents.fileNameList[i],
         });

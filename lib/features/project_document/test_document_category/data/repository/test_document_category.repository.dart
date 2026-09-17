@@ -10,6 +10,20 @@ abstract interface class TestDocumentCategoryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateTestDocumentCategory({
+    required Map<String, dynamic> body,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> deleteTestDocumentCategory({
+    required int testDocumentCategoryId,
+    required int projectId,
+    required String uniqueKey,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> exportTestDocumentCategory({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class TestDocumentCategoryRepositoryImpl
@@ -19,6 +33,7 @@ class TestDocumentCategoryRepositoryImpl
   TestDocumentCategoryRepositoryImpl({
     required this.testDocumentCategoryDatasource,
   });
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> getTestDocumentCategory({
     required int pageNumber,
@@ -33,6 +48,59 @@ class TestDocumentCategoryRepositoryImpl
             pageSize: pageSize,
             projectId: projectId,
             queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateTestDocumentCategory({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await testDocumentCategoryDatasource
+          .apicallAddUpdateTestDocumentCategory(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteTestDocumentCategory({
+    required int testDocumentCategoryId,
+    required int projectId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await testDocumentCategoryDatasource
+          .apicallDeleteTestDocumentCategory(
+            testDocumentCategoryId: testDocumentCategoryId,
+            projectId: projectId,
+            uniqueKey: uniqueKey,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportTestDocumentCategory({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await testDocumentCategoryDatasource
+          .apicallPullTestDocumentCategoryForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+            projectId: projectId,
           );
       return right(result);
     } catch (error) {

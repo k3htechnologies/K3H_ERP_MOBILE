@@ -136,21 +136,21 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                       leading: Icon(Icons.add, color: AppColor.white, size: 16),
                       text: "Add",
                       onPressed: () {
-                        // goRouter.pushNamed(
-                        //   AppRoutes.addDocument,
-                        //   queryParameters: {
-                        //     "document": Uri.encodeQueryComponent(
-                        //       EncryptionManager.encryptData(
-                        //         jsonEncode(widget.documentModel.toJson()),
-                        //       ),
-                        //     ),
-                        //     "index": widget.index.toString(),
+                        goRouter.pushNamed(
+                          AppRoutes.addTestDocument,
+                          queryParameters: {
+                            "document": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(widget.testDocumentModel.toJson()),
+                              ),
+                            ),
+                            "index": widget.index.toString(),
 
-                        //     "isEdit": Uri.encodeQueryComponent(
-                        //       EncryptionManager.encryptData(false.toString()),
-                        //     ),
-                        //   },
-                        // );
+                            "isEdit": Uri.encodeQueryComponent(
+                              EncryptionManager.encryptData(false.toString()),
+                            ),
+                          },
+                        );
                       },
                     )
                     : SizedBox.shrink(),
@@ -237,7 +237,23 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                       !document.approvalStatus.toLowerCase().contains(
                         'pending',
                       ),
-                  onPressed: () {},
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addTestDocument,
+                      queryParameters: {
+                        "document": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(document.toJson()),
+                          ),
+                        ),
+                        "index": index.toString(),
+
+                        "isEdit": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(true.toString()),
+                        ),
+                      },
+                    );
+                  },
                 ),
                 CustomIconButton.delete(
                   isDisabled:

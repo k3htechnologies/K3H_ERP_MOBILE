@@ -3,12 +3,17 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/presentation/cubit/test_document_cubit.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/add_test_document.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/test_document.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/view_test_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/data/model/test_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/cubit/test_document_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/add_test_document_category.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/test_document_category.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/view_test_document_category.screen.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
@@ -4130,6 +4135,78 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<TestDocumentCategoryCubit>.value(
+                  value: context.read<TestDocumentCategoryCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.testDocumentCategory,
+                  path: AppRoutes.testDocumentCategory,
+                  builder: (context, state) {
+                    return const TestDocumentCategoryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addTestDocumentCategory,
+                  path: AppRoutes.addTestDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterRERADocumentCategory =
+                        state.uri.queryParameters['testDocumentCategory'];
+
+                    final TestDocumentCategoryModel? testDocumentCategory =
+                        queryParameterRERADocumentCategory != null
+                            ? TestDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterRERADocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddTestDocumentCategoryScreen(
+                      testDocumentCategoryModel: testDocumentCategory,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewTestDocumentCategory,
+                  path: AppRoutes.viewTestDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterRERADocumentCategory =
+                        state.uri.queryParameters['testDocumentCategory'];
+
+                    final TestDocumentCategoryModel? testDocumentCategory =
+                        queryParameterRERADocumentCategory != null
+                            ? TestDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterRERADocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return ViewTestDocumentCategoryScreen(
+                      testDocumentCategoryModel: testDocumentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
 
             // Rera Document
             ShellRoute(
@@ -7592,8 +7669,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.termSheet,
               path: AppRoutes.termSheet,
               builder: (context, state) {
-                return ComingSoonScreen(title: "Term Sheet");
-                // return const TermSheetScreen();
+                return const TermSheetScreen();
               },
             ),
             GoRoute(

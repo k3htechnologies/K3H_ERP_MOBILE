@@ -468,6 +468,11 @@ class AppRoutes {
   static String viewTestDocument = "/viewTestDocument";
   static String addTestDocument = "/addTestDocument";
 
+  // TEST DOCUMENT CATEGORY
+  static String testDocumentCategory = "/testCategory";
+  static String addTestDocumentCategory = "/addTestDocumentCategory";
+  static String viewTestDocumentCategory = "/viewTestDocumentCategory";
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 
   // LEGAL

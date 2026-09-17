@@ -70,17 +70,11 @@ class _AddTestDocumentScreenState extends State<AddTestDocumentScreen> {
   // PREFILL FORM
   void _prefillForm(TestDocumentModel document) {
     _documentNameC.text = document.testDocumentName;
-
-    // Prefill expiry date
     expiryDate = document.testDocumentExpiryDate;
-
-    // Prefill remark text
     _remarkC.text =
         document.testDocumentRemark.isNotEmpty
             ? document.testDocumentRemark
             : "";
-
-    // Prefill files if any
     selectedDocumentFile.fileNameList =
         document.testDocumentUrl.isEmpty
             ? []
@@ -92,33 +86,33 @@ class _AddTestDocumentScreenState extends State<AddTestDocumentScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    // if (!widget.isEdit) {
-    _testDocumentCubit.addSubDocument(
-      context: context,
-      index: widget.index,
-      uniqueKey: widget.testDocumentModel!.uniquekey,
-      projectDocumentId: widget.testDocumentModel!.testDocumentId,
-      projectDocumentCategoryId:
-          widget.testDocumentModel!.testDocumentCategoryId,
-      documents: selectedDocumentFile,
-      projectDocumentExpiryDate: expiryDate,
-      projectDocumentRemark: _remarkC.text.trim(),
-      projectDocumentName: widget.testDocumentModel!.testDocumentName,
-    );
-    // } else {
-    //   _documentCubit.updateSubDocument(
-    //     context: context,
-    //     index: widget.index,
-    //     uniqueKey: widget.documentModel!.uniquekey,
-    //     projectDocumentId: widget.documentModel!.projectDocumentId,
-    //     projectDocumentCategoryId:
-    //         widget.documentModel!.projectDocumentCategoryId,
-    //     documents: selectedDocumentFile,
-    //     projectDocumentStatus: _selectedStatus.value?['DisplayName'],
-    //     projectDocumentExpiryDate: expiryDate,
-    //     projectDocumentRemark: _remarkC.text.trim(),
-    //   );
-    // }
+    if (!widget.isEdit) {
+      _testDocumentCubit.addSubDocument(
+        context: context,
+        index: widget.index,
+        uniqueKey: widget.testDocumentModel!.uniquekey,
+        projectDocumentId: widget.testDocumentModel!.testDocumentId,
+        projectDocumentCategoryId:
+            widget.testDocumentModel!.testDocumentCategoryId,
+        documents: selectedDocumentFile,
+        projectDocumentExpiryDate: expiryDate,
+        projectDocumentRemark: _remarkC.text.trim(),
+        projectDocumentName: widget.testDocumentModel!.testDocumentName,
+      );
+    } else {
+      _testDocumentCubit.updateSubTestDocument(
+        context: context,
+        index: widget.index,
+        uniqueKey: widget.testDocumentModel!.uniquekey,
+        testDocumentName: widget.testDocumentModel!.testDocumentName,
+        testDocumentId: widget.testDocumentModel!.testDocumentId,
+        testDocumentCategoryId:
+            widget.testDocumentModel!.testDocumentCategoryId,
+        documents: selectedDocumentFile,
+        testDocumentExpiryDate: expiryDate,
+        testDocumentRemark: _remarkC.text.trim(),
+      );
+    }
   }
 
   @override
@@ -188,7 +182,7 @@ class _AddTestDocumentScreenState extends State<AddTestDocumentScreen> {
                   title: "Remark",
                   hint: "Enter Remark",
                   minLines: 3,
-                  maxLines: 3,
+                  maxLines: 10,
                   textController: _remarkC,
                 ),
               ],

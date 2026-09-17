@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/presentation/cubit/test_document_cubit.dart';
@@ -47,8 +48,8 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
   // TAB CONTROLLERS
   TabController? _categoryTabController;
 
-  // PROJECT ID
-  late int projectId;
+  //PROJECT
+  late ProjectModel _project;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
@@ -57,9 +58,9 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.testDocument]!;
-    projectId = getProject().projectId;
+    _project = getProject();
     _testDocumentCubit = context.read<TestDocumentCubit>();
-    _testDocumentCubit.getTestCategoryList(context, 1, projectId);
+    _testDocumentCubit.getTestCategoryList(context, 1, _project.projectId);
     _initControllers();
     _onScroll();
   }
@@ -232,9 +233,13 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
           _testDocumentCubit.searchDocument(value, context);
         },
         onProjectChangeCallback: (value) {
-          projectId = value.projectId;
+          _project.projectId = value.projectId;
           if (context.mounted) {
-            _testDocumentCubit.getTestCategoryList(context, 1, projectId);
+            _testDocumentCubit.getTestCategoryList(
+              context,
+              1,
+              _project.projectId,
+            );
           }
         },
         extraHeight: 20,
@@ -350,7 +355,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
   Widget _buildDocumentListForCategory(TestDocumentState state) {
     if (state.testDocumentList.isEmpty) {
       return Center(
-        child: noDataWidget(message: "No Project Document Data Found"),
+        child: noDataWidget(message: "No Test Document Data Found"),
       );
     }
 
