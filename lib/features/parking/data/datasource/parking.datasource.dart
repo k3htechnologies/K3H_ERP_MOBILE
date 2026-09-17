@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ParkingDatasource {
   Future<Map<String, dynamic>> apicallPullParking({
@@ -38,7 +39,7 @@ class ParkingDatasourceImpl implements ParkingDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url = "Parking/PullParking?ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -75,7 +76,7 @@ class ParkingDatasourceImpl implements ParkingDatasource {
     }) {
       String url =
           "Parking/PullParkingWithPagination?ProjectId=$projectId&pageNumber=$pageNumber&pageSize=$pageSize";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -142,13 +143,13 @@ class ParkingDatasourceImpl implements ParkingDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url = "Parking/PullParking?ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullParkingExportUrl(projectId: projectId,queryParams: queryParams),
+        pullParkingExportUrl(projectId: projectId, queryParams: queryParams),
       );
       return {
         'data': networkResponse["data"] ?? networkResponse["Data"],

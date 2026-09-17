@@ -56,7 +56,7 @@ class CommonFileViewer extends StatefulWidget {
 class _CommonFileViewerState extends State<CommonFileViewer> {
   late PageController _pageController;
   final ValueNotifier<int> _currentPageNotifier = ValueNotifier<int>(0);
-  bool _isDownloading = false;
+  final ValueNotifier<bool> _isDownloadingNotifier = ValueNotifier<bool>(false);
   @override
   void initState() {
     super.initState();
@@ -65,6 +65,7 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
   @override
   void dispose() {
+    _isDownloadingNotifier.dispose();
     _currentPageNotifier.dispose();
     _pageController.dispose();
     super.dispose();
@@ -105,10 +106,10 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
 
   Future<void> downloadFile(String url, {Uint8List? bytes}) async {
     // Prevent multiple downloads
-    if (_isDownloading) return;
+    if (_isDownloadingNotifier.value) return;
 
     if (mounted) {
-      setState(() => _isDownloading = true);
+      _isDownloadingNotifier.value = true;
     }
 
     try {
@@ -170,9 +171,9 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
       debugPrintStack(stackTrace: stackTrace);
     } finally {
       if (mounted) {
-        setState(() => _isDownloading = false);
+        _isDownloadingNotifier.value = false;
       } else {
-        _isDownloading = false;
+        _isDownloadingNotifier.value = false;
       }
     }
   }
@@ -343,25 +344,43 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                       style: AppTextStyle.ts14R(color: AppColor.grey),
                     ),
 
-                    CustomIconButton(
-                      backgroundColor: AppColor.lightGreen,
-                      onPressed: () async {
-                        if (_isDownloading) return;
-                        final url = widget.urls[_currentPageNotifier.value];
-                        final bytes =
-                            widget.fileBytes != null &&
-                                    widget.fileBytes!.length >
-                                        _currentPageNotifier.value
-                                ? widget.fileBytes![_currentPageNotifier.value]
-                                : null;
-
-                        await downloadFile(url, bytes: bytes);
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _isDownloadingNotifier,
+                      builder: (_, isDownloading, __) {
+                        return CustomIconButton(
+                          backgroundColor: AppColor.lightGreen,
+                          onPressed:
+                              isDownloading
+                                  ? () {}
+                                  : () async {
+                                    final url =
+                                        widget.urls[_currentPageNotifier.value];
+                                    final bytes =
+                                        _hasBytesForIndex(
+                                              _currentPageNotifier.value,
+                                            )
+                                            ? widget
+                                                .fileBytes![_currentPageNotifier
+                                                .value]
+                                            : null;
+                                    await downloadFile(url, bytes: bytes);
+                                  },
+                          icon:
+                              isDownloading
+                                  ? const SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Icon(
+                                    Icons.file_download_outlined,
+                                    size: 16,
+                                    color: AppColor.darkGreen,
+                                  ),
+                        );
                       },
-                      icon: Icon(
-                        Icons.file_download_outlined,
-                        size: 16,
-                        color: AppColor.darkGreen,
-                      ),
                     ),
                   ],
                 );

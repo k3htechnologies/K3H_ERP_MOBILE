@@ -10,6 +10,12 @@ abstract interface class ApprovedBankRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getApprovedBankFolderForExport({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 
   Future<Either<Failure, Map<String, dynamic>>> getApprovedBankFileList({
     required int pageSize,
@@ -145,6 +151,27 @@ class ApprovedBankRepositoryImpl extends ApprovedBankRepository {
         projectId: projectId,
         uniqueKey: uniqueKey,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getApprovedBankFolderForExport({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await approvedBankDatasource
+          .apicallPullApprovedBankFolderForExport(
+            pageSize: pageSize,
+            pageNumber: pageNumber,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

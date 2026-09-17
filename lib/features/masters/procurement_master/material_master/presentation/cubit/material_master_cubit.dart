@@ -7,28 +7,18 @@ import 'package:k3h_erp_app/features/masters/procurement_master/material_master/
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 part 'material_master_state.dart';
 
 class MaterialMasterCubit extends Cubit<MaterialMasterState> {
   MaterialMasterCubit() : super(MaterialMasterState.initial());
-
-  // REPOSITORY
   final MaterialMasterRepository _materialMasterRepository =
       serviceLocator<MaterialMasterRepository>();
-
-  // SEARCH MATERIAL
   Future searchMaterial(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, materialList: []));
-    await getMaterialMasterList(context, 1, 20);
+    await getMaterialMasterList(context, 1);
   }
 
-  // GET MATERIAL MASTER
-  Future getMaterialMasterList(
-    BuildContext context,
-    int pageNumber,
-    int pageSize,
-  ) async {
+  Future getMaterialMasterList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "MaterialName": state.searchText,
@@ -36,7 +26,7 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     };
     var result = await _materialMasterRepository.getMaterialList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 20,
       queryParams: queryParams,
     );
     result.fold(
@@ -63,7 +53,6 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
     );
   }
 
-  // ADD MATERIAL MASTER
   Future addMaterialMaster({
     required BuildContext context,
     required String materialName,
@@ -86,13 +75,13 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         return;
       },
       (response) {
-        goRouter.pop(); // Close processing overlay
-        showSuccessMessage(context, subTitle: "Material Added Successfully");
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+        getMaterialMasterList(context, 1);
       },
     );
   }
 
-  // UPDATE MATERIAL MASTER
   Future updateMaterialMaster({
     required BuildContext context,
     required String materialName,
@@ -121,7 +110,6 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
       (response) {
         goRouter.pop();
         final updatedMaterial = response['data'][0] as MaterialMasterModel;
-
         if (state.materialList.isNotEmpty &&
             index < state.materialList.length) {
           final updatedList = List<MaterialMasterModel>.from(
@@ -130,18 +118,16 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
           updatedList[index] = updatedMaterial;
           emit(state.copyWith(materialList: updatedList, isLoading: false));
         }
-        showSuccessMessage(context, subTitle: "Material Updated Successfully");
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
 
-  // DELETE MATERIAL MASTER
   Future deleteMaterialMaster({
     required BuildContext context,
     required int materialMasterId,
     required String uniqueKey,
-    required int pageSize,
-    int? index,
+    required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var deleteResult = await _materialMasterRepository.deleteMaterial(
@@ -156,21 +142,23 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         return;
       },
       (response) {
-        showSuccessMessage(context, subTitle: "Material Deleted Successfully");
-        if (index != null && index >= 0 && index < state.materialList.length) {
-          final updatedList = List<MaterialMasterModel>.from(
-            state.materialList,
-          );
-          updatedList.removeAt(index);
-          emit(state.copyWith(isLoading: false, materialList: updatedList));
-        } else {
-          getMaterialMasterList(context, state.currentPage, pageSize);
-        }
+        showSuccessMessage(context, subTitle: response['message']);
+        final updatedList = List<MaterialMasterModel>.from(state.materialList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            isLoading: false,
+            materialList: updatedList,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
       },
     );
   }
 
-  // EXPORT EXCEL PDF
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _materialMasterRepository.exportMaterial(
@@ -191,10 +179,6 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
           context,
           subTitle: 'Successfully Exported as $exportType',
         );
-        showSuccessMessage(
-          context,
-          subTitle: 'Successfully Exported as $exportType',
-        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
@@ -203,5 +187,30 @@ class MaterialMasterCubit extends Cubit<MaterialMasterState> {
         );
       },
     );
+  }
+
+  Future applyFilterAndSortMaterial({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String materialName,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: materialName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        materialList: [],
+      ),
+    );
+    await getMaterialMasterList(context, 1);
+  }
+
+  int updateFilterCount(MaterialMasterState state) {
+    final hasSort =
+        state.currentSortColumn == "Material Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }

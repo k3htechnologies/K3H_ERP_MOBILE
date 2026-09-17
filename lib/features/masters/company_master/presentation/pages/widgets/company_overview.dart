@@ -437,7 +437,7 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                                     ),
                                               ),
                                               buildColumnTitleValue(
-                                                title: "Aadhar Number",
+                                                title: "Aadhaar Number",
                                                 value:
                                                     p.aadharCardNumber.isEmpty
                                                         ? "-"
@@ -445,7 +445,7 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                                 customValueWidget:
                                                     buildDocumentRow(
                                                       iconWithoutBg: true,
-                                                      title: "Aadhar Number",
+                                                      title: "Aadhaar Number",
                                                       context: context,
                                                       docNumber:
                                                           p

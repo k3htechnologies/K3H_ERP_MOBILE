@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
@@ -15,11 +15,12 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SubMaterialMasterScreen extends StatefulWidget {
   const SubMaterialMasterScreen({super.key});
-
   @override
   State<SubMaterialMasterScreen> createState() =>
       _SubMaterialMasterScreenState();
@@ -28,17 +29,14 @@ class SubMaterialMasterScreen extends StatefulWidget {
 class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
   // CUBIT
   late SubMaterialMasterCubit _subMaterialMasterCubit;
-
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC;
-
+  late TextEditingController _searchC, _filterByMaterialNameC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
   @override
   void initState() {
     super.initState();
@@ -48,23 +46,24 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
         AuthorizationModel();
     _initializeTextEditingController();
     _onScroll();
-    _subMaterialMasterCubit.getSubMaterialMasterList(context, 1, 10);
+    _subMaterialMasterCubit.getSubMaterialMasterList(context, 1);
   }
 
   @override
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
+    _filterByMaterialNameC.dispose();
+    _filterCount.dispose();
     _debounce?.cancel();
     super.dispose();
   }
 
-  // INITIALIZE TEXT CONTROLLER
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterByMaterialNameC = TextEditingController();
   }
 
-  // PAGINATION
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
@@ -79,14 +78,12 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
           _subMaterialMasterCubit.getSubMaterialMasterList(
             context,
             _subMaterialMasterCubit.state.currentPage + 1,
-            10,
           );
         });
       }
     });
   }
 
-  // DELETE SUB MATERIAL
   Future<void> _showPopupToDeleteSubMaterialMaster(
     BuildContext context,
     SubMaterialMasterModel subMaterial,
@@ -95,8 +92,8 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a sub material?',
-      'Deleting this sub material will permanently remove its contents.',
+      'You are about to delete a Sub Material?',
+      'Deleting this Sub Material will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _subMaterialMasterCubit.deleteSubMaterialMaster(
@@ -109,112 +106,258 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.lightGreyBackground,
-      appBar: CustomAppBar(
-        screenTitle: 'Sub Material Master',
-        authorization: _routeAuthorizationModel,
-        onExportCallback: (value) {
-          if (_subMaterialMasterCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No data found");
-            return;
+  Future<void> _showBottomSheetToFilterSubMaterialMaster(
+    BuildContext context,
+  ) async {
+    final state = _subMaterialMasterCubit.state;
+
+    _searchC.text = state.searchText;
+    _filterByMaterialNameC.text = state.filterByMaterialName;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Sub Material Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialSubMaterialName = _searchC.text;
+    final String initialMaterialName = _filterByMaterialNameC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    bool applied = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            _searchC.text.trim() != initialSubMaterialName ||
+            _filterByMaterialNameC.text.trim() != initialMaterialName ||
+            selectedDirection != initialDirection;
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Sub Material Master",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
           }
-          _subMaterialMasterCubit.exportExcelPdf(context, value);
-        },
-        onAddCallback: () async {
-          await goRouter.pushNamed(AppRoutes.addSubMaterialMaster);
-          if (context.mounted) {
-            _subMaterialMasterCubit.searchSubMaterial(context, "");
-          }
-        },
-        onSearchSubmit: (value) {
-          _subMaterialMasterCubit.searchSubMaterial(context, value);
-        },
-        textController: _searchC,
-        searchHintText: "Search by Sub Material Name",
-      ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _subMaterialMasterCubit.searchSubMaterial(context, '');
-        },
-        child: BlocBuilder<SubMaterialMasterCubit, SubMaterialMasterState>(
-          builder: (context, state) {
-            if ((state.isLoading ?? true) && state.subMaterialList.isEmpty) {
-              return Center(child: loader());
-            }
-            if (state.subMaterialList.isEmpty) {
-              return ListView(
-                physics: AlwaysScrollableScrollPhysics(),
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Sort By Sub Material Name", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Center(
-                      child: noDataWidget(
-                        message: "No Sub Materials Data Found",
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
                       ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
                     ),
                   ),
                 ],
-              );
-            }
-            return ListView.builder(
-              controller: scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount:
-                  _subMaterialMasterCubit.state.subMaterialList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.subMaterialList.length) {
-                  return state.subMaterialList.length <
-                          state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
-                }
-                var subMaterial = state.subMaterialList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewSubMaterialMaster,
-                                  queryParameters: {
-                                    "subMaterial": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(subMaterial.toJson()),
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
+              ),
 
-                              child: Text(
-                                subMaterial.subMaterialName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
+              verticalSpacing(height: 20),
+
+              CustomTextField(
+                textController: _searchC,
+                hint: "Enter Sub Material Name",
+                title: "Sub Material Name",
+                onChangeFunction: (_) => updateApplyState(innerState),
+              ),
+              CustomTextField(
+                textController: _filterByMaterialNameC,
+                hint: "Enter Material Name",
+                title: "Material Name",
+                onChangeFunction: (_) => updateApplyState(innerState),
+              ),
+            ],
+          );
+        },
+      ),
+
+      onClear: () {
+        applied = true;
+        _searchC.clear();
+        _filterByMaterialNameC.clear();
+        _subMaterialMasterCubit.applyFilterAndSortSubMaterial(
+          context: context,
+          column: "Created Date",
+          direction: "DESC",
+          subMaterialName: '',
+          materialName: '',
+        );
+      },
+
+      onApply: () {
+        applied = true;
+        _subMaterialMasterCubit.applyFilterAndSortSubMaterial(
+          context: context,
+          column:
+              selectedDirection != null ? "Sub Material Name" : "Created Date",
+          direction: selectedDirection ?? "DESC",
+          subMaterialName: _searchC.text.trim(),
+          materialName: _filterByMaterialNameC.text.trim(),
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    if (!applied && manualClose) {
+      _searchC.text = initialSubMaterialName;
+      _filterByMaterialNameC.text = initialMaterialName;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<SubMaterialMasterCubit, SubMaterialMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _subMaterialMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.lightGreyBackground,
+        appBar: CustomAppBar(
+          screenTitle: 'Sub Material Master',
+          authorization: _routeAuthorizationModel,
+          filterCountNotifier: _filterCount,
+          onExportCallback: (value) {
+            if (_subMaterialMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No data found");
+              return;
+            }
+            _subMaterialMasterCubit.exportExcelPdf(context, value);
+          },
+          onAddCallback: () {
+            goRouter.pushNamed(AppRoutes.addSubMaterialMaster);
+          },
+          onSearchSubmit: (value) {
+            _subMaterialMasterCubit.searchSubMaterial(context, value);
+          },
+          textController: _searchC,
+          searchHintText: "Search by Sub Material Name",
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterSubMaterialMaster(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            _subMaterialMasterCubit.searchSubMaterial(context, '');
+          },
+          child: BlocBuilder<SubMaterialMasterCubit, SubMaterialMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? true) && state.subMaterialList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.subMaterialList.isEmpty) {
+                return Center(
+                  child: noDataWidget(message: "No Sub Materials Data Found"),
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                itemCount:
+                    _subMaterialMasterCubit.state.subMaterialList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.subMaterialList.length) {
+                    return state.subMaterialList.length <
+                            state.totalNumberOfRecord
+                        ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var subMaterial = state.subMaterialList[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.all(12),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  goRouter.pushNamed(
+                                    AppRoutes.viewSubMaterialMaster,
+                                    queryParameters: {
+                                      "subMaterial": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(subMaterial.toJson()),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  subMaterial.subMaterialName,
+                                  style: AppTextStyle.ts16M(
+                                    color: AppColor.primary,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          if (_routeAuthorizationModel.isAction) ...[
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 CustomIconButton.edit(
+                                  isDisabled:
+                                      !_routeAuthorizationModel.isAction,
                                   onPressed: () async {
                                     await goRouter.pushNamed(
                                       AppRoutes.addSubMaterialMaster,
@@ -231,6 +374,8 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                                 ),
                                 horizontalSpacing(),
                                 CustomIconButton.delete(
+                                  isDisabled:
+                                      !_routeAuthorizationModel.isAction,
                                   onPressed: () {
                                     _showPopupToDeleteSubMaterialMaster(
                                       context,
@@ -243,45 +388,37 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                               ],
                             ),
                           ],
-                        ],
-                      ),
-                      verticalSpacing(height: 12),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          _buildInfoChip(
-                            label: "Material",
-                            value: subMaterial.materialName,
-                          ),
-                          _buildInfoChip(label: "UOM", value: subMaterial.uom),
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              },
-            );
-          },
+                        ),
+                        buildRowTitleValue(
+                          title: "Material",
+                          fixesWidth: 130.w,
+                          singleLine: true,
+                          value: subMaterial.materialName,
+                        ),
+                        buildRowTitleValue(
+                          fixesWidth: 130.w,
+                          title: "UOM",
+                          singleLine: true,
+                          value: subMaterial.uom,
+                        ),
+                        buildRowTitleValue(
+                          fixesWidth: 130.w,
+                          title: "Lead Time (Days)",
+                          value: subMaterial.leadTimeInDays.toString(),
+                        ),
+                        buildRowTitleValue(
+                          fixesWidth: 130.w,
+                          title: "Is Tolerant",
+                          value: subMaterial.isTolerant ? "Yes" : "No",
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ),
-      ),
-    );
-  }
-
-  // BUILD INFO CHIP
-  Widget _buildInfoChip({required String label, required String value}) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: AppColor.grey10,
-        borderRadius: BorderRadius.circular(4),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("$label: ", style: AppTextStyle.ts12R(color: AppColor.grey)),
-          Text(value, style: AppTextStyle.ts12R()),
-        ],
       ),
     );
   }

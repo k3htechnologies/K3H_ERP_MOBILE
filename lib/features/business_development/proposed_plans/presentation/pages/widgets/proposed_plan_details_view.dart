@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -36,8 +35,6 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ValueNotifier<List<WingDetailFormModel>> wingsNotifier =
       ValueNotifier<List<WingDetailFormModel>>([]);
-  List<WingDetailFormModel> _cachedWings = [];
-  Timer? _wingTimer;
   late final AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
@@ -47,9 +44,8 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
         Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
         AuthorizationModel();
     if (widget.details != null) {
-      _cachedWings = List.from(widget.details!);
-      wingsNotifier.value = List.from(_cachedWings);
-      for (final wing in _cachedWings) {
+      wingsNotifier.value = List.from(widget.details!);
+      for (final wing in wingsNotifier.value) {
         _attachWingListeners(wing);
       }
       _totalWingsC.text = widget.details!.length.toString();
@@ -60,11 +56,10 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
 
   @override
   void dispose() {
-    _wingTimer?.cancel();
     _totalWingsC.dispose();
     _totalPodiumC.dispose();
     _totalUnitsC.dispose();
-    for (final wing in _cachedWings) {
+    for (final wing in wingsNotifier.value) {
       _detachWingListeners(wing);
       wing.dispose();
     }
@@ -99,17 +94,20 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
   }
 
   void generateWingControllers(int count) {
-    while (_cachedWings.length < count) {
+    for (final wing in wingsNotifier.value) {
+      _detachWingListeners(wing);
+      wing.dispose();
+    }
+    final wings = List<WingDetailFormModel>.generate(count, (_) {
       final wing = WingDetailFormModel(buildingName: widget.buildingName);
       _attachWingListeners(wing);
-      _cachedWings.add(wing);
-    }
-    final visibleWings = _cachedWings.take(count).toList();
-    wingsNotifier.value = visibleWings;
+      return wing;
+    });
+    wingsNotifier.value = wings;
     final cubit = context.read<ProposedPlansCubit>();
     final form = cubit.state.proposedPlanForm;
     form.totalWings = count;
-    form.wings = visibleWings;
+    form.wings = wings;
     cubit.updateBuildingForm(form);
     _updateTotalUnits();
   }
@@ -145,26 +143,24 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                     textController: _totalWingsC,
                     readOnly: !_routeAuthorizationModel.isAction,
                     onChangeFunction: (value) {
-                      _wingTimer?.cancel();
-                      _wingTimer = Timer(const Duration(milliseconds: 600), () {
-                        final count = int.tryParse(value) ?? 0;
-                        if (count <= 0) {
-                          for (final wing in wingsNotifier.value) {
-                            _detachWingListeners(wing);
-                          }
-                          wingsNotifier.value = [];
-                          final cubit = context.read<ProposedPlansCubit>();
-                          final form = cubit.state.proposedPlanForm;
-                          form.totalWings = 0;
-                          form.wings = [];
-                          cubit.updateBuildingForm(form);
-                          _updateTotalUnits();
-                          return;
+                      final count = int.tryParse(value) ?? 0;
+                      if (count <= 0) {
+                        for (final wing in wingsNotifier.value) {
+                          _detachWingListeners(wing);
+                          wing.dispose();
                         }
-                        if (count != wingsNotifier.value.length) {
-                          generateWingControllers(count);
-                        }
-                      });
+                        wingsNotifier.value = [];
+                        final cubit = context.read<ProposedPlansCubit>();
+                        final form = cubit.state.proposedPlanForm;
+                        form.totalWings = 0;
+                        form.wings = [];
+                        cubit.updateBuildingForm(form);
+                        _updateTotalUnits();
+                        return;
+                      }
+                      if (count != wingsNotifier.value.length) {
+                        generateWingControllers(count);
+                      }
                     },
                   ),
                   CustomTextField(

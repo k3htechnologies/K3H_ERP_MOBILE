@@ -246,7 +246,6 @@ class _DesignationMasterScreenState extends State<DesignationMasterScreen> {
         _filterCount.value = _designationMasterCubit.updateFilterCount(state);
       },
       child: Scaffold(
-        backgroundColor: AppColor.greyBackground,
         appBar: CustomAppBar(
           screenTitle: 'Designation Master',
           authorization: _routeAuthorizationModel,

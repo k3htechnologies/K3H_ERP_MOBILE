@@ -10,13 +10,14 @@ class SubMaterialMasterModel {
   int uomMasterId;
   String uomCode;
   String uom;
+  int leadTimeInDays;
+  bool isTolerant;
   int createdById;
   String createdBy;
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   SubMaterialMasterModel({
     required this.subMaterialMasterId,
     required this.uniquekey,
@@ -27,6 +28,8 @@ class SubMaterialMasterModel {
     required this.uomMasterId,
     required this.uomCode,
     required this.uom,
+    required this.leadTimeInDays,
+    required this.isTolerant,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -34,7 +37,6 @@ class SubMaterialMasterModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory SubMaterialMasterModel.fromJson(Map<String, dynamic> json) =>
       SubMaterialMasterModel(
         subMaterialMasterId: parseValue<int>(json, "SubMaterialMasterId"),
@@ -46,6 +48,8 @@ class SubMaterialMasterModel {
         uomMasterId: parseValue<int>(json, "UomMasterId"),
         uomCode: parseValue<String>(json, "UomCode"),
         uom: parseValue<String>(json, "Uom"),
+        leadTimeInDays: parseValue<int>(json, "LeadTimeInDays"),
+        isTolerant: parseValue<bool>(json, "IsTolerant"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -56,7 +60,6 @@ class SubMaterialMasterModel {
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
       );
-
   Map<String, dynamic> toJson() => {
     "SubMaterialMasterId": subMaterialMasterId,
     "Uniquekey": uniquekey,
@@ -67,6 +70,8 @@ class SubMaterialMasterModel {
     "UomMasterId": uomMasterId,
     "UomCode": uomCode,
     "Uom": uom,
+    "LeadTimeInDays": leadTimeInDays,
+    "IsTolerant": isTolerant,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

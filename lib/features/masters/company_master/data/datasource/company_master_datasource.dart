@@ -162,7 +162,7 @@ class CompanyMasterDataSourceImp implements CompanyMasterDatasource {
       }) {
         String url =
             "Company/PullCompany?PageSize=$pageSize&PageNumber=$pageNumber";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 

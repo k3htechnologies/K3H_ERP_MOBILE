@@ -398,15 +398,25 @@ String formattedAmount(num value, {bool showRupeeSymbol = true}) {
 }
 
 String getInitials(String name) {
-  if (name.trim().isEmpty) return '';
+  final trimmedName = name.trim();
 
-  final parts = name.trim().split(' ');
+  if (trimmedName.isEmpty) return '';
 
-  if (parts.length == 1) {
-    return parts.first[0].toUpperCase() + parts.first[1].toUpperCase();
+  final parts = trimmedName.split(RegExp(r'\s+'));
+
+  // Multiple words
+  if (parts.length > 1) {
+    return (parts.first[0] + parts.last[0]).toUpperCase();
   }
 
-  return (parts.first[0] + parts.last[0]).toUpperCase();
+  // Single word
+  final word = parts.first;
+
+  if (word.length == 1) {
+    return word.toUpperCase();
+  }
+
+  return word.substring(0, 2).toUpperCase();
 }
 
 String formatDateTimeReadable(DateTime? date) {

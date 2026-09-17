@@ -289,3 +289,14 @@ final List<Map<String, dynamic>> termSheetDocumentList = createAttributeList(
 final List<Map<String, dynamic>> approvalStatus = createAttributeList(
   approvalStatusValues,
 );
+
+// VISITOR MANAGEMENT
+
+// GATE PASS
+final List<Map<String, dynamic>> gatePassPurpose = createAttributeList(
+  gatePassPurposeValues,
+);
+
+final List<Map<String, dynamic>> existingBuildingType = createAttributeList(
+  existingBuildingTypeValues,
+);

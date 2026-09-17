@@ -11,7 +11,6 @@ class MaterialMasterModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   MaterialMasterModel({
     required this.materialMasterId,
     required this.uniquekey,
@@ -24,7 +23,6 @@ class MaterialMasterModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory MaterialMasterModel.fromJson(Map<String, dynamic> json) =>
       MaterialMasterModel(
         materialMasterId: parseValue<int>(json, "MaterialMasterId"),
@@ -41,7 +39,6 @@ class MaterialMasterModel {
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
       );
-
   Map<String, dynamic> toJson() => {
     "MaterialMasterId": materialMasterId,
     "Uniquekey": uniquekey,

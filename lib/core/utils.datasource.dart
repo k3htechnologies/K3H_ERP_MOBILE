@@ -249,7 +249,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
         Map<String, dynamic>? queryParams,
       }) {
         String url = "Project/PullProjectSummary?ProjectId=$projectId";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 
@@ -447,7 +447,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
         if (employeeId != null) {
           url += "&EmployeeId=$employeeId";
         }
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 
@@ -526,7 +526,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
           "ProjectId=$projectId"
           "&PageNumber=$pageNumber"
           "&PageSize=$pageSize";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       final networkResponse = await client.getRequestWithAuthentication(url);
       return {
         'data': List<ModulesApprovalEmployeeDataModel>.from(
@@ -569,7 +569,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }) {
       String url =
           "Static/PullVillage?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -613,7 +613,7 @@ class UtilsDatasourceImpl implements UtilsDatasource {
     }) {
       String url =
           "MagicLink/PullMagicLinkWithValidate?MagicLinkType=$magicLinkType&ClientRegistrationId=$clientRegistrationId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

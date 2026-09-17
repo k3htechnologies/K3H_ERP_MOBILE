@@ -1,8 +1,9 @@
 // ignore_for_file: unused_local_variable
+
 import 'dart:developer';
 import 'dart:io';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -12,10 +13,13 @@ import 'package:k3h_erp_app/utils/storage_key.dart';
 
 class NotificationService {
   FirebaseMessaging messaging = FirebaseMessaging.instance;
+
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
+
   final LocalStorageManager localStorage = LocalStorageManager();
   final baseClient = BaseClient();
+
   Future requestNotificationPermission() async {
     NotificationSettings settings = await messaging.requestPermission(
       alert: true,
@@ -27,6 +31,7 @@ class NotificationService {
       carPlay: true,
       providesAppNotificationSettings: true,
     );
+
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       return true;
     } else if (settings.authorizationStatus ==
@@ -40,7 +45,9 @@ class NotificationService {
   Future<void> debugFCM() async {
     try {
       String? apns = await messaging.getAPNSToken();
+
       await Future.delayed(const Duration(seconds: 3));
+
       String? token = await messaging.getToken();
     } catch (e) {
       log("ERROR => $e");
@@ -50,23 +57,30 @@ class NotificationService {
   Future<String> getDeviceTokenForNotification() async {
     try {
       String? newToken = await messaging.getToken();
-      debugPrint("FCM Token: $newToken");
-      if (newToken == null) return "";
+
+      if (newToken == null) {
+        return "";
+      }
+
       final oldToken = localStorage.getString(StorageKey.fcmToken);
+
       if (oldToken != null && oldToken != newToken) {
         localStorage.setString(StorageKey.oldFcmToken, oldToken);
       }
+
       localStorage.setString(StorageKey.fcmToken, newToken);
+
       var teamMemberId = localStorage.getRawString('ProjectMemberDetailsId');
+
       if (teamMemberId != null && oldToken != newToken) {
         await baseClient.postRequestWithAuthentication(
           "DeviceToken/RegisterDeviceToken",
           {"OldDeviceToken": oldToken ?? "", "LatestDeviceToken": newToken},
         );
       }
+
       return newToken;
     } catch (e) {
-      debugPrint("Token error: $e");
       return "";
     }
   }
@@ -74,21 +88,24 @@ class NotificationService {
   void isDeviceTokenRefresh() {
     messaging.onTokenRefresh.listen((token) async {
       final oldToken = localStorage.getString(StorageKey.fcmToken);
+
       if (oldToken != null) {
         localStorage.setString(StorageKey.oldFcmToken, oldToken);
       }
+
       localStorage.setString(StorageKey.fcmToken, token);
+
       try {
         var teamMemberId = localStorage.getString('ProjectMemberDetailsId');
+
         if (teamMemberId != null) {
           await baseClient.postRequestWithAuthentication(
             "DeviceToken/RegisterDeviceToken",
             {"OldDeviceToken": oldToken ?? "", "LatestDeviceToken": token},
           );
         }
-      } catch (e) {
-        debugPrint("Token refresh error: $e");
-      }
+        // ignore: empty_catches
+      } catch (e) {}
     });
   }
 
@@ -97,17 +114,16 @@ class NotificationService {
       if (Platform.isAndroid) {
         initializeLocalNotification(message);
         showNotification(message);
-        FirebaseMessaging.onMessageOpenedApp.listen((message) {
-          handleNotificationTap(message);
-        });
       }
+
       if (Platform.isIOS) {
         foregroundMessage();
         showNotification(message);
-        FirebaseMessaging.onMessageOpenedApp.listen((message) {
-          handleNotificationTap(message);
-        });
       }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+      handleNotificationTap(message);
     });
   }
 
@@ -119,33 +135,49 @@ class NotificationService {
       importance: Importance.max,
       playSound: true,
     );
-    var androidInitializationSetting = const AndroidInitializationSettings(
+
+    const androidInitializationSetting = AndroidInitializationSettings(
       "@mipmap/ic_launcher",
     );
-    var iosInitializationSetting = const DarwinInitializationSettings();
-    var initializationSetting = InitializationSettings(
+
+    const iosInitializationSetting = DarwinInitializationSettings();
+
+    final initializationSetting = InitializationSettings(
       iOS: iosInitializationSetting,
       android: androidInitializationSetting,
     );
+
     await _flutterLocalNotificationsPlugin.initialize(
       settings: initializationSetting,
       onDidReceiveNotificationResponse: (response) {
-        if (response.payload != null) {
-          goRouter.push(response.payload!);
+        final payload = response.payload;
+
+        if (payload != null && payload.isNotEmpty) {
+          goRouter.push(payload);
+        } else {
+          goRouter.push(AppRoutes.notificationScreenMobile);
         }
       },
     );
+
     final androidPlugin =
         _flutterLocalNotificationsPlugin
             .resolvePlatformSpecificImplementation<
               AndroidFlutterLocalNotificationsPlugin
             >();
+
     await androidPlugin?.createNotificationChannel(channel);
   }
 
   Future showNotification(RemoteMessage message) async {
-    AndroidNotificationDetails androidDetails =
-        const AndroidNotificationDetails(
+    final title = message.notification?.title ?? "No Title";
+
+    final body = message.notification?.body ?? "No Body";
+
+    final route = message.data['route'];
+
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
           'high_importance_channel',
           'High Importance Notifications',
           importance: Importance.max,
@@ -153,22 +185,25 @@ class NotificationService {
           playSound: true,
           enableVibration: true,
         );
-    DarwinNotificationDetails iosDetails = const DarwinNotificationDetails(
+
+    const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
       sound: 'default',
     );
-    NotificationDetails details = NotificationDetails(
+
+    const NotificationDetails details = NotificationDetails(
       android: androidDetails,
       iOS: iosDetails,
     );
+
     await _flutterLocalNotificationsPlugin.show(
       id: 0,
-      title: message.notification?.title ?? "No Title",
-      body: message.notification?.body ?? "No Body",
+      title: title,
+      body: body,
       notificationDetails: details,
-      payload: message.data['route'],
+      payload: route,
     );
   }
 
@@ -183,6 +218,7 @@ class NotificationService {
 
   void handleNotificationTap(RemoteMessage message) {
     final route = message.data['route'];
+
     if (route != null && route.isNotEmpty) {
       goRouter.push(route);
     } else {
@@ -193,6 +229,7 @@ class NotificationService {
   Future<void> setupInteractedMessage() async {
     RemoteMessage? initialMessage =
         await FirebaseMessaging.instance.getInitialMessage();
+
     if (initialMessage != null) {
       handleNotificationTap(initialMessage);
     }

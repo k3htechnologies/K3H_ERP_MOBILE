@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class BranchMasterDatasource {
   Future<Map<String, dynamic>> apicallPullBranchMaster({
@@ -41,7 +42,7 @@ class BranchMasterDatasourceImpl extends BranchMasterDatasource {
     }) {
       String url =
           "BranchMaster/PullBranchMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -140,7 +141,7 @@ class BranchMasterDatasourceImpl extends BranchMasterDatasource {
     }) {
       String url =
           "BranchMaster/PullBranchMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

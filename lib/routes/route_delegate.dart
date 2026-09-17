@@ -9,6 +9,15 @@ import 'package:k3h_erp_app/features/project_document/test_document/presentation
 import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/test_document.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/view_test_document.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/cubit/test_document_category_cubit.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/add_redevelopment.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/add_gate_pass.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/gate_pass.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/view_gate_pass.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -25,19 +34,14 @@ import 'package:k3h_erp_app/core/presentation/pages/no_authorised_screen.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building_document.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/presentation/pages/add_update_document_screen.dart';
-import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/offer_hardship_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_hardship_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_ready_reckoner_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
-import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
-import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_view_screen.dart';
-import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
@@ -65,7 +69,6 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report_overall.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
-import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/pages/dcr.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/data/model/company_bank.model.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_bank_details_screen.dart';
@@ -87,7 +90,6 @@ import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/prese
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/add_local_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/add_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/close_term_sheet.screen.dart';
-import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/view_term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/presentation/cubit/term_sheet_document_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/presentation/pages/add_term_sheet_document.screen.dart';
@@ -98,7 +100,7 @@ import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inwa
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/inward_outward_view_screen.dart';
-import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/revert_inward_outward_screen.dart';
+import 'package:k3h_erp_app/features/more/inward_outward/presentation/pages/add_revert_inward_outward_screen.dart';
 import 'package:k3h_erp_app/features/more/otp_logs/presentation/cubit/otp_logs_cubit.dart';
 import 'package:k3h_erp_app/features/more/otp_logs/presentation/pages/otp_logs.screen.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/project_wise_sales_achievement_screen.dart';
@@ -116,16 +118,15 @@ import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pa
 import 'package:k3h_erp_app/features/sales/sales_reports/ibm_obm/presentation/pages/ibm_obm_report_view_screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/cubit/tax_tracker_cubit.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_tax_tracker.screen.dart';
-import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
 import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker.screen.dart';
 import 'package:k3h_erp_app/widgets/coming_soon_screen.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage.model.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/data/model/brokerage_invoice.model.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/presentation/cubit/brokerage_cubit.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_invoice_screen.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/add_brokerage_payment.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_screen.dart';
-import 'package:k3h_erp_app/features/crm/brokerage/presentation/pages/brokerage_view_screen.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/data/model/brokerage.model.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/data/model/brokerage_invoice.model.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/presentation/cubit/brokerage_cubit.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/presentation/pages/add_brokerage_invoice_screen.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/presentation/pages/add_brokerage_payment.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/presentation/pages/brokerage_screen.dart';
+import 'package:k3h_erp_app/features/sales/brokerage/presentation/pages/brokerage_view_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/cubit/files_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/pages/add_files.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/pages/add_flat_handover.screen.dart';
@@ -334,7 +335,6 @@ import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/add_
 import 'package:k3h_erp_app/features/payroll/resignation/presentation/pages/resignation_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/add_material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/add_material_screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_view_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/cubit/purchase_order_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/purchase_order/presentation/pages/generate_purchase_order.screen.dart';
@@ -405,11 +405,9 @@ import 'package:k3h_erp_app/features/project_document/rera_document_category/pre
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/add_rera_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/rera_document_category_screen.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/pages/view_document_category_screen.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_file/approved_bank_file_cubit.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder/approved_bank_folder_cubit.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_bank_screen.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_file_screen.dart';
-import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_folder_screen.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder_cubit.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/add_approved_bank_screen.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/view_approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building_details.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/presentation/cubit/building_cubit.dart';
@@ -486,14 +484,13 @@ import 'package:k3h_erp_app/features/sales/target/presentation/pages/target_view
 import 'package:k3h_erp_app/features/stock_management/data/model/stock_management.model.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/cubit/stock_management_cubit.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/add_stock_management.screen.dart';
-import 'package:k3h_erp_app/features/stock_management/presentation/pages/stock_management.screen.dart';
 import 'package:k3h_erp_app/features/stock_management/presentation/pages/view_stock_management.screen.dart';
 import 'package:k3h_erp_app/features/test_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/add_vendor_screen.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_screen.dart';
-import 'package:k3h_erp_app/features/vendor_management/presentation/pages/view_details_vendor_screen.dart';
+import 'package:k3h_erp_app/features/vendor_management/presentation/pages/vendor_view_screen.dart';
 import '../features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
 import '../features/sales/sales_reports/achievement/presentation/pages/achievement_report_screen.dart';
 import 'package:k3h_erp_app/main.dart';
@@ -753,8 +750,14 @@ final GoRouter goRouter = GoRouter(
         // COMPANY MASTER
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => CompanyMasterCubit(),
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => CompanyMasterCubit(), child: child),
+                BlocProvider(
+                  create: (context) => CompanyMasterAddCubit(),
+                  child: child,
+                ),
+              ],
               child: child,
             );
           },
@@ -764,6 +767,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.companyMaster,
               builder: (context, state) {
                 return CompanyMasterScreen();
+                // return ComingSoonScreen(title: "Company Master");
               },
             ),
             GoRoute(
@@ -782,10 +786,7 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : null;
-                return BlocProvider(
-                  create: (context) => CompanyMasterAddCubit(),
-                  child: AddCompanyMasterScreen(company: companyModel),
-                );
+                return AddCompanyMasterScreen(company: companyModel);
               },
             ),
             GoRoute(
@@ -2368,8 +2369,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.building,
               path: AppRoutes.building,
               builder: (context, state) {
-                return const BuildingScreen();
-                // return const ComingSoonScreen(title: "Building");
+                // return const BuildingScreen();
+                return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
@@ -2506,8 +2507,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.tenant,
               path: AppRoutes.tenant,
               builder: (context, state) {
-                return const TenantScreen();
-                // return const ComingSoonScreen(title: "Tenant");
+                // return const TenantScreen();
+                return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2587,8 +2588,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                return TemporaryAlternateAccommodationScreen();
-                // return const ComingSoonScreen(title: "TAA");
+                // return TemporaryAlternateAccommodationScreen();
+                return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2717,8 +2718,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedPlan,
               path: AppRoutes.proposedPlan,
               builder: (context, state) {
-                return const ProposedPlansScreen();
-                // return const ComingSoonScreen(title: "Proposed Plan");
+                // return const ProposedPlansScreen();
+                return const ComingSoonScreen(title: "Proposed Plan");
               },
             ),
             GoRoute(
@@ -2761,8 +2762,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedOffer,
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
-                return const ProposedOfferScreen();
-                // return const ComingSoonScreen(title: "Proposed Offer");
+                // return const ProposedOfferScreen();
+                return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(
@@ -3123,6 +3124,8 @@ final GoRouter goRouter = GoRouter(
                   name: AppRoutes.revertInwardOutward,
                   path: AppRoutes.revertInwardOutward,
                   builder: (context, state) {
+                    final queryParameterInwardOutward =
+                        state.uri.queryParameters['revertHistory'];
                     final queryParameterInwardOutwardId =
                         state.uri.queryParameters['inwardOutwardId'];
                     final queryParameterUniquekey =
@@ -3156,10 +3159,24 @@ final GoRouter goRouter = GoRouter(
                               ),
                             )
                             : 0;
-                    return RevertInwardOutwardScreen(
+                    final revertHistory =
+                        queryParameterInwardOutward != null &&
+                                queryParameterInwardOutward.isNotEmpty
+                            ? InwardOutwardRevertHistoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterInwardOutward,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return AddRevertInwardOutwardScreen(
                       inwardOutwardId: inwardOutwardId,
                       uniquekey: uniquekey,
                       index: index,
+                      revertHistoryModel: revertHistory,
                     );
                   },
                 ),
@@ -3279,15 +3296,22 @@ final GoRouter goRouter = GoRouter(
           ],
         ),
         // NOTIFICATION
-        GoRoute(
-          path: AppRoutes.notificationScreenMobile,
-          name: AppRoutes.notificationScreenMobile,
-          builder: (context, state) {
+        ShellRoute(
+          builder: (context, state, child) {
             return BlocProvider(
-              create: (context) => NotificationCubit(),
-              child: NotificationScreen(),
+              create: (_) => NotificationCubit(),
+              child: child,
             );
           },
+          routes: [
+            GoRoute(
+              path: AppRoutes.notificationScreenMobile,
+              name: AppRoutes.notificationScreenMobile,
+              builder: (context, state) {
+                return NotificationScreen();
+              },
+            ),
+          ],
         ),
         // MARKETING CONTENT DOCUMENT
         ShellRoute(
@@ -3341,15 +3365,8 @@ final GoRouter goRouter = GoRouter(
         // PROJECT MANAGEMENT APPROVED BANK
         ShellRoute(
           builder: (context, state, child) {
-            return MultiBlocProvider(
-              providers: [
-                BlocProvider<ApprovedBankFolderCubit>(
-                  create: (_) => ApprovedBankFolderCubit(),
-                ),
-                BlocProvider<ApprovedBankFileCubit>(
-                  create: (_) => ApprovedBankFileCubit(),
-                ),
-              ],
+            return BlocProvider(
+              create: (_) => ApprovedBankFolderCubit(),
               child: child,
             );
           },
@@ -3358,14 +3375,15 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.approvedBank,
               name: AppRoutes.approvedBank,
               builder: (context, state) {
-                return ApprovedBankFolderScreen();
+                // return ApprovedBankScreen();
+                return ComingSoonScreen(title: "Approved Bank");
               },
             ),
             GoRoute(
               path: AppRoutes.addBankScreen,
               name: AppRoutes.addBankScreen,
               builder: (context, state) {
-                return AddBankScreen();
+                return AddApprovedBankScreen();
               },
             ),
             GoRoute(
@@ -3374,17 +3392,17 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameter =
                     state.uri.queryParameters['approvedBankFolderId'];
-                if (queryParameter == null) {
-                  return TestScreen();
-                }
+                final approvedBankName =
+                    state.uri.queryParameters['bankName'] ?? '';
 
                 final decodedJsonApprovedBankFolderId = jsonDecode(
                   EncryptionManager.decryptData(
-                    Uri.decodeQueryComponent(queryParameter),
+                    Uri.decodeQueryComponent(queryParameter!),
                   ),
                 );
-                return ApprovedBankFieScreen(
+                return ViewApprovedBankScreen(
                   approvedBankFolderId: decodedJsonApprovedBankFolderId,
+                  approvedBankName: approvedBankName,
                 );
               },
             ),
@@ -3449,7 +3467,7 @@ final GoRouter goRouter = GoRouter(
                   ),
                 );
 
-                return ViewDetailsVendorScreen(vendor: vendor);
+                return VendorViewScreen(vendor: vendor);
               },
             ),
           ],
@@ -6151,7 +6169,9 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.stockManagement,
               path: AppRoutes.stockManagement,
               builder: (context, state) {
-                return StockManagementScreen();
+                return ComingSoonScreen(title: "Stock Management");
+
+                // return StockManagementScreen();
               },
             ),
             GoRoute(
@@ -6249,7 +6269,10 @@ final GoRouter goRouter = GoRouter(
             GoRoute(
               path: AppRoutes.materialRequisition,
               name: AppRoutes.materialRequisition,
-              builder: (context, state) => MaterialRequisitonScreen(),
+              builder:
+                  (context, state) =>
+                      ComingSoonScreen(title: "Material Requisition"),
+              // MaterialRequisitonScreen(),
             ),
             GoRoute(
               name: AppRoutes.addMaterialRequisition,
@@ -7445,8 +7468,16 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : null;
+                final brokerageAmount =
+                    double.tryParse(
+                      state.uri.queryParameters['brokerageAmount'] ?? '',
+                    ) ??
+                    0;
 
-                return AddBrokeragePayment(invoiceModel: invoice!);
+                return AddBrokeragePayment(
+                  invoiceModel: invoice!,
+                  brokerageAmount: brokerageAmount,
+                );
               },
             ),
           ],
@@ -7470,7 +7501,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.dailyCollectionReport,
               path: AppRoutes.dailyCollectionReport,
               builder: (context, state) {
-                return DCRScreen();
+                return ComingSoonScreen(title: "Daily Collection Report");
+                // return DCRScreen();
               },
             ),
             GoRoute(
@@ -7519,7 +7551,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.taxTracker,
               path: AppRoutes.taxTracker,
               builder: (context, state) {
-                return const TaxTrackerScreen();
+                // return const TaxTrackerScreen();
+                return ComingSoonScreen(title: "Tax Tracker");
               },
             ),
             GoRoute(
@@ -7559,14 +7592,19 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.termSheet,
               path: AppRoutes.termSheet,
               builder: (context, state) {
-                return const TermSheetScreen();
+                return ComingSoonScreen(title: "Term Sheet");
+                // return const TermSheetScreen();
               },
             ),
             GoRoute(
               name: AppRoutes.addTermSheet,
               path: AppRoutes.addTermSheet,
               builder: (context, state) {
-                return AddTermSheetScreen();
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+
+                return AddTermSheetScreen(
+                  termSheet: extra["termSheet"] as TermSheetModel?,
+                );
               },
             ),
             GoRoute(
@@ -7577,8 +7615,9 @@ final GoRouter goRouter = GoRouter(
 
                 if (extra is Map<String, dynamic>) {
                   return AddLocalTermSheet(
-                    termSheetModel: extra["termSheet"] as LocalTermSheetModel?,
-                    termSheet: extra["termSheetModel"] as TermSheetModel?,
+                    termSheet: extra["termSheet"] as TermSheetModel?,
+                    termSheetModel:
+                        extra["termSheetModel"] as LocalTermSheetModel?,
                     termSheetDetailsView:
                         extra["termSheetDetailsView"] as TermSheetDetailsView?,
                   );
@@ -7716,6 +7755,82 @@ final GoRouter goRouter = GoRouter(
                       extra['documentData'] as TermSheetDocumentModel?,
                   termSheetModel: extra['termSheetModel'] as TermSheetModel?,
                 );
+              },
+            ),
+          ],
+        ),
+        //  GATE PASS
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => GatePassCubit())],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.gatePass,
+              path: AppRoutes.gatePass,
+              builder: (context, state) {
+                return const GatePassScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addGatePass,
+              path: AppRoutes.addGatePass,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddGatePassScreen(
+                  gatePass: extra['gatePass'] as GatePassModel?,
+                  index: extra['index'] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewGatePass,
+              path: AppRoutes.viewGatePass,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return ViewGatePassScreen(
+                  gatePassModel: extra["gatePass"] as GatePassModel?,
+                );
+              },
+            ),
+          ],
+        ),
+        //  PROJECT LEAD
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => ProjectLeadCubit())],
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.projectLead,
+              path: AppRoutes.projectLead,
+              builder: (context, state) {
+                return ComingSoonScreen(title: "Project Lead");
+                // return const ProjectLeadScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addRedevelopment,
+              path: AppRoutes.addRedevelopment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddRedevelopmentScreen(
+                  redevelopment: extra["redevelopment"] as RedevelopmentModel?,
+                  index: extra["index"] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addLand,
+              path: AppRoutes.addLand,
+              builder: (context, state) {
+                return const AddLandScreen();
               },
             ),
           ],

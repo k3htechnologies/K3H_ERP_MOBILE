@@ -268,7 +268,9 @@ class _AddCompanyBankDetailsScreenState
                         textController: _beneficiaryAccountHolderNameC,
                         hint: "Enter Account Holder Name",
                         isRequired: true,
-                        inputFormatterList: InputValidator.textOnly(100),
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(250),
+                        ],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
                             return "Beneficiary Account Holder Name is required.";
@@ -441,6 +443,7 @@ class _AddCompanyBankDetailsScreenState
                         initialFileList: cancelChequeFile.fileNameList,
                         title: "Cancel Cheque",
                         isRequired: true,
+                        maxFiles: 5,
                         filePickType: FilePickType.kycDocument,
                         onFilePickedCallback: (fileByteList, fileNameList) {
                           cancelChequeFile.fileBytesList = fileByteList;
@@ -475,11 +478,13 @@ class _AddCompanyBankDetailsScreenState
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text:
-                widget.bankDetailsModel == null
-                    ? "Save Bank Details"
-                    : "Update Bank Details",
-            onPressed: _handleSubmit,
+            leading: Icon(
+              widget.bankDetailsModel == null ? Icons.add : Icons.edit,
+              size: 16,
+              color: AppColor.white,
+            ),
+            text: widget.bankDetailsModel == null ? "Add" : "Update",
+            onPressed: _handleSubmit, 
             backgroundColor: AppColor.primary,
           ),
         ),

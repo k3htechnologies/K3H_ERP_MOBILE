@@ -9,16 +9,13 @@ abstract interface class SubMaterialMasterRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateSubMaterial({
     required Map<String, dynamic> body,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteSubMaterial({
     required int subMaterialMasterId,
     required String uniqueKey,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> exportSubmaterial({
     required int pageNumber,
     required int pageSize,
@@ -28,9 +25,7 @@ abstract interface class SubMaterialMasterRepository {
 
 class SubMaterialMasterRepositoryImpl implements SubMaterialMasterRepository {
   final SubMaterialMasterDatasource subMaterialMasterDatasource;
-
   SubMaterialMasterRepositoryImpl({required this.subMaterialMasterDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getSubMaterialList({
     required int pageNumber,

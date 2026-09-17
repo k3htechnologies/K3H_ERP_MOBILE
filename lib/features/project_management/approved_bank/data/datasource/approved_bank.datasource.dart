@@ -2,9 +2,17 @@ import 'package:k3h_erp_app/features/project_management/approved_bank/data/model
 import 'package:k3h_erp_app/features/project_management/approved_bank/data/model/approved_bank_folder.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ApprovedBankDatasource {
   Future<Map<String, dynamic>> apicallPullApprovedBankFolder({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallPullApprovedBankFolderForExport({
     required int pageSize,
     required int pageNumber,
     required int projectId,
@@ -59,7 +67,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
     }) {
       String url =
           "ApprovedBank/PullApprovedBankFolder?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -109,7 +117,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
       }) {
         String url =
             "ApprovedBank/PullApprovedBankFile?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
-        queryParams?.forEach((key, value) => url += "&$key=$value");
+        url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
 
@@ -158,6 +166,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
             (e) => ApprovedBankFolderModel.fromJson(e),
           ),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -187,6 +196,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
         'data': List<ApprovedBankFileModel>.from(
           networkResponse["data"].map((e) => ApprovedBankFileModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -221,6 +231,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -229,6 +240,51 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
           approvedBankFolderId: approvedBankFolderId,
           projectId: projectId,
           uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullApprovedBankFolderForExport({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullApprovedBankFolderUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ApprovedBank/PullApprovedBankFolder?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullApprovedBankFolderUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullApprovedBankFolderForExport(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
         );
       }
       rethrow;
@@ -262,6 +318,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

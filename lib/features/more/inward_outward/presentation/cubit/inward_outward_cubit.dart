@@ -14,13 +14,10 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class InwardOutwardCubit extends Cubit<InwardOutwardState> {
   InwardOutwardCubit() : super(InwardOutwardState.initial());
-
   final InwardOutwardRepository _repository =
       serviceLocator<InwardOutwardRepository>();
-
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
-
   void resetState() {
     emit(InwardOutwardState.initial());
   }
@@ -70,7 +67,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   Future searchInwardOutward(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, inwardOutwardList: []));
-
     await handleApiCall(context: context);
   }
 
@@ -121,21 +117,48 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
               senderMobileNumber ?? state.filterBySenderMobileNumber,
           filterByReceiverMobileNumber:
               receiverMobileNumber ?? state.filterByReceiverMobileNumber,
-          filterByFromDate: fromDate ?? state.filterByFromDate,
-          filterByToDate: toDate ?? state.filterByToDate,
+          filterByFromDate: fromDate,
+          filterByToDate: toDate,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
           inwardOutwardCurrentPage: 1,
         ),
       );
     }
-
     await handleApiCall(context: context);
+  }
+
+  Future<void> getInwardOutwardView(
+    BuildContext context,
+    int inwardOutwardId,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    final result = await _repository.getInwardOutwardList(
+      pageNumber: 1,
+      pageSize: 10,
+      queryParams: {"InwardOutwardId": inwardOutwardId},
+    );
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+        emit(state.copyWith(isLoading: false, inwardOutwardDetails: null));
+      },
+      (response) {
+        final List<InwardOutwardModel> newData = List<InwardOutwardModel>.from(
+          response["data"] ?? [],
+        );
+        emit(
+          state.copyWith(
+            isLoading: false,
+            inwardOutwardDetails: newData.isEmpty ? null : newData.first,
+          ),
+        );
+      },
+    );
   }
 
   Future getInwardOutwardList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-
     final result = await _repository.getInwardOutwardList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -153,23 +176,19 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "ToDate": state.filterByToDate.apiDate,
       },
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<InwardOutwardModel> newData = List<InwardOutwardModel>.from(
           response["data"] ?? [],
         );
-
         final updatedList =
             pageNumber == 1
                 ? newData
                 : [...state.inwardOutwardList, ...newData];
-
         emit(
           state.copyWith(
             inwardOutwardList: updatedList,
@@ -184,7 +203,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   Future getInwardList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-
     final result = await _repository.getInwardOutwardList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -202,23 +220,19 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       },
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<InwardOutwardModel> newData = List<InwardOutwardModel>.from(
           response["data"] ?? [],
         );
-
         final updatedList =
             pageNumber == 1
                 ? newData
                 : [...state.inwardOutwardList, ...newData];
-
         emit(
           state.copyWith(
             inwardOutwardList: updatedList,
@@ -233,7 +247,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   Future getOutwardList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-
     final result = await _repository.getInwardOutwardList(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -251,23 +264,19 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         "ToDate": state.filterByToDate.apiDate,
       },
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
-
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
         final List<InwardOutwardModel> newData = List<InwardOutwardModel>.from(
           response["data"] ?? [],
         );
-
         final updatedList =
             pageNumber == 1
                 ? newData
                 : [...state.inwardOutwardList, ...newData];
-
         emit(
           state.copyWith(
             inwardOutwardList: updatedList,
@@ -287,14 +296,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _repository.deleteInwardOutward(
       inwardOutwardId: inwardOutwardId,
       uniqueKey: uniqueKey,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
@@ -304,7 +310,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
           state.inwardOutwardList,
         );
         updatedList.removeAt(index);
-
         emit(
           state.copyWith(
             inwardOutwardList: updatedList,
@@ -331,7 +336,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     final result = await _repository.getSenderReceiverByMobileNo(
       mobileNumber: mobileNumber ?? "",
     );
-
     return result.fold(
       (failure) => [],
       (response) => List<SenderDetailModel>.from(response["data"] ?? []),
@@ -361,6 +365,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required String acknowledgementBy,
     required String handOverTo,
     required String handOverDate,
+    required String handoverPersonMobileNumberCountryCode,
+    required String handoverPersonMobileNumber,
     required String chequeNumber,
     required String documentTitle,
     required String documentDescription,
@@ -371,7 +377,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required String acknowledgementRemark,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     Map<String, String> body = {
       "InwardOutwardId": "0",
       "DeliveryType": deliveryType,
@@ -396,6 +401,9 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "AcknowledgementBy": acknowledgementBy,
       "HandOverTo": handOverTo,
       "HandOverDate": handOverDate,
+      "HandoverPersonMobileNumberCountryCode":
+          handoverPersonMobileNumberCountryCode,
+      "HandoverPersonMobileNumber": handoverPersonMobileNumber,
       "ChequeNumber": chequeNumber,
       "DocumentTitle": documentTitle,
       "DocumentDescription": documentDescription,
@@ -405,56 +413,42 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "RemoveAcknowledgementURL": acknowledgementURL.deletedFileList,
       "AcknowledgementRemark": acknowledgementRemark,
     };
-
     List<Map<String, dynamic>> fileList = [];
-
-    // DocumentURL
     for (int i = 0; i < documentURL.fileNameList.length; i++) {
       if (documentURL.fileNameList[i].contains("http")) continue;
-
       fileList.add({
         "key": "DocumentURL",
         "value": documentURL.fileBytesList[i],
         "fileName": documentURL.fileNameList[i],
       });
     }
-
-    // ReceiversSignature
     for (int i = 0; i < acknowledgementSignature.fileNameList.length; i++) {
       if (acknowledgementSignature.fileNameList[i].contains("http")) continue;
-
       fileList.add({
         "key": "AcknowledgementSignatureURL",
         "value": acknowledgementSignature.fileBytesList[i],
         "fileName": acknowledgementSignature.fileNameList[i],
       });
     }
-
-    // AcknowledgementURL
     for (int i = 0; i < acknowledgementURL.fileNameList.length; i++) {
       if (acknowledgementURL.fileNameList[i].contains("http")) continue;
-
       fileList.add({
         "key": "AcknowledgementURL",
         "value": acknowledgementURL.fileBytesList[i],
         "fileName": acknowledgementURL.fileNameList[i],
       });
     }
-
     final result = await _repository.addUpdateInwardOutward(
       body: body,
       fileList: fileList,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
         await getInwardOutwardList(context, 1);
-
         if (context.mounted) {
           showSuccessMessage(
             context,
@@ -462,7 +456,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
                 response["message"] ?? "Inward Outward Added Successfully",
           );
         }
-
         goRouter.pop();
       },
     );
@@ -494,6 +487,8 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required String acknowledgementBy,
     required String handOverTo,
     required String handOverDate,
+    required String handoverPersonMobileNumberCountryCode,
+    required String handoverPersonMobileNumber,
     required String chequeNumber,
     required String documentTitle,
     required String documentDescription,
@@ -529,6 +524,9 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "AcknowledgementBy": acknowledgementBy,
       "HandOverTo": handOverTo,
       "HandOverDate": handOverDate,
+      "HandoverPersonMobileNumberCountryCode":
+          handoverPersonMobileNumberCountryCode,
+      "HandoverPersonMobileNumber": handoverPersonMobileNumber,
       "ChequeNumber": chequeNumber,
       "DocumentTitle": documentTitle,
       "DocumentDescription": documentDescription,
@@ -538,49 +536,36 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "RemoveAcknowledgementURL": acknowledgementURL.deletedFileList,
       "AcknowledgementRemark": acknowledgementRemark,
     };
-
     List<Map<String, dynamic>> fileList = [];
-
-    // DocumentURL
     for (int i = 0; i < documentURL.fileNameList.length; i++) {
       if (documentURL.fileNameList[i].contains("http")) continue;
-
       fileList.add({
         "key": "DocumentURL",
         "value": documentURL.fileBytesList[i],
         "fileName": documentURL.fileNameList[i],
       });
     }
-
-    // ReceiversSignature
     for (int i = 0; i < acknowledgementSignature.fileNameList.length; i++) {
       if (acknowledgementSignature.fileNameList[i].contains("http")) continue;
-
       fileList.add({
         "key": "AcknowledgementSignatureURL",
         "value": acknowledgementSignature.fileBytesList[i],
         "fileName": acknowledgementSignature.fileNameList[i],
       });
     }
-
-    // AcknowledgementURL
     for (int i = 0; i < acknowledgementURL.fileNameList.length; i++) {
       if (acknowledgementURL.fileNameList[i].contains("http")) continue;
-
       fileList.add({
         "key": "AcknowledgementURL",
         "value": acknowledgementURL.fileBytesList[i],
         "fileName": acknowledgementURL.fileNameList[i],
       });
     }
-
     final result = await _repository.addUpdateInwardOutward(
       body: body,
       fileList: fileList,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
@@ -589,7 +574,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
         goRouter.pop();
         final updatedInwardOutward =
             (response['data'] as List<InwardOutwardModel>).first;
-
         switch (state.currentTabIndex) {
           case 0:
             if (state.inwardOutwardList.isNotEmpty &&
@@ -597,9 +581,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
               final updatedList = List<InwardOutwardModel>.from(
                 state.inwardOutwardList,
               );
-
               updatedList[index] = updatedInwardOutward;
-
               emit(
                 state.copyWith(
                   isLoading: false,
@@ -608,16 +590,13 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
               );
             }
             break;
-
           case 1:
             if (state.inwardOutwardList.isNotEmpty &&
                 index < state.inwardOutwardList.length) {
               final updatedList = List<InwardOutwardModel>.from(
                 state.inwardOutwardList,
               );
-
               updatedList[index] = updatedInwardOutward;
-
               emit(
                 state.copyWith(
                   isLoading: false,
@@ -626,16 +605,13 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
               );
             }
             break;
-
           case 2:
             if (state.inwardOutwardList.isNotEmpty &&
                 index < state.inwardOutwardList.length) {
               final updatedList = List<InwardOutwardModel>.from(
                 state.inwardOutwardList,
               );
-
               updatedList[index] = updatedInwardOutward;
-
               emit(
                 state.copyWith(
                   isLoading: false,
@@ -647,7 +623,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
           default:
             break;
         }
-
         if (context.mounted) {
           showSuccessMessage(
             context,
@@ -659,7 +634,7 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     );
   }
 
-  Future revertInwardOutward({
+  Future addRevertInwardOutward({
     required BuildContext context,
     required int inwardOutwardId,
     required String uniqueKey,
@@ -669,7 +644,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
     required MultiFilePickerModel revertDocumentURL,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     Map<String, String> body = {
       "InwardOutwardRevertId": 0.toString(),
       "InwardOutwardId": inwardOutwardId.toString(),
@@ -677,27 +651,20 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       "RevertDate": revertDate,
       "RevertRemark": revertRemark,
     };
-
     List<Map<String, dynamic>> fileList = [];
-
-    // RevertDocumentURL
     for (int i = 0; i < revertDocumentURL.fileNameList.length; i++) {
       if (revertDocumentURL.fileNameList[i].contains("http")) continue;
-
       fileList.add({
         "key": "RevertDocumentURL",
         "value": revertDocumentURL.fileBytesList[i],
         "fileName": revertDocumentURL.fileNameList[i],
       });
     }
-
     final result = await _repository.addUpdateInwardOutwardRevert(
       body: body,
       fileList: fileList,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
@@ -705,65 +672,171 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       (response) async {
         final updatedInwardOutward =
             (response['data'] as List<InwardOutwardModel>).first;
-
-        switch (state.currentTabIndex) {
-          case 0:
-            if (state.inwardOutwardList.isNotEmpty &&
-                index < state.inwardOutwardList.length) {
-              final updatedList = List<InwardOutwardModel>.from(
-                state.inwardOutwardList,
-              );
-
-              updatedList[index] = updatedInwardOutward;
-
-              emit(
-                state.copyWith(
-                  isLoading: false,
-                  inwardOutwardList: updatedList,
-                ),
-              );
-            }
-            break;
-
-          case 1:
-            if (state.inwardOutwardList.isNotEmpty &&
-                index < state.inwardOutwardList.length) {
-              final updatedList = List<InwardOutwardModel>.from(
-                state.inwardOutwardList,
-              );
-
-              updatedList[index] = updatedInwardOutward;
-
-              emit(
-                state.copyWith(
-                  isLoading: false,
-                  inwardOutwardList: updatedList,
-                ),
-              );
-            }
-            break;
-
-          case 2:
-            if (state.inwardOutwardList.isNotEmpty &&
-                index < state.inwardOutwardList.length) {
-              final updatedList = List<InwardOutwardModel>.from(
-                state.inwardOutwardList,
-              );
-
-              updatedList[index] = updatedInwardOutward;
-
-              emit(
-                state.copyWith(
-                  isLoading: false,
-                  inwardOutwardList: updatedList,
-                ),
-              );
-            }
-            break;
-          default:
-            break;
+        if (state.inwardOutwardList.isNotEmpty &&
+            index < state.inwardOutwardList.length) {
+          final updatedList = List<InwardOutwardModel>.from(
+            state.inwardOutwardList,
+          );
+          updatedList[index] = updatedInwardOutward;
+          emit(
+            state.copyWith(isLoading: false, inwardOutwardList: updatedList),
+          );
         }
         goRouter.pop();
+        if (context.mounted) {
+          showSuccessMessage(
+            context,
+            subTitle:
+                response["message"] ?? "Inward Outward Reverted Successfully",
+          );
+        }
+      },
+    );
+  }
+
+  Future updateRevertInwardOutward({
+    required BuildContext context,
+    required int inwardOutwardRevertId,
+    required int inwardOutwardId,
+    required String uniqueKey,
+    required String revertDate,
+    required String revertRemark,
+    required int index,
+    required MultiFilePickerModel revertDocumentURL,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, String> body = {
+      "InwardOutwardRevertId": inwardOutwardRevertId.toString(),
+      "InwardOutwardId": inwardOutwardId.toString(),
+      "UniqueKey": uniqueKey,
+      "RevertDate": revertDate,
+      "RevertRemark": revertRemark,
+      "RemoveRevertDocumentURL": revertDocumentURL.deletedFileList,
+    };
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < revertDocumentURL.fileNameList.length; i++) {
+      if (revertDocumentURL.fileNameList[i].contains("http")) continue;
+      fileList.add({
+        "key": "RevertDocumentURL",
+        "value": revertDocumentURL.fileBytesList[i],
+        "fileName": revertDocumentURL.fileNameList[i],
+      });
+    }
+    final result = await _repository.addUpdateInwardOutwardRevert(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        final updatedInwardOutward =
+            (response['data'] as List<InwardOutwardModel>);
+        emit(
+          state.copyWith(
+            isLoading: false,
+            inwardOutwardDetails:
+                updatedInwardOutward.isNotEmpty
+                    ? updatedInwardOutward.first
+                    : null,
+          ),
+        );
+        goRouter.pop();
+        if (context.mounted) {
+          showSuccessMessage(
+            context,
+            subTitle:
+                response["message"] ?? "Inward Outward Reverted Successfully",
+          );
+        }
+      },
+    );
+  }
+
+  Future deleteRevert({
+    required BuildContext context,
+    required int inwardOutwardRevertId,
+    required int inwardOutwardId,
+    required String uniqueKey,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    final result = await _repository.deleteInwardOutwardRevert(
+      inwardOutwardRevertId: inwardOutwardRevertId,
+      inwardOutwardId: inwardOutwardId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        final currentDetails = state.inwardOutwardDetails;
+        if (currentDetails == null) return;
+        final updatedRevertHistory = List<InwardOutwardRevertHistoryModel>.from(
+          currentDetails.inwardOutwardRevertHistory,
+        );
+        if (index >= 0 && index < updatedRevertHistory.length) {
+          updatedRevertHistory.removeAt(index);
+        }
+        final updatedInwardOutwardDetails = InwardOutwardModel(
+          inwardOutwardId: currentDetails.inwardOutwardId,
+          uniqueKey: currentDetails.uniqueKey,
+          systemGeneratedCode: currentDetails.systemGeneratedCode,
+          deliveryType: currentDetails.deliveryType,
+          departmentName: currentDetails.departmentName,
+          inwardOutwardDate: currentDetails.inwardOutwardDate,
+          senderName: currentDetails.senderName,
+          senderAddress: currentDetails.senderAddress,
+          senderMobileNumber: currentDetails.senderMobileNumber,
+          senderMobileNumberCountryCode:
+              currentDetails.senderMobileNumberCountryCode,
+          senderEmailId: currentDetails.senderEmailId,
+          receiverName: currentDetails.receiverName,
+          receiverAddress: currentDetails.receiverAddress,
+          receiverMobileNumberCountryCode:
+              currentDetails.receiverMobileNumberCountryCode,
+          receiverMobileNumber: currentDetails.receiverMobileNumber,
+          receiverEmailId: currentDetails.receiverEmailId,
+          documentURL: currentDetails.documentURL,
+          employeeId: currentDetails.employeeId,
+          employeeNames: currentDetails.employeeNames,
+          documentType: currentDetails.documentType,
+          invoiceNumber: currentDetails.invoiceNumber,
+          invoiceDate: currentDetails.invoiceDate,
+          acknowledgementBy: currentDetails.acknowledgementBy,
+          acknowledgementSignatureURL:
+              currentDetails.acknowledgementSignatureURL,
+          chequeNumber: currentDetails.chequeNumber,
+          documentTitle: currentDetails.documentTitle,
+          amount: currentDetails.amount,
+          deliveryMode: currentDetails.deliveryMode,
+          deliveryStatus: currentDetails.deliveryStatus,
+          documentDescription: currentDetails.documentDescription,
+          handOverTo: currentDetails.handOverTo,
+          handOverDate: currentDetails.handOverDate,
+          handoverPersonMobileNumberCountryCode:
+              currentDetails.handoverPersonMobileNumberCountryCode,
+          handoverPersonMobileNumber: currentDetails.handoverPersonMobileNumber,
+          acknowledgementRemark: currentDetails.acknowledgementRemark,
+          acknowledgementURL: currentDetails.acknowledgementURL,
+          inwardOutwardRevertHistory: updatedRevertHistory,
+          createdById: currentDetails.createdById,
+          createdBy: currentDetails.createdBy,
+          createdDate: currentDetails.createdDate,
+          modifiedById: currentDetails.modifiedById,
+          modifiedBy: currentDetails.modifiedBy,
+          modifiedDate: currentDetails.modifiedDate,
+        );
+        emit(
+          state.copyWith(
+            inwardOutwardDetails: updatedInwardOutwardDetails,
+            isLoading: false,
+          ),
+        );
         if (context.mounted) {
           showSuccessMessage(
             context,
@@ -787,7 +860,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
               ? {"EmployeeName": value, "isCheckPermission": false}
               : {"isCheckPermission": false},
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
@@ -795,7 +867,6 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
       },
       (response) {
         final employees = response['data'] as List<UserModel>;
-
         return {
           "itemList":
               employees.map((employee) {
@@ -812,38 +883,24 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
-
-    int totalRecords = switch (state.currentTabIndex) {
-      0 => state.inwardOutwardTotalRecords,
-      1 => state.inwardOutwardTotalRecords,
-      2 => state.inwardOutwardTotalRecords,
-      _ => state.inwardOutwardTotalRecords,
-    };
-
     Map<String, dynamic> queryParams = {"ExportType": exportType};
-
     if (state.searchText.isNotEmpty) {
       queryParams["SystemGeneratedCode"] = state.searchText;
     }
-
     switch (state.currentTabIndex) {
       case 1:
         queryParams["Type"] = "Inward";
         break;
-
       case 2:
         queryParams["Type"] = "Outward";
         break;
     }
-
     final result = await _repository.getInwardOutwardListForExport(
       pageNumber: 1,
-      pageSize: totalRecords,
+      pageSize: state.inwardOutwardTotalRecords,
       queryParams: queryParams,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
@@ -853,12 +910,11 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
           context,
           subTitle: 'Successfully Exported as $exportType',
         );
-
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "Inward Outward Master ${DateTime.now()}.pdf"
-              : "Inward Outward Master ${DateTime.now()}.xlsx",
+              ? "Inward Outward ${DateTime.now()}.pdf"
+              : "Inward Outward ${DateTime.now()}.xlsx",
         );
       },
     );
@@ -866,10 +922,9 @@ class InwardOutwardCubit extends Cubit<InwardOutwardState> {
 
   int updateFilterCount(InwardOutwardState state) {
     final hasSort =
-        state.currentSortColumn == "Document Id" &&
+        state.currentSortColumn == "IO Code" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
-
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
       state.filterByDocumentType.trim().isNotEmpty,

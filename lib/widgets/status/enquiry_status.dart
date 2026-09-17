@@ -1,11 +1,12 @@
 import 'dart:ui';
 
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 
 final Map<String, StatusConfig> enquiryStatusConfig = {
   'booking done': StatusConfig(
-    backgroundColor: const Color(0xFF51E551).withValues(alpha: 0.29),
-    textColor: const Color(0xFF48C848),
+    backgroundColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+    textColor: AppColor.darkGreen10,
   ),
 
   'blocked': StatusConfig(

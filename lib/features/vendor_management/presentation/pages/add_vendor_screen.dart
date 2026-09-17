@@ -806,9 +806,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           IgnorePointer(
-            child: CustomTextField(
-              hint: "Search By Contract Name",
+            child: SearchWidget(
+              hintText: "Search By Contract Name",
               textController: contractSearchC,
+              onSubmit: (value) {},
             ),
           ),
           Expanded(

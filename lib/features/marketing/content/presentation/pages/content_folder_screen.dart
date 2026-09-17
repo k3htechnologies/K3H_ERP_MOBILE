@@ -142,7 +142,6 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBar(
         screenTitle: 'Content',
         authorization: AuthorizationModel(isAction: true),

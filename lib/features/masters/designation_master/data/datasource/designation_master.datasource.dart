@@ -2,6 +2,7 @@ import 'package:k3h_erp_app/core/models/module.model.dart';
 import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class DesignationMasterDatasource {
   Future<Map<String, dynamic>> apicallPullDesignationMaster({
@@ -50,7 +51,7 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
     }) {
       String url =
           "DesignationMaster/PullDesignationMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -142,7 +143,7 @@ class DesignationDataSoucreImp implements DesignationMasterDatasource {
     }) {
       String url =
           "DesignationMaster/PullDesignationMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

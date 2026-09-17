@@ -88,13 +88,22 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
+        goRouter.pop();
       },
       (response) {
         final List<ProposedPlanBuilding> list = List<ProposedPlanBuilding>.from(
           response['data'] ?? [],
         );
         emit(state.copyWith(isLoading: false, proposedPlansList: list));
-        showSuccessMessage(context, subTitle: response['message']);
+        if (totalNumberOfBuilding == 0) {
+          showSuccessMessage(
+            context,
+            subTitle: "Proposed Plan updated successfully",
+          );
+        } else {
+          showSuccessMessage(context, subTitle: response['message']);
+        }
+        goRouter.pop();
       },
     );
   }

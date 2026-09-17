@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class UOMMasterDatasource {
   Future<Map<String, dynamic>> apicallPullUOMMaster({
@@ -31,7 +32,7 @@ class UOMMasterDatasourceImpl implements UOMMasterDatasource {
     }) {
       String url =
           "UomMaster/PullUomMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -72,7 +73,7 @@ class UOMMasterDatasourceImpl implements UOMMasterDatasource {
     }) {
       String url =
           "UomMaster/PullUomMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

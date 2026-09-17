@@ -24,6 +24,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ProposedOfferSecondaryScreen extends StatefulWidget {
   final int projectId;
@@ -71,9 +72,19 @@ class _ProposedOfferSecondaryScreenState
               children: [
                 showSiteSelectedWidget(projectName: widget.projectName),
                 verticalSpacing(),
-                Text(
-                  toTitleCase(widget.buildingName),
-                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Icon(
+                      LucideIcons.building2,
+                      color: AppColor.darkBlue,
+                      size: 18,
+                    ),
+                    Text(
+                      toTitleCase(widget.buildingName),
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                  ],
                 ),
                 verticalSpacing(),
               ],

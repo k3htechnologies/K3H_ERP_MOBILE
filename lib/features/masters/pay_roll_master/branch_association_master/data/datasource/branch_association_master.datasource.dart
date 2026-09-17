@@ -1,5 +1,6 @@
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/data/model/branch_association_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class BranchAssociationMasterDatasource {
   Future<Map<String, dynamic>> apicallPullBranchAssociation({
@@ -34,7 +35,7 @@ class BranchAssociationMasterDatasourceImpl
     }) {
       String url =
           "BranchAssociations/PullBranchAssociations?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

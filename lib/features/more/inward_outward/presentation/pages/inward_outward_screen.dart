@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -27,7 +26,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class InwardOutwardScreen extends StatefulWidget {
   const InwardOutwardScreen({super.key});
-
   @override
   State<InwardOutwardScreen> createState() => _InwardOutwardScreenState();
 }
@@ -35,9 +33,11 @@ class InwardOutwardScreen extends StatefulWidget {
 class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     with TickerProviderStateMixin {
   late AuthorizationModel _inwardOutwardRouteAuthorizationModel;
-
+  late AuthorizationModel _acknowlegmentRouteAuthorizationModel;
+  late AuthorizationModel
+  _inwardOutwardAdministrativeAccessRouteAuthorizationModel;
+  late AuthorizationModel _routeAuthorizationModel;
   late InwardOutwardCubit _inwardOutwardCubit;
-
   late TabController _tabController;
   late TextEditingController _searchC,
       _senderNameC,
@@ -47,19 +47,38 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       _statusC,
       _senderMobileNumberC,
       _receiverMobileNumberC;
-
   DateTime? _selectedFromDate, _selectedToDate;
-
   late ScrollController _inwardOutwardScrollController;
   Timer? _inwardOutwardDebounce;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
   List<String> inwardOutwardTabs = const ['All', 'Inward', 'Outward'];
-
   @override
   void initState() {
     _inwardOutwardRouteAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.inwardOutward]!;
+        Authorization.routeAuthorizationMap[AppRoutes.inwardOutward] ??
+        AuthorizationModel();
+    _acknowlegmentRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .inwardOutwardAcknowledgement] ??
+        AuthorizationModel();
+    _inwardOutwardAdministrativeAccessRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .inwardOutwardAdministrativeAccess] ??
+        AuthorizationModel();
+    _routeAuthorizationModel = AuthorizationModel(
+      isAction:
+          _inwardOutwardAdministrativeAccessRouteAuthorizationModel.isAction ||
+          _acknowlegmentRouteAuthorizationModel.isAction ||
+          _inwardOutwardRouteAuthorizationModel.isAction,
+      isExport:
+          _inwardOutwardAdministrativeAccessRouteAuthorizationModel.isExport ||
+          _acknowlegmentRouteAuthorizationModel.isExport ||
+          _inwardOutwardRouteAuthorizationModel.isExport,
+      isView:
+          _inwardOutwardAdministrativeAccessRouteAuthorizationModel.isView ||
+          _acknowlegmentRouteAuthorizationModel.isView ||
+          _inwardOutwardRouteAuthorizationModel.isView,
+    );
     _inwardOutwardCubit = context.read<InwardOutwardCubit>();
     _inwardOutwardCubit.resetState();
     _tabController = TabController(length: 3, vsync: this);
@@ -74,7 +93,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
   void dispose() {
     _tabController.removeListener(_handleTabChange);
     _tabController.dispose();
-
     _searchC.dispose();
     _senderNameC.dispose();
     _receiverNameC.dispose();
@@ -84,9 +102,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _senderMobileNumberC.dispose();
     _receiverMobileNumberC.dispose();
     _inwardOutwardScrollController.dispose();
-
     _inwardOutwardDebounce?.cancel();
-
     _filterCount.dispose();
     super.dispose();
   }
@@ -117,7 +133,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
 
   void _onScroll() {
     _inwardOutwardScrollController = ScrollController();
-
     _inwardOutwardScrollController.addListener(() {
       final state = _inwardOutwardCubit.state;
       if (_inwardOutwardScrollController.position.pixels >=
@@ -127,12 +142,27 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
         if (_inwardOutwardDebounce?.isActive ?? false) {
           _inwardOutwardDebounce?.cancel();
         }
-
         _inwardOutwardDebounce = Timer(const Duration(milliseconds: 300), () {
-          _inwardOutwardCubit.getInwardOutwardList(
-            context,
-            state.inwardOutwardCurrentPage + 1,
-          );
+          switch (_tabController.index) {
+            case 0:
+              _inwardOutwardCubit.getInwardOutwardList(
+                context,
+                state.inwardOutwardCurrentPage + 1,
+              );
+              break;
+            case 1:
+              _inwardOutwardCubit.getInwardList(
+                context,
+                state.inwardOutwardCurrentPage + 1,
+              );
+              break;
+            case 2:
+              _inwardOutwardCubit.getOutwardList(
+                context,
+                state.inwardOutwardCurrentPage + 1,
+              );
+              break;
+          }
         });
       }
     });
@@ -142,7 +172,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     BuildContext context,
   ) async {
     final state = _inwardOutwardCubit.state;
-
     final initialDocumentId = state.searchText;
     final initialDocumentType = state.filterByDocumentType;
     final initialSenderName = state.filterBySenderName;
@@ -153,12 +182,10 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     final initialReceiverMobileNumber = state.filterByReceiverMobileNumber;
     final initialFromDate = state.filterByFromDate;
     final initialToDate = state.filterByToDate;
-
     final String? initialDirection =
-        state.currentSortColumn == "Document Id"
+        state.currentSortColumn == "IO Code"
             ? state.currentSortDirection
             : null;
-
     _searchC.text = initialDocumentId;
     _documentTypeC.text = initialDocumentType;
     _senderNameC.text = initialSenderName;
@@ -169,14 +196,10 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     _receiverMobileNumberC.text = initialReceiverMobileNumber;
     _selectedFromDate = initialFromDate;
     _selectedToDate = initialToDate;
-
     String? selectedDirection = initialDirection;
-
     bool applied = false;
     bool manualClose = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState() {
       final bool onlyOneDateSet =
           (_selectedFromDate != null && _selectedToDate == null) ||
@@ -193,14 +216,12 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           (_selectedFromDate != initialFromDate) ||
           (_selectedToDate != initialToDate) ||
           (selectedDirection != initialDirection);
-
       applyEnabled.value = manualClose && !onlyOneDateSet;
     }
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
       title: "Filter - Inward Outward",
-
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -215,10 +236,8 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Sort By Document Id", style: AppTextStyle.ts14M()),
-
+                Text("Sort By IO Code", style: AppTextStyle.ts14M()),
                 verticalSpacing(),
-
                 Row(
                   children: [
                     GestureDetector(
@@ -239,9 +258,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                         child: Text("A-Z", style: AppTextStyle.ts12R()),
                       ),
                     ),
-
                     horizontalSpacing(),
-
                     GestureDetector(
                       onTap: () => selectDirection("DESC"),
                       child: Container(
@@ -262,30 +279,25 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     ),
                   ],
                 ),
-
                 verticalSpacing(height: 20),
-
                 CustomTextField(
                   textController: _searchC,
-                  title: "Document Id",
-                  hint: "Enter Document Id",
+                  title: "IO Code",
+                  hint: "Enter IO Code",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _senderNameC,
                   title: "Sender Name",
                   hint: "Enter Sender Name",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _receiverNameC,
                   title: "Receiver Name",
                   hint: "Enter Receiver Name",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 if (_tabController.index == 0)
                   CustomTextField(
                     textController: _documentTypeC,
@@ -293,21 +305,18 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                     hint: "Enter Document Type",
                     onChangeFunction: (_) => updateApplyState(),
                   ),
-
                 CustomTextField(
                   textController: _documentTitleC,
                   title: "Document Title",
                   hint: "Enter Document Title",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _statusC,
                   title: "Status",
                   hint: "Enter Status",
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _senderMobileNumberC,
                   title: "Sender Mobile Number",
@@ -316,7 +325,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomTextField(
                   textController: _receiverMobileNumberC,
                   title: "Receiver Mobile Number",
@@ -325,7 +333,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                   inputFormatterList: InputValidator.digit(10),
                   onChangeFunction: (_) => updateApplyState(),
                 ),
-
                 CustomFromToDatePicker(
                   fromDateTitle: "From Date",
                   toDateTitle: "To Date",
@@ -344,7 +351,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           );
         },
       ),
-
       onClear: () async {
         _searchC.clear();
         _documentTypeC.clear();
@@ -354,19 +360,15 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
         _statusC.clear();
         _senderMobileNumberC.clear();
         _receiverMobileNumberC.clear();
-
         _selectedFromDate = null;
         selectedDirection = null;
-
         await _inwardOutwardCubit.applyInwardOutwardFilterAndSort(
           context: context,
           isClear: true,
         );
       },
-
       onApply: () {
         applied = true;
-
         _inwardOutwardCubit.applyInwardOutwardFilterAndSort(
           context: context,
           documentId: _searchC.text.trim(),
@@ -379,15 +381,13 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           receiverMobileNumber: _receiverMobileNumberC.text.trim(),
           fromDate: _selectedFromDate,
           toDate: _selectedToDate,
-          sortColumn: selectedDirection != null ? "Document Id" : "",
+          sortColumn: selectedDirection != null ? "IO Code" : "",
           sortDirection: selectedDirection ?? "",
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     if (!applied && manualClose) {
       _searchC.clear();
       _documentTypeC.clear();
@@ -397,7 +397,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       _statusC.clear();
       _senderMobileNumberC.clear();
       _receiverMobileNumberC.clear();
-
       _selectedFromDate = null;
       selectedDirection = null;
     }
@@ -414,7 +413,6 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       'You are about to delete this Inward Outward ?',
       'Deleting this Inward Outward will permanently remove its contents.',
     );
-
     if (result && context.mounted) {
       _inwardOutwardCubit.deleteInwardOutward(
         index: index,
@@ -434,21 +432,16 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
       child: Scaffold(
         appBar: CustomAppBar(
           screenTitle: "Inward Outward",
-          authorization: _inwardOutwardRouteAuthorizationModel,
-          searchHintText: "Search By Document Id",
+          authorization: _routeAuthorizationModel,
+          searchHintText: "Search By IO Code",
           textController: _searchC,
           filterCountNotifier: _filterCount,
           isFilterOn: true,
           onFilterTap: () => _showBottomSheetToFilterInwardOutward(context),
-          onSearchSubmit: (v) {
-            _inwardOutwardCubit.searchInwardOutward(context, v);
-          },
+          onSearchSubmit:
+              (v) => _inwardOutwardCubit.searchInwardOutward(context, v),
           onExportCallback: (v) {
-            if (context
-                .read<InwardOutwardCubit>()
-                .state
-                .inwardOutwardList
-                .isEmpty) {
+            if (_inwardOutwardCubit.state.inwardOutwardList.isEmpty) {
               showErrorMessage(context, "Error", "No Data Found.");
               return;
             }
@@ -464,67 +457,54 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
               controller: _tabController,
               tabs: inwardOutwardTabs,
             ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  inwardOutwardSection(),
-                  inwardSection(),
-                  outwardSection(),
-                ],
-              ),
-            ),
+            Expanded(child: _inwardOutwardSection()),
           ],
         ),
       ),
     );
   }
 
-  Widget inwardOutwardSection() {
+  Widget _inwardOutwardSection() {
     return BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
       builder: (context, state) {
-        if ((state.isLoading ?? true) && state.inwardOutwardList.isEmpty) {
+        final list = state.inwardOutwardList;
+        if ((state.isLoading ?? true) && list.isEmpty) {
           return Center(child: loader());
         }
-        if (state.inwardOutwardList.isEmpty) {
+        if (list.isEmpty) {
           return Center(
-            child: noDataWidget(message: "No Inward Outward Data Found"),
+            child: noDataWidget(
+              message:
+                  _tabController.index == 0
+                      ? "No Inward Outward Data Found"
+                      : _tabController.index == 1
+                      ? "No Inward Data Found"
+                      : "No Outward Data Found",
+            ),
           );
         }
         return RefreshIndicator(
-          onRefresh: () async {
-            _inwardOutwardCubit.handleTabChange(
-              context: context,
-              currentTabIndex: _tabController.index,
-            );
-          },
+          onRefresh: () => _inwardOutwardCubit.handleApiCall(context: context),
           child: ListView.separated(
             controller: _inwardOutwardScrollController,
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            separatorBuilder: (context, index) => verticalSpacing(height: 12),
-            itemCount: state.inwardOutwardList.length + 1,
+            separatorBuilder: (_, __) => verticalSpacing(height: 12),
+            itemCount: list.length + 1,
             itemBuilder: (context, index) {
-              if (index == state.inwardOutwardList.length) {
-                return state.inwardOutwardList.length <
-                        state.inwardOutwardTotalRecords
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
+              if (index == list.length) {
+                return list.length < state.inwardOutwardTotalRecords
+                    ? const Padding(
+                      padding: EdgeInsets.all(16),
                       child: Center(child: CircularProgressIndicator()),
                     )
                     : const SizedBox.shrink();
               }
-
-              final inwardOutward = state.inwardOutwardList[index];
+              final inwardOutward = list[index];
               final documentModeStyle =
                   inwardOutward.documentType.toLowerCase() == 'inward'
                       ? AppTextStyle.ts14B(color: AppColor.darkBlue29)
                       : AppTextStyle.ts14B(color: AppColor.darkRed);
-              final disable =
-                  !_inwardOutwardRouteAuthorizationModel.isAction ||
-                  (inwardOutward.deliveryStatus.isNotEmpty);
               return inwardOutwardCard(
-                disable: disable,
                 index: index,
                 inwardOutward: inwardOutward,
                 documentModeStyle: documentModeStyle,
@@ -536,130 +516,29 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
     );
   }
 
-  Widget inwardSection() {
-    return BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
-      builder: (context, state) {
-        if ((state.isLoading ?? true) && state.inwardOutwardList.isEmpty) {
-          return Center(child: loader());
-        }
-        if (state.inwardOutwardList.isEmpty) {
-          return Center(child: noDataWidget(message: "No Inward Data Found"));
-        }
-        return RefreshIndicator(
-          onRefresh: () async {
-            _inwardOutwardCubit.handleTabChange(
-              context: context,
-              currentTabIndex: _tabController.index,
-            );
-          },
-          child: ListView.separated(
-            controller: _inwardOutwardScrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            separatorBuilder: (context, index) => verticalSpacing(height: 12),
-            itemCount: state.inwardOutwardList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.inwardOutwardList.length) {
-                return state.inwardOutwardList.length <
-                        state.inwardOutwardTotalRecords
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-
-              final inward = state.inwardOutwardList[index];
-              final documentModeStyle =
-                  inward.documentType.toLowerCase() == 'inward'
-                      ? AppTextStyle.ts14B(color: AppColor.darkBlue29)
-                      : AppTextStyle.ts14B(color: AppColor.darkRed);
-              final disable =
-                  !_inwardOutwardRouteAuthorizationModel.isAction ||
-                  (inward.deliveryStatus.isNotEmpty);
-              return inwardOutwardCard(
-                disable: disable,
-                inwardOutward: inward,
-                documentModeStyle: documentModeStyle,
-                index: index,
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget outwardSection() {
-    return BlocBuilder<InwardOutwardCubit, InwardOutwardState>(
-      builder: (context, state) {
-        if ((state.isLoading ?? true) && state.inwardOutwardList.isEmpty) {
-          return Center(child: loader());
-        }
-        if (state.inwardOutwardList.isEmpty) {
-          return Center(child: noDataWidget(message: "No Outward Data Found"));
-        }
-        return RefreshIndicator(
-          onRefresh: () async {
-            _inwardOutwardCubit.handleTabChange(
-              context: context,
-              currentTabIndex: _tabController.index,
-            );
-          },
-          child: ListView.separated(
-            controller: _inwardOutwardScrollController,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            separatorBuilder: (context, index) => verticalSpacing(height: 12),
-            itemCount: state.inwardOutwardList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.inwardOutwardList.length) {
-                return state.inwardOutwardList.length <
-                        state.inwardOutwardTotalRecords
-                    ? Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-
-              final outward = state.inwardOutwardList[index];
-              final documentModeStyle =
-                  outward.documentType.toLowerCase() == 'inward'
-                      ? AppTextStyle.ts14B(color: AppColor.darkBlue29)
-                      : AppTextStyle.ts14B(color: AppColor.darkRed);
-              final disable =
-                  !_inwardOutwardRouteAuthorizationModel.isAction ||
-                  (outward.deliveryStatus.isNotEmpty);
-              return inwardOutwardCard(
-                disable: disable,
-                index: index,
-                inwardOutward: outward,
-                documentModeStyle: documentModeStyle,
-              );
-            },
-          ),
-        );
-      },
-    );
-  }
-
   Widget inwardOutwardCard({
     required InwardOutwardModel inwardOutward,
-    required bool disable,
     required TextStyle documentModeStyle,
     required int index,
   }) {
+    final disableRevert =
+        !(_acknowlegmentRouteAuthorizationModel.isAction ||
+            _inwardOutwardAdministrativeAccessRouteAuthorizationModel.isAction);
+    final revertCount = inwardOutward.inwardOutwardRevertHistory.length;
+    final disable =
+        !_routeAuthorizationModel.isAction ||
+        inwardOutward.deliveryStatus.isNotEmpty;
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: commonCardDecoration(),
       child: Column(
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () async {
+                  onTap: () {
                     goRouter.pushNamed(
                       AppRoutes.viewInwardOutward,
                       queryParameters: {
@@ -682,7 +561,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                 children: [
                   CustomIconButton.edit(
                     isDisabled: disable,
-                    onPressed: () async {
+                    onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.addInwardOutward,
                         queryParameters: {
@@ -706,37 +585,71 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
                           uniqueKey: inwardOutward.uniqueKey,
                         ),
                   ),
-                  CustomIconButton(
-                    isDisable: !_inwardOutwardRouteAuthorizationModel.isAction,
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.revertInwardOutward,
-                        queryParameters: {
-                          "inwardOutwardId": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              inwardOutward.inwardOutwardId.toString(),
-                            ),
-                          ),
-                          "uniquekey": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              inwardOutward.uniqueKey,
-                            ),
-                          ),
-                          "index": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(index.toString()),
-                          ),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      CustomIconButton(
+                        isDisable: disableRevert,
+                        onPressed: () {
+                          goRouter.pushNamed(
+                            AppRoutes.revertInwardOutward,
+                            queryParameters: {
+                              "inwardOutwardId": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(
+                                  inwardOutward.inwardOutwardId.toString(),
+                                ),
+                              ),
+                              "uniquekey": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(
+                                  inwardOutward.uniqueKey,
+                                ),
+                              ),
+                              "index": Uri.encodeQueryComponent(
+                                EncryptionManager.encryptData(index.toString()),
+                              ),
+                            },
+                          );
                         },
-                      );
-                    },
-                    backgroundColor: AppColor.lightGreen,
-                    icon: Icon(
-                      Icons.refresh,
-                      size: 16,
-                      color:
-                          _inwardOutwardRouteAuthorizationModel.isAction
-                              ? AppColor.darkGreen
-                              : AppColor.grey2,
-                    ),
+                        backgroundColor: AppColor.lightGreen,
+                        icon: Icon(
+                          Icons.refresh,
+                          size: 16,
+                          color:
+                              disableRevert
+                                  ? AppColor.grey2
+                                  : AppColor.darkGreen,
+                        ),
+                      ),
+                      if (revertCount > 0)
+                        Positioned(
+                          top: -6,
+                          right: -6,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                              minWidth: 16,
+                              minHeight: 16,
+                            ),
+                            padding: const EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color:
+                                  disableRevert
+                                      ? AppColor.red.withValues(alpha: 0.4)
+                                      : AppColor.missingInformationRed
+                                          .withValues(alpha: 0.8),
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              revertCount > 99 ? '99+' : '$revertCount',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ],
               ),
@@ -750,6 +663,7 @@ class _InwardOutwardScreenState extends State<InwardOutwardScreen>
           buildRowTitleValue(
             title: "Document Title",
             value: inwardOutward.documentTitle,
+            singleLine: false,
           ),
           buildRowTitleValue(
             title: "Status",

@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_master/data/model/shift_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class ShiftMasterDataSource {
   Future<Map<String, dynamic>> apiCallPullShift({
@@ -42,7 +43,7 @@ class ShiftMasterDataSourceImp extends ShiftMasterDataSource {
     }) {
       String url =
           "ShiftManagementMaster/PullShiftManagementMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -145,7 +146,7 @@ class ShiftMasterDataSourceImp extends ShiftMasterDataSource {
     }) {
       String url =
           "ShiftManagementMaster/PullShiftManagementMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

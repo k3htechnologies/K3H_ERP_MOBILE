@@ -9,14 +9,12 @@ class SenderDetailModel {
     required this.address,
     required this.emailId,
   });
-
   factory SenderDetailModel.fromJson(Map<String, dynamic> json) =>
       SenderDetailModel(
         name: parseValue<String>(json, "Name"),
         address: parseValue<String>(json, "Address"),
         emailId: parseValue<String>(json, "EmailId"),
       );
-
   Map<String, dynamic> toJson() => {
     "Name": name,
     "Address": address,

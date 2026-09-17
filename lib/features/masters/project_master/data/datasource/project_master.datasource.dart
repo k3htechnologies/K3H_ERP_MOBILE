@@ -174,7 +174,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url = "Project/PullProjectWithBankDetails?ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -211,7 +211,7 @@ class ProjectMasterDatasourceImpl implements ProjectMasterDatasource {
   }) async {
     String pullProjectWithEmployeeUrl({required int projectId}) {
       var url = "Project/PullProjectWithEmployee?ProjectId=$projectId";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

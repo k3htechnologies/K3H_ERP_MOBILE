@@ -7,7 +7,6 @@ class MaterialMasterState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const MaterialMasterState({
     super.isLoading,
     required this.materialList,
@@ -17,7 +16,6 @@ class MaterialMasterState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
-
   factory MaterialMasterState.initial() => MaterialMasterState(
     materialList: [],
     totalNumberOfRecord: 0,
@@ -27,7 +25,6 @@ class MaterialMasterState extends BaseState {
     currentSortDirection: "DESC",
     isLoading: true,
   );
-
   MaterialMasterState copyWith({
     String? errorMessage,
     bool? isLoading,

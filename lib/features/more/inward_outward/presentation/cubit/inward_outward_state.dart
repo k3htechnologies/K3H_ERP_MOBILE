@@ -5,10 +5,8 @@ class InwardOutwardState extends BaseState {
   final List<InwardOutwardModel> inwardOutwardList;
   final int inwardOutwardTotalRecords;
   final int inwardOutwardCurrentPage;
-
   final String searchText;
   final int currentTabIndex;
-
   final String filterBySenderName;
   final String filterByReceiverName;
   final String filterByDocumentType;
@@ -18,10 +16,9 @@ class InwardOutwardState extends BaseState {
   final String filterByReceiverMobileNumber;
   final DateTime? filterByFromDate;
   final DateTime? filterByToDate;
-
   final String currentSortColumn;
   final String currentSortDirection;
-
+  final InwardOutwardModel? inwardOutwardDetails;
   const InwardOutwardState({
     super.isLoading,
     required this.inwardOutwardList,
@@ -40,18 +37,15 @@ class InwardOutwardState extends BaseState {
     required this.filterByToDate,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    this.inwardOutwardDetails,
   });
-
   factory InwardOutwardState.initial() => const InwardOutwardState(
     isLoading: true,
-
     inwardOutwardList: [],
     inwardOutwardTotalRecords: 0,
     inwardOutwardCurrentPage: 1,
-
     searchText: "",
     currentTabIndex: 0,
-
     filterBySenderName: "",
     filterByReceiverName: "",
     filterByDocumentType: "",
@@ -63,9 +57,9 @@ class InwardOutwardState extends BaseState {
     filterByToDate: null,
     currentSortColumn: "",
     currentSortDirection: "",
+    inwardOutwardDetails: null,
   );
   static const _noChange = Object();
-
   InwardOutwardState copyWith({
     bool? isLoading,
     List<InwardOutwardModel>? inwardOutwardList,
@@ -84,10 +78,10 @@ class InwardOutwardState extends BaseState {
     Object? filterByToDate = _noChange,
     String? currentSortColumn,
     String? currentSortDirection,
+    InwardOutwardModel? inwardOutwardDetails,
   }) {
     return InwardOutwardState(
       isLoading: isLoading ?? this.isLoading,
-
       inwardOutwardList: inwardOutwardList ?? this.inwardOutwardList,
       inwardOutwardTotalRecords:
           inwardOutwardTotalRecords ?? this.inwardOutwardTotalRecords,
@@ -95,7 +89,6 @@ class InwardOutwardState extends BaseState {
           inwardOutwardCurrentPage ?? this.inwardOutwardCurrentPage,
       searchText: searchText ?? this.searchText,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
-
       filterBySenderName: filterBySenderName ?? this.filterBySenderName,
       filterByReceiverName: filterByReceiverName ?? this.filterByReceiverName,
       filterByDocumentType: filterByDocumentType ?? this.filterByDocumentType,
@@ -116,19 +109,18 @@ class InwardOutwardState extends BaseState {
               : filterByToDate as DateTime?,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      inwardOutwardDetails: inwardOutwardDetails ?? this.inwardOutwardDetails,
     );
   }
 
   @override
   List<Object?> get props => [
     isLoading,
-
     inwardOutwardList,
     inwardOutwardTotalRecords,
     inwardOutwardCurrentPage,
     searchText,
     currentTabIndex,
-
     filterBySenderName,
     filterByReceiverName,
     filterByDocumentType,
@@ -138,8 +130,8 @@ class InwardOutwardState extends BaseState {
     filterByReceiverMobileNumber,
     filterByFromDate,
     filterByToDate,
-
     currentSortColumn,
     currentSortDirection,
+    inwardOutwardDetails,
   ];
 }

@@ -52,12 +52,12 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
   late TextEditingController _payAmountC,
       _transactionNumC,
       _accountNumberC,
-      _projectAccountNumberC,
       _ifscCodeC,
-      _projectIfscCodeC,
-      _branchC,
-      _projectAccountType,
       _accountHolderNameC,
+      _projectAccountNumberC,
+      _projectIfscCodeC,
+      _projectBranchC,
+      _projectAccountType,
       _projectNatureOfAccountC;
   DateTime? selectedDate;
   final ValueNotifier<Map<String, dynamic>?> _selectedPaymentMode =
@@ -97,7 +97,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
     _transactionNumC.text = p.transactionChequeDemandDraftNumber;
     _accountNumberC.text = p.accountNumber;
     _ifscCodeC.text = p.ifscCode;
-    _branchC.text = '';
+    _projectBranchC.text = '';
     _projectAccountType.text = '';
     _accountHolderNameC.text = p.projectBankAccountHolderName;
     _selectedPaymentMode.value = paymentModeList.firstWhere(
@@ -134,7 +134,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
     _projectIfscCodeC.text =
         (_selectedProjectWiseBankNotifier.value.first["IFSCCode"] ?? "")
             .toString();
-    _branchC.text =
+    _projectBranchC.text =
         (_selectedProjectWiseBankNotifier.value.first["Branch"] ?? "")
             .toString();
     _projectAccountType.text =
@@ -152,7 +152,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
     _payAmountC.dispose();
     _accountNumberC.dispose();
     _ifscCodeC.dispose();
-    _branchC.dispose();
+    _projectBranchC.dispose();
     _projectAccountType.dispose();
     _accountHolderNameC.dispose();
     _projectAccountNumberC.dispose();
@@ -169,7 +169,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
     _payAmountC = TextEditingController();
     _accountNumberC = TextEditingController();
     _ifscCodeC = TextEditingController();
-    _branchC = TextEditingController();
+    _projectBranchC = TextEditingController();
     _projectAccountType = TextEditingController();
     _accountHolderNameC = TextEditingController();
     _projectAccountNumberC = TextEditingController();
@@ -523,7 +523,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                                               .toString();
                                       _projectIfscCodeC.text =
                                           (item["IFSCCode"] ?? "").toString();
-                                      _branchC.text =
+                                      _projectBranchC.text =
                                           (item["Branch"] ?? "").toString();
                                       _projectAccountType.text =
                                           (item["AcType"] ?? "").toString();
@@ -557,7 +557,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                                   ),
                                   CustomTextField(
                                     title: "Branch",
-                                    textController: _branchC,
+                                    textController: _projectBranchC,
                                     readOnly: true,
                                     isRequired: true,
                                   ),

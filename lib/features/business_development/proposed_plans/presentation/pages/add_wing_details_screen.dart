@@ -117,6 +117,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       CustomTextField(
                         title: "Wing Name",
                         hint: "Wing Name",
+                        isRequired: true,
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(25),
                         ],
@@ -229,6 +230,10 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                   return;
                 }
                 goRouter.pop(wing);
+                showSuccessMessage(
+                  context,
+                  subTitle: "Wing ${widget.wingIndex + 1} details saved.",
+                );
               },
             ),
           ),

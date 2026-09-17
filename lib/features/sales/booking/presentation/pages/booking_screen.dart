@@ -726,6 +726,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                       ),
                                       buildRowTitleValue(
                                         title: "Agreement Value (₹)",
+                                        singleLine: false,
                                         value:
                                             booking.agreementValue
                                                 .toIndianCurrency(),

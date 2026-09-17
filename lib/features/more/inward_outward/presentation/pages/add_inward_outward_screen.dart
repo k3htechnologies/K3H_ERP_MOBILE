@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
+import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/data/model/inward_outward.model.dart';
 import 'package:k3h_erp_app/features/more/inward_outward/presentation/cubit/inward_outward_cubit.dart';
@@ -12,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -37,8 +41,12 @@ class AddInwardOutwardScreen extends StatefulWidget {
 
 class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   late InwardOutwardCubit _inwardOutwardCubit;
-  late AuthorizationModel _routeAuthorizationModel;
+  late AuthorizationModel _inwardOutwardRouteAuthorizationModel;
+  late AuthorizationModel _acknowlegmentRouteAuthorizationModel;
+  late AuthorizationModel
+  _inwardOutwardAdministrativeAccessRouteAuthorizationModel;
   bool get _isEditMode => widget.inwardOutwardModel != null;
+  late UserModel _user;
   late TextEditingController _documentTitleC,
       _invoiceNoC,
       _amountC,
@@ -54,6 +62,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
       _documentDescC,
       _receivedByC,
       _handoverToC,
+      _handoverPersonMobileNumberC,
       _remarkC;
   final ValueNotifier<String> _deliveryType = ValueNotifier("Others");
   final ValueNotifier<Map<String, dynamic>?> _selectedDocumentType =
@@ -68,6 +77,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   final ValueNotifier<CountryCode> _selectedReceiverCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
+  final ValueNotifier<CountryCode> _selectedHandoverPersonCountry =
+      ValueNotifier(countryList.firstWhere((e) => e.code == "+91"));
   DateTime? _date, _invoiceDate, _handoverDate;
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -95,10 +106,18 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
   @override
   void initState() {
     _inwardOutwardCubit = context.read<InwardOutwardCubit>();
-    _routeAuthorizationModel =
+    _inwardOutwardRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.inwardOutward] ??
+        AuthorizationModel();
+    _acknowlegmentRouteAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
             .inwardOutwardAcknowledgement] ??
         AuthorizationModel();
+    _inwardOutwardAdministrativeAccessRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes
+            .inwardOutwardAdministrativeAccess] ??
+        AuthorizationModel();
+    getCurrentUser();
     _initializeTextEditingControllers();
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     if (_isEditMode) {
@@ -126,6 +145,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _documentDescC.dispose();
     _receivedByC.dispose();
     _handoverToC.dispose();
+    _handoverPersonMobileNumberC.dispose();
     _remarkC.dispose();
     _deliveryType.dispose();
     _selectedDocumentType.dispose();
@@ -153,7 +173,38 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _documentDescC = TextEditingController();
     _receivedByC = TextEditingController();
     _handoverToC = TextEditingController();
+    _handoverPersonMobileNumberC = TextEditingController();
     _remarkC = TextEditingController();
+  }
+
+  Future getCurrentUser() async {
+    var userJson = jsonDecode(
+      LocalStorageManager().getString(StorageKey.currentUser) ?? "",
+    );
+    _user = UserModel.fromJson(userJson);
+  }
+
+  bool get disableInwardOutward {
+    final isCreator =
+        _user.employeeId == widget.inwardOutwardModel?.createdById;
+    final canEditAsCreator =
+        isCreator &&
+        _isEditMode &&
+        _acknowlegmentRouteAuthorizationModel.isAction;
+    final canEditFromAcknowledgment =
+        !_isEditMode &&
+        !_inwardOutwardRouteAuthorizationModel.isAction &&
+        _acknowlegmentRouteAuthorizationModel.isAction;
+    final hasInwardOutwardAccess =
+        _inwardOutwardRouteAuthorizationModel.isAction;
+    final hasAdministrativeAccess =
+        _inwardOutwardAdministrativeAccessRouteAuthorizationModel.isAction;
+    final disable =
+        !(canEditAsCreator ||
+            canEditFromAcknowledgment ||
+            hasInwardOutwardAccess ||
+            hasAdministrativeAccess);
+    return disable;
   }
 
   void _populateFormFields() {
@@ -221,6 +272,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     _receivedByC.text = data.acknowledgementBy;
     _handoverToC.text = data.handOverTo;
     _handoverDate = data.handOverDate;
+    _handoverPersonMobileNumberC.text = data.handoverPersonMobileNumber;
     _remarkC.text = data.acknowledgementRemark;
     selectedAcknowlegementSignatureFile.fileNameList =
         data.acknowledgementSignatureURL.isNotEmpty
@@ -246,6 +298,19 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     if (data.receiverMobileNumberCountryCode.isNotEmpty) {
       _selectedReceiverCountry.value = countryList.firstWhere(
         (e) => e.code == data.receiverMobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
+    if (data.handoverPersonMobileNumberCountryCode.isNotEmpty) {
+      _selectedHandoverPersonCountry.value = countryList.firstWhere(
+        (e) => e.code == data.handoverPersonMobileNumberCountryCode,
         orElse:
             () => CountryCode(
               name: "India",
@@ -290,6 +355,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         acknowledgementBy: _receivedByC.text.trim(),
         handOverTo: _handoverToC.text.trim(),
         handOverDate: _handoverDate?.toIso8601String() ?? "",
+        handoverPersonMobileNumberCountryCode:
+            _selectedHandoverPersonCountry.value.code,
+        handoverPersonMobileNumber: _handoverPersonMobileNumberC.text.trim(),
         chequeNumber: _chequeNumberC.text.trim(),
         documentTitle: _documentTitleC.text.trim(),
         documentDescription: _documentDescC.text.trim(),
@@ -322,6 +390,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
         acknowledgementBy: _receivedByC.text.trim(),
         handOverTo: _handoverToC.text.trim(),
         handOverDate: _handoverDate?.toIso8601String() ?? "",
+        handoverPersonMobileNumberCountryCode:
+            _selectedHandoverPersonCountry.value.code,
+        handoverPersonMobileNumber: _handoverPersonMobileNumberC.text.trim(),
         chequeNumber: _chequeNumberC.text.trim(),
         documentTitle: _documentTitleC.text.trim(),
         documentDescription: _documentDescC.text.trim(),
@@ -336,6 +407,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
     }
   }
 
+  bool get shouldShowAcknowledgementFields =>
+      _acknowlegmentRouteAuthorizationModel.isAction ||
+      _inwardOutwardAdministrativeAccessRouteAuthorizationModel.isAction;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -366,6 +440,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                     return Row(
                       children: [
                         Radio<String>(
+                          enabled: !disableInwardOutward,
                           value: 'Others',
                           // ignore: deprecated_member_use
                           groupValue: value,
@@ -379,6 +454,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         Text("Others", style: AppTextStyle.ts14M()),
                         horizontalSpacing(width: 16),
                         Radio<String>(
+                          enabled: !disableInwardOutward,
                           value: 'Cheque',
                           // ignore: deprecated_member_use
                           groupValue: value,
@@ -402,6 +478,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       title: "Document Type",
                       hintText: "Select Document Type",
                       initialValue: value,
+                      isDisabled: disableInwardOutward,
                       isRequired: true,
                       dataList: inwardOutwardDocumentType,
                       onSelected: (value) {
@@ -423,6 +500,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   textController: _documentTitleC,
                   title: "Document Title",
                   isRequired: true,
+                  readOnly: disableInwardOutward,
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   hint: "Enter Document Title",
                   validator: (value) {
@@ -436,9 +514,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Date",
                   initialDate: _date,
                   readOnly: true,
-                  setValue: (value) {
-                    _date = value;
-                  },
+                  setValue: (value) {},
                   isRequired: true,
                 ),
                 ValueListenableBuilder(
@@ -450,8 +526,8 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                         CustomTextField(
                           textController: _invoiceNoC,
                           title: "Invoice Number",
-                          isRequired: !isOther,
                           hint: "Enter Invoice Number",
+                          readOnly: disableInwardOutward,
                           inputFormatterList:
                               InputValidator.digitAndCharacterOnly(15),
                           validator: (value) {
@@ -462,17 +538,18 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                                 )) {
                               return "Invoice Number cannot be zero.";
                             }
-                            if (isOther) return null;
-                            if (value == null || value.trim().isEmpty) {
-                              return "Invoice Number is required.";
-                            }
                             return null;
                           },
                         ),
                         CustomDatePicker(
                           title: "Invoice Date",
                           initialDate: _invoiceDate,
-                          endDate: DateTime.now(),
+                          readOnly: disableInwardOutward,
+                          // TODO : TEMPORARY COMMENTED
+                          // startDate: DateTime.now().subtract(
+                          //   const Duration(days: 6),
+                          // ),
+                          // endDate: DateTime.now(),
                           setValue: (value) {
                             _invoiceDate = value;
                           },
@@ -489,6 +566,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           textController: _amountC,
                           title: "Amount",
                           isRequired: !isOther,
+                          readOnly: disableInwardOutward,
                           prefixType: CustomTextFieldPrefix.rupees,
                           hint: "Enter Amount",
                           keyboardType: TextInputType.numberWithOptions(),
@@ -498,7 +576,9 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           ),
                           validator: (value) {
                             if (isOther) return null;
-                            if (value == null || value.trim().isEmpty) {
+                            if (value == null ||
+                                value.trim().isEmpty ||
+                                int.tryParse(value.trim()) == 0) {
                               return "Amount is required.";
                             }
                             return null;
@@ -514,6 +594,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                               title: "Cheque No",
                               isRequired: true,
                               keyboardType: TextInputType.number,
+                              readOnly: disableInwardOutward,
                               inputFormatterList: InputValidator.digit(6),
                               hint: "Enter Cheque No",
                               validator: (value) {
@@ -544,6 +625,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       textController: _senderMobileNumberC,
                       title: "Mobile No.",
                       isRequired: true,
+                      readOnly: disableInwardOutward || _isEditMode,
                       hint: "Enter Sender Mobile No.",
                       showCountryDropdown: true,
                       keyboardType: TextInputType.number,
@@ -597,6 +679,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   textController: _senderNameC,
                   title: "Name",
                   isRequired: true,
+                  readOnly: disableInwardOutward,
                   hint: "Enter Sender Name",
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
                   validator: (value) {
@@ -614,6 +697,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   textController: _senderEmailIdC,
                   title: "Email-Id",
                   isRequired: true,
+                  readOnly: disableInwardOutward,
                   keyboardType: TextInputType.emailAddress,
                   hint: "Enter Sender Email-Id",
                   validator: (value) {
@@ -634,7 +718,10 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   textController: _senderAddressC,
                   title: "Address",
                   isRequired: true,
+                  readOnly: disableInwardOutward,
                   hint: "Enter Sender Address",
+                  minLines: 3,
+                  maxLines: 3,
                   inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -656,6 +743,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                       textController: _receiverMobileNumberC,
                       title: "Mobile No.",
                       isRequired: true,
+                      readOnly: disableInwardOutward || _isEditMode,
                       hint: "Enter Receiver Mobile No.",
                       keyboardType: TextInputType.number,
                       showCountryDropdown: true,
@@ -710,6 +798,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                 CustomTextField(
                   textController: _receiverNameC,
                   title: "Name",
+                  readOnly: disableInwardOutward,
                   isRequired: true,
                   hint: "Enter Receiver Name",
                   inputFormatterList: [LengthLimitingTextInputFormatter(50)],
@@ -727,6 +816,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                 CustomTextField(
                   textController: _receiverEmailIdC,
                   title: "Email-Id",
+                  readOnly: disableInwardOutward,
                   isRequired: true,
                   keyboardType: TextInputType.emailAddress,
                   hint: "Enter Receiver Email-Id",
@@ -747,9 +837,12 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                 CustomTextField(
                   textController: _receiverAddressC,
                   title: "Address",
+                  readOnly: disableInwardOutward,
                   isRequired: true,
                   hint: "Enter Receiver Address",
                   inputFormatterList: [LengthLimitingTextInputFormatter(100)],
+                  minLines: 3,
+                  maxLines: 3,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return "Receiver Address is required.";
@@ -767,6 +860,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   title: "Document",
                   isRequired: true,
                   maxFiles: 5,
+                  readOnly: disableInwardOutward,
                   filePickType: FilePickType.both,
                   initialFileList: selectedDocumentFile.fileNameList,
                   onFilePickedCallback: (bytesList, fileNameList) {
@@ -784,7 +878,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   },
                   validator: (fileList) {
                     if (fileList == null || fileList.isEmpty) {
-                      return "Document is required.";
+                      return "Document File is required.";
                     }
                     return null;
                   },
@@ -792,9 +886,12 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                 CustomTextField(
                   textController: _documentDescC,
                   title: "Document Description",
+                  readOnly: disableInwardOutward,
                   isRequired: true,
                   hint: "Enter Document Description",
-                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
+                  minLines: 3,
+                  maxLines: 3,
+                  inputFormatterList: [LengthLimitingTextInputFormatter(500)],
                   validator: (value) {
                     if (value == null || value.toString().trim().isEmpty) {
                       return "Document Description is required.";
@@ -815,6 +912,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           isRequired: true,
                           hintText: "Select Employee",
                           isMultiSelect: true,
+                          isReadOnly: disableInwardOutward,
                           initialValue: selectedEmployee,
                           dataList: const [],
                           onSelected: (value) {
@@ -833,7 +931,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   },
                 ),
               ]),
-              if (_routeAuthorizationModel.isAction) ...[
+              if (shouldShowAcknowledgementFields) ...[
                 _card("Delivery Details", [
                   ValueListenableBuilder(
                     valueListenable: _selectedDeliveryMode,
@@ -895,7 +993,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                     },
                   ),
                   CustomMultiFilePicker(
-                    title: "Attachment",
+                    title: "Acknowledgement Document",
                     filePickType: FilePickType.both,
                     initialFileList: selectedAcknowledgementFile.fileNameList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -921,9 +1019,42 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   CustomDatePicker(
                     title: "Handover Date",
                     initialDate: _handoverDate,
-                    startDate: DateTime.now(),
+                    startDate: DateTime.now().subtract(const Duration(days: 2)),
                     setValue: (value) {
                       _handoverDate = value;
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: _selectedHandoverPersonCountry,
+                    builder: (context, value, child) {
+                      return CustomTextField(
+                        textController: _handoverPersonMobileNumberC,
+                        title: "Handover Person's Mobile Number",
+                        hint: "Enter Handover Person's Mobile Number",
+                        showCountryDropdown: true,
+                        keyboardType: TextInputType.number,
+                        selectedCountry: value,
+                        onCountryChanged: (country) {
+                          if (country == null) return;
+                          _selectedHandoverPersonCountry.value = country;
+                        },
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(value.mobileLength),
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        validator: (value) {
+                          final mobile = value?.trim() ?? "";
+                          final country = _selectedHandoverPersonCountry.value;
+                          if (mobile.isNotEmpty) {
+                            if ((mobile.length != country.mobileLength) ||
+                                country.regex != null &&
+                                    !country.regex!.hasMatch(mobile)) {
+                              return "Invalid Handover Person's Mobile Number";
+                            }
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
                   CustomTextField(

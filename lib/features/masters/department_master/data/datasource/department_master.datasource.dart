@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class DepartmentMasterDatasource {
   Future<Map<String, dynamic>> apicallPullDepartmentMaster({
@@ -41,7 +42,7 @@ class DepartmentMasterDataSourceImpl implements DepartmentMasterDatasource {
     }) {
       String url =
           "DepartmentMaster/PullDepartmentMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -144,7 +145,7 @@ class DepartmentMasterDataSourceImpl implements DepartmentMasterDatasource {
     }) {
       String url =
           "DepartmentMaster/PullDepartmentMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

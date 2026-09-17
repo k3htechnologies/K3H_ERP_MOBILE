@@ -65,7 +65,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     _filterAssetBrandC.dispose();
     _filterAssetModelC.dispose();
     _filterSerialNumberC.dispose();
-    scrollController.dispose();
     _debounce?.cancel();
     _filterCount.dispose();
     super.dispose();

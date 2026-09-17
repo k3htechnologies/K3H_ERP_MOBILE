@@ -22,7 +22,6 @@ class _UnitSpecificationViewScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBarWithBackButton(
         screenTitle: 'Unit Specification',
         authorization: AuthorizationModel(),

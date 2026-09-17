@@ -502,8 +502,8 @@ class AppRoutes {
   // INWARD - OUTWARD
   static String inwardOutward = "/inwardOutward";
   static String inwardOutwardAcknowledgement = "/inwardOutwardAcknowledgement";
-  static String inwarOutwarAdministrativeAccess =
-      "/inwarOutwarAdministrativeAccess";
+  static String inwardOutwardAdministrativeAccess =
+      "/inwardOutwardAdministrativeAccess";
   static String revertInwardOutward = "/revertInwardOutward";
   static String addInwardOutward = "/addInwardOutward";
   static String viewInwardOutward = "/viewInwardOutward";
@@ -552,4 +552,15 @@ class AppRoutes {
 
   // otp LOGS
   static String otpLogs = "/otpLogs";
+
+  // VISITOR MANAGEMENT
+  static String gatePass = "/gatePass";
+  static String gatePassAdministrativeAccess = "/gatePassAdministrativeAccess";
+  static String addGatePass = "/addGatePass";
+  static String viewGatePass = "/viewGatePass";
+
+  // REBUILD
+  static String projectLead = "/projectLead";
+  static String addRedevelopment = "/addRedevelopment";
+  static String addLand = "/addLand";
 }

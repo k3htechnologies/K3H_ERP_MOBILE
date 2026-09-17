@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -807,7 +808,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
           payTrack.bookingApprovalStatus.toLowerCase() != "refund" &&
                   payTrack.cancelRemark.isNotEmpty
               ? buildRowTitleValue(
-                fixesWidth: 120,
+                fixesWidth: 95.w,
                 title: "Cancellation Status",
                 value: "",
                 customValueWidget: ApproveRejectWidget(

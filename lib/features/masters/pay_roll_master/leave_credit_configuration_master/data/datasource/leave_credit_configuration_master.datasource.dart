@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/pay_roll_master/leave_credit_configuration_master/data/model/leave_credit_configuration_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class LeaveCreditConfigurationMasterDatasource {
   Future<Map<String, dynamic>> apicallPullLeaveCreditConfigurationMaster({
@@ -42,7 +43,7 @@ class LeaveCreditConfigurationMasterDatasourceImpl
     }) {
       String url =
           "LeaveCreditConfiguration/PullLeaveCreditConfiguration?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -149,7 +150,7 @@ class LeaveCreditConfigurationMasterDatasourceImpl
     }) {
       String url =
           "LeaveCreditConfiguration/PullLeaveCreditConfiguration?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 

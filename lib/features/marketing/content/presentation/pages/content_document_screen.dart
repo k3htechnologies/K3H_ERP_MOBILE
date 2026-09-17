@@ -266,7 +266,6 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.greyBackground,
       appBar: CustomAppBarWithBackButton(
         screenTitle: 'Content Document',
         authorization: AuthorizationModel(isAction: true),

@@ -27,12 +27,14 @@ class InwardOutwardModel {
   final String acknowledgementSignatureURL;
   final String chequeNumber;
   final String documentTitle;
-  final int amount;
+  final double amount;
   final String deliveryMode;
   final String deliveryStatus;
   final String documentDescription;
   final String handOverTo;
   final DateTime? handOverDate;
+  final String handoverPersonMobileNumberCountryCode;
+  final String handoverPersonMobileNumber;
   final String acknowledgementRemark;
   final String acknowledgementURL;
   final List<InwardOutwardRevertHistoryModel> inwardOutwardRevertHistory;
@@ -42,7 +44,6 @@ class InwardOutwardModel {
   final int modifiedById;
   final String modifiedBy;
   final DateTime? modifiedDate;
-
   const InwardOutwardModel({
     required this.inwardOutwardId,
     required this.uniqueKey,
@@ -76,6 +77,8 @@ class InwardOutwardModel {
     required this.documentDescription,
     required this.handOverTo,
     required this.handOverDate,
+    required this.handoverPersonMobileNumberCountryCode,
+    required this.handoverPersonMobileNumber,
     required this.acknowledgementRemark,
     required this.acknowledgementURL,
     required this.inwardOutwardRevertHistory,
@@ -86,7 +89,6 @@ class InwardOutwardModel {
     required this.modifiedBy,
     this.modifiedDate,
   });
-
   factory InwardOutwardModel.fromJson(Map<String, dynamic> json) {
     return InwardOutwardModel(
       inwardOutwardId: parseValue<int>(json, "InwardOutwardId"),
@@ -127,7 +129,7 @@ class InwardOutwardModel {
       ),
       chequeNumber: parseValue<String>(json, "ChequeNumber"),
       documentTitle: parseValue<String>(json, "DocumentTitle"),
-      amount: parseValue<int>(json, "Amount"),
+      amount: parseValue<double>(json, "Amount"),
       deliveryMode: parseValue<String>(json, "DeliveryMode"),
       deliveryStatus: parseValue<String>(json, "DeliveryStatus"),
       documentDescription: parseValue<String>(json, "DocumentDescription"),
@@ -138,12 +140,19 @@ class InwardOutwardModel {
               : parseValue<DateTime>(json, "HandOverDate"),
       acknowledgementRemark: parseValue<String>(json, "AcknowledgementRemark"),
       acknowledgementURL: parseValue<String>(json, "AcknowledgementURL"),
+      handoverPersonMobileNumberCountryCode: parseValue<String>(
+        json,
+        "HandoverPersonMobileNumberCountryCode",
+      ),
+      handoverPersonMobileNumber: parseValue<String>(
+        json,
+        "HandoverPersonMobileNumber",
+      ),
       inwardOutwardRevertHistory: List<InwardOutwardRevertHistoryModel>.from(
         (json["InwardOutwardRevertHistory"] ?? []).map(
           (x) => InwardOutwardRevertHistoryModel.fromJson(x),
         ),
       ),
-
       createdById: parseValue<int>(json, "CreatedById"),
       createdBy: parseValue<String>(json, "CreatedBy"),
       createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -155,7 +164,6 @@ class InwardOutwardModel {
               : parseValue<DateTime>(json, "ModifiedDate"),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       "InwardOutwardId": inwardOutwardId,
@@ -190,12 +198,14 @@ class InwardOutwardModel {
       "DocumentDescription": documentDescription,
       "HandOverTo": handOverTo,
       "HandOverDate": handOverDate?.toIso8601String(),
+      "HandoverPersonMobileNumberCountryCode":
+          handoverPersonMobileNumberCountryCode,
+      "HandoverPersonMobileNumber": handoverPersonMobileNumber,
       "AcknowledgementRemark": acknowledgementRemark,
       "AcknowledgementURL": acknowledgementURL,
       "InwardOutwardRevertHistory": List<dynamic>.from(
         inwardOutwardRevertHistory.map((x) => x.toJson()),
       ),
-
       "CreatedById": createdById,
       "CreatedBy": createdBy,
       "CreatedDate": createdDate.toIso8601String(),
@@ -213,7 +223,6 @@ class InwardOutwardRevertHistoryModel {
   final DateTime revertDate;
   final String revertRemark;
   final String revertDocumentURL;
-
   const InwardOutwardRevertHistoryModel({
     required this.inwardOutwardRevertId,
     required this.inwardOutwardId,
@@ -222,7 +231,6 @@ class InwardOutwardRevertHistoryModel {
     required this.revertRemark,
     required this.revertDocumentURL,
   });
-
   factory InwardOutwardRevertHistoryModel.fromJson(Map<String, dynamic> json) {
     return InwardOutwardRevertHistoryModel(
       inwardOutwardRevertId: parseValue<int>(json, "InwardOutwardRevertId"),
@@ -233,7 +241,6 @@ class InwardOutwardRevertHistoryModel {
       revertDocumentURL: parseValue<String>(json, "RevertDocumentURL"),
     );
   }
-
   Map<String, dynamic> toJson() {
     return {
       "InwardOutwardRevertId": inwardOutwardRevertId,

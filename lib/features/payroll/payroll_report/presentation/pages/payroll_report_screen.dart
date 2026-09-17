@@ -986,7 +986,6 @@ class _PayrollReportScreenState extends State<PayrollReportScreen>
         _filterCount.value = _payrollReportCubit.updateFilterCount(state);
       },
       child: Scaffold(
-        backgroundColor: AppColor.greyBackground,
         appBar: CustomAppBar(
           screenTitle: "Report",
           searchHintText: 'Search By Employee Name',

@@ -61,7 +61,6 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     scrollController.dispose();
     _searchC.dispose();
     _filterEmployeeNameC.dispose();
-    scrollController.dispose();
     _debounce?.cancel();
     super.dispose();
   }

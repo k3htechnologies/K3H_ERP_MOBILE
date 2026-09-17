@@ -1,6 +1,7 @@
 import 'package:k3h_erp_app/features/masters/procurement_master/material_master/data/model/material_master.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class MaterialMasterDatasource {
   Future<Map<String, dynamic>> apicallPullMaterialMaster({
@@ -8,16 +9,13 @@ abstract interface class MaterialMasterDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apicallAddUpdateMaterialMaster({
     required Map<String, dynamic> body,
   });
-
   Future<Map<String, dynamic>> apicallDeleteMaterialMaster({
     required int materialMasterId,
     required String uniqueKey,
   });
-
   Future<Map<String, dynamic>> apicallPullMaterialMasterForExport({
     required int pageNumber,
     required int pageSize,
@@ -27,7 +25,6 @@ abstract interface class MaterialMasterDatasource {
 
 class MaterialMasterDataSourceImpl implements MaterialMasterDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullMaterialMaster({
     required int pageNumber,
@@ -41,7 +38,7 @@ class MaterialMasterDataSourceImpl implements MaterialMasterDatasource {
     }) {
       String url =
           "MaterialMaster/PullMaterialMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -77,7 +74,6 @@ class MaterialMasterDataSourceImpl implements MaterialMasterDatasource {
   }) async {
     String addUpdateMaterialMasterUrl =
         "MaterialMaster/AddUpdateMaterialMaster";
-
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
         addUpdateMaterialMasterUrl,
@@ -87,6 +83,7 @@ class MaterialMasterDataSourceImpl implements MaterialMasterDatasource {
         'data': List<MaterialMasterModel>.from(
           networkResponse["data"].map((e) => MaterialMasterModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -118,6 +115,7 @@ class MaterialMasterDataSourceImpl implements MaterialMasterDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -144,7 +142,7 @@ class MaterialMasterDataSourceImpl implements MaterialMasterDatasource {
     }) {
       String url =
           "MaterialMaster/PullMaterialMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
