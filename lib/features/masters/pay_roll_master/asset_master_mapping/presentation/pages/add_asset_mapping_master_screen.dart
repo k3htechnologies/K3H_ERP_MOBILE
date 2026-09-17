@@ -115,6 +115,13 @@ class _AddAssetMappingMasterScreenState
       {
         'zAttributesId': assetMapping.employeeId,
         'DisplayName': assetMapping.employeeName,
+        'department': assetMapping.department,
+        'designation': assetMapping.designation,
+        'branch': assetMapping.branch,
+        'reportingPerson': '',
+        'email': '',
+        'personalNumber': '',
+        'joiningDate': null,
       },
     ];
     _selectedAssetNotifier.value = [
@@ -143,7 +150,7 @@ class _AddAssetMappingMasterScreenState
     final result = await _employeeMasterRepository.getEmployeeMasterList(
       pageNumber: 1,
       pageSize: 1,
-      queryParams: {'EmployeeId': employeeId},
+      queryParams: {"isCheckPermission": false, 'EmployeeId': employeeId},
     );
     result.fold((_) {}, (response) {
       final employees = response['data'] as List<UserModel>? ?? [];
