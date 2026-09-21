@@ -14,10 +14,14 @@ import 'package:k3h_erp_app/features/project_document/test_document_category/pre
 import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/add_test_document_category.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/test_document_category.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/view_test_document_category.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/land.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/view_land.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/project_lead.screen.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/add_redevelopment.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/view_redevelopment.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/add_gate_pass.screen.dart';
@@ -7887,8 +7891,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.projectLead,
               path: AppRoutes.projectLead,
               builder: (context, state) {
-                return ComingSoonScreen(title: "Project Lead");
-                // return const ProjectLeadScreen();
+                // return ComingSoonScreen(title: "Project Lead");
+                return ProjectLeadScreen();
               },
             ),
             GoRoute(
@@ -7903,10 +7907,61 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
+              name: AppRoutes.viewRedevelopment,
+              path: AppRoutes.viewRedevelopment,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['redevelopment'];
+                final RedevelopmentModel? document =
+                    queryParameterDocument != null
+                        ? RedevelopmentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewRedevelopmentScreen(
+                  redevelopmentModel: document!,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
               name: AppRoutes.addLand,
               path: AppRoutes.addLand,
               builder: (context, state) {
-                return const AddLandScreen();
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddLandScreen(
+                  land: extra["land"] as LandModel?,
+                  index: extra["index"] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewLand,
+              path: AppRoutes.viewLand,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['land'];
+                final LandModel? landModel =
+                    queryParameterDocument != null
+                        ? LandModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewLandScreen(landModel: landModel!, index: index);
               },
             ),
           ],

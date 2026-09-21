@@ -1,10 +1,15 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -18,18 +23,47 @@ class RedevelopmentScreen extends StatefulWidget {
 }
 
 class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
+  late ProjectLeadCubit _projectleadCubit;
+
+  @override
+  void initState() {
+    _projectleadCubit = context.read<ProjectLeadCubit>();
+    super.initState();
+  }
+
+  Future<void> _showPopupToDeeleteRedevelopment(
+    BuildContext context,
+    RedevelopmentModel redevelopment,
+    int index,
+  ) async {
+    final result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Project Redevelopment ?',
+      'Deleting this Project Redevelopment will permanently remove all associated data.',
+    );
+
+    if (result && context.mounted) {
+      _projectleadCubit.deleteRedevelopment(
+        context: context,
+        projectRedevelopmentId: redevelopment.projectRedevelopmentId,
+        uniquekey: redevelopment.uniquekey,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProjectLeadCubit, ProjectLeadState>(
       builder: (context, state) {
         if (state.isLoading == true) {
-          return Expanded(child: Center(child: loader()));
+          return Center(child: loader());
         }
 
         if (state.redevelopmentList.isEmpty) {
-          return Expanded(
-            child: Center(
-              child: noDataWidget(message: "No Data Found", iconSize: 160.0),
+          return Center(
+            child: noDataWidget(
+              message: "No Project Redevelopment Data Found",
+              iconSize: 160.0,
             ),
           );
         }
@@ -51,9 +85,24 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        child: Text(
-                          redevelopment.buildingName,
-                          style: AppTextStyle.ts14M(color: AppColor.primary),
+                        child: GestureDetector(
+                          onTap: () async {
+                            await goRouter.pushNamed(
+                              AppRoutes.viewRedevelopment,
+                              queryParameters: {
+                                "redevelopment": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(redevelopment.toJson()),
+                                  ),
+                                ),
+                                "index": index.toString(),
+                              },
+                            );
+                          },
+                          child: Text(
+                            redevelopment.buildingName,
+                            style: AppTextStyle.ts14M(color: AppColor.primary),
+                          ),
                         ),
                       ),
                       horizontalSpacing(),
@@ -73,7 +122,15 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
                             },
                           ),
                           horizontalSpacing(),
-                          CustomIconButton.delete(onPressed: () {}),
+                          CustomIconButton.delete(
+                            onPressed: () {
+                              _showPopupToDeeleteRedevelopment(
+                                context,
+                                redevelopment,
+                                index,
+                              );
+                            },
+                          ),
                         ],
                       ),
                     ],

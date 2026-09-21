@@ -300,3 +300,32 @@ final List<Map<String, dynamic>> gatePassPurpose = createAttributeList(
 final List<Map<String, dynamic>> existingBuildingType = createAttributeList(
   existingBuildingTypeValues,
 );
+
+final List<Map<String, dynamic>> plotShapeList = createAttributeList(
+  plotShapeValues,
+);
+
+final List<Map<String, dynamic>> roadWidthList = createAttributeList(
+  roadWidthValues,
+);
+
+final List<Map<String, dynamic>> soilTypeList = createAttributeList(
+  soilTypeValues,
+);
+final List<Map<String, dynamic>> selectedExistingGroundConditionsList =
+    createAttributeList(selectedExistingGroundConditionsValues);
+
+final List<Map<String, dynamic>> selectedETypeOfWaterSupplyAvailableList =
+    createAttributeList(selectedETypeOfWaterSupplyAvailableValues);
+
+final List<Map<String, dynamic>> selectedSurroundingLandUseList =
+    createAttributeList(selectedSurroundingLandUseValues);
+
+final List<Map<String, dynamic>> selectedTypeOfLandTenureList =
+    createAttributeList(selectedTypeOfLandTenureValues);
+
+final List<Map<String, dynamic>> selectedselectedLandOwnershipList =
+    createAttributeList(selectedLandOwnershipValues);
+final List<Map<String, dynamic>> constructionTypeList = createAttributeList(
+  constructionTypeValues,
+);

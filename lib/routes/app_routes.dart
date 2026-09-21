@@ -567,5 +567,7 @@ class AppRoutes {
   // REBUILD
   static String projectLead = "/projectLead";
   static String addRedevelopment = "/addRedevelopment";
+  static String viewRedevelopment = "/viewRedevelopment";
   static String addLand = "/addLand";
+  static String viewLand = "/viewLand";
 }
