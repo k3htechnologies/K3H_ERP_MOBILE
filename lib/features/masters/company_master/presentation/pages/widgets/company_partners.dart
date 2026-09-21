@@ -12,7 +12,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyPartners extends StatefulWidget {
   const CompanyPartners({super.key});
-
   @override
   State<CompanyPartners> createState() => _CompanyPartnersState();
 }
@@ -87,6 +86,8 @@ class _CompanyPartnersState extends State<CompanyPartners> {
                   ),
                   Divider(height: 20.h, color: AppColor.lightBlue),
                   Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
                         title: "Mobile Number",
@@ -108,6 +109,8 @@ class _CompanyPartnersState extends State<CompanyPartners> {
                   ),
                   verticalSpacing(),
                   Row(
+                    spacing: 10,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
                         title: "DOB",
@@ -126,7 +129,6 @@ class _CompanyPartnersState extends State<CompanyPartners> {
                         value: p.panNumber.isEmpty ? "-" : p.panNumber,
                         customValueWidget: buildDocumentRow(
                           iconWithoutBg: true,
-
                           title: "PAN Card",
                           context: context,
                           docNumber: p.panNumber.isEmpty ? "-" : p.panNumber,
@@ -144,7 +146,7 @@ class _CompanyPartnersState extends State<CompanyPartners> {
                           title: "Aadhaar Number",
                           context: context,
                           docNumber:
-                              p.aadharCardURL.isEmpty
+                              p.aadharCardNumber.isEmpty
                                   ? "-"
                                   : p.aadharCardNumber,
                           url: p.aadharCardURL,

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -187,6 +189,7 @@ Widget buildDocumentRow({
   required String url,
   required String title,
   bool? iconWithoutBg,
+  List<Uint8List>? fileBytes,
 }) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,12 +200,21 @@ Widget buildDocumentRow({
           style: AppTextStyle.ts14M(color: AppColor.black),
         ),
       ),
-      if (url.isNotEmpty && url != "-")
+      if ((url.isNotEmpty && url != "-") ||
+          (fileBytes != null && fileBytes.isNotEmpty))
         (iconWithoutBg != null && iconWithoutBg == true)
             ? GestureDetector(
               onTap: () {
-                if (url.isNotEmpty && url != "-") {
-                  showFilePreviewDialog(context, url.split(","), title: title);
+                if ((url.isNotEmpty && url != "-") ||
+                    (fileBytes != null && fileBytes.isNotEmpty)) {
+                  showFilePreviewDialog(
+                    context,
+                    url.isNotEmpty && url != "-"
+                        ? url.split(",")
+                        : List.generate(fileBytes?.length ?? 0, (_) => ""),
+                    title: title,
+                    fileBytes: fileBytes,
+                  );
                 }
               },
               child: Padding(
@@ -216,8 +228,16 @@ Widget buildDocumentRow({
             )
             : CustomIconButton(
               onPressed: () {
-                if (url.isNotEmpty && url != "-") {
-                  showFilePreviewDialog(context, url.split(","), title: title);
+                if ((url.isNotEmpty && url != "-") ||
+                    (fileBytes != null && fileBytes.isNotEmpty)) {
+                  showFilePreviewDialog(
+                    context,
+                    url.isNotEmpty && url != "-"
+                        ? url.split(",")
+                        : List.generate(fileBytes?.length ?? 0, (_) => ""),
+                    title: title,
+                    fileBytes: fileBytes,
+                  );
                 }
               },
               icon: Icon(

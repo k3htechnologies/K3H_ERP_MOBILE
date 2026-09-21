@@ -53,13 +53,13 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
   void initState() {
     super.initState();
     _dsraCubit = context.read<DsraCubit>();
-    initialiseControllers();
+    initializeTextEditingController();
     if (_isEditMode) {
       prefillDSRA();
     }
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _amountC = TextEditingController();
     _withdrawAmountC = TextEditingController();
     _remarkC = TextEditingController();

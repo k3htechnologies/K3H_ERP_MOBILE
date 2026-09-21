@@ -42,13 +42,13 @@ class _AddSweepRatioScreenState extends State<AddSweepRatioScreen> {
   void initState() {
     super.initState();
     _sweepRatioCubit = context.read<SweepRatioCubit>();
-    initialiseControllers();
+    initializeTextEditingController();
     if (_isEditMode) {
       prefillSweepRatio();
     }
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _ownSweepRatioC = TextEditingController();
     _lenderSweepRatioC = TextEditingController();
     _remarkC = TextEditingController();

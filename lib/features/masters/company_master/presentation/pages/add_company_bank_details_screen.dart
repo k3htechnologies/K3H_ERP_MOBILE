@@ -28,7 +28,6 @@ class AddCompanyBankDetailsScreen extends StatefulWidget {
     this.bankDetailsModel,
     this.index,
   });
-
   @override
   State<AddCompanyBankDetailsScreen> createState() =>
       _AddCompanyBankDetailsScreenState();
@@ -38,18 +37,13 @@ class _AddCompanyBankDetailsScreenState
     extends State<AddCompanyBankDetailsScreen> {
   late CompanyMasterCubit _companyMasterCubit;
   final _formKey = GlobalKey<FormState>();
-
   final EmployeeMasterRepository _employeeMasterRepository =
       serviceLocator<EmployeeMasterRepository>();
-
-  // TEXT CONTROLLERS
   late TextEditingController _beneficiaryAccountHolderNameC,
       _accountNumberC,
       _branchC,
       _ifscCodeC,
       _micrCodeC;
-
-  // DROPDOWN VARIABLES
   late final ValueNotifier<List<Map<String, dynamic>>> _selectedBankNotifier;
   ValueNotifier<Map<String, dynamic>?> selectedAccountType = ValueNotifier(
     null,
@@ -87,7 +81,6 @@ class _AddCompanyBankDetailsScreenState
     super.dispose();
   }
 
-  // INITIALISING TEXT CONTROLLERS
   void _initializeTextControllers() {
     _beneficiaryAccountHolderNameC = TextEditingController();
     _accountNumberC = TextEditingController();
@@ -108,7 +101,6 @@ class _AddCompanyBankDetailsScreenState
         'DisplayName': bankDetails.bankName,
       },
     ];
-
     final acType = bankDetails.acType.toLowerCase();
     selectedAccountType.value = accountTypeList.firstWhere(
       (acT) =>
@@ -138,7 +130,6 @@ class _AddCompanyBankDetailsScreenState
             : bankDetails.cancelChequeURL.split(',');
   }
 
-  // INITIALISING DROPDOWN
   void _initializeDropdowns() {
     if (widget.bankDetailsModel != null) {
       _selectedBankNotifier.value = [
@@ -147,7 +138,6 @@ class _AddCompanyBankDetailsScreenState
           'DisplayName': widget.bankDetailsModel!.bankName,
         },
       ];
-
       final acType = widget.bankDetailsModel!.acType.toLowerCase();
       selectedAccountType.value = accountTypeList.firstWhere(
         (acT) =>
@@ -167,23 +157,19 @@ class _AddCompanyBankDetailsScreenState
     }
   }
 
-  // HANDLE SUBMIT
-  Future<void> _handleSubmit() async {
+  Future<void> _saveForm() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
     if (_selectedBankNotifier.value.isEmpty) {
       showErrorMessage(context, "Error", "Please select a bank");
       return;
     }
-
     if (selectedAccountType.value == null ||
         selectedAccountType.value!['zAttributesId'] == -1) {
       showErrorMessage(context, "Error", "Please select an account type");
       return;
     }
-
     await _companyMasterCubit.addUpdateCompanyWithBankDetails(
       companyWithBankDetailsId:
           widget.bankDetailsModel?.companyWithBankDetailsId ?? 0,
@@ -204,7 +190,6 @@ class _AddCompanyBankDetailsScreenState
     );
   }
 
-  // FETCH BANKS
   Future<Map<String, dynamic>> _fetchBanks(
     int pageNumber, {
     String? value,
@@ -212,9 +197,11 @@ class _AddCompanyBankDetailsScreenState
     final result = await _employeeMasterRepository.getBankList(
       pageNumber: pageNumber,
       pageSize: 15,
-      query: value != null && value.isNotEmpty ? {"BankName": value} : {},
+      query:
+          value != null && value.isNotEmpty
+              ? {"BankName": value, "IsCheckPermission": false}
+              : {"IsCheckPermission": false},
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
@@ -222,7 +209,6 @@ class _AddCompanyBankDetailsScreenState
       },
       (response) {
         final banks = response['data'] as List<BankListMasterModel>;
-
         return {
           "itemList":
               banks.map((bank) {
@@ -351,7 +337,6 @@ class _AddCompanyBankDetailsScreenState
                           );
                         },
                       ),
-
                       CustomTextField(
                         title: "Account Number",
                         textController: _accountNumberC,
@@ -439,7 +424,6 @@ class _AddCompanyBankDetailsScreenState
                         },
                       ),
                       CustomMultiFilePicker(
-                        // readOnly: !_routeAuthorizationModel.isAction,
                         initialFileList: cancelChequeFile.fileNameList,
                         title: "Cancel Cheque",
                         isRequired: true,
@@ -484,25 +468,11 @@ class _AddCompanyBankDetailsScreenState
               color: AppColor.white,
             ),
             text: widget.bankDetailsModel == null ? "Add" : "Update",
-            onPressed: _handleSubmit, 
+            onPressed: _saveForm,
             backgroundColor: AppColor.primary,
           ),
         ),
       ),
-    );
-  }
-}
-
-// Custom text formatter for uppercase
-class UpperCaseTextFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue oldValue,
-    TextEditingValue newValue,
-  ) {
-    return TextEditingValue(
-      text: newValue.text.toUpperCase(),
-      selection: newValue.selection,
     );
   }
 }

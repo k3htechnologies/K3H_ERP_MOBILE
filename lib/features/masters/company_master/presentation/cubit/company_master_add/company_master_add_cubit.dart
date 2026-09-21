@@ -8,17 +8,14 @@ import 'package:k3h_erp_app/features/masters/company_master/data/repository/comp
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 part 'company_master_add_state.dart';
 
 class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
   CompanyMasterAddCubit() : super(CompanyMasterAddState.initial());
-
   // REPOSITORY
   final CompanyMasterRepository _companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
 
-  // ADD COMPANY
   Future<void> addCompanyMaster({
     required BuildContext context,
     required String companyName,
@@ -43,7 +40,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
     required int cityId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     Map<String, String> requestBody = {
       "CompanyId": "0",
       "CompanyName": companyName,
@@ -99,9 +95,7 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         'AddUpdateCompanyPartner[$i].PhotoURL':
             state.companyPartner[i].photoURL.toString(),
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < state.companyPartner.length; i++) {
       if (state.companyPartner[i].aadharCardFile != null) {
         for (
@@ -121,7 +115,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
           });
         }
       }
-
       if (state.companyPartner[i].panCardFile != null) {
         for (
           int j = 0;
@@ -159,7 +152,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         }
       }
     }
-
     for (int i = 0; i < gstCertificateFile.fileNameList.length; i++) {
       if (gstCertificateFile.fileNameList[i].contains("http")) {
         continue;
@@ -170,7 +162,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": gstCertificateFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < panCardFile.fileNameList.length; i++) {
       if (panCardFile.fileNameList[i].contains("http")) {
         continue;
@@ -181,7 +172,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": panCardFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < cinFile.fileNameList.length; i++) {
       if (cinFile.fileNameList[i].contains("http")) {
         continue;
@@ -192,7 +182,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": cinFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < companyLetterheadHeaderFile.fileNameList.length; i++) {
       if (companyLetterheadHeaderFile.fileNameList[i].contains("http")) {
         continue;
@@ -203,7 +192,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": companyLetterheadHeaderFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < companyLetterheadFooterFile.fileNameList.length; i++) {
       if (companyLetterheadFooterFile.fileNameList[i].contains("http")) {
         continue;
@@ -290,7 +278,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
   void deleteCompanyPartnerData(BuildContext context, int index) {
     final currentList = List<CompanyPartnerModel>.from(state.companyPartner);
     currentList.removeAt(index);
-
     emit(
       state.copyWith(
         isLoading: false,
@@ -406,7 +393,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
               state.companyPartner[i].photoFile!.deletedFileList.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < gstCertificateFile.fileNameList.length; i++) {
       if (gstCertificateFile.fileNameList[i].contains("http")) {
         continue;
@@ -417,7 +403,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": gstCertificateFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < panCardFile.fileNameList.length; i++) {
       if (panCardFile.fileNameList[i].contains("http")) {
         continue;
@@ -428,7 +413,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": panCardFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < cinFile.fileNameList.length; i++) {
       if (cinFile.fileNameList[i].contains("http")) {
         continue;
@@ -439,7 +423,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": cinFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < companyLetterheadHeaderFile.fileNameList.length; i++) {
       if (companyLetterheadHeaderFile.fileNameList[i].contains("http")) {
         continue;
@@ -450,7 +433,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": companyLetterheadHeaderFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < companyLetterheadFooterFile.fileNameList.length; i++) {
       if (companyLetterheadFooterFile.fileNameList[i].contains("http")) {
         continue;
@@ -461,7 +443,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": companyLetterheadFooterFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < state.companyPartner.length; i++) {
       if (state.companyPartner[i].aadharCardFile != null) {
         for (
@@ -481,7 +462,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
           });
         }
       }
-
       if (state.companyPartner[i].panCardFile != null) {
         for (
           int j = 0;
@@ -519,7 +499,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         }
       }
     }
-
     for (int i = 0; i < tanFile.fileNameList.length; i++) {
       if (tanFile.fileNameList[i].contains("http")) {
         continue;
@@ -530,7 +509,6 @@ class CompanyMasterAddCubit extends Cubit<CompanyMasterAddState> {
         "fileName": tanFile.fileNameList[i],
       });
     }
-
     var addResult = await _companyMasterRepository.addUpdateCompanyList(
       body: requestBody,
       fileList: fileList,

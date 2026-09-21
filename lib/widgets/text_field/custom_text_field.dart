@@ -113,14 +113,15 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
+      initialValue: textController.text,
       validator: validator,
       builder: (FormFieldState<String> formFieldState) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!formFieldState.mounted) return;
-          if (formFieldState.value != textController.text) {
-            formFieldState.didChange(textController.text);
-          }
-        });
+        // WidgetsBinding.instance.addPostFrameCallback((_) {
+        //   if (!formFieldState.mounted) return;
+        //   if (formFieldState.value != textController.text) {
+        //     formFieldState.didChange(textController.text);
+        //   }
+        // });
 
         final hasError = formFieldState.hasError;
 
@@ -168,6 +169,7 @@ class CustomTextField extends StatelessWidget {
                         ? AppTextStyle.ts14R().copyWith(color: AppColor.grey)
                         : AppTextStyle.ts14R(),
                 onChanged: (value) {
+                  formFieldState.didChange(value);
                   onChangeFunction?.call(value);
                 },
                 onTapOutside: (_) => FocusScope.of(context).unfocus(),
@@ -196,7 +198,7 @@ class CustomTextField extends StatelessWidget {
                                             countries: countryList,
                                             selectedCountry: selectedCountry,
                                           );
-
+                                      if (!context.mounted) return;
                                       if (country != null) {
                                         onCountryChanged?.call(country);
                                       }

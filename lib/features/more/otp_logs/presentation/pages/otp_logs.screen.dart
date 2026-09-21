@@ -51,7 +51,7 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
   @override
   void initState() {
     super.initState();
-    _initialiseControllers();
+    _initializeTextEditingController();
     _otpLogsCubit = context.read<OtpLogsCubit>();
     _selectedProject = getProject();
     _routeAuthorizationModel =
@@ -74,7 +74,7 @@ class _OtpLogsScreenState extends State<OtpLogsScreen>
     super.dispose();
   }
 
-  void _initialiseControllers() {
+  void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterMobileNumberC = TextEditingController();
     _filterModuleNameC = TextEditingController();

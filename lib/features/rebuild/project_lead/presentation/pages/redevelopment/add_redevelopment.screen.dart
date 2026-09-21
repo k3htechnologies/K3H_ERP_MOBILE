@@ -58,7 +58,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
   @override
   void initState() {
     _projectLeadCubit = context.read<ProjectLeadCubit>();
-    initialiseControllers();
+    initializeTextEditingController();
     if (_isEditMode) {
       prefillRedevelopment(widget.redevelopment!);
     }
@@ -84,7 +84,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
     super.dispose();
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _buildingNameC = TextEditingController();
     _pinCodeC = TextEditingController();
     _plotCTSSurveySubdivisionNumberC = TextEditingController();

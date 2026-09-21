@@ -45,13 +45,13 @@ class _AddDsaScreenState extends State<AddDsaScreen> {
   void initState() {
     super.initState();
     _dsaCubit = context.read<DsaCubit>();
-    initialiseControllers();
+    initializeTextEditingController();
     if (_isEditMode) {
       prefillDSA();
     }
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _nameOfConsultant = TextEditingController();
     _commissionC = TextEditingController();
     _amountC = TextEditingController();

@@ -630,39 +630,36 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   child: buildColumnTitleValue(
                     title: "Transaction / Cheque / DD No",
                     value: widget.project.tenderAmountChequeNumber,
-                    customValueWidget:
-                        (widget.project.tenderAmountChequeNumber.isEmpty)
-                            ? null
-                            : Row(
-                              children: [
-                                Text(
-                                  widget.project.tenderAmountChequeNumber,
-                                  style: AppTextStyle.ts14M(),
-                                ),
-                                if (widget
-                                    .project
-                                    .tenderAmountChequeNumberUrl
-                                    .isNotEmpty)
-                                  CustomIconButton(
-                                    onPressed: () {
-                                      showFilePreviewDialog(
-                                        context,
-                                        title: "Transaction / Cheque / DD",
-                                        widget
-                                            .project
-                                            .tenderAmountChequeNumberUrl
-                                            .split(","),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.remove_red_eye_outlined,
-                                      size: 16,
-                                      color: AppColor.primary,
-                                    ),
-                                    backgroundColor: AppColor.white,
-                                  ),
-                              ],
+                    customValueWidget: Row(
+                      children: [
+                        Text(
+                          widget.project.tenderAmountChequeNumber.isEmpty
+                              ? "-"
+                              : widget.project.tenderAmountChequeNumber,
+                          style: AppTextStyle.ts14M(),
+                        ),
+                        if (widget
+                            .project
+                            .tenderAmountChequeNumberUrl
+                            .isNotEmpty)
+                          CustomIconButton(
+                            onPressed: () {
+                              showFilePreviewDialog(
+                                context,
+                                title: "Transaction / Cheque / DD",
+                                widget.project.tenderAmountChequeNumberUrl
+                                    .split(","),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.remove_red_eye_outlined,
+                              size: 16,
+                              color: AppColor.primary,
                             ),
+                            backgroundColor: AppColor.white,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
                 buildRowWrapper(
@@ -2261,7 +2258,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               child: Row(
                 children: [
-                  Text("Update Bank Details", style: AppTextStyle.ts16SB()),
+                  Text("Bank Details", style: AppTextStyle.ts16SB()),
                   Spacer(),
                   if (_bankDetailsRouteAuthorizationModel.isAction)
                     CustomButton(

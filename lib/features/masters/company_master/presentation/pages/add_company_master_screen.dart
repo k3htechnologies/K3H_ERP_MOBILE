@@ -19,28 +19,26 @@ import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/file_preview_dialog_content.dart';
+import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddCompanyMasterScreen extends StatefulWidget {
   final CompanyModel? company;
   const AddCompanyMasterScreen({super.key, this.company});
-
   @override
   State<AddCompanyMasterScreen> createState() =>
       _AddCompanyMasterMobileScreenState();
 }
 
 class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
-  // CUBIT
   late CompanyMasterAddCubit _companyMasterAddCubit;
-
-  late TextEditingController
-      // COMPANY TEXT CONTROLLER
-      _companyNameC,
+  late TextEditingController _companyNameC,
       _contactPersonC,
       _mobileNumberC,
       _emailIdC,
@@ -58,10 +56,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       _companyPartnerPercentageC,
       _companyPartnerPanNumberC,
       _companyPartnerAadharNumberC;
-
-  // INITIAL STATE FIRMS TYPE
   late final ValueNotifier<Map<String, dynamic>?> _selectedFirmsTypeNotifier;
-
   // FORM KEYS (one per section)
   final _formKeys = [
     GlobalKey<FormState>(), // Basic details
@@ -69,18 +64,12 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     GlobalKey<FormState>(), // Address
     GlobalKey<FormState>(), // Company verification documents
   ];
-
   // INITIAL COUNTRY/STATE/DISTRICT/CITY ID
-
   int countryMasterId = 1;
   int stateMasterId = -1;
   int districtMasterId = -1;
   int cityMasterId = -1;
-
-  // DATE PICKER FOR DOB
   DateTime? dateOfBirth;
-
-  // FILE VARIABLES
   MultiFilePickerModel gstCertificateFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -128,10 +117,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-
-  // EDIT MODE
   bool get _isEditMode => widget.company != null;
-
   @override
   void initState() {
     super.initState();
@@ -139,7 +125,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _selectedFirmsTypeNotifier = ValueNotifier(null);
     _initializeTextEditingControllers(widget.company);
     if (_isEditMode) {
-      _prefillCompanyDetails(widget.company);
+      _populateFormFields(widget.company);
     }
   }
 
@@ -151,7 +137,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _companyMasterAddCubit.resetCompanyPartner();
   }
 
-  // INITIALISING TEXT CONTROLLERS
   void _initializeTextEditingControllers(CompanyModel? company) {
     // BASIC COMPANY DETAILS
     _companyNameC = TextEditingController(text: company?.companyName);
@@ -175,7 +160,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _companyPartnerAadharNumberC = TextEditingController();
   }
 
-  // DISPOSE METHOD TO DISPOSE ALL TEXT CONTROLLERS
   void _disposeTextEditingControllers() {
     // BASIC COMPANY DETAILS
     _companyNameC.dispose();
@@ -199,9 +183,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     _companyPartnerAadharNumberC.dispose();
   }
 
-  // PREFILL COMPANY DETAILS
-  Future<void> _prefillCompanyDetails(CompanyModel? company) async {
-    // DROPDOWN INITIALIZATION
+  Future<void> _populateFormFields(CompanyModel? company) async {
     countryMasterId = widget.company?.countryMasterId ?? -1;
     stateMasterId = widget.company?.stateMasterId ?? -1;
     districtMasterId = widget.company?.districtMasterId ?? -1;
@@ -213,7 +195,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       (element) => element['DisplayName'] == widget.company?.firmsType,
       orElse: () => firmTypeList.first,
     );
-    // FILES
     gstCertificateFile.fileNameList =
         company?.gstCertificateURL == null || company?.gstCertificateURL == ""
             ? []
@@ -230,52 +211,42 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       selectedTANFile.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     selectedPANCardFile.fileNameList =
         company?.panCardURL == null || company?.panCardURL == ""
             ? []
             : company!.panCardURL.split(",");
-
     selectedPANCardFile.fileBytesList = List.generate(
       selectedPANCardFile.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     cinPhotoFile.fileNameList =
         company?.cinURL == null || company?.cinURL == ""
             ? []
             : company!.cinURL.split(",");
-
     cinPhotoFile.fileBytesList = List.generate(
       cinPhotoFile.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     selectedCompanyLetterHeadHeaderFile.fileNameList =
         company?.companyLetterheadHeaderURL == null ||
                 company?.companyLetterheadHeaderURL == ""
             ? []
             : company!.companyLetterheadHeaderURL.split(",");
-
     selectedCompanyLetterHeadHeaderFile.fileBytesList = List.generate(
       selectedCompanyLetterHeadHeaderFile.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     selectedCompanyLetterHeadFooterFile.fileNameList =
         company?.companyLetterheadFooterURL == null ||
                 company?.companyLetterheadFooterURL == ""
             ? []
             : company!.companyLetterheadFooterURL.split(",");
-
     selectedCompanyLetterHeadFooterFile.fileBytesList = List.generate(
       selectedCompanyLetterHeadFooterFile.fileNameList.length,
       (_) => Uint8List(0),
     );
-
     if (company != null) {
       for (var value in company.companyPartnerData) {
-        // PAN
         if (value.panCardFile == null ||
             value.panCardFile!.fileNameList.isEmpty) {
           value.panCardFile = MultiFilePickerModel(
@@ -285,8 +256,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             deletedFileList: '',
           );
         }
-
-        // AADHAAR
         if (value.aadharCardFile == null ||
             value.aadharCardFile!.fileNameList.isEmpty) {
           value.aadharCardFile = MultiFilePickerModel(
@@ -298,8 +267,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             deletedFileList: '',
           );
         }
-
-        // PHOTO
         if (value.photoFile == null || value.photoFile!.fileNameList.isEmpty) {
           value.photoFile = MultiFilePickerModel(
             fileBytesList: [],
@@ -312,7 +279,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     }
   }
 
-  // DELETE COMPANY PARTNER
   Future<void> _showPopupToDeleteCompanyPartner(
     BuildContext context,
     int index,
@@ -341,14 +307,15 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
                     _isEditMode ? "Update Company" : "Add Company",
-                    style: AppTextStyle.ts16SB(),
+                    style: AppTextStyle.ts14M(),
                   ),
                 ),
               ),
             ),
+            SliverToBoxAdapter(child: verticalSpacing()),
             SliverToBoxAdapter(
               child: _buildSectionContainer(_buildBasicDetailsSection()),
             ),
@@ -372,8 +339,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             SliverToBoxAdapter(
               child: _buildSectionContainer(_buildCompanyPartnerSection()),
             ),
-            SliverToBoxAdapter(child: SizedBox(height: 20)),
-            SliverToBoxAdapter(child: SizedBox(height: 50)), // padding bottom
           ],
         ),
       ),
@@ -388,20 +353,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 child: CustomButton(
                   leading: Icon(_isEditMode ? Icons.edit : Icons.add, size: 16),
                   text: !_isEditMode ? 'Add' : 'Update',
-                  onPressed: _handleSubmit,
-                  backgroundColor: AppColor.primary,
-                ),
-              ),
-              Flexible(
-                child: CustomButton(
-                  isDisable: true,
-                  text: 'Add Company Partner',
-                  onPressed: () async {
-                    goRouter.pushNamed(
-                      AppRoutes.addCompanyPartner,
-                      extra: {"cubit": _companyMasterAddCubit},
-                    );
-                  },
+                  onPressed: _saveForm,
                   backgroundColor: AppColor.primary,
                 ),
               ),
@@ -411,8 +363,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       ),
     );
   }
-
-  // ------------------------- UI SECTION BUILDERS ------------------------- //
 
   Widget _buildSectionContainer(Widget child) {
     return Container(
@@ -428,14 +378,10 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   Widget _buildSectionHeader(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        title,
-        style: AppTextStyle.ts16M(color: AppColor.black.withValues(alpha: .5)),
-      ),
+      child: Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
     );
   }
 
-  // BUILD BASIC DETAILS SECTION
   Widget _buildBasicDetailsSection() {
     return Form(
       key: _formKeys[0],
@@ -530,6 +476,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             title: 'Landline Number',
             textController: _landLineNumberC,
             hint: "Enter Landline Number",
+            keyboardType: TextInputType.number,
             inputFormatterList: InputValidator.digit(20),
           ),
         ],
@@ -537,7 +484,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
-  // BUILD GOVERNMENT IDENTIFIERS SECTION
   Widget _buildGovernmentIdentifiersSection() {
     return Form(
       key: _formKeys[1],
@@ -552,17 +498,14 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             hint: "Enter GST Number",
             validator: (value) {
               final hasFile = gstCertificateFile.fileNameList.isNotEmpty;
-
               if (hasFile && (value == null || value.isEmpty)) {
                 return "GST Number is required.";
               }
-
               if (value != null && value.isNotEmpty) {
                 if (!InputValidator.isValidGST(value)) {
                   return "GST Number is invalid";
                 }
               }
-
               return null;
             },
           ),
@@ -598,13 +541,11 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   (value == null || value.isEmpty)) {
                 return "PAN Number is required.";
               }
-
               if (value != null && value.isNotEmpty) {
                 if (!InputValidator.isValidPAN(value)) {
                   return "PAN Number is invalid";
                 }
               }
-
               return null;
             },
           ),
@@ -625,7 +566,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (fileList) {
               if (_panNumberC.text.trim().isNotEmpty &&
                   (fileList == null || fileList.isEmpty)) {
-                return "PAN Card document is required.";
+                return "PAN Card Document is required.";
               }
               return null;
             },
@@ -640,20 +581,18 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   (value == null || value.isEmpty)) {
                 return "CIN Number is required.";
               }
-
               if (value != null && value.isNotEmpty) {
                 if (!InputValidator.isValidCIN(value)) {
                   return "CIN Number is invalid";
                 }
               }
-
               return null;
             },
           ),
           CustomMultiFilePicker(
             title: 'CIN',
             maxFiles: 5,
-            filePickType: FilePickType.both,
+            filePickType: FilePickType.kycDocument,
             initialFileList: cinPhotoFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               cinPhotoFile.fileNameList = fileNameList;
@@ -667,7 +606,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (value) {
               if (_cinNumberC.text.trim().isNotEmpty &&
                   (value == null || value.isEmpty)) {
-                return "CIN document is required.";
+                return "CIN Document is required.";
               }
               return null;
             },
@@ -682,20 +621,18 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   (value == null || value.isEmpty)) {
                 return "TAN Number is required.";
               }
-
               if (value != null && value.isNotEmpty) {
                 if (!InputValidator.isValidTAN(value)) {
                   return "TAN Number is invalid";
                 }
               }
-
               return null;
             },
           ),
           CustomMultiFilePicker(
             title: 'TAN',
             maxFiles: 5,
-            filePickType: FilePickType.both,
+            filePickType: FilePickType.kycDocument,
             initialFileList: selectedTANFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
               selectedTANFile.fileNameList = fileNameList;
@@ -709,7 +646,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             validator: (value) {
               if (_tanNumberC.text.trim().isNotEmpty &&
                   (value == null || value.isEmpty)) {
-                return "TAN document is required.";
+                return "TAN Document is required.";
               }
               return null;
             },
@@ -719,7 +656,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
-  // BUILD COMPANY VERIFICATION DOCUMENTS SECTION
   Widget _buildCompanyVerificationDocumentSection() {
     return Form(
       key: _formKeys[3],
@@ -730,7 +666,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           CustomMultiFilePicker(
             title: 'Company Letterhead Header',
             isRequired: true,
-            filePickType: FilePickType.both,
+            filePickType: FilePickType.image,
             maxFiles: 1,
             initialFileList: selectedCompanyLetterHeadHeaderFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
@@ -751,7 +687,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'Company Letterhead Footer',
-            filePickType: FilePickType.both,
+            filePickType: FilePickType.image,
             maxFiles: 1,
             isRequired: true,
             initialFileList: selectedCompanyLetterHeadFooterFile.fileNameList,
@@ -776,7 +712,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
-  // BUILD ADDRESS SECTION
   Widget _buildAddressSection() {
     return Form(
       key: _formKeys[2],
@@ -808,7 +743,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     );
   }
 
-  // BUILD COMPANY PARTNER SECTION
   Widget _buildCompanyPartnerSection() {
     return BlocBuilder<CompanyMasterAddCubit, CompanyMasterAddState>(
       builder: (context, state) {
@@ -816,8 +750,23 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildSectionHeader('Company Partner'),
-            if (_companyMasterAddCubit.state.companyPartner.isEmpty)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _buildSectionHeader('Company Partners'),
+                CustomButton(
+                  text: 'Add Partner',
+                  onPressed: () async {
+                    goRouter.pushNamed(
+                      AppRoutes.addCompanyPartner,
+                      extra: {"cubit": _companyMasterAddCubit},
+                    );
+                  },
+                  backgroundColor: AppColor.primary,
+                ),
+              ],
+            ),
+            if (state.companyPartner.isEmpty)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                 child: Center(
@@ -827,39 +776,41 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   ),
                 ),
               )
-            else
-              ..._companyMasterAddCubit.state.companyPartner
-                  .asMap()
-                  .entries
-                  .map(
-                    (entry) => _buildCompanyPartnerCard(
-                      key: ValueKey(entry.value.hashCode),
-                      companyPartnerModel: entry.value,
-                      index: entry.key,
-                    ),
-                  ),
+            else ...[
+              verticalSpacing(),
+              SizedBox(
+                height: state.companyPartner.length > 1 ? 450.h : 300.h,
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: state.companyPartner.length,
+                  itemBuilder: (context, index) {
+                    final partner = state.companyPartner[index];
+                    return _buildCompanyPartnerCard(
+                      key: ValueKey(partner.hashCode),
+                      companyPartnerModel: partner,
+                      index: index,
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         );
       },
     );
   }
 
-  // --------------------------- SUBMIT HANDLER --------------------------- //
-
-  // SUBMIT HANDLER
-  void _handleSubmit() {
+  void _saveForm() {
     final isBasicValid = _formKeys[0].currentState?.validate() ?? false;
     final isGovValid = _formKeys[1].currentState?.validate() ?? false;
     final isAddressValid = _formKeys[2].currentState?.validate() ?? false;
     final isVerificationValid = _formKeys[3].currentState?.validate() ?? false;
-
     if (!isBasicValid ||
         !isGovValid ||
         !isAddressValid ||
         !isVerificationValid) {
       return;
     }
-
     if (widget.company == null) {
       _companyMasterAddCubit.addCompanyMaster(
         context: context,
@@ -913,210 +864,177 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     }
   }
 
-  // BUILD COMPANY PARTNER CARD
   Widget _buildCompanyPartnerCard({
     Key? key,
     required CompanyPartnerModel companyPartnerModel,
     int? index,
   }) {
     return Container(
-      key: key,
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColor.white,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColor.lightBlue),
+        border: Border.all(color: Colors.grey.shade300),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x08000000),
+            blurRadius: 3,
+            offset: Offset(0, 1),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              _buildPartnerImage(companyPartnerModel),
+              horizontalSpacing(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            companyPartnerModel.fullName,
+                            style: AppTextStyle.ts14M(),
+                          ),
+                        ),
+                        Row(
+                          children: [
+                            CustomIconButton.edit(
+                              onPressed: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.addCompanyPartner,
+                                  extra: {
+                                    "partner": companyPartnerModel,
+                                    "index": index,
+                                    "cubit": _companyMasterAddCubit,
+                                  },
+                                );
+                              },
+                            ),
+                            horizontalSpacing(width: 8),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                if (index != null) {
+                                  _showPopupToDeleteCompanyPartner(
+                                    context,
+                                    index,
+                                  );
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    if (companyPartnerModel.partnerPercentage > 0)
+                      Container(
+                        margin: EdgeInsets.only(top: 5),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColor.darkGreen10.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          "${companyPartnerModel.partnerPercentage.addCommas()}% Share",
+                          style: AppTextStyle.ts12M(
+                            color: AppColor.darkGreen10,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Divider(height: 20.h, color: AppColor.lightBlue),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              buildColumnTitleValue(
+                title: "Mobile Number",
+                value: companyPartnerModel.mobileNumber,
+                customValueWidget: CustomClickToContactText(
+                  countryCode: "+91",
+                  value: companyPartnerModel.mobileNumber,
+                ),
+              ),
+              buildColumnTitleValue(
+                title: "E-mail ID",
+                value: companyPartnerModel.emailId,
+                customValueWidget: CustomClickToContactText(
+                  value: companyPartnerModel.emailId,
+                  type: ContactType.email,
+                ),
+              ),
+            ],
+          ),
+          verticalSpacing(),
+          Row(
+            spacing: 10,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 20,
-                backgroundColor: AppColor.lightBlue,
-                child: ClipOval(child: _buildPartnerImage(companyPartnerModel)),
+              buildColumnTitleValue(
+                title: "DOB",
+                value: formatDateTimeAsDDMMMYYYY(
+                  companyPartnerModel.dateOfBirth,
+                ),
               ),
-              horizontalSpacing(),
-              Expanded(
-                child: _buildPartnerField("Name", companyPartnerModel.fullName),
-              ),
-              Row(
-                children: [
-                  CustomIconButton.edit(
-                    //TODO
-                    isDisabled: true,
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addCompanyPartner,
-                        extra: {
-                          "partner": companyPartnerModel,
-                          "index": index,
-                          "cubit": _companyMasterAddCubit,
-                        },
-                      );
-                    },
-                  ),
-                  horizontalSpacing(width: 8),
-                  CustomIconButton.delete(
-                    // TODO:
-                    isDisabled: true,
-                    onPressed: () {
-                      if (index != null) {
-                        _showPopupToDeleteCompanyPartner(context, index);
-                      }
-                    },
-                  ),
-                ],
+              buildColumnTitleValue(
+                title: "Gender",
+                value: companyPartnerModel.gender,
               ),
             ],
           ),
-
-          verticalSpacing(height: 8),
-
+          verticalSpacing(),
           Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _buildPartnerField(
-                  "Mobile Number",
-                  companyPartnerModel.mobileNumber,
+              buildColumnTitleValue(
+                title: "PAN Card Number",
+                value:
+                    companyPartnerModel.panNumber.isEmpty
+                        ? "-"
+                        : companyPartnerModel.panNumber,
+                customValueWidget: buildDocumentRow(
+                  iconWithoutBg: true,
+                  title: "PAN Card",
+                  context: context,
+                  docNumber:
+                      companyPartnerModel.panNumber.isEmpty
+                          ? "-"
+                          : companyPartnerModel.panNumber,
+                  url: companyPartnerModel.panCardURL,
                 ),
               ),
-              Expanded(
-                child: _buildPartnerField(
-                  "Share%",
-                  "${companyPartnerModel.partnerPercentage.toStringAsFixed(1)}%",
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: _buildPartnerField(
-                  "Email ID",
-                  companyPartnerModel.emailId,
-                ),
-              ),
-              Expanded(
-                child: _buildPartnerField(
-                  "PAN Number",
-                  companyPartnerModel.panNumber,
-                  customValueWidget: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          companyPartnerModel.panNumber,
-                          style: AppTextStyle.ts14R(),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      horizontalSpacing(width: 8),
-                      CustomIconButton(
-                        onPressed: () {
-                          final panFile = companyPartnerModel.panCardFile;
-
-                          List<String> urls = [];
-
-                          if (panFile != null &&
-                              panFile.fileNameList.isNotEmpty) {
-                            urls = panFile.fileNameList;
-                          } else if (companyPartnerModel
-                              .panCardURL
-                              .isNotEmpty) {
-                            urls = companyPartnerModel.panCardURL.split(",");
-                          }
-
-                          List<Uint8List>? bytes;
-
-                          if (panFile != null &&
-                              panFile.fileBytesList.isNotEmpty) {
-                            bytes = panFile.fileBytesList;
-                          }
-                          if (urls.isEmpty &&
-                              (bytes == null || bytes.isEmpty)) {
-                            showErrorMessage(context, "", "No file available");
-                            return;
-                          }
-                          CommonFileViewerMobile.show(
-                            context,
-                            urls: urls.isNotEmpty ? urls : ["file"],
-                            fileBytes: bytes,
-                            title: "PAN Document",
-                          );
-                        },
-                        icon: Icon(
-                          Icons.remove_red_eye_outlined,
-                          color: AppColor.primary,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: _buildPartnerField(
-                  "Aadhaar Number",
-                  companyPartnerModel.aadharCardNumber,
-                  customValueWidget: Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          companyPartnerModel.aadharCardNumber,
-                          style: AppTextStyle.ts14R(),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      horizontalSpacing(width: 8),
-
-                      CustomIconButton(
-                        onPressed: () {
-                          final aadhaarFile =
-                              companyPartnerModel.aadharCardFile;
-
-                          List<String> urls = [];
-
-                          if (aadhaarFile != null &&
-                              aadhaarFile.fileNameList.isNotEmpty) {
-                            urls = aadhaarFile.fileNameList;
-                          } else if (companyPartnerModel
-                              .aadharCardURL
-                              .isNotEmpty) {
-                            urls = companyPartnerModel.aadharCardURL.split(",");
-                          }
-                          List<Uint8List>? bytes;
-
-                          if (aadhaarFile != null &&
-                              aadhaarFile.fileBytesList.isNotEmpty) {
-                            bytes = aadhaarFile.fileBytesList;
-                          }
-                          if (urls.isEmpty &&
-                              (bytes == null || bytes.isEmpty)) {
-                            showErrorMessage(context, "", "No file available");
-                            return;
-                          }
-                          CommonFileViewerMobile.show(
-                            context,
-                            urls: urls.isNotEmpty ? urls : ["file"],
-                            fileBytes: bytes,
-                            title: "Aadhaar Document",
-                          );
-                        },
-                        icon: Icon(
-                          Icons.remove_red_eye_outlined,
-                          color: AppColor.primary,
-                          size: 16,
-                        ),
-                      ),
-                    ],
-                  ),
+              buildColumnTitleValue(
+                title: "Aadhaar Number",
+                value:
+                    companyPartnerModel.aadharCardNumber.isEmpty
+                        ? "-"
+                        : companyPartnerModel.aadharCardNumber,
+                customValueWidget: buildDocumentRow(
+                  iconWithoutBg: true,
+                  title: "Aadhaar Number",
+                  context: context,
+                  docNumber:
+                      companyPartnerModel.aadharCardNumber.isEmpty
+                          ? "-"
+                          : companyPartnerModel.aadharCardNumber,
+                  url: companyPartnerModel.aadharCardURL,
+                  fileBytes: companyPartnerModel.aadharCardFile?.fileBytesList,
                 ),
               ),
             ],
@@ -1130,16 +1048,16 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     if (partner.photoFile != null &&
         partner.photoFile!.fileBytesList.isNotEmpty &&
         partner.photoFile!.fileBytesList.first.isNotEmpty) {
-      return Image.memory(
-        partner.photoFile!.fileBytesList.first,
-        fit: BoxFit.cover,
-        width: 40,
-        height: 40,
+      return ClipOval(
+        child: Image.memory(
+          partner.photoFile!.fileBytesList.first,
+          fit: BoxFit.cover,
+          width: 50,
+          height: 50,
+        ),
       );
     }
-
     String? imageUrl;
-
     if (partner.photoFile != null &&
         partner.photoFile!.fileNameList.isNotEmpty &&
         partner.photoFile!.fileNameList.first.startsWith("http")) {
@@ -1147,45 +1065,21 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
     } else if (partner.photoURL.isNotEmpty) {
       imageUrl = partner.photoURL.split(",").first;
     }
-
     if (imageUrl != null && imageUrl.isNotEmpty) {
-      return Image.network(
-        imageUrl,
-        fit: BoxFit.cover,
-        width: 40,
-        height: 40,
-        errorBuilder: (_, __, ___) => _defaultAvatar(),
+      return ClipOval(
+        child: Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          width: 50,
+          height: 50,
+          errorBuilder: (_, __, ___) => _defaultAvatar(),
+        ),
       );
     }
-
     return _defaultAvatar();
   }
 
   Widget _defaultAvatar() {
     return Icon(Icons.person, size: 20, color: AppColor.primary);
-  }
-
-  // BUILD PARTNER FIELD
-  Widget _buildPartnerField(
-    String label,
-    String value, {
-    TextStyle? valueTextStyle,
-    Widget? customValueWidget,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(label, style: AppTextStyle.ts12R(color: AppColor.grey)),
-          verticalSpacing(height: 4),
-          customValueWidget ??
-              Text(
-                value.isEmpty ? "-" : value,
-                style: valueTextStyle ?? AppTextStyle.ts14R(),
-              ),
-        ],
-      ),
-    );
   }
 }

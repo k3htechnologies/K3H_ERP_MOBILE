@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
+import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -933,7 +934,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                         keyboardType:
                                             TextInputType.numberWithOptions(),
                                         inputFormatterList:
-                                            InputValidator.decimal(2),
+                                            InputValidator.digitWithDecimal(
+                                              maxDigitsBeforeDecimal: 16,
+                                            ),
                                         validator: (value) {
                                           if (value == null || value.isEmpty) {
                                             return "Amount is required.";
@@ -942,51 +945,35 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                         },
                                       ),
 
-                                      ValueListenableBuilder(
-                                        valueListenable: purchaseStartDate,
-                                        builder: (
-                                          context,
-                                          purchaseStartDt,
-                                          child,
-                                        ) {
-                                          return CustomDatePicker(
-                                            title: "Purchase Start Date",
+                                      AnimatedBuilder(
+                                        animation: Listenable.merge([
+                                          purchaseStartDate,
+                                          purchaseEndDate,
+                                        ]),
+                                        builder: (context, child) {
+                                          return CustomFromToDatePicker(
+                                            fromDateTitle:
+                                                "Purchase Start Date",
+                                            toDateTitle: "Purchase End Date",
                                             isRequired: true,
-                                            initialDate: purchaseStartDt,
-                                            setValue:
-                                                (value) =>
-                                                    purchaseStartDate.value =
-                                                        value,
-                                            validator: (value) {
+                                            alignVertical: true,
+                                            initialFromDate:
+                                                purchaseStartDate.value,
+                                            initialToDate:
+                                                purchaseEndDate.value,
+                                            onToDateChanged: (start, end) {
+                                              purchaseStartDate.value = start;
+                                            },
+                                            fromDateValidator: (value) {
                                               if (value == null) {
                                                 return 'Purchase Start Date is required.';
                                               }
-
                                               return null;
                                             },
-                                          );
-                                        },
-                                      ),
-                                      ValueListenableBuilder(
-                                        valueListenable: purchaseEndDate,
-                                        builder: (
-                                          context,
-                                          purchaseEndDt,
-                                          child,
-                                        ) {
-                                          return CustomDatePicker(
-                                            title: "Purchase End Date",
-                                            initialDate: purchaseEndDt,
-                                            isRequired: true,
-                                            setValue:
-                                                (value) =>
-                                                    purchaseEndDate.value =
-                                                        value,
-                                            validator: (value) {
+                                            toDateValidator: (value) {
                                               if (value == null) {
                                                 return 'Purchase End Date is required.';
                                               }
-
                                               return null;
                                             },
                                           );
@@ -1113,7 +1100,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                             TextInputType.numberWithOptions(),
                                         hint: "Enter EMD Amount",
                                         inputFormatterList:
-                                            InputValidator.decimal(2),
+                                            InputValidator.digitWithDecimal(
+                                              maxDigitsBeforeDecimal: 16,
+                                            ),
                                       ),
                                       ValueListenableBuilder(
                                         valueListenable: submissionDate,
@@ -1342,6 +1331,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Project Location is required.";
+                          }
+                          if (value.length < 10) {
+                            return "Project Location must be at least 10 characters.";
                           }
                           return null;
                         },
@@ -1580,11 +1572,14 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                 isSelected: isPayTAA,
                                 onChanged: (val) {
                                   _isFederation.value = val;
+                                  if (!val) {
+                                    _federationAmountC.clear();
+                                  }
                                 },
                                 title: "Is This Project a Federation?",
                               ),
                               CustomTextField(
-                                title: 'Project Project Federation Amount',
+                                title: 'Project Federation Amount',
                                 isRequired: isPayTAA,
                                 readOnly: !isPayTAA,
                                 prefixType: CustomTextFieldPrefix.rupees,
@@ -1593,7 +1588,16 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                         ? "Enter Project Federation Amount"
                                         : "0",
                                 textController: _federationAmountC,
+                                keyboardType: TextInputType.number,
                                 inputFormatterList: InputValidator.decimal(2),
+                                validator:
+                                    (value) =>
+                                        ((value == null ||
+                                                    value.isEmpty ||
+                                                    int.tryParse(value) == 0) &&
+                                                isPayTAA)
+                                            ? "Project Federation Amount is required."
+                                            : null,
                               ),
                             ],
                           );

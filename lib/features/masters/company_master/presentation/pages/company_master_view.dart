@@ -12,7 +12,6 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 class CompanyMasterViewScreen extends StatefulWidget {
   final CompanyModel? company;
   const CompanyMasterViewScreen({super.key, this.company});
-
   @override
   State<CompanyMasterViewScreen> createState() =>
       _CompanyMasterViewMobileScreenState();

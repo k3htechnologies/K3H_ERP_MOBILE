@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -21,7 +20,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyBankDetails extends StatefulWidget {
   const CompanyBankDetails({super.key});
-
   @override
   State<CompanyBankDetails> createState() => _CompanyBankDetailsState();
 }
@@ -86,7 +84,6 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                 ],
               ),
             ),
-
             Expanded(
               child: Builder(
                 builder: (context) {
@@ -208,9 +205,7 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                                 ),
                               ],
                             ),
-
                             Divider(height: 30, color: AppColor.grey2),
-
                             Row(
                               spacing: 10.w,
                               crossAxisAlignment: CrossAxisAlignment.start,

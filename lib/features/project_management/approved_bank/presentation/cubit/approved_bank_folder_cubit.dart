@@ -27,9 +27,13 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
   Future getApprovedBankFolderList(
     BuildContext context,
     int pageNumber,
-    int projectId,
-  ) async {
+    int projectId, {
+    bool clearApprovedBankFolderList = false,
+  }) async {
     emit(state.copyWith(isLoading: true, approvedBankFileList: []));
+    if (clearApprovedBankFolderList) {
+      emit(state.copyWith(approvedBankFolderList: []));
+    }
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");

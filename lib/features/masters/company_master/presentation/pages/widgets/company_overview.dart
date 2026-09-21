@@ -13,7 +13,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyOverview extends StatefulWidget {
   const CompanyOverview({super.key});
-
   @override
   State<CompanyOverview> createState() => _CompanyOverviewState();
 }
@@ -115,7 +114,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                             company.panNumber.isEmpty ? "-" : company.panNumber,
                         customValueWidget: buildDocumentRow(
                           iconWithoutBg: true,
-
                           title: "PAN Card",
                           context: context,
                           docNumber:
@@ -131,7 +129,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                             company.gstNumber.isEmpty ? "-" : company.gstNumber,
                         customValueWidget: buildDocumentRow(
                           iconWithoutBg: true,
-
                           title: "GST Document",
                           context: context,
                           docNumber:
@@ -143,7 +140,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                       ),
                     ],
                   ),
-
                   Row(
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -154,7 +150,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                             company.cinNumber.isEmpty ? "-" : company.cinNumber,
                         customValueWidget: buildDocumentRow(
                           iconWithoutBg: true,
-
                           title: "CIN Document",
                           context: context,
                           docNumber:
@@ -170,7 +165,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                             company.tanNumber.isEmpty ? "-" : company.tanNumber,
                         customValueWidget: buildDocumentRow(
                           iconWithoutBg: true,
-
                           title: "TAN Document",
                           context: context,
                           docNumber:
@@ -182,7 +176,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                       ),
                     ],
                   ),
-
                   Row(
                     spacing: 10,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,7 +185,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         value: "",
                         customValueWidget: buildDocumentRow(
                           iconWithoutBg: true,
-
                           title: "Company Letter Head",
                           context: context,
                           docNumber: "View Letter Head",
@@ -204,7 +196,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         value: "",
                         customValueWidget: buildDocumentRow(
                           iconWithoutBg: true,
-
                           title: "Company Letter Footer",
                           context: context,
                           docNumber: "View Letter Footer",
@@ -374,6 +365,9 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                             color: AppColor.lightBlue,
                                           ),
                                           Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            spacing: 10,
                                             children: [
                                               buildColumnTitleValue(
                                                 title: "Mobile Number",
@@ -397,6 +391,9 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                           ),
                                           verticalSpacing(),
                                           Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            spacing: 10,
                                             children: [
                                               buildColumnTitleValue(
                                                 title: "DOB",
@@ -426,7 +423,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                                 customValueWidget:
                                                     buildDocumentRow(
                                                       iconWithoutBg: true,
-
                                                       title: "PAN Card",
                                                       context: context,
                                                       docNumber:
@@ -442,19 +438,20 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                                     p.aadharCardNumber.isEmpty
                                                         ? "-"
                                                         : p.aadharCardNumber,
-                                                customValueWidget:
-                                                    buildDocumentRow(
-                                                      iconWithoutBg: true,
-                                                      title: "Aadhaar Number",
-                                                      context: context,
-                                                      docNumber:
-                                                          p
-                                                                  .aadharCardURL
-                                                                  .isEmpty
-                                                              ? "-"
-                                                              : p.aadharCardNumber,
-                                                      url: p.aadharCardURL,
-                                                    ),
+                                                customValueWidget: buildDocumentRow(
+                                                  iconWithoutBg: true,
+                                                  title: "Aadhaar Number",
+                                                  context: context,
+                                                  docNumber:
+                                                      p.aadharCardNumber.isEmpty
+                                                          ? "-"
+                                                          : p.aadharCardNumber,
+                                                  url: p.aadharCardURL,
+                                                  fileBytes:
+                                                      p
+                                                          .aadharCardFile
+                                                          ?.fileBytesList,
+                                                ),
                                               ),
                                             ],
                                           ),

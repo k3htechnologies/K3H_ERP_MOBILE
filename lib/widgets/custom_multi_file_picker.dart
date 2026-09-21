@@ -67,6 +67,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
   // OVERLAY ENTRY TO DISPLAY FILE NAMES IN A DROPDOWN
   OverlayEntry? _overlayEntry;
   final GlobalKey _fieldKey = GlobalKey();
+  final LayerLink _layerLink = LayerLink();
 
   // METHOD TO SHOW ATTACHMENT OPTIONS
   void _showAttachmentOptions(
@@ -248,7 +249,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
   }
 
   // METHOD TO SHOW FILE NAME OVERLAY
-  _showFilePathOverlay(
+  void _showFilePathOverlay(
     BuildContext portalContext,
     FormFieldState formFieldState,
   ) {
@@ -257,149 +258,89 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
       return;
     }
 
-    // GETTING WIDGET POSITION AND SIZE
     final RenderBox box =
         _fieldKey.currentContext!.findRenderObject() as RenderBox;
-    final Offset offset = box.localToGlobal(Offset.zero);
-    final Size size = box.size;
-    final overlay = Overlay.of(portalContext);
+    final Size fieldSize = box.size;
+    final Offset fieldOffset = box.localToGlobal(Offset.zero);
 
-    // CREATING THE OVERLAY ENTRY
+    // use the ROOT overlay so parent clipping / nested navigators don't cut it
+    final overlay = Overlay.of(portalContext, rootOverlay: true);
+    final media = MediaQuery.of(portalContext);
+
+    const double gap = 5.0;
+    const double screenPadding = 12.0;
+    const double rowHeight = 30.0;
+
+    final double spaceBelow =
+        media.size.height -
+        media.viewInsets.bottom -
+        (fieldOffset.dy + fieldSize.height) -
+        gap -
+        screenPadding;
+
+    final double spaceAbove =
+        fieldOffset.dy - gap - screenPadding - media.padding.top;
+
+    final double desiredHeight = (fileNamesList.length * rowHeight) + 16;
+
+    // flip up only if it genuinely fits better above
+    final bool showAbove =
+        desiredHeight > spaceBelow && spaceAbove > spaceBelow;
+
+    final double available = showAbove ? spaceAbove : spaceBelow;
+    final double maxHeight = desiredHeight.clamp(
+      48.0,
+      available.clamp(48.0, 260.0),
+    );
+
     _overlayEntry = OverlayEntry(
       builder:
-          (portalContext) => Stack(
+          (_) => Stack(
             children: [
               // CLICKING OUTSIDE DISMISSES OVERLAY
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                onTap: () {
-                  _removeOverlay();
-                },
-                child: Container(color: Colors.transparent),
+              Positioned.fill(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: _removeOverlay,
+                  child: const SizedBox.expand(),
+                ),
               ),
-              Positioned(
-                left: offset.dx,
-                top: offset.dy + size.height + 5,
-                width: size.width,
-                child: Material(
-                  color: AppColor.white,
-                  elevation: 4,
-                  borderRadius: BorderRadius.circular(8),
-                  child: MouseRegion(
-                    cursor:
-                        widget.readOnly
-                            ? SystemMouseCursors.basic
-                            : SystemMouseCursors.click,
-                    onExit: (_) => _removeOverlay(),
-                    child: ListView(
-                      padding: const EdgeInsets.all(8),
-                      shrinkWrap: true,
-                      children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: List.generate(fileNamesList.length, (
-                            index,
-                          ) {
-                            final fileName = fileNamesList[index];
-
-                            final cleanName = fileName.split('?').first;
-                            final ext =
-                                cleanName.contains('.')
-                                    ? cleanName
-                                        .split('.')
-                                        .last
-                                        .toLowerCase()
-                                        .trim()
-                                    : '';
-
-                            final allowedPreviewExtensions = [
-                              'jpg',
-                              'jpeg',
-                              'png',
-                              'gif',
-                              'webp',
-                              'heic',
-                              'heif',
-                              'pdf',
-                              'doc',
-                              'docx',
-                              'xls',
-                              'xlsx',
-                              'txt',
-                              'dwg',
-                            ];
-
-                            final canPreview = allowedPreviewExtensions
-                                .contains(ext);
-
-                            return Container(
-                              margin: const EdgeInsets.only(bottom: 5.0),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      fileName.split('/').last,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: AppTextStyle.ts14R(),
-                                    ),
-                                  ),
-
-                                  Row(
-                                    children: [
-                                      /// VIEW (always if preview supported)
-                                      if (canPreview)
-                                        InkWell(
-                                          onTap: () {
-                                            _overlayEntry?.remove();
-                                            _overlayEntry = null;
-
-                                            CommonFileViewerMobile.show(
-                                              context,
-                                              urls: [fileName],
-                                              fileBytes:
-                                                  fileBytesList[index]
-                                                          .isNotEmpty
-                                                      ? [fileBytesList[index]]
-                                                      : null,
-
-                                              title:
-                                                  widget.title ?? "View File",
-                                            );
-                                          },
-                                          child: Icon(
-                                            Icons.remove_red_eye,
-                                            color: AppColor.primary,
-                                            size: 18.0,
-                                          ),
-                                        ),
-
-                                      /// spacing only if both icons visible
-                                      if (canPreview && !widget.readOnly)
-                                        horizontalSpacing(),
-
-                                      /// 🗑 DELETE (only if NOT readOnly)
-                                      if (!widget.readOnly)
-                                        InkWell(
-                                          onTap:
-                                              () => deleteFile(
-                                                formFieldState,
-                                                index,
-                                              ),
-                                          child: Icon(
-                                            Icons.delete,
-                                            color: AppColor.error,
-                                            size: 18.0,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
+              CompositedTransformFollower(
+                link: _layerLink,
+                showWhenUnlinked: false,
+                targetAnchor:
+                    showAbove ? Alignment.topLeft : Alignment.bottomLeft,
+                followerAnchor:
+                    showAbove ? Alignment.bottomLeft : Alignment.topLeft,
+                offset: Offset(0, showAbove ? -gap : gap),
+                child: Align(
+                  alignment:
+                      showAbove ? Alignment.bottomLeft : Alignment.topLeft,
+                  child: SizedBox(
+                    width: fieldSize.width,
+                    child: Material(
+                      color: AppColor.white,
+                      elevation: 4,
+                      borderRadius: BorderRadius.circular(8),
+                      clipBehavior: Clip.antiAlias,
+                      child: MouseRegion(
+                        cursor:
+                            widget.readOnly
+                                ? SystemMouseCursors.basic
+                                : SystemMouseCursors.click,
+                        onExit: (_) => _removeOverlay(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxHeight: maxHeight),
+                          child: ListView.builder(
+                            padding: const EdgeInsets.all(8),
+                            shrinkWrap: true,
+                            itemCount: fileNamesList.length,
+                            itemBuilder:
+                                (_, index) =>
+                                    _buildFileRow(index, formFieldState),
+                          ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -409,6 +350,80 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     );
 
     overlay.insert(_overlayEntry!);
+  }
+
+  Widget _buildFileRow(int index, FormFieldState formFieldState) {
+    final fileName = fileNamesList[index];
+    final cleanName = fileName.split('?').first;
+    final ext =
+        cleanName.contains('.')
+            ? cleanName.split('.').last.toLowerCase().trim()
+            : '';
+
+    const allowedPreviewExtensions = [
+      'jpg',
+      'jpeg',
+      'png',
+      'gif',
+      'webp',
+      'heic',
+      'heif',
+      'pdf',
+      'doc',
+      'docx',
+      'xls',
+      'xlsx',
+      'txt',
+      'dwg',
+    ];
+
+    final canPreview = allowedPreviewExtensions.contains(ext);
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 5.0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              fileName.split('/').last,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyle.ts14R(),
+            ),
+          ),
+          Row(
+            children: [
+              if (canPreview)
+                InkWell(
+                  onTap: () {
+                    _removeOverlay();
+                    showFilePreviewDialog(
+                      context,
+                      [fileName],
+                      fileBytes:
+                          fileBytesList[index].isNotEmpty
+                              ? [fileBytesList[index]]
+                              : null,
+                      title: widget.title ?? "View File",
+                    );
+                  },
+                  child: Icon(
+                    Icons.remove_red_eye,
+                    color: AppColor.primary,
+                    size: 18.0,
+                  ),
+                ),
+              if (canPreview && !widget.readOnly) horizontalSpacing(),
+              if (!widget.readOnly)
+                InkWell(
+                  onTap: () => deleteFile(formFieldState, index),
+                  child: Icon(Icons.delete, color: AppColor.error, size: 18.0),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   // METHOD TO PICK FILES
@@ -602,108 +617,112 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        height: 38,
-                        key: _fieldKey,
-                        // DECORATING THE INPUT FIELD
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: AppColor.white,
-                        ),
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap:
-                              fileNamesList.isNotEmpty
-                                  ? () {
-                                    _showFilePathOverlay(
-                                      portalContext,
-                                      formFieldState,
-                                    );
-                                  }
-                                  : null,
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: widget.label,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 10.0,
-                                vertical: 10.0,
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(6.0),
-                                borderSide: BorderSide(
-                                  color:
-                                      formFieldState.hasError
-                                          ? AppColor.error
-                                          : AppColor.grey30,
+                      CompositedTransformTarget(
+                        link: _layerLink,
+                        child: Container(
+                          height: 38,
+                          key: _fieldKey,
+                          // DECORATING THE INPUT FIELD
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6.0),
+                            color: AppColor.white,
+                          ),
+                          child: GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap:
+                                fileNamesList.isNotEmpty
+                                    ? () {
+                                      _showFilePathOverlay(
+                                        portalContext,
+                                        formFieldState,
+                                      );
+                                    }
+                                    : null,
+                            child: InputDecorator(
+                              decoration: InputDecoration(
+                                labelText: widget.label,
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0,
+                                  vertical: 10.0,
                                 ),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(6.0),
-                                borderSide: BorderSide(
-                                  color:
-                                      formFieldState.hasError
-                                          ? AppColor.error
-                                          : AppColor.grey30,
-                                ),
-                              ),
-                              errorStyle: const TextStyle(height: 0),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                /// LEFT TEXT
-                                Expanded(
-                                  child: Text(
-                                    fileNamesList.isEmpty
-                                        ? "Upload ${widget.title}"
-                                        : "${fileNamesList.length} file(s) selected",
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyle.ts14R().copyWith(
-                                      color:
-                                          fileNamesList.isEmpty
-                                              ? AppColor.grey
-                                              : AppColor.darkGrey,
-                                    ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  borderSide: BorderSide(
+                                    color:
+                                        formFieldState.hasError
+                                            ? AppColor.error
+                                            : AppColor.grey30,
                                   ),
                                 ),
-
-                                /// RIGHT ICON
-                                Row(
-                                  children: [
-                                    ...?widget.actions,
-                                    InkWell(
-                                      onTap:
-                                          widget.readOnly
-                                              ? null
-                                              : () =>
-                                                  (widget.filePickType ==
-                                                              FilePickType
-                                                                  .image ||
-                                                          widget.filePickType ==
-                                                              FilePickType
-                                                                  .both ||
-                                                          widget.filePickType ==
-                                                              FilePickType
-                                                                  .kycDocument)
-                                                      ? _showAttachmentOptions(
-                                                        context,
-                                                        formFieldState,
-                                                        portalContext,
-                                                      )
-                                                      : showUploadDocumentDialog(
-                                                        context,
-                                                        formFieldState,
-                                                      ),
-                                      child: SvgPicture.asset(
-                                        AppAssets.attachFileIcon,
-                                        height: 18,
-                                        width: 18,
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  borderSide: BorderSide(
+                                    color:
+                                        formFieldState.hasError
+                                            ? AppColor.error
+                                            : AppColor.grey30,
+                                  ),
+                                ),
+                                errorStyle: const TextStyle(height: 0),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  /// LEFT TEXT
+                                  Expanded(
+                                    child: Text(
+                                      fileNamesList.isEmpty
+                                          ? "Upload ${widget.title}"
+                                          : "${fileNamesList.length} file(s) selected",
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTextStyle.ts14R().copyWith(
+                                        color:
+                                            fileNamesList.isEmpty
+                                                ? AppColor.grey
+                                                : AppColor.darkGrey,
                                       ),
                                     ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+
+                                  /// RIGHT ICON
+                                  Row(
+                                    children: [
+                                      ...?widget.actions,
+                                      InkWell(
+                                        onTap:
+                                            widget.readOnly
+                                                ? null
+                                                : () =>
+                                                    (widget.filePickType ==
+                                                                FilePickType
+                                                                    .image ||
+                                                            widget.filePickType ==
+                                                                FilePickType
+                                                                    .both ||
+                                                            widget.filePickType ==
+                                                                FilePickType
+                                                                    .kycDocument)
+                                                        ? _showAttachmentOptions(
+                                                          context,
+                                                          formFieldState,
+                                                          portalContext,
+                                                        )
+                                                        : showUploadDocumentDialog(
+                                                          context,
+                                                          formFieldState,
+                                                        ),
+                                        child: SvgPicture.asset(
+                                          AppAssets.attachFileIcon,
+                                          height: 18,
+                                          width: 18,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),

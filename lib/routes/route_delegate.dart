@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
@@ -3369,8 +3370,8 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.approvedBank,
               name: AppRoutes.approvedBank,
               builder: (context, state) {
-                // return ApprovedBankScreen();
-                return ComingSoonScreen(title: "Approved Bank");
+                return ApprovedBankScreen();
+                // return ComingSoonScreen(title: "Approved Bank");
               },
             ),
             GoRoute(

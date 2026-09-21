@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/file_preview_dialog_content.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -166,9 +167,9 @@ class _CustomSignatureWidgetState extends State<CustomSignatureWidget> {
                           onTap: () {
                             _removeOverlay();
 
-                            CommonFileViewerMobile.show(
+                            showFilePreviewDialog(
                               context,
-                              urls: [signatureFileName!],
+                              [signatureFileName!],
                               fileBytes:
                                   signatureBytes != null
                                       ? [signatureBytes!]

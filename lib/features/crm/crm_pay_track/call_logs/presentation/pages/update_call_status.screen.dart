@@ -56,7 +56,7 @@ class _EditCallLogsScreenState extends State<UpdateCallLogsScreen> {
     super.initState();
 
     _callLogsCubit = context.read<CallLogsCubit>();
-    initialiseControllers();
+    initializeTextEditingController();
     _prefillData();
   }
 
@@ -67,7 +67,7 @@ class _EditCallLogsScreenState extends State<UpdateCallLogsScreen> {
     _promisedAmountC.dispose();
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _remarkC = TextEditingController();
     _promisedAmountC = TextEditingController();
   }

@@ -378,6 +378,8 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
                                                     context,
                                                     1,
                                                     _project.projectId,
+                                                    clearApprovedBankFolderList:
+                                                        true,
                                                   );
                                             }
                                           },

@@ -67,7 +67,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     _payTrackCallLogsAuthorization =
         Authorization.routeAuthorizationMap[AppRoutes.payTrackCallLog] ??
         AuthorizationModel();
-    initialiseControllers();
+    initializeTextEditingController();
     _onScroll();
     _callLogsCubit.applyCallLogsFilter(
       bookingId: widget.bookingId,
@@ -86,7 +86,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
     super.dispose();
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _filterApplicantNameC = TextEditingController();
     _filterApplicantMobileC = TextEditingController();
   }

@@ -47,13 +47,13 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     _termSheetCubit = context.read<TermSheetCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
-    initialiseControllers();
+    initializeTextEditingController();
     _onScroll();
     _termSheetCubit.getTermSheet(context, 1);
     super.initState();
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterByCompanyNameC = TextEditingController();
     _filterProjectNameC = TextEditingController();

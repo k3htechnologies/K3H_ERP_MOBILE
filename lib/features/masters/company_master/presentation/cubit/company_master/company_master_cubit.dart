@@ -13,11 +13,9 @@ part 'company_master_state.dart';
 
 class CompanyMasterCubit extends Cubit<CompanyMasterState> {
   CompanyMasterCubit() : super(CompanyMasterState.initial());
-
   // REPOSITORY
   final CompanyMasterRepository _companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
-
   // SEARCH COMPANY
   Future searchCompany(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, companyList: [], isLoading: true));
@@ -63,7 +61,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         ),
       );
     }
-
     await getCompanyMaster(context, 1);
   }
 
@@ -84,13 +81,11 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       "CityName": state.filterByCityName,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
-
     final result = await _companyMasterRepository.pullCompanyList(
       pageNumber: pageNumber,
       pageSize: 10,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -100,7 +95,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         final newData = response['data'] as List<CompanyModel>;
         final List<CompanyModel> updatedList =
             pageNumber == 1 ? newData : [...state.companyList, ...newData];
-
         emit(
           state.copyWith(
             isLoading: false,
@@ -126,7 +120,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       pageSize: 10,
       queryParams: {"CompanyId": companyId},
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false, clearOverview: true));
@@ -134,7 +127,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       },
       (response) {
         final newData = response['data'] as List<CompanyModel>;
-
         emit(
           state.copyWith(
             isLoading: false,
@@ -210,7 +202,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     required int cityId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     Map<String, String> requestBody = {
       "CompanyId": "0",
       "CompanyName": companyName,
@@ -266,9 +257,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         'AddUpdateCompanyPartner[$i].PhotoURL':
             state.companyPartner[i].photoURL.toString(),
     };
-
     List<Map<String, dynamic>> fileList = [];
-
     for (int i = 0; i < state.companyPartner.length; i++) {
       if (state.companyPartner[i].aadharCardFile != null) {
         for (
@@ -288,7 +277,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
           });
         }
       }
-
       if (state.companyPartner[i].panCardFile != null) {
         for (
           int j = 0;
@@ -326,7 +314,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         }
       }
     }
-
     for (int i = 0; i < gstCertificateFile.fileNameList.length; i++) {
       if (gstCertificateFile.fileNameList[i].contains("http")) {
         continue;
@@ -337,7 +324,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         "fileName": gstCertificateFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < panCardFile.fileNameList.length; i++) {
       if (panCardFile.fileNameList[i].contains("http")) {
         continue;
@@ -348,7 +334,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         "fileName": panCardFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < cinFile.fileNameList.length; i++) {
       if (cinFile.fileNameList[i].contains("http")) {
         continue;
@@ -359,7 +344,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         "fileName": cinFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < companyLetterheadHeaderFile.fileNameList.length; i++) {
       if (companyLetterheadHeaderFile.fileNameList[i].contains("http")) {
         continue;
@@ -370,7 +354,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         "fileName": companyLetterheadHeaderFile.fileNameList[i],
       });
     }
-
     for (int i = 0; i < companyLetterheadFooterFile.fileNameList.length; i++) {
       if (companyLetterheadFooterFile.fileNameList[i].contains("http")) {
         continue;
@@ -476,7 +459,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
           pageSize: 10,
           queryParams: {"CompanyId": companyId},
         );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false, clearBankDetails: true));
@@ -484,7 +466,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       },
       (response) {
         final newData = response['data'] as List<CompanyBankModel>;
-
         emit(
           state.copyWith(
             isLoading: false,
@@ -517,17 +498,11 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       "CompanyWithBankDetailsId": companyWithBankDetailsId.toString(),
       "CompanyId": companyId.toString(),
       if (uniqueKey != null) "Uniquekey": uniqueKey,
-
       "BeneficiaryAccountHolderName": beneficiaryAccountHolderName.trim(),
-
       "BankListMasterId": bankListMasterId.toString(),
-
       "AccountNumber": accountNumber.trim(),
-
       "Branch": branch.trim(),
-
       "IFSCCode": ifscCode.trim(),
-
       "AcType": accountType,
       "NatureOfAccount": natureOfAccount,
       "MICRCode": micrCode,
@@ -545,17 +520,13 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
         "fileName": cancelChequeFile.fileNameList[i],
       });
     }
-
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _companyMasterRepository
         .addUpdateCompanyWithBankDetailsList(
           body: bankRequestBody,
           fileList: fileList,
         );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
@@ -563,7 +534,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       (response) {
         final updatedBankDetails =
             (response['data'] as List<CompanyBankModel>).first;
-
         if (uniqueKey != null && uniqueKey.isNotEmpty) {
           if (state.bankDetailList != null &&
               state.bankDetailList!.isNotEmpty &&
@@ -571,9 +541,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
             final updatedList = List<CompanyBankModel>.from(
               state.bankDetailList ?? [],
             );
-
             updatedList[index] = updatedBankDetails;
-
             emit(state.copyWith(isLoading: false, bankDetailList: updatedList));
           }
         } else {
@@ -581,7 +549,6 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
             state.bankDetailList ?? [],
           );
           updatedList.insert(0, updatedBankDetails);
-
           emit(state.copyWith(isLoading: false, bankDetailList: updatedList));
         }
         goRouter.pop();

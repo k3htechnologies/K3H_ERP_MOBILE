@@ -46,13 +46,13 @@ class _AssignTicketMasterState extends State<AssignTicketMaster> {
       [],
     );
     _ticketCubit = context.read<TicketCubit>();
-    initialiseControllers();
+    initializeTextEditingController();
     if (_isEditMode) {
       _prefillTicket(widget.ticket!);
     }
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _remakrC = TextEditingController();
   }
 

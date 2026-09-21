@@ -302,32 +302,44 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
                   ),
 
                   /// ⬅ LEFT ARROW
-                  Positioned(
-                    left: 0,
-                    child: ValueListenableBuilder<int>(
-                      valueListenable: _currentPageNotifier,
-                      builder: (_, index, __) {
-                        return _arrowButton(
-                          icon: Icons.chevron_left,
-                          onTap: _previous,
-                          enabled: index > 0,
-                        );
-                      },
+                  Visibility(
+                    visible:
+                        widget.urls.length > 1 ||
+                        (widget.fileBytes != null &&
+                            widget.fileBytes!.length > 1),
+                    child: Positioned(
+                      left: 0,
+                      child: ValueListenableBuilder<int>(
+                        valueListenable: _currentPageNotifier,
+                        builder: (_, index, __) {
+                          return _arrowButton(
+                            icon: Icons.chevron_left,
+                            onTap: _previous,
+                            enabled: index > 0,
+                          );
+                        },
+                      ),
                     ),
                   ),
 
                   /// ➡ RIGHT ARROW
-                  Positioned(
-                    right: 0,
-                    child: ValueListenableBuilder<int>(
-                      valueListenable: _currentPageNotifier,
-                      builder: (_, index, __) {
-                        return _arrowButton(
-                          icon: Icons.chevron_right,
-                          onTap: _next,
-                          enabled: index < widget.urls.length - 1,
-                        );
-                      },
+                  Visibility(
+                    visible:
+                        widget.urls.length > 1 ||
+                        (widget.fileBytes != null &&
+                            widget.fileBytes!.length > 1),
+                    child: Positioned(
+                      right: 0,
+                      child: ValueListenableBuilder<int>(
+                        valueListenable: _currentPageNotifier,
+                        builder: (_, index, __) {
+                          return _arrowButton(
+                            icon: Icons.chevron_right,
+                            onTap: _next,
+                            enabled: index < widget.urls.length - 1,
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],

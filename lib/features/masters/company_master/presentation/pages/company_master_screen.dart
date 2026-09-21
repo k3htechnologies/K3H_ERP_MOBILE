@@ -21,42 +21,32 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyMasterScreen extends StatefulWidget {
   const CompanyMasterScreen({super.key});
-
   @override
   State<CompanyMasterScreen> createState() => _CompanyMasterMobileScreenState();
 }
 
 class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
-  // CUBIT
   late CompanyMasterCubit _companyMasterCubit;
-
-  // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
-  // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
       _filterFirmsTypeC,
       _filterContactPersonC,
       _filterMobileNumberC,
       _filterCityNameC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
-    initialiseControllers();
+    initializeTextEditingController();
     _companyMasterCubit = context.read<CompanyMasterCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.companyMaster] ??
         AuthorizationModel();
     _companyMasterCubit.getCompanyMaster(context, 1);
-    // PAGINATION
     scrollController = ScrollController();
-    // SCROLL LISTENER
     scrollController.addListener(_onScroll);
   }
 
@@ -73,8 +63,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     super.dispose();
   }
 
-  // INITIALISE TEXT EDITING CONTROLLERS
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _searchC = TextEditingController();
     scrollController = ScrollController();
     _filterFirmsTypeC = TextEditingController();
@@ -129,29 +118,24 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     BuildContext context,
   ) async {
     final state = _companyMasterCubit.state;
-
     _searchC.text = state.searchText;
     _filterFirmsTypeC.text = state.filterByFirmType;
     _filterContactPersonC.text = state.filterByContactPerson;
     _filterMobileNumberC.text = state.filterByMobileNumber;
     _filterCityNameC.text = state.filterByCityName;
-
     String? selectedDirection =
         state.currentSortColumn == "Company Name"
             ? state.currentSortDirection
             : null;
-
     final String initialCompanyName = _searchC.text;
     final String initialFirmsType = _filterFirmsTypeC.text;
     final String initialContactPerson = _filterContactPersonC.text;
     final String initialMobileNumber = _filterMobileNumberC.text;
     final String initialCityName = _filterCityNameC.text;
     final String? initialDirection = selectedDirection;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool manualClose = false;
     bool applied = false;
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
@@ -289,7 +273,6 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _filterFirmsTypeC.clear();

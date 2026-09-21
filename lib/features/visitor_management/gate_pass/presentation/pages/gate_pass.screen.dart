@@ -62,7 +62,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
         Authorization.routeAuthorizationMap[AppRoutes
             .gatePassAdministrativeAccess] ??
         AuthorizationModel();
-    initialiseCOntrollers();
+    initializeTextEditingController();
     _onScroll();
     _gatePassCubit.getGatePass(context, 1);
     super.initState();
@@ -83,7 +83,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
     super.dispose();
   }
 
-  void initialiseCOntrollers() {
+  void initializeTextEditingController() {
     _searchC = TextEditingController();
     _mobileNumberC = TextEditingController();
     _addressC = TextEditingController();

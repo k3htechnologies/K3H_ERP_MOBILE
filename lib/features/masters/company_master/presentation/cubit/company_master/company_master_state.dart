@@ -14,7 +14,6 @@ class CompanyMasterState extends BaseState {
   final String filterByCityName;
   final CompanyModel? companyOverview;
   final List<CompanyBankModel>? bankDetailList;
-
   const CompanyMasterState({
     super.isLoading,
     super.stateType,
@@ -32,7 +31,6 @@ class CompanyMasterState extends BaseState {
     required this.companyOverview,
     required this.bankDetailList,
   });
-
   factory CompanyMasterState.initial() => CompanyMasterState(
     companyList: [],
     companyPartner: [],
@@ -49,7 +47,6 @@ class CompanyMasterState extends BaseState {
     companyOverview: null,
     bankDetailList: null,
   );
-
   CompanyMasterState copyWith({
     bool? isLoading,
     StateType? stateType,

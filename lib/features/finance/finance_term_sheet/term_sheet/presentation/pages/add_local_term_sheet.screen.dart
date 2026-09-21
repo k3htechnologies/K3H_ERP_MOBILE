@@ -72,13 +72,13 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
   @override
   void initState() {
     super.initState();
-    initialiseControllers();
+    initializeTextEditingController();
     if (_isEditMode) {
       _prefillTermSheet(widget.termSheetModel!);
     }
   }
 
-  void initialiseControllers() {
+  void initializeTextEditingController() {
     _loanTakenByC = TextEditingController();
     _nameOfInstitutionBankNBFC = TextEditingController();
     _facilityAmountC = TextEditingController();

@@ -7,10 +7,8 @@ class CompanyMasterAddState extends BaseState {
     super.stateType,
     required this.companyPartner,
   });
-
   factory CompanyMasterAddState.initial() =>
       CompanyMasterAddState(isLoading: true, companyPartner: []);
-
   CompanyMasterAddState copyWith({
     String? errorMessage,
     bool? isLoading,
