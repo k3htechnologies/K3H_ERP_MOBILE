@@ -413,7 +413,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                                 MainAxisAlignment.spaceBetween,
                                             children: [
                                               buildColumnTitleValue(
-                                                title: "Email Id",
+                                                title: "E-Mail ID",
                                                 value:
                                                     applicantDetails
                                                         .applicantEmailId,

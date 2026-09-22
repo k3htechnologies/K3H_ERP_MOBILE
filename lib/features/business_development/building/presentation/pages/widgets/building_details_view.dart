@@ -17,7 +17,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BuildingDetailsView extends StatelessWidget {
   final bool canAction;
-  const BuildingDetailsView({super.key, required this.canAction});
+  final String buildingName;
+  const BuildingDetailsView({
+    super.key,
+    required this.canAction,
+    required this.buildingName,
+  });
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<BuildingCubit, BuildingState>(
@@ -34,16 +39,23 @@ class BuildingDetailsView extends StatelessWidget {
                     style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
                   CustomButton(
-                    text: "Update",
+                    text:
+                        (state.buildingDetails != null &&
+                                state.buildingDetails!.grossPlotAreaSqMt > 0)
+                            ? "Update"
+                            : "Add",
                     isDisable: !canAction,
                     onPressed: () {
                       goRouter.pushNamed(
                         AppRoutes.editBuildingDetails,
                         queryParameters: {
-                          "buildingDetail": Uri.encodeComponent(
+                          "buildingDetails": Uri.encodeComponent(
                             EncryptionManager.encryptData(
                               jsonEncode(state.buildingDetails!.toJson()),
                             ),
+                          ),
+                          "buildingName": Uri.encodeComponent(
+                            EncryptionManager.encryptData(buildingName),
                           ),
                         },
                       );
@@ -62,15 +74,15 @@ class BuildingDetailsView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
-                        title: "Gross Plot Area (Sq. ft)",
+                        title: "Gross Plot Area (SqMt)",
                         value:
-                            state.buildingDetails?.grossPlotAreaSqFt
+                            state.buildingDetails?.grossPlotAreaSqMt
                                 .addCommas(),
                       ),
                       buildColumnTitleValue(
-                        title: "PR Card Area(Sq. ft)",
+                        title: "Physical Survey Area (SqMt)",
                         value:
-                            state.buildingDetails?.plotAreaPRCardSqFt
+                            state.buildingDetails?.plotAreaPhysicalSurveySqMt
                                 .addCommas(),
                       ),
                     ],
@@ -80,35 +92,29 @@ class BuildingDetailsView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
-                        title: "Old Approved Plan Area (Sq. ft)",
+                        title: "Old Approved Plan Area (SqMt)",
                         value:
-                            state.buildingDetails?.plotAreaOldApprovedPlanSqFt
+                            state.buildingDetails?.plotAreaOldApprovedPlanSqMt
                                 .addCommas(),
                       ),
                       buildColumnTitleValue(
-                        title: "Conveyance Area (Sq. ft)",
+                        title: "Conveyance Area (SqMt)",
                         value:
-                            state.buildingDetails?.plotAreaConveyanceSqFt
+                            state.buildingDetails?.plotAreaConveyanceSqMt
                                 .addCommas(),
                       ),
                     ],
                   ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Physical Survey Area (Sq. ft)",
-                        value:
-                            state.buildingDetails?.plotAreaPhysicalSurveySqFt
-                                .addCommas(),
-                      ),
-                      Expanded(child: SizedBox()),
-                    ],
+                  buildColumnTitleValue(
+                    title: "PR Card Area(SqMt)",
+                    value:
+                        state.buildingDetails?.plotAreaPRCardSqMt.addCommas(),
+                    removeExpanded: true,
                   ),
                 ],
               ),
               SectionCard(
-                title: 'Building Construction Details',
+                title: 'Existing Details',
                 titleTextColor: AppColor.primary,
                 headerBackgroundColor: AppColor.lightBlue,
                 children: [
@@ -135,7 +141,7 @@ class BuildingDetailsView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
-                        title: "Residential Carpet Area (Sq. ft)",
+                        title: "Residential Carpet Area (SqFt)",
                         value:
                             state
                                 .buildingDetails
@@ -154,7 +160,7 @@ class BuildingDetailsView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
-                        title: "Commercial Carpet Area (Sq. ft)",
+                        title: "Commercial Carpet Area (SqFt)",
                         value:
                             state.buildingDetails?.totalCommercialCarpetAreaSqFt
                                 .addCommas(),
@@ -216,7 +222,7 @@ class BuildingDetailsView extends StatelessWidget {
                               ),
                             ),
                             buildRowTitleValue(
-                              title: "Email Id",
+                              title: "E-Mail ID",
                               value:
                                   contact.emailId.isEmpty
                                       ? "-"

@@ -11,14 +11,18 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class UpdateBuildingDetailsScreen extends StatefulWidget {
   final BuildingDetailsModel buildingDetailsModel;
+  final String buildingName;
   const UpdateBuildingDetailsScreen({
     super.key,
     required this.buildingDetailsModel,
+    required this.buildingName,
   });
   @override
   State<UpdateBuildingDetailsScreen> createState() =>
@@ -129,14 +133,14 @@ class _UpdateBuildingDetailsScreenState
   }
 
   void _populateFormFields(BuildingDetailsModel buildingDetails) {
-    _grossPlotAreaC.text = buildingDetails.grossPlotAreaSqFt.toString();
+    _grossPlotAreaC.text = buildingDetails.grossPlotAreaSqMt.toString();
     _plotAreaPhysicalSurveyC.text =
-        buildingDetails.plotAreaPhysicalSurveySqFt.toString();
+        buildingDetails.plotAreaPhysicalSurveySqMt.toString();
     _plotAreaOldApprovedPlanC.text =
-        buildingDetails.plotAreaOldApprovedPlanSqFt.toString();
+        buildingDetails.plotAreaOldApprovedPlanSqMt.toString();
     _plotAreaConveyanceC.text =
-        buildingDetails.plotAreaConveyanceSqFt.toString();
-    _plotAreaPRCardC.text = buildingDetails.plotAreaPRCardSqFt.toString();
+        buildingDetails.plotAreaConveyanceSqMt.toString();
+    _plotAreaPRCardC.text = buildingDetails.plotAreaPRCardSqMt.toString();
     _totalCarpetAreaC.text = buildingDetails.totalCarpetAreaSqFt.toString();
     _totalResidentialUnitsC.text =
         buildingDetails.totalResidentialUnits.toString();
@@ -228,219 +232,251 @@ class _UpdateBuildingDetailsScreenState
         screenTitle: "Building",
         authorization: AuthorizationModel(),
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text("Update Building Details", style: AppTextStyle.ts14M()),
-              verticalSpacing(),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Column(
+              spacing: 8,
+              children: [
+                showSiteSelectedWidget(projectName: getProject().projectName),
+                Row(
+                  spacing: 8,
                   children: [
+                    Icon(
+                      LucideIcons.building2,
+                      color: AppColor.darkBlue,
+                      size: 18,
+                    ),
                     Text(
-                      "Building Plot Area",
+                      toTitleCase(widget.buildingName),
                       style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: 'Gross Plot Area (SqMt)',
-                      hint: 'Enter Gross Plot Area',
-                      textController: _grossPlotAreaC,
-                      isRequired: true,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            ((double.tryParse(value) ?? 0) <= 0)) {
-                          return 'Gross Plot Area is required.';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Plot Area Physical Survey (SqMt)',
-                      hint: 'Enter Plot Area Physical Survey',
-                      textController: _plotAreaPhysicalSurveyC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                    ),
-                    CustomTextField(
-                      title: 'Plot Area Old Approved Plan (SqFt)',
-                      hint: 'Enter Plot Area Old Approved Plan',
-                      textController: _plotAreaOldApprovedPlanC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                    ),
-                    CustomTextField(
-                      title: 'Plot Area Conveyance (SqMt)',
-                      hint: 'Enter Plot Area Conveyance',
-                      textController: _plotAreaConveyanceC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                    ),
-                    CustomTextField(
-                      title: 'Plot Area PR Card (SqMt)',
-                      hint: 'Enter Plot Area PR Card',
-                      textController: _plotAreaPRCardC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
                     ),
                   ],
                 ),
-              ),
-              verticalSpacing(),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Existing Details",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: 'Total Carpet Area (SqFt)',
-                      hint: 'Enter Total Carpet Area (SqFt)',
-                      textController: _totalCarpetAreaC,
-                      isRequired: true,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            ((double.tryParse(value) ?? 0) <= 0)) {
-                          return 'Total Carpet Area is required.';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Total Residential Units',
-                      hint: 'Enter Total Residential Units',
-                      textController: _totalResidentialUnitsC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(9),
-                    ),
-                    CustomTextField(
-                      title: 'Total Residential Carpet Area (SqFt)',
-                      hint: 'Enter Total Residential Carpet Area',
-                      textController: _totalResidentialCarpetAreaC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                    ),
-                    CustomTextField(
-                      title: 'Total Commercial Units',
-                      hint: 'Enter Total Commercial Units',
-                      textController: _totalCommercialUnitsC,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(9),
-                    ),
-                    CustomTextField(
-                      title: 'Total Commercial Carpet Area (SqFt)',
-                      hint: 'Enter Total Commercial Carpet Area',
-                      textController: _totalCommercialCarpetAreaC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                    ),
-                    CustomTextField(
-                      title: 'Garage Carpet Area (SqFt)',
-                      hint: 'Enter Garage Carpet Area',
-                      textController: _garageCarpetAreaC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                    ),
-                    CustomTextField(
-                      title: 'Terrace Carpet Area (SqFt)',
-                      hint: 'Enter Terrace Carpet Area (SqFt)',
-                      textController: _terraceCarpetAreaC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 16,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                    ),
-                  ],
-                ),
-              ),
-              verticalSpacing(),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Building Key Contact Details',
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    _buildContactSection(
-                      'Chairman',
-                      _chairmanContactNameC,
-                      _chairmanMobileNumberC,
-                      _chairmanEmailIdC,
-                    ),
-                    Divider(height: 10, color: AppColor.grey2),
-                    _buildContactSection(
-                      'Secretary',
-                      _secretaryContactNameC,
-                      _secretaryMobileNumberC,
-                      _secretaryEmailIdC,
-                    ),
-                    Divider(height: 10, color: AppColor.grey2),
-                    _buildContactSection(
-                      'Treasurer',
-                      _treasurerContactNameC,
-                      _treasurerMobileNumberC,
-                      _treasurerEmailIdC,
-                    ),
-                    Divider(height: 10, color: AppColor.grey2),
-                    _buildContactSection(
-                      'PMC',
-                      _pmcContactNameC,
-                      _pmcMobileNumberC,
-                      _pmcEmailIdC,
-                    ),
-                    Divider(height: 10, color: AppColor.grey2),
-                    _buildContactSection(
-                      'Broker',
-                      _brokerContactNameC,
-                      _brokerMobileNumberC,
-                      _brokerEmailIdC,
-                    ),
-                  ],
-                ),
-              ),
-              verticalSpacing(),
-            ],
+              ],
+            ),
           ),
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Update Building Details",
+                      style: AppTextStyle.ts14M(),
+                    ),
+                    verticalSpacing(),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Building Plot Area",
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          CustomTextField(
+                            title: 'Gross Plot Area (SqMt)',
+                            hint: 'Enter Gross Plot Area',
+                            textController: _grossPlotAreaC,
+                            isRequired: true,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            validator: (value) {
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  ((double.tryParse(value) ?? 0) <= 0)) {
+                                return 'Gross Plot Area is required.';
+                              }
+                              return null;
+                            },
+                          ),
+                          CustomTextField(
+                            title: 'Plot Area Physical Survey (SqMt)',
+                            hint: 'Enter Plot Area Physical Survey',
+                            textController: _plotAreaPhysicalSurveyC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                          CustomTextField(
+                            title: 'Plot Area Old Approved Plan (SqMt)',
+                            hint: 'Enter Plot Area Old Approved Plan',
+                            textController: _plotAreaOldApprovedPlanC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                          CustomTextField(
+                            title: 'Plot Area Conveyance (SqMt)',
+                            hint: 'Enter Plot Area Conveyance',
+                            textController: _plotAreaConveyanceC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                          CustomTextField(
+                            title: 'Plot Area PR Card (SqMt)',
+                            hint: 'Enter Plot Area PR Card',
+                            textController: _plotAreaPRCardC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    verticalSpacing(),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Existing Details",
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          CustomTextField(
+                            title: 'Total Carpet Area (SqFt)',
+                            hint: 'Enter Total Carpet Area (SqFt)',
+                            textController: _totalCarpetAreaC,
+                            isRequired: true,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            validator: (value) {
+                              if (value == null ||
+                                  value.trim().isEmpty ||
+                                  ((double.tryParse(value) ?? 0) <= 0)) {
+                                return 'Total Carpet Area is required.';
+                              }
+                              return null;
+                            },
+                          ),
+                          CustomTextField(
+                            title: 'Total Residential Units',
+                            hint: 'Enter Total Residential Units',
+                            textController: _totalResidentialUnitsC,
+                            keyboardType: TextInputType.number,
+                            inputFormatterList: InputValidator.digit(9),
+                          ),
+                          CustomTextField(
+                            title: 'Total Residential Carpet Area (SqFt)',
+                            hint: 'Enter Total Residential Carpet Area',
+                            textController: _totalResidentialCarpetAreaC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                          CustomTextField(
+                            title: 'Total Commercial Units',
+                            hint: 'Enter Total Commercial Units',
+                            textController: _totalCommercialUnitsC,
+                            keyboardType: TextInputType.number,
+                            inputFormatterList: InputValidator.digit(9),
+                          ),
+                          CustomTextField(
+                            title: 'Total Commercial Carpet Area (SqFt)',
+                            hint: 'Enter Total Commercial Carpet Area',
+                            textController: _totalCommercialCarpetAreaC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                          CustomTextField(
+                            title: 'Garage Carpet Area (SqFt)',
+                            hint: 'Enter Garage Carpet Area',
+                            textController: _garageCarpetAreaC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                          CustomTextField(
+                            title: 'Terrace Carpet Area (SqFt)',
+                            hint: 'Enter Terrace Carpet Area (SqFt)',
+                            textController: _terraceCarpetAreaC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    verticalSpacing(),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Building Key Contact Details',
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          _buildContactSection(
+                            'Chairman',
+                            _chairmanContactNameC,
+                            _chairmanMobileNumberC,
+                            _chairmanEmailIdC,
+                          ),
+                          Divider(height: 10, color: AppColor.grey2),
+                          _buildContactSection(
+                            'Secretary',
+                            _secretaryContactNameC,
+                            _secretaryMobileNumberC,
+                            _secretaryEmailIdC,
+                          ),
+                          Divider(height: 10, color: AppColor.grey2),
+                          _buildContactSection(
+                            'Treasurer',
+                            _treasurerContactNameC,
+                            _treasurerMobileNumberC,
+                            _treasurerEmailIdC,
+                          ),
+                          Divider(height: 10, color: AppColor.grey2),
+                          _buildContactSection(
+                            'PMC',
+                            _pmcContactNameC,
+                            _pmcMobileNumberC,
+                            _pmcEmailIdC,
+                          ),
+                          Divider(height: 10, color: AppColor.grey2),
+                          _buildContactSection(
+                            'Broker',
+                            _brokerContactNameC,
+                            _brokerMobileNumberC,
+                            _brokerEmailIdC,
+                          ),
+                        ],
+                      ),
+                    ),
+                    verticalSpacing(),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
@@ -485,6 +521,7 @@ class _UpdateBuildingDetailsScreenState
         CustomTextField(
           title: 'Mobile Number',
           textController: mobileController,
+          prefixType: CustomTextFieldPrefix.mobile,
           hint: 'Enter Mobile Number',
           keyboardType: TextInputType.number,
           inputFormatterList: InputValidator.digit(10),
@@ -498,14 +535,14 @@ class _UpdateBuildingDetailsScreenState
           },
         ),
         CustomTextField(
-          title: 'Email ID',
+          title: 'E-Mail ID',
           textController: emailController,
-          hint: 'Enter Email ID',
+          hint: 'Enter E-Mail ID',
           inputFormatterList: InputValidator.emailInputFormatters(),
           validator: (value) {
             if (value != null && value.isNotEmpty) {
               if (!InputValidator.isValidEmail(value)) {
-                return 'Email id is invalid';
+                return "Enter a Valid E-Mail ID";
               }
             }
             return null;

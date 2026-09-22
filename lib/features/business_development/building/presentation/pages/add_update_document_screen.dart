@@ -70,6 +70,7 @@ class _AddUpdateDocumentScreenState extends State<AddUpdateDocumentScreen> {
         buildingDocumentId: widget.documentModel.buildingDocumentId,
         documentRemark: _remarkC.text.trim(),
         uniqueKey: widget.documentModel.uniquekey,
+        parentBuildingDocumentId: widget.documentModel.buildingDocumentId,
       );
     } else {
       _buildingCubit.updateBuildingChildDocument(

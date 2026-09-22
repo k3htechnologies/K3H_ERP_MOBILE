@@ -76,4 +76,39 @@ class BuildingDocumentModel {
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "DocumentRemark": documentRemark,
   };
+
+  BuildingDocumentModel copyWith({
+    int? buildingDocumentId,
+    String? uniquekey,
+    int? buildingId,
+    int? projectId,
+    String? documentName,
+    String? documentURL,
+    int? uploadedBuildingDocumentCount,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
+    String? documentRemark,
+  }) {
+    return BuildingDocumentModel(
+      buildingDocumentId: buildingDocumentId ?? this.buildingDocumentId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      buildingId: buildingId ?? this.buildingId,
+      projectId: projectId ?? this.projectId,
+      documentName: documentName ?? this.documentName,
+      documentURL: documentURL ?? this.documentURL,
+      uploadedBuildingDocumentCount:
+          uploadedBuildingDocumentCount ?? this.uploadedBuildingDocumentCount,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
+      documentRemark: documentRemark ?? this.documentRemark,
+    );
+  }
 }

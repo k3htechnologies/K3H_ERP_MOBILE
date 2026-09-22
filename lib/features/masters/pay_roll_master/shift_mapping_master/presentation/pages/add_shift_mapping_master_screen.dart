@@ -348,7 +348,7 @@ class _AddShiftMappingMasterScreenState
                                                 .first["reportingPerson"],
                                       },
                                       {
-                                        "title": "Email ID",
+                                        "title": "E-Mail ID",
                                         "value":
                                             selectedEmployee.first["emailId"],
                                       },

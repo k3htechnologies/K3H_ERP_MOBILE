@@ -118,7 +118,7 @@ class _UnitSpecificationViewScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Unit Area (Sq. ft)",
+                title: "Unit Area (SqFt)",
                 value:
                     widget.flatModel.reraCarpetAreaSqFt > 0
                         ? widget.flatModel.reraCarpetAreaSqFt.toStringAsFixed(2)
@@ -185,15 +185,15 @@ class _UnitSpecificationViewScreenState
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         buildColumnTitleValue(
-                          title: "Area (Sq. ft)",
+                          title: "Area (SqFt)",
                           value: spec.flatLayoutAreaSqFt.toStringAsFixed(2),
                         ),
                         buildColumnTitleValue(
-                          title: "Length (Sq. ft)",
+                          title: "Length (SqFt)",
                           value: spec.flatLayoutLengthSqFt.toStringAsFixed(2),
                         ),
                         buildColumnTitleValue(
-                          title: "Width (Sq. ft)",
+                          title: "Width (SqFt)",
                           value: spec.flatLayoutWidthSqFt.toStringAsFixed(2),
                         ),
                       ],

@@ -413,7 +413,7 @@ class _AddTemporaryAccommodationAlternativeDetailsState
             (v) => (v == null || v.isEmpty) ? "Amount is required" : null,
       ),
       CustomTextField(
-        title: "Carpet Area (Sq. ft)",
+        title: "Carpet Area (SqFt)",
         textController: _carpetAreaController,
         keyboardType: TextInputType.numberWithOptions(),
         inputFormatterList: InputValidator.digitWithDecimal(

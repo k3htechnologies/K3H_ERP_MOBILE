@@ -457,15 +457,15 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomTextField(
             textController: _emailIdC,
-            title: "E-mail ID",
-            hint: "Enter E-mail ID",
+            title: "E-Mail ID",
+            hint: "Enter E-Mail ID",
             isRequired: true,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return "Email Id is required.";
+                return "E-Mail ID is required.";
               }
               if (!InputValidator.isValidEmail(value)) {
-                return "Invalid email address";
+                return "Enter a Valid E-Mail ID";
               }
               return null;
             },
@@ -969,7 +969,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                 ),
               ),
               buildColumnTitleValue(
-                title: "E-mail ID",
+                title: "E-Mail ID",
                 value: companyPartnerModel.emailId,
                 customValueWidget: CustomClickToContactText(
                   value: companyPartnerModel.emailId,

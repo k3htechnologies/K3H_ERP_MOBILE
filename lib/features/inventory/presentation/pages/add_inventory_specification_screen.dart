@@ -860,15 +860,14 @@ class _AddInventorySpecificationScreenState
                                                     Row(
                                                       children: [
                                                         buildColumnTitleValue(
-                                                          title:
-                                                              "Area (Sq. ft)",
+                                                          title: "Area (SqFt)",
                                                           value:
                                                               spec.flatLayoutAreaSqFt
                                                                   .toString(),
                                                         ),
                                                         buildColumnTitleValue(
                                                           title:
-                                                              "Length (Sq. ft)",
+                                                              "Length (SqFt)",
                                                           value:
                                                               spec.flatLayoutLengthSqFt
                                                                   .toString(),
@@ -879,8 +878,7 @@ class _AddInventorySpecificationScreenState
                                                     Row(
                                                       children: [
                                                         buildColumnTitleValue(
-                                                          title:
-                                                              "Width (Sq. ft)",
+                                                          title: "Width (SqFt)",
                                                           value:
                                                               spec.flatLayoutWidthSqFt
                                                                   .toString(),

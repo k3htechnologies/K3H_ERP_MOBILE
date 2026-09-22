@@ -74,7 +74,7 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       buildColumnTitleValue(
-                        title: "E-mail ID",
+                        title: "E-Mail ID",
                         customValueWidget: CustomClickToContactText(
                           value: company.emailId,
                           type: ContactType.email,
@@ -379,7 +379,7 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                                     ),
                                               ),
                                               buildColumnTitleValue(
-                                                title: "E-mail ID",
+                                                title: "E-Mail ID",
                                                 value: p.emailId,
                                                 customValueWidget:
                                                     CustomClickToContactText(

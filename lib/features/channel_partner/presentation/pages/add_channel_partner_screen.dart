@@ -788,17 +788,23 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   valueListenable: selectedMobileNoCountry,
                   builder: (context, selectedMobNovalue, child) {
                     return CustomTextField(
-                      title: "E-mail ID",
+                      title: "E-Mail ID",
                       isRequired: selectedMobNovalue.countryCode != "IN",
                       textController: _emailC,
                       keyboardType: TextInputType.emailAddress,
-                      hint: "Enter Email",
-                      validator:
-                          (value) =>
-                              (selectedMobNovalue.countryCode != "IN" &&
-                                      (value == null || value.isEmpty))
-                                  ? "E-mail ID is required"
-                                  : null,
+                      hint: "Enter E-Mail ID",
+                      validator: (value) {
+                        if (selectedMobNovalue.countryCode != "IN" &&
+                            (value == null || value.isEmpty)) {
+                          return "E-Mail ID is required";
+                        }
+                        if (value != null && value.isNotEmpty) {
+                          if (!InputValidator.isValidEmail(value)) {
+                            return "Enter a Valid E-Mail ID";
+                          }
+                        }
+                        return null;
+                      },
                     );
                   },
                 ),

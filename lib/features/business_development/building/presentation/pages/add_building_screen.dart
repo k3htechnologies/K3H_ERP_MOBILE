@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/widgets/address/address_widget.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
@@ -330,11 +331,11 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
             tenderAmount:
                 _tenderAmountC.text.trim().isNotEmpty
                     ? _tenderAmountC.text
-                    : "0.0",
+                    : "0",
             tenderEMDAmount:
                 _tendorEmdAmountC.text.trim().isNotEmpty
                     ? _tendorEmdAmountC.text
-                    : "0.0",
+                    : "0",
             tenderPurchaseStartDate:
                 _purchaseStartDate.value?.toIso8601String() ?? '',
             tenderPurchaseEndDate:
@@ -368,11 +369,11 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
             tenderAmount:
                 _tenderAmountC.text.trim().isNotEmpty
                     ? _tenderAmountC.text
-                    : "0.0",
+                    : "0",
             tenderEMDAmount:
                 _tendorEmdAmountC.text.trim().isNotEmpty
                     ? _tendorEmdAmountC.text
-                    : "0.0",
+                    : "0",
             tenderPurchaseStartDate:
                 _purchaseStartDate.value?.toIso8601String() ?? '',
             tenderPurchaseEndDate:
@@ -429,357 +430,127 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
         screenTitle: "Building",
         authorization: _routhAuthorizationModel,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-              Text(
-                _isEditMode ? "Update Building" : "Add Building",
-                style: AppTextStyle.ts14M(),
-              ),
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Building Details",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      textController: _buildingNameC,
-                      title: 'Building Name',
-                      hint: 'Enter Building Name',
-                      isRequired: true,
-                      inputFormatterList: InputValidator.textOnly(100),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Building name is required.';
-                        }
-                        if (value.trim().length < 2) {
-                          return 'Building name must be at least 2 characters';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      textController: _ctsNumberC,
-                      title: 'CTS Number',
-                      hint: 'Enter CTS Number',
-                      isRequired: true,
-                      inputFormatterList: [
-                        LengthLimitingTextInputFormatter(50),
-                      ],
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'CTS number is required.';
-                        }
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: _selectedRoadWidth,
-                      builder: (context, selectedValue, child) {
-                        return CustomDropDownWidget(
-                          title: 'Road Width',
-                          hintText: 'Select Road Width',
-                          isRequired: true,
-                          dataList: _roadWidthList,
-                          initialValue: selectedValue,
-                          onSelected: (selected) {
-                            _selectedRoadWidth.value = selected;
-                          },
-                          validator: (value) {
-                            if (value == null || value['zAttributesId'] == -1) {
-                              return 'Road width is required.';
-                            }
-                            return null;
-                          },
-                          onValueClear: () => _selectedRoadWidth.value = null,
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: _selectedLandOwnershipType,
-                      builder: (context, selectedValue, child) {
-                        return CustomDropDownWidget(
-                          title: 'Land Ownership Type',
-                          hintText: 'Select Land Ownership Type',
-                          dataList: _ownershipTypeList,
-                          initialValue: selectedValue,
-                          onSelected: (selected) {
-                            _selectedLandOwnershipType.value = selected;
-                          },
-                          onValueClear:
-                              () => _selectedLandOwnershipType.value = null,
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      textController: _googleLocationC,
-                      title: "Google Location",
-                      isRequired: true,
-                      hint: "Enter Google Location",
-                      prefixType: CustomTextFieldPrefix.location,
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return "Google Location is required.";
-                        }
-                        final googleMapRegex = RegExp(
-                          r'^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps(\?|\/)|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps|share\.google)\/?.*$',
-                          caseSensitive: false,
-                        );
-                        if (!googleMapRegex.hasMatch(value.trim())) {
-                          return "Please enter a valid Google Maps location link";
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(12.0),
-                margin: EdgeInsets.only(bottom: 10.0),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Project Category",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.5),
-                      ),
-                    ),
-                    verticalSpacing(),
-                    ValueListenableBuilder(
-                      valueListenable: selectedCategoryType,
-                      builder: (context, value, child) {
-                        return CustomDropDownWidget(
-                          title: 'Category',
-                          hintText: "Select Category",
-                          isRequired: true,
-                          initialValue: value,
-                          dataList: projectCategoryList,
-                          onSelected: (val) {
-                            if (selectedCategoryType.value?['zAttributesId'] !=
-                                val['zAttributesId']) {
-                              selectedCategoryType.value = val;
-                              final isDirect =
-                                  val["DisplayName"]
-                                      ?.toString()
-                                      .toLowerCase() ==
-                                  "direct";
-                              if (isDirect) {
-                                _tenderAmountC.clear();
-                                _purchaseStartDate.value = null;
-                                _purchaseEndDate.value = null;
-                                _selectedTenantAmountPaymentModeNotifier.value =
-                                    null;
-                                _tenantAmountTransactionNumberC.clear();
-                                _tenderAmountTransactionFile =
-                                    MultiFilePickerModel(
-                                      fileBytesList: [],
-                                      fileNameList: [],
-                                      deletedFileList: "",
-                                    );
-                                _tenderAmountPayOrderRemarkC.clear();
-                                _tenderEmdPayOrderRemarkC.clear();
-                                _tendorEmdAmountC.clear();
-                                _submissionDate.value = null;
-                                _selectedTenantEmdPaymentModeNotifier.value =
-                                    null;
-                                _tenantEmdTransactionNumberC.clear();
-                                _tenderEmdTransactionFile =
-                                    MultiFilePickerModel(
-                                      fileBytesList: [],
-                                      fileNameList: [],
-                                      deletedFileList: "",
-                                    );
-                                _tenderEmdPayOrderRemarkC.clear();
-                              }
-                            }
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return "Category is required.";
-                            }
-                            return null;
-                          },
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              ValueListenableBuilder(
-                valueListenable: selectedCategoryType,
-                builder: (context, value, child) {
-                  if (selectedCategoryType.value == null ||
-                      selectedCategoryType.value?['DisplayName'] == 'Direct') {
-                    return SizedBox.shrink();
-                  }
-                  return Column(
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          children: [
+            showSiteSelectedWidget(projectName: getProject().projectName),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 10,
                     children: [
+                      Text(
+                        _isEditMode ? "Update Building" : "Add Building",
+                        style: AppTextStyle.ts14M(),
+                      ),
                       Container(
-                        padding: EdgeInsets.all(12.0),
-                        margin: EdgeInsets.only(bottom: 10.0),
+                        padding: EdgeInsets.all(16),
                         decoration: commonCardDecoration(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Tender Amount Details",
-                              style: AppTextStyle.ts14M(
-                                color: AppColor.black.withValues(alpha: 0.5),
-                              ),
+                              "Building Details",
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
                             ),
                             verticalSpacing(),
-                            ValueListenableBuilder(
-                              valueListenable: selectedCategoryType,
-                              builder: (context, value, child) {
-                                final isTender =
-                                    value?["DisplayName"]
-                                        ?.toString()
-                                        .toLowerCase() ==
-                                    "tender";
-                                if (!isTender) return SizedBox.shrink();
-                                return Column(
-                                  children: [
-                                    CustomTextField(
-                                      title: 'Amount',
-                                      textController: _tenderAmountC,
-                                      hint: "Enter Amount",
-                                      isRequired: true,
-                                      keyboardType:
-                                          TextInputType.numberWithOptions(),
-                                      inputFormatterList:
-                                          InputValidator.decimal(2),
-                                      prefixType: CustomTextFieldPrefix.rupees,
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return "Amount is required.";
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                    AnimatedBuilder(
-                                      animation: Listenable.merge([
-                                        _purchaseStartDate,
-                                        _purchaseEndDate,
-                                      ]),
-                                      builder: (context, _) {
-                                        return CustomFromToDatePicker(
-                                          fromDateTitle: "Purchase Start Date",
-                                          toDateTitle: "Purchase End Date",
-                                          alignVertical: true,
-                                          isRequired: true,
-                                          initialFromDate:
-                                              _purchaseStartDate.value,
-                                          initialToDate: _purchaseEndDate.value,
-                                          onToDateChanged: (start, end) {
-                                            _purchaseStartDate.value = start;
-                                            _purchaseEndDate.value = end;
-                                          },
-                                          fromDateValidator: (value) {
-                                            if (value == null) {
-                                              return 'Purchase Start Date is required.';
-                                            }
-                                            return null;
-                                          },
-                                          toDateValidator: (value) {
-                                            if (value == null) {
-                                              return 'Purchase End Date is required.';
-                                            }
-                                            return null;
-                                          },
-                                        );
-                                      },
-                                    ),
-                                    ValueListenableBuilder(
-                                      valueListenable:
-                                          _selectedTenantAmountPaymentModeNotifier,
-                                      builder: (
-                                        context,
-                                        selectedPaymentMode,
-                                        _,
-                                      ) {
-                                        return CustomDropDownWidget(
-                                          title: "Payment Mode",
-                                          hintText: "Select Payment Mode",
-                                          initialValue: selectedPaymentMode,
-                                          dataList: tenurePaymentModeList,
-                                          onSelected: (value) {
-                                            _selectedTenantAmountPaymentModeNotifier
-                                                .value = value;
-                                          },
-                                          onValueClear: () {
-                                            _selectedTenantAmountPaymentModeNotifier
-                                                .value = null;
-                                          },
-                                        );
-                                      },
-                                    ),
-                                    CustomTextField(
-                                      title:
-                                          'Transaction / Cheque / Demand Draft No',
-                                      textController:
-                                          _tenantAmountTransactionNumberC,
-                                      hint:
-                                          "Enter Transaction / Cheque / Demand Draft No",
-                                      inputFormatterList:
-                                          InputValidator.digitAndCharacterOnly(
-                                            15,
-                                          ),
-                                    ),
-                                    CustomMultiFilePicker(
-                                      title:
-                                          "Transaction / Cheque / Demand Draft Image",
-                                      filePickType: FilePickType.image,
-                                      initialFileList:
-                                          _tenderAmountTransactionFile
-                                              .fileNameList,
-                                      initialFileBytes:
-                                          _tenderAmountTransactionFile
-                                              .fileBytesList,
-                                      onFilePickedCallback: (
-                                        bytesList,
-                                        fileNameList,
-                                      ) {
-                                        _tenderAmountTransactionFile
-                                            .fileNameList = fileNameList;
-                                        _tenderAmountTransactionFile
-                                            .fileBytesList = bytesList;
-                                      },
-                                      onFileDeleteCallback: (
-                                        fileBytesList,
-                                        fileNameList,
-                                        deleted,
-                                      ) {
-                                        _tenderAmountTransactionFile
-                                            .fileBytesList = fileBytesList;
-                                        _tenderAmountTransactionFile
-                                            .fileNameList = fileNameList;
-                                        _tenderAmountTransactionFile
-                                            .deletedFileList = deleted;
-                                      },
-                                    ),
-                                    CustomTextField(
-                                      title: 'Payorder Remark',
-                                      textController:
-                                          _tenderAmountPayOrderRemarkC,
-                                      hint: "Enter Payorder Remark",
-                                      minLines: 3,
-                                      maxLines: 3,
-                                    ),
-                                  ],
+                            CustomTextField(
+                              textController: _buildingNameC,
+                              title: 'Building Name',
+                              hint: 'Enter Building Name',
+                              isRequired: true,
+                              inputFormatterList: [
+                                LengthLimitingTextInputFormatter(100),
+                              ],
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Building name is required.';
+                                }
+                                if (value.trim().length < 2) {
+                                  return 'Building name must be at least 2 characters';
+                                }
+                                return null;
+                              },
+                            ),
+                            CustomTextField(
+                              textController: _ctsNumberC,
+                              title: 'CTS Number',
+                              hint: 'Enter CTS Number',
+                              isRequired: true,
+                              inputFormatterList: [
+                                LengthLimitingTextInputFormatter(50),
+                              ],
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'CTS number is required.';
+                                }
+                                return null;
+                              },
+                            ),
+                            ValueListenableBuilder<Map<String, dynamic>?>(
+                              valueListenable: _selectedRoadWidth,
+                              builder: (context, selectedValue, child) {
+                                return CustomDropDownWidget(
+                                  title: 'Road Width',
+                                  hintText: 'Select Road Width',
+                                  isRequired: true,
+                                  dataList: _roadWidthList,
+                                  initialValue: selectedValue,
+                                  onSelected: (selected) {
+                                    _selectedRoadWidth.value = selected;
+                                  },
+                                  validator: (value) {
+                                    if (value == null ||
+                                        value['zAttributesId'] == -1) {
+                                      return 'Road width is required.';
+                                    }
+                                    return null;
+                                  },
+                                  onValueClear:
+                                      () => _selectedRoadWidth.value = null,
                                 );
+                              },
+                            ),
+                            ValueListenableBuilder<Map<String, dynamic>?>(
+                              valueListenable: _selectedLandOwnershipType,
+                              builder: (context, selectedValue, child) {
+                                return CustomDropDownWidget(
+                                  title: 'Land Ownership Type',
+                                  hintText: 'Select Land Ownership Type',
+                                  dataList: _ownershipTypeList,
+                                  initialValue: selectedValue,
+                                  onSelected: (selected) {
+                                    _selectedLandOwnershipType.value = selected;
+                                  },
+                                  onValueClear:
+                                      () =>
+                                          _selectedLandOwnershipType.value =
+                                              null,
+                                );
+                              },
+                            ),
+                            CustomTextField(
+                              textController: _googleLocationC,
+                              title: "Google Location",
+                              isRequired: true,
+                              hint: "Enter Google Location",
+                              prefixType: CustomTextFieldPrefix.location,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Google Location is required.";
+                                }
+                                final googleMapRegex = RegExp(
+                                  r'^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps(\?|\/)|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps|share\.google)\/?.*$',
+                                  caseSensitive: false,
+                                );
+                                if (!googleMapRegex.hasMatch(value.trim())) {
+                                  return "Please enter a valid Google Maps location link";
+                                }
+                                return null;
                               },
                             ),
                           ],
@@ -793,7 +564,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Tender EMD Details",
+                              "Building Category",
                               style: AppTextStyle.ts14M(
                                 color: AppColor.black.withValues(alpha: 0.5),
                               ),
@@ -802,405 +573,705 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             ValueListenableBuilder(
                               valueListenable: selectedCategoryType,
                               builder: (context, value, child) {
-                                final isTender =
-                                    value?["DisplayName"]
-                                        ?.toString()
-                                        .toLowerCase() ==
-                                    "tender";
-                                if (!isTender) return SizedBox.shrink();
+                                return CustomDropDownWidget(
+                                  title: 'Category',
+                                  hintText: "Select Category",
+                                  isRequired: true,
+                                  initialValue: value,
+                                  dataList: projectCategoryList,
+                                  onSelected: (val) {
+                                    if (selectedCategoryType
+                                            .value?['zAttributesId'] !=
+                                        val['zAttributesId']) {
+                                      selectedCategoryType.value = val;
+                                      final isDirect =
+                                          val["DisplayName"]
+                                              ?.toString()
+                                              .toLowerCase() ==
+                                          "direct";
+                                      if (isDirect) {
+                                        _tenderAmountC.clear();
+                                        _purchaseStartDate.value = null;
+                                        _purchaseEndDate.value = null;
+                                        _selectedTenantAmountPaymentModeNotifier
+                                            .value = null;
+                                        _tenantAmountTransactionNumberC.clear();
+                                        _tenderAmountTransactionFile =
+                                            MultiFilePickerModel(
+                                              fileBytesList: [],
+                                              fileNameList: [],
+                                              deletedFileList: "",
+                                            );
+                                        _tenderAmountPayOrderRemarkC.clear();
+                                        _tenderEmdPayOrderRemarkC.clear();
+                                        _tendorEmdAmountC.clear();
+                                        _submissionDate.value = null;
+                                        _selectedTenantEmdPaymentModeNotifier
+                                            .value = null;
+                                        _tenantEmdTransactionNumberC.clear();
+                                        _tenderEmdTransactionFile =
+                                            MultiFilePickerModel(
+                                              fileBytesList: [],
+                                              fileNameList: [],
+                                              deletedFileList: "",
+                                            );
+                                        _tenderEmdPayOrderRemarkC.clear();
+                                      }
+                                    }
+                                  },
+                                  validator: (value) {
+                                    if (value == null) {
+                                      return "Category is required.";
+                                    }
+                                    return null;
+                                  },
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      ValueListenableBuilder(
+                        valueListenable: selectedCategoryType,
+                        builder: (context, value, child) {
+                          if (selectedCategoryType.value == null ||
+                              selectedCategoryType.value?['DisplayName'] ==
+                                  'Direct') {
+                            return SizedBox.shrink();
+                          }
+                          return Column(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(12.0),
+                                margin: EdgeInsets.only(bottom: 10.0),
+                                decoration: commonCardDecoration(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Tender Amount Details",
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.black.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    verticalSpacing(),
+                                    ValueListenableBuilder(
+                                      valueListenable: selectedCategoryType,
+                                      builder: (context, value, child) {
+                                        final isTender =
+                                            value?["DisplayName"]
+                                                ?.toString()
+                                                .toLowerCase() ==
+                                            "tender";
+                                        if (!isTender) return SizedBox.shrink();
+                                        return Column(
+                                          children: [
+                                            CustomTextField(
+                                              title: 'Amount',
+                                              textController: _tenderAmountC,
+                                              hint: "Enter Amount",
+                                              isRequired: true,
+                                              keyboardType:
+                                                  TextInputType.numberWithOptions(),
+                                              inputFormatterList:
+                                                  InputValidator.digitWithDecimal(
+                                                    maxDigitsBeforeDecimal: 16,
+                                                  ),
+                                              prefixType:
+                                                  CustomTextFieldPrefix.rupees,
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.isEmpty) {
+                                                  return "Amount is required.";
+                                                }
+                                                return null;
+                                              },
+                                            ),
+                                            AnimatedBuilder(
+                                              animation: Listenable.merge([
+                                                _purchaseStartDate,
+                                                _purchaseEndDate,
+                                              ]),
+                                              builder: (context, _) {
+                                                return CustomFromToDatePicker(
+                                                  fromDateTitle:
+                                                      "Purchase Start Date",
+                                                  toDateTitle:
+                                                      "Purchase End Date",
+                                                  alignVertical: true,
+                                                  isRequired: true,
+                                                  initialFromDate:
+                                                      _purchaseStartDate.value,
+                                                  initialToDate:
+                                                      _purchaseEndDate.value,
+                                                  onToDateChanged: (
+                                                    start,
+                                                    end,
+                                                  ) {
+                                                    _purchaseStartDate.value =
+                                                        start;
+                                                    _purchaseEndDate.value =
+                                                        end;
+                                                  },
+                                                  fromDateValidator: (value) {
+                                                    if (value == null) {
+                                                      return 'Purchase Start Date is required.';
+                                                    }
+                                                    return null;
+                                                  },
+                                                  toDateValidator: (value) {
+                                                    if (value == null) {
+                                                      return 'Purchase End Date is required.';
+                                                    }
+                                                    return null;
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                            ValueListenableBuilder(
+                                              valueListenable:
+                                                  _selectedTenantAmountPaymentModeNotifier,
+                                              builder: (
+                                                context,
+                                                selectedPaymentMode,
+                                                _,
+                                              ) {
+                                                return CustomDropDownWidget(
+                                                  title: "Payment Mode",
+                                                  hintText:
+                                                      "Select Payment Mode",
+                                                  initialValue:
+                                                      selectedPaymentMode,
+                                                  dataList:
+                                                      tenurePaymentModeList,
+                                                  onSelected: (value) {
+                                                    _selectedTenantAmountPaymentModeNotifier
+                                                        .value = value;
+                                                  },
+                                                  onValueClear: () {
+                                                    _selectedTenantAmountPaymentModeNotifier
+                                                        .value = null;
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                            CustomTextField(
+                                              title:
+                                                  'Transaction / Cheque / Demand Draft No',
+                                              textController:
+                                                  _tenantAmountTransactionNumberC,
+                                              hint:
+                                                  "Enter Transaction / Cheque / Demand Draft No",
+                                              inputFormatterList:
+                                                  InputValidator.digitAndCharacterOnly(
+                                                    15,
+                                                  ),
+                                            ),
+                                            CustomMultiFilePicker(
+                                              title:
+                                                  "Transaction / Cheque / Demand Draft Image",
+                                              filePickType: FilePickType.image,
+                                              initialFileList:
+                                                  _tenderAmountTransactionFile
+                                                      .fileNameList,
+                                              initialFileBytes:
+                                                  _tenderAmountTransactionFile
+                                                      .fileBytesList,
+                                              onFilePickedCallback: (
+                                                bytesList,
+                                                fileNameList,
+                                              ) {
+                                                _tenderAmountTransactionFile
+                                                        .fileNameList =
+                                                    fileNameList;
+                                                _tenderAmountTransactionFile
+                                                    .fileBytesList = bytesList;
+                                              },
+                                              onFileDeleteCallback: (
+                                                fileBytesList,
+                                                fileNameList,
+                                                deleted,
+                                              ) {
+                                                _tenderAmountTransactionFile
+                                                        .fileBytesList =
+                                                    fileBytesList;
+                                                _tenderAmountTransactionFile
+                                                        .fileNameList =
+                                                    fileNameList;
+                                                _tenderAmountTransactionFile
+                                                    .deletedFileList = deleted;
+                                              },
+                                            ),
+                                            CustomTextField(
+                                              title: 'Payorder Remark',
+                                              textController:
+                                                  _tenderAmountPayOrderRemarkC,
+                                              hint: "Enter Payorder Remark",
+                                              minLines: 3,
+                                              maxLines: 3,
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.all(12.0),
+                                margin: EdgeInsets.only(bottom: 10.0),
+                                decoration: commonCardDecoration(),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Tender EMD Details",
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.black.withValues(
+                                          alpha: 0.5,
+                                        ),
+                                      ),
+                                    ),
+                                    verticalSpacing(),
+                                    ValueListenableBuilder(
+                                      valueListenable: selectedCategoryType,
+                                      builder: (context, value, child) {
+                                        final isTender =
+                                            value?["DisplayName"]
+                                                ?.toString()
+                                                .toLowerCase() ==
+                                            "tender";
+                                        if (!isTender) return SizedBox.shrink();
+                                        return Column(
+                                          children: [
+                                            CustomTextField(
+                                              title: 'EMD Amount',
+                                              textController: _tendorEmdAmountC,
+                                              keyboardType:
+                                                  TextInputType.numberWithOptions(),
+                                              hint: "Enter EMD Amount",
+                                              inputFormatterList:
+                                                  InputValidator.digitWithDecimal(
+                                                    maxDigitsBeforeDecimal: 16,
+                                                  ),
+                                              prefixType:
+                                                  CustomTextFieldPrefix.rupees,
+                                            ),
+                                            ValueListenableBuilder(
+                                              valueListenable: _submissionDate,
+                                              builder: (
+                                                context,
+                                                submissionDt,
+                                                child,
+                                              ) {
+                                                return CustomDatePicker(
+                                                  title: "Submission Date",
+                                                  initialDate: submissionDt,
+                                                  setValue:
+                                                      (value) =>
+                                                          _submissionDate
+                                                              .value = value,
+                                                );
+                                              },
+                                            ),
+                                            ValueListenableBuilder(
+                                              valueListenable:
+                                                  _selectedTenantEmdPaymentModeNotifier,
+                                              builder: (
+                                                context,
+                                                selectedPaymentMode,
+                                                _,
+                                              ) {
+                                                return CustomDropDownWidget(
+                                                  title: "Payment Mode",
+                                                  hintText:
+                                                      "Select Payment Mode",
+                                                  initialValue:
+                                                      selectedPaymentMode,
+                                                  dataList:
+                                                      tenurePaymentModeList,
+                                                  onSelected: (value) {
+                                                    _selectedTenantEmdPaymentModeNotifier
+                                                        .value = value;
+                                                  },
+                                                  onValueClear: () {
+                                                    _selectedTenantEmdPaymentModeNotifier
+                                                        .value = null;
+                                                  },
+                                                );
+                                              },
+                                            ),
+                                            CustomTextField(
+                                              title:
+                                                  'Transaction / Cheque / Demand Draft No',
+                                              textController:
+                                                  _tenantEmdTransactionNumberC,
+                                              hint:
+                                                  "Enter Transaction / Cheque / Demand Draft No",
+                                              inputFormatterList:
+                                                  InputValidator.digitAndCharacterOnly(
+                                                    15,
+                                                  ),
+                                            ),
+                                            CustomMultiFilePicker(
+                                              title:
+                                                  "Transaction / Cheque / Demand Draft Image",
+                                              filePickType: FilePickType.image,
+                                              initialFileList:
+                                                  _tenderEmdTransactionFile
+                                                      .fileNameList,
+                                              initialFileBytes:
+                                                  _tenderEmdTransactionFile
+                                                      .fileBytesList,
+                                              onFilePickedCallback: (
+                                                bytesList,
+                                                fileNameList,
+                                              ) {
+                                                _tenderEmdTransactionFile
+                                                        .fileNameList =
+                                                    fileNameList;
+                                                _tenderEmdTransactionFile
+                                                    .fileBytesList = bytesList;
+                                              },
+                                              onFileDeleteCallback: (
+                                                fileBytesList,
+                                                fileNameList,
+                                                deleted,
+                                              ) {
+                                                _tenderEmdTransactionFile
+                                                        .fileBytesList =
+                                                    fileBytesList;
+                                                _tenderEmdTransactionFile
+                                                        .fileNameList =
+                                                    fileNameList;
+                                                _tenderEmdTransactionFile
+                                                    .deletedFileList = deleted;
+                                              },
+                                            ),
+                                            CustomTextField(
+                                              title: 'Payorder Remark',
+                                              textController:
+                                                  _tenderEmdPayOrderRemarkC,
+                                              hint: "Enter Payorder Remark",
+                                              minLines: 3,
+                                              maxLines: 3,
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                      Container(
+                        decoration: commonCardDecoration(),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Property Information",
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(),
+                            CustomTextField(
+                              textController: _totalPlotAreaSqMtC,
+                              title: 'Total Plot Area (SqMt)',
+                              hint: 'Enter Total Plot Area',
+                              isRequired: true,
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 9,
+                                  ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Total plot area is required.';
+                                }
+                                return null;
+                              },
+                            ),
+                            CustomTextField(
+                              textController: _totalPlotAreaSqFtC,
+                              title: 'Total Plot Area (SqFt)',
+                              hint: 'Enter Total Plot Area',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 16,
+                                  ),
+                            ),
+                            CustomTextField(
+                              textController: _totalUnitsAreaUtilizedC,
+                              title: "Utilized Units Area (SqFt)",
+                              hint: 'Enter Utilized Units Area',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 16,
+                                  ),
+                            ),
+                            CustomTextField(
+                              textController: _totalNumberOfUnitsC,
+                              title: 'Total Units',
+                              hint: 'Enter Total Units',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList: InputValidator.digit(9),
+                            ),
+                            CustomTextField(
+                              textController: _numberOfFloorsC,
+                              title: 'Number of Floors',
+                              hint: 'Enter Number of Floors',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList: InputValidator.digit(9),
+                            ),
+                            CustomTextField(
+                              textController: _numberOfWingsC,
+                              title: 'Number of Wings',
+                              hint: 'Enter Number of Wings',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList: InputValidator.digit(9),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        decoration: commonCardDecoration(),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "FSI / TDR Information",
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(),
+                            CustomTextField(
+                              textController: _propertyAgeYearsC,
+                              title: 'Property Age (Years)',
+                              hint: 'Enter Property Age',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList: InputValidator.decimal(5),
+                            ),
+                            CustomTextField(
+                              textController: _fsiTdrUtilizationC,
+                              title: 'FSI / TDR Utilization (SqFt)',
+                              hint: 'Enter FSI / TDR Utilization',
+                              keyboardType: TextInputType.number,
+                              inputFormatterList: InputValidator.decimal(10),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        decoration: commonCardDecoration(),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Additional Information",
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(),
+                            ValueListenableBuilder(
+                              valueListenable: _isGarden,
+                              builder: (context, isGarden, _) {
                                 return Column(
                                   children: [
-                                    CustomTextField(
-                                      title: 'EMD Amount',
-                                      textController: _tendorEmdAmountC,
-                                      keyboardType:
-                                          TextInputType.numberWithOptions(),
-                                      hint: "Enter EMD Amount",
-                                      inputFormatterList:
-                                          InputValidator.decimal(2),
-                                      prefixType: CustomTextFieldPrefix.rupees,
-                                    ),
-                                    ValueListenableBuilder(
-                                      valueListenable: _submissionDate,
-                                      builder: (context, submissionDt, child) {
-                                        return CustomDatePicker(
-                                          title: "Submission Date",
-                                          initialDate: submissionDt,
-                                          setValue:
-                                              (value) =>
-                                                  _submissionDate.value = value,
-                                        );
-                                      },
-                                    ),
-                                    ValueListenableBuilder(
-                                      valueListenable:
-                                          _selectedTenantEmdPaymentModeNotifier,
-                                      builder: (
-                                        context,
-                                        selectedPaymentMode,
-                                        _,
-                                      ) {
-                                        return CustomDropDownWidget(
-                                          title: "Payment Mode",
-                                          hintText: "Select Payment Mode",
-                                          initialValue: selectedPaymentMode,
-                                          dataList: tenurePaymentModeList,
-                                          onSelected: (value) {
-                                            _selectedTenantEmdPaymentModeNotifier
-                                                .value = value;
+                                    Row(
+                                      children: [
+                                        CustomCheckBox(
+                                          isSelected: isGarden,
+                                          onChanged: (value) {
+                                            _isGarden.value = value;
                                           },
-                                          onValueClear: () {
-                                            _selectedTenantEmdPaymentModeNotifier
-                                                .value = null;
-                                          },
-                                        );
-                                      },
+                                        ),
+                                        horizontalSpacing(width: 10.0),
+                                        Text(
+                                          'Garden',
+                                          style: AppTextStyle.ts14R(),
+                                        ),
+                                      ],
                                     ),
+                                    verticalSpacing(),
                                     CustomTextField(
-                                      title:
-                                          'Transaction / Cheque / Demand Draft No',
-                                      textController:
-                                          _tenantEmdTransactionNumberC,
-                                      hint:
-                                          "Enter Transaction / Cheque / Demand Draft No",
+                                      textController: _totalGardenAreaC,
+                                      isRequired: isGarden,
+                                      readOnly: !isGarden,
+                                      title: 'Garden Area (SqFt)',
+                                      hint: 'Enter Garden Area (SqFt)',
+                                      keyboardType: TextInputType.number,
                                       inputFormatterList:
-                                          InputValidator.digitAndCharacterOnly(
-                                            15,
+                                          InputValidator.digitWithDecimal(
+                                            maxDigitsBeforeDecimal: 9,
                                           ),
-                                    ),
-                                    CustomMultiFilePicker(
-                                      title:
-                                          "Transaction / Cheque / Demand Draft Image",
-                                      filePickType: FilePickType.image,
-                                      initialFileList:
-                                          _tenderEmdTransactionFile
-                                              .fileNameList,
-                                      initialFileBytes:
-                                          _tenderEmdTransactionFile
-                                              .fileBytesList,
-                                      onFilePickedCallback: (
-                                        bytesList,
-                                        fileNameList,
-                                      ) {
-                                        _tenderEmdTransactionFile.fileNameList =
-                                            fileNameList;
-                                        _tenderEmdTransactionFile
-                                            .fileBytesList = bytesList;
+                                      validator: (value) {
+                                        if ((value == null ||
+                                                value.trim().isEmpty ||
+                                                double.tryParse(value) == 0) &&
+                                            isGarden) {
+                                          return 'Garden Area is required.';
+                                        }
+                                        return null;
                                       },
-                                      onFileDeleteCallback: (
-                                        fileBytesList,
-                                        fileNameList,
-                                        deleted,
-                                      ) {
-                                        _tenderEmdTransactionFile
-                                            .fileBytesList = fileBytesList;
-                                        _tenderEmdTransactionFile.fileNameList =
-                                            fileNameList;
-                                        _tenderEmdTransactionFile
-                                            .deletedFileList = deleted;
-                                      },
-                                    ),
-                                    CustomTextField(
-                                      title: 'Payorder Remark',
-                                      textController: _tenderEmdPayOrderRemarkC,
-                                      hint: "Enter Payorder Remark",
-                                      minLines: 3,
-                                      maxLines: 3,
                                     ),
                                   ],
                                 );
+                              },
+                            ),
+                            ValueListenableBuilder(
+                              valueListenable: _isReligiousStructure,
+                              builder: (context, isReligiousStructure, _) {
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CustomCheckBox(
+                                          isSelected: isReligiousStructure,
+                                          onChanged: (value) {
+                                            _isReligiousStructure.value = value;
+                                          },
+                                        ),
+                                        horizontalSpacing(width: 10.0),
+                                        Text(
+                                          'Religious Structure',
+                                          style: AppTextStyle.ts14R(),
+                                        ),
+                                      ],
+                                    ),
+                                    verticalSpacing(),
+                                    CustomTextField(
+                                      isRequired: isReligiousStructure,
+                                      readOnly: !isReligiousStructure,
+                                      textController:
+                                          _totalReligiousStructureAreaC,
+                                      title: 'Religious Structure Area (SqFt)',
+                                      hint:
+                                          'Enter Religious Structure Area (SqFt)',
+                                      keyboardType: TextInputType.number,
+                                      inputFormatterList:
+                                          InputValidator.digitWithDecimal(
+                                            maxDigitsBeforeDecimal: 9,
+                                          ),
+                                      validator: (value) {
+                                        if ((value == null ||
+                                                value.trim().isEmpty ||
+                                                double.tryParse(value) == 0) &&
+                                            isReligiousStructure) {
+                                          return 'Religious Structure Area is required.';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            ValueListenableBuilder(
+                              valueListenable: _isLitigation,
+                              builder: (context, isLitigation, _) {
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CustomCheckBox(
+                                          isSelected: isLitigation,
+                                          onChanged: (value) {
+                                            _isLitigation.value = value;
+                                          },
+                                        ),
+                                        horizontalSpacing(width: 10.0),
+                                        Text(
+                                          'Litigation',
+                                          style: AppTextStyle.ts14R(),
+                                        ),
+                                      ],
+                                    ),
+                                    verticalSpacing(),
+                                    CustomTextField(
+                                      isRequired: isLitigation,
+                                      textController: _litigationRemarksC,
+                                      title: 'Litigation Remarks',
+                                      readOnly: !isLitigation,
+                                      hint: 'Enter Litigation Remarks',
+                                      minLines: 3,
+                                      maxLines: 3,
+                                      inputFormatterList:
+                                          InputValidator.textDigit(500),
+                                      validator: (value) {
+                                        if (isLitigation) {
+                                          if ((value == null ||
+                                              value.trim().isEmpty)) {
+                                            return 'Litigation remark is required.';
+                                          }
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        decoration: commonCardDecoration(),
+                        padding: EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Location",
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                            verticalSpacing(),
+                            AddressWidget(
+                              formKey: _formKey,
+                              incomingCountryId: _countryMasterId ?? 1,
+                              incomingStateId: _stateMasterId,
+                              incomingDistrictId: _districtMasterId,
+                              incomingCityId: _cityMasterId,
+                              incomingVillageId: _villageMasterId,
+                              incomingWardId: _wardMasterId,
+                              countryChange: (selectedCountry) {
+                                _countryMasterId =
+                                    selectedCountry['zAttributesId'];
+                              },
+                              stateChange: (selectedState) {
+                                _stateMasterId = selectedState['zAttributesId'];
+                              },
+                              districtChange: (selectedDistrict) {
+                                _districtMasterId =
+                                    selectedDistrict['zAttributesId'];
+                              },
+                              cityChange: (selectedCity) {
+                                _cityMasterId = selectedCity['zAttributesId'];
+                              },
+                              villageChange: (selectedVillage) {
+                                _villageMasterId =
+                                    selectedVillage['zAttributesId'];
+                              },
+                              wardChange: (selectedWard) {
+                                _wardMasterId = selectedWard['zAttributesId'];
                               },
                             ),
                           ],
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
-              Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Property Information",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      textController: _totalPlotAreaSqMtC,
-                      title: 'Total Plot Area (SqMt)',
-                      hint: 'Enter Total Plot Area',
-                      isRequired: true,
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Total plot area is required.';
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      textController: _totalPlotAreaSqFtC,
-                      title: 'Total Plot Area (SqFt)',
-                      hint: 'Enter Total Plot Area',
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
-                    ),
-                    CustomTextField(
-                      textController: _totalUnitsAreaUtilizedC,
-                      title: "Utilized Units Area (SqFt)",
-                      hint: 'Enter Utilized Units Area',
-                      keyboardType: TextInputType.number,
-                      inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
-                    ),
-                    CustomTextField(
-                      textController: _totalNumberOfUnitsC,
-                      title: 'Total Units',
-                      hint: 'Enter Total Units',
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(7),
-                      ],
-                    ),
-                    CustomTextField(
-                      textController: _numberOfFloorsC,
-                      title: 'Number of Floors',
-                      hint: 'Enter Number of Floors',
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(4),
-                      ],
-                    ),
-                    CustomTextField(
-                      textController: _numberOfWingsC,
-                      title: 'Number of Wings',
-                      hint: 'Enter Number of Wings',
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: [
-                        FilteringTextInputFormatter.digitsOnly,
-                        LengthLimitingTextInputFormatter(4),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "FSI / TDR Information",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      textController: _propertyAgeYearsC,
-                      title: 'Property Age (Years)',
-                      hint: 'Enter Property Age',
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.decimal(5),
-                    ),
-                    CustomTextField(
-                      textController: _fsiTdrUtilizationC,
-                      title: 'FSI / TDR Utilization (SqFt)',
-                      hint: 'Enter FSI / TDR Utilization',
-                      keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.decimal(10),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Additional Information",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    ValueListenableBuilder(
-                      valueListenable: _isGarden,
-                      builder: (context, isGarden, _) {
-                        return Column(
-                          children: [
-                            Row(
-                              children: [
-                                CustomCheckBox(
-                                  isSelected: isGarden,
-                                  onChanged: (value) {
-                                    _isGarden.value = value;
-                                  },
-                                ),
-                                horizontalSpacing(width: 10.0),
-                                Text('Garden', style: AppTextStyle.ts14R()),
-                              ],
-                            ),
-                            verticalSpacing(),
-                            CustomTextField(
-                              textController: _totalGardenAreaC,
-                              isRequired: isGarden,
-                              readOnly: !isGarden,
-                              title: 'Garden Area (SqFt)',
-                              hint: 'Enter Garden Area (SqFt)',
-                              keyboardType: TextInputType.number,
-                              inputFormatterList:
-                                  inputFormatterListForDecimalValuesFixedToTwo(
-                                    7,
-                                  ),
-                              validator: (value) {
-                                if ((value == null || value.trim().isEmpty) &&
-                                    isGarden) {
-                                  return 'Garden Area is required.';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _isReligiousStructure,
-                      builder: (context, isReligiousStructure, _) {
-                        return Column(
-                          children: [
-                            Row(
-                              children: [
-                                CustomCheckBox(
-                                  isSelected: isReligiousStructure,
-                                  onChanged: (value) {
-                                    _isReligiousStructure.value = value;
-                                  },
-                                ),
-                                horizontalSpacing(width: 10.0),
-                                Text(
-                                  'Religious Structure',
-                                  style: AppTextStyle.ts14R(),
-                                ),
-                              ],
-                            ),
-                            verticalSpacing(),
-                            CustomTextField(
-                              isRequired: isReligiousStructure,
-                              readOnly: !isReligiousStructure,
-                              textController: _totalReligiousStructureAreaC,
-                              title: 'Religious Structure Area (SqFt)',
-                              hint: 'Enter Religious Structure Area (SqFt)',
-                              keyboardType: TextInputType.number,
-                              inputFormatterList:
-                                  inputFormatterListForDecimalValuesFixedToTwo(
-                                    7,
-                                  ),
-                              validator: (value) {
-                                if ((value == null || value.trim().isEmpty) &&
-                                    isReligiousStructure) {
-                                  return 'Religious Structure Area is required.';
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: _isLitigation,
-                      builder: (context, isLitigation, _) {
-                        return Column(
-                          children: [
-                            Row(
-                              children: [
-                                CustomCheckBox(
-                                  isSelected: isLitigation,
-                                  onChanged: (value) {
-                                    _isLitigation.value = value;
-                                  },
-                                ),
-                                horizontalSpacing(width: 10.0),
-                                Text('Litigation', style: AppTextStyle.ts14R()),
-                              ],
-                            ),
-                            verticalSpacing(),
-                            CustomTextField(
-                              isRequired: isLitigation,
-                              textController: _litigationRemarksC,
-                              title: 'Litigation Remarks',
-                              readOnly: !isLitigation,
-                              hint: 'Enter Litigation Remarks',
-                              inputFormatterList: InputValidator.textDigit(500),
-                              validator: (value) {
-                                if (isLitigation) {
-                                  if ((value == null || value.trim().isEmpty)) {
-                                    return 'Litigation remark is required.';
-                                  }
-                                }
-                                return null;
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Location",
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    AddressWidget(
-                      formKey: _formKey,
-                      incomingCountryId: _countryMasterId ?? 1,
-                      incomingStateId: _stateMasterId,
-                      incomingDistrictId: _districtMasterId,
-                      incomingCityId: _cityMasterId,
-                      incomingVillageId: _villageMasterId,
-                      incomingWardId: _wardMasterId,
-                      countryChange: (selectedCountry) {
-                        _countryMasterId = selectedCountry['zAttributesId'];
-                      },
-                      stateChange: (selectedState) {
-                        _stateMasterId = selectedState['zAttributesId'];
-                      },
-                      districtChange: (selectedDistrict) {
-                        _districtMasterId = selectedDistrict['zAttributesId'];
-                      },
-                      cityChange: (selectedCity) {
-                        _cityMasterId = selectedCity['zAttributesId'];
-                      },
-                      villageChange: (selectedVillage) {
-                        _villageMasterId = selectedVillage['zAttributesId'];
-                      },
-                      wardChange: (selectedWard) {
-                        _wardMasterId = selectedWard['zAttributesId'];
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(

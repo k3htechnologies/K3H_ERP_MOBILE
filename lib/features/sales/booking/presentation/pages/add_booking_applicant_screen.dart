@@ -449,17 +449,17 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                     },
                   ),
                   CustomTextField(
-                    title: 'Email Id',
-                    hint: "Enter Email Id",
+                    title: 'E-Mail ID',
+                    hint: "Enter E-Mail ID",
                     isRequired: true,
                     textController: _emailC,
                     inputFormatterList: InputValidator.emailInputFormatters(),
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Email Id is required.";
+                        return "E-Mail ID is required.";
                       }
                       if (!InputValidator.isValidEmail(value)) {
-                        return "Invalid Email Id";
+                        return "Enter a Valid E-Mail ID";
                       }
                       return null;
                     },

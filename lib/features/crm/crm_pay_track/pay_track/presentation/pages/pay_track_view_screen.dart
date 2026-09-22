@@ -419,7 +419,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
           if (!isDirectWalkingForCPDetails)
             infoCard([
               {"title": "CP Code", "value": enquiry.channelPartnerCode},
-              {"title": "CP E-mail ID", "value": enquiry.channelPartnerEmailId},
+              {"title": "CP E-Mail ID", "value": enquiry.channelPartnerEmailId},
             ]),
           verticalSpacing(),
           Container(
@@ -472,7 +472,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                             ),
                           },
                           {
-                            "title": "Email ID",
+                            "title": "E-Mail ID",
                             "value": applicant.applicantEmailId,
                             "widget": CustomClickToContactText(
                               value: applicant.applicantEmailId,

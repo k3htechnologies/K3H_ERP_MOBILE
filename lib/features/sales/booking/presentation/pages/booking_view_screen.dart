@@ -400,7 +400,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             ),
                           },
                           {
-                            "title": "CP E-mail ID",
+                            "title": "CP E-Mail ID",
                             "value": enquiry.channelPartnerEmailId,
                             "widget": CustomClickToContactText(
                               value: enquiry.channelPartnerEmailId,
@@ -424,7 +424,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             ),
                           },
                           {
-                            "title": "CP Team E-mail ID",
+                            "title": "CP Team E-Mail ID",
                             "value": enquiry.channelPartnerTeamMemberEmailId,
                             "widget": CustomClickToContactText(
                               value: enquiry.channelPartnerTeamMemberEmailId,
@@ -489,7 +489,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             ),
                           },
                           {
-                            "title": "Email ID",
+                            "title": "E-Mail ID",
                             "value": applicant.applicantEmailId,
                             "widget": CustomClickToContactText(
                               value: applicant.applicantEmailId,
@@ -1681,7 +1681,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
               ),
             },
             {
-              "title": "Email ID",
+              "title": "E-Mail ID",
               "value": applicant.applicantEmailId,
               "widget": CustomClickToContactText(
                 value: applicant.applicantEmailId,

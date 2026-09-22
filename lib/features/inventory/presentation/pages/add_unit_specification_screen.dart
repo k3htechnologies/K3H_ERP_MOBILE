@@ -190,7 +190,7 @@ class _AddUnitSpecificationScreenState
                 ),
                 verticalSpacing(),
                 CustomTextField(
-                  title: 'Area (Sq. ft)',
+                  title: 'Area (SqFt)',
                   hint: 'Enter Area',
                   isRequired: true,
                   textController: _areaC,
@@ -205,7 +205,7 @@ class _AddUnitSpecificationScreenState
                 ),
                 verticalSpacing(),
                 CustomTextField(
-                  title: 'Length (Sq. ft)',
+                  title: 'Length (SqFt)',
                   hint: 'Enter Length',
                   textController: _lengthC,
                   inputFormatterList:
@@ -213,7 +213,7 @@ class _AddUnitSpecificationScreenState
                 ),
                 verticalSpacing(),
                 CustomTextField(
-                  title: 'Width (Sq. ft)',
+                  title: 'Width (SqFt)',
                   hint: 'Enter Width',
                   textController: _widthC,
                   inputFormatterList:

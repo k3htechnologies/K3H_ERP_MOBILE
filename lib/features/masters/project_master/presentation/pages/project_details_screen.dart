@@ -1477,7 +1477,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                               ),
                             ),
                             buildColumnTitleValue(
-                              title: "Email Id",
+                              title: "E-Mail ID",
                               value: employee.emailId,
                               customValueWidget: CustomClickToContactText(
                                 type: ContactType.email,
@@ -1720,7 +1720,7 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                                   ),
                                 ),
                                 buildColumnTitleValue(
-                                  title: "E-mail Id",
+                                  title: "E-Mail ID",
                                   value: company.emailId,
                                   customValueWidget: CustomClickToContactText(
                                     value: company.emailId,

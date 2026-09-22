@@ -57,14 +57,15 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Gross Plot Area (SqFt)",
+                          title: "Gross Plot Area (SqMt)",
                           value:
-                              carpetPlotDetails?.grossPlotAreaSqFt.addCommas(),
+                              carpetPlotDetails?.grossPlotAreaSqMt.addCommas(),
                         ),
                         buildColumnTitleValue(
-                          title: "PR Card Area(SqFt)",
+                          title: "Physical Survey Area (SqMt)",
                           value:
-                              carpetPlotDetails?.plotAreaPRCardSqFt.addCommas(),
+                              carpetPlotDetails?.plotAreaPhysicalSurveySqMt
+                                  .addCommas(),
                         ),
                       ],
                     ),
@@ -73,37 +74,30 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         buildColumnTitleValue(
-                          title: "Old Approved Plan Area (SqFt)",
+                          title: "Old Approved Plan Area (SqMt)",
                           value:
-                              carpetPlotDetails?.plotAreaOldApprovedPlanSqFt
+                              carpetPlotDetails?.plotAreaOldApprovedPlanSqMt
                                   .addCommas(),
                         ),
                         buildColumnTitleValue(
-                          title: "Conveyance Area (SqFt)",
+                          title: "Conveyance Area (SqMt)",
                           value:
-                              carpetPlotDetails?.plotAreaConveyanceSqFt
+                              carpetPlotDetails?.plotAreaConveyanceSqMt
                                   .addCommas(),
                         ),
                       ],
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Physical Survey Area (SqFt)",
-                          value:
-                              carpetPlotDetails?.plotAreaPhysicalSurveySqFt
-                                  .addCommas(),
-                        ),
-                        Expanded(child: SizedBox()),
-                      ],
+                    buildColumnTitleValue(
+                      title: "PR Card Area(SqMt)",
+                      value: carpetPlotDetails?.plotAreaPRCardSqMt.addCommas(),
+                      removeExpanded: true,
                     ),
                   ],
                 ),
                 SectionCard(
-                  title: 'Building Construction Details',
-                  headerBackgroundColor: AppColor.lightBlue,
+                  title: 'Existing Details',
                   titleTextColor: AppColor.primary,
+                  headerBackgroundColor: AppColor.lightBlue,
                   children: [
                     Row(
                       spacing: 10,
@@ -150,8 +144,21 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                               carpetPlotDetails?.totalCommercialCarpetAreaSqFt
                                   .addCommas(),
                         ),
-                        Expanded(child: SizedBox()),
+                        buildColumnTitleValue(
+                          title: "Garage Carpet Area (SqFt)",
+                          value:
+                              carpetPlotDetails?.garageCarpetAreaSqFt
+                                  .addCommas(),
+                        ),
                       ],
+                    ),
+                    buildRowWrapper(
+                      child: buildColumnTitleValue(
+                        title: "Terrace Carpet Area (SqFt)",
+                        value:
+                            carpetPlotDetails?.terraceCarpetAreaSqFt
+                                .addCommas(),
+                      ),
                     ),
                   ],
                 ),
@@ -174,22 +181,30 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
                               verticalSpacing(height: 2.h),
                               buildRowTitleValue(
                                 title: "Contact Name",
-                                value: contact.contactName,
+                                value:
+                                    contact.contactName.isEmpty
+                                        ? "-"
+                                        : contact.contactName,
                                 singleLine: false,
                               ),
                               buildRowTitleValue(
                                 title: "Mobile Number",
-                                value: contact.mobileNumber,
+                                value:
+                                    contact.mobileNumber.isEmpty
+                                        ? "-"
+                                        : contact.mobileNumber,
                                 singleLine: false,
                                 customValueWidget: CustomClickToContactText(
                                   countryCode: "+91",
                                   value: contact.mobileNumber,
-                                  type: ContactType.phone,
                                 ),
                               ),
                               buildRowTitleValue(
-                                title: "Email Id",
-                                value: contact.emailId,
+                                title: "E-Mail ID",
+                                value:
+                                    contact.emailId.isEmpty
+                                        ? "-"
+                                        : contact.emailId,
                                 singleLine: false,
                                 customValueWidget: CustomClickToContactText(
                                   value: contact.emailId,

@@ -840,7 +840,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                 ),
               ),
               buildColumnTitleValue(
-                title: "Email ID",
+                title: "E-Mail ID",
                 value:
                     applicant.applicantEmailId.isEmpty
                         ? "-"

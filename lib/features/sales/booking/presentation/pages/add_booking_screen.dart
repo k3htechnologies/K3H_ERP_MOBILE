@@ -1465,7 +1465,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                                       ),
                                     },
                                     {
-                                      "title": "CP Team E-mail ID",
+                                      "title": "CP Team E-Mail ID",
                                       "value":
                                           enquiry
                                               .channelPartnerTeamMemberEmailId,
@@ -3033,7 +3033,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 ),
               ),
               buildColumnTitleValue(
-                title: "Email ID",
+                title: "E-Mail ID",
                 value:
                     applicant.applicantEmailId.isEmpty
                         ? "-"

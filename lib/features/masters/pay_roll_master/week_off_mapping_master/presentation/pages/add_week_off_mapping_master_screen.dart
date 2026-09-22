@@ -366,7 +366,7 @@ class _AddWeekOffMappingMasterScreenState
                                             spacing: 10,
                                             children: [
                                               buildColumnTitleValue(
-                                                title: "Email ID",
+                                                title: "E-Mail ID",
                                                 value:
                                                     selectedEmployee
                                                         .first["emailId"] ??

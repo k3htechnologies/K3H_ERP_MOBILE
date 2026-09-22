@@ -415,10 +415,18 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     },
                   ),
                   CustomTextField(
-                    title: 'Email Id',
-                    hint: "Enter Email Id",
+                    title: 'E-Mail ID',
+                    hint: "Enter E-Mail ID",
                     textController: _emailC,
                     inputFormatterList: InputValidator.emailInputFormatters(),
+                    validator: (value) {
+                      if (value != null && value.isNotEmpty) {
+                        if (!InputValidator.isValidEmail(value)) {
+                          return "Enter a Valid E-Mail ID";
+                        }
+                      }
+                      return null;
+                    },
                   ),
                   CustomMultiFilePicker(
                     title: "Profile Photo",

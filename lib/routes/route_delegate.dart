@@ -3,6 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:k3h_erp_app/features/business_development/building/presentation/pages/building_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/proposed_offer_screen/proposed_offer_screen.dart';
+import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
@@ -2379,8 +2384,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.building,
               path: AppRoutes.building,
               builder: (context, state) {
-                // return const BuildingScreen();
-                return const ComingSoonScreen(title: "Building");
+                return const BuildingScreen();
+                // return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
@@ -2476,11 +2481,10 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.editBuildingDetails,
               path: AppRoutes.editBuildingDetails,
               builder: (context, state) {
-                // Check for both parameter names (buildingDetail and buildingDetails)
                 final queryParameterBuildingDetail =
-                    state.uri.queryParameters['buildingDetail'] ??
                     state.uri.queryParameters['buildingDetails'];
-
+                final queryParameterBuildingName =
+                    state.uri.queryParameters['buildingName'];
                 if (queryParameterBuildingDetail == null) {
                   // Return error screen or navigate back
                   return Scaffold(
@@ -2499,9 +2503,12 @@ final GoRouter goRouter = GoRouter(
                         ),
                       ),
                     );
-
+                final String buildingName = EncryptionManager.decryptData(
+                  Uri.decodeComponent(queryParameterBuildingName ?? ""),
+                );
                 return UpdateBuildingDetailsScreen(
                   buildingDetailsModel: buildingDetail,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -2517,8 +2524,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.tenant,
               path: AppRoutes.tenant,
               builder: (context, state) {
-                // return const TenantScreen();
-                return const ComingSoonScreen(title: "Tenant");
+                return const TenantScreen();
+                // return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2598,8 +2605,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.rent,
               path: AppRoutes.rent,
               builder: (context, state) {
-                // return TemporaryAlternateAccommodationScreen();
-                return const ComingSoonScreen(title: "TAA");
+                return TemporaryAlternateAccommodationScreen();
+                // return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2728,8 +2735,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedPlan,
               path: AppRoutes.proposedPlan,
               builder: (context, state) {
-                // return const ProposedPlansScreen();
-                return const ComingSoonScreen(title: "Proposed Plan");
+                return const ProposedPlansScreen();
+                // return const ComingSoonScreen(title: "Proposed Plan");
               },
             ),
             GoRoute(
@@ -2772,8 +2779,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.proposedOffer,
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
-                // return const ProposedOfferScreen();
-                return const ComingSoonScreen(title: "Proposed Offer");
+                return const ProposedOfferScreen();
+                // return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(

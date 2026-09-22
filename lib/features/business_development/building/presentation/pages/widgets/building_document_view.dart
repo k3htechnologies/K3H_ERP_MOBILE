@@ -78,7 +78,9 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
 
   Future<void> _showAddDocumentBottomSheet({
     BuildingDocumentModel? document,
+    int? index,
   }) async {
+    final formKey = GlobalKey<FormState>();
     final isEditMode = document != null;
     if (isEditMode) {
       _newDocumentTitleController.text = document.documentName;
@@ -87,32 +89,43 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
     }
     await DialogHelper.showCustomBottomSheet(
       context,
-      isEditMode ? "Update Document" : "Add Document",
-      contentWidget: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          CustomTextField(
-            textController: _newDocumentTitleController,
-            title: "Document title",
-            hint: "Enter document title",
-          ),
-        ],
+      isEditMode ? "Update Document Name" : "Add Document Name",
+      contentWidget: Form(
+        key: formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            CustomTextField(
+              textController: _newDocumentTitleController,
+              isRequired: true,
+              title: "Document Name",
+              hint: "Enter document Name",
+              validator:
+                  (v) =>
+                      (v == null || v.isEmpty)
+                          ? "Document Name is required."
+                          : null,
+            ),
+          ],
+        ),
       ),
       bottomActions: CustomButton(
-        text: isEditMode ? "Update Document" : "Add Document",
+        leading: Icon(
+          isEditMode ? Icons.edit : Icons.add,
+          color: AppColor.white,
+          size: 18,
+        ),
+        text: isEditMode ? "Update" : "Add",
         onPressed: () async {
-          final title = _newDocumentTitleController.text.trim();
-          if (title.isEmpty) {
-            showErrorMessage(context, "Error", "Please enter document title");
-            return;
-          }
+          if (!formKey.currentState!.validate()) return;
+
           if (!isEditMode) {
             await _buildingCubit.addBuildingParentDocument(
               context: context,
               projectId: _project.projectId,
               buildingId: widget.building.buildingId,
-              documentName: title,
+              documentName: _newDocumentTitleController.text.trim(),
             );
           } else {
             await _buildingCubit.updateBuildingParentDocument(
@@ -122,6 +135,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               documentName: _newDocumentTitleController.text.trim(),
               buildingDocumentId: document.buildingDocumentId,
               uniquekey: document.uniquekey,
+              index: index!,
             );
           }
           if (!mounted) return;
@@ -134,6 +148,8 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
   Future _showPopupToDeleteDocument({
     required BuildingDocumentModel document,
     required BuildContext context,
+    int? index,
+    int? parentBuildingDocumentId,
   }) async {
     var result = await DialogHelper.deleteDialog(
       context,
@@ -144,6 +160,8 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
       await _buildingCubit.deleteBuildingDocument(
         document: document,
         context: context,
+        index: index,
+        parentBuildingDocumentId: parentBuildingDocumentId,
       );
     }
   }
@@ -311,6 +329,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                     onPressed: () {
                                       _showAddDocumentBottomSheet(
                                         document: doc,
+                                        index: index,
                                       );
                                     },
                                   ),
@@ -323,6 +342,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                                       _showPopupToDeleteDocument(
                                         context: context,
                                         document: doc,
+                                        index: index,
                                       );
                                     },
                                   ),
@@ -407,30 +427,51 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
       ),
       child: Column(
         spacing: 10,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             spacing: 10.w,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text(subDocument.documentName, style: AppTextStyle.ts14R()),
-                  CustomIconButton(
-                    onPressed: () {
-                      showFilePreviewDialog(
-                        title: subDocument.documentName,
-                        context,
-                        subDocument.documentURL.split(","),
-                      );
-                    },
-                    backgroundColor: Colors.transparent,
-                    icon: const Icon(
-                      Icons.remove_red_eye_outlined,
-                      color: AppColor.primary,
-                      size: 18,
+              Expanded(
+                child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            subDocument.documentName,
+                            style: AppTextStyle.ts14R(),
+                          ),
+                        ),
+                        CustomIconButton(
+                          onPressed: () {
+                            showFilePreviewDialog(
+                              title: subDocument.documentName,
+                              context,
+                              subDocument.documentURL.split(","),
+                            );
+                          },
+                          backgroundColor: Colors.transparent,
+                          icon: const Icon(
+                            Icons.remove_red_eye_outlined,
+                            color: AppColor.primary,
+                            size: 18,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    buildColumnTitleValue(
+                      removeExpanded: true,
+                      title: "Remark",
+                      value: subDocument.documentRemark,
+                    ),
+                  ],
+                ),
               ),
               CustomMoreButton(
                 isDisabled: !_routeAuthorizationModel.isAction,
@@ -438,36 +479,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                   CustomMoreItem(
                     child: CustomIconButton.edit(
                       isDisabled: !_routeAuthorizationModel.isAction,
-                      onPressed: () async {
-                        final result = await goRouter.pushNamed(
-                          AppRoutes.addUpdateBuildingDoc,
-                          queryParameters: {
-                            "document": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(document.toJson()),
-                              ),
-                            ),
-                            "subDocument": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(subDocument.toJson()),
-                              ),
-                            ),
-                          },
-                        );
-                        if (result == true) {
-                          final children = await _buildingCubit
-                              .getBuildingChildDocuments(
-                                context,
-                                _project.projectId,
-                                widget.building.buildingId,
-                                document.buildingDocumentId,
-                              );
-                          _childDocuments.value = {
-                            ..._childDocuments.value,
-                            document.buildingDocumentId: children,
-                          };
-                        }
-                      },
+                      onPressed: () {},
                     ),
                     onTap: () async {
                       final result = await goRouter.pushNamed(
@@ -503,28 +515,13 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
                   CustomMoreItem(
                     child: CustomIconButton.delete(
                       isDisabled: !_routeAuthorizationModel.isAction,
-                      onPressed: () async {
-                        await _showPopupToDeleteDocument(
-                          context: context,
-                          document: subDocument,
-                        );
-                        final children = await _buildingCubit
-                            .getBuildingChildDocuments(
-                              context,
-                              _project.projectId,
-                              widget.building.buildingId,
-                              document.buildingDocumentId,
-                            );
-                        _childDocuments.value = {
-                          ..._childDocuments.value,
-                          document.buildingDocumentId: children,
-                        };
-                      },
+                      onPressed: () {},
                     ),
                     onTap: () async {
                       await _showPopupToDeleteDocument(
                         context: context,
                         document: subDocument,
+                        parentBuildingDocumentId: document.buildingDocumentId,
                       );
                       final children = await _buildingCubit
                           .getBuildingChildDocuments(
@@ -543,12 +540,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               ),
             ],
           ),
-          buildRowWrapper(
-            child: buildColumnTitleValue(
-              title: "Remark",
-              value: subDocument.documentRemark,
-            ),
-          ),
+
           buildRowWrapper(
             child: buildColumnTitleValue(
               title: "Uploaded By / Date",

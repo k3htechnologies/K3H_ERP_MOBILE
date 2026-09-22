@@ -3,11 +3,11 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 class BuildingDetailsModel {
   int buildingId;
   int projectId;
-  double grossPlotAreaSqFt;
-  double plotAreaPhysicalSurveySqFt;
-  double plotAreaOldApprovedPlanSqFt;
-  double plotAreaConveyanceSqFt;
-  double plotAreaPRCardSqFt;
+  double grossPlotAreaSqMt;
+  double plotAreaPhysicalSurveySqMt;
+  double plotAreaOldApprovedPlanSqMt;
+  double plotAreaConveyanceSqMt;
+  double plotAreaPRCardSqMt;
   double totalCarpetAreaSqFt;
   int totalResidentialUnits;
   double totalResidentialCarpetAreaSqFt;
@@ -26,11 +26,11 @@ class BuildingDetailsModel {
   BuildingDetailsModel({
     required this.buildingId,
     required this.projectId,
-    required this.grossPlotAreaSqFt,
-    required this.plotAreaPhysicalSurveySqFt,
-    required this.plotAreaOldApprovedPlanSqFt,
-    required this.plotAreaConveyanceSqFt,
-    required this.plotAreaPRCardSqFt,
+    required this.grossPlotAreaSqMt,
+    required this.plotAreaPhysicalSurveySqMt,
+    required this.plotAreaOldApprovedPlanSqMt,
+    required this.plotAreaConveyanceSqMt,
+    required this.plotAreaPRCardSqMt,
     required this.totalCarpetAreaSqFt,
     required this.totalResidentialUnits,
     required this.totalResidentialCarpetAreaSqFt,
@@ -52,17 +52,17 @@ class BuildingDetailsModel {
   ) => BuildingDetailsModel(
     buildingId: parseValue<int>(json, "BuildingId"),
     projectId: parseValue<int>(json, "ProjectId"),
-    grossPlotAreaSqFt: parseValue<double>(json, "GrossPlotAreaSqFt"),
-    plotAreaPhysicalSurveySqFt: parseValue<double>(
+    grossPlotAreaSqMt: parseValue<double>(json, "GrossPlotAreaSqMt"),
+    plotAreaPhysicalSurveySqMt: parseValue<double>(
       json,
-      "PlotAreaPhysicalSurveySqFt",
+      "PlotAreaPhysicalSurveySqMt",
     ),
-    plotAreaOldApprovedPlanSqFt: parseValue<double>(
+    plotAreaOldApprovedPlanSqMt: parseValue<double>(
       json,
-      "PlotAreaOldApprovedPlanSqFt",
+      "PlotAreaOldApprovedPlanSqMt",
     ),
-    plotAreaConveyanceSqFt: parseValue<double>(json, "PlotAreaConveyanceSqFt"),
-    plotAreaPRCardSqFt: parseValue<double>(json, "PlotAreaPRCardSqFt"),
+    plotAreaConveyanceSqMt: parseValue<double>(json, "PlotAreaConveyanceSqMt"),
+    plotAreaPRCardSqMt: parseValue<double>(json, "PlotAreaPRCardSqMt"),
     totalCarpetAreaSqFt: parseValue<double>(json, "TotalCarpetAreaSqFt"),
     totalResidentialUnits: parseValue<int>(json, "TotalResidentialUnits"),
     totalResidentialCarpetAreaSqFt: parseValue<double>(
@@ -98,11 +98,11 @@ class BuildingDetailsModel {
   Map<String, dynamic> toJson() => {
     "BuildingId": buildingId,
     "ProjectId": projectId,
-    "GrossPlotAreaSqFt": grossPlotAreaSqFt,
-    "PlotAreaPhysicalSurveySqFt": plotAreaPhysicalSurveySqFt,
-    "PlotAreaOldApprovedPlanSqFt": plotAreaOldApprovedPlanSqFt,
-    "PlotAreaConveyanceSqFt": plotAreaConveyanceSqFt,
-    "PlotAreaPRCardSqFt": plotAreaPRCardSqFt,
+    "GrossPlotAreaSqMt": grossPlotAreaSqMt,
+    "PlotAreaPhysicalSurveySqMt": plotAreaPhysicalSurveySqMt,
+    "PlotAreaOldApprovedPlanSqMt": plotAreaOldApprovedPlanSqMt,
+    "PlotAreaConveyanceSqMt": plotAreaConveyanceSqMt,
+    "PlotAreaPRCardSqMt": plotAreaPRCardSqMt,
     "TotalCarpetAreaSqFt": totalCarpetAreaSqFt,
     "TotalResidentialUnits": totalResidentialUnits,
     "TotalResidentialCarpetAreaSqFt": totalResidentialCarpetAreaSqFt,

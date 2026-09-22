@@ -345,7 +345,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                           Expanded(
                             child: buildRowWrapper(
                               child: buildColumnTitleValue(
-                                title: "E-mail Id",
+                                title: "E-Mail ID",
                                 value: state.companyByProject.first.emailId,
                                 customValueWidget: CustomClickToContactText(
                                   value: state.companyByProject.first.emailId,

@@ -1038,7 +1038,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                             ? formatDateTimeAsDDMMMYYYY(overview.dateOfBirth!)
                             : '-',
                   },
-                  {'label': 'Email ID', 'value': overview.emailId},
+                  {'label': 'E-Mail ID', 'value': overview.emailId},
                   {
                     'label': 'Personal Mobile No.',
                     'value': overview.personalMobileNumber,
@@ -1121,7 +1121,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                     'value': overview.officeMobileNumber,
                   },
                   {
-                    'label': 'Office E-mail ID',
+                    'label': 'Office E-Mail ID',
                     'value': overview.officeEmailId,
                   },
                   {

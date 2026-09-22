@@ -49,17 +49,19 @@ class BuildingOverview extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                children: [
-                  buildColumnTitleValue(
-                    title: "Google Location",
-                    value: building.googleLocation,
-                    customValueWidget: CustomClickToContactText(
-                      value: building.googleLocation,
-                      type: ContactType.url,
-                    ),
-                  ),
-                ],
+              buildColumnTitleValue(
+                title: "Category",
+                value: building.category,
+                removeExpanded: true,
+              ),
+              buildColumnTitleValue(
+                removeExpanded: true,
+                title: "Google Location",
+                value: building.googleLocation,
+                customValueWidget: CustomClickToContactText(
+                  value: building.googleLocation,
+                  type: ContactType.url,
+                ),
               ),
             ],
           ),
@@ -105,16 +107,13 @@ class BuildingOverview extends StatelessWidget {
                   title: "Transaction / Cheque / DD No",
                   value: building.tenderAmountChequeNumber,
                   removeExpanded: true,
-                  customValueWidget:
-                      (building.tenderAmountChequeNumber.isEmpty)
-                          ? null
-                          : buildDocumentRow(
-                            context: context,
-                            docNumber: building.tenderAmountChequeNumber,
-                            url: building.tenderAmountChequeNumberURL,
-                            iconWithoutBg: true,
-                            title: "Transaction / Cheque / DD No",
-                          ),
+                  customValueWidget: buildDocumentRow(
+                    context: context,
+                    docNumber: building.tenderAmountChequeNumber,
+                    url: building.tenderAmountChequeNumberURL,
+                    iconWithoutBg: true,
+                    title: "Transaction / Cheque / DD No",
+                  ),
                 ),
                 buildColumnTitleValue(
                   title: "Payorder Remark",
@@ -153,16 +152,13 @@ class BuildingOverview extends StatelessWidget {
                   title: "Transaction / Cheque / DD No",
                   value: building.tenderEMDChequeNumberURL,
                   removeExpanded: true,
-                  customValueWidget:
-                      (building.tenderEMDChequeNumberURL.isEmpty)
-                          ? null
-                          : buildDocumentRow(
-                            context: context,
-                            docNumber: building.tenderEMDChequeNumber,
-                            url: building.tenderEMDChequeNumberURL,
-                            iconWithoutBg: true,
-                            title: "Transaction / Cheque / DD No",
-                          ),
+                  customValueWidget: buildDocumentRow(
+                    context: context,
+                    docNumber: building.tenderEMDChequeNumber,
+                    url: building.tenderEMDChequeNumberURL,
+                    iconWithoutBg: true,
+                    title: "Transaction / Cheque / DD No",
+                  ),
                 ),
                 buildColumnTitleValue(
                   title: "Payorder Remark",

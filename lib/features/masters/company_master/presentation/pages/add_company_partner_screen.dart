@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
 class AddCompanyPartnerScreen extends StatefulWidget {
   final CompanyPartnerModel? companyPartner;
   final int? index;
@@ -25,6 +26,7 @@ class AddCompanyPartnerScreen extends StatefulWidget {
   State<AddCompanyPartnerScreen> createState() =>
       _AddCompanyPartnerScreenState();
 }
+
 class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _firstNameC;
@@ -61,6 +63,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     _initControllers(widget.companyPartner);
     _populateFormFields(widget.companyPartner);
   }
+
   @override
   void dispose() {
     _firstNameC.dispose();
@@ -74,6 +77,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     _selectedGenderNotifier.dispose();
     super.dispose();
   }
+
   void _initControllers(CompanyPartnerModel? partner) {
     _firstNameC = TextEditingController(text: partner?.firstName);
     _middleNameC = TextEditingController(text: partner?.middleName);
@@ -87,6 +91,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     _aadhaarC = TextEditingController(text: partner?.aadharCardNumber);
     dateOfBirth = partner?.dateOfBirth;
   }
+
   void _populateFormFields(CompanyPartnerModel? partner) {
     if (partner == null) return;
     _selectedGenderNotifier.value = genderList.firstWhere(
@@ -121,6 +126,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
       photoFile.fileBytesList = [];
     }
   }
+
   void _saveForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
     final partner = CompanyPartnerModel(
@@ -171,6 +177,7 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
     );
     goRouter.pop();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -294,18 +301,18 @@ class _AddCompanyPartnerScreenState extends State<AddCompanyPartnerScreen> {
                         },
                       ),
                       CustomTextField(
-                        title: 'Email ID',
+                        title: 'E-Mail ID',
                         isRequired: true,
                         textController: _emailC,
-                        hint: "Enter Email ID",
+                        hint: "Enter E-Mail ID",
                         inputFormatterList:
                             InputValidator.emailInputFormatters(),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Email ID is required.";
+                            return "E-Mail ID is required.";
                           }
                           if (!InputValidator.isValidEmail(value)) {
-                            return "Invalid email address";
+                            return "Enter a Valid E-Mail ID";
                           }
                           return null;
                         },

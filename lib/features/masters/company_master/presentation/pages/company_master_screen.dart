@@ -447,7 +447,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                           ),
                         ),
                         buildRowTitleValue(
-                          title: "Email ID",
+                          title: "E-Mail ID",
                           value: company.emailId,
                           customValueWidget: CustomClickToContactText(
                             value: company.emailId,

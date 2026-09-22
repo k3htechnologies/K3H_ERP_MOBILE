@@ -96,7 +96,7 @@ Widget teamMemberTabView({
                     Expanded(
                       flex: 5,
                       child: Text(
-                        "Email ID",
+                        "E-Mail ID",
                         style: AppTextStyle.ts14R(color: AppColor.grey),
                       ),
                     ),

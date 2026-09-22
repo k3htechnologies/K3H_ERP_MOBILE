@@ -307,6 +307,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       (response) async {
         showSuccessMessage(context, subTitle: response['message']);
         goRouter.pop();
+        emit(state.copyWith(buildingDocumentList: [], isLoading: true));
         await getBuildingDocumentList(
           context: context,
           projectId: projectId,
@@ -324,6 +325,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     required String documentName,
     required int buildingDocumentId,
     required String uniquekey,
+    required int index,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     final body = <String, String>{
@@ -347,12 +349,12 @@ class BuildingCubit extends Cubit<BuildingState> {
       (response) async {
         showSuccessMessage(context, subTitle: response['message']);
         goRouter.pop();
-        await getBuildingDocumentList(
-          context: context,
-          projectId: projectId,
-          buildingId: buildingId,
-          pageNumber: 1,
+        final updatedList = List<BuildingDocumentModel>.from(
+          state.buildingDocumentList,
         );
+
+        updatedList[index] = response['data'][0] as BuildingDocumentModel;
+        emit(state.copyWith(buildingDocumentList: updatedList));
       },
     );
   }
@@ -365,6 +367,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     required int buildingId,
     required String documentName,
     required String documentRemark,
+    int? parentBuildingDocumentId,
     required MultiFilePickerModel files,
   }) async {
     List<Map<String, dynamic>> fileList = [];
@@ -400,12 +403,9 @@ class BuildingCubit extends Cubit<BuildingState> {
       (response) async {
         showSuccessMessage(context, subTitle: response['message']);
         goRouter.pop(true);
-        await await getBuildingDocumentList(
-          context: context,
-          projectId: projectId,
-          buildingId: buildingId,
-          pageNumber: 1,
-        );
+        if (parentBuildingDocumentId != null) {
+          adjustDocumentCount(parentBuildingDocumentId, 1);
+        }
       },
     );
   }
@@ -715,6 +715,8 @@ class BuildingCubit extends Cubit<BuildingState> {
   Future deleteBuildingDocument({
     required BuildingDocumentModel document,
     required BuildContext context,
+    int? index,
+    int? parentBuildingDocumentId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     final result = await _buildingRepository.deleteBuildingDocument(
@@ -730,14 +732,45 @@ class BuildingCubit extends Cubit<BuildingState> {
       },
       (success) {
         showSuccessMessage(context, subTitle: success['message']);
-        getBuildingDocumentList(
-          context: context,
-          projectId: document.projectId,
-          buildingId: document.buildingId,
-          pageNumber: state.currentPage,
-        );
+        if (index != null) {
+          final updatedList = List<BuildingDocumentModel>.from(
+            state.buildingDocumentList,
+          );
+          updatedList.removeAt(index);
+          emit(
+            state.copyWith(
+              buildingDocumentList: updatedList,
+              isLoading: false,
+              totalNumberOfRecordDocument:
+                  state.totalNumberOfRecordDocument - 1,
+            ),
+          );
+        } else {
+          emit(state.copyWith(isLoading: false));
+          if (parentBuildingDocumentId != null) {
+            adjustDocumentCount(parentBuildingDocumentId, -1);
+          }
+        }
       },
     );
+  }
+
+  // FOR UPDATING SUB DOCUMENT COUNT IN VIEW
+  void adjustDocumentCount(int parentBuildingDocumentId, int delta) {
+    final index = state.buildingDocumentList.indexWhere(
+      (d) => d.buildingDocumentId == parentBuildingDocumentId,
+    );
+    if (index == -1) {
+      return;
+    }
+    final updatedList = List<BuildingDocumentModel>.from(
+      state.buildingDocumentList,
+    );
+    updatedList[index] = updatedList[index].copyWith(
+      uploadedBuildingDocumentCount:
+          updatedList[index].uploadedBuildingDocumentCount + delta,
+    );
+    emit(state.copyWith(buildingDocumentList: updatedList));
   }
 
   Future<void> updateBuildingDetails({

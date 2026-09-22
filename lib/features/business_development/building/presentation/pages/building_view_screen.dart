@@ -9,9 +9,15 @@ import 'package:k3h_erp_app/features/business_development/building/presentation/
 import 'package:k3h_erp_app/features/business_development/building/presentation/pages/widgets/building_document_view.dart';
 import 'package:k3h_erp_app/features/business_development/building/presentation/pages/widgets/building_overview.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class BuildingViewScreen extends StatefulWidget {
   final BusinessDevelopmentBuildingModel building;
@@ -81,6 +87,30 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                spacing: 8,
+                children: [
+                  showSiteSelectedWidget(projectName: getProject().projectName),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      Icon(
+                        LucideIcons.building2,
+                        color: AppColor.darkBlue,
+                        size: 18,
+                      ),
+                      Text(
+                        toTitleCase(widget.building.buildingName),
+                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            verticalSpacing(),
             ChipStyleTabBar(
               controller: _tabController,
               tabs: ["Overview", "Details", "Document"],
@@ -96,6 +126,7 @@ class _BuildingViewScreenState extends State<BuildingViewScreen>
                   ),
                   BuildingDetailsView(
                     canAction: _routeAuthorizationModel.isAction,
+                    buildingName: widget.building.buildingName,
                   ),
                   BuildingDocumentView(building: widget.building),
                 ],

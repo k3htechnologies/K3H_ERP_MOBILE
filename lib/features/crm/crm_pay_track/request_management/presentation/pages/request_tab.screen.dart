@@ -600,7 +600,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                         ),
                         buildRowTitleValue(
                           fixesWidth: 80,
-                          title: "E-mail ID",
+                          title: "E-Mail ID",
                           value: applicant.applicantEmailId,
                           singleLine: false,
                           customValueWidget: CustomClickToContactText(

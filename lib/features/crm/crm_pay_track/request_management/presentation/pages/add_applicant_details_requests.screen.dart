@@ -624,17 +624,17 @@ class _AddApplicantDetailsRequestsScreenState
                       },
                     ),
                     CustomTextField(
-                      title: 'Email Id',
+                      title: 'E-Mail ID',
                       isRequired: true,
-                      hint: "Enter Email Id",
+                      hint: "Enter E-Mail ID",
                       textController: _emailC,
                       inputFormatterList: InputValidator.emailInputFormatters(),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Email Id is required.";
+                          return "E-Mail ID is required.";
                         }
                         if (!InputValidator.isValidEmail(value)) {
-                          return "Invalid email address";
+                          return "Enter a Valid E-Mail ID";
                         }
                         return null;
                       },

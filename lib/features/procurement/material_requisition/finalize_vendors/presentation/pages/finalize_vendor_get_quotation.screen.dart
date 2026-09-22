@@ -222,7 +222,7 @@ class _FinalizeVendorGetQuotationScreenState
           ),
           _buildRow("Company Name", listOfVendorForQuotation.companyName),
           _buildRow("Phone Number", listOfVendorForQuotation.mobileNumber),
-          _buildRow("E-mail ID", listOfVendorForQuotation.emailId),
+          _buildRow("E-Mail ID", listOfVendorForQuotation.emailId),
         ],
       ),
     );

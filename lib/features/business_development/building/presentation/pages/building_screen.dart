@@ -277,6 +277,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
           sortDirection: "DESC",
           filterCategory: "",
         );
+        _searchC.clear();
       },
       onApply: () {
         applied = true;
@@ -324,12 +325,20 @@ class _BuildingScreenState extends State<BuildingScreen> {
           },
           textController: _searchC,
           onAddCallback: () async {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please Select a project");
+              return;
+            }
             await goRouter.pushNamed(
               AppRoutes.addBuilding,
               queryParameters: {'projectId': _project.projectId.toString()},
             );
           },
           onExportCallback: (value) {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please Select a project");
+              return;
+            }
             _buildingCubit.exportExcelPdf(context, value, _project.projectId);
           },
           onProjectChangeCallback: (project) {
@@ -468,7 +477,15 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                 value: building.cTSNumber,
                               ),
                               buildRowTitleValue(
-                                title: "Total Plot Area(Sq. ft)",
+                                title: "Category",
+                                value: building.category,
+                              ),
+                              buildRowTitleValue(
+                                title: "Total Plot Area (SqMt)",
+                                value: building.totalPlotAreaSqMt.toString(),
+                              ),
+                              buildRowTitleValue(
+                                title: "Total Plot Area (SqFt)",
                                 value: building.totalPlotAreaSqFt.toString(),
                               ),
                               buildRowTitleValue(
@@ -476,7 +493,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                 value: building.roadWidth,
                               ),
                               buildRowTitleValue(
-                                title: "Total Floor",
+                                title: "No. Of Floors",
                                 value: building.numberOfFloors.toString(),
                               ),
                               buildRowTitleValue(

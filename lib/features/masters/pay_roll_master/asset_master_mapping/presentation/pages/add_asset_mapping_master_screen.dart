@@ -566,7 +566,7 @@ class _AddAssetMappingMasterScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
-                                          title: "Email Id",
+                                          title: "E-Mail ID",
                                           value:
                                               selectedEmployee.first["email"] ??
                                               '',

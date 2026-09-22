@@ -98,7 +98,7 @@ class _CompanyPartnersState extends State<CompanyPartners> {
                         ),
                       ),
                       buildColumnTitleValue(
-                        title: "E-mail ID",
+                        title: "E-Mail ID",
                         value: p.emailId,
                         customValueWidget: CustomClickToContactText(
                           value: p.emailId,

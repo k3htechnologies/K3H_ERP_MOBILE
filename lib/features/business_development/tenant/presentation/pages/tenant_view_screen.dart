@@ -295,7 +295,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                         : applicant.applicantMobileNumber,
                               ),
                               buildColumnTitleValue(
-                                title: "Email ID",
+                                title: "E-Mail ID",
                                 value:
                                     applicant.applicantEmailId.isEmpty
                                         ? "-"

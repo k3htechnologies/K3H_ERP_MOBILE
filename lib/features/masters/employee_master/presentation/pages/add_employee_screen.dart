@@ -1108,26 +1108,34 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
             setValue: (value) => dateOfBirth = value,
           ),
           CustomTextField(
-            title: 'Email Id',
-            hint: "Enter Email Id",
+            title: 'E-Mail ID',
+            hint: "Enter E-Mail ID",
             isRequired: true,
             textController: _personalEmailC,
             keyboardType: TextInputType.emailAddress,
             validator: (value) {
               if (value == null || value.isEmpty) {
-                return 'Email Id is required.';
+                return 'E-Mail ID is required.';
               }
               if (!InputValidator.isValidEmail(value)) {
-                return 'Email Id is not valid';
+                return "Enter a Valid E-Mail ID";
               }
               return null;
             },
           ),
           CustomTextField(
-            title: 'Office Email Id',
-            hint: "Enter Office Email Id",
+            title: 'Office E-Mail ID',
+            hint: "Enter Office E-Mail ID",
             textController: _officeEmailIdC,
             keyboardType: TextInputType.emailAddress,
+            validator: (value) {
+              if (value != null && value.isNotEmpty) {
+                if (!InputValidator.isValidEmail(value)) {
+                  return "Enter a Valid E-Mail ID";
+                }
+              }
+              return null;
+            },
           ),
           CustomTextField(
             title: 'Personal Mobile Number',
@@ -1401,7 +1409,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
-                                title: "Email Id",
+                                title: "E-Mail ID",
                                 value: selectedEmployee.first["email"] ?? '',
                               ),
                               buildColumnTitleValue(

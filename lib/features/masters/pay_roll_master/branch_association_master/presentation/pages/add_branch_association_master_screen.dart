@@ -372,7 +372,7 @@ class _AddBranchAssociationMasterScreenState
                                           CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
-                                          title: "Email Id",
+                                          title: "E-Mail ID",
                                           value:
                                               selectedEmployee.first["email"] ??
                                               '',

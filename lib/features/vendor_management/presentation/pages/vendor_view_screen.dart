@@ -216,7 +216,7 @@ class _VendorViewScreenState extends State<VendorViewScreen>
           ),
         ),
         buildRowTitleValue(
-          title: "E-mail ID",
+          title: "E-Mail ID",
           fixesWidth: 120.w,
           value: widget.vendor.emailId,
           customValueWidget: CustomClickToContactText(

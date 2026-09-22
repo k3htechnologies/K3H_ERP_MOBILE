@@ -695,21 +695,21 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                 ),
                 CustomTextField(
                   textController: _senderEmailIdC,
-                  title: "Email-Id",
+                  title: "E-Mail ID",
                   isRequired: true,
                   readOnly: disableInwardOutward,
                   keyboardType: TextInputType.emailAddress,
-                  hint: "Enter Sender Email-Id",
+                  hint: "Enter Sender E-Mail ID",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Sender Email-Id is required.";
+                      return "Sender E-Mail ID is required.";
                     }
                     if (!InputValidator.isValidEmail(value)) {
-                      return "Sender Invalid Email Id";
+                      return "Enter a Valid E-Mail ID";
                     }
                     if (_receiverEmailIdC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
-                      return "Sender and Receiver Email-Ids should not be the same.";
+                      return "Sender and Receiver E-Mail IDs should not be the same.";
                     }
                     return null;
                   },
@@ -815,21 +815,21 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                 ),
                 CustomTextField(
                   textController: _receiverEmailIdC,
-                  title: "Email-Id",
+                  title: "E-Mail ID",
                   readOnly: disableInwardOutward,
                   isRequired: true,
                   keyboardType: TextInputType.emailAddress,
-                  hint: "Enter Receiver Email-Id",
+                  hint: "Enter Receiver E-Mail ID",
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
-                      return "Receiver Email-Id is required.";
+                      return "Receiver E-Mail ID is required.";
                     }
                     if (!InputValidator.isValidEmail(value)) {
-                      return "Receiver Invalid Email Id";
+                      return "Enter a Valid E-Mail ID";
                     }
                     if (_senderEmailIdC.text.trim().toLowerCase() ==
                         value.trim().toLowerCase()) {
-                      return "Sender and Receiver Email-Ids should not be the same.";
+                      return "Sender and Receiver E-Mail IDs should not be the same.";
                     }
                     return null;
                   },

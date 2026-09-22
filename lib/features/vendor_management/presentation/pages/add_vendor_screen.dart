@@ -454,15 +454,15 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                   CustomTextField(
                     textController: emailC,
                     title: "E-mail ID",
-                    hint: "Enter E-mail ID",
+                    hint: "Enter E-Mail ID",
                     isRequired: true,
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return "Email Id is required.";
+                        return "E-Mail ID is required.";
                       }
                       if (!InputValidator.isValidEmail(value)) {
-                        return "Invalid email address";
+                        return "Enter a Valid E-Mail ID";
                       }
                       return null;
                     },

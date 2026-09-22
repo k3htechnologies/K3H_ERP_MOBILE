@@ -334,17 +334,17 @@ class _UpdateUserDetailsScreenState extends State<UpdateUserDetailsScreen> {
                   },
                 ),
                 CustomTextField(
-                  title: 'Email Id',
-                  hint: "Enter Email Id",
+                  title: 'E-Mail ID',
+                  hint: "Enter E-Mail ID",
                   isRequired: true,
                   textController: _personalEmailC,
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Email Id is required.';
+                      return 'E-Mail ID is required.';
                     }
                     if (!InputValidator.isValidEmail(value)) {
-                      return 'Email Id is not valid';
+                      return "Enter a Valid E-Mail ID";
                     }
                     return null;
                   },

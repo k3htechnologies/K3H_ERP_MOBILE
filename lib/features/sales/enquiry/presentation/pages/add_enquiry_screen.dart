@@ -1302,17 +1302,23 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
             valueListenable: selectedMobileNoCountry,
             builder: (context, selectedMobNovalue, child) {
               return CustomTextField(
-                title: "E-mail ID",
+                title: "E-Mail ID",
                 isRequired: selectedMobNovalue.countryCode != "IN",
                 textController: _emailC,
                 keyboardType: TextInputType.emailAddress,
-                hint: "Enter Email",
-                validator:
-                    (value) =>
-                        (selectedMobNovalue.countryCode != "IN" &&
-                                (value == null || value.isEmpty))
-                            ? "E-mail ID is required"
-                            : null,
+                hint: "Enter E-Mail ID",
+                validator: (value) {
+                  if (selectedMobNovalue.countryCode != "IN" &&
+                      (value == null || value.isEmpty)) {
+                    return "E-Mail ID is required";
+                  }
+                  if (value != null && value.isNotEmpty) {
+                    if (!InputValidator.isValidEmail(value)) {
+                      return "Enter a Valid E-Mail ID";
+                    }
+                  }
+                  return null;
+                },
               );
             },
           ),
@@ -1805,7 +1811,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                         child,
                                       ) {
                                         return CustomTextField(
-                                          title: "Team Member E-mail ID",
+                                          title: "Team Member E-Mail ID",
                                           isRequired:
                                               selectedMobNovalue.countryCode !=
                                               "IN",
@@ -1813,22 +1819,23 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                           textController: _teamMemberEmailC,
                                           keyboardType:
                                               TextInputType.emailAddress,
-                                          hint: "Enter Team Member E-mail ID",
-                                          validator:
-                                              (value) =>
-                                                  (selectedMobNovalue
-                                                                  .countryCode !=
-                                                              "IN" &&
-                                                          (_teamMemberMobileC
-                                                                  .text
-                                                                  .isNotEmpty ||
-                                                              _teamMemberNameC
-                                                                  .text
-                                                                  .isNotEmpty) &&
-                                                          (value == null ||
-                                                              value.isEmpty))
-                                                      ? "Team Member E-mail ID is required"
-                                                      : null,
+                                          hint: "Enter Team Member E-Mail ID",
+                                          validator: (value) {
+                                            if (selectedMobNovalue
+                                                        .countryCode !=
+                                                    "IN" &&
+                                                (_teamMemberMobileC
+                                                        .text
+                                                        .isNotEmpty ||
+                                                    _teamMemberNameC
+                                                        .text
+                                                        .isNotEmpty) &&
+                                                (value == null ||
+                                                    value.isEmpty)) {
+                                              return "Team Member E-Mail ID is required";
+                                            }
+                                            return null;
+                                          },
                                         );
                                       },
                                     ),
@@ -1953,7 +1960,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
-                                          title: "Email Id",
+                                          title: "E-Mail ID",
                                           value:
                                               selectedEmployee.first["email"] ??
                                               '',
