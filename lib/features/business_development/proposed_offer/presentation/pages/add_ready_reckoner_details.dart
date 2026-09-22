@@ -326,7 +326,12 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
           height: 70,
           padding: EdgeInsets.all(16),
           child: CustomButton(
-            text: "Save",
+            leading: Icon(
+              _isEditMode ? Icons.edit : Icons.add,
+              size: 18,
+              color: AppColor.white,
+            ),
+            text: _isEditMode ? "Update" : "Add",
             onPressed: () {
               _saveForm(
                 index: widget.index,

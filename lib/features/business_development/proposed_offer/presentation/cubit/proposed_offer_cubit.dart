@@ -1677,14 +1677,13 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
   // EXPORT PDF
   Future exportPdf(
     BuildContext context, {
-    required int buildingId,
+    required int? buildingId,
     required int projectId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _proposedOfferRepository.pullProposedOfferForPDFExport(
       projectId: projectId,
-      buildingId: buildingId,
-      queryParams: {"ExportType": 'PDF'},
+      queryParams: {"ExportType": 'PDF', 'BuildingId': buildingId},
     );
     goRouter.pop();
     result.fold(

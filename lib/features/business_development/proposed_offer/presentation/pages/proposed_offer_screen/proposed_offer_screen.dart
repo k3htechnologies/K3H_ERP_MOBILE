@@ -118,10 +118,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
       showErrorMessage(context, "Error", "Please Select a Project");
       return;
     }
-    if (_selectedBuildingNotifier.value.isEmpty) {
-      showErrorMessage(context, "Error", "Please Select a building");
-      return;
-    }
+
     final generatePDf = await DialogHelper.showConfirmationDialog(
       context: context,
       title: 'Generate PDF',
@@ -131,7 +128,10 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     if (generatePDf && mounted) {
       _proposedOfferCubit.exportPdf(
         context,
-        buildingId: _selectedBuildingNotifier.value.first['zAttributesId'],
+        buildingId:
+            _selectedBuildingNotifier.value.isEmpty
+                ? null
+                : _selectedBuildingNotifier.value.first['zAttributesId'],
         projectId: _project.projectId,
       );
     }

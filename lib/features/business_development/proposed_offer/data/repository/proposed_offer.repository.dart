@@ -6,7 +6,6 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/data/da
 abstract interface class ProposedOfferRepository {
   Future<Either<Failure, Map<String, dynamic>>> pullProposedOfferForPDFExport({
     required int projectId,
-    required int buildingId,
     Map<String, dynamic>? queryParams,
   });
   Future<Either<Failure, Map<String, dynamic>>> pullExtraCarpetArea({
@@ -161,14 +160,13 @@ class ProposedOfferRepositoryImpl implements ProposedOfferRepository {
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullProposedOfferForPDFExport({
     required int projectId,
-    required int buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       var result = await proposedOfferDatasource
           .apicallPullProposedOfferForPDFExport(
             projectId: projectId,
-            buildingId: buildingId,
+            queryParams: queryParams,
           );
       return right(result);
     } catch (error) {

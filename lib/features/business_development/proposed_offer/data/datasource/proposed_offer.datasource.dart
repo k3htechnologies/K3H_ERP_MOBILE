@@ -17,7 +17,6 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 abstract interface class ProposedOfferDatasource {
   Future<Map<String, dynamic>> apicallPullProposedOfferForPDFExport({
     required int projectId,
-    required int buildingId,
     Map<String, dynamic>? queryParams,
   });
   Future<Map<String, dynamic>> apicallPullExtraCarpetArea({
@@ -172,27 +171,20 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
   @override
   Future<Map<String, dynamic>> apicallPullProposedOfferForPDFExport({
     required int projectId,
-    required int buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullProposedOfferPDF({
       required int projectId,
-      required int buildingId,
       Map<String, dynamic>? queryParams,
     }) {
-      String url =
-          "ProposedOffer/PullProposedOfferPDF?ProjectId=$projectId&BuildingId=$buildingId";
+      String url = "ProposedOffer/PullProposedOfferPDF?ProjectId=$projectId";
       url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullProposedOfferPDF(
-          projectId: projectId,
-          buildingId: buildingId,
-          queryParams: queryParams,
-        ),
+        pullProposedOfferPDF(projectId: projectId, queryParams: queryParams),
       );
       return {
         'data': networkResponse['data'],
@@ -200,9 +192,8 @@ class ProposedOfferDatasourceImpl implements ProposedOfferDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        apicallPullExtraCarpetArea(
+        apicallPullProposedOfferForPDFExport(
           projectId: projectId,
-          buildingId: buildingId,
           queryParams: queryParams,
         );
       }
