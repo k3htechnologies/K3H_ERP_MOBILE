@@ -4,10 +4,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/cubit/test_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/add_test_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/test_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document/presentation/pages/view_test_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/data/model/test_document_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/cubit/test_document_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/add_test_document_category.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/test_document_category.screen.dart';
+import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/pages/view_test_document_category.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/land.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/redevelopment.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/add_land.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/land/view_land.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/project_lead.screen.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/add_redevelopment.screen.dart';
+import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/view_redevelopment.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/add_gate_pass.screen.dart';
@@ -3847,6 +3862,7 @@ final GoRouter goRouter = GoRouter(
             return MultiBlocProvider(
               providers: [
                 BlocProvider<DocumentCubit>(create: (_) => DocumentCubit()),
+
                 BlocProvider<DocumentCategoryCubit>(
                   create: (_) => DocumentCategoryCubit(),
                 ),
@@ -3861,6 +3877,12 @@ final GoRouter goRouter = GoRouter(
                 ),
                 BlocProvider<ApprovalCategoryCubit>(
                   create: (_) => ApprovalCategoryCubit(),
+                ),
+                BlocProvider<TestDocumentCubit>(
+                  create: (_) => TestDocumentCubit(),
+                ),
+                BlocProvider<TestDocumentCategoryCubit>(
+                  create: (_) => TestDocumentCategoryCubit(),
                 ),
               ],
               child: child,
@@ -4025,6 +4047,166 @@ final GoRouter goRouter = GoRouter(
 
                     return ViewDocumentCategoryScreen(
                       documentCategoryModel: documentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // TEST DOCUMENT
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<TestDocumentCubit>.value(
+                  value: context.read<TestDocumentCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.testDocument,
+                  path: AppRoutes.testDocument,
+                  builder: (context, state) {
+                    return TestDocumentScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewTestDocument,
+                  path: AppRoutes.viewTestDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['document'];
+                    final TestDocumentModel? document =
+                        queryParameterDocument != null
+                            ? TestDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ViewTestDocumentScreen(
+                      testDocumentModel: document!,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addTestDocument,
+                  path: AppRoutes.addTestDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['document'];
+
+                    final TestDocumentModel? document =
+                        queryParameterDocument != null
+                            ? TestDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              state.uri.queryParameters['index'] ?? '0',
+                            ),
+                          ),
+                        ) ??
+                        0;
+
+                    final isEdit = bool.parse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['isEdit'] ?? 'false',
+                        ),
+                      ),
+                    );
+                    return AddTestDocumentScreen(
+                      testDocumentModel: document,
+                      index: index,
+                      isEdit: isEdit,
+                    );
+                  },
+                ),
+              ],
+            ),
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<TestDocumentCategoryCubit>.value(
+                  value: context.read<TestDocumentCategoryCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.testDocumentCategory,
+                  path: AppRoutes.testDocumentCategory,
+                  builder: (context, state) {
+                    return const TestDocumentCategoryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addTestDocumentCategory,
+                  path: AppRoutes.addTestDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterRERADocumentCategory =
+                        state.uri.queryParameters['testDocumentCategory'];
+
+                    final TestDocumentCategoryModel? testDocumentCategory =
+                        queryParameterRERADocumentCategory != null
+                            ? TestDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterRERADocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddTestDocumentCategoryScreen(
+                      testDocumentCategoryModel: testDocumentCategory,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewTestDocumentCategory,
+                  path: AppRoutes.viewTestDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterRERADocumentCategory =
+                        state.uri.queryParameters['testDocumentCategory'];
+
+                    final TestDocumentCategoryModel? testDocumentCategory =
+                        queryParameterRERADocumentCategory != null
+                            ? TestDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterRERADocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return ViewTestDocumentCategoryScreen(
+                      testDocumentCategoryModel: testDocumentCategory!,
                     );
                   },
                 ),
@@ -7492,8 +7674,7 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.termSheet,
               path: AppRoutes.termSheet,
               builder: (context, state) {
-                return ComingSoonScreen(title: "Term Sheet");
-                // return const TermSheetScreen();
+                return const TermSheetScreen();
               },
             ),
             GoRoute(
@@ -7711,8 +7892,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.projectLead,
               path: AppRoutes.projectLead,
               builder: (context, state) {
-                return ComingSoonScreen(title: "Project Lead");
-                // return const ProjectLeadScreen();
+                // return ComingSoonScreen(title: "Project Lead");
+                return ProjectLeadScreen();
               },
             ),
             GoRoute(
@@ -7727,10 +7908,61 @@ final GoRouter goRouter = GoRouter(
               },
             ),
             GoRoute(
+              name: AppRoutes.viewRedevelopment,
+              path: AppRoutes.viewRedevelopment,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['redevelopment'];
+                final RedevelopmentModel? document =
+                    queryParameterDocument != null
+                        ? RedevelopmentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewRedevelopmentScreen(
+                  redevelopmentModel: document!,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
               name: AppRoutes.addLand,
               path: AppRoutes.addLand,
               builder: (context, state) {
-                return const AddLandScreen();
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddLandScreen(
+                  land: extra["land"] as LandModel?,
+                  index: extra["index"] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewLand,
+              path: AppRoutes.viewLand,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['land'];
+                final LandModel? landModel =
+                    queryParameterDocument != null
+                        ? LandModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewLandScreen(landModel: landModel!, index: index);
               },
             ),
           ],

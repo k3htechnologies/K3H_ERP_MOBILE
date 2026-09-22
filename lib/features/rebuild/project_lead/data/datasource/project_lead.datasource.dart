@@ -14,12 +14,30 @@ abstract interface class ProjectLeadDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Map<String, dynamic>> apiCallDeleteRedevlopment({
+    required int projectRedevelopmentId,
+    required String uniquekey,
+  });
+
   Future<Map<String, dynamic>> apicallPullProjectLand({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateProjectLand({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+  Future<Map<String, dynamic>> apiCallDeleteLand({
+    required int projectLandId,
+    required String uniquekey,
+  });
   Future<Map<String, dynamic>> apiCallPullProjectRedevelopmentForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apiCallPullProjectLandForExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
@@ -188,6 +206,143 @@ class ProjectLeadDatasourceImpl extends ProjectLeadDatasource {
           pageSize: pageSize,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullProjectLandForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullLandExportUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ProjectLead/PullProjectLand?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullLandExportUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallPullProjectLandForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateProjectLand({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateProjectRedevelopmentUrl =
+        "ProjectLead/AddUpdateProjectLand";
+
+    try {
+      final networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateProjectRedevelopmentUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': List<LandModel>.from(
+          (networkResponse['data'] as List<dynamic>).map(
+            (e) => LandModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateProjectLand(body: body, fileList: fileList);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallDeleteRedevlopment({
+    required int projectRedevelopmentId,
+    required String uniquekey,
+  }) async {
+    String deleteRedevlopmentUrl({
+      required int projectRedevelopmentId,
+      required String uniquekey,
+    }) {
+      return "ProjectLead/DeleteProjectRedevelopment?ProjectRedevelopmentId=$projectRedevelopmentId&Uniquekey=$uniquekey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteRedevlopmentUrl(
+          projectRedevelopmentId: projectRedevelopmentId,
+          uniquekey: uniquekey,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallDeleteRedevlopment(
+          projectRedevelopmentId: projectRedevelopmentId,
+          uniquekey: uniquekey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallDeleteLand({
+    required int projectLandId,
+    required String uniquekey,
+  }) async {
+    String deleteLandUrl({
+      required int projectLandId,
+      required String uniquekey,
+    }) {
+      return "ProjectLead/DeleteProjectLand?ProjectLandId=$projectLandId&Uniquekey=$uniquekey";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteLandUrl(projectLandId: projectLandId, uniquekey: uniquekey),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallDeleteLand(projectLandId: projectLandId, uniquekey: uniquekey);
       }
       rethrow;
     }

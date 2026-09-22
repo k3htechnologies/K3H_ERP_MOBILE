@@ -30,13 +30,13 @@ class RedevelopmentModel {
   String typeOfLandTenure;
   String plotShape;
   int frontage;
-  int plotDepth;
+  double plotDepth;
   String roadWidth;
   int numberOfExistingBuildingsWings;
   int numberOfFloorsPerWing;
-  int totalBuildUpArea;
+  double totalBuildUpArea;
   double totalCarpetArea;
-  int totalCommonArea;
+  double totalCommonArea;
   bool isLiftAvailable;
   bool isFireSafetyProvisionPresent;
   bool isPlotUnderLitigationStay;
@@ -154,16 +154,16 @@ class RedevelopmentModel {
     typeOfLandTenure: parseValue<String>(json, "TypeOfLandTenure"),
     plotShape: parseValue<String>(json, "PlotShape"),
     frontage: parseValue<int>(json, "Frontage"),
-    plotDepth: parseValue<int>(json, "PlotDepth"),
+    plotDepth: parseValue<double>(json, "PlotDepth"),
     roadWidth: parseValue<String>(json, "RoadWidth"),
     numberOfExistingBuildingsWings: parseValue<int>(
       json,
       "NumberOfExistingBuildingsWings",
     ),
     numberOfFloorsPerWing: parseValue<int>(json, "NumberOfFloorsPerWing"),
-    totalBuildUpArea: parseValue<int>(json, "TotalBuildUpArea"),
+    totalBuildUpArea: parseValue<double>(json, "TotalBuildUpArea"),
     totalCarpetArea: parseValue<double>(json, "TotalCarpetArea"),
-    totalCommonArea: parseValue<int>(json, "TotalCommonArea"),
+    totalCommonArea: parseValue<double>(json, "TotalCommonArea"),
     isLiftAvailable: parseValue<bool>(json, "IsLiftAvailable"),
     isFireSafetyProvisionPresent: parseValue<bool>(
       json,

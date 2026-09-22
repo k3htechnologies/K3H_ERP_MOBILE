@@ -42,15 +42,15 @@ class LandModel {
   String electricityConnectionNearby;
   String underLitigationOrStayOrder;
   String available712;
-  int fsiPermissible;
+  double fsiPermissible;
   String waterSupplyAvailable;
   String surroundingLandUse;
   String typeOfLandTenureType;
   String landOwnershipType;
   double distanceFromNearestTownKm;
-  int distanceFromHighwayKm;
-  int distanceFromRailwayStationKm;
-  int distanceFromAirportKm;
+  double distanceFromHighwayKm;
+  double distanceFromRailwayStationKm;
+  double distanceFromAirportKm;
   int totalNumberOfTreesonSite;
   String photoUrl;
   String remark;
@@ -203,7 +203,7 @@ class LandModel {
       "UnderLitigationOrStayOrder",
     ),
     available712: parseValue<String>(json, "Available712"),
-    fsiPermissible: parseValue<int>(json, "FSIPermissible"),
+    fsiPermissible: parseValue<double>(json, "FSIPermissible"),
     waterSupplyAvailable: parseValue<String>(json, "WaterSupplyAvailable"),
     surroundingLandUse: parseValue<String>(json, "SurroundingLandUse"),
     typeOfLandTenureType: parseValue<String>(json, "TypeOfLandTenureType"),
@@ -212,12 +212,12 @@ class LandModel {
       json,
       "DistanceFromNearestTownKM",
     ),
-    distanceFromHighwayKm: parseValue<int>(json, "DistanceFromHighwayKM"),
-    distanceFromRailwayStationKm: parseValue<int>(
+    distanceFromHighwayKm: parseValue<double>(json, "DistanceFromHighwayKM"),
+    distanceFromRailwayStationKm: parseValue<double>(
       json,
       "DistanceFromRailwayStationKM",
     ),
-    distanceFromAirportKm: parseValue<int>(json, "DistanceFromAirportKM"),
+    distanceFromAirportKm: parseValue<double>(json, "DistanceFromAirportKM"),
     totalNumberOfTreesonSite: parseValue<int>(json, "TotalNumberOfTreesonSite"),
     photoUrl: parseValue<String>(json, "PhotoURL"),
     remark: parseValue<String>(json, "Remark"),

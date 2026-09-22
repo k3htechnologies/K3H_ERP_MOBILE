@@ -463,6 +463,15 @@ class AppRoutes {
 
   // RERA DOCUMENT
   static String rera = "/rera";
+  // TEST DOCUMENT
+  static String testDocument = "/testDocument";
+  static String viewTestDocument = "/viewTestDocument";
+  static String addTestDocument = "/addTestDocument";
+
+  // TEST DOCUMENT CATEGORY
+  static String testDocumentCategory = "/testCategory";
+  static String addTestDocumentCategory = "/addTestDocumentCategory";
+  static String viewTestDocumentCategory = "/viewTestDocumentCategory";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 
@@ -558,5 +567,7 @@ class AppRoutes {
   // REBUILD
   static String projectLead = "/projectLead";
   static String addRedevelopment = "/addRedevelopment";
+  static String viewRedevelopment = "/viewRedevelopment";
   static String addLand = "/addLand";
+  static String viewLand = "/viewLand";
 }

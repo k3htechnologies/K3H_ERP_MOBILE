@@ -33,6 +33,8 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_ca
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_document/approval_document.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/project_document/test_document/test_document.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/project_document/test_document_category/test_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/rebuild/project_lead/project_lead.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/dashboard/redevelopment_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/register/register.dependencies.dart';
@@ -188,12 +190,16 @@ void initDependencies() {
   registerChannelPartnerDependencies(serviceLocator);
   // DOCUMENT CATEGORY DEPENDENCIES
   registerDocumentCategoryDependencies(serviceLocator);
+  // TEST DOCUMENT CATEGORY DEPENDENCIES
+  registerTestDocumentCategoryDependencies(serviceLocator);
   // DOCUMENT DEPENDENCIES
   registerDocumentDependencies(serviceLocator);
   // RERA DOCUMENT CATEGORY DEPENDENCIES
   registerRERADocumentCategoryDependencies(serviceLocator);
   //RERA DOCUMENT
   registerRERADocumentDependencies(serviceLocator);
+  //TEST DOCUMENT
+  registerTestDocumentDependencies(serviceLocator);
   //APPROVAL DOCUMENT CATEGORY DEPENDENCIES
   registerApprovalCategoryDependencies(serviceLocator);
   //APPROVAL DOCUMENT DEPENDENCIES

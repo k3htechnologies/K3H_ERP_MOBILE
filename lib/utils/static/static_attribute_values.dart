@@ -572,3 +572,47 @@ const gatePassPurposeValues = [
   'Others',
 ];
 const existingBuildingTypeValues = ['Commercial', 'Mixed Use', 'Residential'];
+const plotShapeValues = ['Rectangular', 'Irregular', 'L-Shape', 'Circle'];
+const roadWidthValues = [
+  "6.10 M",
+  "9.15 M",
+  "12.20 M",
+  "13.40 M",
+  "18.3 M",
+  "27.45 M",
+  "36.6 M",
+];
+const soilTypeValues = ["Clay", "Black Cotton", "Sandy", "Rocky"];
+const selectedExistingGroundConditionsValues = [
+  "Vacant",
+  "Barren",
+  "Vegetation",
+  "Encroachements",
+];
+const selectedETypeOfWaterSupplyAvailableValues = ["Borewell", "Municipal"];
+const selectedSurroundingLandUseValues = [
+  "Agricultural",
+  "Residential",
+  "Industrial",
+  "Vacant",
+];
+
+const selectedTypeOfLandTenureValues = [
+  "Leasehold",
+  "Freehold",
+  "Collectors Land",
+  "MHADA",
+  "SRA",
+  "BMC",
+  "Builder",
+];
+
+const selectedLandOwnershipValues = [
+  "Individual",
+  "Joint",
+  "Trust",
+  "Company",
+  "Government",
+  "Society",
+];
+const constructionTypeValues = ["RCC", "Load - Bearing"];

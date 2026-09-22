@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/widgets/status/gate_pass_purpose_status.dart';
 import 'package:k3h_erp_app/widgets/status/inward_outward_status.dart';
 import 'package:k3h_erp_app/widgets/status/payment_mode_status.dart';
 import 'package:k3h_erp_app/widgets/status/project_status.dart';
+import 'package:k3h_erp_app/widgets/status/test_document_status.dart';
 
 Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
@@ -167,6 +168,15 @@ Widget paymentModeStatusWidget(
     textStyle: textStyle,
     leading: leading,
     trailing: trailing,
+  );
+}
+
+Widget testDocumentStatusWidget(String status, {TextStyle? textStyle}) {
+  final formatted = formattedStatus(status.trim());
+  return commonStatusWidget(
+    status: formatted,
+    config: testDocumentStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }
 
