@@ -424,7 +424,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     getProjectApprovalDocumentList(context: context, pageNumber: 1);
   }
 
-  // SEARCH BASED ON SHIFT
   void searchApprovalDocument(String value, BuildContext context) {
     emit(
       state.copyWith(

@@ -415,7 +415,6 @@ class DocumentCubit extends Cubit<DocumentState> {
     getProjectDocumentList(context: context, pageNumber: 1);
   }
 
-  // SEARCH BASED ON SHIFT
   void searchDocument(String value, BuildContext context) {
     emit(
       state.copyWith(

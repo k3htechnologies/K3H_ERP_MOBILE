@@ -453,7 +453,6 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     getRERADocumentList(context: context, pageNumber: 1);
   }
 
-  // SEARCH BASED ON SHIFT
   void searchDocument(String value, BuildContext context) {
     emit(
       state.copyWith(

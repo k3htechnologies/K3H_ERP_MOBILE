@@ -150,10 +150,6 @@ class _LandScreenState extends State<LandScreen> {
                         value: land.totalPlotAreaSqM.toString(),
                       ),
                       horizontalSpacing(),
-                      // buildColumnTitleValue(
-                      //   title: "Total Carpet Area (SqFt)",
-                      //   value: land..toString(),
-                      // ),
                     ],
                   ),
                 ],

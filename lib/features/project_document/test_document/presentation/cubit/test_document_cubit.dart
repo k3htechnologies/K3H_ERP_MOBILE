@@ -24,7 +24,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
   final TestDocumentRepository _testDocumentRepository =
       serviceLocator<TestDocumentRepository>();
 
-  // SEARCH BASED ON SHIFT
   void searchDocument(String value, BuildContext context) {
     emit(
       state.copywith(
