@@ -24,6 +24,7 @@ class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
   final int buildingId;
   final String buildingName;
   final AuthorizationModel routeAuthorizationModel;
+
   const TemporaryAccommodationAlternativeDetails({
     super.key,
     required this.projectId,
@@ -31,6 +32,7 @@ class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
     required this.routeAuthorizationModel,
     required this.buildingName,
   });
+
   @override
   State<TemporaryAccommodationAlternativeDetails> createState() =>
       _TemporaryAccommodationAlternativeDetailsState();
@@ -39,19 +41,13 @@ class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
 class _TemporaryAccommodationAlternativeDetailsState
     extends State<TemporaryAccommodationAlternativeDetails>
     with TickerProviderStateMixin {
-  late ProposedOfferCubit _cubit;
+  late final ProposedOfferCubit _cubit;
   TabController? _tabController;
+
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
-  void _updateTabs(List<TemporaryAlternativeAccommodationDetailsModel> list) {
-    final tenures = [
-      ...list.where((e) => e.tenure.isNotEmpty).map((e) => e.tenure).toSet(),
-      if (list.any((e) => e.tenure.isEmpty)) "Additional TAA",
-    ];
-    if (_tabController?.length != tenures.length) {
-      _tabController?.dispose();
-      _tabController = TabController(length: tenures.length, vsync: this);
-    }
-  }
+
+  String _encryptParam(String value) =>
+      Uri.encodeComponent(EncryptionManager.encryptData(value));
 
   @override
   void initState() {
@@ -77,10 +73,10 @@ class _TemporaryAccommodationAlternativeDetailsState
     TemporaryAlternativeAccommodationDetailsModel obj,
     int index,
   ) async {
-    var result = await DialogHelper.deleteDialog(
+    final result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a rent detail?',
-      'Deleting this rent detail will permanently remove its contents.',
+      'You are about to delete a TAA detail?',
+      'Deleting this TAA detail will permanently remove its contents.',
     );
     if (result && context.mounted) {
       _cubit.deleteTemporaryAlternateAccommodationDetails(
@@ -95,17 +91,17 @@ class _TemporaryAccommodationAlternativeDetailsState
     }
   }
 
-  void _showGeneratePDFConfirmation({
+  Future<void> _showGeneratePDFConfirmation({
     required TemporaryAlternativeAccommodationDetailsModel rent,
   }) async {
-    final generatePDf = await DialogHelper.showConfirmationDialog(
+    final generatePdf = await DialogHelper.showConfirmationDialog(
       context: context,
       title: 'Are sure you want generate TAA?',
       message:
           'Once the Temporary Accommodation Alternative is generated, it cannot be deleted',
       confirmText: "Generate",
     );
-    if (generatePDf && mounted) {
+    if (generatePdf && mounted) {
       _cubit.generateProposedOffer(
         context,
         buildingId: rent.buildingId,
@@ -126,21 +122,136 @@ class _TemporaryAccommodationAlternativeDetailsState
   ) {
     final tenureItems =
         list.where((e) {
-          if (current.tenure.isEmpty) {
-            return e.tenure.isEmpty;
-          }
+          if (current.tenure.isEmpty) return e.tenure.isEmpty;
           return e.tenure == current.tenure;
         }).toList();
+
     if (tenureItems.isEmpty) return false;
-    if (!identical(tenureItems.first, current)) {
-      return false;
-    }
+    if (!identical(tenureItems.first, current)) return false;
+
     final hasMissingDates = tenureItems.any(
       (e) =>
           e.temporaryAlternateAccommodationStartDate == null ||
           e.temporaryAlternateAccommodationEndDate == null,
     );
     return !hasMissingDates;
+  }
+
+  Future<void> _handleAdd() async {
+    final previousIds =
+        _cubit.state.temporaryAccommodationAlternativeDetails
+            .map((e) => e.proposedOfferTemporaryAlternateAccommodationDetailsId)
+            .toSet();
+
+    await goRouter.pushNamed(
+      AppRoutes.addUpdateTemporaryAccommodationAlternativeDetails,
+      queryParameters: {
+        'projectId': _encryptParam(widget.projectId.toString()),
+        'buildingId': _encryptParam(widget.buildingId.toString()),
+        'buildingName': _encryptParam(widget.buildingName),
+      },
+    );
+
+    if (!mounted) return;
+
+    // addTemporaryAccommodationAlternativeDetails() triggers a background
+    // refresh (pullTemporaryAccommodationAlternativeDetails) that isn't
+    // awaited internally, so wait for that refresh to land.
+    var latestState = _cubit.state;
+    if (latestState.isLoading ?? false) {
+      latestState = await _cubit.stream.firstWhere(
+        (s) => !(s.isLoading ?? false),
+      );
+    }
+
+    if (!mounted) return;
+
+    final newList = latestState.temporaryAccommodationAlternativeDetails;
+    final addedItems =
+        newList
+            .where(
+              (e) =>
+                  !previousIds.contains(
+                    e.proposedOfferTemporaryAlternateAccommodationDetailsId,
+                  ),
+            )
+            .toList();
+
+    if (addedItems.isEmpty) return;
+
+    final addedTenure =
+        addedItems.first.tenure.isNotEmpty
+            ? addedItems.first.tenure
+            : "Additional TAA";
+    final tenures = latestState.temporaryAccommodationTenures;
+
+    // Wait one frame so BlocListener has already rebuilt _tabController
+    // with the correct tab count before we try to animate to it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final tabIndex = tenures.indexOf(addedTenure);
+      if (tabIndex != -1 &&
+          _tabController != null &&
+          tabIndex < _tabController!.length) {
+        _tabController!.animateTo(tabIndex);
+      }
+    });
+  }
+
+  Future<void> _handleUpdate(
+    TemporaryAlternativeAccommodationDetailsModel rent,
+    int originalIndex,
+  ) async {
+    await goRouter.pushNamed(
+      AppRoutes.addUpdateTemporaryAccommodationAlternativeDetails,
+      queryParameters: {
+        'rent': _encryptParam(jsonEncode(rent.toJson())),
+        'index': originalIndex.toString(),
+        'projectId': _encryptParam(widget.projectId.toString()),
+        'buildingId': _encryptParam(widget.buildingId.toString()),
+        'buildingName': _encryptParam(widget.buildingName),
+      },
+    );
+
+    if (!mounted) return;
+
+    final currentState = _cubit.state;
+    final list = currentState.temporaryAccommodationAlternativeDetails;
+
+    if (originalIndex >= list.length) return;
+
+    final updatedTenure =
+        list[originalIndex].tenure.isNotEmpty
+            ? list[originalIndex].tenure
+            : "Additional TAA";
+
+    final tabIndex = currentState.temporaryAccommodationTenures.indexOf(
+      updatedTenure,
+    );
+
+    if (tabIndex != -1 &&
+        _tabController != null &&
+        tabIndex < _tabController!.length) {
+      _tabController!.animateTo(tabIndex);
+    }
+  }
+
+  void _onTenuresChanged(ProposedOfferState state) {
+    final tenures = state.temporaryAccommodationTenures;
+
+    if (tenures.isEmpty) {
+      _tabController?.dispose();
+      _tabController = null;
+      return;
+    }
+
+    final currentIndex = _tabController?.index ?? 0;
+    _tabController?.dispose();
+    _tabController = TabController(
+      length: tenures.length,
+      vsync: this,
+      initialIndex: currentIndex < tenures.length ? currentIndex : 0,
+    );
   }
 
   @override
@@ -156,278 +267,240 @@ class _TemporaryAccommodationAlternativeDetailsState
               children: [
                 Expanded(
                   child: Text(
-                    'Temporary Accommodation Alternative Details List',
+                    'Temporary Alternative Accommodation List',
                     style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
                 ),
                 CustomIconButton.add(
                   isDisabled: disableAction,
-                  onPressed: () async {
-                    goRouter.pushNamed(
-                      AppRoutes
-                          .addUpdateTemporaryAccommodationAlternativeDetails,
-                      queryParameters: {
-                        'projectId': Uri.encodeComponent(
-                          EncryptionManager.encryptData(
-                            widget.projectId.toString(),
-                          ),
-                        ),
-                        'buildingId': Uri.encodeComponent(
-                          EncryptionManager.encryptData(
-                            widget.buildingId.toString(),
-                          ),
-                        ),
-                        'buildingName': Uri.encodeComponent(
-                          EncryptionManager.encryptData(widget.buildingName),
-                        ),
-                      },
-                    );
-                  },
+                  onPressed: () => _handleAdd(),
                 ),
               ],
             ),
             verticalSpacing(),
             Expanded(
-              child: BlocBuilder<ProposedOfferCubit, ProposedOfferState>(
-                builder: (context, state) {
-                  if (state.isLoading ?? true) {
-                    return loader();
-                  }
-                  if (state.temporaryAccommodationAlternativeDetails.isEmpty) {
-                    return Center(
-                      child: noDataWidget(message: 'No TAA Details Found'),
-                    );
-                  }
-                  final allList =
-                      state.temporaryAccommodationAlternativeDetails;
-                  final tenures = [
-                    ...allList
-                        .where((e) => e.tenure.isNotEmpty)
-                        .map((e) => e.tenure)
-                        .toSet(),
-                    if (allList.any((e) => e.tenure.isEmpty)) "Additional TAA",
-                  ];
-                  _updateTabs(allList);
-                  return Column(
-                    children: [
-                      if (_tabController != null)
+              child: BlocListener<ProposedOfferCubit, ProposedOfferState>(
+                listenWhen:
+                    (previous, current) =>
+                        previous.temporaryAccommodationTenures !=
+                        current.temporaryAccommodationTenures,
+                listener: (context, state) => _onTenuresChanged(state),
+                child: BlocBuilder<ProposedOfferCubit, ProposedOfferState>(
+                  builder: (context, state) {
+                    if (state.isLoading ?? true) {
+                      return loader();
+                    }
+                    if (state
+                        .temporaryAccommodationAlternativeDetails
+                        .isEmpty) {
+                      return Center(
+                        child: noDataWidget(message: 'No TAA Details Found'),
+                      );
+                    }
+
+                    final allDetails =
+                        state.temporaryAccommodationAlternativeDetails;
+                    final tenures = state.temporaryAccommodationTenures;
+
+                    if (_tabController == null ||
+                        _tabController!.length != tenures.length) {
+                      return loader();
+                    }
+
+                    return Column(
+                      children: [
                         ChipStyleTabBar(
                           controller: _tabController!,
                           tabs: tenures,
                           margin: EdgeInsets.zero,
                         ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                ValueListenableBuilder(
-                                  valueListenable: _tabController!.animation!,
-                                  builder: (_, __, ___) {
-                                    final selectedTenure =
-                                        tenures[_tabController!.index];
-                                    final filteredList =
-                                        allList.where((e) {
-                                          if (selectedTenure ==
-                                              "Additional TAA") {
-                                            return e.tenure.isEmpty;
-                                          }
-                                          return e.tenure == selectedTenure;
-                                        }).toList();
-                                    final rent =
-                                        filteredList.isNotEmpty
-                                            ? filteredList.first
-                                            : null;
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                      ),
-                                      child: Visibility(
-                                        visible:
-                                            rent != null &&
-                                            shouldShowGenerateButton(
-                                              rent,
-                                              allList,
-                                            ),
-                                        child: CustomButton(
-                                          text: "Generate",
-                                          isDisable: disableAction,
-                                          onPressed: () {
-                                            if (rent != null) {
-                                              _showGeneratePDFConfirmation(
-                                                rent: rent,
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                            Expanded(
-                              child: TabBarView(
-                                controller: _tabController,
-                                children:
-                                    tenures.map((tenure) {
-                                      final filteredList =
-                                          allList.where((e) {
-                                            if (tenure == "Additional TAA") {
-                                              return e.tenure.isEmpty;
-                                            }
-                                            return e.tenure == tenure;
-                                          }).toList();
-                                      return ListView.builder(
-                                        itemCount: filteredList.length,
-                                        itemBuilder: (context, index) {
-                                          final rent = filteredList[index];
-                                          final originalIndex = allList.indexOf(
-                                            rent,
-                                          );
-                                          return ProposedOfferInfoCard(
-                                            title:
-                                                rent.tenure.isNotEmpty
-                                                    ? rent.tenure
-                                                    : 'Additional TAA',
-                                            tag: rent.type,
-                                            disable: disableAction,
-                                            onEdit: () {
-                                              goRouter.pushNamed(
-                                                AppRoutes
-                                                    .addUpdateTemporaryAccommodationAlternativeDetails,
-                                                queryParameters: {
-                                                  'rent': Uri.encodeComponent(
-                                                    EncryptionManager.encryptData(
-                                                      jsonEncode(rent.toJson()),
-                                                    ),
-                                                  ),
-                                                  'index':
-                                                      originalIndex.toString(),
-                                                  'projectId': Uri.encodeComponent(
-                                                    EncryptionManager.encryptData(
-                                                      widget.projectId
-                                                          .toString(),
-                                                    ),
-                                                  ),
-                                                  'buildingId': Uri.encodeComponent(
-                                                    EncryptionManager.encryptData(
-                                                      widget.buildingId
-                                                          .toString(),
-                                                    ),
-                                                  ),
-                                                  'buildingName':
-                                                      Uri.encodeComponent(
-                                                        EncryptionManager.encryptData(
-                                                          widget.buildingName,
-                                                        ),
-                                                      ),
-                                                },
-                                              );
-                                            },
-                                            onDelete: () {
-                                              _showPopupToDeleteTemporaryAlternateAccommodationDetails(
-                                                context,
-                                                rent,
-                                                originalIndex,
-                                              );
-                                            },
-                                            child: Column(
-                                              spacing: 10,
-                                              children: [
-                                                Row(
-                                                  spacing: 10,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    buildColumnTitleValue(
-                                                      title: "Amount",
-                                                      value:
-                                                          (rent.amount)
-                                                              .toIndianCurrency(),
-                                                    ),
-                                                    buildColumnTitleValue(
-                                                      title:
-                                                          "Unit / SqFt / Lumsum",
-                                                      value:
-                                                          rent.unitSqFtLumsum,
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  spacing: 10,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    buildColumnTitleValue(
-                                                      title:
-                                                          "Carpet Area (SqFt)",
-                                                      value:
-                                                          rent.carpetAreaSqFt
-                                                              .toString(),
-                                                    ),
-                                                    buildColumnTitleValue(
-                                                      title: "TAA Start Date",
-                                                      value: formatDateTimeAsDDMMMYYYY(
-                                                        rent.temporaryAlternateAccommodationStartDate,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  spacing: 10,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    buildColumnTitleValue(
-                                                      title: "TAA End Date",
-                                                      value: formatDateTimeAsDDMMMYYYY(
-                                                        rent.temporaryAlternateAccommodationEndDate,
-                                                      ),
-                                                    ),
-                                                    buildColumnTitleValue(
-                                                      title: "Additional TAA",
-                                                      value:
-                                                          rent.isAdditionalTemporaryAlternateAccommodation
-                                                              ? "Yes"
-                                                              : "No",
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  spacing: 10,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    buildColumnTitleValue(
-                                                      title: "Pay Brokerage",
-                                                      value:
-                                                          rent.isPayBrokerage
-                                                              ? "Yes"
-                                                              : "No",
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        },
-                                      );
-                                    }).toList(),
+                        Expanded(
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  _buildGenerateButton(tenures, allDetails),
+                                ],
                               ),
-                            ),
-                          ],
+                              Expanded(
+                                child: _buildTabView(tenures, allDetails),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildGenerateButton(
+    List<String> tenures,
+    List<TemporaryAlternativeAccommodationDetailsModel> allDetails,
+  ) {
+    return ValueListenableBuilder(
+      valueListenable: _tabController!.animation!,
+      builder: (_, __, ___) {
+        final selectedTenure = tenures[_tabController!.index];
+        final filteredList =
+            allDetails.where((e) {
+              if (selectedTenure == "Additional TAA") return e.tenure.isEmpty;
+              return e.tenure == selectedTenure;
+            }).toList();
+        final rent = filteredList.isNotEmpty ? filteredList.first : null;
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          child: Visibility(
+            visible: rent != null && shouldShowGenerateButton(rent, allDetails),
+            child: CustomButton(
+              text: "Generate",
+              isDisable: disableAction,
+              onPressed: () {
+                if (rent != null) {
+                  _showGeneratePDFConfirmation(rent: rent);
+                }
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDetailCard(
+    TemporaryAlternativeAccommodationDetailsModel rent,
+    int originalIndex,
+  ) {
+    return ProposedOfferInfoCard(
+      title: rent.tenure.isNotEmpty ? rent.tenure : 'Additional TAA',
+      tag: rent.type,
+      disable: disableAction,
+      onEdit: () => _handleUpdate(rent, originalIndex),
+      onDelete:
+          () => _showPopupToDeleteTemporaryAlternateAccommodationDetails(
+            context,
+            rent,
+            originalIndex,
+          ),
+      child: Column(
+        spacing: 10,
+        children: [
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Amount",
+                value: rent.amount.toIndianCurrency(),
+              ),
+              buildColumnTitleValue(
+                title: "Unit / SqFt / Lumpsum",
+                value: rent.unitSqFtLumsum,
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "TAA Start Date",
+                value: formatDateTimeAsDDMMMYYYY(
+                  rent.temporaryAlternateAccommodationStartDate,
+                ),
+              ),
+              buildColumnTitleValue(
+                title: "TAA End Date",
+                value: formatDateTimeAsDDMMMYYYY(
+                  rent.temporaryAlternateAccommodationEndDate,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Carpet Area (SqFt)",
+                value: rent.carpetAreaSqFt.toString(),
+              ),
+              buildColumnTitleValue(
+                title: "Additional TAA",
+                value:
+                    rent.isAdditionalTemporaryAlternateAccommodation
+                        ? "Yes"
+                        : "No",
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Pay Brokerage",
+                value: rent.isPayBrokerage ? "Yes" : "No",
+              ),
+              buildColumnTitleValue(
+                title: "Pay TAA",
+                value: rent.isPayTAA ? "Yes" : "No",
+              ),
+            ],
+          ),
+          Row(
+            spacing: 10,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildColumnTitleValue(
+                title: "Last Modified By",
+                value:
+                    rent.modifiedBy.isEmpty ? rent.createdBy : rent.modifiedBy,
+              ),
+              buildColumnTitleValue(
+                title: "Last Modified Date",
+                value: formatDateTimeAsDDMMMYYYY(
+                  rent.modifiedDate ?? rent.createdDate,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTabView(
+    List<String> tenures,
+    List<TemporaryAlternativeAccommodationDetailsModel> allDetails,
+  ) {
+    return TabBarView(
+      controller: _tabController,
+      children:
+          tenures.map((tenure) {
+            final filteredList =
+                allDetails.where((e) {
+                  if (tenure == "Additional TAA") return e.tenure.isEmpty;
+                  return e.tenure == tenure;
+                }).toList();
+
+            return ListView.builder(
+              itemCount: filteredList.length,
+              itemBuilder: (context, index) {
+                final rent = filteredList[index];
+                final originalIndex = allDetails.indexOf(rent);
+                return _buildDetailCard(rent, originalIndex);
+              },
+            );
+          }).toList(),
     );
   }
 }

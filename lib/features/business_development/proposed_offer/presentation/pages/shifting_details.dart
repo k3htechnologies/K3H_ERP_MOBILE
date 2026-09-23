@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ShiftingDetails extends StatefulWidget {
   final int projectId;
@@ -101,51 +102,47 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
   }
 
   void _onSave() {
-    if (_formKey.currentState!.validate()) {
-      if (_shiftingList.isEmpty) {
-        showErrorMessage(
-          context,
-          'Error',
-          'Please add at least one shifting detail.',
-        );
-        return;
-      }
-      final residentialTotal = _shiftingList
-          .where((h) => h.type == 'Residential')
-          .fold(0.0, (sum, i) => sum + i.amount);
-      if (double.parse(_residentialAmountC.text) < residentialTotal) {
-        showErrorMessage(
-          context,
-          "Error",
-          "Residential total (${residentialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_residentialAmountC.text).toIndianCurrency()}).",
-        );
-        return;
-      }
-      final commercialTotal = _shiftingList
-          .where((h) => h.type == 'Commercial')
-          .fold(0.0, (sum, i) => sum + i.amount);
-      if (double.parse(_commercialAmountC.text) < commercialTotal) {
-        showErrorMessage(
-          context,
-          "Error",
-          "Commercial total (${commercialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_commercialAmountC.text).toIndianCurrency()}).",
-        );
-        return;
-      }
-      _cubit.addUpdateShiftingDetails(
+    if (_shiftingList.isEmpty) {
+      showErrorMessage(
         context,
-        buildingId: widget.buildingId,
-        projectId: widget.projectId,
-        shiftingOfferedToResidentialAmount: double.parse(
-          _residentialAmountC.text,
-        ),
-        shiftingOfferedToCommercialAmount: double.parse(
-          _commercialAmountC.text,
-        ),
-        paymentStageList: _shiftingList,
-        remark: _remarkC.text.trim(),
+        'Error',
+        'Please add at least one shifting detail.',
       );
+      return;
     }
+    final residentialTotal = _shiftingList
+        .where((h) => h.type == 'Residential')
+        .fold(0.0, (sum, i) => sum + i.amount);
+    if ((double.tryParse(_residentialAmountC.text) ?? 0) < residentialTotal) {
+      showErrorMessage(
+        context,
+        "Error",
+        "Residential total (${residentialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_residentialAmountC.text).toIndianCurrency()}).",
+      );
+      return;
+    }
+    final commercialTotal = _shiftingList
+        .where((h) => h.type == 'Commercial')
+        .fold(0.0, (sum, i) => sum + i.amount);
+    if ((double.tryParse(_commercialAmountC.text) ?? 0) < commercialTotal) {
+      showErrorMessage(
+        context,
+        "Error",
+        "Commercial total (${commercialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_commercialAmountC.text).toIndianCurrency()}).",
+      );
+      return;
+    }
+    _cubit.addUpdateShiftingDetails(
+      context,
+      buildingId: widget.buildingId,
+      projectId: widget.projectId,
+      shiftingOfferedToResidentialAmount:
+          double.tryParse(_residentialAmountC.text) ?? 0,
+      shiftingOfferedToCommercialAmount:
+          double.tryParse(_commercialAmountC.text) ?? 0,
+      paymentStageList: _shiftingList,
+      remark: _remarkC.text.trim(),
+    );
   }
 
   void _prefillDialog(
@@ -208,15 +205,23 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                   isRequired: true,
                   initialValue: _selectedShiftingType.value,
                   dataList:
-                      (double.tryParse(_commercialAmountC.text) != 0 &&
-                              double.tryParse(_residentialAmountC.text) != 0)
+                      (double.tryParse(_commercialAmountC.text.trim()) ?? 0) !=
+                                  0 &&
+                              (double.tryParse(
+                                        _residentialAmountC.text.trim(),
+                                      ) ??
+                                      0) !=
+                                  0
                           ? propertyTypeList
-                          : (List<Map<String, dynamic>>.from(propertyTypeList)
-                            ..removeAt(
-                              double.tryParse(_commercialAmountC.text) == 0
-                                  ? 1
-                                  : 0,
-                            )),
+                          : (List<Map<String, dynamic>>.from(
+                            propertyTypeList,
+                          )..removeAt(
+                            (double.tryParse(_residentialAmountC.text.trim()) ??
+                                        0) ==
+                                    0
+                                ? 0
+                                : 1,
+                          )),
                   onSelected: (value) {
                     _selectedShiftingType.value = value;
                     calculateAmount();
@@ -241,7 +246,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
               isRequired: true,
               hint: "Enter Stage",
               textController: _stageController,
-              inputFormatterList: [LengthLimitingTextInputFormatter(150)],
+              inputFormatterList: [LengthLimitingTextInputFormatter(100)],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return "Stage is required.";
@@ -403,6 +408,9 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
       title: 'Are sure you want generate shifting?',
       message: 'Once the shifting is generated, it cannot be deleted',
       confirmText: "Generate",
+      icon: LucideIcons.wandSparkles,
+      iconSize: 28,
+      crossAxisAlignmentForIcon: CrossAxisAlignment.center,
     );
     if (generatePDf && mounted) {
       _cubit.generateProposedOffer(
@@ -576,13 +584,32 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                             Row(
                               spacing: 16,
                               children: [
-                                CustomIconButton.add(
-                                  isDisabled: disableAction,
-                                  onPressed: () {
-                                    if (!_formKey.currentState!.validate()) {
-                                      return;
+                                AnimatedBuilder(
+                                  animation: Listenable.merge([
+                                    _residentialAmountC,
+                                    _commercialAmountC,
+                                  ]),
+                                  builder: (context, child) {
+                                    if ((double.tryParse(
+                                                  _residentialAmountC.text
+                                                      .trim(),
+                                                ) ??
+                                                0) ==
+                                            0 &&
+                                        (double.tryParse(
+                                                  _commercialAmountC.text
+                                                      .trim(),
+                                                ) ??
+                                                0) ==
+                                            0) {
+                                      return const SizedBox.shrink();
                                     }
-                                    _showShiftingBottomSheet();
+                                    return CustomIconButton.add(
+                                      isDisabled: disableAction,
+                                      onPressed: () {
+                                        _showShiftingBottomSheet();
+                                      },
+                                    );
                                   },
                                 ),
                                 CustomButton(
@@ -638,7 +665,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             buildColumnTitleValue(
-                                              title: "Percentage",
+                                              title: "Stage %",
                                               value:
                                                   "${shifting.stagePercentage.toStringAsFixed(2)}%",
                                             ),

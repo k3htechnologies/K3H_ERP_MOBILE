@@ -180,11 +180,8 @@ class _AddTemporaryAccommodationAlternativeDetailsState
                         ),
                         verticalSpacing(height: 15),
                         _buildBasicPreferenceCard(),
-                        Divider(height: 30, color: AppColor.grey2),
                         _buildLeaseTermsCard(),
-                        Divider(height: 30, color: AppColor.grey2),
                         _buildValuationCard(),
-                        Divider(height: 30, color: AppColor.grey2),
                         _buildRentPeriodCard(),
                       ],
                     ),
@@ -214,238 +211,250 @@ class _AddTemporaryAccommodationAlternativeDetailsState
   }
 
   Widget _buildBasicPreferenceCard() {
-    return _buildCardSection("Basic Preference", [
-      ValueListenableBuilder(
-        valueListenable: _isPayTAA,
-        builder: (context, isPayTAA, child) {
-          return CustomCheckBox(
-            isSelected: isPayTAA,
-            onChanged: (val) {
-              _isPayTAA.value = val;
-            },
-            title: "Do You Want to Pay Temp Alternative Accom",
-          );
-        },
-      ),
-      verticalSpacing(height: 10),
-      Row(
-        children: [
-          Expanded(
-            child: AnimatedBuilder(
-              animation: Listenable.merge([
-                _isPayTAA,
-                _isAdditionalTemporaryAccommodationAlternative,
-              ]),
-              builder: (context, _) {
-                return _buildYesNoRadio(
-                  title: "Additional TAA",
-                  isEnabled: !_isPayTAA.value,
-                  value: _isAdditionalTemporaryAccommodationAlternative.value,
-                  onChanged: (v) {
-                    _isAdditionalTemporaryAccommodationAlternative.value = v;
-                    if (v) {
-                      _selectedTenure.value = null;
-                    }
-                  },
-                );
+    return Column(
+      children: [
+        AnimatedBuilder(
+          animation: Listenable.merge([
+            _isPayTAA,
+            _isAdditionalTemporaryAccommodationAlternative,
+          ]),
+          builder: (context, child) {
+            return CustomCheckBox(
+              isDisabled: _isAdditionalTemporaryAccommodationAlternative.value,
+              isSelected: _isPayTAA.value,
+              onChanged: (val) {
+                _isPayTAA.value = val;
               },
-            ),
-          ),
-          horizontalSpacing(width: 20),
-          Expanded(
-            child: ValueListenableBuilder(
-              valueListenable: _isPayBrokerage,
-              builder: (_, value, __) {
-                return _buildYesNoRadio(
-                  title: "Pay Brokerage",
-                  value: value,
-                  onChanged: (v) {
-                    _isPayBrokerage.value = v;
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    ]);
-  }
-
-  Widget _buildLeaseTermsCard() {
-    return _buildCardSection("Lease Terms", [
-      ValueListenableBuilder<bool>(
-        valueListenable: _isAdditionalTemporaryAccommodationAlternative,
-        builder: (context, isAdditionalRent, _) {
-          return Column(
-            children: [
-              ValueListenableBuilder(
-                valueListenable: _selectedType,
-                builder: (context, value, child) {
-                  return CustomDropDownWidget(
-                    title: 'Type',
-                    hintText: 'Select Type',
-                    isRequired: true,
-                    dataList: propertyTypeList,
-                    initialValue: value,
-                    onSelected: (v) => _selectedType.value = v,
-                    validator: (v) => v == null ? "Type is required" : null,
-                    onValueClear: () => _selectedType.value = null,
+              title: "Do You Want to Pay Temp Alternate Accom",
+            );
+          },
+        ),
+        Divider(height: 30, color: AppColor.grey2),
+        Row(
+          children: [
+            Expanded(
+              child: AnimatedBuilder(
+                animation: Listenable.merge([
+                  _isPayTAA,
+                  _isAdditionalTemporaryAccommodationAlternative,
+                ]),
+                builder: (context, _) {
+                  return _buildYesNoRadio(
+                    title: "Additional TAA",
+                    isEnabled: !_isPayTAA.value,
+                    value: _isAdditionalTemporaryAccommodationAlternative.value,
+                    onChanged: (v) {
+                      _isAdditionalTemporaryAccommodationAlternative.value = v;
+                      if (v) {
+                        _selectedTenure.value = null;
+                      }
+                    },
                   );
                 },
               ),
-              horizontalSpacing(),
-              !isAdditionalRent
-                  ? ValueListenableBuilder(
-                    valueListenable: _selectedTenure,
-                    builder: (context, value, child) {
-                      return CustomDropDownWidget(
-                        title: 'Tenure',
-                        hintText: "Select Tenure",
-                        isRequired: true,
-                        dataList: tenureList,
-                        initialValue: value,
-                        onSelected: (v) => _selectedTenure.value = v,
-                        validator: (v) {
-                          if (isAdditionalRent) return null;
-                          if (v == null || v['zAttributesId'] == -1) {
-                            return "Tenure is required.";
-                          }
-                          return null;
-                        },
-                        onValueClear: () {
-                          _selectedTenure.value = null;
-                        },
-                      );
+            ),
+            horizontalSpacing(width: 20),
+            Expanded(
+              child: ValueListenableBuilder(
+                valueListenable: _isPayBrokerage,
+                builder: (_, value, __) {
+                  return _buildYesNoRadio(
+                    title: "Pay Brokerage",
+                    value: value,
+                    onChanged: (v) {
+                      _isPayBrokerage.value = v;
                     },
-                  )
-                  : const SizedBox(),
-            ],
-          );
-        },
-      ),
-    ]);
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+        verticalSpacing(height: 5),
+      ],
+    );
+  }
+
+  Widget _buildLeaseTermsCard() {
+    return Column(
+      children: [
+        ValueListenableBuilder<bool>(
+          valueListenable: _isAdditionalTemporaryAccommodationAlternative,
+          builder: (context, isAdditionalRent, _) {
+            return Column(
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: _selectedType,
+                  builder: (context, value, child) {
+                    return CustomDropDownWidget(
+                      title: 'Type',
+                      hintText: 'Select Type',
+                      isRequired: true,
+                      dataList: propertyTypeList,
+                      initialValue: value,
+                      onSelected: (v) => _selectedType.value = v,
+                      validator: (v) => v == null ? "Type is required" : null,
+                      onValueClear: () => _selectedType.value = null,
+                    );
+                  },
+                ),
+                horizontalSpacing(),
+                !isAdditionalRent
+                    ? ValueListenableBuilder(
+                      valueListenable: _selectedTenure,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: 'Tenure',
+                          hintText: "Select Tenure",
+                          isRequired: true,
+                          dataList: tenureList,
+                          initialValue: value,
+                          onSelected: (v) => _selectedTenure.value = v,
+                          validator: (v) {
+                            if (isAdditionalRent) return null;
+                            if (v == null || v['zAttributesId'] == -1) {
+                              return "Tenure is required.";
+                            }
+                            return null;
+                          },
+                          onValueClear: () {
+                            _selectedTenure.value = null;
+                          },
+                        );
+                      },
+                    )
+                    : const SizedBox(),
+              ],
+            );
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildValuationCard() {
-    return _buildCardSection("Valuation Details", [
-      Text("Additional Rent", style: AppTextStyle.ts14R()),
-      verticalSpacing(height: 10),
-      ValueListenableBuilder(
-        valueListenable: _isPerSqFt,
-        builder: (_, value, __) {
-          return Container(
-            decoration: BoxDecoration(
-              color: AppColor.grey10,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      _isPerSqFt.value = false;
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      alignment: Alignment.center,
-                      decoration:
-                          !_isPerSqFt.value
-                              ? BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColor.grey30),
-                              )
-                              : null,
-                      child: Text(
-                        "Lump Sum",
-                        style:
+    return Column(
+      children: [
+        ValueListenableBuilder(
+          valueListenable: _isPerSqFt,
+          builder: (_, value, __) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColor.grey10,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              padding: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        _isPerSqFt.value = false;
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        alignment: Alignment.center,
+                        decoration:
                             !_isPerSqFt.value
-                                ? AppTextStyle.ts14SB()
-                                : AppTextStyle.ts14M(color: AppColor.grey),
+                                ? BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColor.grey30),
+                                )
+                                : null,
+                        child: Text(
+                          "Lumpsum",
+                          style:
+                              !_isPerSqFt.value
+                                  ? AppTextStyle.ts14SB()
+                                  : AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: InkWell(
-                    onTap: () {
-                      _isPerSqFt.value = true;
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration:
-                          _isPerSqFt.value
-                              ? BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: AppColor.grey30),
-                              )
-                              : null,
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Per Sq Ft",
-                        style:
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        _isPerSqFt.value = true;
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration:
                             _isPerSqFt.value
-                                ? AppTextStyle.ts14SB()
-                                : AppTextStyle.ts14M(color: AppColor.grey),
+                                ? BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: AppColor.grey30),
+                                )
+                                : null,
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Per Sq Ft",
+                          style:
+                              _isPerSqFt.value
+                                  ? AppTextStyle.ts14SB()
+                                  : AppTextStyle.ts14M(color: AppColor.grey),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-      verticalSpacing(height: 16),
-      CustomTextField(
-        title: "Amount",
-        prefixType: CustomTextFieldPrefix.rupees,
-        textController: _amountController,
-        isRequired: true,
-        keyboardType: TextInputType.numberWithOptions(),
-        inputFormatterList: InputValidator.digitWithDecimal(
-          maxDigitsBeforeDecimal: 16,
+                ],
+              ),
+            );
+          },
         ),
-        hint: "Enter Amount",
-        validator:
-            (v) => (v == null || v.isEmpty) ? "Amount is required" : null,
-      ),
-      CustomTextField(
-        title: "Carpet Area (SqFt)",
-        textController: _carpetAreaController,
-        keyboardType: TextInputType.numberWithOptions(),
-        inputFormatterList: InputValidator.digitWithDecimal(
-          maxDigitsBeforeDecimal: 16,
+        verticalSpacing(height: 16),
+        CustomTextField(
+          title: "Amount",
+          prefixType: CustomTextFieldPrefix.rupees,
+          textController: _amountController,
+          isRequired: true,
+          keyboardType: TextInputType.numberWithOptions(),
+          inputFormatterList: InputValidator.digitWithDecimal(
+            maxDigitsBeforeDecimal: 16,
+          ),
+          hint: "Enter Amount",
+          validator:
+              (v) => (v == null || v.isEmpty) ? "Amount is required" : null,
         ),
-        hint: "Enter Carpet Area",
-      ),
-    ]);
+        CustomTextField(
+          title: "Carpet Area (SqFt)",
+          textController: _carpetAreaController,
+          keyboardType: TextInputType.numberWithOptions(),
+          inputFormatterList: InputValidator.digitWithDecimal(
+            maxDigitsBeforeDecimal: 16,
+          ),
+          hint: "Enter Carpet Area",
+        ),
+      ],
+    );
   }
 
   Widget _buildRentPeriodCard() {
-    return _buildCardSection("TAA Period", [
-      AnimatedBuilder(
-        animation: Listenable.merge([
-          _taaStartDate,
-          _taaEndDate,
-          _isAdditionalTemporaryAccommodationAlternative,
-        ]),
-        builder: (context, _) {
-          return CustomFromToDatePicker(
-            fromDateTitle: 'Start Date',
-            toDateTitle: 'End Date',
-            initialFromDate: _taaStartDate.value,
-            initialToDate: _taaEndDate.value,
-            onToDateChanged: (start, end) {
-              _taaStartDate.value = start;
-              _taaEndDate.value = end;
-            },
-          );
-        },
-      ),
-    ]);
+    return Column(
+      children: [
+        AnimatedBuilder(
+          animation: Listenable.merge([
+            _taaStartDate,
+            _taaEndDate,
+            _isAdditionalTemporaryAccommodationAlternative,
+          ]),
+          builder: (context, _) {
+            return CustomFromToDatePicker(
+              fromDateTitle: 'Start Date',
+              toDateTitle: 'End Date',
+              alignVertical: true,
+              initialFromDate: _taaStartDate.value,
+              initialToDate: _taaEndDate.value,
+              onToDateChanged: (start, end) {
+                _taaStartDate.value = start;
+                _taaEndDate.value = end;
+              },
+            );
+          },
+        ),
+      ],
+    );
   }
 
   Widget _buildYesNoRadio({
@@ -475,17 +484,6 @@ class _AddTemporaryAccommodationAlternativeDetailsState
             ],
           ),
         ),
-      ],
-    );
-  }
-
-  Widget _buildCardSection(String title, List<Widget> children) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
-        verticalSpacing(),
-        ...children,
       ],
     );
   }

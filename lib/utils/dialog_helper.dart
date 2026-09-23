@@ -334,6 +334,7 @@ class DialogHelper {
     Color confirmColor = AppColor.primary,
     IconData icon = CupertinoIcons.question_circle,
     double iconSize = 32,
+    CrossAxisAlignment? crossAxisAlignmentForIcon,
   }) async {
     final result = await showDialog<bool>(
       context: context,
@@ -360,7 +361,8 @@ class DialogHelper {
                 children: [
                   Row(
                     spacing: 8,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        crossAxisAlignmentForIcon ?? CrossAxisAlignment.start,
                     children: [
                       Icon(icon, color: confirmColor, size: iconSize),
                       Expanded(

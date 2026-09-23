@@ -98,7 +98,7 @@ class _ProposedOfferSecondaryScreenState
           (widget.type == "Building Overview" ||
                   widget.type == "Carpet / Plot Area" ||
                   widget.type == "Ready Reckoner Rate" ||
-                  widget.type == "Temp Accom Alternative")
+                  widget.type == "Temp Alternative Accom")
               ? null
               : SafeArea(
                 child: Container(
@@ -135,7 +135,7 @@ class _ProposedOfferSecondaryScreenState
                           case "Project Completion":
                             return state.projectCompletion != null;
 
-                          case "Temp Accom Alternative":
+                          case "Temp Alternative Accom":
                             return state
                                 .temporaryAccommodationAlternativeDetails
                                 .isNotEmpty;
@@ -240,7 +240,7 @@ class _ProposedOfferSecondaryScreenState
           onSave: (callback) => _onSave = callback,
           routeAuthorizationModel: _routeAuthorizationModel,
         );
-      case "Temp Accom Alternative":
+      case "Temp Alternative Accom":
         return TemporaryAccommodationAlternativeDetails(
           projectId: projectId,
           buildingId: buildingId,

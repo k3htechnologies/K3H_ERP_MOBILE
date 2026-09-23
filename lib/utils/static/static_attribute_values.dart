@@ -440,7 +440,19 @@ const paymentModeValues = [
 
 const paymentTypeValues = ['Full', 'Partial'];
 
-const financialYearValues = ['2025-26', '2026-27', '2027-28'];
+const financialYearValues = [
+  '2019-20',
+  '2020-21',
+  '2021-22',
+  '2022-23',
+  '2023-24',
+  '2024-25',
+  '2025-26',
+  '2026-27',
+  '2027-28',
+  '2028-29',
+  '2029-30',
+];
 
 const paymentReceivedFormValues = ['Bank', 'Owner'];
 const paymentForValues = [
@@ -453,7 +465,7 @@ const paymentForValues = [
   'Other Charges GST',
 ];
 
-const unitSqFtLumsumValues = ['Per SqFt', 'Lump Sum'];
+const unitSqFtLumpsumValues = ['Per Sq Ft', 'Lumpsum'];
 
 const propertyTypeValues = ['Residential', 'Commercial'];
 const tenureValues = [
@@ -484,39 +496,39 @@ const tenderPaymentModeValues = [
 ];
 
 const tenantDocumentTypeValues = [
-  "33 (38) Notice",
-  "79 / A Consent",
-  "Additional Document (If Any)",
-  "Affidavit",
-  "Assessment Bill",
-  "Consent For Cluster (If Applicable)",
-  "Developer Format Consent",
-  "Electric NOC",
-  "Electricity Bill",
-  "Eligible / Non Eligible (Form 3 & 4)",
-  "Extra Area Purchase Letter",
-  "Extra Purchase Payment Schedule",
-  "Gas Bill",
-  "Maintenance Bill",
-  "MGL NOC",
-  "MHADA Verified Consent",
-  "Notarized Kararnama",
-  "PAAA Floor Plan",
-  "Photo Pass",
-  "Photo Pass Receipt",
-  "POA (Admission)",
-  "Ration Card (If Applicable)",
-  "Registered PAAA",
-  "Rent Receipt (If Applicable)",
-  "Repossession Letter",
-  "Repossession Undertaking",
-  "Sales Agreement",
-  "Share Certificate",
-  "Transfer Documents",
-  "Unit Plan",
-  "Vacant Possession Letter",
-  "Vacating Consent Letter",
-  "Yadi Slip",
+  '33 (38) Notice',
+  '79 / A Consent',
+  'Additional Document (If Any)',
+  'Affidavit',
+  'Assessment Bill',
+  'Consent For Cluster (If Applicable)',
+  'Developer Format Consent',
+  'Electric NOC',
+  'Electricity Bill',
+  'Eligible / Non Eligible (Form 3 & 4)',
+  'Extra Area Purchase Letter',
+  'Extra Purchase Payment Schedule',
+  'Gas Bill',
+  'Maintenance Bill',
+  'MGL NOC',
+  'MHADA Verified Consent',
+  'Notarized Kararnama',
+  'PAAA Floor Plan',
+  'Photo Pass',
+  'Photo Pass Receipt',
+  'POA (Admission)',
+  'Ration Card (If Applicable)',
+  'Registered PAAA',
+  'Rent Receipt (If Applicable)',
+  'Repossession Letter',
+  'Repossession Undertaking',
+  'Sales Agreement',
+  'Share Certificate',
+  'Transfer Documents',
+  'Unit Plan',
+  'Vacant Possession Letter',
+  'Vacating Consent Letter',
+  'Yadi Slip',
 ];
 
 const aopStatusValues = ['AOP', 'NON - AOP', 'EXPIRED', 'EXPIRE SOON'];
@@ -574,45 +586,45 @@ const gatePassPurposeValues = [
 const existingBuildingTypeValues = ['Commercial', 'Mixed Use', 'Residential'];
 const plotShapeValues = ['Rectangular', 'Irregular', 'L-Shape', 'Circle'];
 const roadWidthValues = [
-  "6.10 M",
-  "9.15 M",
-  "12.20 M",
-  "13.40 M",
-  "18.3 M",
-  "27.45 M",
-  "36.6 M",
+  '6.10 M',
+  '9.15 M',
+  '12.20 M',
+  '13.40 M',
+  '18.3 M',
+  '27.45 M',
+  '36.6 M',
 ];
-const soilTypeValues = ["Clay", "Black Cotton", "Sandy", "Rocky"];
+const soilTypeValues = ['Clay', 'Black Cotton', 'Sandy', 'Rocky'];
 const selectedExistingGroundConditionsValues = [
-  "Vacant",
-  "Barren",
-  "Vegetation",
-  "Encroachements",
+  'Vacant',
+  'Barren',
+  'Vegetation',
+  'Encroachements',
 ];
-const selectedETypeOfWaterSupplyAvailableValues = ["Borewell", "Municipal"];
+const selectedETypeOfWaterSupplyAvailableValues = ['Borewell', 'Municipal'];
 const selectedSurroundingLandUseValues = [
-  "Agricultural",
-  "Residential",
-  "Industrial",
-  "Vacant",
+  'Agricultural',
+  'Residential',
+  'Industrial',
+  'Vacant',
 ];
 
 const selectedTypeOfLandTenureValues = [
-  "Leasehold",
-  "Freehold",
-  "Collectors Land",
-  "MHADA",
-  "SRA",
-  "BMC",
-  "Builder",
+  'Leasehold',
+  'Freehold',
+  'Collectors Land',
+  'MHADA',
+  'SRA',
+  'BMC',
+  'Builder',
 ];
 
 const selectedLandOwnershipValues = [
-  "Individual",
-  "Joint",
-  "Trust",
-  "Company",
-  "Government",
-  "Society",
+  'Individual',
+  'Joint',
+  'Trust',
+  'Company',
+  'Government',
+  'Society',
 ];
-const constructionTypeValues = ["RCC", "Load - Bearing"];
+const constructionTypeValues = ['RCC', 'Load - Bearing'];

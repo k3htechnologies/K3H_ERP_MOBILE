@@ -12,6 +12,7 @@ class ProposedOfferState extends BaseState {
   final ProjectCompletionModel? projectCompletion;
   final List<TemporaryAlternativeAccommodationDetailsModel>
   temporaryAccommodationAlternativeDetails;
+  final List<String> temporaryAccommodationTenures;
   final int totalNumberOfRecordTemporaryAccommodationAlternative;
   final List<ReadyReckonerRateDetailsModel> readyReckonerRateDetails;
   final BuildingDetailsModel? carpetPlotDetails;
@@ -30,6 +31,7 @@ class ProposedOfferState extends BaseState {
     required this.gstOnExistingPlusFreeArea,
     required this.projectCompletion,
     required this.temporaryAccommodationAlternativeDetails,
+    required this.temporaryAccommodationTenures,
     required this.totalNumberOfRecordTemporaryAccommodationAlternative,
     required this.readyReckonerRateDetails,
     required this.carpetPlotDetails,
@@ -49,6 +51,7 @@ class ProposedOfferState extends BaseState {
     gstOnExistingPlusFreeArea: null,
     projectCompletion: null,
     temporaryAccommodationAlternativeDetails: [],
+    temporaryAccommodationTenures: <String>[],
     totalNumberOfRecordTemporaryAccommodationAlternative: 0,
     readyReckonerRateDetails: [],
     carpetPlotDetails: null,
@@ -78,6 +81,7 @@ class ProposedOfferState extends BaseState {
     bool clearProjectCompletion = false,
     List<TemporaryAlternativeAccommodationDetailsModel>?
     temporaryAccommodationAlternativeDetails,
+    List<String>? temporaryAccommodationTenures,
     int? totalNumberOfRecordTemporaryAccommodationAlternative,
     List<ReadyReckonerRateDetailsModel>? readyReckonerRateDetails,
     BuildingDetailsModel? carpetPlotDetails,
@@ -122,6 +126,8 @@ class ProposedOfferState extends BaseState {
       temporaryAccommodationAlternativeDetails:
           temporaryAccommodationAlternativeDetails ??
           this.temporaryAccommodationAlternativeDetails,
+      temporaryAccommodationTenures:
+          temporaryAccommodationTenures ?? this.temporaryAccommodationTenures,
       totalNumberOfRecordTemporaryAccommodationAlternative:
           totalNumberOfRecordTemporaryAccommodationAlternative ??
           this.totalNumberOfRecordTemporaryAccommodationAlternative,
@@ -158,6 +164,7 @@ class ProposedOfferState extends BaseState {
     gstOnExistingPlusFreeArea,
     projectCompletion,
     temporaryAccommodationAlternativeDetails,
+    temporaryAccommodationTenures,
     totalNumberOfRecordTemporaryAccommodationAlternative,
     readyReckonerRateDetails,
     carpetPlotDetails,

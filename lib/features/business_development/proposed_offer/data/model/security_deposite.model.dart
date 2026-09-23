@@ -5,7 +5,6 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
   String uniquekey;
   int buildingId;
   int projectId;
-  String type;
   String stage;
   double amount;
   bool isRelease;
@@ -21,7 +20,6 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
     required this.uniquekey,
     required this.buildingId,
     required this.projectId,
-    required this.type,
     required this.stage,
     required this.amount,
     required this.isRelease,
@@ -43,7 +41,6 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
     uniquekey: parseValue<String>(json, "Uniquekey"),
     buildingId: parseValue<int>(json, "BuildingId"),
     projectId: parseValue<int>(json, "ProjectId"),
-    type: parseValue<String>(json, "Type"),
     stage: parseValue<String>(json, "Stage"),
     amount: parseValue<double>(json, "Amount"),
     isRelease: parseValue<bool>(json, "IsRelease"),
@@ -64,7 +61,6 @@ class ProposedOfferSecurityDepositDetailsWithPaymentStageData {
     "Uniquekey": uniquekey,
     "BuildingId": buildingId,
     "ProjectId": projectId,
-    "Type": type,
     "Stage": stage,
     "Amount": amount,
     "IsRelease": isRelease,

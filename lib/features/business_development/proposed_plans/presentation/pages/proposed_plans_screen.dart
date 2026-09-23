@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -141,6 +142,10 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   }
 
   Future<void> _showBuildingCountBottomSheet() async {
+    if (_project.projectId == 0) {
+      showErrorMessage(context, "Error", "Please Select a project");
+      return;
+    }
     _buildingCountC.text = _totalBuildingC.text;
     await DialogHelper.showCustomBottomSheet(
       context,

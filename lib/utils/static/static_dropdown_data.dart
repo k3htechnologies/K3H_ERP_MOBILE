@@ -229,8 +229,8 @@ final List<Map<String, dynamic>> paymentForList = createAttributeList(
   paymentForValues,
 );
 
-final List<Map<String, dynamic>> unitSqFtLumsumList = createAttributeList(
-  unitSqFtLumsumValues,
+final List<Map<String, dynamic>> unitSqFtLumpsumList = createAttributeList(
+  unitSqFtLumpsumValues,
 );
 
 final List<Map<String, dynamic>> propertyTypeList = createAttributeList(

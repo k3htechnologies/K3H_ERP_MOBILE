@@ -21,6 +21,7 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class HardshipDetails extends StatefulWidget {
   final int projectId;
@@ -90,47 +91,43 @@ class _HardshipDetailsState extends State<HardshipDetails> {
   }
 
   void _onSave() {
-    if (_formKey.currentState!.validate()) {
-      if (_corpusList.isEmpty) {
-        showErrorMessage(context, 'Error', 'Please add at least one hardship.');
-        return;
-      }
-      final residentialTotal = _corpusList
-          .where((h) => h.type == 'Residential')
-          .fold(0.0, (sum, i) => sum + i.amount);
-      if (double.parse(_residentialAmountC.text) < residentialTotal) {
-        showErrorMessage(
-          context,
-          "Error",
-          "Residential total (${residentialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_residentialAmountC.text).toIndianCurrency()}).",
-        );
-        return;
-      }
-      final commercialTotal = _corpusList
-          .where((h) => h.type == 'Commercial')
-          .fold(0.0, (sum, i) => sum + i.amount);
-      if (double.parse(_commercialAmountC.text) < commercialTotal) {
-        showErrorMessage(
-          context,
-          "Error",
-          "Commercial total (${commercialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_commercialAmountC.text).toIndianCurrency()}).",
-        );
-        return;
-      }
-      _cubit.addUpdateHardshipDetails(
-        context,
-        buildingId: widget.buildingId,
-        projectId: widget.projectId,
-        hardshipOfferedToResidentialAmount: double.parse(
-          _residentialAmountC.text,
-        ),
-        hardshipOfferedToCommercialAmount: double.parse(
-          _commercialAmountC.text,
-        ),
-        paymentStageList: _corpusList,
-        remark: _remarkC.text.trim(),
-      );
+    if (_corpusList.isEmpty) {
+      showErrorMessage(context, 'Error', 'Please add at least one hardship.');
+      return;
     }
+    final residentialTotal = _corpusList
+        .where((h) => h.type == 'Residential')
+        .fold(0.0, (sum, i) => sum + i.amount);
+    if ((double.tryParse(_residentialAmountC.text) ?? 0) < residentialTotal) {
+      showErrorMessage(
+        context,
+        "Error",
+        "Residential total (${residentialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_residentialAmountC.text).toIndianCurrency()}).",
+      );
+      return;
+    }
+    final commercialTotal = _corpusList
+        .where((h) => h.type == 'Commercial')
+        .fold(0.0, (sum, i) => sum + i.amount);
+    if ((double.tryParse(_commercialAmountC.text) ?? 0) < commercialTotal) {
+      showErrorMessage(
+        context,
+        "Error",
+        "Commercial total (${commercialTotal.toIndianCurrency()}) cannot be greater than Hardship amount (${double.parse(_commercialAmountC.text).toIndianCurrency()}).",
+      );
+      return;
+    }
+    _cubit.addUpdateHardshipDetails(
+      context,
+      buildingId: widget.buildingId,
+      projectId: widget.projectId,
+      hardshipOfferedToResidentialAmount:
+          double.tryParse(_residentialAmountC.text) ?? 0.0,
+      hardshipOfferedToCommercialAmount:
+          double.tryParse(_commercialAmountC.text) ?? 0.0,
+      paymentStageList: _corpusList,
+      remark: _remarkC.text.trim(),
+    );
   }
 
   Future<void> _showPopupToDeleteHardshipData() async {
@@ -176,6 +173,9 @@ class _HardshipDetailsState extends State<HardshipDetails> {
       title: 'Are sure you want generate hardship?',
       message: 'Once the hardship is generated, it cannot be deleted',
       confirmText: "Generate",
+      icon: LucideIcons.wandSparkles,
+      iconSize: 28,
+      crossAxisAlignmentForIcon: CrossAxisAlignment.center,
     );
     if (generatePDf && mounted) {
       _cubit.generateProposedOffer(
@@ -274,11 +274,8 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                           readOnly:
                                               (isResidentialReadOnly ||
                                                   disableAction),
-                                          prefixWidget: Icon(
-                                            Icons.currency_rupee,
-                                            size: 16,
-                                            color: AppColor.grey,
-                                          ),
+                                          prefixType:
+                                              CustomTextFieldPrefix.rupees,
                                           inputFormatterList:
                                               inputFormatterListForDecimalValuesFixedToTwo(
                                                 10,
@@ -299,21 +296,8 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                           hint:
                                               "Enter Commercial Hardship Amount (₹)",
                                           textController: _commercialAmountC,
-                                          prefixWidget: Container(
-                                            decoration: BoxDecoration(
-                                              border: Border(
-                                                right: BorderSide(
-                                                  color: AppColor.grey,
-                                                  width: .5,
-                                                ),
-                                              ),
-                                            ),
-                                            child: Icon(
-                                              Icons.currency_rupee,
-                                              color: AppColor.grey,
-                                              size: 18,
-                                            ),
-                                          ),
+                                          prefixType:
+                                              CustomTextFieldPrefix.rupees,
                                           keyboardType: TextInputType.number,
                                           readOnly:
                                               (isCommercialReadOnly ||
@@ -362,56 +346,77 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                 Row(
                                   spacing: 12,
                                   children: [
-                                    CustomIconButton.add(
-                                      isDisabled: disableAction,
-                                      onPressed: () async {
-                                        if (!_formKey.currentState!
-                                            .validate()) {
-                                          return;
+                                    AnimatedBuilder(
+                                      animation: Listenable.merge([
+                                        _residentialAmountC,
+                                        _commercialAmountC,
+                                      ]),
+                                      builder: (context, child) {
+                                        if ((double.tryParse(
+                                                      _residentialAmountC.text
+                                                          .trim(),
+                                                    ) ??
+                                                    0) ==
+                                                0 &&
+                                            (double.tryParse(
+                                                      _commercialAmountC.text
+                                                          .trim(),
+                                                    ) ??
+                                                    0) ==
+                                                0) {
+                                          return const SizedBox.shrink();
                                         }
-                                        final result = await goRouter.pushNamed(
-                                          AppRoutes.addUpdateHardshipDetails,
-                                          extra: _corpusList,
-                                          queryParameters: {
-                                            'projectId': Uri.encodeComponent(
-                                              EncryptionManager.encryptData(
-                                                widget.projectId.toString(),
-                                              ),
-                                            ),
-                                            'buildingId': Uri.encodeComponent(
-                                              EncryptionManager.encryptData(
-                                                widget.buildingId.toString(),
-                                              ),
-                                            ),
-                                            'residentialAmount':
-                                                Uri.encodeComponent(
+                                        return CustomIconButton.add(
+                                          isDisabled: disableAction,
+                                          onPressed: () async {
+                                            final result = await goRouter.pushNamed(
+                                              AppRoutes
+                                                  .addUpdateHardshipDetails,
+                                              extra: _corpusList,
+                                              queryParameters: {
+                                                'projectId': Uri.encodeComponent(
                                                   EncryptionManager.encryptData(
-                                                    _residentialAmountC.text
+                                                    widget.projectId.toString(),
+                                                  ),
+                                                ),
+                                                'buildingId': Uri.encodeComponent(
+                                                  EncryptionManager.encryptData(
+                                                    widget.buildingId
                                                         .toString(),
                                                   ),
                                                 ),
-                                            'commercialAmount':
-                                                Uri.encodeComponent(
+                                                'residentialAmount':
+                                                    Uri.encodeComponent(
+                                                      EncryptionManager.encryptData(
+                                                        _residentialAmountC.text
+                                                            .toString(),
+                                                      ),
+                                                    ),
+                                                'commercialAmount':
+                                                    Uri.encodeComponent(
+                                                      EncryptionManager.encryptData(
+                                                        _commercialAmountC.text
+                                                            .toString(),
+                                                      ),
+                                                    ),
+                                                'buildingName': Uri.encodeComponent(
                                                   EncryptionManager.encryptData(
-                                                    _commercialAmountC.text
-                                                        .toString(),
+                                                    widget.buildingName,
                                                   ),
                                                 ),
-                                            'buildingName': Uri.encodeComponent(
-                                              EncryptionManager.encryptData(
-                                                widget.buildingName,
-                                              ),
-                                            ),
+                                              },
+                                            );
+                                            if (result != null &&
+                                                result
+                                                    is List<
+                                                      ProposedOfferHardshipDetailsWithPaymentStageData
+                                                    >) {
+                                              _hardshipListNotifier.value = [];
+                                              _hardshipListNotifier.value =
+                                                  result;
+                                            }
                                           },
                                         );
-                                        if (result != null &&
-                                            result
-                                                is List<
-                                                  ProposedOfferHardshipDetailsWithPaymentStageData
-                                                >) {
-                                          _hardshipListNotifier.value = [];
-                                          _hardshipListNotifier.value = result;
-                                        }
                                       },
                                     ),
                                     CustomButton(
@@ -515,7 +520,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 buildColumnTitleValue(
-                                                  title: "Percentage",
+                                                  title: "Stage %",
                                                   value:
                                                       "${corpus.stagePercentage.toStringAsFixed(2)}%",
                                                 ),
@@ -533,7 +538,8 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 buildColumnTitleValue(
-                                                  title: "Unit / SqFt / Lumsum",
+                                                  title:
+                                                      "Unit / SqFt / Lumpsum",
                                                   value: corpus.unitSqFtLumsum,
                                                 ),
                                                 buildColumnTitleValue(

@@ -154,7 +154,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                               },
                               inputFormatterList: [
                                 FilteringTextInputFormatter.digitsOnly,
-                                LengthLimitingTextInputFormatter(4),
+                                LengthLimitingTextInputFormatter(5),
                               ],
                               validator: (value) {
                                 if (disableNoOfParking) return null;

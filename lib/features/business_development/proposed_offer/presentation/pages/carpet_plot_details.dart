@@ -40,185 +40,211 @@ class _CarpetPlotDetailsState extends State<CarpetPlotDetails> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-      child: SingleChildScrollView(
+      child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16),
-        child: BlocBuilder<ProposedOfferCubit, ProposedOfferState>(
-          builder: (context, state) {
-            final carpetPlotDetails = state.carpetPlotDetails;
-            return Column(
-              children: [
-                SectionCard(
-                  title: 'Building Plot Area',
-                  titleTextColor: AppColor.primary,
-                  headerBackgroundColor: AppColor.lightBlue,
-                  children: [
-                    Row(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Carpet / Plot Area',
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: BlocBuilder<ProposedOfferCubit, ProposedOfferState>(
+                  builder: (context, state) {
+                    final carpetPlotDetails = state.carpetPlotDetails;
+                    return Column(
                       children: [
-                        buildColumnTitleValue(
-                          title: "Gross Plot Area (SqMt)",
-                          value:
-                              carpetPlotDetails?.grossPlotAreaSqMt.addCommas(),
-                        ),
-                        buildColumnTitleValue(
-                          title: "Physical Survey Area (SqMt)",
-                          value:
-                              carpetPlotDetails?.plotAreaPhysicalSurveySqMt
-                                  .addCommas(),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Old Approved Plan Area (SqMt)",
-                          value:
-                              carpetPlotDetails?.plotAreaOldApprovedPlanSqMt
-                                  .addCommas(),
-                        ),
-                        buildColumnTitleValue(
-                          title: "Conveyance Area (SqMt)",
-                          value:
-                              carpetPlotDetails?.plotAreaConveyanceSqMt
-                                  .addCommas(),
-                        ),
-                      ],
-                    ),
-                    buildColumnTitleValue(
-                      title: "PR Card Area(SqMt)",
-                      value: carpetPlotDetails?.plotAreaPRCardSqMt.addCommas(),
-                      removeExpanded: true,
-                    ),
-                  ],
-                ),
-                SectionCard(
-                  title: 'Existing Details',
-                  titleTextColor: AppColor.primary,
-                  headerBackgroundColor: AppColor.lightBlue,
-                  children: [
-                    Row(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Total Carpet Area (SqFt)",
-                          value:
-                              carpetPlotDetails?.totalCarpetAreaSqFt
-                                  .addCommas(),
-                        ),
-                        buildColumnTitleValue(
-                          title: "Total Residential Units",
-                          value:
-                              carpetPlotDetails?.totalResidentialUnits
-                                  .addCommas(),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      spacing: 10,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Residential Carpet Area (SqFt)",
-                          value:
-                              carpetPlotDetails?.totalResidentialCarpetAreaSqFt
-                                  .addCommas(),
-                        ),
-                        buildColumnTitleValue(
-                          title: "Total Commercial Units",
-                          value:
-                              carpetPlotDetails?.totalCommercialUnits
-                                  .addCommas(),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Commercial Carpet Area (SqFt)",
-                          value:
-                              carpetPlotDetails?.totalCommercialCarpetAreaSqFt
-                                  .addCommas(),
-                        ),
-                        buildColumnTitleValue(
-                          title: "Garage Carpet Area (SqFt)",
-                          value:
-                              carpetPlotDetails?.garageCarpetAreaSqFt
-                                  .addCommas(),
-                        ),
-                      ],
-                    ),
-                    buildRowWrapper(
-                      child: buildColumnTitleValue(
-                        title: "Terrace Carpet Area (SqFt)",
-                        value:
-                            carpetPlotDetails?.terraceCarpetAreaSqFt
-                                .addCommas(),
-                      ),
-                    ),
-                  ],
-                ),
-                SectionCard(
-                  title: 'Building Key Contact Details',
-                  titleTextColor: AppColor.primary,
-                  headerBackgroundColor: AppColor.lightBlue,
-                  children: [
-                    ...(carpetPlotDetails?.buildingKeyContactDetailsData ?? [])
-                        .map((contact) {
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                contact.contactType.isEmpty
-                                    ? "-"
-                                    : contact.contactType,
-                                style: AppTextStyle.ts14M(),
-                              ),
-                              verticalSpacing(height: 2.h),
-                              buildRowTitleValue(
-                                title: "Contact Name",
-                                value:
-                                    contact.contactName.isEmpty
-                                        ? "-"
-                                        : contact.contactName,
-                                singleLine: false,
-                              ),
-                              buildRowTitleValue(
-                                title: "Mobile Number",
-                                value:
-                                    contact.mobileNumber.isEmpty
-                                        ? "-"
-                                        : contact.mobileNumber,
-                                singleLine: false,
-                                customValueWidget: CustomClickToContactText(
-                                  countryCode: "+91",
-                                  value: contact.mobileNumber,
+                        SectionCard(
+                          title: 'Building Plot Area',
+                          titleTextColor: AppColor.primary,
+                          headerBackgroundColor: AppColor.lightBlue,
+                          children: [
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Gross Plot Area (SqMt)",
+                                  value:
+                                      carpetPlotDetails?.grossPlotAreaSqMt
+                                          .addCommas(),
                                 ),
-                              ),
-                              buildRowTitleValue(
-                                title: "E-Mail ID",
-                                value:
-                                    contact.emailId.isEmpty
-                                        ? "-"
-                                        : contact.emailId,
-                                singleLine: false,
-                                customValueWidget: CustomClickToContactText(
-                                  value: contact.emailId,
-                                  type: ContactType.email,
+                                buildColumnTitleValue(
+                                  title: "Physical Survey Area (SqMt)",
+                                  value:
+                                      carpetPlotDetails
+                                          ?.plotAreaPhysicalSurveySqMt
+                                          .addCommas(),
                                 ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Old Approved Plan Area (SqMt)",
+                                  value:
+                                      carpetPlotDetails
+                                          ?.plotAreaOldApprovedPlanSqMt
+                                          .addCommas(),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Conveyance Area (SqMt)",
+                                  value:
+                                      carpetPlotDetails?.plotAreaConveyanceSqMt
+                                          .addCommas(),
+                                ),
+                              ],
+                            ),
+                            buildColumnTitleValue(
+                              title: "PR Card Area(SqMt)",
+                              value:
+                                  carpetPlotDetails?.plotAreaPRCardSqMt
+                                      .addCommas(),
+                              removeExpanded: true,
+                            ),
+                          ],
+                        ),
+                        SectionCard(
+                          title: 'Existing Details',
+                          titleTextColor: AppColor.primary,
+                          headerBackgroundColor: AppColor.lightBlue,
+                          children: [
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Total Carpet Area (SqFt)",
+                                  value:
+                                      carpetPlotDetails?.totalCarpetAreaSqFt
+                                          .addCommas(),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Total Residential Units",
+                                  value:
+                                      carpetPlotDetails?.totalResidentialUnits
+                                          .addCommas(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Residential Carpet Area (SqFt)",
+                                  value:
+                                      carpetPlotDetails
+                                          ?.totalResidentialCarpetAreaSqFt
+                                          .addCommas(),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Total Commercial Units",
+                                  value:
+                                      carpetPlotDetails?.totalCommercialUnits
+                                          .addCommas(),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Commercial Carpet Area (SqFt)",
+                                  value:
+                                      carpetPlotDetails
+                                          ?.totalCommercialCarpetAreaSqFt
+                                          .addCommas(),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Garage Carpet Area (SqFt)",
+                                  value:
+                                      carpetPlotDetails?.garageCarpetAreaSqFt
+                                          .addCommas(),
+                                ),
+                              ],
+                            ),
+                            buildRowWrapper(
+                              child: buildColumnTitleValue(
+                                title: "Terrace Carpet Area (SqFt)",
+                                value:
+                                    carpetPlotDetails?.terraceCarpetAreaSqFt
+                                        .addCommas(),
                               ),
-                            ],
-                          );
-                        }),
-                  ],
+                            ),
+                          ],
+                        ),
+                        SectionCard(
+                          title: 'Building Key Contact Details',
+                          titleTextColor: AppColor.primary,
+                          headerBackgroundColor: AppColor.lightBlue,
+                          children: [
+                            ...(carpetPlotDetails
+                                        ?.buildingKeyContactDetailsData ??
+                                    [])
+                                .map((contact) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        contact.contactType.isEmpty
+                                            ? "-"
+                                            : contact.contactType,
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                      verticalSpacing(height: 2.h),
+                                      buildRowTitleValue(
+                                        title: "Contact Name",
+                                        value:
+                                            contact.contactName.isEmpty
+                                                ? "-"
+                                                : contact.contactName,
+                                        singleLine: false,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Mobile Number",
+                                        value:
+                                            contact.mobileNumber.isEmpty
+                                                ? "-"
+                                                : contact.mobileNumber,
+                                        singleLine: false,
+                                        customValueWidget:
+                                            CustomClickToContactText(
+                                              countryCode: "+91",
+                                              value: contact.mobileNumber,
+                                            ),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "E-Mail ID",
+                                        value:
+                                            contact.emailId.isEmpty
+                                                ? "-"
+                                                : contact.emailId,
+                                        singleLine: false,
+                                        customValueWidget:
+                                            CustomClickToContactText(
+                                              value: contact.emailId,
+                                              type: ContactType.email,
+                                            ),
+                                      ),
+                                    ],
+                                  );
+                                }),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              ],
-            );
-          },
+              ),
+            ),
+          ],
         ),
       ),
     );

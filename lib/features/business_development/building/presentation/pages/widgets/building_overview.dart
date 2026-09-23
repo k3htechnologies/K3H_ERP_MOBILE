@@ -8,7 +8,12 @@ import 'package:k3h_erp_app/widgets/section_card.dart';
 
 class BuildingOverview extends StatelessWidget {
   final BusinessDevelopmentBuildingModel building;
-  const BuildingOverview({super.key, required this.building});
+  final String? buildingCardTitle;
+  const BuildingOverview({
+    super.key,
+    required this.building,
+    this.buildingCardTitle,
+  });
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -17,7 +22,7 @@ class BuildingOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionCard(
-            title: 'Building Details',
+            title: buildingCardTitle ?? 'Building Details',
             titleTextColor: AppColor.primary,
             headerBackgroundColor: AppColor.lightBlue,
             children: [

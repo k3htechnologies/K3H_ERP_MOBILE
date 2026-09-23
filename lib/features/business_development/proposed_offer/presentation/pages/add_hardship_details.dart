@@ -96,9 +96,9 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
     _stagePercentageC.text = hardship.stagePercentage.toString();
     _amountC.text = hardship.amount.toString();
     _carpetAreaSqFtC.text = hardship.carpetAreaSqFt.toString();
-    _selectedUnitSqFtLumsum.value = unitSqFtLumsumList.firstWhere(
+    _selectedUnitSqFtLumsum.value = unitSqFtLumpsumList.firstWhere(
       (e) => e['DisplayName'] == hardship.unitSqFtLumsum,
-      orElse: () => unitSqFtLumsumList.first,
+      orElse: () => unitSqFtLumpsumList.first,
     );
   }
 
@@ -188,6 +188,16 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
               toTitleCase(widget.buildingName),
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
+            infoCard([
+              {
+                "title": "Residential Amount",
+                "value": widget.residentialAmount.toIndianCurrency(),
+              },
+              {
+                "title": "Commercial Amount",
+                "value": widget.commercialAmount.toIndianCurrency(),
+              },
+            ]),
             Expanded(
               child: SingleChildScrollView(
                 child: ValueListenableBuilder<Map<String, dynamic>?>(
@@ -247,7 +257,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                               hint: "Enter Stage",
                               textController: _stageC,
                               inputFormatterList: [
-                                LengthLimitingTextInputFormatter(150),
+                                LengthLimitingTextInputFormatter(100),
                               ],
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -304,17 +314,17 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                               valueListenable: _selectedUnitSqFtLumsum,
                               builder: (context, value, child) {
                                 return CustomDropDownWidget(
-                                  title: 'Unit / SqFt / Lumsum',
-                                  hintText: 'Select Unit / SqFt / Lumsum',
+                                  title: 'Unit / SqFt / Lumpsum',
+                                  hintText: 'Select Unit / SqFt / Lumpsum',
                                   isRequired: true,
-                                  dataList: unitSqFtLumsumList,
+                                  dataList: unitSqFtLumpsumList,
                                   initialValue: value,
                                   onSelected:
                                       (v) => _selectedUnitSqFtLumsum.value = v,
                                   validator:
                                       (v) =>
                                           v == null
-                                              ? "Unit SqFt Lumsum is required"
+                                              ? "Unit SqFt Lumpsum is required"
                                               : null,
                                   onValueClear:
                                       () =>
@@ -326,6 +336,10 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                               title: "Carpet Area (SqFt)",
                               textController: _carpetAreaSqFtC,
                               hint: "Enter Carpet Area (SqFt)",
+                              inputFormatterList:
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 16,
+                                  ),
                               keyboardType: TextInputType.number,
                             ),
                             verticalSpacing(height: 15),
@@ -347,7 +361,15 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
           child: ValueListenableBuilder<Map<String, dynamic>?>(
             valueListenable: _selectedHardshipType,
             builder: (context, selectedHardshipType, _) {
-              return CustomButton(text: "Save", onPressed: _saveForm);
+              return CustomButton(
+                leading: Icon(
+                  _isEditMode ? Icons.edit : Icons.add,
+                  size: 18,
+                  color: AppColor.white,
+                ),
+                text: _isEditMode ? "Update" : "Add",
+                onPressed: _saveForm,
+              );
             },
           ),
         ),

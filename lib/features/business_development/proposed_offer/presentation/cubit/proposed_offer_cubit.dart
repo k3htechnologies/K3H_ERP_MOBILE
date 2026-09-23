@@ -678,7 +678,6 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         paymentStageList
             .map(
               (item) => {
-                "Type": item.type,
                 "Stage": item.stage,
                 "Amount": item.amount,
                 "IsRelease": item.isRelease,
@@ -992,7 +991,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
                 (response['data'] as List<ProjectCompletionModel>)[0],
           ),
         );
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -1026,6 +1025,10 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
                     as List<TemporaryAlternativeAccommodationDetailsModel>,
             totalNumberOfRecordTemporaryAccommodationAlternative:
                 response['totalNumberOfRecord'],
+            temporaryAccommodationTenures: _buildSortedTenures(
+              response['data']
+                  as List<TemporaryAlternativeAccommodationDetailsModel>,
+            ),
           ),
         );
       },
@@ -1155,6 +1158,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
           state.copyWith(
             isLoading: false,
             temporaryAccommodationAlternativeDetails: updatedList,
+            temporaryAccommodationTenures: _buildSortedTenures(updatedList),
           ),
         );
         goRouter.pop();
@@ -1195,7 +1199,10 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         updatedList.removeAt(index!);
 
         emit(
-          state.copyWith(temporaryAccommodationAlternativeDetails: updatedList),
+          state.copyWith(
+            temporaryAccommodationAlternativeDetails: updatedList,
+            temporaryAccommodationTenures: _buildSortedTenures(updatedList),
+          ),
         );
         showSuccessMessage(context, subTitle: response['message']);
       },
@@ -1703,5 +1710,29 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
         );
       },
     );
+  }
+
+  // Add this as a private method in ProposedOfferCubit
+  List<String> _buildSortedTenures(
+    List<TemporaryAlternativeAccommodationDetailsModel> list,
+  ) {
+    final tenures =
+        list
+            .where((e) => e.tenure.isNotEmpty)
+            .map((e) => e.tenure)
+            .toSet()
+            .toList();
+
+    tenures.sort((a, b) {
+      final numA = int.tryParse(RegExp(r'\d+').firstMatch(a)?.group(0) ?? '');
+      final numB = int.tryParse(RegExp(r'\d+').firstMatch(b)?.group(0) ?? '');
+      if (numA != null && numB != null) return numA.compareTo(numB);
+      return a.compareTo(b); // fallback for non-numeric tenure labels
+    });
+
+    if (list.any((e) => e.tenure.isEmpty)) {
+      tenures.add("Additional TAA"); // always last
+    }
+    return tenures;
   }
 }

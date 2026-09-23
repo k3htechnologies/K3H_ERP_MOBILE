@@ -43,7 +43,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
   late TextEditingController _accountHolderNameC,
       _remarkC,
       _stageController,
-      _bankGuaranteeAmountController,
+      _bankGuaranteeAmountC,
       _amountController;
   bool get disableAction => !widget.routeAuthorizationModel.isAction;
   final ValueNotifier<
@@ -75,7 +75,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
   void dispose() {
     _accountHolderNameC.dispose();
     _stageController.dispose();
-    _bankGuaranteeAmountController.dispose();
+    _bankGuaranteeAmountC.dispose();
     _amountController.dispose();
     _bankGuaranteeListNotifier.dispose();
     _selectedBankGuaranteeType.dispose();
@@ -86,14 +86,14 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
   void _initializeTextEditingControllers() {
     _accountHolderNameC = TextEditingController();
     _stageController = TextEditingController();
-    _bankGuaranteeAmountController = TextEditingController();
+    _bankGuaranteeAmountC = TextEditingController();
     _amountController = TextEditingController();
     _remarkC = TextEditingController();
   }
 
   void _populateFormFields() {
     var bankGuaranteeDetailsModel = _cubit.state.bankGuaranteeDetails!;
-    _bankGuaranteeAmountController.text =
+    _bankGuaranteeAmountC.text =
         bankGuaranteeDetailsModel.bankGuaranteeAmount.toString();
     _accountHolderNameC.text =
         bankGuaranteeDetailsModel.accountHolderName.toString();
@@ -123,8 +123,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
         context,
         buildingId: widget.buildingId,
         projectId: widget.projectId,
-        bankGuaranteeAmount:
-            double.tryParse(_bankGuaranteeAmountController.text) ?? 0,
+        bankGuaranteeAmount: double.tryParse(_bankGuaranteeAmountC.text) ?? 0,
         accountHolderName: _accountHolderNameC.text.trim(),
         remark: _remarkC.text.trim(),
         proposedOfferBankGuaranteeDetailsId:
@@ -326,8 +325,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
     final nonReleaseAmount = _bankGuaranteeList
         .where((b) => b.isRelease == false)
         .fold<double>(0, (sum, item) => sum + item.amount);
-    final actualAmount =
-        double.tryParse(_bankGuaranteeAmountController.text) ?? 0;
+    final actualAmount = double.tryParse(_bankGuaranteeAmountC.text) ?? 0;
     if (releaseAmount != actualAmount) {
       return "Release Amount (${releaseAmount.toIndianCurrency()}) must match Bank Guarantee Amount (${actualAmount.toIndianCurrency()}).";
     }
@@ -349,7 +347,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
             _selectedBankGuaranteeType.value = null;
             _bankGuaranteeListNotifier.value = [];
             _stageController.clear();
-            _bankGuaranteeAmountController.clear();
+            _bankGuaranteeAmountC.clear();
             _amountController.clear();
             _remarkC.clear();
           }
@@ -396,15 +394,15 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                               title: "Bank Guarantee Amount",
                               hint: "Enter Bank Guarantee Amount",
                               isRequired: true,
-                             
-                              textController: _bankGuaranteeAmountController,
+                              prefixType: CustomTextFieldPrefix.rupees,
+                              textController: _bankGuaranteeAmountC,
                               keyboardType: TextInputType.number,
                               readOnly:
                                   (bankGuaranteeListNotifier.isNotEmpty ||
                                       disableAction),
                               inputFormatterList:
-                                  inputFormatterListForDecimalValuesFixedToTwo(
-                                    10,
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 16,
                                   ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -420,6 +418,9 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                           hint: "Enter Account Holder Name",
                           readOnly: disableAction,
                           textController: _accountHolderNameC,
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(50),
+                          ],
                         ),
                         CustomTextField(
                           title: 'Remark',
@@ -436,13 +437,24 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                               'Bank Guarantee List',
                               style: AppTextStyle.ts14M(color: AppColor.grey),
                             ),
-                            CustomIconButton.add(
-                              isDisabled: disableAction,
-                              onPressed: () {
-                                if (!_formKey.currentState!.validate()) {
-                                  return;
+                            AnimatedBuilder(
+                              animation: Listenable.merge([
+                                _bankGuaranteeAmountC,
+                              ]),
+                              builder: (context, child) {
+                                if ((double.tryParse(
+                                          _bankGuaranteeAmountC.text.trim(),
+                                        ) ??
+                                        0) ==
+                                    0) {
+                                  return const SizedBox.shrink();
                                 }
-                                _showBankGuaranteeBottomSheet();
+                                return CustomIconButton.add(
+                                  isDisabled: disableAction,
+                                  onPressed: () {
+                                    _showBankGuaranteeBottomSheet();
+                                  },
+                                );
                               },
                             ),
                           ],

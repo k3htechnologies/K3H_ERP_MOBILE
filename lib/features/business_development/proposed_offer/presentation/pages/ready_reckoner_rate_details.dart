@@ -267,12 +267,15 @@ class _ReadyReckonerRateDetailsState extends State<ReadyReckonerRateDetails> {
                                   children: [
                                     buildColumnTitleValue(
                                       title: "Last Modified By",
-                                      value: rent.modifiedBy,
+                                      value:
+                                          rent.modifiedBy.isEmpty
+                                              ? rent.createdBy
+                                              : rent.modifiedBy,
                                     ),
                                     buildColumnTitleValue(
                                       title: "Last Modified Date",
                                       value: formatDateTimeAsDDMMMYYYY(
-                                        rent.modifiedDate,
+                                        rent.modifiedDate ?? rent.createdDate,
                                       ),
                                     ),
                                   ],

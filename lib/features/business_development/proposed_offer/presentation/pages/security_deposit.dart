@@ -11,13 +11,11 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -52,8 +50,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   >([]);
   List<ProposedOfferSecurityDepositDetailsWithPaymentStageData>
   get _securityDepositList => _securityDepositListNotifier.value;
-  final ValueNotifier<Map<String, dynamic>?> _selectedSecurityDepositType =
-      ValueNotifier<Map<String, dynamic>?>(null);
   late TextEditingController _stageController;
   late TextEditingController _amountController;
   final GlobalKey<FormState> _securityDepositFormKey = GlobalKey<FormState>();
@@ -79,7 +75,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _amountController.dispose();
     _remarkC.dispose();
     _securityDepositListNotifier.dispose();
-    _selectedSecurityDepositType.dispose();
     super.dispose();
   }
 
@@ -104,6 +99,23 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     _remarkC.text = securityDepositDetailsModel.remark;
   }
 
+  String? isInvalidSecurityDepositEntry() {
+    final releaseAmount = _securityDepositList
+        .where((b) => b.isRelease == true)
+        .fold<double>(0, (sum, item) => sum + item.amount);
+    final nonReleaseAmount = _securityDepositList
+        .where((b) => b.isRelease == false)
+        .fold<double>(0, (sum, item) => sum + item.amount);
+    final actualAmount = double.tryParse(_securityDepositAmountC.text) ?? 0;
+    if (releaseAmount != actualAmount) {
+      return "Release Amount (${releaseAmount.toIndianCurrency()}) must match Security Deposit Amount (${actualAmount.toIndianCurrency()}).";
+    }
+    if (nonReleaseAmount != actualAmount) {
+      return "Non-Release Amount (${nonReleaseAmount.toIndianCurrency()}) must match Security Deposit Amount (${actualAmount.toIndianCurrency()}).";
+    }
+    return null;
+  }
+
   void _onSave() {
     if (_formKey.currentState!.validate()) {
       if (_securityDepositList.isEmpty) {
@@ -112,6 +124,11 @@ class _SecurityDepositState extends State<SecurityDeposit> {
           'Error',
           'Please add at least one security deposit.',
         );
+        return;
+      }
+      var invalidAmount = isInvalidSecurityDepositEntry();
+      if (invalidAmount != null) {
+        showErrorMessage(context, "Error", invalidAmount);
         return;
       }
       _cubit.addUpdateSecurityDepositDetails(
@@ -140,133 +157,105 @@ class _SecurityDepositState extends State<SecurityDeposit> {
     await DialogHelper.showCustomBottomSheet(
       context,
       "${securityDeposit != null ? 'Update' : 'Add'} Security Deposit Details",
-      contentWidget: ValueListenableBuilder<Map<String, dynamic>?>(
-        valueListenable: _selectedSecurityDepositType,
-        builder: (context, selectedSecurityDepositType, _) {
-          return Form(
-            key: _securityDepositFormKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomDropDownWidget(
-                  isRequired: true,
-                  initialValue: selectedSecurityDepositType,
-                  dataList: propertyTypeList,
-                  onSelected: (value) {
-                    _selectedSecurityDepositType.value = value;
-                  },
-                  title: "Type",
-                  hintText: "Select Type",
-                  validator: (value) {
-                    if (value == null || value['zAttributesId'] == -1) {
-                      return "Type is required.";
-                    }
-                    return null;
-                  },
-                  onValueClear: () => _selectedSecurityDepositType.value = null,
-                ),
-                CustomTextField(
-                  title: "Stage",
-                  isRequired: true,
-                  hint: "Enter Stage",
-                  textController: _stageController,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Stage is required.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  title: "Amount",
-                  isRequired: true,
-                  hint: "Enter Amount",
-                  prefixType: CustomTextFieldPrefix.rupees,
-                  textController: _amountController,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList:
-                      inputFormatterListForDecimalValuesFixedToTwo(10),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Amount is required.";
-                    }
-                    return null;
-                  },
-                ),
-                ValueListenableBuilder(
-                  valueListenable: _isRelease,
-                  builder: (context, isRelease, child) {
-                    return CustomCheckBox(
-                      title: 'Is Release',
-                      isSelected: isRelease,
-                      onChanged: (check) {
-                        _isRelease.value = check;
-                      },
-                    );
-                  },
-                ),
-                verticalSpacing(height: 15),
-              ],
-            ),
-          );
-        },
-      ),
-      bottomActions: ValueListenableBuilder<Map<String, dynamic>?>(
-        valueListenable: _selectedSecurityDepositType,
-        builder: (context, selectedSecurityDepositType, _) {
-          return CustomButton(
-            text: "Save",
-            onPressed: () {
-              if (_securityDepositFormKey.currentState!.validate()) {
-                final newList = List<
-                  ProposedOfferSecurityDepositDetailsWithPaymentStageData
-                >.from(_securityDepositList);
-                if (securityDeposit == null) {
-                  newList.add(
-                    ProposedOfferSecurityDepositDetailsWithPaymentStageData(
-                      proposedOfferSecurityDepositDetailsWithPaymentStageId: 0,
-                      uniquekey: '',
-                      buildingId: widget.buildingId,
-                      projectId: widget.projectId,
-                      type: selectedSecurityDepositType!['DisplayName'],
-                      stage: _stageController.text,
-                      amount: double.parse(_amountController.text),
-                      createdById: 1,
-                      createdBy: 'Current User',
-                      createdDate: DateTime.now(),
-                      modifiedById: 0,
-                      modifiedBy: '',
-                      modifiedDate: null,
-                      isRelease: _isRelease.value,
-                    ),
-                  );
-                } else {
-                  newList[index!] =
-                      ProposedOfferSecurityDepositDetailsWithPaymentStageData(
-                        proposedOfferSecurityDepositDetailsWithPaymentStageId:
-                            securityDeposit
-                                .proposedOfferSecurityDepositDetailsWithPaymentStageId,
-                        uniquekey: securityDeposit.uniquekey,
-                        buildingId: securityDeposit.buildingId,
-                        projectId: securityDeposit.projectId,
-                        type: selectedSecurityDepositType!['DisplayName'],
-                        stage: _stageController.text,
-                        amount: double.parse(_amountController.text),
-                        createdById: securityDeposit.createdById,
-                        createdBy: securityDeposit.createdBy,
-                        createdDate: securityDeposit.createdDate,
-                        modifiedById: securityDeposit.modifiedById,
-                        modifiedBy: securityDeposit.modifiedBy,
-                        modifiedDate: securityDeposit.modifiedDate,
-                        isRelease: _isRelease.value,
-                      );
+      contentWidget: Form(
+        key: _securityDepositFormKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextField(
+              title: "Stage",
+              isRequired: true,
+              hint: "Enter Stage",
+              textController: _stageController,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Stage is required.";
                 }
-                _securityDepositListNotifier.value = newList;
-                goRouter.pop();
-              }
-            },
-          );
+                return null;
+              },
+            ),
+            CustomTextField(
+              title: "Amount",
+              isRequired: true,
+              hint: "Enter Amount",
+              prefixType: CustomTextFieldPrefix.rupees,
+              textController: _amountController,
+              keyboardType: TextInputType.number,
+              inputFormatterList: inputFormatterListForDecimalValuesFixedToTwo(
+                10,
+              ),
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return "Amount is required.";
+                }
+                return null;
+              },
+            ),
+            ValueListenableBuilder(
+              valueListenable: _isRelease,
+              builder: (context, isRelease, child) {
+                return CustomCheckBox(
+                  title: 'Is Release',
+                  isSelected: isRelease,
+                  onChanged: (check) {
+                    _isRelease.value = check;
+                  },
+                );
+              },
+            ),
+            verticalSpacing(height: 15),
+          ],
+        ),
+      ),
+      bottomActions: CustomButton(
+        text: "Save",
+        onPressed: () {
+          if (_securityDepositFormKey.currentState!.validate()) {
+            final newList = List<
+              ProposedOfferSecurityDepositDetailsWithPaymentStageData
+            >.from(_securityDepositList);
+            if (securityDeposit == null) {
+              newList.add(
+                ProposedOfferSecurityDepositDetailsWithPaymentStageData(
+                  proposedOfferSecurityDepositDetailsWithPaymentStageId: 0,
+                  uniquekey: '',
+                  buildingId: widget.buildingId,
+                  projectId: widget.projectId,
+                  stage: _stageController.text,
+                  amount: double.parse(_amountController.text),
+                  createdById: 1,
+                  createdBy: 'Current User',
+                  createdDate: DateTime.now(),
+                  modifiedById: 0,
+                  modifiedBy: '',
+                  modifiedDate: null,
+                  isRelease: _isRelease.value,
+                ),
+              );
+            } else {
+              newList[index!] =
+                  ProposedOfferSecurityDepositDetailsWithPaymentStageData(
+                    proposedOfferSecurityDepositDetailsWithPaymentStageId:
+                        securityDeposit
+                            .proposedOfferSecurityDepositDetailsWithPaymentStageId,
+                    uniquekey: securityDeposit.uniquekey,
+                    buildingId: securityDeposit.buildingId,
+                    projectId: securityDeposit.projectId,
+                    stage: _stageController.text,
+                    amount: double.parse(_amountController.text),
+                    createdById: securityDeposit.createdById,
+                    createdBy: securityDeposit.createdBy,
+                    createdDate: securityDeposit.createdDate,
+                    modifiedById: securityDeposit.modifiedById,
+                    modifiedBy: securityDeposit.modifiedBy,
+                    modifiedDate: securityDeposit.modifiedDate,
+                    isRelease: _isRelease.value,
+                  );
+            }
+            _securityDepositListNotifier.value = newList;
+            goRouter.pop();
+          }
         },
       ),
     );
@@ -275,17 +264,12 @@ class _SecurityDepositState extends State<SecurityDeposit> {
   void _prefillBottomSheet(
     ProposedOfferSecurityDepositDetailsWithPaymentStageData securityDeposit,
   ) {
-    _selectedSecurityDepositType.value = propertyTypeList.firstWhere(
-      (e) => e['DisplayName'] == securityDeposit.type,
-      orElse: () => propertyTypeList.first,
-    );
     _stageController.text = securityDeposit.stage;
     _amountController.text = securityDeposit.amount.toString();
     _isRelease.value = securityDeposit.isRelease;
   }
 
   void _clearDialog() {
-    _selectedSecurityDepositType.value = null;
     _isRelease.value = false;
     _stageController.clear();
     _amountController.clear();
@@ -338,7 +322,6 @@ class _SecurityDepositState extends State<SecurityDeposit> {
             _populateFormFields();
           } else {
             _securityDepositAmountC.clear();
-            _selectedSecurityDepositType.value = null;
             _securityDepositListNotifier.value = [];
             _stageController.clear();
             _amountController.clear();
@@ -388,14 +371,16 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           hint: 'Enter Security Deposit Amount',
                           textController: _securityDepositAmountC,
                           keyboardType: TextInputType.number,
-                          inputFormatterList:
-                              inputFormatterListForDecimalValuesFixedToTwo(10),
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            maxDigitsBeforeDecimal: 16,
+                          ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter security deposit amount';
                             }
                             return null;
                           },
+                          prefixType: CustomTextFieldPrefix.rupees,
                         ),
                         CustomTextField(
                           title: 'Interest Amount',
@@ -428,13 +413,25 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                                     color: AppColor.grey,
                                   ),
                                 ),
-                                CustomIconButton.add(
-                                  isDisabled: disableAction,
-                                  onPressed: () {
-                                    if (!_formKey.currentState!.validate()) {
-                                      return;
+                                AnimatedBuilder(
+                                  animation: Listenable.merge([
+                                    _securityDepositAmountC,
+                                  ]),
+                                  builder: (context, child) {
+                                    if ((double.tryParse(
+                                              _securityDepositAmountC.text
+                                                  .trim(),
+                                            ) ??
+                                            0) ==
+                                        0) {
+                                      return const SizedBox.shrink();
                                     }
-                                    _showSecurityDepositBottomSheet();
+                                    return CustomIconButton.add(
+                                      isDisabled: disableAction,
+                                      onPressed: () {
+                                        _showSecurityDepositBottomSheet();
+                                      },
+                                    );
                                   },
                                 ),
                               ],

@@ -135,7 +135,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       ),
                       CustomTextField(
                         title: "Main Entrance Lobby Area (SqFt)",
-                        hint: "Lobby Area",
+                        hint: "Enter Main Entrance Lobby Area",
                         inputFormatterList: InputValidator.digitWithDecimal(
                           maxDigitsBeforeDecimal: 7,
                         ),
@@ -147,7 +147,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       ),
                       CustomTextField(
                         title: "Total Number Of Lifts",
-                        hint: "Total Lifts",
+                        hint: "Enter Total Number Of Lifts",
                         readOnly: !_routeAuthorizationModel.isAction,
                         inputFormatterList: InputValidator.digit(2),
                         keyboardType: TextInputType.number,
@@ -155,7 +155,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       ),
                       CustomTextField(
                         title: "Total No. Units For Member",
-                        hint: "Member Units",
+                        hint: "Enter Total No. Units For Member",
                         readOnly: !_routeAuthorizationModel.isAction,
                         inputFormatterList: InputValidator.digit(4),
                         keyboardType: TextInputType.number,
@@ -163,7 +163,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       ),
                       CustomTextField(
                         title: "Total No. Units For Sale",
-                        hint: "Sale Units",
+                        hint: "Enter Total No. Units For Sale",
                         readOnly: !_routeAuthorizationModel.isAction,
                         inputFormatterList: InputValidator.digit(4),
                         keyboardType: TextInputType.number,
@@ -171,14 +171,14 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       ),
                       CustomTextField(
                         title: "Total Number Of Units",
-                        hint: "Total Units",
+                        hint: "Enter Total Number Of Units",
                         readOnly: true,
                         keyboardType: TextInputType.number,
                         textController: wing.totalUnits,
                       ),
                       CustomTextField(
                         title: "Total Area For Member (SqFt)",
-                        hint: "Member Area",
+                        hint: "Enter Total Area For Member",
                         readOnly: !_routeAuthorizationModel.isAction,
                         inputFormatterList: InputValidator.digitWithDecimal(
                           maxDigitsBeforeDecimal: 7,
@@ -190,7 +190,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       ),
                       CustomTextField(
                         title: "Total Area For Sale (SqFt)",
-                        hint: "Sale Area",
+                        hint: "Enter Total Area For Sale",
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,
                         ),
@@ -202,7 +202,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                       ),
                       CustomTextField(
                         title: "Total Area (SqFt)",
-                        hint: "Total Area",
+                        hint: "Enter Total Area",
                         readOnly: true,
                         keyboardType: const TextInputType.numberWithOptions(
                           decimal: true,

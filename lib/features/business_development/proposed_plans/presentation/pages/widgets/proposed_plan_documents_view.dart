@@ -159,6 +159,7 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                 ),
                 CustomMultiFilePicker(
                   initialFileList: salesPlanFile.fileNameList,
+                  readOnly: !_routeAuthorizationModel.isAction,
                   title: "Sales Plan",
                   filePickType: FilePickType.kycDocument,
                   onFilePickedCallback: (fileByteList, fileNameList) {

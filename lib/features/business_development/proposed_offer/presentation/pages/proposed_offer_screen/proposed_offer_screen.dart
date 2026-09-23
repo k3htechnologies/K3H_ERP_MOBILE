@@ -53,7 +53,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     "Carpet / Plot Area",
     "Extra Carpet Area",
     "Hardship Offer Details",
-    "Temp Accom Alternative",
+    "Temp Alternative Accom",
     "Shifting Details",
     "GST on Existing + Free Area",
     "Parking Allotment",
@@ -202,12 +202,12 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                               icon: Icon(
                                 Icons.picture_as_pdf,
                                 color:
-                                    _routeAuthorizationModel.isAction
+                                    _project.projectId > 0
                                         ? AppColor.primary
                                         : AppColor.grey2,
                                 size: 24,
                               ),
-                              isDisable: !_routeAuthorizationModel.isAction,
+                              isDisable: _project.projectId == 0,
                               onPressed: _showGeneratePDFConfirmation,
                             ),
                           ),

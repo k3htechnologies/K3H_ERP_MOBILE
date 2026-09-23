@@ -272,7 +272,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                       hint: "Enter Stage",
                       textController: _stageController,
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(150),
+                        LengthLimitingTextInputFormatter(100),
                       ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -324,7 +324,12 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
             valueListenable: _isRelease,
             builder: (context, isRelease, __) {
               return CustomButton(
-                text: "Save",
+                leading: Icon(
+                  (lien != null) ? Icons.edit : Icons.add,
+                  size: 18,
+                  color: AppColor.white,
+                ),
+                text: lien != null ? "Update" : "Add",
                 onPressed: () {
                   if (_lienFormKey.currentState!.validate()) {
                     final newList = List<
@@ -473,21 +478,32 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           title: "Lien To Society Area Details",
                         ),
                         verticalSpacing(height: 15),
-                        CustomTextField(
-                          title: "Residential Area (SqFt)",
-                          isRequired: true,
-                          readOnly: disableAction,
-                          hint: "Enter Residential Area (SqFt)",
-                          textController: _residentialAreaC,
-                          keyboardType: TextInputType.number,
-                          inputFormatterList: InputValidator.digitWithDecimal(
-                            maxDigitsBeforeDecimal: 16,
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Residential area is required.";
-                            }
-                            return null;
+                        ValueListenableBuilder(
+                          valueListenable: _lienListNotifier,
+                          builder: (context, lienList, child) {
+                            final isResidentialReadOnly = lienList.any(
+                              (item) =>
+                                  (item.type).toLowerCase().trim() ==
+                                  'residential',
+                            );
+                            return CustomTextField(
+                              title: "Residential Area (SqFt)",
+                              isRequired: true,
+                              readOnly: disableAction || isResidentialReadOnly,
+                              hint: "Enter Residential Area (SqFt)",
+                              textController: _residentialAreaC,
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 16,
+                                  ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Residential area is required.";
+                                }
+                                return null;
+                              },
+                            );
                           },
                         ),
                         CustomTextField(
@@ -535,21 +551,32 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                             );
                           },
                         ),
-                        CustomTextField(
-                          title: "Commercial Area (SqFt)",
-                          hint: "Enter Commercial Area (SqFt)",
-                          isRequired: true,
-                          readOnly: disableAction,
-                          textController: _commercialAreaC,
-                          keyboardType: TextInputType.number,
-                          inputFormatterList: InputValidator.digitWithDecimal(
-                            maxDigitsBeforeDecimal: 16,
-                          ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return "Commercial area is required.";
-                            }
-                            return null;
+                        ValueListenableBuilder(
+                          valueListenable: _lienListNotifier,
+                          builder: (context, lienList, child) {
+                            final isCommercialReadOnly = lienList.any(
+                              (item) =>
+                                  (item.type).toLowerCase().trim() ==
+                                  'commercial',
+                            );
+                            return CustomTextField(
+                              title: "Commercial Area (SqFt)",
+                              hint: "Enter Commercial Area (SqFt)",
+                              isRequired: true,
+                              readOnly: disableAction || isCommercialReadOnly,
+                              textController: _commercialAreaC,
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 16,
+                                  ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return "Commercial area is required.";
+                                }
+                                return null;
+                              },
+                            );
                           },
                         ),
                         CustomTextField(
@@ -608,13 +635,30 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                               'Lien to Society List',
                               style: AppTextStyle.ts14M(color: AppColor.grey),
                             ),
-                            CustomIconButton.add(
-                              isDisabled: disableAction,
-                              onPressed: () {
-                                if (!_formKey.currentState!.validate()) {
-                                  return;
+                            AnimatedBuilder(
+                              animation: Listenable.merge([
+                                _residentialAreaC,
+                                _commercialAreaC,
+                              ]),
+                              builder: (context, child) {
+                                if ((double.tryParse(
+                                              _residentialAreaC.text.trim(),
+                                            ) ??
+                                            0) ==
+                                        0 &&
+                                    (double.tryParse(
+                                              _commercialAreaC.text.trim(),
+                                            ) ??
+                                            0) ==
+                                        0) {
+                                  return const SizedBox.shrink();
                                 }
-                                _showLienBottomSheet();
+                                return CustomIconButton.add(
+                                  isDisabled: disableAction,
+                                  onPressed: () {
+                                    _showLienBottomSheet();
+                                  },
+                                );
                               },
                             ),
                           ],

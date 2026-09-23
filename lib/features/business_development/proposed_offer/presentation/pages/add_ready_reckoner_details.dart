@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_offer/data/model/ready_reckover_details.model.dart';
@@ -220,6 +221,9 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                           title: "Zone",
                           textController: _zoneController,
                           isRequired: true,
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(100),
+                          ],
                           hint: "Enter Zone",
                           validator:
                               (v) =>
@@ -232,6 +236,9 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                           textController: _subZoneController,
                           hint: "Enter Sub Zone",
                           isRequired: true,
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(100),
+                          ],
                           validator:
                               (v) =>
                                   (v == null || v.isEmpty)
