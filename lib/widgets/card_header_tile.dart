@@ -12,6 +12,7 @@ class CardHeaderTile extends StatelessWidget {
   final double containerSize;
   final Color? iconColor;
   final TextStyle? textStyle;
+  final Widget? suffix;
 
   const CardHeaderTile({
     super.key,
@@ -23,6 +24,7 @@ class CardHeaderTile extends StatelessWidget {
     this.containerSize = 32,
     this.iconColor,
     this.textStyle,
+    this.suffix,
   }) : assert(
          svgIcon != null || icon != null,
          'Either svgIcon or icon must be provided.',
@@ -60,6 +62,7 @@ class CardHeaderTile extends StatelessWidget {
             style: textStyle ?? AppTextStyle.ts14M(color: AppColor.black),
           ),
         ),
+        if (suffix != null) ...[const SizedBox(width: 12), suffix!],
       ],
     );
   }

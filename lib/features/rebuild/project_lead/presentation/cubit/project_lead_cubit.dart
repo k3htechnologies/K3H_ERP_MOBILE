@@ -258,6 +258,7 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
       "IsPlotUnderLitigationStay": isPlotUnderLitigationStay.toString(),
       "IsConveyanceDeed": isConveyanceDeed.toString(),
       "Remarks": remark,
+      "RemovePhotoURL": projectPhotoMap.deletedFileList,
     };
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < projectPhotoMap.fileBytesList.length; i++) {

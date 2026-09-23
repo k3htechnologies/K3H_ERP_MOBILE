@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
@@ -71,12 +72,19 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  widget.redevelopmentModel.buildingName,
-                  style: AppTextStyle.ts16SB(color: AppColor.primary),
-                ),
+              Row(
+                spacing: 8,
+                children: [
+                  Icon(
+                    LucideIcons.building2,
+                    color: AppColor.darkBlue,
+                    size: 18,
+                  ),
+                  Text(
+                    toTitleCase(widget.redevelopmentModel.buildingName),
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                ],
               ),
               verticalSpacing(),
               Column(
@@ -130,10 +138,7 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                                   onTap: () {
                                     showFilePreviewDialog(
                                       context,
-                                      title:
-                                          widget
-                                              .redevelopmentModel
-                                              .buildingName,
+                                      title: "Building Photo",
                                       [projectImages[index]],
                                     );
                                   },
@@ -257,10 +262,63 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
               ),
               verticalSpacing(),
               SectionCard(
+                title: "Basic Details",
+                icon: LucideIcons.building,
+                iconColor: Color(0xff712AE2),
+                iconContainerColor: Color(0xff712AE2).withValues(alpha: 0.10),
+                children: [
+                  buildColumnTitleValue(
+                    title: "Plot / CTS / Survey / Subdivision Number",
+                    value:
+                        widget
+                            .redevelopmentModel
+                            .plotNumberCtsNumberSurveyNumberSubdivisionNumber,
+                    removeExpanded: true,
+                  ),
+                  buildColumnTitleValue(
+                    title: "State",
+                    value: widget.redevelopmentModel.stateName,
+                    removeExpanded: true,
+                  ),
+                ],
+              ),
+              verticalSpacing(),
+              SectionCard(
                 title: "Location Details",
                 icon: LucideIcons.mapPin,
                 iconColor: Color(0xff712AE2),
                 iconContainerColor: Color(0xff712AE2).withValues(alpha: 0.10),
+                suffix: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final url =
+                            widget.redevelopmentModel.identificationLocation;
+
+                        if (url.isNotEmpty) {
+                          final uri = Uri.parse(url);
+
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        }
+                      },
+                      child: Text(
+                        "Google Location",
+                        style: AppTextStyle.ts12M().copyWith(
+                          color: AppColor.primary,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColor.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
                 children: [
                   Row(
                     spacing: 10,
@@ -311,36 +369,6 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                       buildColumnTitleValue(
                         title: "Latitude Longitude",
                         value: widget.redevelopmentModel.latitudeLongitude,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          final url =
-                              widget.redevelopmentModel.identificationLocation;
-
-                          if (url.isNotEmpty) {
-                            final uri = Uri.parse(url);
-
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            }
-                          }
-                        },
-                        child: Text(
-                          "Google Location",
-                          style: AppTextStyle.ts12M().copyWith(
-                            color: AppColor.primary,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColor.primary,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -482,14 +510,16 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                       buildColumnTitleValue(
                         title: "Lift Available",
                         value:
-                            widget.redevelopmentModel.liftAvailable.toString(),
+                            widget.redevelopmentModel.isLiftAvailable
+                                .toString(),
                       ),
                       buildColumnTitleValue(
                         title: "Fire Safety Provision Present",
                         value:
                             widget
                                 .redevelopmentModel
-                                .fireSafetyProvisionPresent,
+                                .isFireSafetyProvisionPresent
+                                .toString(),
                       ),
                     ],
                   ),
@@ -499,7 +529,9 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                     children: [
                       buildColumnTitleValue(
                         title: "Conveyance Deed",
-                        value: widget.redevelopmentModel.conveyanceDeed,
+                        value:
+                            widget.redevelopmentModel.isConveyanceDeed
+                                .toString(),
                       ),
                     ],
                   ),
@@ -556,6 +588,10 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                       buildColumnTitleValue(
                         title: "Mobile No",
                         value: widget.redevelopmentModel.contactPersonMobile,
+                        customValueWidget: CustomClickToContactText(
+                          type: ContactType.phone,
+                          value: widget.redevelopmentModel.contactPersonMobile,
+                        ),
                       ),
                     ],
                   ),
@@ -567,6 +603,10 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                       buildColumnTitleValue(
                         title: "E-Mail ID",
                         value: widget.redevelopmentModel.contactPersonEmail,
+                        customValueWidget: CustomClickToContactText(
+                          type: ContactType.email,
+                          value: widget.redevelopmentModel.contactPersonEmail,
+                        ),
                       ),
                     ],
                   ),

@@ -112,6 +112,7 @@ class SectionCard extends StatelessWidget {
             icon: icon,
             backgroundColor: iconContainerColor ?? AppColor.lightBlue,
             iconColor: iconColor,
+            suffix: suffix,
           ),
           verticalSpacing(),
           _buildNormalContent(),

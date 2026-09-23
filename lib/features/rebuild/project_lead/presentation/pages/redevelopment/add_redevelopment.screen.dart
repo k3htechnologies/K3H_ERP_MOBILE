@@ -374,7 +374,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Building is required";
+                          return "Building Name is required.";
                         }
                         return null;
                       },
@@ -409,9 +409,10 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                     ),
                     CustomTextField(
                       title: "Pin Code",
-                      hint: "Pin Code",
+                      hint: "Enter Pin Code",
                       textController: _pinCodeC,
                       isRequired: true,
+                      keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(6),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -424,6 +425,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       title: "Plot / CTS / Survey / Subdivision Number",
                       hint: "Enter Plot Number",
                       textController: _plotCTSSurveySubdivisionNumberC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        100,
+                      ),
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -477,9 +481,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       hint: "Enter Total Plot Area",
                       textController: _totalPlotAreaSqMtC,
                       isRequired: true,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total plot area is required.';
@@ -566,14 +570,16 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       title: "Latitude & Longitude (For GIS Mapping)",
                       hint: "Enter Latitude & Longitude (For GIS Mapping)",
                       textController: _latitudeLongitudeMappingC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        50,
+                      ),
                     ),
                     CustomTextField(
                       title: "Identification And Location",
                       hint: "Enter Identification And Location",
                       textController: _identificationAndLocationC,
+                      prefixType: CustomTextFieldPrefix.location,
                       isRequired: true,
-                      minLines: 3,
-                      maxLines: 10,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Identification And Location is required";
@@ -589,14 +595,14 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       },
                     ),
                     CustomTextField(
-                      title: 'Contact Person For Land Name',
+                      title: 'Contact Person Name',
                       textController: _contactPersonC,
-                      hint: "Enter Contact Person For Land Name",
+                      hint: "Enter Contact Person Name",
                       inputFormatterList: InputValidator.textOnly(50),
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Contact Person For Land Name is required.";
+                          return "Contact Person Name is required.";
                         }
                         return null;
                       },
@@ -750,9 +756,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       hint: "Enter Total Build-Up Area",
                       textController: _totalBuildUpAreaC,
                       isRequired: true,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total Build-Up Area is required.';
@@ -767,7 +773,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       isRequired: true,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total Carpet Area is required.';
@@ -782,7 +788,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       isRequired: true,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total Common Area is required.';
