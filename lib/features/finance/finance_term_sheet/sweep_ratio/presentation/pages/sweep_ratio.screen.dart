@@ -118,15 +118,17 @@ class _SweepRatioScreenState extends State<SweepRatioScreen> {
                 children: [
                   Text("Sweep Ratio Details", style: AppTextStyle.ts14SB()),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addSweepRatio,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                      'closed')
+                    CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addSweepRatio,
+                          extra: {"termSheetDetailsView": termSheet},
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -157,7 +159,10 @@ class _SweepRatioScreenState extends State<SweepRatioScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
+                                  isLatest &&
+                                          widget.termSheetModel.approvalStatus
+                                                  .toLowerCase() !=
+                                              'closed'
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -190,17 +195,15 @@ class _SweepRatioScreenState extends State<SweepRatioScreen> {
                                       : SizedBox.shrink(),
 
                                   buildRowTitleValue(
-                                    title: "Own (%)",
+                                    title: "Own",
                                     value:
-                                        sweepRatio.ownSweepRatioInPercentage
-                                            .toString(),
+                                        "${sweepRatio.ownSweepRatioInPercentage.toString()} (%)",
                                   ),
 
                                   buildRowTitleValue(
-                                    title: "Lender (%)",
+                                    title: "Lender",
                                     value:
-                                        sweepRatio.lenderSweepRatioInPercentage
-                                            .toString(),
+                                        "${sweepRatio.lenderSweepRatioInPercentage.toString()} (%)",
                                   ),
                                   buildRowTitleValue(
                                     title: "Date",

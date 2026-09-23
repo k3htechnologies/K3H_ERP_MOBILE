@@ -161,9 +161,14 @@ class _AddDsaScreenState extends State<AddDsaScreen> {
                       textController: _commissionC,
                       prefixType: CustomTextFieldPrefix.percentage,
                       isRequired: true,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(2),
+                          inputFormatterListForDecimalValuesFixedToTwo(
+                            3,
+                            maxValue: 100,
+                          ),
 
                       validator: (value) {
                         if (value == null || value.isEmpty) {

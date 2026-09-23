@@ -20,6 +20,7 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
@@ -49,6 +50,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
   // TAB CONTROLLER
   late TabController _tabController;
   late TermSheetCubit _termSheetCubit;
+  late AuthorizationModel _routeAuthorizationModel;
 
   bool get isApproved =>
       widget.termSheetModel?.approvalStatus.trim().toLowerCase() ==
@@ -75,6 +77,8 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
   void initState() {
     _termSheetCubit = context.read<TermSheetCubit>();
     _tabController = TabController(length: tabs.length, vsync: this);
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _tabController.addListener(_handleTabChange);
     Future.wait([
       _termSheetCubit.getTermSheetView(
@@ -108,12 +112,33 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
     super.dispose();
   }
 
+  Future<void> _showPopupToFinaliseTermSheetApproval(
+    BuildContext context,
+  ) async {
+    var result = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Final Approval Confirmation',
+      message: 'Are you sure you want to give Final Approval?',
+      confirmText: "Final Approval",
+      icon: LucideIcons.wandSparkles,
+      confirmColor: AppColor.error,
+    );
+    if (result && context.mounted) {
+      _termSheetCubit.finalizeTermSheetApproval(
+        context,
+        termSheetId: widget.termSheetDetailsView!.termSheetId,
+        projectId: widget.termSheetDetailsView!.projectId,
+        actionType: "FINAL APPROVAL",
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Term Sheet",
-        authorization: AuthorizationModel(),
+        authorization: _routeAuthorizationModel,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -425,6 +450,19 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                           ),
                         ],
                       ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: buildRowWrapper(
+                              child: buildColumnTitleValue(
+                                title: "City",
+                                value: state.companyByProject.first.cityName,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   ListView.builder(
@@ -442,6 +480,9 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                               .termSheetViewList
                               .first
                               .termSheetDetailsData[index];
+                      final outstandingAmount =
+                          termSheetView.facilityAmount -
+                          termSheetView.totalDisbursedAmount;
                       return SectionCard(
                         margin: 0,
                         title: termSheetView.nameOfInstitutionBankNbfc,
@@ -521,8 +562,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       title: "Outstanding (₹)",
                                       titleColor: AppColor.primary,
                                       value:
-                                          termSheetView.facilityAmount
-                                              .toIndianCurrency(),
+                                          outstandingAmount.toIndianCurrency(),
                                       valueColor: AppColor.primary,
                                       borderColor: AppColor.black.withValues(
                                         alpha: 0.2,
@@ -680,10 +720,23 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                             singleLine: false,
                           ),
                           buildRowTitleValue(
-                            title: "Created By",
+                            title: "Created Date",
                             value: formatDate(termSheetView.createdDate),
                             singleLine: false,
                           ),
+                          if (termSheetView.modifiedBy.isNotEmpty &&
+                              termSheetView.modifiedDate != null) ...{
+                            buildRowTitleValue(
+                              title: "Modified By",
+                              value: termSheetView.modifiedBy,
+                              singleLine: false,
+                            ),
+                            buildRowTitleValue(
+                              title: "Modified Date",
+                              value: formatDate(termSheetView.modifiedDate),
+                              singleLine: false,
+                            ),
+                          },
                           ApproveRejectWidget(
                             showApproval: termSheetView.isApproval,
                             actionTitle:
@@ -744,7 +797,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                   queryParameters: {
                                     "title": Uri.encodeComponent(
                                       EncryptionManager.encryptData(
-                                        "TERM SHEET APPROVAL",
+                                        "Term Sheet Log History : ${termSheetView.nameOfInstitutionBankNbfc}",
                                       ),
                                     ),
                                     "approvalList": Uri.encodeComponent(
@@ -769,7 +822,6 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                   if ((termSheetView.closingRemark.isNotEmpty) &&
                       (termSheetView.closingDate != null))
                     SectionCard(
-                      margin: 0,
                       headerBackgroundColor: AppColor.grey30,
                       title: 'Closing Details',
                       titleTextColor: AppColor.black,
@@ -800,7 +852,10 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                       ],
                     ),
 
-                  showFinalizeApproval
+                  showFinalizeApproval &&
+                          ((termSheetView.closingRemark.isEmpty) &&
+                              (termSheetView.closingDate == null)) &&
+                          _routeAuthorizationModel.isAction
                       ? Container(
                         padding: EdgeInsets.only(
                           left: 16.0,
@@ -884,12 +939,10 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 CustomButton(
-                                  text: "Finalize Approval",
+                                  text: "Final Approval",
                                   onPressed: () {
-                                    _termSheetCubit.finalizeTermSheetApproval(
+                                    _showPopupToFinaliseTermSheetApproval(
                                       context,
-                                      termSheetId: termSheetView.termSheetId,
-                                      projectId: termSheetView.projectId,
                                     );
                                   },
                                 ),
@@ -905,7 +958,8 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
           ),
           if (showCloseButton &&
               (termSheetView.closingRemark.isEmpty) &&
-              (termSheetView.closingDate == null))
+              (termSheetView.closingDate == null) &&
+              _routeAuthorizationModel.isAction)
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,

@@ -144,18 +144,20 @@ class _DisbursementScreenState extends State<DisbursementScreen> {
                     ],
                   ),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    isDisable:
-                        termSheet.totalDisbursedAmount ==
-                        termSheet.facilityAmount,
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addDisbursement,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                      'closed')
+                    CustomButton(
+                      text: "Add",
+                      isDisable:
+                          termSheet.totalDisbursedAmount ==
+                          termSheet.facilityAmount,
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addDisbursement,
+                          extra: {"termSheetDetailsView": termSheet},
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -186,7 +188,10 @@ class _DisbursementScreenState extends State<DisbursementScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
+                                  isLatest &&
+                                          widget.termSheetModel.approvalStatus
+                                                  .toLowerCase() !=
+                                              'closed'
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,

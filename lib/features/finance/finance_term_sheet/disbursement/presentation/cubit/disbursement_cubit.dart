@@ -68,6 +68,43 @@ class DisbursementCubit extends Cubit<DisbursementState> {
     required int termSheetDetailsId,
     required int termSheetId,
   }) async {
+    if (state.termSheetDetailsViewModel!.sanctionDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${state.termSheetDetailsViewModel!.nameOfInstitutionBankNbfc}: "
+            "Sanction Date is required.",
+      );
+      return;
+    }
+    if (state.termSheetDetailsViewModel!.loanStartDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${state.termSheetDetailsViewModel!.nameOfInstitutionBankNbfc}: "
+            "Loan Start Date is required.",
+      );
+      return;
+    }
+
+    if (state.termSheetDetailsViewModel!.loanEndDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${state.termSheetDetailsViewModel!.nameOfInstitutionBankNbfc}: "
+            "Loan End Date is required.",
+      );
+      return;
+    }
+    if (state.termSheetDetailsViewModel!.emiAmount == 0) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${state.termSheetDetailsViewModel!.nameOfInstitutionBankNbfc}: "
+            "EMI is required.",
+      );
+      return;
+    }
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "DisbursedAmount": disbursedAmount,

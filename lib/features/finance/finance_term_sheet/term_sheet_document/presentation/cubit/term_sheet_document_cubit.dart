@@ -16,6 +16,23 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
   final TermSheetDocumentsRepository _termSheetDocumentsRepository =
       serviceLocator<TermSheetDocumentsRepository>();
 
+  Future searchTermSheetDocument(
+    BuildContext context,
+    int projectId,
+    int termSheetId,
+    int termSheetDetailsId,
+    String value,
+  ) async {
+    emit(state.copywith(filterDocumentName: value, termSheetDocumentList: []));
+    await getTermSheetDocumentList(
+      context,
+      1,
+      projectId: projectId,
+      termSheetId: termSheetId,
+      termSheetDetailsId: termSheetDetailsId,
+    );
+  }
+
   Future<void> getTermSheetDocumentList(
     BuildContext context,
     int pageNumber, {
@@ -26,6 +43,7 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
     emit(state.copywith(isLoading: true));
 
     final Map<String, dynamic> queryParams = {
+      "DocumentName": state.filterDocumentName,
       "IsCheckPermission": true,
       "ProjectId": projectId,
       "TermSheetId": termSheetId,
@@ -51,6 +69,11 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
           state.copywith(
             termSheetDocumentList: updatedList,
             termSheetDocumentOverview: logs.isNotEmpty ? logs.first : null,
+            totalNumberOfRecord:
+                response['totalNumberOfRecord'] == 0 && state.currentPage != 1
+                    ? state.totalNumberOfRecord - 1
+                    : response['totalNumberOfRecord'],
+            currentPage: pageNumber,
             isLoading: false,
           ),
         );
@@ -155,6 +178,7 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
       "DocumentRemark": remark,
       "IsCollectedOriginalDocument": isCollectedOriginalDocument.toString(),
       "IsSubmittedOriginalDocument": isSubmittedOriginalDocument.toString(),
+      "RemoveDocumentURL": file.deletedFileList,
     };
     if (collectedOriginalDate != null) {
       body["CollectedOriginalDocumentDate"] = collectedOriginalDate.apiDate!;

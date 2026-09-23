@@ -176,7 +176,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                   builder: (context, value, child) {
                     return CustomDropDownWidget(
                       title: "Status",
-                      hintText: "Call Status",
+                      hintText: "Select Status",
                       initialValue: value,
                       dataList: approvalStatus,
                       onSelected: (value) {
@@ -345,31 +345,37 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                 ),
               ),
               horizontalSpacing(),
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomIconButton.edit(
-                      isDisabled: isEditDisbaled,
-                      onPressed: () async {
-                        await goRouter.pushNamed(
-                          AppRoutes.addTermSheet,
-                          extra: {"termSheet": termSheet},
-                        );
-                      },
-                    ),
-                    horizontalSpacing(),
-                    CustomIconButton.delete(
-                      isDisabled:
-                          termSheet.approvalStatus.toLowerCase() != "pending",
-                      onPressed: () {
-                        _showPopupToDeleteTermSheet(context, termSheet, index);
-                      },
-                    ),
-                  ],
+              if (_routeAuthorizationModel.isAction)
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (termSheet.approvalStatus.toLowerCase() != "closed")
+                        CustomIconButton.edit(
+                          isDisabled: isEditDisbaled,
+                          onPressed: () async {
+                            await goRouter.pushNamed(
+                              AppRoutes.addTermSheet,
+                              extra: {"termSheet": termSheet},
+                            );
+                          },
+                        ),
+                      horizontalSpacing(),
+                      CustomIconButton.delete(
+                        isDisabled:
+                            termSheet.approvalStatus.toLowerCase() != "pending",
+                        onPressed: () {
+                          _showPopupToDeleteTermSheet(
+                            context,
+                            termSheet,
+                            index,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
           buildRowTitleValue(

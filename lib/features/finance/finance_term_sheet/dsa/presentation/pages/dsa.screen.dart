@@ -120,15 +120,17 @@ class _DSAScreenState extends State<DSAScreen> {
                     style: AppTextStyle.ts14SB(),
                   ),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addDsa,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                      'closed')
+                    CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addDsa,
+                          extra: {"termSheetDetailsView": termSheet},
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -159,7 +161,10 @@ class _DSAScreenState extends State<DSAScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
+                                  isLatest &&
+                                          widget.termSheetModel.approvalStatus
+                                                  .toLowerCase() !=
+                                              'closed'
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -202,7 +207,7 @@ class _DSAScreenState extends State<DSAScreen> {
                                     singleLine: false,
                                   ),
                                   buildRowTitleValue(
-                                    title: "Amount (₹)",
+                                    title: "Amount",
                                     value: dsa.amount.toIndianCurrency(),
                                     singleLine: false,
                                   ),

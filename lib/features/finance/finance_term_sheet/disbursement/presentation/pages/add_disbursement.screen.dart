@@ -66,12 +66,43 @@ class _AddDisbursementScreenState extends State<AddDisbursementScreen> {
     final termSheet = widget.termSheetDetailsView;
 
     if (termSheet == null) return;
-
-    if (!_formKey.currentState!.validate()) return;
-
-    if (disbursedDate == null) {
+    if (termSheet.sanctionDate == null && disbursedDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "Sanction Date is required.",
+      );
       return;
     }
+    if (termSheet.loanStartDate == null && disbursedDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "Loan Start Date is required.",
+      );
+      return;
+    }
+    if (termSheet.loanEndDate == null && disbursedDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "Loan End Date is required.",
+      );
+      return;
+    }
+    if (termSheet.emiAmount == 0 && disbursedDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "EMI is required.",
+      );
+      return;
+    }
+    if (!_formKey.currentState!.validate()) return;
 
     final disbursedAmount = double.tryParse(_disbursedAmountC.text.trim()) ?? 0;
 
@@ -168,7 +199,7 @@ class _AddDisbursementScreenState extends State<AddDisbursementScreen> {
                       },
                     ),
                     CustomDatePicker(
-                      title: 'Term Sheet Date',
+                      title: 'Disbursed Date',
                       isRequired: true,
                       initialDate: disbursedDate,
                       setValue: (value) => disbursedDate = value,

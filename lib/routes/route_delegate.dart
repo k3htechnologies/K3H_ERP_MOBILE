@@ -7805,6 +7805,7 @@ final GoRouter goRouter = GoRouter(
                   termSheetDebtServiceReserveAccountData:
                       extra['dsraData']
                           as TermSheetDebtServiceReserveAccountData?,
+                  termSheetModel: extra['termSheetDetails'] as TermSheetModel?,
                 );
               },
             ),

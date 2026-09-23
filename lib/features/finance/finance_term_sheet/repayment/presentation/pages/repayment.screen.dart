@@ -118,16 +118,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Disbursed Amount Details",
-                        style: AppTextStyle.ts14SB(),
-                      ),
+                      Text("Repayment Details", style: AppTextStyle.ts14SB()),
                       verticalSpacing(),
                       RichText(
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: "Total Disbursed Amount: ",
+                              text: "Total Repayment Amount: ",
                               style: AppTextStyle.ts12M(),
                             ),
                             TextSpan(
@@ -142,19 +139,22 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     ],
                   ),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    isDisable:
-                        termSheet.totalDisbursedAmount > 0 &&
-                        termSheet.totalDisbursedAmount ==
-                            termSheet.totalRepayLedgerAmount,
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addRepayment,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                      'closed')
+                    CustomButton(
+                      text: "Add",
+                      isDisable:
+                          termSheet.facilityAmount <=
+                              termSheet.totalDisbursedAmount &&
+                          termSheet.totalDisbursedAmount ==
+                              termSheet.totalRepayLedgerAmount,
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addRepayment,
+                          extra: {"termSheetDetailsView": termSheet},
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -187,7 +187,10 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
+                                  isLatest &&
+                                          widget.termSheetModel.approvalStatus
+                                                  .toLowerCase() !=
+                                              'closed'
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,

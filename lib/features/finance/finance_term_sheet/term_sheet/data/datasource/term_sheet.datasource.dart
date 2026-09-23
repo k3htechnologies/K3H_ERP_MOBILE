@@ -73,7 +73,8 @@ class TermSheetDatasourceImpl extends TermSheetDatasource {
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
-    } catch (error) {
+    } catch (error, s) {
+      print("the error is $s");
       if (error is TokenExpiredException) {
         apiCallPullTermSheet(
           pageNumber: pageNumber,
@@ -148,7 +149,8 @@ class TermSheetDatasourceImpl extends TermSheetDatasource {
         ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
-    } catch (error) {
+    } catch (error, s) {
+      print("the error for view $s");
       if (error is TokenExpiredException) {
         apiCallPullTermSheetView(
           projectId: projectId,
@@ -217,6 +219,7 @@ class TermSheetDatasourceImpl extends TermSheetDatasource {
         'data': List<TermSheetDetailsView>.from(
           networkResponse['data'].map((x) => TermSheetDetailsView.fromJson(x)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

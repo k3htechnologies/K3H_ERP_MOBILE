@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsra/presentation/cubit/dsra_cubit.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -16,6 +17,7 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddDsraScreen extends StatefulWidget {
+  final TermSheetModel? termSheetModel;
   final TermSheetDetailsView? termSheetDetailsView;
   final TermSheetDebtServiceReserveAccountData?
   termSheetDebtServiceReserveAccountData;
@@ -23,6 +25,7 @@ class AddDsraScreen extends StatefulWidget {
     super.key,
     this.termSheetDetailsView,
     this.termSheetDebtServiceReserveAccountData,
+    required this.termSheetModel,
   });
 
   @override
@@ -47,6 +50,10 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   // EDIT MODE
   bool get _isEditMode => widget.termSheetDebtServiceReserveAccountData != null;
+
+  bool get _canEditWithdrawFields =>
+      _isEditMode &&
+      widget.termSheetModel?.approvalStatus.trim().toLowerCase() == 'closed';
   // DATE PICKERS
   DateTime? date, withdrawDate;
   @override
@@ -74,6 +81,9 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
   }
 
   void prefillDSRA() {
+    debugPrint(
+      "PARENT STATUS BEFORE ROUTE = ${widget.termSheetModel?.approvalStatus}",
+    );
     final dsra = widget.termSheetDebtServiceReserveAccountData;
 
     if (dsra == null) return;
@@ -96,7 +106,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
 
     _redemptionValueC.text = dsra.redemptionValue.toString();
 
-    _maturityPeriodC.text = dsra.maturityPeriod.toString();
+    _maturityPeriodC.text = dsra.maturityPeriod.toInt().toString();
 
     // WITHDRAW FIELDS
     _withdrawAmountC.text = dsra.withdrawAmount.toString();
@@ -227,8 +237,21 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
   }
 
   void _calculateAmount() {
-    final unit = double.tryParse(_unitC.text.trim()) ?? 0;
-    final perUnitRate = double.tryParse(_perUnitRateC.text.trim()) ?? 0;
+    final unitText = _unitC.text.trim();
+    final perUnitRateText = _perUnitRateC.text.trim();
+
+    if (unitText.isEmpty || perUnitRateText.isEmpty) {
+      _amountC.clear();
+      return;
+    }
+
+    final unit = double.tryParse(unitText);
+    final perUnitRate = double.tryParse(perUnitRateText);
+
+    if (unit == null || perUnitRate == null) {
+      _amountC.clear();
+      return;
+    }
 
     final amount = unit * perUnitRate;
 
@@ -280,6 +303,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                             CustomDropDownWidget(
                               title: "Term",
                               hintText: "Select Term",
+                              isDisabled: _isEditMode,
                               dataList: dsraTermList,
                               initialValue: selectedValue,
                               onSelected: (value) {
@@ -321,11 +345,17 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                             ),
                             if (isMutualFund) ...[
                               CustomTextField(
+                                key: const ValueKey("dsra_unit"),
                                 title: "Unit",
                                 hint: "Enter Unit",
                                 textController: _unitC,
+                                readOnly: _canEditWithdrawFields,
                                 isRequired: true,
                                 keyboardType: TextInputType.number,
+                                inputFormatterList:
+                                    inputFormatterListForDecimalValuesFixedToTwo(
+                                      15,
+                                    ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return "Unit is required";
@@ -335,10 +365,12 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                               ),
 
                               CustomTextField(
+                                key: const ValueKey("dsra_per_unit_rate"),
                                 title: "Per Unit Rate",
                                 hint: "Enter Per Unit Rate",
                                 prefixType: CustomTextFieldPrefix.rupees,
                                 textController: _perUnitRateC,
+                                readOnly: _canEditWithdrawFields,
                                 isRequired: true,
                                 keyboardType: TextInputType.number,
                                 inputFormatterList:
@@ -354,13 +386,13 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                               ),
                             ],
                             CustomTextField(
+                              key: const ValueKey("dsra_amount"),
                               title: "Amount",
                               hint: "Enter Amount",
                               prefixType: CustomTextFieldPrefix.rupees,
                               textController: _amountC,
                               isRequired: true,
                               readOnly: isMutualFund,
-
                               keyboardType: TextInputType.number,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
@@ -383,6 +415,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                                 });
                               },
                               isRequired: true,
+                              readOnly: _canEditWithdrawFields,
                               validator: (value) {
                                 if (value == null) {
                                   return 'Date is required';
@@ -392,15 +425,20 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                             ),
                             if (isFixedDeposit) ...[
                               CustomTextField(
+                                key: const ValueKey("dsra_rate_of_interest"),
                                 title: "Rate Of Interest",
                                 hint: "Enter Rate Of Interest",
                                 textController: _rateOfInterestC,
+                                readOnly: _canEditWithdrawFields,
                                 prefixType: CustomTextFieldPrefix.percentage,
                                 isRequired: true,
-                                keyboardType: TextInputType.number,
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
                                 inputFormatterList:
                                     inputFormatterListForDecimalValuesFixedToTwo(
-                                      15,
+                                      3,
+                                      maxValue: 100,
                                     ),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
@@ -426,9 +464,11 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                               ),
 
                               CustomTextField(
+                                key: const ValueKey("dsra_redemption_value"),
                                 title: "Redemption Value",
                                 hint: "Enter Redemption Value",
                                 textController: _redemptionValueC,
+                                readOnly: _canEditWithdrawFields,
                                 prefixType: CustomTextFieldPrefix.rupees,
                                 isRequired: true,
                                 keyboardType: TextInputType.number,
@@ -455,11 +495,14 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                               ),
 
                               CustomTextField(
+                                key: const ValueKey("dsra_maturity_period"),
                                 title: "Maturity Period",
                                 hint: "Enter Maturity Period",
                                 textController: _maturityPeriodC,
+                                readOnly: _canEditWithdrawFields,
                                 isRequired: true,
                                 keyboardType: TextInputType.number,
+                                inputFormatterList: InputValidator.digit(4),
                                 validator: (value) {
                                   if (value == null || value.trim().isEmpty) {
                                     return "Maturity Period is required";
@@ -485,7 +528,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                                   inputFormatterListForDecimalValuesFixedToTwo(
                                     15,
                                   ),
-                              readOnly: true,
+                              readOnly: !_canEditWithdrawFields,
                             ),
                             CustomDatePicker(
                               title: "Withdraw Date",
@@ -496,7 +539,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                                   withdrawDate = value;
                                 });
                               },
-                              readOnly: true,
+                              readOnly: !_canEditWithdrawFields,
                             ),
                             CustomTextField(
                               title: "Remark",

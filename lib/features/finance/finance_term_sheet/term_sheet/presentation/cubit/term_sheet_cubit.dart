@@ -235,8 +235,6 @@ class TermSheetCubit extends Cubit<TermSheetState> {
   }) async {
     DialogHelper.showProcessingOverlay(context);
     final Map<String, String> requestBody = {
-      "TermSheetId": "0",
-      "Uniquekey": "",
       "ProjectId": projectId,
       "CompanyId": companyId,
     };
@@ -560,13 +558,14 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     required int projectId,
     DateTime? closingDate,
     String? closingRemark,
+    String? actionType,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
     final Map<String, dynamic> body = {
       "TermSheetId": termSheetId,
       "ProjectId": projectId,
-      "ActionType": "FINAL APPROVAL",
+      "ActionType": actionType,
     };
     if (closingDate != null) {
       body["ClosingDate"] = closingDate.apiDate;
@@ -591,6 +590,7 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       (response) {
         showSuccessMessage(context, subTitle: response["message"]);
         getTermSheet(context, 1);
+        getTermSheetView(context, projectId, termSheetId);
         if (context.mounted) {
           goRouter.pop();
         }
