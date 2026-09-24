@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/features/project_document/approval_category/presenta
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
@@ -142,6 +143,7 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
                   hint: "Enter Sequence",
                   isRequired: true,
                   keyboardType: TextInputType.number,
+                  inputFormatterList: InputValidator.digit(5),
                   textController: _orderByC,
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {

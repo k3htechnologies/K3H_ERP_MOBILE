@@ -152,7 +152,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                       hint: "Enter Sequence",
                       isRequired: true,
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(10),
+                      inputFormatterList: InputValidator.digit(5),
                       textController: _orderByC,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {

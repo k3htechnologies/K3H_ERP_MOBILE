@@ -4,11 +4,14 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/data/model/test_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/presentation/cubit/test_document_category_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddTestDocumentCategoryScreen extends StatefulWidget {
   final TestDocumentCategoryModel? testDocumentCategoryModel;
@@ -98,50 +101,60 @@ class _AddTestDocumentCategoryScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            _isEditMode
-                ? "Update Test Document Category"
-                : "Add Test Document Category",
+        screenTitle: "Test Document Category",
         authorization: _routeAuthorizationModel,
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomTextField(
-                  title: "Test Document Category",
-                  hint: "Enter Test Document Category",
-                  isRequired: true,
-                  textController: _reraDocumentCategoryC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Test Document Category is required.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  title: "Sequence",
-                  hint: "Enter Sequence",
-                  isRequired: true,
-                  keyboardType: TextInputType.number,
-                  textController: _orderByC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Sequence is required.";
-                    }
-                    return null;
-                  },
-                ),
-              ],
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode
+                  ? "Update Test Document Category"
+                  : "Add Test Document Category",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-          ),
+            verticalSpacing(),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              decoration: commonCardDecoration(),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextField(
+                      title: "Test Document Category",
+                      hint: "Enter Test Document Category",
+                      isRequired: true,
+                      textController: _reraDocumentCategoryC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Test Document Category is required.";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Sequence",
+                      hint: "Enter Sequence",
+                      isRequired: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(5),
+                      textController: _orderByC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Sequence is required.";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(

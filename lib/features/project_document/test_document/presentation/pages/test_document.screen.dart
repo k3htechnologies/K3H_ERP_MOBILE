@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -186,6 +187,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
               title: "Document Name",
               hint: "Enter Document Name",
               textController: _documentC,
+              inputFormatterList: InputValidator.digitAndCharacterOnly(100),
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -203,10 +205,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
           size: 16,
           color: AppColor.white,
         ),
-        text:
-            documentModel != null
-                ? "Update Document Name"
-                : "Add Document Name",
+        text: documentModel != null ? "Update Document" : "Add Document",
         onPressed: () {
           _saveForm(documentModel: documentModel, index: index);
           _searchC.clear();
