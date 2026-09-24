@@ -13,21 +13,29 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class TenantViewScreen extends StatefulWidget {
   final TenantModel tenant;
-  const TenantViewScreen({super.key, required this.tenant});
+  final String buildingName;
+  const TenantViewScreen({
+    super.key,
+    required this.tenant,
+    required this.buildingName,
+  });
   @override
   State<TenantViewScreen> createState() => _TenantViewScreenState();
 }
@@ -220,6 +228,31 @@ class _TenantViewScreenState extends State<TenantViewScreen>
       body: SafeArea(
         child: Column(
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  showSiteSelectedWidget(projectName: getProject().projectName),
+                  verticalSpacing(),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      Icon(
+                        LucideIcons.building2,
+                        color: AppColor.darkBlue,
+                        size: 18,
+                      ),
+                      Text(
+                        toTitleCase(widget.buildingName),
+                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(),
+                ],
+              ),
+            ),
             ChipStyleTabBar(
               controller: _tabController,
               tabs: ["Overview", "Document"],
@@ -288,11 +321,17 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               buildColumnTitleValue(
-                                title: "Contact Number",
+                                title: "Mobile Number",
                                 value:
                                     applicant.applicantMobileNumber.isEmpty
                                         ? "-"
                                         : applicant.applicantMobileNumber,
+                                customValueWidget: CustomClickToContactText(
+                                  countryCode:
+                                      applicant
+                                          .applicantMobileNumberCountryCode,
+                                  value: applicant.applicantMobileNumber,
+                                ),
                               ),
                               buildColumnTitleValue(
                                 title: "E-Mail ID",

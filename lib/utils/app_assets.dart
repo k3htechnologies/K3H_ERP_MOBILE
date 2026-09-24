@@ -111,6 +111,7 @@ class AppAssets {
   static const String podiumIcon = "$svgPath/podiumIcon.svg";
   static const String wingsIcon = "$svgPath/wingsIcon.svg";
   static const String groundIcon = "$svgPath/groundIcon.svg";
+  static const String notFoundIcon = "$pngPath/notFound.png";
 
   // PURCHASE
   static const String compareVendorIcon = "$svgPath/compareVendor.svg";

@@ -399,7 +399,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           hint: 'Enter Remark',
                           textController: _remarkC,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

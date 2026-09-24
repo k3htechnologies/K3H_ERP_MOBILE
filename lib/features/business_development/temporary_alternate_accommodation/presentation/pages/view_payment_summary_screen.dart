@@ -14,20 +14,24 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ViewPaymentSummaryScreen extends StatefulWidget {
   final TemporaryAlternativeAccommodationModel rentModel;
+  final String buildingName;
   final double totalAmount;
   const ViewPaymentSummaryScreen({
     super.key,
     required this.rentModel,
     required this.totalAmount,
+    required this.buildingName,
   });
   @override
   State<ViewPaymentSummaryScreen> createState() =>
@@ -145,6 +149,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                                     .paidAmountForSummary
                                     ?.toString(),
                             'previousRoute': AppRoutes.viewSummary,
+                            'buildingName': widget.buildingName.toString(),
                           },
                         );
                       },
@@ -178,6 +183,28 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                   child: Column(
                     spacing: 12,
                     children: [
+                      Column(
+                        spacing: 8,
+                        children: [
+                          showSiteSelectedWidget(
+                            projectName: getProject().projectName,
+                          ),
+                          Row(
+                            spacing: 8,
+                            children: [
+                              Icon(
+                                LucideIcons.building2,
+                                color: AppColor.darkBlue,
+                                size: 18,
+                              ),
+                              Text(
+                                toTitleCase(widget.buildingName),
+                                style: AppTextStyle.ts14M(color: AppColor.grey),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                       infoCard([
                         {
                           "title": "Flat Number",
@@ -298,6 +325,7 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                           ),
                           'totalAmount': widget.totalAmount.toString(),
                           'paymentLedgerIndex': (index ?? 0).toString(),
+                          'buildingName': widget.buildingName.toString(),
                         },
                       );
                     },
@@ -338,6 +366,11 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
             title: 'Payee Details',
             childrens: [
               buildColumnTitleValue(
+                title: 'Account Holder Name',
+                value: paymentLedger.accountHolderName,
+                removeExpanded: true,
+              ),
+              buildColumnTitleValue(
                 title: 'Bank',
                 value: paymentLedger.bankName,
                 removeExpanded: true,
@@ -347,12 +380,12 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                 spacing: 10,
                 children: [
                   buildColumnTitleValue(
-                    title: 'Account Holder Name',
-                    value: paymentLedger.accountHolderName,
-                  ),
-                  buildColumnTitleValue(
                     title: 'Account Number',
                     value: paymentLedger.accountNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: 'IFSC Code',
+                    value: paymentLedger.ifscCode,
                   ),
                 ],
               ),
@@ -361,21 +394,16 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
-                    title: 'IFSC Code',
-                    value: paymentLedger.ifscCode,
-                  ),
-                  buildColumnTitleValue(
                     title: 'Transaction / Cheque / DD Date',
                     value: formatDateTimeAsDDMMMYYYY(
                       paymentLedger.transactionChequeDemandDraftDate,
                     ),
                   ),
+                  buildColumnTitleValue(
+                    title: 'Transaction / Cheque / DD No.',
+                    value: paymentLedger.transactionChequeDemandDraftNumber,
+                  ),
                 ],
-              ),
-              buildColumnTitleValue(
-                title: 'Transaction / Cheque / DD No.',
-                value: paymentLedger.transactionChequeDemandDraftNumber,
-                removeExpanded: true,
               ),
               buildColumnTitleValue(
                 title: "Transaction /Cheque/DD Document",
@@ -431,25 +459,22 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
           _detailsCard(
             title: "Developer Details",
             childrens: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 10,
-                children: [
-                  buildColumnTitleValue(
-                    title: 'Project Account Holder',
-                    value: paymentLedger.projectBankAccountHolderName,
-                  ),
-                  buildColumnTitleValue(
-                    title: 'Project Account Number',
-                    value: paymentLedger.projectBankAccountNumber,
-                  ),
-                ],
+              buildColumnTitleValue(
+                title: 'Project Account Holder Name',
+                value: paymentLedger.projectBankAccountHolderName,
+                removeExpanded: true,
               ),
               buildColumnTitleValue(
                 title: 'Bank Name',
                 value: paymentLedger.projectBankName,
                 removeExpanded: true,
               ),
+              buildColumnTitleValue(
+                title: 'Project Account Number',
+                value: paymentLedger.projectBankAccountNumber,
+                removeExpanded: true,
+              ),
+
               buildColumnTitleValue(
                 title: 'Project IFSC Code',
                 value: paymentLedger.projectBankIfscCode,

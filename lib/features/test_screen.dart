@@ -105,7 +105,7 @@ class TestScreen extends StatelessWidget {
                 hint: "Enter some text...",
                 title: "Remark",
                 minLines: 3,
-                maxLines: 3,
+                maxLines: 10,
               ),
               Row(
                 spacing: 20,

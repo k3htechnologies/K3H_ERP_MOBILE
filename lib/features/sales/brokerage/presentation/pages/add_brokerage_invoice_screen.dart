@@ -403,7 +403,7 @@ class _AddBrokerageInvoiceScreenState extends State<AddBrokerageInvoiceScreen> {
                           hint: "Enter Remark",
                           isRequired: true,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                           textController: _remarkC,
                           validator:
                               (v) =>

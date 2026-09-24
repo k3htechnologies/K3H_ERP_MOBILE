@@ -467,7 +467,7 @@ const paymentForValues = [
 
 const unitSqFtLumpsumValues = ['Per Sq Ft', 'Lumpsum'];
 
-const propertyTypeValues = ['Residential', 'Commercial'];
+const propertyTypeValues = ['Commercial', 'Residential'];
 const tenureValues = [
   'Tenure 1',
   'Tenure 2',

@@ -156,7 +156,7 @@ class _ProjectCompletionState extends State<ProjectCompletion> {
                           hint: 'Enter Remark',
                           textController: _remarkC,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                       ],
                     ),

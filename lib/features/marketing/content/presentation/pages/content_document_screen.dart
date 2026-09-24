@@ -167,8 +167,8 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
             CustomTextField(
               textController: _marketingRemarkC,
               title: 'Remark',
-              minLines: 2,
-              maxLines: 2,
+              minLines: 3,
+              maxLines: 10,
               isRequired: true,
               hint: "Enter remark",
               validator: (value) {

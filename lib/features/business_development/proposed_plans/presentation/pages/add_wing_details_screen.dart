@@ -167,7 +167,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                           title: "Main Entrance Lobby Area (SqFt)",
                           hint: "Enter Main Entrance Lobby Area",
                           inputFormatterList: InputValidator.digitWithDecimal(
-                            maxDigitsBeforeDecimal: 7,
+                            maxDigitsBeforeDecimal: 16,
                           ),
                           readOnly: !_routeAuthorizationModel.isAction,
                           keyboardType: TextInputType.numberWithOptions(
@@ -211,7 +211,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                           hint: "Enter Total Area For Member",
                           readOnly: !_routeAuthorizationModel.isAction,
                           inputFormatterList: InputValidator.digitWithDecimal(
-                            maxDigitsBeforeDecimal: 7,
+                            maxDigitsBeforeDecimal: 16,
                           ),
                           keyboardType: const TextInputType.numberWithOptions(
                             decimal: true,
@@ -225,7 +225,7 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
                             decimal: true,
                           ),
                           inputFormatterList: InputValidator.digitWithDecimal(
-                            maxDigitsBeforeDecimal: 7,
+                            maxDigitsBeforeDecimal: 16,
                           ),
                           readOnly: !_routeAuthorizationModel.isAction,
                           textController: wing.saleArea,

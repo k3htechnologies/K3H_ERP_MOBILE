@@ -185,7 +185,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                   textController: _remarkC,
                   inputFormatterList: [LengthLimitingTextInputFormatter(500)],
                   minLines: 3,
-                  maxLines: 3,
+                  maxLines: 10,
                   validator: (value) {
                     final text = value?.trim() ?? "";
 
@@ -295,7 +295,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                   isRequired: true,
                   textController: _remarkC,
                   minLines: 3,
-                  maxLines: 3,
+                  maxLines: 10,
                   validator: (value) {
                     final text = value?.trim() ?? "";
 

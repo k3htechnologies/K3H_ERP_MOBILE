@@ -372,7 +372,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
                       hint: "Enter Remark",
                       textController: _remarkC,
                       minLines: 3,
-                      maxLines: 3,
+                      maxLines: 10,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Please enter remark";

@@ -157,8 +157,8 @@ class _AddRevertInwardOutwardScreenState
                 textController: _remarkC,
                 hint: "Enter Remark",
                 isRequired: true,
-                minLines: 4,
-                maxLines: 4,
+                minLines: 3,
+                maxLines: 10,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return "Remark is required.";

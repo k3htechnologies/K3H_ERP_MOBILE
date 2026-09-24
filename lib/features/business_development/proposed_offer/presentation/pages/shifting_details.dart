@@ -216,7 +216,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                           : (List<Map<String, dynamic>>.from(
                             propertyTypeList,
                           )..removeAt(
-                            (double.tryParse(_residentialAmountC.text.trim()) ??
+                            (double.tryParse(_commercialAmountC.text.trim()) ??
                                         0) ==
                                     0
                                 ? 0
@@ -572,7 +572,7 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
                           readOnly: disableAction,
                           textController: _remarkC,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

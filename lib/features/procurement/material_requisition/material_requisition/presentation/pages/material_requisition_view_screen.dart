@@ -95,14 +95,18 @@ class _MaterialRequisitionViewScreenState
 
   void _initAuth() {
     _finalizedVendorAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor]!;
+        Authorization.routeAuthorizationMap[AppRoutes.finalizedVendor] ??
+        AuthorizationModel();
     _purchaseOrderAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes
-            .generatePurchaseOrderTab]!;
+            .generatePurchaseOrderTab] ??
+        AuthorizationModel();
     _addInvoiceAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.addInvoiceTab]!;
+        Authorization.routeAuthorizationMap[AppRoutes.addInvoiceTab] ??
+        AuthorizationModel();
     _makePaymentAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.makePayments]!;
+        Authorization.routeAuthorizationMap[AppRoutes.makePayments] ??
+        AuthorizationModel();
   }
 
   void initOverview() async {

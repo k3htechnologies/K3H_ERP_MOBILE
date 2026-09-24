@@ -206,7 +206,7 @@ class _ParkingAllotmentState extends State<ParkingAllotment> {
                           textController: _remarkC,
                           readOnly: disableAction,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                       ],
                     ),

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -651,8 +653,6 @@ class _TemporaryAlternateAccommodationScreenState
 
   Widget _buildCommonAccommodationCard({
     required TemporaryAlternativeAccommodationModel tenantRecord,
-    required String secondaryFieldTitle,
-    required String secondaryFieldValue,
     required num paidAmount,
     required num totalAmount,
   }) {
@@ -681,7 +681,11 @@ class _TemporaryAlternateAccommodationScreenState
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        if (_tabController.index == 1) {
+                        if (['TAA', 'Hardship', 'Shifting'].contains(
+                          _temporaryAlternateAccommodationCubit
+                              .state
+                              .chargeType,
+                        )) {
                           goRouter.pushNamed(
                             AppRoutes.viewRent,
                             queryParameters: {
@@ -692,6 +696,11 @@ class _TemporaryAlternateAccommodationScreenState
                               ),
                               'totalAmount': totalAmount.toString(),
                               'paidAmount': paidAmount.toString(),
+                              'buildingName':
+                                  _selectedBuildingNotifier
+                                      .value
+                                      .first['DisplayName']
+                                      .toString(),
                             },
                           );
                         }
@@ -703,7 +712,11 @@ class _TemporaryAlternateAccommodationScreenState
                               tenantRecord.flatNumber,
                               style: AppTextStyle.ts16M(
                                 color:
-                                    _tabController.index == 1
+                                    (['TAA', 'Hardship', 'Shifting'].contains(
+                                          _temporaryAlternateAccommodationCubit
+                                              .state
+                                              .chargeType,
+                                        ))
                                         ? AppColor.primary
                                         : null,
                               ),
@@ -729,6 +742,11 @@ class _TemporaryAlternateAccommodationScreenState
                           'totalAmount': totalAmount.toString(),
                           'paidAmount': paidAmount.toString(),
                           'previousRoute': AppRoutes.rent,
+                          'buildingName':
+                              _selectedBuildingNotifier
+                                  .value
+                                  .first['DisplayName']
+                                  .toString(),
                         },
                       );
                     },
@@ -759,7 +777,7 @@ class _TemporaryAlternateAccommodationScreenState
                   ),
                   buildColumnTitleValue(
                     title: "Existing Carpet Area (SqFt)",
-                    value: tenantRecord.flatCarpetAreaSqFt.toStringAsFixed(2),
+                    value: tenantRecord.flatCarpetAreaSqFt.addCommas(),
                   ),
                 ],
               ),
@@ -767,26 +785,47 @@ class _TemporaryAlternateAccommodationScreenState
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildColumnTitleValue(
-                    title: secondaryFieldTitle,
-                    value: secondaryFieldValue,
-                  ),
+                  if (!['Hardship', 'Shifting'].contains(
+                    _temporaryAlternateAccommodationCubit.state.chargeType,
+                  ))
+                    buildColumnTitleValue(
+                      title: "Proposed Offer Amount (₹)",
+                      value:
+                          tenantRecord.proposedOfferAmount > 0
+                              ? "${tenantRecord.proposedOfferAmount.addCommas()} ${tenantRecord.unit}"
+                              : '0',
+                    ),
+
+                  if (['Hardship', 'Shifting'].contains(
+                    _temporaryAlternateAccommodationCubit.state.chargeType,
+                  ))
+                    buildColumnTitleValue(
+                      title: "Total",
+                      value: totalAmount.toIndianCurrency(),
+                    ),
+
                   buildColumnTitleValue(
                     title: "Paid Amount",
-                    value: paidAmount.toString(),
+                    value: paidAmount.toIndianCurrency(),
                   ),
                 ],
               ),
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Total",
-                    value: totalAmount.toIndianCurrency(),
-                  ),
-                ],
-              ),
+              if (['Additional TAA', 'Brokerage'].contains(
+                _temporaryAlternateAccommodationCubit.state.chargeType,
+              ))
+                buildColumnTitleValue(
+                  title: DateFormat('dd MMM yyyy').format(tenantRecord.date),
+                  value: totalAmount.toIndianCurrency(),
+                  removeExpanded: true,
+                ),
+              if (!['Hardship', 'Shifting'].contains(
+                _temporaryAlternateAccommodationCubit.state.chargeType,
+              ))
+                buildColumnTitleValue(
+                  title: "Total",
+                  value: tenantRecord.amount.toIndianCurrency(),
+                  removeExpanded: true,
+                ),
             ],
           ),
           Divider(height: 25, color: AppColor.grey2),
@@ -815,6 +854,11 @@ class _TemporaryAlternateAccommodationScreenState
                               jsonEncode(tenantRecord.toJson()),
                             ),
                           ),
+                          "buildingName":
+                              _selectedBuildingNotifier
+                                  .value
+                                  .first['DisplayName']
+                                  .toString(),
                         },
                       )
                       .then((_) async {
@@ -876,11 +920,6 @@ class _TemporaryAlternateAccommodationScreenState
             0.0;
         return _buildCommonAccommodationCard(
           tenantRecord: tenantRecord,
-          secondaryFieldTitle: "Proposed Offer Amount (₹)",
-          secondaryFieldValue:
-              tenantRecord.proposedOfferAmount > 0
-                  ? "${tenantRecord.proposedOfferAmount.addCommas()} SqFt"
-                  : '0',
           paidAmount: paidAmount,
           totalAmount: totalAmount,
         );
@@ -899,11 +938,6 @@ class _TemporaryAlternateAccommodationScreenState
         _findPaidRecord(state.rentList, tenantRecord.tenantId)?.amount ?? 0.0;
     return _buildCommonAccommodationCard(
       tenantRecord: tenantRecord,
-      secondaryFieldTitle: "Proposed Offer Amount (₹)",
-      secondaryFieldValue:
-          tenantRecord.proposedOfferAmount > 0
-              ? "${tenantRecord.proposedOfferAmount.addCommas()} SqFt"
-              : '0',
       paidAmount: paidAmount,
       totalAmount: totalAmount,
     );
@@ -919,12 +953,6 @@ class _TemporaryAlternateAccommodationScreenState
       bloc: _temporaryAlternateAccommodationCubit,
       builder: (context, state) {
         final tenantRecord = tenantRecords.first;
-        final allStages =
-            state.rentList
-                .map((e) => e.stage)
-                .where((s) => s.isNotEmpty)
-                .toSet()
-                .toList();
         final totalAmount =
             _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ??
             0.0;
@@ -933,8 +961,6 @@ class _TemporaryAlternateAccommodationScreenState
             0.0;
         return _buildCommonAccommodationCard(
           tenantRecord: tenantRecord,
-          secondaryFieldTitle: allStages.first,
-          secondaryFieldValue: tenantRecord.amount.toString(),
           paidAmount: paidAmount,
           totalAmount: totalAmount,
         );
@@ -960,11 +986,6 @@ class _TemporaryAlternateAccommodationScreenState
             0.0;
         return _buildCommonAccommodationCard(
           tenantRecord: tenantRecord,
-          secondaryFieldTitle: "Proposed Offer Amount (₹)",
-          secondaryFieldValue:
-              tenantRecord.proposedOfferAmount > 0
-                  ? "${tenantRecord.proposedOfferAmount.addCommas()} SqFt"
-                  : '0',
           paidAmount: paidAmount,
           totalAmount: totalAmount,
         );
@@ -982,12 +1003,6 @@ class _TemporaryAlternateAccommodationScreenState
       bloc: _temporaryAlternateAccommodationCubit,
       builder: (context, state) {
         final tenantRecord = tenantRecords.first;
-        final allStages =
-            state.rentList
-                .map((e) => e.stage)
-                .where((s) => s.isNotEmpty)
-                .toSet()
-                .toList();
         final totalAmount =
             _findTotalRecord(state.rentList, tenantRecord.tenantId)?.amount ??
             0.0;
@@ -996,8 +1011,6 @@ class _TemporaryAlternateAccommodationScreenState
             0.0;
         return _buildCommonAccommodationCard(
           tenantRecord: tenantRecord,
-          secondaryFieldTitle: allStages.first,
-          secondaryFieldValue: tenantRecord.amount.toString(),
           paidAmount: paidAmount,
           totalAmount: totalAmount,
         );

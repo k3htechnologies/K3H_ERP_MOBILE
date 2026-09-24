@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -7,30 +9,34 @@ import 'package:k3h_erp_app/features/business_development/temporary_alternate_ac
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/widgets/temporary_alternate_accomodation_datasource.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
-import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 
-class TemporaryAlternateAccommodationViewScreen extends StatefulWidget {
+class ViewTemporaryAlternateAccommodationScreen extends StatefulWidget {
   final TemporaryAlternativeAccommodationModel tenantModel;
   final double totalAmount;
   final double paidAmount;
-  const TemporaryAlternateAccommodationViewScreen({
+  final String buildingName;
+  const ViewTemporaryAlternateAccommodationScreen({
     super.key,
     required this.tenantModel,
     required this.totalAmount,
     required this.paidAmount,
+    required this.buildingName,
   });
   @override
-  State<TemporaryAlternateAccommodationViewScreen> createState() =>
-      _TemporaryAlternateAccommodationViewScreenState();
+  State<ViewTemporaryAlternateAccommodationScreen> createState() =>
+      _ViewTemporaryAlternateAccommodationScreenState();
 }
 
-class _TemporaryAlternateAccommodationViewScreenState
-    extends State<TemporaryAlternateAccommodationViewScreen> {
+class _ViewTemporaryAlternateAccommodationScreenState
+    extends State<ViewTemporaryAlternateAccommodationScreen> {
   final ValueNotifier<List<TemporaryAlternateAccommodationGridRowModel>>
   taaRows = ValueNotifier([]);
 
@@ -47,19 +53,34 @@ class _TemporaryAlternateAccommodationViewScreenState
           context: context,
           projectId: widget.tenantModel.projectId,
           buildingId: widget.tenantModel.buildingId,
+          tenantId: widget.tenantModel.tenantId,
         );
-    final filtered =
-        taaList.where((e) => e.date.year != 1997).toList()
-          ..sort((a, b) => a.date.compareTo(b.date));
-    taaRows.value =
-        filtered
-            .map(
-              (e) => TemporaryAlternateAccommodationGridRowModel(
-                label: DateFormat('dd MMM yyyy').format(e.date),
-                amount: e.amount,
-              ),
-            )
-            .toList();
+    if (context.read<TemporaryAlternateAccommodationCubit>().state.chargeType ==
+        'TAA') {
+      final filtered =
+          taaList.where((e) => e.date.year != 1997).toList()
+            ..sort((a, b) => a.date.compareTo(b.date));
+      taaRows.value =
+          filtered
+              .map(
+                (e) => TemporaryAlternateAccommodationGridRowModel(
+                  label: DateFormat('dd MMM yyyy').format(e.date),
+                  amount: e.amount,
+                ),
+              )
+              .toList();
+    } else {
+      taaRows.value =
+          taaList
+              .where((e) => e.stage.isNotEmpty)
+              .map(
+                (e) => TemporaryAlternateAccommodationGridRowModel(
+                  label: e.stage,
+                  amount: e.amount,
+                ),
+              )
+              .toList();
+    }
   }
 
   @override
@@ -90,6 +111,28 @@ class _TemporaryAlternateAccommodationViewScreenState
                 return Column(
                   spacing: 12,
                   children: [
+                    Column(
+                      spacing: 8,
+                      children: [
+                        showSiteSelectedWidget(
+                          projectName: getProject().projectName,
+                        ),
+                        Row(
+                          spacing: 8,
+                          children: [
+                            Icon(
+                              LucideIcons.building2,
+                              color: AppColor.darkBlue,
+                              size: 18,
+                            ),
+                            Text(
+                              toTitleCase(widget.buildingName),
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                     infoCard([
                       {
                         "title": "Flat Number",
@@ -160,7 +203,9 @@ class _TemporaryAlternateAccommodationViewScreenState
                                     columnName: 'label',
                                     label: Center(
                                       child: Text(
-                                        'Month',
+                                        (state.chargeType == 'TAA')
+                                            ? 'Month'
+                                            : 'Stage',
                                         style: AppTextStyle.ts12SB(),
                                       ),
                                     ),

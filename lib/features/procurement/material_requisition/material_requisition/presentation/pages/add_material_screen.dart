@@ -357,8 +357,8 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                         CustomTextField(
                           title: "Remark",
                           hint: "Enter Remark",
-                          maxLines: 3,
                           minLines: 3,
+                          maxLines: 10,
                           textController: _remarkC,
                         ),
                       ],

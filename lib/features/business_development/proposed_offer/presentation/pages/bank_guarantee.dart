@@ -428,7 +428,7 @@ class _BankGuaranteeDetailsState extends State<BankGuaranteeDetails> {
                           readOnly: disableAction,
                           textController: _remarkC,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

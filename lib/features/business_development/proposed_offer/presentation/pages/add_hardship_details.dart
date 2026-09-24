@@ -232,7 +232,7 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
                                       : (List<Map<String, dynamic>>.from(
                                         propertyTypeList,
                                       )..removeAt(
-                                        widget.commercialAmount == 0 ? 1 : 0,
+                                        widget.commercialAmount == 0 ? 0 : 1,
                                       )),
                               onSelected: (value) {
                                 _selectedHardshipType.value = value;

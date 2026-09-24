@@ -292,17 +292,18 @@ class _TenantScreenState extends State<TenantScreen> {
                 ),
                 verticalSpacing(height: 20),
                 CustomTextField(
+                  title: "Tenant Code",
+                  hint: "Enter Tenant Code",
+                  textController: _filterTenantCodeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),  
+                CustomTextField(
                   title: "Unit / Annexure / Survey Number",
                   hint: "Enter Unit / Annexure / Survey Number",
                   textController: _searchC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-                CustomTextField(
-                  title: "Tenant Code",
-                  hint: "Enter Tenant Code",
-                  textController: _filterTenantCodeC,
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
+
                 CustomTextField(
                   title: "Applicant Name",
                   hint: "Enter Applicant Name",
@@ -445,7 +446,7 @@ class _TenantScreenState extends State<TenantScreen> {
             );
           },
           textController: _searchC,
-          searchHintText: "Search By Flat Number",
+          searchHintText: "Search By Unit / Annx / Svy No",
           filterCountNotifier: _filterCount,
           onAddCallback: () async {
             if (_selectedBuildingNotifier.value.isNotEmpty) {
@@ -455,6 +456,9 @@ class _TenantScreenState extends State<TenantScreen> {
                   'projectId': _project.projectId.toString(),
                   'buildingId':
                       _selectedBuildingNotifier.value.first["zAttributesId"]
+                          .toString(),
+                  'buildingName':
+                      _selectedBuildingNotifier.value.first["DisplayName"]
                           .toString(),
                 },
               );
@@ -687,6 +691,11 @@ class _TenantScreenState extends State<TenantScreen> {
                                                             tenant.toJson(),
                                                           ),
                                                         ),
+                                                    'buildingName':
+                                                        _selectedBuildingNotifier
+                                                            .value
+                                                            .first["DisplayName"]
+                                                            .toString(),
                                                   },
                                                 );
                                               },
@@ -755,6 +764,11 @@ class _TenantScreenState extends State<TenantScreen> {
                                                           .toString(),
                                                   'buildingId':
                                                       buildingId.toString(),
+                                                  'buildingName':
+                                                      _selectedBuildingNotifier
+                                                          .value
+                                                          .first["DisplayName"]
+                                                          .toString(),
                                                 },
                                               );
                                             },

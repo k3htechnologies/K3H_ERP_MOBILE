@@ -190,7 +190,7 @@ class _GstOnExistingPlusFreeAreaState extends State<GstOnExistingPlusFreeArea> {
                           hint: 'Enter Remark',
                           textController: _remarkC,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                       ],
                     ),

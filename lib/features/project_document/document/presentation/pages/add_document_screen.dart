@@ -244,7 +244,7 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
                   title: "Remark",
                   hint: "Enter Remark",
                   minLines: 3,
-                  maxLines: 3,
+                  maxLines: 10,
                   textController: _remarkC,
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -431,6 +432,9 @@ class _AddMakePaymentScreenState extends State<AddMakePaymentScreen> {
                       title: "Transaction/Cheque Number",
                       hint: "Enter Transaction/Cheque Number",
                       textController: _transactionOrChequeNumberC,
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(25),
+                      ],
                     ),
                     CustomMultiFilePicker(
                       maxFiles: 5,

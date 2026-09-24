@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/week_off_mapping_ma
 import 'package:k3h_erp_app/features/masters/pay_roll_master/shift_mapping_master/data/model/shift_master_mapping.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class EmployeeMasterDataSource {
   Future<Map<String, dynamic>> apiCallToPullEmployeeMaster({
@@ -610,7 +611,7 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
     }) {
       String url =
           "BankListMaster/PullBankListMaster?PageSize=$pageSize&PageNumber=$pageNumber";
-      queryParams?.forEach((key, value) => url += "&$key=$value");
+      url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
@@ -765,10 +766,7 @@ class EmployeeMasterDataSourceImpl extends EmployeeMasterDataSource {
           );
       final rawUrls = networkResponse['message'] ?? '';
 
-      final imageUrls = rawUrls
-          .split(',')
-          .map((e) => e.trim())
-          .toList();
+      final imageUrls = rawUrls.split(',').map((e) => e.trim()).toList();
 
       return {
         'data': imageUrls,

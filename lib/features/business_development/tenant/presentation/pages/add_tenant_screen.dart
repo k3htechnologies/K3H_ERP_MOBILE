@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -10,6 +11,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -20,18 +22,21 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AddTenantScreen extends StatefulWidget {
   final TenantModel? tenant;
   final int index;
   final int projectId;
   final int buildingId;
+  final String buildingName;
   const AddTenantScreen({
     super.key,
     this.tenant,
     this.index = 0,
     required this.projectId,
     required this.buildingId,
+    required this.buildingName,
   });
   @override
   State<AddTenantScreen> createState() => _AddTenantScreenState();
@@ -379,380 +384,437 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         screenTitle: "Tenant",
         authorization: _routeAuthorizationModel,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _isEditMode ? "Update Tenant" : "Add Tenant",
-                style: AppTextStyle.ts14M(),
-              ),
-              verticalSpacing(),
-              Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                showSiteSelectedWidget(projectName: getProject().projectName),
+                verticalSpacing(),
+                Row(
+                  spacing: 8,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Applicant Details",
-                          style: AppTextStyle.ts14M(color: AppColor.grey),
-                        ),
-                        CustomButton(
-                          leading: Icon(
-                            Icons.add,
-                            size: 18,
-                            color: AppColor.white,
-                          ),
-                          text: "Add Applicant",
-                          onPressed: () async => _openApplicantForm(),
-                          backgroundColor: AppColor.primary,
-                        ),
-                      ],
+                    Icon(
+                      LucideIcons.building2,
+                      color: AppColor.darkBlue,
+                      size: 18,
                     ),
-                    verticalSpacing(),
-                    ValueListenableBuilder<List<TenantApplicantData>>(
-                      valueListenable: _applicants,
-                      builder: (context, applicants, child) {
-                        if (applicants.isEmpty) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 16.0),
-                            child: Center(
-                              child: Text(
-                                'No applicants added yet',
-                                style: AppTextStyle.ts14R(color: AppColor.grey),
-                              ),
-                            ),
-                          );
-                        }
-                        return SizedBox(
-                          height: 450,
-                          child: ListView.builder(
-                            shrinkWrap: true,
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            itemCount: applicants.length,
-                            itemBuilder: (context, index) {
-                              final applicant = applicants[index];
-                              return _buildApplicantCard(applicant, index);
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              verticalSpacing(),
-              Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
                     Text(
-                      "Unit Details",
+                      toTitleCase(widget.buildingName),
                       style: AppTextStyle.ts14M(color: AppColor.grey),
                     ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: 'Unit / Annexure / Survey Number',
-                      hint: "Enter Unit Number",
-                      isRequired: true,
-                      inputFormatterList: InputValidator.digitAndCharacterOnly(
-                        15,
-                      ),
-                      textController: _unitNumberC,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Unit Number is required.";
-                        }
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: selectedFlatType,
-                      builder: (context, flatTypeValue, child) {
-                        return CustomDropDownWidget(
-                          key: ValueKey(
-                            'flatType_${flatTypeValue?['zAttributesId']}',
-                          ),
-                          title: 'Unit Type',
-                          hintText: "Select Unit Type",
-                          dataList: propertyTypeList,
-                          isRequired: true,
-                          initialValue: flatTypeValue,
-                          onSelected: (value) {
-                            if (selectedFlatType.value?['zAttributesId'] !=
-                                value['zAttributesId']) {
-                              selectedFlatConfiguration.value = null;
-                            }
-                            selectedFlatType.value = value;
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Unit Type is required.';
-                            }
-                            return null;
-                          },
-                          onValueClear: () => selectedFlatType.value = null,
-                        );
-                      },
-                    ),
-                    ValueListenableBuilder(
-                      valueListenable: selectedFlatType,
-                      builder: (context, value, child) {
-                        if (value?['zAttributesId'] == 1) {
-                          return ValueListenableBuilder<Map<String, dynamic>?>(
-                            valueListenable: selectedFlatConfiguration,
-                            builder: (context, configValue, child) {
-                              return CustomDropDownWidget(
-                                key: ValueKey(
-                                  'residential_config_${value?['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
-                                ),
-                                title: 'Flat Configuration',
-                                hintText: "Select Flat Configuration",
-                                isRequired: true,
-                                dataList: residentialFlatList,
-                                initialValue: configValue,
-                                onSelected: (selectedValue) {
-                                  selectedFlatConfiguration.value =
-                                      selectedValue;
-                                },
-                                validator: (val) {
-                                  if (selectedFlatConfiguration.value == null) {
-                                    return 'Flat Configuration is required.';
-                                  }
-                                  return null;
-                                },
-                                onValueClear:
-                                    () =>
-                                        selectedFlatConfiguration.value = null,
-                              );
-                            },
-                          );
-                        }
-                        if (value?['zAttributesId'] == 2) {
-                          return ValueListenableBuilder<Map<String, dynamic>?>(
-                            valueListenable: selectedFlatConfiguration,
-                            builder: (context, configValue, child) {
-                              return CustomDropDownWidget(
-                                key: ValueKey(
-                                  'commercial_config_${value?['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
-                                ),
-                                title: 'Flat Configuration',
-                                hintText: "Select Flat Configuration",
-                                isRequired: true,
-                                dataList: commercialFlatList,
-                                initialValue: configValue,
-                                onSelected: (selectedValue) {
-                                  selectedFlatConfiguration.value =
-                                      selectedValue;
-                                },
-                                validator: (val) {
-                                  if (val == null) {
-                                    return 'Flat Configuration is required.';
-                                  }
-                                  return null;
-                                },
-                                onValueClear:
-                                    () =>
-                                        selectedFlatConfiguration.value = null,
-                              );
-                            },
-                          );
-                        }
-                        return SizedBox();
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Carpet Area SqFt',
-                      hint: "Enter Carpet Area",
-                      isRequired: true,
-                      textController: _flatCarpetAreaC,
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Carpet Area is required.";
-                        }
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder<Map<String, dynamic>?>(
-                      valueListenable: selectedUnitFacing,
-                      builder: (context, facingValue, child) {
-                        return CustomDropDownWidget(
-                          key: ValueKey(
-                            'facing_${facingValue?['zAttributesId'] ?? 'null'}',
-                          ),
-                          title: 'Unit Facing',
-                          hintText: "Select Unit Facing",
-                          isRequired: true,
-                          dataList: flatFacingList,
-                          initialValue: facingValue,
-                          onSelected: (value) {
-                            selectedUnitFacing.value = value;
-                          },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Unit Facing is required.';
-                            }
-                            return null;
-                          },
-                          onValueClear: () => selectedUnitFacing.value = null,
-                        );
-                      },
-                    ),
                   ],
                 ),
-              ),
-              verticalSpacing(),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'New Details',
-                      style: AppTextStyle.ts14M(color: AppColor.grey),
-                    ),
-                    verticalSpacing(),
-                    CustomTextField(
-                      title: 'Extra Free Carpet Area Offered',
-                      hint: 'Enter Extra Free Carpet Area Offered',
-                      prefixType: CustomTextFieldPrefix.percentage,
-                      inputFormatterList: InputValidator.percentage(),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _extraFreeCarpetAreaOfferedC,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return null;
-                        }
-                        return null;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Free MOFA Carpet Area (SqFt)',
-                      hint: 'Enter Free MOFA CA',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _freeMofaCarpetAreaC,
-                    ),
-                    CustomTextField(
-                      title: 'Existing Terrace Area (SqFt)',
-                      hint: 'Enter Existing Terrace Area',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _existingTerraceAreaC,
-                    ),
-                    CustomTextField(
-                      title: 'New Eligibility MOFA Carpet Area (SqFt)',
-                      hint: 'Enter New Eligibility MOFA CA',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _newEligibilityMofaCarpetAreaC,
-                    ),
-                    CustomTextField(
-                      title: 'New Eligibility RERA Carpet Area (SqFt)',
-                      hint: 'Enter New Eligibility RERA CA',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _newEligibilityReraCarpetAreaC,
-                    ),
-                    CustomTextField(
-                      title: '(A) Area Against Terrace (SqFt)',
-                      hint: 'Enter Area Against Terrace',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _areaAgainstTerraceC,
-                    ),
-                    CustomTextField(
-                      title: 'MOFA Carpet Area Purchased (SqFt)',
-                      hint: 'Enter MOFA CA Purchased',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _mofaCarpetAreaPurchasedC,
-                    ),
-                    CustomTextField(
-                      title: 'RERA Carpet Area Purchased (SqFt)',
-                      hint: 'Enter RERA CA Purchased',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _reraCarpetAreaPurchasedC,
-                    ),
-                    CustomTextField(
-                      title: '(B) Deck Area (SqFt)',
-                      hint: 'Enter Deck Area',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _deckAreaC,
-                    ),
-                    CustomTextField(
-                      title: 'Total New MOFA Carpet Area (SqFt)',
-                      hint: 'Enter Total New MOFA CA',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _totalNewMofaCarpetAreaC,
-                    ),
-                    CustomTextField(
-                      title: '(C) Total New RERA Carpet Area (SqFt)',
-                      hint: 'Enter Total New RERA CA',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _totalNewReraCarpetAreaC,
-                    ),
-                    CustomTextField(
-                      title:
-                          'Area Against Terrace + Deck Area + Total New RERA Carpet Area (SqFt) (A + B + C)',
-                      hint: '0.00',
-                      inputFormatterList: InputValidator.digitWithDecimal(
-                        maxDigitsBeforeDecimal: 7,
-                      ),
-                      keyboardType: TextInputType.numberWithOptions(),
-                      textController: _totalAreaAgainstTerraceDeckReraC,
-                      readOnly: true,
-                    ),
-                    CustomTextField(
-                      title: 'Remark',
-                      hint: 'Enter Remark',
-                      textController: _remarkControllerC,
-                      maxLines: 4,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                verticalSpacing(),
+              ],
+            ),
           ),
-        ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _isEditMode ? "Update Tenant" : "Add Tenant",
+                      style: AppTextStyle.ts14M(),
+                    ),
+                    verticalSpacing(),
+                    Container(
+                      decoration: commonCardDecoration(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "Applicant Details",
+                                style: AppTextStyle.ts14M(color: AppColor.grey),
+                              ),
+                              CustomButton(
+                                leading: Icon(
+                                  Icons.add,
+                                  size: 18,
+                                  color: AppColor.white,
+                                ),
+                                text: "Add Applicant",
+                                onPressed: () async => _openApplicantForm(),
+                                backgroundColor: AppColor.primary,
+                              ),
+                            ],
+                          ),
+                          verticalSpacing(),
+                          ValueListenableBuilder<List<TenantApplicantData>>(
+                            valueListenable: _applicants,
+                            builder: (context, applicants, child) {
+                              if (applicants.isEmpty) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16.0,
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      'No applicants added yet',
+                                      style: AppTextStyle.ts14R(
+                                        color: AppColor.grey,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                              return SizedBox(
+                                height: 450,
+                                child: ListView.builder(
+                                  shrinkWrap: true,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
+                                  itemCount: applicants.length,
+                                  itemBuilder: (context, index) {
+                                    final applicant = applicants[index];
+                                    return _buildApplicantCard(
+                                      applicant,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    verticalSpacing(),
+                    Container(
+                      decoration: commonCardDecoration(),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Existing Unit Details",
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          CustomTextField(
+                            title: 'Unit / Annexure / Survey Number',
+                            hint: "Enter Unit / Annexure / Survey Number",
+                            isRequired: true,
+                            inputFormatterList: [
+                              LengthLimitingTextInputFormatter(15),
+                            ],
+                            textController: _unitNumberC,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Unit / Annexure / Survey Number is required.";
+                              }
+                              return null;
+                            },
+                          ),
+                          ValueListenableBuilder<Map<String, dynamic>?>(
+                            valueListenable: selectedFlatType,
+                            builder: (context, flatTypeValue, child) {
+                              return CustomDropDownWidget(
+                                key: ValueKey(
+                                  'flatType_${flatTypeValue?['zAttributesId']}',
+                                ),
+                                title: 'Unit Type',
+                                hintText: "Select Unit Type",
+                                dataList: propertyTypeList,
+                                isRequired: true,
+                                initialValue: flatTypeValue,
+                                onSelected: (value) {
+                                  if (selectedFlatType
+                                          .value?['zAttributesId'] !=
+                                      value['zAttributesId']) {
+                                    selectedFlatConfiguration.value = null;
+                                  }
+                                  selectedFlatType.value = value;
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Unit Type is required.';
+                                  }
+                                  return null;
+                                },
+                                onValueClear:
+                                    () => selectedFlatType.value = null,
+                              );
+                            },
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: selectedFlatType,
+                            builder: (context, value, child) {
+                              if (value?['zAttributesId'] == 2) {
+                                return ValueListenableBuilder<
+                                  Map<String, dynamic>?
+                                >(
+                                  valueListenable: selectedFlatConfiguration,
+                                  builder: (context, configValue, child) {
+                                    return CustomDropDownWidget(
+                                      key: ValueKey(
+                                        'residential_config_${value?['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
+                                      ),
+                                      title: 'Unit Configuration',
+                                      hintText: "Select Unit Configuration",
+                                      isRequired: true,
+                                      dataList: residentialFlatList,
+                                      initialValue: configValue,
+                                      onSelected: (selectedValue) {
+                                        selectedFlatConfiguration.value =
+                                            selectedValue;
+                                      },
+                                      validator: (val) {
+                                        if (selectedFlatConfiguration.value ==
+                                            null) {
+                                          return 'Flat Configuration is required.';
+                                        }
+                                        return null;
+                                      },
+                                      onValueClear:
+                                          () =>
+                                              selectedFlatConfiguration.value =
+                                                  null,
+                                    );
+                                  },
+                                );
+                              }
+                              if (value?['zAttributesId'] == 1) {
+                                return ValueListenableBuilder<
+                                  Map<String, dynamic>?
+                                >(
+                                  valueListenable: selectedFlatConfiguration,
+                                  builder: (context, configValue, child) {
+                                    return CustomDropDownWidget(
+                                      key: ValueKey(
+                                        'commercial_config_${value?['zAttributesId']}_${configValue?['zAttributesId'] ?? 'null'}',
+                                      ),
+                                      title: 'Unit Configuration',
+                                      hintText: "Select Unit Configuration",
+                                      isRequired: true,
+                                      dataList: commercialFlatList,
+                                      initialValue: configValue,
+                                      onSelected: (selectedValue) {
+                                        selectedFlatConfiguration.value =
+                                            selectedValue;
+                                      },
+                                      validator: (val) {
+                                        if (val == null) {
+                                          return 'Flat Configuration is required.';
+                                        }
+                                        return null;
+                                      },
+                                      onValueClear:
+                                          () =>
+                                              selectedFlatConfiguration.value =
+                                                  null,
+                                    );
+                                  },
+                                );
+                              }
+                              return SizedBox();
+                            },
+                          ),
+                          CustomTextField(
+                            title: 'Unit Carpet Area SqFt',
+                            hint: "Enter Unit Carpet Area",
+                            isRequired: true,
+                            textController: _flatCarpetAreaC,
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Unit Carpet Area is required.";
+                              }
+                              return null;
+                            },
+                          ),
+                          ValueListenableBuilder<Map<String, dynamic>?>(
+                            valueListenable: selectedUnitFacing,
+                            builder: (context, facingValue, child) {
+                              return CustomDropDownWidget(
+                                key: ValueKey(
+                                  'facing_${facingValue?['zAttributesId'] ?? 'null'}',
+                                ),
+                                title: 'Unit Facing',
+                                hintText: "Select Unit Facing",
+                                isRequired: true,
+                                dataList: flatFacingList,
+                                initialValue: facingValue,
+                                onSelected: (value) {
+                                  selectedUnitFacing.value = value;
+                                },
+                                validator: (value) {
+                                  if (value == null) {
+                                    return 'Unit Facing is required.';
+                                  }
+                                  return null;
+                                },
+                                onValueClear:
+                                    () => selectedUnitFacing.value = null,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    verticalSpacing(),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'New Details',
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          CustomTextField(
+                            title: 'Extra Free Carpet Area Offered',
+                            hint: 'Enter Extra Free CA Offered',
+                            prefixType: CustomTextFieldPrefix.percentage,
+                            inputFormatterList: InputValidator.percentage(),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _extraFreeCarpetAreaOfferedC,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return null;
+                              }
+                              return null;
+                            },
+                          ),
+                          CustomTextField(
+                            title: 'Free MOFA Carpet Area (SqFt)',
+                            hint: 'Enter Free MOFA CA',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _freeMofaCarpetAreaC,
+                          ),
+                          CustomTextField(
+                            title: 'Existing Terrace Area (SqFt)',
+                            hint: 'Enter Existing Terrace Area',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _existingTerraceAreaC,
+                          ),
+                          CustomTextField(
+                            title: 'New Eligibility MOFA Carpet Area (SqFt)',
+                            hint: 'Enter New Eligibility MOFA CA',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _newEligibilityMofaCarpetAreaC,
+                          ),
+                          CustomTextField(
+                            title: 'New Eligibility RERA Carpet Area (SqFt)',
+                            hint: 'Enter New Eligibility RERA CA',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _newEligibilityReraCarpetAreaC,
+                          ),
+                          CustomTextField(
+                            title: '(A) Area Against Terrace (SqFt)',
+                            hint: 'Enter Area Against Terrace',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _areaAgainstTerraceC,
+                          ),
+                          CustomTextField(
+                            title: 'MOFA Carpet Area Purchased (SqFt)',
+                            hint: 'Enter MOFA CA Purchased',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _mofaCarpetAreaPurchasedC,
+                          ),
+                          CustomTextField(
+                            title: 'RERA Carpet Area Purchased (SqFt)',
+                            hint: 'Enter RERA CA Purchased',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _reraCarpetAreaPurchasedC,
+                          ),
+                          CustomTextField(
+                            title: '(B) Deck Area (SqFt)',
+                            hint: 'Enter Deck Area',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _deckAreaC,
+                          ),
+                          CustomTextField(
+                            title: 'Total New MOFA Carpet Area (SqFt)',
+                            hint: 'Enter Total New MOFA CA',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _totalNewMofaCarpetAreaC,
+                          ),
+                          CustomTextField(
+                            title: '(C) Total New RERA Carpet Area (SqFt)',
+                            hint: 'Enter Total New RERA CA',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _totalNewReraCarpetAreaC,
+                          ),
+                          CustomTextField(
+                            title:
+                                'Area Against Terrace + Deck Area + Total New RERA Carpet Area (SqFt) (A + B + C)',
+                            hint: '0.00',
+                            inputFormatterList: InputValidator.digitWithDecimal(
+                              maxDigitsBeforeDecimal: 16,
+                            ),
+                            keyboardType: TextInputType.numberWithOptions(),
+                            textController: _totalAreaAgainstTerraceDeckReraC,
+                            readOnly: true,
+                          ),
+                          CustomTextField(
+                            title: 'Remark',
+                            hint: 'Enter Remark',
+                            textController: _remarkControllerC,
+                            minLines: 3,
+                            maxLines: 10,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: SafeArea(
         child: Container(

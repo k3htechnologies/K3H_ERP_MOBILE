@@ -161,7 +161,7 @@ class TemporaryAlternateAccommodationCubit
     final result = await _employeeMasterRepository.getBankList(
       pageNumber: pageNumber,
       pageSize: 15,
-      query: value != null && value.isNotEmpty ? {"BankName": value} : {},
+      query: {"BankName": value, "IsCheckPermission": false},
     );
     return result.fold(
       (failure) => {
@@ -190,7 +190,10 @@ class TemporaryAlternateAccommodationCubit
     ProjectModel project = getProject();
     var result = await _projectMasterRepository.getProjectWithBankDetails(
       projectId: project.projectId,
-      queryParams: {'ProjectWithBankDetailsId': projectWithBankDetailsId},
+      queryParams: {
+        'ProjectWithBankDetailsId': projectWithBankDetailsId,
+        "IsCheckPermission": false,
+      },
     );
     return result.fold(
       (failure) {
@@ -224,6 +227,7 @@ class TemporaryAlternateAccommodationCubit
     ProjectModel project = getProject();
     var result = await _projectMasterRepository.getProjectWithBankDetails(
       projectId: project.projectId,
+      queryParams: {"BankName": value, "IsCheckPermission": false},
     );
     return result.fold(
       (failure) {
@@ -616,7 +620,7 @@ class TemporaryAlternateAccommodationCubit
           projectId: projectId,
           queryParams: {
             'ChargeType': state.chargeType,
-            'AccountHolderName': state.paymentLedgerSearchText,
+            'ApplicantName': state.paymentLedgerSearchText,
           },
         );
     result.fold(
@@ -676,9 +680,13 @@ class TemporaryAlternateAccommodationCubit
     required BuildContext context,
     required int projectId,
     required int buildingId,
+    int? tenantId,
   }) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {"ChargeType": state.chargeType};
+    Map<String, dynamic> queryParams = {
+      "ChargeType": state.chargeType,
+      "TenantId": tenantId,
+    };
     if (state.selectedTenure.isNotEmpty) {
       queryParams["Tenure"] = state.selectedTenure;
     }

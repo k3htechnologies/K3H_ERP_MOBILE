@@ -412,6 +412,8 @@ class _AddInvoiceScreenState extends State<AddInvoiceScreen> {
                           hint: "Enter Remark",
                           isRequired: false,
                           textController: _remarkC,
+                          minLines: 3,
+                          maxLines: 10,
                         ),
                       ],
                     ),

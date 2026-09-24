@@ -405,7 +405,7 @@ class _AddGrnScreenState extends State<AddGrnScreen> {
                       hint: "Enter Remark",
                       isRequired: true,
                       textController: _remarkC,
-                      maxLines: 3,
+                      maxLines: 10,
                       minLines: 3,
                       validator: (value) {
                         if (value == null || value.isEmpty) {

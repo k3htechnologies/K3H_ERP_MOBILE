@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -8,6 +9,7 @@ import 'package:k3h_erp_app/features/business_development/temporary_alternate_ac
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -20,9 +22,11 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AddTemporaryAlternateAccommodationPaymentScreen extends StatefulWidget {
   final TemporaryAlternativeAccommodationModel rentModel;
+  final String buildingName;
   final double totalAmount;
   final double? paidAmount;
   final String previousRoute;
@@ -37,6 +41,7 @@ class AddTemporaryAlternateAccommodationPaymentScreen extends StatefulWidget {
     this.paidAmount,
     this.paymentLedger,
     this.paymentLedgerIndex,
+    required this.buildingName,
   });
   @override
   State<AddTemporaryAlternateAccommodationPaymentScreen> createState() =>
@@ -99,7 +104,7 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
     _ifscCodeC.text = p.ifscCode;
     _projectBranchC.text = '';
     _projectAccountType.text = '';
-    _accountHolderNameC.text = p.projectBankAccountHolderName;
+    _accountHolderNameC.text = p.accountHolderName;
     _selectedPaymentMode.value = paymentModeList.firstWhere(
       (e) => (e['DisplayName'] as String?) == p.paymentMode,
       orElse: () => paymentModeList.first,
@@ -124,10 +129,6 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
           projectWithBankDetailsId: p.projectBankListMasterId,
         );
 
-    _accountHolderNameC.text =
-        (_selectedProjectWiseBankNotifier.value.first["AccountHolderName"] ??
-                "")
-            .toString();
     _projectAccountNumberC.text =
         (_selectedProjectWiseBankNotifier.value.first["AccountNumber"] ?? "")
             .toString();
@@ -248,6 +249,26 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
         child: Column(
           spacing: 12,
           children: [
+            Column(
+              spacing: 8,
+              children: [
+                showSiteSelectedWidget(projectName: getProject().projectName),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Icon(
+                      LucideIcons.building2,
+                      color: AppColor.darkBlue,
+                      size: 18,
+                    ),
+                    Text(
+                      toTitleCase(widget.buildingName),
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
+                  ],
+                ),
+              ],
+            ),
             infoCard([
               {"title": "Flat Number", "value": widget.rentModel.flatNumber},
               {
@@ -362,39 +383,51 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                             return null;
                           },
                         ),
-                        CustomDropDownWidget(
-                          title: "Payment Mode",
-                          hintText: "Select Payment Mode",
-                          isRequired: true,
-                          dataList: paymentModeList,
-                          initialValue: _selectedPaymentMode.value,
-                          onSelected: (value) {
-                            _selectedPaymentMode.value = value;
+                        ValueListenableBuilder(
+                          valueListenable: _selectedPaymentMode,
+                          builder: (context, value, child) {
+                            return CustomDropDownWidget(
+                              title: "Payment Mode",
+                              hintText: "Select Payment Mode",
+                              isRequired: true,
+                              dataList: paymentModeList,
+                              initialValue: _selectedPaymentMode.value,
+                              onSelected: (value) {
+                                _selectedPaymentMode.value = value;
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Payment Mode for is required.';
+                                }
+                                return null;
+                              },
+                              onValueClear:
+                                  () => _selectedPaymentMode.value = null,
+                            );
                           },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Payment Mode for is required.';
-                            }
-                            return null;
-                          },
-                          onValueClear: () => _selectedPaymentMode.value = null,
                         ),
-                        CustomDropDownWidget(
-                          title: "Amount Type",
-                          hintText: "Select Amount Type",
-                          isRequired: true,
-                          dataList: tenantAmountTypeList,
-                          initialValue: _selectedAmountType.value,
-                          onSelected: (value) {
-                            _selectedAmountType.value = value;
+                        ValueListenableBuilder(
+                          valueListenable: _selectedAmountType,
+                          builder: (context, value, child) {
+                            return CustomDropDownWidget(
+                              title: "Amount Type",
+                              hintText: "Select Amount Type",
+                              isRequired: true,
+                              dataList: tenantAmountTypeList,
+                              initialValue: _selectedAmountType.value,
+                              onSelected: (value) {
+                                _selectedAmountType.value = value;
+                              },
+                              validator: (value) {
+                                if (value == null) {
+                                  return 'Amount Type is required.';
+                                }
+                                return null;
+                              },
+                              onValueClear:
+                                  () => _selectedAmountType.value = null,
+                            );
                           },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Amount Type is required.';
-                            }
-                            return null;
-                          },
-                          onValueClear: () => _selectedAmountType.value = null,
                         ),
                         CustomTextField(
                           title: "Amount (₹)",
@@ -436,7 +469,9 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                           title: "Transaction/Cheque/DD Number",
                           hint: "Enter Transaction/Cheque/DD Number",
                           textController: _transactionNumC,
-                          inputFormatterList: InputValidator.textDigit(50),
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(25),
+                          ],
                         ),
                         CustomDatePicker(
                           isRequired: true,

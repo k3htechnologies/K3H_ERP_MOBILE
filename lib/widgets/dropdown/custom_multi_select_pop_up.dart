@@ -364,19 +364,27 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                                               widget.onClear!();
                                                             }
                                                           },
-                                                  child: const Icon(
+                                                  child: Icon(
                                                     Icons.close,
                                                     size: 18,
+                                                    color:
+                                                        widget.isReadOnly
+                                                            ? AppColor.grey2
+                                                            : null,
                                                   ),
                                                 ),
                                               ],
                                             ),
                                   ),
-                                  const Padding(
+                                  Padding(
                                     padding: EdgeInsets.only(left: 8.0),
                                     child: Icon(
                                       Icons.keyboard_arrow_down,
                                       size: 24,
+                                      color:
+                                          widget.isReadOnly
+                                              ? AppColor.grey2
+                                              : null,
                                     ),
                                   ),
                                 ],
@@ -391,9 +399,13 @@ class _CustomMultipleSelectPopupState extends State<CustomMultipleSelectPopup> {
                                       color: AppColor.grey,
                                     ),
                                   ),
-                                  const Icon(
+                                  Icon(
                                     Icons.keyboard_arrow_down,
                                     size: 24,
+                                    color:
+                                        widget.isReadOnly
+                                            ? AppColor.grey2
+                                            : null,
                                   ),
                                 ],
                               ),

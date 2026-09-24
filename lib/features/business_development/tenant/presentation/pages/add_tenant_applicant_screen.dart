@@ -450,26 +450,28 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'Aadhaar Card Number',
                     hint: "Enter Aadhaar Card Number",
-                    isRequired: true,
                     textController: _aadharC,
                     keyboardType: TextInputType.number,
                     inputFormatterList:
                         InputValidator.aadhaarNumberInputFormatter(),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (aadhaarFile.fileNameList.isNotEmpty &&
+                          (value == null || value.isEmpty)) {
                         return "Aadhaar Card Number is required.";
                       }
-                      if (value.trim().isNotEmpty &&
-                          !InputValidator.isValidAadharNumber(value.trim())) {
-                        return "Invalid Aadhaar Card Number";
+
+                      if (value != null && value.isNotEmpty) {
+                        if (!InputValidator.isValidAadharNumber(value)) {
+                          return "Aadhaar Card Number is invalid";
+                        }
                       }
+
                       return null;
                     },
                   ),
                   CustomMultiFilePicker(
                     title: "Aadhaar Card",
                     filePickType: FilePickType.kycDocument,
-                    isRequired: true,
                     initialFileList: aadhaarFile.fileNameList,
                     initialFileBytes: aadhaarFile.fileBytesList,
                     onFilePickedCallback: (bytesList, fileNameList) {
@@ -486,7 +488,8 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       aadhaarFile.deletedFileList = deleted;
                     },
                     validator: (fileList) {
-                      if (fileList == null || fileList.isEmpty) {
+                      if (_aadharC.text.trim().isNotEmpty &&
+                          (fileList == null || fileList.isEmpty)) {
                         return "Aadhaar Card document is required.";
                       }
                       return null;
@@ -495,22 +498,24 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                   CustomTextField(
                     title: 'PAN Number',
                     hint: "Enter PAN Number",
-                    isRequired: true,
                     textController: _panC,
                     inputFormatterList: InputValidator.panInputFormatters(),
                     validator: (value) {
-                      if (value == null || value.isEmpty) {
+                      if (panFile.fileNameList.isNotEmpty &&
+                          (value == null || value.isEmpty)) {
                         return "PAN Number is required.";
                       }
-                      if (!InputValidator.isValidPAN(value)) {
-                        return "PAN Number is invalid";
+
+                      if (value != null && value.isNotEmpty) {
+                        if (!InputValidator.isValidPAN(value)) {
+                          return "PAN Number is invalid";
+                        }
                       }
                       return null;
                     },
                   ),
                   CustomMultiFilePicker(
                     title: "PAN Card",
-                    isRequired: true,
                     filePickType: FilePickType.kycDocument,
                     initialFileList: panFile.fileNameList,
                     initialFileBytes: panFile.fileBytesList,
@@ -528,12 +533,8 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       panFile.deletedFileList = deleted;
                     },
                     validator: (fileList) {
-                      if (fileList == null || fileList.isEmpty) {
-                        return "PAN Card document is required.";
-                      }
-                      if (_panC.text.isNotEmpty &&
-                          InputValidator.isValidPAN(_panC.text.trim()) &&
-                          (fileList.isEmpty)) {
+                      if (_panC.text.trim().isNotEmpty &&
+                          (fileList == null || fileList.isEmpty)) {
                         return "PAN Card document is required.";
                       }
                       return null;
@@ -653,16 +654,16 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     validator: (value) {
                       if (votingIdFile.fileNameList.isNotEmpty) {
                         if (value == null || value.isEmpty) {
-                          return "Voting Id is required.";
+                          return "Voting ID is required.";
                         }
                         if (!InputValidator.isValidVoterId(value)) {
-                          return "Voting Id is invalid";
+                          return "Voting ID is invalid";
                         }
                       } else {
                         if (value != null &&
                             value.isNotEmpty &&
                             !InputValidator.isValidVoterId(value)) {
-                          return "Voting Id is invalid";
+                          return "Voting ID is invalid";
                         }
                       }
                       return null;
@@ -692,7 +693,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                             _votingIdC.text.trim(),
                           ) &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Voting Id document is required.";
+                        return "Voting ID document is required.";
                       }
                       return null;
                     },
@@ -703,17 +704,14 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     hint: "Enter GST Number",
                     inputFormatterList: InputValidator.gstInputFormatters(),
                     validator: (value) {
-                      if (gstFile.fileNameList.isNotEmpty) {
-                        if (value == null || value.isEmpty) {
-                          return "GST Number is required.";
-                        }
+                      final hasFile = gstFile.fileNameList.isNotEmpty;
+
+                      if (hasFile && (value == null || value.isEmpty)) {
+                        return "GST Number is required.";
+                      }
+
+                      if (value != null && value.isNotEmpty) {
                         if (!InputValidator.isValidGST(value)) {
-                          return "GST Number is invalid";
-                        }
-                      } else {
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            !InputValidator.isValidGST(value)) {
                           return "GST Number is invalid";
                         }
                       }
@@ -747,59 +745,111 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       return null;
                     },
                   ),
-                  ValueListenableBuilder(
-                    valueListenable: _selectedBank,
-                    builder: (context, bank, child) {
-                      return CustomMultipleSelectPopup(
-                        title: 'Bank',
-                        hintText: "Select Bank",
-                        isMultiSelect: false,
-                        initialValue: bank,
-                        dataList: const [],
-                        onSelected: (value) {
-                          _selectedBank.value = value;
-                        },
-                        dataFetchCallBack: _fetchBank,
+                  AnimatedBuilder(
+                    animation: Listenable.merge([
+                      _selectedBank,
+                      _accountNumberC,
+                      _ifscCodeC,
+                    ]),
+                    builder: (context, child) {
+                      final bool isBankDetailsRequired =
+                          _selectedBank.value.isNotEmpty ||
+                          _accountNumberC.text.isNotEmpty ||
+                          _ifscCodeC.text.isNotEmpty ||
+                          chequeFile.fileNameList.isNotEmpty;
+
+                      return Column(
+                        children: [
+                          CustomMultipleSelectPopup(
+                            title: 'Bank',
+                            hintText: "Select Bank",
+                            isMultiSelect: false,
+                            initialValue: _selectedBank.value,
+                            isRequired: isBankDetailsRequired,
+                            dataList: const [],
+                            onSelected: (value) {
+                              _selectedBank.value = value;
+                            },
+                            dataFetchCallBack: _fetchBank,
+                            validator: (value) {
+                              if (isBankDetailsRequired &&
+                                  (value == null || value.isEmpty)) {
+                                return "Bank is required.";
+                              }
+
+                              return null;
+                            },
+                          ),
+
+                          CustomTextField(
+                            title: 'Account Number',
+                            hint: "Enter account number",
+                            textController: _accountNumberC,
+                            isRequired: isBankDetailsRequired,
+                            keyboardType: TextInputType.number,
+                            inputFormatterList: InputValidator.digit(18),
+                            validator: (value) {
+                              if (isBankDetailsRequired &&
+                                  (value == null || value.isEmpty)) {
+                                return "Account Number is required.";
+                              }
+
+                              return null;
+                            },
+                          ),
+
+                          CustomTextField(
+                            title: 'IFSC Code',
+                            hint: "Enter IFSC Code",
+                            textController: _ifscCodeC,
+                            isRequired: isBankDetailsRequired,
+                            inputFormatterList:
+                                InputValidator.ifscInputFormatters(),
+                            validator: (value) {
+                              if (isBankDetailsRequired &&
+                                  (value == null || value.isEmpty)) {
+                                return "IFSC Code is required.";
+                              }
+
+                              if (value != null &&
+                                  value.isNotEmpty &&
+                                  !InputValidator.isValidIFSC(value)) {
+                                return 'Enter a valid IFSC Code';
+                              }
+
+                              return null;
+                            },
+                          ),
+
+                          CustomMultiFilePicker(
+                            title: "Cheque / Cancelled Cheque",
+                            filePickType: FilePickType.kycDocument,
+                            isRequired: isBankDetailsRequired,
+                            initialFileList: chequeFile.fileNameList,
+                            onFilePickedCallback: (bytesList, fileNameList) {
+                              chequeFile.fileNameList = fileNameList;
+                              chequeFile.fileBytesList = bytesList;
+                            },
+                            onFileDeleteCallback: (
+                              fileBytesList,
+                              fileNameList,
+                              deleted,
+                            ) {
+                              chequeFile.fileBytesList = fileBytesList;
+                              chequeFile.fileNameList = fileNameList;
+                              chequeFile.deletedFileList = deleted;
+                            },
+                            validator: (value) {
+                              if (isBankDetailsRequired &&
+                                  (value == null || value.isEmpty)) {
+                                return "Cheque / Cancelled Cheque is required.";
+                              }
+
+                              return null;
+                            },
+                          ),
+                        ],
                       );
-                    },
-                  ),
-                  CustomTextField(
-                    title: 'Account Number',
-                    hint: "Enter account number",
-                    textController: _accountNumberC,
-                    inputFormatterList: InputValidator.digit(19),
-                  ),
-                  CustomTextField(
-                    title: 'IFSC Code',
-                    hint: "Enter IFSC Code",
-                    textController: _ifscCodeC,
-                    inputFormatterList: InputValidator.ifscInputFormatters(),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return null;
-                      }
-                      if (!InputValidator.isValidIFSC(value)) {
-                        return 'Enter a valid IFSC Code';
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomMultiFilePicker(
-                    title: "Cancelled Cheque",
-                    filePickType: FilePickType.kycDocument,
-                    initialFileList: chequeFile.fileNameList,
-                    onFilePickedCallback: (bytesList, fileNameList) {
-                      chequeFile.fileNameList = fileNameList;
-                      chequeFile.fileBytesList = bytesList;
-                    },
-                    onFileDeleteCallback: (
-                      fileBytesList,
-                      fileNameList,
-                      deleted,
-                    ) {
-                      chequeFile.fileBytesList = fileBytesList;
-                      chequeFile.fileNameList = fileNameList;
-                      chequeFile.deletedFileList = deleted;
                     },
                   ),
                   verticalSpacing(height: 20),

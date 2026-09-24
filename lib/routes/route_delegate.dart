@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
@@ -56,7 +57,7 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_offer/presentation/pages/add_temporary_accomodation_alternative_details.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
-import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_view_screen.dart';
+import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/view_temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
 import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
@@ -2560,12 +2561,14 @@ final GoRouter goRouter = GoRouter(
                     ) ??
                     tenant?.buildingId ??
                     0;
-
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
                 return AddTenantScreen(
                   tenant: tenant,
                   index: index,
                   projectId: projectId,
                   buildingId: buildingId,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -2586,8 +2589,13 @@ final GoRouter goRouter = GoRouter(
                           ),
                         )
                         : null;
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
 
-                return TenantViewScreen(tenant: tenant!);
+                return TenantViewScreen(
+                  tenant: tenant!,
+                  buildingName: buildingName,
+                );
               },
             ),
           ],
@@ -2618,6 +2626,9 @@ final GoRouter goRouter = GoRouter(
                     state.uri.queryParameters['totalAmount'];
                 final queryParameterPaidAmount =
                     state.uri.queryParameters['paidAmount'];
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
+
                 final TemporaryAlternativeAccommodationModel tenantModel =
                     TemporaryAlternativeAccommodationModel.fromJson(
                       jsonDecode(
@@ -2630,10 +2641,11 @@ final GoRouter goRouter = GoRouter(
                     double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
                 final double paidAmount =
                     double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
-                return TemporaryAlternateAccommodationViewScreen(
+                return ViewTemporaryAlternateAccommodationScreen(
                   tenantModel: tenantModel,
                   totalAmount: totalAmount,
                   paidAmount: paidAmount,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -2684,6 +2696,8 @@ final GoRouter goRouter = GoRouter(
                 final int? paymentLedgerIndex = int.tryParse(
                   queryParameterPaymentLedgerIndex ?? '',
                 );
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
 
                 return AddTemporaryAlternateAccommodationPaymentScreen(
                   rentModel: rentModel,
@@ -2692,6 +2706,7 @@ final GoRouter goRouter = GoRouter(
                   paymentLedger: paymentLedgerModel,
                   paymentLedgerIndex: paymentLedgerIndex,
                   previousRoute: previousRoute,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -2713,10 +2728,13 @@ final GoRouter goRouter = GoRouter(
 
                 final double totalAmount =
                     double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
 
                 return ViewPaymentSummaryScreen(
                   rentModel: rentModel,
                   totalAmount: totalAmount,
+                  buildingName: buildingName,
                 );
               },
             ),
@@ -6360,8 +6378,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.materialRequisition,
               builder:
                   (context, state) =>
-                      ComingSoonScreen(title: "Material Requisition"),
-              // MaterialRequisitonScreen(),
+                      // ComingSoonScreen(title: "Material Requisition"),
+                      MaterialRequisitonScreen(),
             ),
             GoRoute(
               name: AppRoutes.addMaterialRequisition,

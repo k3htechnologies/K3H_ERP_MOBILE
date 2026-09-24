@@ -78,11 +78,8 @@ class CustomDropDownWidget extends StatelessWidget {
                     hintText: hintText ?? 'Select',
                     decoration: CustomDropdownDecoration(
                       closedSuffixIcon: Icon(
-                        Icons.keyboard_arrow_down_rounded,
-                        color:
-                            isDisabled
-                                ? AppColor.grey.withValues(alpha: 0.3)
-                                : AppColor.black.withValues(alpha: 0.7),
+                        Icons.keyboard_arrow_down,
+                        color: isDisabled ? AppColor.grey2 : null,
                       ),
                       closedFillColor:
                           isDisabled
@@ -159,7 +156,7 @@ class CustomDropDownWidget extends StatelessWidget {
                                 child: Icon(
                                   Icons.close,
                                   size: 18,
-                                  color: AppColor.grey,
+                                  color: isDisabled ? AppColor.grey2 : null,
                                 ),
                               ),
                             ),

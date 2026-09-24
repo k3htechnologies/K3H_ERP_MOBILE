@@ -204,7 +204,7 @@ class _AddLitigationHearingScreenState
                   isRequired: true,
                   textController: _remarkC,
                   minLines: 3,
-                  maxLines: 5,
+                  maxLines: 10,
                   validator: (string) {
                     if (string == null || string.trim().isEmpty) {
                       return 'Remark is required.';

@@ -251,8 +251,8 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                               )..removeAt(
                                 (double.tryParse(_commercialAreaC.text) ?? 0) ==
                                         0
-                                    ? 1
-                                    : 0,
+                                    ? 0
+                                    : 1,
                               )),
                       onSelected: (value) {
                         _selectedLienType.value = value;
@@ -626,7 +626,7 @@ class _LienToSocietyDetailsState extends State<LienToSocietyDetails> {
                           textController: _remarkC,
                           readOnly: disableAction,
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

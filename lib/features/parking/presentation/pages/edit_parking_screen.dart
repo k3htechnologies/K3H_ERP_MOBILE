@@ -539,7 +539,7 @@ class _EditParkingScreenState extends State<EditParkingScreen> {
                   title: 'Remark',
                   hint: 'Enter Remark',
                   minLines: 3,
-                  maxLines: 3,
+                  maxLines: 10,
                   readOnly: !_routeAuthorizationModel.isAction,
                   textController: _parkingRemarkC,
                 ),

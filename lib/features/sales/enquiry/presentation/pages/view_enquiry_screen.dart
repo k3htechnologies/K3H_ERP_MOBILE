@@ -1392,8 +1392,8 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                   isRequired: true,
 
                   textController: _remarkC,
-                  maxLines: 3,
                   minLines: 3,
+                  maxLines: 10,
                   validator:
                       (val) =>
                           val == null || val.trim().isEmpty
