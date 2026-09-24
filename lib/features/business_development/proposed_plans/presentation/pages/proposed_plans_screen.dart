@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/features/business_development/proposed_plans/data/mo
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
@@ -277,6 +278,7 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                     ),
                   ),
                   _buildPlanDetailsSection(),
+                  verticalSpacing(height: 20),
                   Expanded(child: _buildBuildingSection(state)),
                 ],
               );
@@ -291,36 +293,41 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
   Widget _buildPlanDetailsSection() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            spacing: 10,
-            children: [
-              Expanded(
-                child: CustomTextField(
-                  textController: _totalBuildingC,
-                  title: "Total No. Of Buildings",
-                  hint: "0",
-                  keyboardType: TextInputType.number,
-                  readOnly: true,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: commonCardDecoration(),
+        child: Column(
+          spacing: 8,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Plan Details", style: AppTextStyle.ts14M()),
+                BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
+                  builder: (context, state) {
+                    return CustomButton(
+                      text:
+                          state.proposedPlansList.isEmpty
+                              ? 'Add Building'
+                              : 'Update Building',
+                      isDisable: !_routeAuthorizationModel.isAction,
+                      onPressed: _showBuildingCountBottomSheet,
+                    );
+                  },
                 ),
-              ),
-              BlocBuilder<ProposedPlansCubit, ProposedPlansState>(
-                builder: (context, state) {
-                  return CustomButton(
-                    text:
-                        state.proposedPlansList.isEmpty
-                            ? 'Add Building'
-                            : 'Update Building',
-                    isDisable: !_routeAuthorizationModel.isAction,
-                    onPressed: _showBuildingCountBottomSheet,
-                  );
-                },
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+            CustomTextField(
+              textController: _totalBuildingC,
+              title: "Total No. Of Buildings",
+              hint: "0",
+              keyboardType: TextInputType.number,
+              readOnly: true,
+              bottomMargin: 0,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -360,11 +367,6 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
               padding: const EdgeInsets.symmetric(
                 vertical: 12.0,
                 horizontal: 12.0,
-              ),
-              gradient: LinearGradient(
-                colors: [AppColor.primary, AppColor.darkBlue],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
               ),
               isDisable:
                   !_routeAuthorizationModel.isAction ||
@@ -447,11 +449,19 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                 height: 70,
                 padding: const EdgeInsets.all(16),
                 child: CustomButton(
+                  leading: Icon(
+                    Icons.edit,
+                    size: 16,
+                    color:
+                        !_routeAuthorizationModel.isAction
+                            ? AppColor.grey2
+                            : AppColor.white,
+                  ),
                   isDisable:
                       _totalBuildingC.text.trim().isEmpty ||
                       !_hasSearchResults.value ||
                       !_routeAuthorizationModel.isAction,
-                  text: "Update Proposed Plan",
+                  text: "Update",
                   onPressed: () => _saveForm(state),
                 ),
               ),

@@ -95,6 +95,7 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
             child: Column(
               children: [
                 CustomMultiFilePicker(
+                  maxFiles: 20,
                   initialFileList: planFile.fileNameList,
                   title: "Plan",
                   filePickType: FilePickType.kycDocument,
@@ -116,6 +117,7 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                   },
                 ),
                 CustomMultiFilePicker(
+                  maxFiles: 20,
                   initialFileList: threeDViewFile.fileNameList,
                   title: "3D View",
                   filePickType: FilePickType.kycDocument,
@@ -137,6 +139,7 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                   },
                 ),
                 CustomMultiFilePicker(
+                  maxFiles: 20,
                   readOnly: !_routeAuthorizationModel.isAction,
                   initialFileList: walkthroughViewFile.fileNameList,
                   title: "Walkthrough View",
@@ -158,6 +161,7 @@ class _ProposedPlanDocumentsViewState extends State<ProposedPlanDocumentsView> {
                   },
                 ),
                 CustomMultiFilePicker(
+                  maxFiles: 20,
                   initialFileList: salesPlanFile.fileNameList,
                   readOnly: !_routeAuthorizationModel.isAction,
                   title: "Sales Plan",

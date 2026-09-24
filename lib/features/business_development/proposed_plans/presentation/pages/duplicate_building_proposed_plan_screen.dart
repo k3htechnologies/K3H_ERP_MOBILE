@@ -106,7 +106,7 @@ class _DuplicateBuildingProposedPlanScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Duplicate Details",
+                "Duplicate Building Configurations",
                 style: AppTextStyle.ts14M(color: AppColor.grey),
               ),
               verticalSpacing(),

@@ -30,18 +30,42 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
   WingDetailFormModel get wing => widget.wing;
   late final AuthorizationModel _routeAuthorizationModel;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late final Map<TextEditingController, String> _snapshot;
+  bool _isSaved = false;
+
   @override
   void initState() {
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.proposedPlan] ??
         AuthorizationModel();
+    _snapshot = {
+      for (final c in [
+        wing.wingName,
+        wing.lobbyArea,
+        wing.totalLifts,
+        wing.memberUnits,
+        wing.saleUnits,
+        wing.totalUnits,
+        wing.memberArea,
+        wing.saleArea,
+        wing.totalArea,
+      ])
+        c: c.text,
+    };
+
     wing.memberUnits.addListener(_calculateTotalUnits);
     wing.saleUnits.addListener(_calculateTotalUnits);
     wing.memberArea.addListener(_calculateTotalArea);
     wing.saleArea.addListener(_calculateTotalArea);
     _calculateTotalUnits();
     _calculateTotalArea();
+  }
+
+  void _restoreSnapshot() {
+    _snapshot.forEach((controller, text) {
+      if (controller.text != text) controller.text = text;
+    });
   }
 
   void _calculateTotalUnits() {
@@ -91,150 +115,158 @@ class _AddWingDetailsScreenState extends State<AddWingDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Proposed Plan",
-        authorization: AuthorizationModel(),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
-            children: [
-              Text(
-                "Wing ${widget.wingIndex + 1} Details",
-                style: AppTextStyle.ts14M(color: AppColor.grey),
-              ),
-              Container(
-                decoration: commonCardDecoration(),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      CustomTextField(
-                        title: "Wing Name",
-                        hint: "Wing Name",
-                        isRequired: true,
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(25),
-                        ],
-                        readOnly: !_routeAuthorizationModel.isAction,
-                        textController: wing.wingName,
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Wing Name is required.";
-                          }
-                          if (_isDuplicateWingName()) {
-                            return "Wing Name already exists.";
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomTextField(
-                        title: "Main Entrance Lobby Area (SqFt)",
-                        hint: "Enter Main Entrance Lobby Area",
-                        inputFormatterList: InputValidator.digitWithDecimal(
-                          maxDigitsBeforeDecimal: 7,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop && !_isSaved) {
+          _restoreSnapshot();
+        }
+      },
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Proposed Plan",
+          authorization: AuthorizationModel(),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 10,
+              children: [
+                Text(
+                  "Wing ${widget.wingIndex + 1} Details",
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+                Container(
+                  decoration: commonCardDecoration(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        CustomTextField(
+                          title: "Wing Name",
+                          hint: "Wing Name",
+                          isRequired: true,
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(25),
+                          ],
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          textController: wing.wingName,
+                          validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return "Wing Name is required.";
+                            }
+                            if (_isDuplicateWingName()) {
+                              return "Wing Name already exists.";
+                            }
+                            return null;
+                          },
                         ),
-                        readOnly: !_routeAuthorizationModel.isAction,
-                        keyboardType: TextInputType.numberWithOptions(
-                          decimal: true,
+                        CustomTextField(
+                          title: "Main Entrance Lobby Area (SqFt)",
+                          hint: "Enter Main Entrance Lobby Area",
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            maxDigitsBeforeDecimal: 7,
+                          ),
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          keyboardType: TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          textController: wing.lobbyArea,
                         ),
-                        textController: wing.lobbyArea,
-                      ),
-                      CustomTextField(
-                        title: "Total Number Of Lifts",
-                        hint: "Enter Total Number Of Lifts",
-                        readOnly: !_routeAuthorizationModel.isAction,
-                        inputFormatterList: InputValidator.digit(2),
-                        keyboardType: TextInputType.number,
-                        textController: wing.totalLifts,
-                      ),
-                      CustomTextField(
-                        title: "Total No. Units For Member",
-                        hint: "Enter Total No. Units For Member",
-                        readOnly: !_routeAuthorizationModel.isAction,
-                        inputFormatterList: InputValidator.digit(4),
-                        keyboardType: TextInputType.number,
-                        textController: wing.memberUnits,
-                      ),
-                      CustomTextField(
-                        title: "Total No. Units For Sale",
-                        hint: "Enter Total No. Units For Sale",
-                        readOnly: !_routeAuthorizationModel.isAction,
-                        inputFormatterList: InputValidator.digit(4),
-                        keyboardType: TextInputType.number,
-                        textController: wing.saleUnits,
-                      ),
-                      CustomTextField(
-                        title: "Total Number Of Units",
-                        hint: "Enter Total Number Of Units",
-                        readOnly: true,
-                        keyboardType: TextInputType.number,
-                        textController: wing.totalUnits,
-                      ),
-                      CustomTextField(
-                        title: "Total Area For Member (SqFt)",
-                        hint: "Enter Total Area For Member",
-                        readOnly: !_routeAuthorizationModel.isAction,
-                        inputFormatterList: InputValidator.digitWithDecimal(
-                          maxDigitsBeforeDecimal: 7,
+                        CustomTextField(
+                          title: "Total Number Of Lifts",
+                          hint: "Enter Total Number Of Lifts",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          inputFormatterList: InputValidator.digit(2),
+                          keyboardType: TextInputType.number,
+                          textController: wing.totalLifts,
                         ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                        CustomTextField(
+                          title: "Total No. Units For Member",
+                          hint: "Enter Total No. Units For Member",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          inputFormatterList: InputValidator.digit(4),
+                          keyboardType: TextInputType.number,
+                          textController: wing.memberUnits,
                         ),
-                        textController: wing.memberArea,
-                      ),
-                      CustomTextField(
-                        title: "Total Area For Sale (SqFt)",
-                        hint: "Enter Total Area For Sale",
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                        CustomTextField(
+                          title: "Total No. Units For Sale",
+                          hint: "Enter Total No. Units For Sale",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          inputFormatterList: InputValidator.digit(4),
+                          keyboardType: TextInputType.number,
+                          textController: wing.saleUnits,
                         ),
-                        inputFormatterList: InputValidator.digitWithDecimal(
-                          maxDigitsBeforeDecimal: 7,
+                        CustomTextField(
+                          title: "Total Number Of Units",
+                          hint: "Enter Total Number Of Units",
+                          readOnly: true,
+                          keyboardType: TextInputType.number,
+                          textController: wing.totalUnits,
                         ),
-                        readOnly: !_routeAuthorizationModel.isAction,
-                        textController: wing.saleArea,
-                      ),
-                      CustomTextField(
-                        title: "Total Area (SqFt)",
-                        hint: "Enter Total Area",
-                        readOnly: true,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
+                        CustomTextField(
+                          title: "Total Area For Member (SqFt)",
+                          hint: "Enter Total Area For Member",
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            maxDigitsBeforeDecimal: 7,
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          textController: wing.memberArea,
                         ),
-                        textController: wing.totalArea,
-                      ),
-                    ],
+                        CustomTextField(
+                          title: "Total Area For Sale (SqFt)",
+                          hint: "Enter Total Area For Sale",
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          inputFormatterList: InputValidator.digitWithDecimal(
+                            maxDigitsBeforeDecimal: 7,
+                          ),
+                          readOnly: !_routeAuthorizationModel.isAction,
+                          textController: wing.saleArea,
+                        ),
+                        CustomTextField(
+                          title: "Total Area (SqFt)",
+                          hint: "Enter Total Area",
+                          readOnly: true,
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          textController: wing.totalArea,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: SizedBox(
-          height: 70,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: CustomButton(
-              text: "Save",
-              isDisable: !_routeAuthorizationModel.isAction,
-              onPressed: () {
-                if (!_formKey.currentState!.validate()) {
-                  return;
-                }
-                goRouter.pop(wing);
-                showSuccessMessage(
-                  context,
-                  subTitle: "Wing ${widget.wingIndex + 1} details saved.",
-                );
-              },
+        bottomNavigationBar: SafeArea(
+          child: SizedBox(
+            height: 70,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: CustomButton(
+                text: "Save",
+                isDisable: !_routeAuthorizationModel.isAction,
+                onPressed: () {
+                  if (!_formKey.currentState!.validate()) {
+                    return;
+                  }
+                  _isSaved = true;
+                  goRouter.pop(wing);
+                  showSuccessMessage(
+                    context,
+                    subTitle: "Wing ${widget.wingIndex + 1} details saved.",
+                  );
+                },
+              ),
             ),
           ),
         ),

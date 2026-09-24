@@ -205,6 +205,7 @@ class _ProposedPlanDetailsViewState extends State<ProposedPlanDetailsView> {
                         index: index,
                         wing: wing,
                         onTap: () async {
+                          
                           final updatedWing = await goRouter.pushNamed(
                             AppRoutes.wingDetails,
                             extra: {"index": index, "wing": wing},
