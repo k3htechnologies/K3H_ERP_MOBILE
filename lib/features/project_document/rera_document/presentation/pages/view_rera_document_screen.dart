@@ -20,7 +20,6 @@ import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewRERADocumentScreen extends StatefulWidget {
@@ -283,13 +282,6 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   ),
                 ),
               ),
-              buildColumnTitleValue(
-                title: "Approval Status",
-                value: document.projectRERADocumentApprovalStatus,
-                customValueWidget: approvalStatusWidget(
-                  document.projectRERADocumentApprovalStatus,
-                ),
-              ),
             ],
           ),
           Row(
@@ -359,11 +351,14 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
             ],
           ),
           ApproveRejectWidget(
-            actionTitle: isActionAllowed ? "Actions" : "History",
+            showApproval: document.isApproval,
+            actionTitle:
+                document.projectRERADocumentApprovalStatus.isEmpty
+                    ? "Pending"
+                    : document.projectRERADocumentApprovalStatus,
             isActionAlreadyPerformed: !isActionAllowed,
             popupTitle:
                 "${widget.documentModel.projectRERADocumentCategory} > ${document.projectRERADocumentName}",
-            showApproval: document.isApproval,
             onApprove: (val) async {
               await _utilsCubit.updateModulesWorkflowApproval(
                 context: context,

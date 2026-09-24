@@ -99,7 +99,9 @@ class TestDocumentCategoryCubit extends Cubit<TestDocumentCategoryState> {
           searchText: "",
         ),
       );
-    } catch (e) {}
+    } catch (e) {
+      // Cubit is closed, ignore
+    }
   }
 
   Future deleteTestDocumentCategory(

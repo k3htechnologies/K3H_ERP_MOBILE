@@ -209,10 +209,11 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        spacing: 10,
+                        spacing: 10.0,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
+                          Expanded(
                             child: GestureDetector(
                               onTap: () {
                                 goRouter.pushNamed(
@@ -234,13 +235,12 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                 style: AppTextStyle.ts16M(
                                   color: AppColor.primary,
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
                           if (_routeAuthorizationModel.isAction) ...[
                             Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 CustomIconButton.edit(
                                   onPressed: () async {

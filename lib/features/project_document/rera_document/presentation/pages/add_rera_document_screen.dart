@@ -5,12 +5,14 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/data/model/rera_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddRERADocumentScreen extends StatefulWidget {
   final RERADocumentModel? documentModel;
@@ -160,112 +162,123 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: _isEditMode ? "Update Document" : "Add Document",
+        screenTitle: "Document",
         authorization: _routeAuthorizationModel,
       ),
-      body: Form(
-        key: _formKey,
-        child: Container(
-          decoration: commonCardDecoration(),
-          margin: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          padding: EdgeInsets.all(16),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                if (_isEditMode)
-                  CustomTextField(
-                    title: "Document",
-                    textController: _documentNameC,
-                    isRequired: true,
-                    readOnly: true,
-                  ),
-                CustomDropDownWidget(
-                  title: "Status",
-                  dataList: statusList,
-                  hintText: "Select Status",
-                  initialValue: _selectedStatus.value,
-                  isRequired: true,
-                  onSelected: (value) {
-                    _selectedStatus.value = value;
-                  },
-                  validator: (value) {
-                    if (value == null || value["zAttributesId"] == -1) {
-                      return 'Status is required.';
-                    }
-                    return null;
-                  },
-                  onValueClear: () {
-                    _selectedStatus.value = null;
-                  },
-                ),
-                ValueListenableBuilder(
-                  valueListenable: _selectedStatus,
-                  builder: (context, value, child) {
-                    return CustomMultiFilePicker(
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode ? "Update Document" : "Add Document",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Form(
+              key: _formKey,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+                decoration: commonCardDecoration(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_isEditMode)
+                      CustomTextField(
+                        title: "Document",
+                        textController: _documentNameC,
+                        isRequired: true,
+                        readOnly: true,
+                      ),
+                    CustomDropDownWidget(
+                      title: "Status",
+                      dataList: statusList,
+                      hintText: "Select Status",
+                      initialValue: _selectedStatus.value,
+                      isRequired: true,
+                      onSelected: (value) {
+                        _selectedStatus.value = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value["zAttributesId"] == -1) {
+                          return 'Status is required.';
+                        }
+                        return null;
+                      },
+                      onValueClear: () {
+                        _selectedStatus.value = null;
+                      },
+                    ),
+                    ValueListenableBuilder(
+                      valueListenable: _selectedStatus,
+                      builder: (context, value, child) {
+                        return CustomMultiFilePicker(
+                          maxFiles: 5,
+                          title: "Files",
+                          isRequired:
+                              (_selectedStatus.value != null &&
+                                  _selectedStatus.value!['DisplayName']
+                                      .toString()
+                                      .toLowerCase()
+                                      .contains('issued')),
+                          initialFileList: selectedDocumentFile.fileNameList,
+                          onFilePickedCallback: (bytesList, fileNameList) {
+                            selectedDocumentFile.fileNameList = fileNameList;
+                            selectedDocumentFile.fileBytesList = bytesList;
+                          },
+                          onFileDeleteCallback: (
+                            fileBytesList,
+                            fileNameList,
+                            deletedFile,
+                          ) {
+                            selectedDocumentFile.fileNameList = fileNameList;
+                            selectedDocumentFile.fileBytesList = fileBytesList;
+                            selectedDocumentFile.deletedFileList = deletedFile;
+                          },
+                          validator: (value) {
+                            if (_selectedStatus.value != null &&
+                                _selectedStatus.value!['DisplayName']
+                                    .toString()
+                                    .toLowerCase()
+                                    .contains('issued') &&
+                                (value == null || value.isEmpty)) {
+                              return "File is required.";
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                    CustomMultiFilePicker(
                       maxFiles: 5,
-                      title: "Files",
-                      isRequired:
-                          (_selectedStatus.value != null &&
-                              _selectedStatus.value!['DisplayName']
-                                  .toString()
-                                  .toLowerCase()
-                                  .contains('issued')),
-                      initialFileList: selectedDocumentFile.fileNameList,
+                      title: "Screenshot",
+                      initialFileList: selectedScreenShotFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        selectedDocumentFile.fileNameList = fileNameList;
-                        selectedDocumentFile.fileBytesList = bytesList;
+                        selectedScreenShotFile.fileNameList = fileNameList;
+                        selectedScreenShotFile.fileBytesList = bytesList;
                       },
                       onFileDeleteCallback: (
                         fileBytesList,
                         fileNameList,
                         deletedFile,
                       ) {
-                        selectedDocumentFile.fileNameList = fileNameList;
-                        selectedDocumentFile.fileBytesList = fileBytesList;
-                        selectedDocumentFile.deletedFileList = deletedFile;
+                        selectedScreenShotFile.fileNameList = fileNameList;
+                        selectedScreenShotFile.fileBytesList = fileBytesList;
+                        selectedScreenShotFile.deletedFileList = deletedFile;
                       },
-                      validator: (value) {
-                        if (_selectedStatus.value != null &&
-                            _selectedStatus.value!['DisplayName']
-                                .toString()
-                                .toLowerCase()
-                                .contains('issued') &&
-                            (value == null || value.isEmpty)) {
-                          return "File is required.";
-                        }
-                        return null;
-                      },
-                    );
-                  },
+                    ),
+                    CustomTextField(
+                      title: "Remark",
+                      hint: "Enter Remark",
+                      minLines: 3,
+                      maxLines: 10,
+                      textController: _remarkC,
+                    ),
+                  ],
                 ),
-                CustomMultiFilePicker(
-                  maxFiles: 5,
-                  title: "Screenshot",
-                  initialFileList: selectedScreenShotFile.fileNameList,
-                  onFilePickedCallback: (bytesList, fileNameList) {
-                    selectedScreenShotFile.fileNameList = fileNameList;
-                    selectedScreenShotFile.fileBytesList = bytesList;
-                  },
-                  onFileDeleteCallback: (
-                    fileBytesList,
-                    fileNameList,
-                    deletedFile,
-                  ) {
-                    selectedScreenShotFile.fileNameList = fileNameList;
-                    selectedScreenShotFile.fileBytesList = fileBytesList;
-                    selectedScreenShotFile.deletedFileList = deletedFile;
-                  },
-                ),
-                CustomTextField(
-                  title: "Remark",
-                  hint: "Enter Remark",
-                  minLines: 3,
-                  maxLines: 10,
-                  textController: _remarkC,
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(

@@ -358,9 +358,12 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             ],
           ),
           ApproveRejectWidget(
-            actionTitle: isActionAllowed ? "Actions" : "History",
-            isActionAlreadyPerformed: !isActionAllowed,
             showApproval: document.isApproval,
+            actionTitle:
+                document.projectDocumentApprovalStatus.isEmpty
+                    ? "Pending"
+                    : document.projectDocumentApprovalStatus,
+            isActionAlreadyPerformed: !isActionAllowed,
             popupTitle:
                 "${document.projectDocumentCategory} > ${document.projectDocumentName}",
             onApprove: (val) async {

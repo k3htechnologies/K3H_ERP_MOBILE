@@ -10,6 +10,9 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+import '../../../../../style/text_style.dart';
 
 class AddApprovalCategoryScreen extends StatefulWidget {
   final ApprovalDocumentCategoryModel? approvalCategoryModel;
@@ -111,50 +114,63 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            _isEditMode
-                ? "Update Approval Document Category"
-                : "Add Approval Document Category",
+        screenTitle: "Apprval Document Category",
         authorization: _routeAuthorizationModel,
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                CustomTextField(
-                  title: "Approval Document Category",
-                  hint: "Enter approval document category",
-                  isRequired: true,
-                  textController: _documentCategoryC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Approval Document Category is required.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  title: "Sequence",
-                  hint: "Enter Sequence",
-                  isRequired: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(5),
-                  textController: _orderByC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Sequence is required.";
-                    }
-                    return null;
-                  },
-                ),
-              ],
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode
+                  ? "Update Approval Document Category"
+                  : "Add Approval Document Category",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-          ),
+            verticalSpacing(),
+            Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomTextField(
+                      title: "Approval Document Category",
+                      hint: "Enter approval document category",
+                      isRequired: true,
+                      textController: _documentCategoryC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        100,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Approval Document Category is required.";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Sequence",
+                      hint: "Enter Sequence",
+                      isRequired: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(5),
+                      textController: _orderByC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Sequence is required.";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(

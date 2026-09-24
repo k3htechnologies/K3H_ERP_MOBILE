@@ -15,6 +15,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -167,6 +168,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
               hint: "Enter Document Name",
               isRequired: true,
               textController: _reraDocumentC,
+              inputFormatterList: InputValidator.digitAndCharacterOnly(100),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return "Document Name is required.";

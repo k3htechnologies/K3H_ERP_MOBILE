@@ -360,6 +360,8 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       "IsMaster": 1.toString(),
     };
 
+    print("the body is:$body");
+
     var result = await _reraDocumentRepository.addUpdateRERADocument(
       body: body,
       fileList: fileList,

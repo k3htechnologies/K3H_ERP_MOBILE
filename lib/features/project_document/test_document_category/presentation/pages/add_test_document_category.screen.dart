@@ -129,6 +129,9 @@ class _AddTestDocumentCategoryScreenState
                       hint: "Enter Test Document Category",
                       isRequired: true,
                       textController: _reraDocumentCategoryC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        100,
+                      ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Test Document Category is required.";

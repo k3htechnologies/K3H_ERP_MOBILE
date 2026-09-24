@@ -4,12 +4,14 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/presentation/cubit/rera_document_category_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddRERADocumentCategoryScreen extends StatefulWidget {
   final RERADocumentCategoryModel? reraDocumentCategoryModel;
@@ -107,50 +109,62 @@ class _AddRERADocumentCategoryScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle:
-            _isEditMode
-                ? "Update Project RERA Document Category"
-                : "Add Project RERA Document Category",
+        screenTitle: "RERA Document Category",
         authorization: _routeAuthorizationModel,
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                CustomTextField(
-                  title: "Project RERA Document Category",
-                  hint: "Enter project RERA document category",
-                  isRequired: true,
-                  textController: _reraDocumentCategoryC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Project Document RERA Category is required.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  title: "Sequence",
-                  hint: "Enter Sequence",
-                  isRequired: true,
-                  keyboardType: TextInputType.number,
-                  inputFormatterList: InputValidator.digit(5),
-                  textController: _orderByC,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Sequence is required.";
-                    }
-                    return null;
-                  },
-                ),
-              ],
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode
+                  ? "Update Project RERA Document Category"
+                  : "Add Project RERA Document Category",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-          ),
+            verticalSpacing(),
+            Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    CustomTextField(
+                      title: "Project RERA Document Category",
+                      hint: "Enter project RERA document category",
+                      isRequired: true,
+                      textController: _reraDocumentCategoryC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        100,
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Project Document RERA Category is required.";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      title: "Sequence",
+                      hint: "Enter Sequence",
+                      isRequired: true,
+                      keyboardType: TextInputType.number,
+                      inputFormatterList: InputValidator.digit(5),
+                      textController: _orderByC,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Sequence is required.";
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
