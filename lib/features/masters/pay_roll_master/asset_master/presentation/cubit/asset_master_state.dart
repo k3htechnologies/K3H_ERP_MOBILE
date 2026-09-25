@@ -8,11 +8,12 @@ class AssetMasterState extends BaseState {
   final int totalNumberOfRecord;
   final String currentSortColumn;
   final String currentSortDirection;
-  final String filterAssetStatus;
-  final String filterAssetType;
-  final String filterAssetBrand;
-  final String filterAssetModel;
-  final String filterSerialNumber;
+  final String filterByEmployeName;
+  final String filterByAssetStatus;
+  final String filterByAssetType;
+  final String filterByAssetBrand;
+  final String filterByAssetModel;
+  final String filterBySerialNumber;
   final int currentTabIndex;
 
   const AssetMasterState({
@@ -20,15 +21,16 @@ class AssetMasterState extends BaseState {
     required this.assetList,
     super.isLoading,
     this.currentPage = 1,
-    this.searchText = "",
+    this.searchText = '',
     this.totalNumberOfRecord = 0,
     required this.currentSortColumn,
     required this.currentSortDirection,
-    this.filterAssetStatus = "",
-    this.filterAssetType = "",
-    this.filterAssetBrand = "",
-    this.filterAssetModel = "",
-    this.filterSerialNumber = "",
+    required this.filterByAssetStatus,
+    required this.filterByAssetType,
+    required this.filterByAssetBrand,
+    required this.filterByAssetModel,
+    required this.filterBySerialNumber,
+    required this.filterByEmployeName,
     required this.currentTabIndex,
   });
 
@@ -41,12 +43,13 @@ class AssetMasterState extends BaseState {
     currentSortDirection: 'DESC',
     searchText: "",
     totalNumberOfRecord: 0,
-    filterAssetStatus: "",
-    filterAssetType: "",
-    filterAssetBrand: "",
-    filterAssetModel: "",
-    filterSerialNumber: "",
+    filterByAssetStatus: "",
+    filterByAssetType: "",
+    filterByAssetBrand: "",
+    filterByAssetModel: "",
+    filterBySerialNumber: "",
     currentTabIndex: 0,
+    filterByEmployeName: '',
   );
 
   AssetMasterState copyWith({
@@ -60,12 +63,13 @@ class AssetMasterState extends BaseState {
     int? currentPage,
     String? currentSortColumn,
     String? currentSortDirection,
-    String? filterAssetStatus,
-    String? filterAssetType,
-    String? filterAssetBrand,
-    String? filterAssetModel,
-    String? filterSerialNumber,
+    String? filterByAssetStatus,
+    String? filterByAssetType,
+    String? filterByAssetBrand,
+    String? filterByAssetModel,
+    String? filterBySerialNumber,
     int? currentTabIndex,
+    String? filterByEmployeName,
   }) {
     return AssetMasterState(
       assetMappingList: assetMappingList ?? this.assetMappingList,
@@ -76,12 +80,13 @@ class AssetMasterState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
-      filterAssetStatus: filterAssetStatus ?? this.filterAssetStatus,
-      filterAssetType: filterAssetType ?? this.filterAssetType,
-      filterAssetBrand: filterAssetBrand ?? this.filterAssetBrand,
-      filterAssetModel: filterAssetModel ?? this.filterAssetModel,
-      filterSerialNumber: filterSerialNumber ?? this.filterSerialNumber,
+      filterByAssetStatus: filterByAssetStatus ?? this.filterByAssetStatus,
+      filterByAssetType: filterByAssetType ?? this.filterByAssetType,
+      filterByAssetBrand: filterByAssetBrand ?? this.filterByAssetBrand,
+      filterByAssetModel: filterByAssetModel ?? this.filterByAssetModel,
+      filterBySerialNumber: filterBySerialNumber ?? this.filterBySerialNumber,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
+      filterByEmployeName: filterByEmployeName ?? this.filterByEmployeName,
     );
   }
 
@@ -95,11 +100,12 @@ class AssetMasterState extends BaseState {
     totalNumberOfRecord,
     currentSortColumn,
     currentSortDirection,
-    filterAssetStatus,
-    filterAssetType,
-    filterAssetBrand,
-    filterAssetModel,
-    filterSerialNumber,
+    filterByAssetStatus,
+    filterByAssetType,
+    filterByAssetBrand,
+    filterByAssetModel,
+    filterBySerialNumber,
+    filterByEmployeName,
     currentTabIndex,
   ];
 }
