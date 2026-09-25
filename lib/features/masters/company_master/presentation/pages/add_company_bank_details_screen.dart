@@ -21,12 +21,14 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 class AddCompanyBankDetailsScreen extends StatefulWidget {
+  final String companyName;
   final CompanyBankModel? bankDetailsModel;
   final int? index;
   const AddCompanyBankDetailsScreen({
     super.key,
     this.bankDetailsModel,
     this.index,
+    required this.companyName,
   });
   @override
   State<AddCompanyBankDetailsScreen> createState() =>
@@ -231,229 +233,249 @@ class _AddCompanyBankDetailsScreenState
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                Text(
-                  _isEditMode ? "Update Bank Details" : "Add Bank Details",
-                  style: AppTextStyle.ts14M(),
-                ),
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomTextField(
-                        title: "Beneficiary Account Holder Name",
-                        textController: _beneficiaryAccountHolderNameC,
-                        hint: "Enter Account Holder Name",
-                        isRequired: true,
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(250),
-                        ],
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Beneficiary Account Holder Name is required.";
-                          }
-                          return null;
-                        },
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: _selectedBankNotifier,
-                        builder: (context, selectedEmployee, _) {
-                          return CustomMultipleSelectPopup(
-                            title: 'Bank',
-                            hintText: "Select Bank",
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: selectedEmployee,
-                            dataList: const [],
-                            onSelected: (value) {
-                              _selectedBankNotifier.value = value;
-                            },
-                            dataFetchCallBack: _fetchBanks,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Bank Name is required.";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: selectedAccountType,
-                        builder: (context, selectedAccountT, child) {
-                          return CustomDropDownWidget(
-                            title: "Account Type",
-                            hintText: "Select Account Type",
-                            isRequired: true,
-                            initialValue: selectedAccountT,
-                            dataList: accountTypeList,
-                            onSelected: (value) {
-                              selectedAccountType.value = value;
-                            },
-                            validator: (value) {
-                              if (value == null ||
-                                  value['zAttributesId'] == -1) {
-                                return 'Account Type is required.';
-                              }
-                              return null;
-                            },
-                            onValueClear: () {
-                              selectedAccountType.value = null;
-                            },
-                          );
-                        },
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: selectedNatureOfAccount,
-                        builder: (context, selectedAccountT, child) {
-                          return CustomDropDownWidget(
-                            title: "Nature of Account",
-                            hintText: "Select Nature of Account",
-                            isRequired: true,
-                            initialValue: selectedAccountT,
-                            dataList: natureOfAccountList,
-                            onSelected: (value) {
-                              selectedNatureOfAccount.value = value;
-                            },
-                            validator: (value) {
-                              if (value == null ||
-                                  value['zAttributesId'] == -1) {
-                                return 'Nature of Account is required.';
-                              }
-                              return null;
-                            },
-                            onValueClear: () {
-                              selectedNatureOfAccount.value = null;
-                            },
-                          );
-                        },
-                      ),
-                      CustomTextField(
-                        title: "Account Number",
-                        textController: _accountNumberC,
-                        hint: "Enter Account Number",
-                        isRequired: true,
-                        keyboardType: TextInputType.number,
-                        inputFormatterList: InputValidator.digit(18),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Account Number is required.";
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomTextField(
-                        title: "Branch Name",
-                        textController: _branchC,
-                        hint: "Enter Branch Name",
-                        isRequired: true,
-                        inputFormatterList: [
-                          LengthLimitingTextInputFormatter(200),
-                        ],
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "Bank Branch Name is required.";
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomTextField(
-                        title: "IFSC Code",
-                        textController: _ifscCodeC,
-                        hint: "Enter IFSC Code",
-                        isRequired: true,
-                        inputFormatterList:
-                            InputValidator.ifscInputFormatters(),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "IFSC Code is required.";
-                          }
-                          if (value.trim().length != 11) {
-                            return "IFSC Code must be 11 characters";
-                          }
-                          return null;
-                        },
-                      ),
-                      CustomTextField(
-                        title: "MICR Code",
-                        textController: _micrCodeC,
-                        hint: "Enter MICR Code",
-                        isRequired: true,
-                        inputFormatterList: InputValidator.digit(10),
-                        validator: (value) {
-                          if (value == null || value.trim().isEmpty) {
-                            return "MICR Code is required.";
-                          }
-                          if (value.trim().length != 10) {
-                            return "MICR Code must be at most 10 Digit";
-                          }
-                          return null;
-                        },
-                      ),
-                      ValueListenableBuilder(
-                        valueListenable: selectedStatus,
-                        builder: (context, selectedStatusT, child) {
-                          return CustomDropDownWidget(
-                            title: "Status",
-                            hintText: "Select Status",
-                            isRequired: true,
-                            initialValue: selectedStatusT,
-                            dataList: statusList,
-                            onSelected: (value) {
-                              selectedStatus.value = value;
-                            },
-                            validator: (value) {
-                              if (value == null) {
-                                return 'Status is required.';
-                              }
-                              return null;
-                            },
-                            onValueClear: () {
-                              selectedStatus.value = null;
-                            },
-                          );
-                        },
-                      ),
-                      CustomMultiFilePicker(
-                        initialFileList: cancelChequeFile.fileNameList,
-                        title: "Cancel Cheque",
-                        isRequired: true,
-                        maxFiles: 5,
-                        filePickType: FilePickType.kycDocument,
-                        onFilePickedCallback: (fileByteList, fileNameList) {
-                          cancelChequeFile.fileBytesList = fileByteList;
-                          cancelChequeFile.fileNameList = fileNameList;
-                        },
-                        onFileDeleteCallback: (
-                          fileBytesList,
-                          fileNameList,
-                          deletedUrl,
-                        ) {
-                          cancelChequeFile.fileBytesList = fileBytesList;
-                          cancelChequeFile.fileNameList = fileNameList;
-                          cancelChequeFile.deletedFileList = deletedUrl;
-                        },
-                        validator: (value) {
-                          if ((value == null || value.isEmpty)) {
-                            return "Cancel Cheque is required.";
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              Text(
+                widget.companyName,
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 10,
+                      children: [
+                        Text(
+                          _isEditMode
+                              ? "Update Bank Details"
+                              : "Add Bank Details",
+                          style: AppTextStyle.ts14M(),
+                        ),
+                        Container(
+                          padding: EdgeInsets.all(16),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomTextField(
+                                title: "Beneficiary Account Holder Name",
+                                textController: _beneficiaryAccountHolderNameC,
+                                hint: "Enter Account Holder Name",
+                                isRequired: true,
+                                inputFormatterList: [
+                                  LengthLimitingTextInputFormatter(250),
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return "Beneficiary Account Holder Name is required.";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              ValueListenableBuilder(
+                                valueListenable: _selectedBankNotifier,
+                                builder: (context, selectedEmployee, _) {
+                                  return CustomMultipleSelectPopup(
+                                    title: 'Bank',
+                                    hintText: "Select Bank",
+                                    isRequired: true,
+                                    isMultiSelect: false,
+                                    initialValue: selectedEmployee,
+                                    dataList: const [],
+                                    onSelected: (value) {
+                                      _selectedBankNotifier.value = value;
+                                    },
+                                    dataFetchCallBack: _fetchBanks,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Bank Name is required.";
+                                      }
+                                      return null;
+                                    },
+                                  );
+                                },
+                              ),
+                              ValueListenableBuilder(
+                                valueListenable: selectedAccountType,
+                                builder: (context, selectedAccountT, child) {
+                                  return CustomDropDownWidget(
+                                    title: "Account Type",
+                                    hintText: "Select Account Type",
+                                    isRequired: true,
+                                    initialValue: selectedAccountT,
+                                    dataList: accountTypeList,
+                                    onSelected: (value) {
+                                      selectedAccountType.value = value;
+                                    },
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value['zAttributesId'] == -1) {
+                                        return 'Account Type is required.';
+                                      }
+                                      return null;
+                                    },
+                                    onValueClear: () {
+                                      selectedAccountType.value = null;
+                                    },
+                                  );
+                                },
+                              ),
+                              ValueListenableBuilder(
+                                valueListenable: selectedNatureOfAccount,
+                                builder: (context, selectedAccountT, child) {
+                                  return CustomDropDownWidget(
+                                    title: "Nature of Account",
+                                    hintText: "Select Nature of Account",
+                                    isRequired: true,
+                                    initialValue: selectedAccountT,
+                                    dataList: natureOfAccountList,
+                                    onSelected: (value) {
+                                      selectedNatureOfAccount.value = value;
+                                    },
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value['zAttributesId'] == -1) {
+                                        return 'Nature of Account is required.';
+                                      }
+                                      return null;
+                                    },
+                                    onValueClear: () {
+                                      selectedNatureOfAccount.value = null;
+                                    },
+                                  );
+                                },
+                              ),
+                              CustomTextField(
+                                title: "Account Number",
+                                textController: _accountNumberC,
+                                hint: "Enter Account Number",
+                                isRequired: true,
+                                keyboardType: TextInputType.number,
+                                inputFormatterList: InputValidator.digit(18),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return "Account Number is required.";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              CustomTextField(
+                                title: "Branch Name",
+                                textController: _branchC,
+                                hint: "Enter Branch Name",
+                                isRequired: true,
+                                inputFormatterList: [
+                                  LengthLimitingTextInputFormatter(200),
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return "Bank Branch Name is required.";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              CustomTextField(
+                                title: "IFSC Code",
+                                textController: _ifscCodeC,
+                                hint: "Enter IFSC Code",
+                                isRequired: true,
+                                inputFormatterList:
+                                    InputValidator.ifscInputFormatters(),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return "IFSC Code is required.";
+                                  }
+                                  if (!InputValidator.isValidIFSC(value)) {
+                                    return 'Enter a valid IFSC Code';
+                                  }
+                                  return null;
+                                },
+                              ),
+                              CustomTextField(
+                                title: "MICR Code",
+                                textController: _micrCodeC,
+                                hint: "Enter MICR Code",
+                                isRequired: true,
+                                inputFormatterList: InputValidator.digit(10),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return "MICR Code is required.";
+                                  }
+                                  if (value.trim().length != 10) {
+                                    return "MICR Code must be at most 10 Digit";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              ValueListenableBuilder(
+                                valueListenable: selectedStatus,
+                                builder: (context, selectedStatusT, child) {
+                                  return CustomDropDownWidget(
+                                    title: "Status",
+                                    hintText: "Select Status",
+                                    isRequired: true,
+                                    initialValue: selectedStatusT,
+                                    dataList: statusList,
+                                    onSelected: (value) {
+                                      selectedStatus.value = value;
+                                    },
+                                    validator: (value) {
+                                      if (value == null) {
+                                        return 'Status is required.';
+                                      }
+                                      return null;
+                                    },
+                                    onValueClear: () {
+                                      selectedStatus.value = null;
+                                    },
+                                  );
+                                },
+                              ),
+                              CustomMultiFilePicker(
+                                initialFileList: cancelChequeFile.fileNameList,
+                                title: "Cancel Cheque",
+                                isRequired: true,
+                                maxFiles: 5,
+                                filePickType: FilePickType.kycDocument,
+                                onFilePickedCallback: (
+                                  fileByteList,
+                                  fileNameList,
+                                ) {
+                                  cancelChequeFile.fileBytesList = fileByteList;
+                                  cancelChequeFile.fileNameList = fileNameList;
+                                },
+                                onFileDeleteCallback: (
+                                  fileBytesList,
+                                  fileNameList,
+                                  deletedUrl,
+                                ) {
+                                  cancelChequeFile.fileBytesList =
+                                      fileBytesList;
+                                  cancelChequeFile.fileNameList = fileNameList;
+                                  cancelChequeFile.deletedFileList = deletedUrl;
+                                },
+                                validator: (value) {
+                                  if ((value == null || value.isEmpty)) {
+                                    return "Cancel Cheque is required.";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

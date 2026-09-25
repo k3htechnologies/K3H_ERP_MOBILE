@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
@@ -35,7 +36,11 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
       _filterFirmsTypeC,
       _filterContactPersonC,
       _filterMobileNumberC,
-      _filterCityNameC;
+      _filterCityNameC,
+      _filterGstNumberC,
+      _filterCinNumberC,
+      _filterPanCardNumberC,
+      _filterTanNumberC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
   @override
   void initState() {
@@ -57,6 +62,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _filterContactPersonC.dispose();
     _filterMobileNumberC.dispose();
     _filterCityNameC.dispose();
+    _filterGstNumberC.dispose();
+    _filterCinNumberC.dispose();
+    _filterPanCardNumberC.dispose();
+    _filterTanNumberC.dispose();
     scrollController.dispose();
     _filterCount.dispose();
     _debounce?.cancel();
@@ -70,6 +79,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _filterContactPersonC = TextEditingController();
     _filterMobileNumberC = TextEditingController();
     _filterCityNameC = TextEditingController();
+    _filterGstNumberC = TextEditingController();
+    _filterCinNumberC = TextEditingController();
+    _filterPanCardNumberC = TextEditingController();
+    _filterTanNumberC = TextEditingController();
   }
 
   // PAGINATION
@@ -123,6 +136,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _filterContactPersonC.text = state.filterByContactPerson;
     _filterMobileNumberC.text = state.filterByMobileNumber;
     _filterCityNameC.text = state.filterByCityName;
+    _filterGstNumberC.text = state.filterByGstNumber;
+    _filterCinNumberC.text = state.filterByCinNumber;
+    _filterPanCardNumberC.text = state.filterByPanNumber;
+    _filterTanNumberC.text = state.filterByTanNumber;
     String? selectedDirection =
         state.currentSortColumn == "Company Name"
             ? state.currentSortDirection
@@ -132,6 +149,11 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     final String initialContactPerson = _filterContactPersonC.text;
     final String initialMobileNumber = _filterMobileNumberC.text;
     final String initialCityName = _filterCityNameC.text;
+    final String initialGSTNumber = _filterGstNumberC.text;
+    final String initialCINNumber = _filterCinNumberC.text;
+    final String initialPanNumber = _filterPanCardNumberC.text;
+    final String initialTanNumber = _filterTanNumberC.text;
+
     final String? initialDirection = selectedDirection;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool manualClose = false;
@@ -144,6 +166,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
             (_filterContactPersonC.text.trim() != initialContactPerson) ||
             (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
             (_filterCityNameC.text.trim() != initialCityName) ||
+            (_filterGstNumberC.text.trim() != initialGSTNumber) ||
+            (_filterCinNumberC.text.trim() != initialCINNumber) ||
+            (_filterPanCardNumberC.text.trim() != initialPanNumber) ||
+            (_filterTanNumberC.text.trim() != initialTanNumber) ||
             (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
@@ -232,13 +258,41 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                 CustomTextField(
                   title: "Mobile Number",
                   hint: "Enter Mobile Number",
+                  keyboardType: TextInputType.number,
+                  inputFormatterList: InputValidator.digit(10),
                   textController: _filterMobileNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
-                  title: "City Name",
-                  hint: "Enter City Name",
+                  title: "City",
+                  hint: "Enter City",
                   textController: _filterCityNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "GST Number",
+                  hint: "Enter GST Number",
+                  textController: _filterGstNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "CIN Number",
+                  hint: "Enter CIN Number",
+                  keyboardType: TextInputType.number,
+                  textController: _filterCinNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Pan Card Number",
+                  hint: "Enter Pan Card Number",
+                  textController: _filterPanCardNumberC,
+                  inputFormatterList: InputValidator.panInputFormatters(),
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "TAN Number",
+                  hint: "Enter TAN Number",
+                  textController: _filterTanNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
               ],
@@ -252,6 +306,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         _filterMobileNumberC.clear();
         _filterCityNameC.clear();
         _searchC.clear();
+        _filterGstNumberC.clear();
+        _filterCinNumberC.clear();
+        _filterPanCardNumberC.clear();
+        _filterTanNumberC.clear();
         _companyMasterCubit.applyCompanyFilterAndSort(
           context: context,
           isClear: true,
@@ -268,6 +326,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
           cityName: _filterCityNameC.text.trim(),
           sortColumn: selectedDirection != null ? "Company Name" : null,
           sortDirection: selectedDirection,
+          gstNumber: _filterGstNumberC.text.trim(),
+          cinNumber: _filterCinNumberC.text.trim(),
+          panNumber: _filterPanCardNumberC.text.trim(),
+          tanNumber: _filterTanNumberC.text.trim(),
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -280,6 +342,10 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
       _filterMobileNumberC.clear();
       _filterCityNameC.clear();
       _searchC.clear();
+      _filterGstNumberC.clear();
+      _filterCinNumberC.clear();
+      _filterPanCardNumberC.clear();
+      _filterTanNumberC.clear();
     }
   }
 

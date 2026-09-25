@@ -19,7 +19,8 @@ import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyBankDetails extends StatefulWidget {
-  const CompanyBankDetails({super.key});
+  final String companyName;
+  const CompanyBankDetails({super.key, required this.companyName});
   @override
   State<CompanyBankDetails> createState() => _CompanyBankDetailsState();
 }
@@ -75,7 +76,10 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                   CustomButton(
                     isDisable: !_routeAuthorizationModel.isAction,
                     onPressed: () {
-                      goRouter.pushNamed(AppRoutes.addCompanyBankDetails);
+                      goRouter.pushNamed(
+                        AppRoutes.addCompanyBankDetails,
+                        queryParameters: {'companyName': widget.companyName},
+                      );
                     },
                     text: "Add",
                     padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -146,6 +150,7 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                                               ),
                                             ),
                                             'index': index.toString(),
+                                            'companyName': widget.companyName,
                                           },
                                         );
                                       },

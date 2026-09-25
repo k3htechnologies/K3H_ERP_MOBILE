@@ -12,6 +12,10 @@ class CompanyMasterState extends BaseState {
   final String filterByContactPerson;
   final String filterByMobileNumber;
   final String filterByCityName;
+  final String filterByGstNumber;
+  final String filterByCinNumber;
+  final String filterByPanNumber;
+  final String filterByTanNumber;
   final CompanyModel? companyOverview;
   final List<CompanyBankModel>? bankDetailList;
   const CompanyMasterState({
@@ -30,6 +34,10 @@ class CompanyMasterState extends BaseState {
     required this.filterByCityName,
     required this.companyOverview,
     required this.bankDetailList,
+    required this.filterByGstNumber,
+    required this.filterByCinNumber,
+    required this.filterByPanNumber,
+    required this.filterByTanNumber,
   });
   factory CompanyMasterState.initial() => CompanyMasterState(
     companyList: [],
@@ -46,6 +54,10 @@ class CompanyMasterState extends BaseState {
     isLoading: true,
     companyOverview: null,
     bankDetailList: null,
+    filterByGstNumber: '',
+    filterByCinNumber: '',
+    filterByPanNumber: '',
+    filterByTanNumber: '',
   );
   CompanyMasterState copyWith({
     bool? isLoading,
@@ -62,6 +74,10 @@ class CompanyMasterState extends BaseState {
     String? filterByContactPerson,
     String? filterByMobileNumber,
     String? filterByCityName,
+    String? filterByGstNumber,
+    String? filterByCinNumber,
+    String? filterByPanNumber,
+    String? filterByTanNumber,
     bool? clearOverview,
     CompanyModel? companyOverview,
     bool? clearBankDetails,
@@ -90,6 +106,10 @@ class CompanyMasterState extends BaseState {
           clearBankDetails == true
               ? null
               : bankDetailList ?? this.bankDetailList,
+      filterByGstNumber: filterByGstNumber ?? this.filterByGstNumber,
+      filterByCinNumber: filterByCinNumber ?? this.filterByCinNumber,
+      filterByPanNumber: filterByPanNumber ?? this.filterByPanNumber,
+      filterByTanNumber: filterByTanNumber ?? this.filterByTanNumber,
     );
   }
 
@@ -107,6 +127,10 @@ class CompanyMasterState extends BaseState {
     filterByContactPerson,
     filterByMobileNumber,
     filterByCityName,
+    filterByGstNumber,
+    filterByCinNumber,
+    filterByPanNumber,
+    filterByTanNumber,
     companyOverview,
     bankDetailList,
   ];
