@@ -396,7 +396,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                               keyboardType: TextInputType.number,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
-                                    15,
+                                    16,
                                   ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
@@ -526,7 +526,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                               keyboardType: TextInputType.number,
                               inputFormatterList:
                                   inputFormatterListForDecimalValuesFixedToTwo(
-                                    15,
+                                    16,
                                   ),
                               readOnly: !_canEditWithdrawFields,
                             ),

@@ -526,9 +526,7 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                     children: [
                       buildColumnTitleValue(
                         title: "Conveyance Deed",
-                        value:
-                            widget.redevelopmentModel.isConveyanceDeed
-                                .toString(),
+                        value: widget.redevelopmentModel.conveyanceDeed,
                       ),
                     ],
                   ),

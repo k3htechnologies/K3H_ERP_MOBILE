@@ -447,9 +447,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       title: "Plot / CTS / Survey / Subdivision Number",
                       hint: "Enter Plot / CTS / Survey / Subdivision Number",
                       textController: _plotCTSSurveySubdivisionNumberC,
-                      inputFormatterList: InputValidator.digitAndCharacterOnly(
-                        100,
-                      ),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {

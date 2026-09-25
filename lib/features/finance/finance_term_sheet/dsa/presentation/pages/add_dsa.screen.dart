@@ -171,9 +171,16 @@ class _AddDsaScreenState extends State<AddDsaScreen> {
                           ),
 
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null || value.trim().isEmpty) {
                           return "Commission (%) is required";
                         }
+
+                        final commission = double.tryParse(value.trim());
+
+                        if (commission == 0) {
+                          return "Commission (%) is required";
+                        }
+
                         return null;
                       },
                     ),

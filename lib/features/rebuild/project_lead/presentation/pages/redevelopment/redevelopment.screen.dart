@@ -118,13 +118,20 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomIconButton.edit(
-                              onPressed: () {
-                                goRouter.pushNamed(
+                              onPressed: () async {
+                                await goRouter.pushNamed(
                                   AppRoutes.addRedevelopment,
                                   extra: {
                                     "redevelopment": redevelopment,
                                     "index": index,
                                   },
+                                );
+
+                                if (!context.mounted) return;
+
+                                await _projectleadCubit.getRedevelopmentList(
+                                  context,
+                                  1,
                                 );
                               },
                             ),

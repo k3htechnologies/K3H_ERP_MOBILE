@@ -422,9 +422,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       title: "Plot / CTS / Survey / Subdivision Number",
                       hint: "Enter Plot Number",
                       textController: _plotCTSSurveySubdivisionNumberC,
-                      inputFormatterList: InputValidator.digitAndCharacterOnly(
-                        100,
-                      ),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -579,6 +579,8 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       hint: "Enter Identification And Location",
                       textController: _identificationAndLocationC,
                       prefixType: CustomTextFieldPrefix.location,
+                      minLines: 3,
+                      maxLines: 10,
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {

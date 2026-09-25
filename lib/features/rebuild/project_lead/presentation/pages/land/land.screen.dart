@@ -117,11 +117,14 @@ class _LandScreenState extends State<LandScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomIconButton.edit(
-                              onPressed: () {
+                              onPressed: () async {
                                 goRouter.pushNamed(
                                   AppRoutes.addLand,
                                   extra: {"land": land, "index": index},
                                 );
+                                if (!context.mounted) return;
+
+                                await _projectleadCubit.getLandList(context, 1);
                               },
                             ),
                             horizontalSpacing(),

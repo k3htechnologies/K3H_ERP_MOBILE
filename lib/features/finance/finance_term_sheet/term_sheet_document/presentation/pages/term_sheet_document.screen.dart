@@ -230,81 +230,83 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            if (documents
-                                                .documentUrl
-                                                .isNotEmpty) {
-                                              showFilePreviewDialog(
-                                                title: documents.documentName,
-                                                context,
-                                                documents.documentUrl.split(
-                                                  ",",
-                                                ),
-                                              );
-                                            }
-                                          },
-                                          child: Text(
-                                            documents.documentName,
-                                            style: AppTextStyle.ts14M(
-                                              color: AppColor.primary,
-                                            ).copyWith(
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationColor: AppColor.primary,
+                                  if (_routeAuthorizationModel.isAction)
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              if (documents
+                                                  .documentUrl
+                                                  .isNotEmpty) {
+                                                showFilePreviewDialog(
+                                                  title: documents.documentName,
+                                                  context,
+                                                  documents.documentUrl.split(
+                                                    ",",
+                                                  ),
+                                                );
+                                              }
+                                            },
+                                            child: Text(
+                                              documents.documentName,
+                                              style: AppTextStyle.ts14M(
+                                                color: AppColor.primary,
+                                              ).copyWith(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                decorationColor:
+                                                    AppColor.primary,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Expanded(
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            CustomIconButton.edit(
-                                              isDisabled:
-                                                  !documents
-                                                      .isSubmittedOriginalDocument &&
-                                                  isClosed,
-                                              onPressed: () {
-                                                goRouter.pushNamed(
-                                                  AppRoutes.addDocuments,
-                                                  extra: {
-                                                    "documentData": documents,
-                                                    "termSheetDetailsView":
-                                                        widget
-                                                            .termSheetDetailsView,
-                                                    "termSheetModel":
-                                                        widget.termSheetModel,
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                            horizontalSpacing(),
-                                            CustomIconButton.delete(
-                                              isDisabled: isClosed,
-                                              onPressed: () {
-                                                _showPopupToDeleteTermSheetDocument(
-                                                  context,
-                                                  documents,
-                                                );
-                                              },
-                                            ),
-                                          ],
+                                        horizontalSpacing(),
+                                        Expanded(
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              CustomIconButton.edit(
+                                                isDisabled:
+                                                    !documents
+                                                        .isSubmittedOriginalDocument &&
+                                                    isClosed,
+                                                onPressed: () {
+                                                  goRouter.pushNamed(
+                                                    AppRoutes.addDocuments,
+                                                    extra: {
+                                                      "documentData": documents,
+                                                      "termSheetDetailsView":
+                                                          widget
+                                                              .termSheetDetailsView,
+                                                      "termSheetModel":
+                                                          widget.termSheetModel,
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              horizontalSpacing(),
+                                              CustomIconButton.delete(
+                                                isDisabled: isClosed,
+                                                onPressed: () {
+                                                  _showPopupToDeleteTermSheetDocument(
+                                                    context,
+                                                    documents,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
+                                      ],
+                                    ),
                                   buildRowTitleValue(
                                     title: "Document Count",
                                     value: documentCount.toString(),

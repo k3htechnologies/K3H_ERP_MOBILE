@@ -205,15 +205,15 @@ class _DSRAScreenState extends State<DSRAScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (showEdit ||
-                                      showDelete &&
-                                          _routeAuthorizationModel.isAction)
+                                  if (_routeAuthorizationModel.isAction &&
+                                      (showEdit || showDelete))
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         if (showEdit)
                                           CustomIconButton.edit(
                                             isDisabled: false,
+                                            // TODO
                                             // widget
                                             //     .termSheetModel
                                             //     .approvalStatus
