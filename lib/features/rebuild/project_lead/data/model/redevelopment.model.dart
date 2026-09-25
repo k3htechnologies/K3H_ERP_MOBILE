@@ -26,7 +26,7 @@ class RedevelopmentModel {
   String contactPersonName;
   String contactPersonMobile;
   String contactPersonEmail;
-  int percentageMemberInFavor;
+  double percentageMemberInFavor;
   String typeOfLandTenure;
   String plotShape;
   int frontage;
@@ -113,91 +113,96 @@ class RedevelopmentModel {
     required this.modifiedDate,
   });
 
-  factory RedevelopmentModel.fromJson(
-    Map<String, dynamic> json,
-  ) => RedevelopmentModel(
-    projectRedevelopmentId: parseValue<int>(json, "ProjectRedevelopmentId"),
-    uniquekey: parseValue<String>(json, "Uniquekey"),
-    buildingName: parseValue<String>(json, "BuildingName"),
-    buildingAddress: parseValue<String>(json, "BuildingAddress"),
-    countryName: parseValue<String>(json, "CountryName"),
-    countryMasterId: parseValue<int>(json, "CountryMasterId"),
-    stateName: parseValue<String>(json, "StateName"),
-    stateMasterId: parseValue<int>(json, "StateMasterId"),
-    districtName: parseValue<String>(json, "DistrictName"),
-    districtMasterId: parseValue<int>(json, "DistrictMasterId"),
-    cityName: parseValue<String>(json, "CityName"),
-    cityMasterId: parseValue<int>(json, "CityMasterId"),
-    pinCode: parseValue<String>(json, "PinCode"),
-    plotNumberCtsNumberSurveyNumberSubdivisionNumber: parseValue<String>(
-      json,
-      "PlotNumber_CTSNumber_SurveyNumber_SubdivisionNumber",
-    ),
-    wardNumberZone: parseValue<String>(json, "WardNumberZone"),
-    totalPlotAreaSqM: parseValue<double>(json, "TotalPlotAreaSqM"),
-    yearOfOriginalConstruction: parseValue<int>(
-      json,
-      "YearOfOriginalConstruction",
-    ),
-    existingBuildingType: parseValue<String>(json, "ExistingBuildingType"),
-    numberOfExistingFloors: parseValue<int>(json, "NumberOfExistingFloors"),
-    totalNumberExistingFlatsUnits: parseValue<int>(
-      json,
-      "TotalNumberExistingFlatsUnits",
-    ),
-    identificationLocation: parseValue<String>(json, "IdentificationLocation"),
-    latitudeLongitude: parseValue<String>(json, "LatitudeLongitude"),
-    contactPersonName: parseValue<String>(json, "ContactPersonName"),
-    contactPersonMobile: parseValue<String>(json, "ContactPersonMobile"),
-    contactPersonEmail: parseValue<String>(json, "ContactPersonEmail"),
-    percentageMemberInFavor: parseValue<int>(json, "PercentageMemberInFavor"),
-    typeOfLandTenure: parseValue<String>(json, "TypeOfLandTenure"),
-    plotShape: parseValue<String>(json, "PlotShape"),
-    frontage: parseValue<int>(json, "Frontage"),
-    plotDepth: parseValue<double>(json, "PlotDepth"),
-    roadWidth: parseValue<String>(json, "RoadWidth"),
-    numberOfExistingBuildingsWings: parseValue<int>(
-      json,
-      "NumberOfExistingBuildingsWings",
-    ),
-    numberOfFloorsPerWing: parseValue<int>(json, "NumberOfFloorsPerWing"),
-    totalBuildUpArea: parseValue<double>(json, "TotalBuildUpArea"),
-    totalCarpetArea: parseValue<double>(json, "TotalCarpetArea"),
-    totalCommonArea: parseValue<double>(json, "TotalCommonArea"),
-    isLiftAvailable: parseValue<bool>(json, "IsLiftAvailable"),
-    isFireSafetyProvisionPresent: parseValue<bool>(
-      json,
-      "IsFireSafetyProvisionPresent",
-    ),
-    isPlotUnderLitigationStay: parseValue<bool>(
-      json,
-      "IsPlotUnderLitigationStay",
-    ),
-    liftAvailable: parseValue<String>(json, "LiftAvailable"),
-    fireSafetyProvisionPresent: parseValue<String>(
-      json,
-      "FireSafetyProvisionPresent",
-    ),
-    plotUnderLitigationStay: parseValue<String>(
-      json,
-      "PlotUnderLitigationStay",
-    ),
-    conveyanceDeed: parseValue<String>(json, "ConveyanceDeed"),
-    constructionType: parseValue<String>(json, "ConstructionType"),
-    remarks: parseValue<String>(json, "Remarks"),
-    photoUrl: parseValue<String>(json, "PhotoURL"),
-    isConveyanceDeed: parseValue<bool>(json, "IsConveyanceDeed"),
-    clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
-    createdById: parseValue<int>(json, "CreatedById"),
-    createdBy: parseValue<String>(json, "CreatedBy"),
-    createdDate: DateTime.parse(json["CreatedDate"]),
-    modifiedById: parseValue<int>(json, "ModifiedById"),
-    modifiedBy: parseValue<String>(json, "ModifiedBy"),
-    modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : DateTime.parse(json["ModifiedDate"]),
-  );
+  factory RedevelopmentModel.fromJson(Map<String, dynamic> json) =>
+      RedevelopmentModel(
+        projectRedevelopmentId: parseValue<int>(json, "ProjectRedevelopmentId"),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
+        buildingName: parseValue<String>(json, "BuildingName"),
+        buildingAddress: parseValue<String>(json, "BuildingAddress"),
+        countryName: parseValue<String>(json, "CountryName"),
+        countryMasterId: parseValue<int>(json, "CountryMasterId"),
+        stateName: parseValue<String>(json, "StateName"),
+        stateMasterId: parseValue<int>(json, "StateMasterId"),
+        districtName: parseValue<String>(json, "DistrictName"),
+        districtMasterId: parseValue<int>(json, "DistrictMasterId"),
+        cityName: parseValue<String>(json, "CityName"),
+        cityMasterId: parseValue<int>(json, "CityMasterId"),
+        pinCode: parseValue<String>(json, "PinCode"),
+        plotNumberCtsNumberSurveyNumberSubdivisionNumber: parseValue<String>(
+          json,
+          "PlotNumber_CTSNumber_SurveyNumber_SubdivisionNumber",
+        ),
+        wardNumberZone: parseValue<String>(json, "WardNumberZone"),
+        totalPlotAreaSqM: parseValue<double>(json, "TotalPlotAreaSqM"),
+        yearOfOriginalConstruction: parseValue<int>(
+          json,
+          "YearOfOriginalConstruction",
+        ),
+        existingBuildingType: parseValue<String>(json, "ExistingBuildingType"),
+        numberOfExistingFloors: parseValue<int>(json, "NumberOfExistingFloors"),
+        totalNumberExistingFlatsUnits: parseValue<int>(
+          json,
+          "TotalNumberExistingFlatsUnits",
+        ),
+        identificationLocation: parseValue<String>(
+          json,
+          "IdentificationLocation",
+        ),
+        latitudeLongitude: parseValue<String>(json, "LatitudeLongitude"),
+        contactPersonName: parseValue<String>(json, "ContactPersonName"),
+        contactPersonMobile: parseValue<String>(json, "ContactPersonMobile"),
+        contactPersonEmail: parseValue<String>(json, "ContactPersonEmail"),
+        percentageMemberInFavor: parseValue<double>(
+          json,
+          "PercentageMemberInFavor",
+        ),
+        typeOfLandTenure: parseValue<String>(json, "TypeOfLandTenure"),
+        plotShape: parseValue<String>(json, "PlotShape"),
+        frontage: parseValue<int>(json, "Frontage"),
+        plotDepth: parseValue<double>(json, "PlotDepth"),
+        roadWidth: parseValue<String>(json, "RoadWidth"),
+        numberOfExistingBuildingsWings: parseValue<int>(
+          json,
+          "NumberOfExistingBuildingsWings",
+        ),
+        numberOfFloorsPerWing: parseValue<int>(json, "NumberOfFloorsPerWing"),
+        totalBuildUpArea: parseValue<double>(json, "TotalBuildUpArea"),
+        totalCarpetArea: parseValue<double>(json, "TotalCarpetArea"),
+        totalCommonArea: parseValue<double>(json, "TotalCommonArea"),
+        isLiftAvailable: parseValue<bool>(json, "IsLiftAvailable"),
+        isFireSafetyProvisionPresent: parseValue<bool>(
+          json,
+          "IsFireSafetyProvisionPresent",
+        ),
+        isPlotUnderLitigationStay: parseValue<bool>(
+          json,
+          "IsPlotUnderLitigationStay",
+        ),
+        liftAvailable: parseValue<String>(json, "LiftAvailable"),
+        fireSafetyProvisionPresent: parseValue<String>(
+          json,
+          "FireSafetyProvisionPresent",
+        ),
+        plotUnderLitigationStay: parseValue<String>(
+          json,
+          "PlotUnderLitigationStay",
+        ),
+        conveyanceDeed: parseValue<String>(json, "ConveyanceDeed"),
+        constructionType: parseValue<String>(json, "ConstructionType"),
+        remarks: parseValue<String>(json, "Remarks"),
+        photoUrl: parseValue<String>(json, "PhotoURL"),
+        isConveyanceDeed: parseValue<bool>(json, "IsConveyanceDeed"),
+        clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate: DateTime.parse(json["CreatedDate"]),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : DateTime.parse(json["ModifiedDate"]),
+      );
 
   Map<String, dynamic> toJson() => {
     "ProjectRedevelopmentId": projectRedevelopmentId,

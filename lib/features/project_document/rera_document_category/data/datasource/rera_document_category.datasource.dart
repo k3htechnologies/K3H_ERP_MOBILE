@@ -99,6 +99,7 @@ class RERADocumentCategoryDatasourceImpl
             (e) => RERADocumentCategoryModel.fromJson(e),
           ),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -133,6 +134,7 @@ class RERADocumentCategoryDatasourceImpl
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

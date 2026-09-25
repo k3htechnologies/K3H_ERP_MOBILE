@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/local_term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/cubit/term_sheet_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -29,7 +30,8 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddTermSheetScreen extends StatefulWidget {
   final TermSheetModel? termSheet;
-  const AddTermSheetScreen({super.key, this.termSheet});
+  final TermSheetViewModel? termSheetView;
+  const AddTermSheetScreen({super.key, this.termSheet, this.termSheetView});
 
   @override
   State<AddTermSheetScreen> createState() => _AddTermSheetScreenState();
@@ -463,7 +465,12 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
                                   Row(
                                     children: [
                                       CustomIconButton.edit(
-                                        isDisabled: isEditDisabled,
+                                        isDisabled:
+                                            isEditDisabled &&
+                                            termSheet.approvalStatus
+                                                    .trim()
+                                                    .toLowerCase() !=
+                                                "pending",
                                         onPressed: () async {
                                           final result = await goRouter
                                               .pushNamed<LocalTermSheetModel>(

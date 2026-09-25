@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -149,6 +150,7 @@ class _LandScreenState extends State<LandScreen> {
                   ),
                   verticalSpacing(),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       buildColumnTitleValue(
@@ -156,10 +158,31 @@ class _LandScreenState extends State<LandScreen> {
                         value: land.totalPlotAreaSqM.toString(),
                       ),
                       horizontalSpacing(),
-                      // buildColumnTitleValue(
-                      //   title: "Total Carpet Area (SqFt)",
-                      //   value: land..toString(),
-                      // ),
+                      buildColumnTitleValue(
+                        title: "Road Width",
+                        value: land.roadWidth,
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Contact Person Name",
+                        value: land.contactPersonName,
+                      ),
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: 'Contact Person Mobile Number',
+                        value: land.contactPersonMobile,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode: "+91",
+                          type: ContactType.phone,
+                          value: land.contactPersonMobile,
+                        ),
+                      ),
                     ],
                   ),
                 ],

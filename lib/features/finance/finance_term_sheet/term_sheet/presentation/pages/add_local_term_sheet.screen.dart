@@ -342,7 +342,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       validator:
                           (value) => validateRequiredPositiveNumber(
                             value,
-                            fieldName: "Facility Amount",
+                            fieldName: "Facility Amount (₹)",
                           ),
                     ),
                     CustomTextField(
@@ -362,7 +362,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       validator:
                           (value) => validateRequiredPositiveNumber(
                             value,
-                            fieldName: "Rate Of Interest",
+                            fieldName: "Rate Of Interest (%)",
                           ),
                     ),
                     CustomTextField(
@@ -381,7 +381,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       validator:
                           (value) => validateRequiredPositiveNumber(
                             value,
-                            fieldName: "Processing Fees",
+                            fieldName: "Processing Fees (%)",
                           ),
                     ),
                     CustomTextField(

@@ -133,18 +133,55 @@ class TermSheetCubit extends Cubit<TermSheetState> {
         queryParams: queryParams,
       );
 
-      result.fold(
-        (failure) {
+      await result.fold(
+        (failure) async {
           emit(state.copyWith(isLoading: false));
+
           showErrorMessage(context, "Error", failure.message);
         },
-        (response) {
+        (response) async {
           final logs = response['data'] as List<TermSheetModel>;
+
           final List<TermSheetModel> updatedList =
               pageNumber == 1 ? logs : [...state.termSheetList, ...logs];
+
+          // GET VIEW DETAILS FOR EVERY TERM SHEET
+          final List<TermSheetViewModel> viewList = [];
+
+          for (final termSheet in logs) {
+            final viewResult = await _termSheetRepository.getTermSheetView(
+              projectId: termSheet.projectId,
+              termSheetId: termSheet.termSheetId,
+              queryParams: {},
+            );
+
+            viewResult.fold(
+              (failure) {
+                debugPrint(
+                  "Failed to get view for TermSheet "
+                  "${termSheet.termSheetId}: ${failure.message}",
+                );
+              },
+              (response) {
+                final List<TermSheetViewModel> data =
+                    response['data'] as List<TermSheetViewModel>;
+
+                if (data.isNotEmpty) {
+                  viewList.add(data.first);
+                }
+              },
+            );
+          }
+
+          final List<TermSheetViewModel> updatedViewList =
+              pageNumber == 1
+                  ? viewList
+                  : [...state.termSheetViewList, ...viewList];
+
           emit(
             state.copyWith(
               termSheetList: updatedList,
+              termSheetViewList: updatedViewList,
               termSheetOverview: logs.isNotEmpty ? logs.first : null,
               totalNumberOfRecord: response['totalNumberOfRecord'],
               currentPage: pageNumber,
@@ -154,7 +191,7 @@ class TermSheetCubit extends Cubit<TermSheetState> {
         },
       );
     } catch (e, stackTrace) {
-      debugPrint("Get PayTrack Call Log Error => $e");
+      debugPrint("Get TermSheet Call Log Error => $e");
       debugPrintStack(stackTrace: stackTrace);
 
       emit(state.copyWith(isLoading: false));

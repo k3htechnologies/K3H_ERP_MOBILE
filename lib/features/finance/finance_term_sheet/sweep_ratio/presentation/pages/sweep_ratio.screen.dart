@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/sweep_ratio/presentation/cubit/sweep_ratio_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -29,11 +30,12 @@ class SweepRatioScreen extends StatefulWidget {
 
 class _SweepRatioScreenState extends State<SweepRatioScreen> {
   late SweepRatioCubit _sweepRatioCubit;
-
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _sweepRatioCubit = context.read<SweepRatioCubit>();
-
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _sweepRatioCubit.getTermSheetView(
       context,
       widget.termSheetDetailsView.projectId,
@@ -119,7 +121,8 @@ class _SweepRatioScreenState extends State<SweepRatioScreen> {
                   Text("Sweep Ratio Details", style: AppTextStyle.ts14SB()),
                   horizontalSpacing(),
                   if (widget.termSheetModel.approvalStatus.toLowerCase() !=
-                      'closed')
+                          'closed' &&
+                      _routeAuthorizationModel.isAction)
                     CustomButton(
                       text: "Add",
                       onPressed: () {
@@ -162,7 +165,8 @@ class _SweepRatioScreenState extends State<SweepRatioScreen> {
                                   isLatest &&
                                           widget.termSheetModel.approvalStatus
                                                   .toLowerCase() !=
-                                              'closed'
+                                              'closed' &&
+                                          _routeAuthorizationModel.isAction
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,

@@ -154,15 +154,19 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                 return Expanded(child: Center(child: loader()));
               }
 
-              if (state.termSheetViewList.isEmpty) {
-                return Expanded(
-                  child: Center(
-                    child: noDataWidget(
-                      message: "No Data Found",
-                      iconSize: 160.0,
-                    ),
-                  ),
-                );
+              // if (state.termSheetViewList.isEmpty) {
+              //   return Expanded(
+              //     child: Center(
+              //       child: noDataWidget(
+              //         message: "No Data Found",
+              //         iconSize: 160.0,
+              //       ),
+              //     ),
+              //   );
+              // }
+              if (state.termSheetViewList.isEmpty ||
+                  state.termSheetDetailsViewModel == null) {
+                return Expanded(child: Center(child: loader()));
               }
               return Expanded(
                 child: TabBarView(
@@ -601,7 +605,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       titleColor:
                                           AppColor.greyTitleAndValueColor,
                                       value:
-                                          "${termSheetView.loanTenureInMonth.toString()} months",
+                                          "${termSheetView.loanTenureInMonth.toString()} Months",
                                       valueColor: AppColor.black,
                                       borderColor: AppColor.black.withValues(
                                         alpha: 0.2,

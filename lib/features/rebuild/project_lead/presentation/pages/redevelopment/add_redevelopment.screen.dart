@@ -349,24 +349,21 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isEditMode ? "Update Redevelopment" : "Add Redevelopment",
-              style: AppTextStyle.ts14M(color: AppColor.grey),
-            ),
-            verticalSpacing(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 10.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode ? "Update Redevelopment" : "Add Redevelopment",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _card("Redevelopment : Property Details", [
                     CustomTextField(
                       title: "Building Name",
                       hint: "Enter Building Name",
@@ -471,6 +468,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Plot Information", [
                     CustomTextField(
                       title: "Ward Number (Zone)",
                       hint: "Enter Ward Number (Zone)",
@@ -594,6 +594,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Contact Information", [
                     CustomTextField(
                       title: 'Contact Person Name',
                       textController: _contactPersonC,
@@ -645,6 +648,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Land & Plot Characteristics", [
                     ValueListenableBuilder(
                       valueListenable: _selectedTypeOfLandTenure,
                       builder: (context, value, child) {
@@ -717,6 +723,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         );
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Building Structure", [
                     CustomTextField(
                       title: "Number of Existing Building / Wings",
                       hint: "Enter Number of Existing Building / Wings",
@@ -821,7 +830,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       valueListenable: _isListAvailable,
                       builder: (context, value, child) {
                         return CustomCheckBox(
-                          title: "Lift Available",
+                          title: "Lift Available?",
                           isSelected: value,
                           onChanged: (newValue) {
                             _isListAvailable.value = newValue;
@@ -868,7 +877,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         );
                       },
                     ),
-                    verticalSpacing(),
+                  ]),
+                  verticalSpacing(),
+                  _card("Additional Information", [
                     CustomTextField(
                       title: "Remarks",
                       hint: "Enter Remarks",
@@ -876,11 +887,11 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       minLines: 3,
                       maxLines: 10,
                     ),
-                  ],
-                ),
+                  ]),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -897,6 +908,21 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
             onPressed: _submit,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _card(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
       ),
     );
   }

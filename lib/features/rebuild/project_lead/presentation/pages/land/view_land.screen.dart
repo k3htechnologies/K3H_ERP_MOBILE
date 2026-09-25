@@ -261,6 +261,29 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
               ),
               verticalSpacing(),
               SectionCard(
+                title: "Basic Details",
+                icon: LucideIcons.building,
+                iconColor: Color(0xff712AE2),
+                iconContainerColor: Color(0xff712AE2).withValues(alpha: 0.10),
+                children: [
+                  buildColumnTitleValue(
+                    title: "Plot / CTS / Survey / Subdivision Number",
+                    value:
+                        widget
+                            .landModel
+                            .plotNumberCtsNumberSurveyNumberSubdivisionNumber,
+                    removeExpanded: true,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Address",
+                    value: widget.landModel.landAddress,
+                    removeExpanded: true,
+                  ),
+                ],
+              ),
+              verticalSpacing(),
+
+              SectionCard(
                 title: "Location Details",
                 icon: LucideIcons.mapPin,
                 iconColor: Color(0xff712AE2),

@@ -374,24 +374,21 @@ class _AddLandScreenState extends State<AddLandScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isEditMode ? "Update Land" : "Add Land",
-              style: AppTextStyle.ts14M(color: AppColor.grey),
-            ),
-            verticalSpacing(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 10.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode ? "Update Land" : "Add Land",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _card("Land : Property Details", [
                     CustomTextField(
                       title: "Land Owner Name",
                       hint: "Enter Land Owner Name",
@@ -496,6 +493,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Plot Information", [
                     CustomTextField(
                       title: "Ward Number (Zone)",
                       hint: "Enter Ward Number (Zone)",
@@ -542,6 +542,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Contact Information", [
                     CustomTextField(
                       title: 'Contact Person For Land Name',
                       textController: _contactPersonC,
@@ -578,6 +581,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       title: "Contact Person E-Mail ID",
                       hint: "Enter Contact Person E-Mail ID",
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Land & Plot Characteristics", [
                     ValueListenableBuilder(
                       valueListenable: _selectedPlotShape,
                       builder: (context, value, child) {
@@ -887,7 +893,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                         );
                       },
                     ),
-                    verticalSpacing(),
+                  ]),
+                  verticalSpacing(),
+                  _card("Additional Information", [
                     CustomTextField(
                       title: "Remarks",
                       hint: "Enter Remarks",
@@ -895,11 +903,11 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       minLines: 3,
                       maxLines: 10,
                     ),
-                  ],
-                ),
+                  ]),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -916,6 +924,21 @@ class _AddLandScreenState extends State<AddLandScreen> {
             onPressed: _submit,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _card(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
       ),
     );
   }

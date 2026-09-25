@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/repayment/presentation/cubit/repayment_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -29,11 +30,12 @@ class RepaymentScreen extends StatefulWidget {
 
 class _RepaymentScreenState extends State<RepaymentScreen> {
   late RepaymentCubit _repaymentCubit;
-
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _repaymentCubit = context.read<RepaymentCubit>();
-
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _repaymentCubit.getTermSheetView(
       context,
       widget.termSheetDetailsView.projectId,
@@ -140,7 +142,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   ),
                   horizontalSpacing(),
                   if (widget.termSheetModel.approvalStatus.toLowerCase() !=
-                      'closed')
+                          'closed' &&
+                      _routeAuthorizationModel.isAction)
                     CustomButton(
                       text: "Add",
                       isDisable:
@@ -190,7 +193,8 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                                   isLatest &&
                                           widget.termSheetModel.approvalStatus
                                                   .toLowerCase() !=
-                                              'closed'
+                                              'closed' &&
+                                          _routeAuthorizationModel.isAction
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,

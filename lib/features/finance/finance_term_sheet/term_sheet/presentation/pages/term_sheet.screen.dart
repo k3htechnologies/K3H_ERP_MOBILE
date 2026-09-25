@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/cubit/term_sheet_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -313,6 +314,34 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     final termSheet = state.termSheetList[index];
     final mainApprovalStatus = termSheet.approvalStatus.trim().toLowerCase();
     final bool isEditDisbaled = mainApprovalStatus == "pending";
+    TermSheetViewModel? termSheetView;
+
+    for (final view in state.termSheetViewList) {
+      if (view.termSheetId == termSheet.termSheetId) {
+        termSheetView = view;
+        break;
+      }
+    }
+
+    final detailApprovalStatus =
+        termSheetView != null && termSheetView.termSheetDetailsData.isNotEmpty
+            ? termSheetView.termSheetDetailsData.first.approvalStatus
+                .trim()
+                .toLowerCase()
+            : "";
+    final detail =
+        termSheetView?.termSheetDetailsData.isNotEmpty == true
+            ? termSheetView!.termSheetDetailsData.first
+            : null;
+
+    final bool amountsAreFullyMatched =
+        detail != null &&
+        detail.facilityAmount == detail.totalDisbursedAmount &&
+        detail.totalDisbursedAmount == detail.totalRepayLedgerAmount;
+
+    final bool canShowEdit =
+        termSheet.approvalStatus.toLowerCase() != "closed" &&
+        !amountsAreFullyMatched;
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: const EdgeInsets.all(16),
@@ -351,17 +380,24 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (termSheet.approvalStatus.toLowerCase() != "closed")
+                      if (canShowEdit) ...[
                         CustomIconButton.edit(
-                          isDisabled: isEditDisbaled,
+                          isDisabled:
+                              isEditDisbaled &&
+                              detailApprovalStatus != "pending",
                           onPressed: () async {
                             await goRouter.pushNamed(
                               AppRoutes.addTermSheet,
-                              extra: {"termSheet": termSheet},
+                              extra: {
+                                "termSheet": termSheet,
+                                "termSheetView": termSheetView,
+                              },
                             );
                           },
                         ),
-                      horizontalSpacing(),
+                        horizontalSpacing(),
+                      ],
+
                       CustomIconButton.delete(
                         isDisabled:
                             termSheet.approvalStatus.toLowerCase() != "pending",

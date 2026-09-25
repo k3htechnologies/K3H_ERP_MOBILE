@@ -226,10 +226,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -331,10 +328,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -359,8 +353,6 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       //isMaster is 1 means update document group into category
       "IsMaster": 1.toString(),
     };
-
-    print("the body is:$body");
 
     var result = await _reraDocumentRepository.addUpdateRERADocument(
       body: body,
@@ -390,10 +382,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -431,10 +420,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       (response) {
         goRouter.pop();
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Added Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
         searchDocument("", context);
       },
     );
@@ -528,7 +514,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
             ),
           );
         }
-        showSuccessMessage(context, subTitle: "Document Deleted Successfully");
+        showSuccessMessage(context, subTitle: success["message"]);
       },
     );
   }

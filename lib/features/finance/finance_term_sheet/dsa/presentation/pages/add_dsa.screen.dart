@@ -172,7 +172,7 @@ class _AddDsaScreenState extends State<AddDsaScreen> {
 
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Commission is required";
+                          return "Commission (%) is required";
                         }
                         return null;
                       },

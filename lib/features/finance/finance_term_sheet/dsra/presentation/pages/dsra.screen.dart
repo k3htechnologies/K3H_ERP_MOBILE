@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsra/presentation/cubit/dsra_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -29,11 +30,12 @@ class DSRAScreen extends StatefulWidget {
 
 class _DSRAScreenState extends State<DSRAScreen> {
   late DsraCubit _dsraCubit;
-
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _dsraCubit = context.read<DsraCubit>();
-
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _dsraCubit.getTermSheetView(
       context,
       widget.termSheetDetailsView.projectId,
@@ -146,7 +148,8 @@ class _DSRAScreenState extends State<DSRAScreen> {
                   ),
                   horizontalSpacing(),
                   if (widget.termSheetModel.approvalStatus.toLowerCase() !=
-                      'closed')
+                          'closed' &&
+                      _routeAuthorizationModel.isAction)
                     CustomButton(
                       text: "Add",
                       onPressed: () {
@@ -179,6 +182,7 @@ class _DSRAScreenState extends State<DSRAScreen> {
                           itemBuilder: (context, index) {
                             final dsra = dsraList[index];
                             final bool isLatest = index == dsraList.length - 1;
+
                             final String status =
                                 widget.termSheetModel.approvalStatus
                                     .trim()
@@ -186,8 +190,10 @@ class _DSRAScreenState extends State<DSRAScreen> {
 
                             final bool isClosed = status == 'closed';
                             final bool isApproved = status == 'approved';
+
                             final bool showEdit =
                                 isClosed || (isApproved && isLatest);
+
                             final bool showDelete = isApproved && isLatest;
                             return Container(
                               margin: EdgeInsets.only(bottom: 10.0),
@@ -199,18 +205,20 @@ class _DSRAScreenState extends State<DSRAScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (showEdit || showDelete)
+                                  if (showEdit ||
+                                      showDelete &&
+                                          _routeAuthorizationModel.isAction)
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
                                         if (showEdit)
                                           CustomIconButton.edit(
-                                            isDisabled:
-                                                widget
-                                                    .termSheetModel
-                                                    .approvalStatus
-                                                    .toLowerCase() ==
-                                                'closed',
+                                            isDisabled: false,
+                                            // widget
+                                            //     .termSheetModel
+                                            //     .approvalStatus
+                                            //     .toLowerCase() ==
+                                            // 'closed',
                                             onPressed: () {
                                               goRouter.pushNamed(
                                                 AppRoutes.addDsra,

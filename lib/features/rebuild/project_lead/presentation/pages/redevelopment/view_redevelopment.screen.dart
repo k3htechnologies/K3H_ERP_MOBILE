@@ -276,8 +276,8 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                     removeExpanded: true,
                   ),
                   buildColumnTitleValue(
-                    title: "State",
-                    value: widget.redevelopmentModel.stateName,
+                    title: "Address",
+                    value: widget.redevelopmentModel.buildingAddress,
                     removeExpanded: true,
                   ),
                 ],
@@ -509,17 +509,14 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                     children: [
                       buildColumnTitleValue(
                         title: "Lift Available",
-                        value:
-                            widget.redevelopmentModel.isLiftAvailable
-                                .toString(),
+                        value: widget.redevelopmentModel.liftAvailable,
                       ),
                       buildColumnTitleValue(
                         title: "Fire Safety Provision Present",
                         value:
                             widget
                                 .redevelopmentModel
-                                .isFireSafetyProvisionPresent
-                                .toString(),
+                                .fireSafetyProvisionPresent,
                       ),
                     ],
                   ),

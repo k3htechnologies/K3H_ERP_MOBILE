@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -26,13 +27,13 @@ class RedevelopmentScreen extends StatefulWidget {
 class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
   late ProjectLeadCubit _projectleadCubit;
   late AuthorizationModel _routeAuthorizationModel;
-
   @override
   void initState() {
     _projectleadCubit = context.read<ProjectLeadCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.projectLead] ??
         AuthorizationModel();
+
     super.initState();
   }
 
@@ -158,6 +159,7 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
                   ),
                   verticalSpacing(),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       buildColumnTitleValue(
@@ -166,8 +168,29 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
                       ),
                       horizontalSpacing(),
                       buildColumnTitleValue(
-                        title: "Total Carpet Area (SqFt)",
-                        value: redevelopment.totalCarpetArea.toString(),
+                        title: "Road Width",
+                        value: redevelopment.roadWidth,
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Contact Person Name",
+                        value: redevelopment.contactPersonName,
+                      ),
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: 'Contact Person Mobile Number',
+                        value: redevelopment.contactPersonMobile,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode: "+91",
+                          type: ContactType.phone,
+                          value: redevelopment.contactPersonMobile,
+                        ),
                       ),
                     ],
                   ),

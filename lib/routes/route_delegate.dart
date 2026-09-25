@@ -7684,6 +7684,7 @@ final GoRouter goRouter = GoRouter(
 
                 return AddTermSheetScreen(
                   termSheet: extra["termSheet"] as TermSheetModel?,
+                  termSheetView: extra["termSheetView"] as TermSheetViewModel?,
                 );
               },
             ),
