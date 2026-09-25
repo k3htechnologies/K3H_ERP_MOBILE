@@ -281,7 +281,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     );
   }
 
-  Future addBuildingParentDocument({
+  Future<bool> addBuildingParentDocument({
     required BuildContext context,
     required int projectId,
     required int buildingId,
@@ -299,10 +299,10 @@ class BuildingCubit extends Cubit<BuildingState> {
       fileList: [],
     );
     goRouter.pop();
-    addResult.fold(
+    return addResult.fold(
       (failure) {
         showErrorMessage(context, 'Error Message', failure.message);
-        return;
+        return false;
       },
       (response) async {
         showSuccessMessage(context, subTitle: response['message']);
@@ -314,11 +314,12 @@ class BuildingCubit extends Cubit<BuildingState> {
           buildingId: buildingId,
           pageNumber: 1,
         );
+        return true;
       },
     );
   }
 
-  Future updateBuildingParentDocument({
+  Future<bool> updateBuildingParentDocument({
     required BuildContext context,
     required int projectId,
     required int buildingId,
@@ -341,10 +342,10 @@ class BuildingCubit extends Cubit<BuildingState> {
       fileList: [],
     );
     goRouter.pop();
-    addResult.fold(
+    return addResult.fold(
       (failure) {
         showErrorMessage(context, 'Error Message', failure.message);
-        return;
+        return false;
       },
       (response) async {
         showSuccessMessage(context, subTitle: response['message']);
@@ -355,6 +356,7 @@ class BuildingCubit extends Cubit<BuildingState> {
 
         updatedList[index] = response['data'][0] as BuildingDocumentModel;
         emit(state.copyWith(buildingDocumentList: updatedList));
+        return true;
       },
     );
   }

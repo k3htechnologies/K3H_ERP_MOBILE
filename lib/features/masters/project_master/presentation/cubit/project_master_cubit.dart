@@ -361,7 +361,7 @@ class ProjectMasterCubit extends Cubit<ProjectMasterState> {
         continue;
       }
       fileList.add({
-        "key": "TenderChequeNumberURL",
+        "key": "TenderAmountChequeNumberURL",
         "value": tenderChequeNumberFile.fileBytesList[i],
         "fileName": tenderChequeNumberFile.fileNameList[i],
       });

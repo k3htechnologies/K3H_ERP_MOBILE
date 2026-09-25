@@ -100,7 +100,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               textController: _newDocumentTitleController,
               isRequired: true,
               title: "Document Name",
-              hint: "Enter document Name",
+              hint: "Enter Document Name",
               validator:
                   (v) =>
                       (v == null || v.isEmpty)
@@ -119,16 +119,17 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
         text: isEditMode ? "Update" : "Add",
         onPressed: () async {
           if (!formKey.currentState!.validate()) return;
-
+        // TODO: 
+          bool success;
           if (!isEditMode) {
-            await _buildingCubit.addBuildingParentDocument(
+            success = await _buildingCubit.addBuildingParentDocument(
               context: context,
               projectId: _project.projectId,
               buildingId: widget.building.buildingId,
               documentName: _newDocumentTitleController.text.trim(),
             );
           } else {
-            await _buildingCubit.updateBuildingParentDocument(
+            success = await _buildingCubit.updateBuildingParentDocument(
               context: context,
               projectId: document.projectId,
               buildingId: document.buildingId,
@@ -138,7 +139,7 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               index: index!,
             );
           }
-          if (!mounted) return;
+          if (!mounted & success) return;
           _newDocumentTitleController.clear();
         },
       ),
