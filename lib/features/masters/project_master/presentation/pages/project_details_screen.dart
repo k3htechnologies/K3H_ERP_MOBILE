@@ -630,35 +630,12 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                   child: buildColumnTitleValue(
                     title: "Transaction / Cheque / DD No",
                     value: widget.project.tenderAmountChequeNumber,
-                    customValueWidget: Row(
-                      children: [
-                        Text(
-                          widget.project.tenderAmountChequeNumber.isEmpty
-                              ? "-"
-                              : widget.project.tenderAmountChequeNumber,
-                          style: AppTextStyle.ts14M(),
-                        ),
-                        if (widget
-                            .project
-                            .tenderAmountChequeNumberUrl
-                            .isNotEmpty)
-                          CustomIconButton(
-                            onPressed: () {
-                              showFilePreviewDialog(
-                                context,
-                                title: "Transaction / Cheque / DD",
-                                widget.project.tenderAmountChequeNumberUrl
-                                    .split(","),
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.remove_red_eye_outlined,
-                              size: 16,
-                              color: AppColor.primary,
-                            ),
-                            backgroundColor: AppColor.white,
-                          ),
-                      ],
+                    customValueWidget: buildDocumentRow(
+                      context: context,
+                      docNumber: widget.project.tenderAmountChequeNumber,
+                      url: widget.project.tenderAmountChequeNumberUrl,
+                      iconWithoutBg: true,
+                      title: "Transaction / Cheque / DD No",
                     ),
                   ),
                 ),
@@ -706,39 +683,13 @@ class _ProjectDetailsScreenState extends State<ProjectDetailsScreen>
                     buildColumnTitleValue(
                       title: "Transaction / Cheque / DD No",
                       value: widget.project.tenderEmdChequeNumber,
-                      customValueWidget:
-                          (widget.project.tenderEmdChequeNumber.isEmpty)
-                              ? null
-                              : Row(
-                                children: [
-                                  Text(
-                                    widget.project.tenderEmdChequeNumber,
-                                    style: AppTextStyle.ts14M(),
-                                  ),
-                                  if (widget
-                                      .project
-                                      .tenderEmdChequeNumberUrl
-                                      .isNotEmpty)
-                                    CustomIconButton(
-                                      onPressed: () {
-                                        showFilePreviewDialog(
-                                          title: "Transaction / Cheque / DD",
-                                          context,
-                                          widget
-                                              .project
-                                              .tenderEmdChequeNumberUrl
-                                              .split(","),
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.remove_red_eye_outlined,
-                                        size: 16,
-                                        color: AppColor.primary,
-                                      ),
-                                      backgroundColor: AppColor.white,
-                                    ),
-                                ],
-                              ),
+                      customValueWidget: buildDocumentRow(
+                        context: context,
+                        docNumber: widget.project.tenderEmdChequeNumber,
+                        url: widget.project.tenderEmdChequeNumberUrl,
+                        iconWithoutBg: true,
+                        title: "Transaction / Cheque / DD No",
+                      ),
                     ),
                   ],
                 ),

@@ -963,6 +963,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                                                 purchaseEndDate.value,
                                             onToDateChanged: (start, end) {
                                               purchaseStartDate.value = start;
+                                              purchaseEndDate.value = end;
                                             },
                                             fromDateValidator: (value) {
                                               if (value == null) {

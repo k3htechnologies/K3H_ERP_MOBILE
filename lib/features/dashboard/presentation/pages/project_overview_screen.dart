@@ -286,33 +286,13 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   child: buildColumnTitleValue(
                     title: "Transaction / Cheque / DD No",
                     value: widget.project.tenderAmountChequeNumber,
-                    customValueWidget:
-                        (widget.project.tenderAmountChequeNumber.isEmpty)
-                            ? null
-                            : Row(
-                              children: [
-                                Text(
-                                  widget.project.tenderAmountChequeNumber,
-                                  style: AppTextStyle.ts14M(),
-                                ),
-                                CustomIconButton(
-                                  onPressed: () {
-                                    showFilePreviewDialog(
-                                      title: "Transaction / Cheque / DD",
-                                      context,
-                                      widget.project.tenderAmountChequeNumberUrl
-                                          .split(","),
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.remove_red_eye_outlined,
-                                    size: 16,
-                                    color: AppColor.primary,
-                                  ),
-                                  backgroundColor: AppColor.white,
-                                ),
-                              ],
-                            ),
+                    customValueWidget: buildDocumentRow(
+                      context: context,
+                      docNumber: widget.project.tenderAmountChequeNumber,
+                      url: widget.project.tenderAmountChequeNumberUrl,
+                      iconWithoutBg: true,
+                      title: "Transaction / Cheque / DD No",
+                    ),
                   ),
                 ),
                 buildRowWrapper(
@@ -359,33 +339,13 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     buildColumnTitleValue(
                       title: "Transaction / Cheque / DD No",
                       value: widget.project.tenderEmdChequeNumber,
-                      customValueWidget:
-                          (widget.project.tenderEmdChequeNumber.isEmpty)
-                              ? null
-                              : Row(
-                                children: [
-                                  Text(
-                                    widget.project.tenderEmdChequeNumber,
-                                    style: AppTextStyle.ts14M(),
-                                  ),
-                                  CustomIconButton(
-                                    onPressed: () {
-                                      showFilePreviewDialog(
-                                        title: "Transaction / Cheque / DD No",
-                                        context,
-                                        widget.project.tenderEmdChequeNumberUrl
-                                            .split(","),
-                                      );
-                                    },
-                                    icon: const Icon(
-                                      Icons.remove_red_eye_outlined,
-                                      size: 16,
-                                      color: AppColor.primary,
-                                    ),
-                                    backgroundColor: AppColor.white,
-                                  ),
-                                ],
-                              ),
+                      customValueWidget: buildDocumentRow(
+                        context: context,
+                        docNumber: widget.project.tenderEmdChequeNumber,
+                        url: widget.project.tenderEmdChequeNumberUrl,
+                        iconWithoutBg: true,
+                        title: "Transaction / Cheque / DD No",
+                      ),
                     ),
                   ],
                 ),
