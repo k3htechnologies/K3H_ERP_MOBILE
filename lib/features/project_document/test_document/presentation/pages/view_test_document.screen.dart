@@ -112,7 +112,7 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Test Documents",
+        screenTitle: "Test Document",
         authorization: _routeAuthorizationModel,
       ),
       body: Padding(
@@ -323,9 +323,12 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
             removeExpanded: true,
           ),
           ApproveRejectWidget(
-            actionTitle: isActionAllowed ? "Actions" : "History",
-            isActionAlreadyPerformed: !isActionAllowed,
             showApproval: document.isApproval,
+            actionTitle:
+                document.approvalStatus.isEmpty
+                    ? "Pending"
+                    : document.approvalStatus,
+            isActionAlreadyPerformed: !isActionAllowed,
             popupTitle:
                 "${document.testDocumentCategory} > ${document.testDocumentName}",
             onApprove: (val) async {

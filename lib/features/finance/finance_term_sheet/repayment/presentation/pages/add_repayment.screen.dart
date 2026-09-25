@@ -63,6 +63,42 @@ class _AddRepaymentScreenState extends State<AddRepaymentScreen> {
     final termSheet = widget.termSheetDetailsView;
 
     if (termSheet == null) return;
+    if (termSheet.sanctionDate == null && paymentDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "Sanction Date is required.",
+      );
+      return;
+    }
+    if (termSheet.loanStartDate == null && paymentDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "Loan Start Date is required.",
+      );
+      return;
+    }
+    if (termSheet.loanEndDate == null && paymentDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "Loan End Date is required.",
+      );
+      return;
+    }
+    if (termSheet.emiAmount == 0 && paymentDate == null) {
+      showErrorMessage(
+        context,
+        "Error",
+        "${termSheet.nameOfInstitutionBankNbfc}: "
+            "EMI is required.",
+      );
+      return;
+    }
 
     if (!_formKey.currentState!.validate()) return;
     if (_isEditMode) {

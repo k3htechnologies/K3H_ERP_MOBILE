@@ -421,12 +421,14 @@ class AlphaNumericWithoutSpacesFormatter extends TextInputFormatter {
 }
 
 List<TextInputFormatter> inputFormatterListForDecimalValuesFixedToTwo(
-  int length,
-) {
+  int length, {
+  double? maxValue,
+}) {
   return [
     NewDecimalTextInputFormatter(
       decimalRange: 2,
       maxLengthBeforeDecimal: length,
+      maxValue: maxValue,
     ),
   ];
 }
@@ -434,10 +436,12 @@ List<TextInputFormatter> inputFormatterListForDecimalValuesFixedToTwo(
 class NewDecimalTextInputFormatter extends TextInputFormatter {
   final int decimalRange;
   final int maxLengthBeforeDecimal;
+  final double? maxValue;
 
   NewDecimalTextInputFormatter({
     required this.decimalRange,
     required this.maxLengthBeforeDecimal,
+    this.maxValue,
   });
 
   @override
@@ -445,7 +449,7 @@ class NewDecimalTextInputFormatter extends TextInputFormatter {
     TextEditingValue oldValue,
     TextEditingValue newValue,
   ) {
-    if (newValue.text == '') {
+    if (newValue.text.isEmpty) {
       return newValue;
     }
 
@@ -457,7 +461,7 @@ class NewDecimalTextInputFormatter extends TextInputFormatter {
     }
 
     // Split on decimal point
-    List<String> parts = newText.split('.');
+    final parts = newText.split('.');
 
     // Limit digits before decimal
     if (parts[0].length > maxLengthBeforeDecimal) {
@@ -469,6 +473,41 @@ class NewDecimalTextInputFormatter extends TextInputFormatter {
       return oldValue;
     }
 
+    // Don't validate incomplete decimal input such as "100."
+    if (newText.endsWith('.')) {
+      return newValue;
+    }
+
+    // Check maximum numeric value
+    final value = double.tryParse(newText);
+    final max = maxValue;
+
+    if (max != null && value != null && value > max) {
+      return oldValue;
+    }
+
     return newValue;
   }
 }
+
+String? validateRequiredPositiveNumber(
+  String? value, {
+  required String fieldName,
+}) {
+  if (value == null || value.trim().isEmpty) {
+    return "$fieldName is required";
+  }
+
+  final number = double.tryParse(value);
+
+  if (number == null) {
+    return "Enter a valid $fieldName";
+  }
+
+  if (number <= 0) {
+    return "$fieldName is required";
+  }
+
+  return null;
+}
+  

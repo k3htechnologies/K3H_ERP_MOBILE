@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/cubit/term_sheet_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/data/model/term_sheet_documents.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -11,6 +15,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -33,10 +38,20 @@ class TermSheetDocumentScreen extends StatefulWidget {
 class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
   late TermSheetDocumentCubit _termSheetDocumentCubit;
 
+  late TextEditingController _filterDocumentName;
+  late AuthorizationModel _routeAuthorizationModel;
+
+  //PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
+
   @override
   void initState() {
     super.initState();
     _termSheetDocumentCubit = context.read<TermSheetDocumentCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
+    _filterDocumentName = TextEditingController();
     _termSheetDocumentCubit.getTermSheetDocumentList(
       context,
       1,
@@ -44,15 +59,23 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
       termSheetId: widget.termSheetDetailsView.termSheetId,
       termSheetDetailsId: widget.termSheetDetailsView.termSheetDetailsId,
     );
+    _onScroll();
   }
 
-  Future<void> _showPopupToDeeleteTermSheetDocument(
+  @override
+  void dispose() {
+    _filterDocumentName.dispose();
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _showPopupToDeleteTermSheetDocument(
     BuildContext context,
     TermSheetDocumentModel termSheetDocument,
   ) async {
     final result = await DialogHelper.deleteDialog(
       context,
-      'ou are about to delete a Term Sheet Document ?',
+      'You are about to delete a Term Sheet Document ?',
       'Deleting this Term Sheet Document will permanently remove all associated data.',
     );
 
@@ -68,8 +91,33 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
     }
   }
 
+  // PAGINATION
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !_termSheetDocumentCubit.state.isLoading! &&
+          _termSheetDocumentCubit.state.termSheetDocumentList.length <
+              _termSheetDocumentCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _termSheetDocumentCubit.getTermSheetDocumentList(
+            context,
+            _termSheetDocumentCubit.state.currentPage + 1,
+            projectId: widget.termSheetModel.projectId,
+            termSheetId: widget.termSheetModel.termSheetId,
+            termSheetDetailsId: widget.termSheetModel.termSheetDetailsId,
+          );
+        });
+      }
+    });
+  }
+
   bool get isClosed =>
       widget.termSheetModel.approvalStatus.trim().toLowerCase() == "closed";
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<TermSheetDocumentCubit, TermSheetDocumentsState>(
@@ -116,24 +164,27 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                 ),
               ),
               verticalSpacing(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomButton(
-                    text: "Add",
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addDocuments,
-                        extra: {
-                          "termSheetDetailsView": widget.termSheetDetailsView,
-                          "termSheetModel": widget.termSheetModel,
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
+              _buildSearchBar(),
+              verticalSpacing(),
+              if (_routeAuthorizationModel.isAction)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addDocuments,
+                          extra: {
+                            "termSheetDetailsView": widget.termSheetDetailsView,
+                            "termSheetModel": widget.termSheetModel,
+                          },
+                        );
+                      },
+                    ),
+                  ],
+                ),
               verticalSpacing(),
               Expanded(
                 child:
@@ -145,10 +196,23 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                           ),
                         )
                         : ListView.builder(
-                          itemCount: state.termSheetDocumentList.length,
+                          controller: scrollController,
+                          itemCount: state.termSheetDocumentList.length + 1,
                           shrinkWrap: true,
                           physics: AlwaysScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
+                            // Pagination loader
+                            if (index == state.termSheetDocumentList.length) {
+                              return state.termSheetDocumentList.length <
+                                      state.totalNumberOfRecord
+                                  ? const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                  : const SizedBox.shrink();
+                            }
                             final documents =
                                 state.termSheetDocumentList[index];
                             final documentCount =
@@ -230,7 +294,7 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                                             CustomIconButton.delete(
                                               isDisabled: isClosed,
                                               onPressed: () {
-                                                _showPopupToDeeleteTermSheetDocument(
+                                                _showPopupToDeleteTermSheetDocument(
                                                   context,
                                                   documents,
                                                 );
@@ -246,6 +310,11 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                                     value: documentCount.toString(),
                                   ),
                                   buildRowTitleValue(
+                                    title: "Remark",
+                                    value: documents.documentRemark,
+                                    singleLine: false,
+                                  ),
+                                  buildRowTitleValue(
                                     title: "Submitted Original",
                                     value:
                                         documents.isSubmittedOriginalDocument
@@ -258,11 +327,6 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                                         documents.isCollectedOriginalDocument
                                             ? "Yes"
                                             : "No",
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "Remark",
-                                    value: documents.documentRemark,
-                                    singleLine: false,
                                   ),
                                   buildRowTitleValue(
                                     title: "Collected Original Date",
@@ -284,6 +348,34 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
               ),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return BlocBuilder<TermSheetCubit, TermSheetState>(
+      builder: (context, state) {
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: SearchWidget(
+                hintText: "Search by Document Name",
+                onSubmit: (value) async {
+                  await _termSheetDocumentCubit.searchTermSheetDocument(
+                    context,
+                    widget.termSheetModel.projectId,
+                    widget.termSheetModel.termSheetId,
+                    widget.termSheetModel.termSheetDetailsId,
+                    value,
+                  );
+                },
+                textController: _filterDocumentName,
+              ),
+            ),
+          ],
         );
       },
     );

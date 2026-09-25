@@ -219,7 +219,7 @@ class _AddTermSheetDocumentScreenState
                     ),
                     CustomMultiFilePicker(
                       readOnly: _isEditMode && isClosed,
-                      title: "File",
+                      title: "Files",
                       isRequired: true,
                       filePickType: FilePickType.both,
                       initialFileList: files.fileNameList,
@@ -241,7 +241,7 @@ class _AddTermSheetDocumentScreenState
 
                       validator: (fileList) {
                         if (fileList == null || fileList.isEmpty) {
-                          return "File is required";
+                          return "File is required.";
                         }
                         return null;
                       },

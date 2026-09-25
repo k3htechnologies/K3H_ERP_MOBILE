@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
@@ -167,7 +168,7 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
           children: [
             ChipStyleTabBar(
               controller: _tabController,
-              tabs: ["Redevlopment", "Land"],
+              tabs: ["Redevelopment", "Land"],
             ),
             Expanded(
               child: BlocBuilder<ProjectLeadCubit, ProjectLeadState>(
@@ -177,6 +178,7 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
                   }
                   return TabBarView(
                     controller: _tabController,
+                    physics: NeverScrollableScrollPhysics(),
                     children: [
                       redevelopmentWidget(context),
                       landWidget(context),
@@ -206,14 +208,14 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
   }
 
   Widget landWidget(BuildContext context) {
-    return SingleChildScrollView(
+    return Padding(
       padding: EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSearchbar(isRedevelopment: false),
           verticalSpacing(),
-          LandScreen(),
+          Expanded(child: LandScreen()),
         ],
       ),
     );
@@ -256,26 +258,32 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CustomButton(
-              text: "Add",
-              onPressed: () {
-                if (isRedevelopment) {
-                  goRouter.pushNamed(AppRoutes.addRedevelopment);
-                } else {
-                  goRouter.pushNamed(AppRoutes.addLand);
-                }
-              },
-            ),
-            horizontalSpacing(),
-            CustomExportButton(
-              onExport: (value) {
-                if (isRedevelopment) {
-                  _projectLeadCubit.exportRedevelopmentExcelPdf(context, value);
-                } else {
-                  _projectLeadCubit.exportLandExcelPdf(context, value);
-                }
-              },
-            ),
+            if (_routeAuthorizationModel.isAction)
+              CustomButton(
+                text: "Add",
+                onPressed: () {
+                  if (isRedevelopment) {
+                    goRouter.pushNamed(AppRoutes.addRedevelopment);
+                  } else {
+                    goRouter.pushNamed(AppRoutes.addLand);
+                  }
+                },
+              ),
+            if (_routeAuthorizationModel.isExport) ...[
+              horizontalSpacing(),
+              CustomExportButton(
+                onExport: (value) {
+                  if (isRedevelopment) {
+                    _projectLeadCubit.exportRedevelopmentExcelPdf(
+                      context,
+                      value,
+                    );
+                  } else {
+                    _projectLeadCubit.exportLandExcelPdf(context, value);
+                  }
+                },
+              ),
+            ],
           ],
         ),
       ],
@@ -375,6 +383,11 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
                   title: "Contact Person Mobile Number",
                   hint: "Enter Contact Person Mobile Number",
                   textController: _filterContactPersonMobileNumberC,
+                  keyboardType: TextInputType.phone,
+                  inputFormatterList: [
+                    LengthLimitingTextInputFormatter(10),
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -604,18 +617,25 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
                   title: "Contact Person Mobile Number",
                   hint: "Enter Contact Person Mobile Number",
                   textController: _filterLandContactPersonMobileNumberC,
+                  keyboardType: TextInputType.phone,
+                  inputFormatterList: [
+                    LengthLimitingTextInputFormatter(10),
+                    FilteringTextInputFormatter.digitsOnly,
+                  ],
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
                   title: "Pin Code",
                   hint: "Enter Pin Code",
                   textController: _filterLandPinCodeC,
+                  keyboardType: TextInputType.number,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
                   title: "Plot Number",
                   hint: "Enter Plot Number",
                   textController: _filterLandPlotNumberC,
+                  keyboardType: TextInputType.numberWithOptions(),
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -665,7 +685,7 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
                             title: "To Date",
                             initialDate: landToDate,
                             setValue: (value) {
-                              _endDateNotifier.value = value;
+                              _landEndDateNotifier.value = value;
                               updateApplyState(innerState);
                             },
                             validator: (value) => null,

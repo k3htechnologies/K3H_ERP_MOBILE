@@ -116,23 +116,23 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
         screenTitle: "Project Document Category",
         authorization: _routeAuthorizationModel,
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                _isEditMode
-                    ? "Update Project Document Category"
-                    : "Add Project Document Category",
-                style: AppTextStyle.ts16SB(),
-              ),
-              verticalSpacing(),
-              Container(
-                decoration: commonCardDecoration(),
-                padding: EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _isEditMode
+                  ? "Update Project Document Category"
+                  : "Add Project Document Category",
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+            verticalSpacing(),
+            Container(
+              decoration: commonCardDecoration(),
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+              child: Form(
+                key: _formKey,
                 child: Column(
                   children: [
                     CustomTextField(
@@ -152,7 +152,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                       hint: "Enter Sequence",
                       isRequired: true,
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.digit(10),
+                      inputFormatterList: InputValidator.digit(5),
                       textController: _orderByC,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -164,8 +164,8 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -178,10 +178,7 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
               size: 18,
               color: AppColor.white,
             ),
-            text:
-                _isEditMode
-                    ? "Update Document Category"
-                    : "Add Document Category",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _saveForm,
           ),
         ),

@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
@@ -70,12 +71,19 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  widget.landModel.landOwnerName,
-                  style: AppTextStyle.ts16SB(color: AppColor.primary),
-                ),
+              Row(
+                spacing: 8,
+                children: [
+                  Icon(
+                    LucideIcons.building2,
+                    color: AppColor.darkBlue,
+                    size: 18,
+                  ),
+                  Text(
+                    toTitleCase(widget.landModel.landOwnerName),
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                ],
               ),
               verticalSpacing(),
               Column(
@@ -129,7 +137,7 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
                                   onTap: () {
                                     showFilePreviewDialog(
                                       context,
-                                      title: widget.landModel.landOwnerName,
+                                      title: "Land Photo",
                                       [projectImages[index]],
                                     );
                                   },
@@ -253,10 +261,62 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
               ),
               verticalSpacing(),
               SectionCard(
+                title: "Basic Details",
+                icon: LucideIcons.building,
+                iconColor: Color(0xff712AE2),
+                iconContainerColor: Color(0xff712AE2).withValues(alpha: 0.10),
+                children: [
+                  buildColumnTitleValue(
+                    title: "Plot / CTS / Survey / Subdivision Number",
+                    value:
+                        widget
+                            .landModel
+                            .plotNumberCtsNumberSurveyNumberSubdivisionNumber,
+                    removeExpanded: true,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Address",
+                    value: widget.landModel.landAddress,
+                    removeExpanded: true,
+                  ),
+                ],
+              ),
+              verticalSpacing(),
+
+              SectionCard(
                 title: "Location Details",
                 icon: LucideIcons.mapPin,
                 iconColor: Color(0xff712AE2),
                 iconContainerColor: Color(0xff712AE2).withValues(alpha: 0.10),
+                suffix: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final url = widget.landModel.identificationLocation;
+
+                        if (url.isNotEmpty) {
+                          final uri = Uri.parse(url);
+
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        }
+                      },
+                      child: Text(
+                        "Google Location",
+                        style: AppTextStyle.ts12M().copyWith(
+                          color: AppColor.primary,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColor.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 children: [
                   Row(
                     spacing: 10,
@@ -307,35 +367,6 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
                       buildColumnTitleValue(
                         title: "Latitude Longitude",
                         value: widget.landModel.latitudeLongitude,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          final url = widget.landModel.identificationLocation;
-
-                          if (url.isNotEmpty) {
-                            final uri = Uri.parse(url);
-
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            }
-                          }
-                        },
-                        child: Text(
-                          "Google Location",
-                          style: AppTextStyle.ts12M().copyWith(
-                            color: AppColor.primary,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColor.primary,
-                          ),
-                        ),
                       ),
                     ],
                   ),
@@ -495,35 +526,6 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      GestureDetector(
-                        onTap: () async {
-                          final url = widget.landModel.identificationLocation;
-
-                          if (url.isNotEmpty) {
-                            final uri = Uri.parse(url);
-
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(
-                                uri,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            }
-                          }
-                        },
-                        child: Text(
-                          "Google Location",
-                          style: AppTextStyle.ts12M().copyWith(
-                            color: AppColor.primary,
-                            decoration: TextDecoration.underline,
-                            decorationColor: AppColor.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
               verticalSpacing(),
@@ -587,6 +589,10 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
                       buildColumnTitleValue(
                         title: "Mobile No",
                         value: widget.landModel.contactPersonMobile,
+                        customValueWidget: CustomClickToContactText(
+                          type: ContactType.phone,
+                          value: widget.landModel.contactPersonMobile,
+                        ),
                       ),
                     ],
                   ),
@@ -597,6 +603,10 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
                       buildColumnTitleValue(
                         title: "E-Mail ID",
                         value: widget.landModel.contactPersonEmail,
+                        customValueWidget: CustomClickToContactText(
+                          type: ContactType.email,
+                          value: widget.landModel.contactPersonEmail,
+                        ),
                       ),
                     ],
                   ),

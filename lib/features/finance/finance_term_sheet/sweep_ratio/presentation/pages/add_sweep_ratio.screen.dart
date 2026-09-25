@@ -117,23 +117,29 @@ class _AddSweepRatioScreenState extends State<AddSweepRatioScreen> {
     required String? value,
     required bool isOwnRatio,
   }) {
+    final fieldName = isOwnRatio ? "Own Sweep Ratio" : "Lender Sweep Ratio";
     if (value == null || value.trim().isEmpty) {
-      return isOwnRatio
-          ? "Own Sweep Ratio is required"
-          : "Lender Sweep Ratio is required";
+      return "$fieldName must be between 1 and 100%.";
     }
 
     final currentValue = double.tryParse(value.trim());
 
     if (currentValue == null || currentValue < 1 || currentValue > 100) {
-      return isOwnRatio
-          ? "Own Sweep Ratio must be between 1 and 100%."
-          : "Lender Sweep Ratio must be between 1 and 100%.";
+      return "$fieldName must be between 1 and 100%.";
+    }
+    final ownText = _ownSweepRatioC.text.trim();
+    final lenderText = _lenderSweepRatioC.text.trim();
+
+    if (ownText.isEmpty || lenderText.isEmpty) {
+      return null;
     }
 
-    final ownRatio = double.tryParse(_ownSweepRatioC.text.trim()) ?? 0;
+    final ownRatio = double.tryParse(ownText);
+    final lenderRatio = double.tryParse(lenderText);
 
-    final lenderRatio = double.tryParse(_lenderSweepRatioC.text.trim()) ?? 0;
+    if (ownRatio == null || lenderRatio == null) {
+      return null;
+    }
 
     final total = ownRatio + lenderRatio;
 
@@ -199,7 +205,7 @@ class _AddSweepRatioScreenState extends State<AddSweepRatioScreen> {
                       validator: (value) {
                         return validateSweepRatio(
                           value: value,
-                          isOwnRatio: true,
+                          isOwnRatio: false,
                         );
                       },
                     ),

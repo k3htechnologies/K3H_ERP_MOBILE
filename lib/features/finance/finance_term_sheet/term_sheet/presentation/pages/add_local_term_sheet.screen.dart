@@ -133,7 +133,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
       type: selectedType.value?["DisplayName"].toString() ?? "",
       facilityAmount: double.tryParse(_facilityAmountC.text.trim()) ?? 0.0,
       processingFeesInPercentage: _processingFeesC.text.trim(),
-      termSheetURL: [],
+      termSheetURL: "",
       termSheetFiles: _termSheetDocument,
       termSheetDetailsId: existingTermSheet?.termSheetDetailsId ?? 0,
       uniquekey: existingTermSheet?.uniquekey ?? '',
@@ -204,6 +204,31 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
     }
     if (termSheetDate != null && sanctionDate!.isBefore(termSheetDate!)) {
       return "Sanction Date must be greater than or equal to Term Sheet Date";
+    }
+
+    return null;
+  }
+
+  String? validateLoanStartDate() {
+    final loanStartDate = _loanFromDateNotifier.value;
+
+    if (loanStartDate == null || sanctionDate == null) {
+      return null;
+    }
+    final sanction = DateTime(
+      sanctionDate!.year,
+      sanctionDate!.month,
+      sanctionDate!.day,
+    );
+
+    final loanStart = DateTime(
+      loanStartDate.year,
+      loanStartDate.month,
+      loanStartDate.day,
+    );
+
+    if (loanStart.isBefore(sanction)) {
+      return "Loan Start Date must be greater than or equal to Sanction Date";
     }
 
     return null;
@@ -306,20 +331,19 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                     ),
                     CustomTextField(
                       isRequired: true,
-                      title: "Faciltiy Amount",
-                      hint: "Enter Facilty Amount",
+                      title: "Facility Amount",
+                      hint: "Enter Facility Amount",
                       textController: _facilityAmountC,
                       prefixType: CustomTextFieldPrefix.rupees,
                       readOnly: lockFields,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(15),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Faciltiy Amount is required";
-                        }
-                        return null;
-                      },
+                      validator:
+                          (value) => validateRequiredPositiveNumber(
+                            value,
+                            fieldName: "Facility Amount (₹)",
+                          ),
                     ),
                     CustomTextField(
                       isRequired: true,
@@ -327,16 +351,19 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       hint: "Enter Rate Of Interest",
                       textController: _rateOfInterestC,
                       prefixType: CustomTextFieldPrefix.percentage,
-                      keyboardType: TextInputType.number,
-                      readOnly: lockFields,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(2),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Rate Of Interest is required";
-                        }
-                        return null;
-                      },
+                          inputFormatterListForDecimalValuesFixedToTwo(
+                            3,
+                            maxValue: 100,
+                          ),
+                      validator:
+                          (value) => validateRequiredPositiveNumber(
+                            value,
+                            fieldName: "Rate Of Interest (%)",
+                          ),
                     ),
                     CustomTextField(
                       isRequired: true,
@@ -347,16 +374,17 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       textController: _processingFeesC,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(2),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Processing Fees is required";
-                        }
-                        return null;
-                      },
+                          inputFormatterListForDecimalValuesFixedToTwo(
+                            3,
+                            maxValue: 100,
+                          ),
+                      validator:
+                          (value) => validateRequiredPositiveNumber(
+                            value,
+                            fieldName: "Processing Fees (%)",
+                          ),
                     ),
                     CustomTextField(
-                      isRequired: true,
                       title: "Legal & Documentation Fees",
                       hint: "Enter Legal & Documentation Fees",
                       textController: _legalAndDocumentationFeesC,
@@ -365,12 +393,6 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       keyboardType: TextInputType.number,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(15),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Legal & Documentation Fees is required";
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: "Monotorium Period (In Month)",
@@ -390,13 +412,13 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       inputFormatterList: InputValidator.digit(4),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Loan Tenure (In Month) is required";
+                          return "Loan Tenure is required";
                         }
                         return null;
                       },
                     ),
                     CustomTextField(
-                      title: "Minimum Selling Price",
+                      title: "Minimum Selling Price (MSP)",
                       hint: "Enter Minimum Selling Price",
                       textController: _minimumSellingPriceC,
                       prefixType: CustomTextFieldPrefix.rupees,
@@ -438,6 +460,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       initialDate: sanctionDate,
                       setValue: (value) {
                         sanctionDate = value;
+
                         // REVALIDATE THE FORM
                         _formKey.currentState?.validate();
                       },
@@ -449,6 +472,9 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       title: "EMI Amount",
                       hint: "Enter EMI Amount",
                       textController: _emiAmountC,
+                      keyboardType: TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
                       prefixType: CustomTextFieldPrefix.rupees,
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(15),
@@ -462,6 +488,11 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                       onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
                         _loanFromDateNotifier.value = fromDate;
                         _loanToDateNotifier.value = toDate;
+                        _formKey.currentState?.validate();
+                      },
+
+                      fromDateValidator: (value) {
+                        return validateLoanStartDate();
                       },
                     ),
                     CustomTextField(

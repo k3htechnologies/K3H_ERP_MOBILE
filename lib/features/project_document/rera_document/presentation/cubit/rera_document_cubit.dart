@@ -226,10 +226,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -331,10 +328,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -388,10 +382,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -429,10 +420,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       (response) {
         goRouter.pop();
 
-        showSuccessMessage(
-          context,
-          subTitle: "RERA Document Added Successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
         searchDocument("", context);
       },
     );
@@ -525,7 +513,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
             ),
           );
         }
-        showSuccessMessage(context, subTitle: "Document Deleted Successfully");
+        showSuccessMessage(context, subTitle: success["message"]);
       },
     );
   }

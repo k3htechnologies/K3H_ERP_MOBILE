@@ -36,14 +36,15 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
     null,
   );
 
-  late ProjectModel _selectedProject;
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
+
   String selectedSummaryType = "Agreement";
   @override
   void initState() {
     super.initState();
 
     _crmDashboardCubit = context.read<CrmDashboardCubit>();
-    _selectedProject = getProject();
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       getCurrentUser();
       await _loadDashboard();
@@ -53,7 +54,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
   Future<void> _loadDashboard() async {
     await _crmDashboardCubit.getCrmDashboardList(
       context,
-      projectId: _selectedProject.projectId,
+      projectId: _selectedProjectNotifier.value.projectId,
       filterType: _selectedFilterType.value,
       fromDate: _fromDateNotifier.value.apiDate,
       toDate: _toDateNotifier.value.apiDate,
@@ -65,7 +66,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
     _selectedFilterType.dispose();
     _fromDateNotifier.dispose();
     _toDateNotifier.dispose();
-
+    _selectedProjectNotifier.dispose();
     super.dispose();
   }
 
@@ -79,6 +80,15 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
           isMenuButton: true,
           authorization: AuthorizationModel(),
           showNotification: true,
+          onProjectChangeCallback: (value) {
+            _crmDashboardCubit.clearCrmDashboardData();
+            _selectedProjectNotifier.value = value;
+            _crmDashboardCubit.getCrmDashboardList(
+              context,
+              filterType: _selectedFilterType.value,
+              projectId: _selectedProjectNotifier.value.projectId,
+            );
+          },
         ),
         body: BlocBuilder<CrmDashboardCubit, CrmDashboardState>(
           builder: (context, state) {

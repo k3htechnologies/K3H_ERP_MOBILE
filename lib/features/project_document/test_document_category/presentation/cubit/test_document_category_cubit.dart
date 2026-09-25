@@ -100,7 +100,7 @@ class TestDocumentCategoryCubit extends Cubit<TestDocumentCategoryState> {
         ),
       );
     } catch (e) {
-      debugPrint(e.toString());
+      // Cubit is closed, ignore
     }
   }
 

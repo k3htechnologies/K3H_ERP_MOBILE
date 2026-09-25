@@ -7710,6 +7710,7 @@ final GoRouter goRouter = GoRouter(
 
                 return AddTermSheetScreen(
                   termSheet: extra["termSheet"] as TermSheetModel?,
+                  termSheetView: extra["termSheetView"] as TermSheetViewModel?,
                 );
               },
             ),
@@ -7831,6 +7832,7 @@ final GoRouter goRouter = GoRouter(
                   termSheetDebtServiceReserveAccountData:
                       extra['dsraData']
                           as TermSheetDebtServiceReserveAccountData?,
+                  termSheetModel: extra['termSheetDetails'] as TermSheetModel?,
                 );
               },
             ),

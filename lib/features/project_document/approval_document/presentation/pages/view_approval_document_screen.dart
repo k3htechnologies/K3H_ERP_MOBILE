@@ -21,7 +21,6 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewApprovalDocumentScreen extends StatefulWidget {
@@ -309,13 +308,6 @@ class _ViewApprovalDocumentScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Approval Status",
-                value: document.approvalDocumentApprovalStatus,
-                customValueWidget: approvalStatusWidget(
-                  document.approvalDocumentApprovalStatus,
-                ),
-              ),
-              buildColumnTitleValue(
                 title: "View Document",
                 value: document.approvalDocumentURL,
                 customValueWidget: Row(
@@ -336,11 +328,6 @@ class _ViewApprovalDocumentScreenState
                   ],
                 ),
               ),
-            ],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
               buildColumnTitleValue(
                 title: "Remark",
                 value: document.approvalDocumentRemark,
@@ -348,7 +335,10 @@ class _ViewApprovalDocumentScreenState
             ],
           ),
           ApproveRejectWidget(
-            actionTitle: isActionAllowed ? "Actions" : "History",
+            actionTitle:
+                document.approvalDocumentApprovalStatus.isEmpty
+                    ? "Pending"
+                    : document.approvalDocumentApprovalStatus,
             isActionAlreadyPerformed: !isActionAllowed,
             showApproval: document.isApproval,
             popupTitle:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/repayment/presentation/cubit/repayment_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -29,11 +30,12 @@ class RepaymentScreen extends StatefulWidget {
 
 class _RepaymentScreenState extends State<RepaymentScreen> {
   late RepaymentCubit _repaymentCubit;
-
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _repaymentCubit = context.read<RepaymentCubit>();
-
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _repaymentCubit.getTermSheetView(
       context,
       widget.termSheetDetailsView.projectId,
@@ -118,16 +120,13 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Disbursed Amount Details",
-                        style: AppTextStyle.ts14SB(),
-                      ),
+                      Text("Repayment Details", style: AppTextStyle.ts14SB()),
                       verticalSpacing(),
                       RichText(
                         text: TextSpan(
                           children: [
                             TextSpan(
-                              text: "Total Disbursed Amount: ",
+                              text: "Total Repayment Amount: ",
                               style: AppTextStyle.ts12M(),
                             ),
                             TextSpan(
@@ -142,19 +141,23 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                     ],
                   ),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    isDisable:
-                        termSheet.totalDisbursedAmount > 0 &&
-                        termSheet.totalDisbursedAmount ==
-                            termSheet.totalRepayLedgerAmount,
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addRepayment,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                          'closed' &&
+                      _routeAuthorizationModel.isAction)
+                    CustomButton(
+                      text: "Add",
+                      isDisable:
+                          termSheet.facilityAmount <=
+                              termSheet.totalDisbursedAmount &&
+                          termSheet.totalDisbursedAmount ==
+                              termSheet.totalRepayLedgerAmount,
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addRepayment,
+                          extra: {"termSheetDetailsView": termSheet},
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -187,7 +190,11 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
+                                  isLatest &&
+                                          widget.termSheetModel.approvalStatus
+                                                  .toLowerCase() !=
+                                              'closed' &&
+                                          _routeAuthorizationModel.isAction
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,

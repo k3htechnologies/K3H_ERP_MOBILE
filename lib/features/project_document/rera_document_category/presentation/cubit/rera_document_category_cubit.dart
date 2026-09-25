@@ -125,10 +125,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        showSuccessMessage(
-          context,
-          subTitle: "RERA DOCUMENT CATEGORY Deleted Successfully",
-        );
+        showSuccessMessage(context, subTitle: success["message"]);
 
         getRERADocumentCategoryList(context, state.currentPage, projectId);
       },
@@ -161,10 +158,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
       (response) {
         goRouter.pop();
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Project RERA document category added successfully',
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
         searchCategory(context, projectId, "");
       },
     );
@@ -209,10 +203,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
           emit(state.copyWith(documentCategoryList: updatedListModel));
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "Project RERA document category updated successfully",
-        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }

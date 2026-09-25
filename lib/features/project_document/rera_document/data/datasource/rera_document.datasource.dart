@@ -92,6 +92,7 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
         'data': List<RERADocumentModel>.from(
           networkResponse["data"].map((e) => RERADocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -130,6 +131,7 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

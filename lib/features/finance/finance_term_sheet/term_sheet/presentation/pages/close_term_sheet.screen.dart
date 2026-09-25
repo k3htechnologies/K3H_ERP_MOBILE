@@ -47,6 +47,7 @@ class _CloseTermSheetScreenState extends State<CloseTermSheetScreen> {
       projectId: widget.projectId,
       closingDate: closingDate,
       closingRemark: _remarkC.text.trim(),
+      actionType: "CLOSED",
     );
   }
 

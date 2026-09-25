@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsra/presentation/cubit/dsra_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -29,11 +30,12 @@ class DSRAScreen extends StatefulWidget {
 
 class _DSRAScreenState extends State<DSRAScreen> {
   late DsraCubit _dsraCubit;
-
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _dsraCubit = context.read<DsraCubit>();
-
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _dsraCubit.getTermSheetView(
       context,
       widget.termSheetDetailsView.projectId,
@@ -74,6 +76,8 @@ class _DSRAScreenState extends State<DSRAScreen> {
         final termSheet =
             state.termSheetDetailsViewModel ?? widget.termSheetDetailsView;
         final dsraList = termSheet.termSheetDebtServiceReserveAccountData;
+        final totalDsraAmount = termSheet.termSheetDebtServiceReserveAccountData
+            .fold<double>(0, (sum, dsra) => sum + dsra.amount);
         return Padding(
           padding: EdgeInsets.all(20.0),
           child: Column(
@@ -117,21 +121,47 @@ class _DSRAScreenState extends State<DSRAScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      "Debt Service Reserve Account (DSRA) Details",
-                      style: AppTextStyle.ts14SB(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Debt Service Reserve Account (DSRA) Details",
+                          style: AppTextStyle.ts14SB(),
+                        ),
+                        verticalSpacing(),
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Total DSRA Amount: ",
+                                style: AppTextStyle.ts12M(),
+                              ),
+                              TextSpan(
+                                text: totalDsraAmount.toIndianCurrency(),
+                                style: AppTextStyle.ts12SB(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addDsra,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                          'closed' &&
+                      _routeAuthorizationModel.isAction)
+                    CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addDsra,
+                          extra: {
+                            "termSheetDetailsView": termSheet,
+                            "termSheetDetails": widget.termSheetModel,
+                          },
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -152,6 +182,19 @@ class _DSRAScreenState extends State<DSRAScreen> {
                           itemBuilder: (context, index) {
                             final dsra = dsraList[index];
                             final bool isLatest = index == dsraList.length - 1;
+
+                            final String status =
+                                widget.termSheetModel.approvalStatus
+                                    .trim()
+                                    .toLowerCase();
+
+                            final bool isClosed = status == 'closed';
+                            final bool isApproved = status == 'approved';
+
+                            final bool showEdit =
+                                isClosed || (isApproved && isLatest);
+
+                            final bool showDelete = isApproved && isLatest;
                             return Container(
                               margin: EdgeInsets.only(bottom: 10.0),
                               padding: const EdgeInsets.symmetric(
@@ -162,12 +205,20 @@ class _DSRAScreenState extends State<DSRAScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
-                                      ? Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: [
+                                  if (showEdit ||
+                                      showDelete &&
+                                          _routeAuthorizationModel.isAction)
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        if (showEdit)
                                           CustomIconButton.edit(
+                                            isDisabled: false,
+                                            // widget
+                                            //     .termSheetModel
+                                            //     .approvalStatus
+                                            //     .toLowerCase() ==
+                                            // 'closed',
                                             onPressed: () {
                                               goRouter.pushNamed(
                                                 AppRoutes.addDsra,
@@ -175,13 +226,15 @@ class _DSRAScreenState extends State<DSRAScreen> {
                                                   "termSheetDetailsView":
                                                       termSheet,
                                                   "dsraData": dsra,
+                                                  "termSheetDetails":
+                                                      widget.termSheetModel,
                                                 },
                                               );
                                             },
                                           ),
 
+                                        if (showDelete) ...[
                                           horizontalSpacing(),
-
                                           CustomIconButton.delete(
                                             onPressed: () {
                                               _showPopupToDeeleteTermSheetDSRA(
@@ -191,15 +244,30 @@ class _DSRAScreenState extends State<DSRAScreen> {
                                             },
                                           ),
                                         ],
-                                      )
-                                      : SizedBox.shrink(),
+                                      ],
+                                    ),
                                   buildRowTitleValue(
                                     title: "Term",
                                     value: dsra.term,
                                     singleLine: false,
                                   ),
+                                  if (dsra.term.toLowerCase() ==
+                                      'mutual fund (mf)')
+                                    buildRowTitleValue(
+                                      title: "Unit",
+                                      value: dsra.unit.toString(),
+                                      singleLine: false,
+                                    ),
+                                  if (dsra.term.toLowerCase() ==
+                                      'mutual fund (mf)')
+                                    buildRowTitleValue(
+                                      title: "Per Unit Rate",
+                                      value:
+                                          dsra.perUnitRate.toIndianCurrency(),
+                                      singleLine: false,
+                                    ),
                                   buildRowTitleValue(
-                                    title: "Term",
+                                    title: "Amount",
                                     value: dsra.amount.toIndianCurrency(),
                                     singleLine: false,
                                   ),
@@ -208,23 +276,30 @@ class _DSRAScreenState extends State<DSRAScreen> {
                                     value: formatDateTimeAsDDMMMYYYY(dsra.date),
                                     singleLine: false,
                                   ),
-                                  buildRowTitleValue(
-                                    title: "Rate Of Interest",
-                                    value:
-                                        " ${dsra.rateOfInterestInPercentage.toString()} %",
-                                    singleLine: false,
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "Redemption Value",
-                                    value:
-                                        dsra.redemptionValue.toIndianCurrency(),
-                                    singleLine: false,
-                                  ),
-                                  buildRowTitleValue(
-                                    title: "Maturity Period",
-                                    value: dsra.maturityPeriod.toString(),
-                                    singleLine: false,
-                                  ),
+                                  if (dsra.term.toLowerCase() ==
+                                      'fixed deposit (fd)')
+                                    buildRowTitleValue(
+                                      title: "Rate Of Interest",
+                                      value:
+                                          "${dsra.rateOfInterestInPercentage.toString()} %",
+                                      singleLine: false,
+                                    ),
+                                  if (dsra.term.toLowerCase() ==
+                                      'fixed deposit (fd)')
+                                    buildRowTitleValue(
+                                      title: "Redemption Value",
+                                      value:
+                                          dsra.redemptionValue
+                                              .toIndianCurrency(),
+                                      singleLine: false,
+                                    ),
+                                  if (dsra.term.toLowerCase() ==
+                                      'fixed deposit (fd)')
+                                    buildRowTitleValue(
+                                      title: "Maturity Period",
+                                      value: dsra.maturityPeriod.toString(),
+                                      singleLine: false,
+                                    ),
                                   buildRowTitleValue(
                                     title: "Withdraw Amount",
                                     value:

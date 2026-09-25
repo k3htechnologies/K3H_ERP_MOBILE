@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/dsa/presentation/cubit/dsa_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -29,11 +30,12 @@ class DSAScreen extends StatefulWidget {
 
 class _DSAScreenState extends State<DSAScreen> {
   late DsaCubit _dsaCubit;
-
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _dsaCubit = context.read<DsaCubit>();
-
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _dsaCubit.getTermSheetView(
       context,
       widget.termSheetDetailsView.projectId,
@@ -120,15 +122,18 @@ class _DSAScreenState extends State<DSAScreen> {
                     style: AppTextStyle.ts14SB(),
                   ),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addDsa,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                          'closed' &&
+                      _routeAuthorizationModel.isAction)
+                    CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addDsa,
+                          extra: {"termSheetDetailsView": termSheet},
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -159,7 +164,11 @@ class _DSAScreenState extends State<DSAScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
+                                  isLatest &&
+                                          widget.termSheetModel.approvalStatus
+                                                  .toLowerCase() !=
+                                              'closed' &&
+                                          _routeAuthorizationModel.isAction
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
@@ -202,7 +211,7 @@ class _DSAScreenState extends State<DSAScreen> {
                                     singleLine: false,
                                   ),
                                   buildRowTitleValue(
-                                    title: "Amount (₹)",
+                                    title: "Amount",
                                     value: dsa.amount.toIndianCurrency(),
                                     singleLine: false,
                                   ),

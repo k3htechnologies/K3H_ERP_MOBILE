@@ -179,7 +179,7 @@ class ProjectLeadState extends BaseState {
       landContactPersonMobileNumber:
           landContactPersonMobileNumber ?? this.landContactPersonMobileNumber,
       landPinCode: landPinCode ?? this.landPinCode,
-      landPlotNumberText: landPinCode ?? this.landPlotNumberText,
+      landPlotNumberText: landPlotNumberText ?? this.landPlotNumberText,
       landWardNumberZone: landWardNumberZone ?? this.landWardNumberZone,
       landPlotShape: landPlotShape ?? this.landPlotShape,
       landOwnershipType: landOwnershipType ?? this.landOwnershipType,

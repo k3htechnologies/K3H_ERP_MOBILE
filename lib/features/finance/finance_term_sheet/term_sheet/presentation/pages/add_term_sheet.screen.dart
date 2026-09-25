@@ -7,14 +7,17 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/local_term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
+import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/cubit/term_sheet_cubit.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -27,7 +30,8 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddTermSheetScreen extends StatefulWidget {
   final TermSheetModel? termSheet;
-  const AddTermSheetScreen({super.key, this.termSheet});
+  final TermSheetViewModel? termSheetView;
+  const AddTermSheetScreen({super.key, this.termSheet, this.termSheetView});
 
   @override
   State<AddTermSheetScreen> createState() => _AddTermSheetScreenState();
@@ -58,6 +62,10 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
 
   // ADD BUTTON SHOULD DISAPPEAR AFTER MAIN APPROVAL
   bool get isMainTermSheetApproved => mainApprovalStatus == "approved";
+
+  bool get lockProject => _isEditMode && mainApprovalStatus != "pending";
+
+  final _formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -123,15 +131,12 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
   }
 
   void _submit() {
-    if (_selectedProjectNotifier.value.isEmpty) {
-      showErrorMessage(context, "Error", "Please select a project");
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     final state = _termSheetCubit.state;
 
     if (state.localTermSheetList.isEmpty) {
-      showErrorMessage(context, "Error", "Please add at least one Term Sheet");
+      showErrorMessage(context, "Error", "At least one Term Sheet is required");
       return;
     }
 
@@ -204,6 +209,20 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
     );
   }
 
+  Future<void> _showPopupToDeleteTermSheetLocally(
+    BuildContext context,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a Term Sheet Details ?',
+      'Deleting this Term Sheet Details will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      _termSheetCubit.deleteTermSheetLocally(index);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -214,284 +233,367 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
         ),
         body: SingleChildScrollView(
           padding: EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Column(
-                children: [
-                  ValueListenableBuilder(
-                    valueListenable: _selectedProjectNotifier,
-                    builder: (context, value, child) {
-                      return CustomMultipleSelectPopup(
-                        title: 'Project',
-                        isMultiSelect: false,
-                        hintText: "All Project",
-                        initialValue: value,
-                        onSelected: (value) {
-                          _selectedProjectNotifier.value = value;
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                ValueListenableBuilder(
+                  valueListenable: _selectedProjectNotifier,
+                  builder: (context, value, child) {
+                    return CustomMultipleSelectPopup(
+                      title: "Project",
+                      isMultiSelect: false,
+                      isRequired: true,
+                      isReadOnly: lockProject,
+                      hintText: "Select Project",
+                      initialValue: value,
+                      onSelected: (value) {
+                        _selectedProjectNotifier.value = value;
 
-                          if (value.isNotEmpty) {
-                            final projectId = value.first["zAttributesId"];
+                        if (value.isNotEmpty) {
+                          final projectId = value.first["zAttributesId"];
 
-                            _termSheetCubit.getProjectWithCompany(
-                              context: context,
-                              projectId: projectId,
-                            );
-                          } else {
-                            _termSheetCubit.clearProjectCompany();
-                          }
-                        },
-                        dataFetchCallBack: _fetchProjects,
-                      );
-                    },
-                  ),
-                  BlocBuilder<TermSheetCubit, TermSheetState>(
-                    buildWhen:
-                        (previous, current) =>
-                            previous.companyByProject !=
-                                current.companyByProject ||
-                            previous.isFetchingCompany !=
-                                current.isFetchingCompany,
-                    builder: (context, state) {
-                      final isProjectSelected =
-                          _selectedProjectNotifier.value.isNotEmpty;
-                      if (!isProjectSelected) {
-                        return const SizedBox.shrink();
-                      }
-                      if (state.isFetchingCompany) {
-                        return const Center(
-                          child: Padding(
-                            padding: EdgeInsets.all(10.0),
-                            child: CircularProgressIndicator(),
-                          ),
-                        );
-                      }
+                          _termSheetCubit.getProjectWithCompany(
+                            context: context,
+                            projectId: projectId,
+                          );
+                        } else {
+                          _termSheetCubit.clearProjectCompany();
+                        }
+                      },
+                      dataFetchCallBack: _fetchProjects,
 
-                      if (state.companyByProject.isEmpty) {
-                        return Center(
-                          child: noDataWidget(
-                            message: "No Company's Found",
-                            iconSize: 120.0,
-                          ),
-                        );
-                      }
-
-                      final company = state.companyByProject.first;
-                      final List<Map<String, dynamic>> items = [];
-
-                      items.addAll([
-                        {"title": "Company Name", "value": company.companyName},
-                        {"title": "City", "value": company.cityName},
-                        {"title": "Firms Type", "value": company.firmsType},
-                        {
-                          "title": "Contact Person",
-                          "value": company.contactPerson,
-                        },
-                        {
-                          "title": "Mobile Number",
-                          "value": company.mobileNumber,
-                          "widget": CustomClickToContactText(
-                            value: company.mobileNumber,
-                            type: ContactType.phone,
-                          ),
-                        },
-                        {
-                          "title": "E-Mail ID",
-                          "value": company.emailId,
-                          "widget": CustomClickToContactText(
-                            value: company.emailId,
-                            type: ContactType.email,
-                          ),
-                        },
-                        {"title": "PAN Number", "value": company.panNumber},
-                        {"title": "GST Number", "value": company.gstNumber},
-                        {"title": "CIN Number", "value": company.cinNumber},
-                        {"title": "TAN Number", "value": company.tanNumber},
-                      ]);
-
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [infoCard(items)],
-                      );
-                    },
-                  ),
-                  verticalSpacing(),
-                  if (!isMainTermSheetApproved) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Term Sheet",
-                          style: AppTextStyle.ts14M(
-                            color: AppColor.greyTitleAndValueColor,
-                          ),
-                        ),
-                        horizontalSpacing(),
-                        CustomButton.add(
-                          onPressed: () async {
-                            final result = await goRouter
-                                .pushNamed<LocalTermSheetModel>(
-                                  AppRoutes.addLocalTermSheet,
-                                  extra: {"isEdit": false, "termSheet": null},
-                                );
-
-                            if (result != null && context.mounted) {
-                              _termSheetCubit.addTermSheetLocally(result);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    verticalSpacing(),
-                  ],
-                  BlocBuilder<TermSheetCubit, TermSheetState>(
-                    buildWhen:
-                        (previous, current) =>
-                            previous.localTermSheetList !=
-                            current.localTermSheetList,
-                    builder: (context, state) {
-                      final termSheetList = state.localTermSheetList;
-
-                      if (termSheetList.isEmpty) {
-                        return const SizedBox.shrink();
-                      }
-
-                      return ListView.builder(
-                        itemCount: termSheetList.length,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          final termSheet = termSheetList[index];
-
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 10),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            decoration: commonCardDecoration(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: buildRowWrapper(
-                                        child: buildColumnTitleValue(
-                                          title:
-                                              "Name Of Institution / Bank / NBFC",
-                                          value:
-                                              termSheet
-                                                  .nameOfInstitutionBankNBFC,
-                                        ),
-                                      ),
-                                    ),
-                                    horizontalSpacing(),
-                                    Row(
-                                      children: [
-                                        CustomIconButton.edit(
-                                          isDisabled: isEditDisabled,
-                                          onPressed: () async {
-                                            final result = await goRouter
-                                                .pushNamed<LocalTermSheetModel>(
-                                                  AppRoutes.addLocalTermSheet,
-                                                  extra: {
-                                                    "termSheet":
-                                                        widget.termSheet,
-                                                    "termSheetModel": termSheet,
-                                                  },
-                                                );
-
-                                            if (result != null &&
-                                                context.mounted) {
-                                              _termSheetCubit
-                                                  .updateTermSheetLocally(
-                                                    index: index,
-                                                    termSheet: result,
-                                                  );
-                                            }
-                                          },
-                                        ),
-
-                                        horizontalSpacing(),
-                                        CustomIconButton.delete(
-                                          isDisabled:
-                                              termSheet.approvalStatus
-                                                  .trim()
-                                                  .toLowerCase() !=
-                                              "pending",
-                                          onPressed: () {
-                                            _termSheetCubit
-                                                .deleteTermSheetLocally(index);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                                verticalSpacing(),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: buildRowWrapper(
-                                        child: buildColumnTitleValue(
-                                          title: "Loan Taken By",
-                                          value: termSheet.loanTakenBy,
-                                        ),
-                                      ),
-                                    ),
-                                    horizontalSpacing(),
-                                    Expanded(
-                                      child: buildRowWrapper(
-                                        child: buildColumnTitleValue(
-                                          title: "Facility Amount",
-                                          value:
-                                              termSheet.facilityAmount
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                verticalSpacing(),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: buildRowWrapper(
-                                        child: buildColumnTitleValue(
-                                          title: "Rate Of Interest",
-                                          value:
-                                              "${termSheet.rateOfInterestInPercentage.toString()} %",
-                                        ),
-                                      ),
-                                    ),
-
-                                    horizontalSpacing(),
-
-                                    Expanded(
-                                      child: buildRowWrapper(
-                                        child: buildColumnTitleValue(
-                                          title: "Term Sheet Date",
-                                          value: formatDateTimeAsDDMMMYYYY(
-                                            termSheet.termSheetDate,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Project is required";
+                        }
+                        return null;
+                      },
+                    );
+                  },
+                ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedProjectNotifier,
+                  builder: (context, value, child) {
+                    return BlocBuilder<TermSheetCubit, TermSheetState>(
+                      buildWhen:
+                          (previous, current) =>
+                              previous.companyByProject !=
+                                  current.companyByProject ||
+                              previous.isFetchingCompany !=
+                                  current.isFetchingCompany,
+                      builder: (context, state) {
+                        final isProjectSelected =
+                            _selectedProjectNotifier.value.isNotEmpty;
+                        if (!isProjectSelected) {
+                          return const SizedBox.shrink();
+                        }
+                        if (state.isFetchingCompany) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(10.0),
+                              child: CircularProgressIndicator(),
                             ),
                           );
+                        }
+
+                        if (state.companyByProject.isEmpty) {
+                          return Center(
+                            child: noDataWidget(
+                              message: "No Company's Found",
+                              iconSize: 120.0,
+                            ),
+                          );
+                        }
+
+                        final company = state.companyByProject.first;
+                        final List<Map<String, dynamic>> items = [];
+
+                        items.addAll([
+                          {
+                            "title": "Company Name",
+                            "value": company.companyName,
+                          },
+                          {"title": "City", "value": company.cityName},
+                          {"title": "Firms Type", "value": company.firmsType},
+                          {
+                            "title": "Contact Person",
+                            "value": company.contactPerson,
+                          },
+                          {
+                            "title": "Mobile Number",
+                            "value": company.mobileNumber,
+                            "widget": CustomClickToContactText(
+                              value: company.mobileNumber,
+                              type: ContactType.phone,
+                            ),
+                          },
+                          {
+                            "title": "E-Mail ID",
+                            "value": company.emailId,
+                            "widget": CustomClickToContactText(
+                              value: company.emailId,
+                              type: ContactType.email,
+                            ),
+                          },
+                          {
+                            "title": "PAN Number",
+                            "value": company.panNumber,
+                            "widget": DocumentPreviewText(
+                              title: "PAN Number",
+                              text: company.panNumber,
+                              fileUrl: company.panCardURL,
+                            ),
+                          },
+                          {
+                            "title": "GST Number",
+                            "value": company.gstNumber,
+                            "widget": DocumentPreviewText(
+                              title: "GST Number",
+                              text: company.gstNumber,
+                              fileUrl: company.gstCertificateURL,
+                            ),
+                          },
+                          {
+                            "title": "CIN Number",
+                            "value": company.cinNumber,
+                            "widget": DocumentPreviewText(
+                              title: "CIN Number",
+                              text: company.cinNumber,
+                              fileUrl: company.cinURL,
+                            ),
+                          },
+                          {
+                            "title": "TAN Number",
+                            "value": company.tanNumber,
+                            "widget": DocumentPreviewText(
+                              title: "TAN Number",
+                              text: company.tanNumber,
+                              fileUrl: company.tanURL,
+                            ),
+                          },
+                        ]);
+
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [infoCard(items)],
+                        );
+                      },
+                    );
+                  },
+                ),
+                verticalSpacing(),
+                if (!isMainTermSheetApproved) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Term Sheet",
+                        style: AppTextStyle.ts14M(
+                          color: AppColor.greyTitleAndValueColor,
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      CustomButton.add(
+                        onPressed: () async {
+                          final result = await goRouter
+                              .pushNamed<LocalTermSheetModel>(
+                                AppRoutes.addLocalTermSheet,
+                                extra: {"isEdit": false, "termSheet": null},
+                              );
+
+                          if (result != null && context.mounted) {
+                            _termSheetCubit.addTermSheetLocally(result);
+                          }
                         },
-                      );
-                    },
+                      ),
+                    ],
                   ),
+                  verticalSpacing(),
                 ],
-              ),
-            ],
+                BlocBuilder<TermSheetCubit, TermSheetState>(
+                  buildWhen:
+                      (previous, current) =>
+                          previous.localTermSheetList !=
+                          current.localTermSheetList,
+                  builder: (context, state) {
+                    final termSheetList = state.localTermSheetList;
+
+                    if (termSheetList.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return ListView.builder(
+                      itemCount: termSheetList.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final termSheet = termSheetList[index];
+                        final fileUrl =
+                            termSheet.termSheetURL.isNotEmpty
+                                ? termSheet.termSheetURL
+                                : termSheet
+                                    .termSheetFiles
+                                    .fileNameList
+                                    .isNotEmpty
+                                ? termSheet.termSheetFiles.fileNameList.first
+                                : "";
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title: "Loan Taken By",
+                                        value: termSheet.loanTakenBy,
+                                      ),
+                                    ),
+                                  ),
+
+                                  horizontalSpacing(),
+                                  Row(
+                                    children: [
+                                      CustomIconButton.edit(
+                                        isDisabled:
+                                            isEditDisabled &&
+                                            termSheet.approvalStatus
+                                                    .trim()
+                                                    .toLowerCase() !=
+                                                "pending",
+                                        onPressed: () async {
+                                          final result = await goRouter
+                                              .pushNamed<LocalTermSheetModel>(
+                                                AppRoutes.addLocalTermSheet,
+                                                extra: {
+                                                  "termSheet": widget.termSheet,
+                                                  "termSheetModel": termSheet,
+                                                },
+                                              );
+
+                                          if (result != null &&
+                                              context.mounted) {
+                                            _termSheetCubit
+                                                .updateTermSheetLocally(
+                                                  index: index,
+                                                  termSheet: result,
+                                                );
+                                          }
+                                        },
+                                      ),
+
+                                      horizontalSpacing(),
+                                      CustomIconButton.delete(
+                                        isDisabled:
+                                            termSheet.approvalStatus
+                                                .trim()
+                                                .toLowerCase() !=
+                                            "pending",
+                                        onPressed: () {
+                                          _showPopupToDeleteTermSheetLocally(
+                                            context,
+                                            index,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title:
+                                            "Name Of Institution / Bank / NBFC",
+                                        value:
+                                            termSheet.nameOfInstitutionBankNBFC,
+                                        customValueWidget: DocumentPreviewText(
+                                          title:
+                                              "Name Of Institution / Bank / NBFC",
+                                          text:
+                                              termSheet
+                                                  .nameOfInstitutionBankNBFC,
+                                          fileUrl: fileUrl,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title: "Type",
+                                        value: termSheet.type,
+                                      ),
+                                    ),
+                                  ),
+                                  horizontalSpacing(),
+                                  Expanded(
+                                    child: buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title: "Facility Amount",
+                                        value:
+                                            termSheet.facilityAmount
+                                                .toIndianCurrency(),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title: "Rate Of Interest",
+                                        value:
+                                            "${termSheet.rateOfInterestInPercentage.toString()} %",
+                                      ),
+                                    ),
+                                  ),
+
+                                  horizontalSpacing(),
+
+                                  Expanded(
+                                    child: buildRowWrapper(
+                                      child: buildColumnTitleValue(
+                                        title: "Term Sheet Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          termSheet.termSheetDate,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
         bottomNavigationBar: SafeArea(

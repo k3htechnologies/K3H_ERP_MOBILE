@@ -23,8 +23,7 @@ class LocalTermSheetModel {
   final double facilityAmount;
   final String processingFeesInPercentage;
   final String approvalStatus;
-
-  final List<String> termSheetURL;
+  final String termSheetURL;
 
   final MultiFilePickerModel termSheetFiles;
 
@@ -90,7 +89,7 @@ class LocalTermSheetModel {
 
       processingFeesInPercentage: model.processingFeesInPercentage.toString(),
 
-      termSheetURL: model.termSheetUrl.isNotEmpty ? [model.termSheetUrl] : [],
+      termSheetURL: model.termSheetUrl.isNotEmpty ? model.termSheetUrl : "",
 
       termSheetFiles: MultiFilePickerModel(
         fileBytesList: [],
@@ -125,7 +124,7 @@ class LocalTermSheetModel {
       type: model.type,
       facilityAmount: model.facilityAmount,
       processingFeesInPercentage: model.processingFeesInPercentage.toString(),
-      termSheetURL: model.termSheetUrl.isNotEmpty ? [model.termSheetUrl] : [],
+      termSheetURL: model.termSheetUrl.isNotEmpty ? model.termSheetUrl : "",
       termSheetFiles: MultiFilePickerModel(
         fileBytesList: [],
         fileNameList: model.termSheetUrl.isNotEmpty ? [model.termSheetUrl] : [],
@@ -153,7 +152,7 @@ class LocalTermSheetModel {
     String? type,
     double? facilityAmount,
     String? processingFeesInPercentage,
-    List<String>? termSheetURL,
+    String? termSheetURL,
     String? approvalStatus,
     MultiFilePickerModel? termSheetFiles,
   }) {

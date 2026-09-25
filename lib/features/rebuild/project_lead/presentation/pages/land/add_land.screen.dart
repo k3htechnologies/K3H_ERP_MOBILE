@@ -374,24 +374,21 @@ class _AddLandScreenState extends State<AddLandScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isEditMode ? "Update Land" : "Add Land",
-              style: AppTextStyle.ts14M(color: AppColor.grey),
-            ),
-            verticalSpacing(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 10.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode ? "Update Land" : "Add Land",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _card("Land : Property Details", [
                     CustomTextField(
                       title: "Land Owner Name",
                       hint: "Enter Land Owner Name",
@@ -434,9 +431,10 @@ class _AddLandScreenState extends State<AddLandScreen> {
                     ),
                     CustomTextField(
                       title: "Pin Code",
-                      hint: "Pin Code",
+                      hint: "Enter Pin Code",
                       textController: _pinCodeC,
                       isRequired: true,
+                      keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(6),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -447,8 +445,11 @@ class _AddLandScreenState extends State<AddLandScreen> {
                     ),
                     CustomTextField(
                       title: "Plot / CTS / Survey / Subdivision Number",
-                      hint: "Enter Plot Number",
+                      hint: "Enter Plot / CTS / Survey / Subdivision Number",
                       textController: _plotCTSSurveySubdivisionNumberC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        100,
+                      ),
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -459,7 +460,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                     ),
                     CustomMultiFilePicker(
                       initialFileList: projectPhotoImage.fileNameList,
-                      title: "Photo",
+                      title: "Land Photo",
                       filePickType: FilePickType.both,
                       isRequired: true,
                       onFilePickedCallback: (bytes, fileName) {
@@ -473,7 +474,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Photo is required.";
+                          return "Land Photo is required.";
                         }
                         return null;
                       },
@@ -492,6 +493,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Plot Information", [
                     CustomTextField(
                       title: "Ward Number (Zone)",
                       hint: "Enter Ward Number (Zone)",
@@ -502,9 +506,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       hint: "Enter Total Plot Area",
                       textController: _totalPlotAreaSqMtC,
                       isRequired: true,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total plot area is required.';
@@ -538,6 +542,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Contact Information", [
                     CustomTextField(
                       title: 'Contact Person For Land Name',
                       textController: _contactPersonC,
@@ -574,6 +581,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       title: "Contact Person E-Mail ID",
                       hint: "Enter Contact Person E-Mail ID",
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Land & Plot Characteristics", [
                     ValueListenableBuilder(
                       valueListenable: _selectedPlotShape,
                       builder: (context, value, child) {
@@ -596,7 +606,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       hint: "Enter Depth Of The Plot",
                       textController: _deptPlotC,
                       isRequired: true,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList: [
                         FilteringTextInputFormatter.digitsOnly,
                         LengthLimitingTextInputFormatter(16),
@@ -755,7 +765,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       title: "Distance From Nearest Town (KM)",
                       hint: "Nearest Town (KM)",
                       textController: _nearestTownC,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList:
                           inputFormatterListForDecimalValuesFixedToTwo(16),
                     ),
@@ -797,7 +807,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       valueListenable: _isPoaInvolved,
                       builder: (context, value, child) {
                         return CustomCheckBox(
-                          title: "Any Power Of Attorney (POA) involved",
+                          title: "Any Power Of Attorney (POA) involved?",
                           isSelected: value,
                           onChanged: (newValue) {
                             _isPoaInvolved.value = newValue;
@@ -810,7 +820,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       valueListenable: _isFencingPresent,
                       builder: (context, value, child) {
                         return CustomCheckBox(
-                          title: "Fencing / Boundary wall present",
+                          title: "Fencing / Boundary wall present?",
                           isSelected: value,
                           onChanged: (newValue) {
                             _isFencingPresent.value = newValue;
@@ -823,7 +833,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       valueListenable: _isLandConvertedToNA,
                       builder: (context, value, child) {
                         return CustomCheckBox(
-                          title: "Land Converted to Non - Agriculture",
+                          title: "Land Converted to Non - Agriculture?",
                           isSelected: value,
                           onChanged: (value) {
                             _isLandConvertedToNA.value = value;
@@ -849,7 +859,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       valueListenable: _isElectricityConnectionNearby,
                       builder: (context, value, child) {
                         return CustomCheckBox(
-                          title: "Electricity connection nearby",
+                          title: "Electricity connection nearby?",
                           isSelected: value,
                           onChanged: (value) {
                             _isElectricityConnectionNearby.value = value;
@@ -862,7 +872,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       valueListenable: _isUnderLitigation,
                       builder: (context, value, child) {
                         return CustomCheckBox(
-                          title: "Plot Under Litigation / Stay Orders",
+                          title: "Plot Under Litigation / Stay Orders?",
                           isSelected: value,
                           onChanged: (value) {
                             _isUnderLitigation.value = value;
@@ -883,7 +893,9 @@ class _AddLandScreenState extends State<AddLandScreen> {
                         );
                       },
                     ),
-                    verticalSpacing(),
+                  ]),
+                  verticalSpacing(),
+                  _card("Additional Information", [
                     CustomTextField(
                       title: "Remarks",
                       hint: "Enter Remarks",
@@ -891,11 +903,11 @@ class _AddLandScreenState extends State<AddLandScreen> {
                       minLines: 3,
                       maxLines: 10,
                     ),
-                  ],
-                ),
+                  ]),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -912,6 +924,21 @@ class _AddLandScreenState extends State<AddLandScreen> {
             onPressed: _submit,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _card(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
       ),
     );
   }

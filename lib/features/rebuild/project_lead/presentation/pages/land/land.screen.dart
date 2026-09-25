@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/data/model/land.model.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/cubit/project_lead_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -12,6 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -24,10 +26,13 @@ class LandScreen extends StatefulWidget {
 
 class _LandScreenState extends State<LandScreen> {
   late ProjectLeadCubit _projectleadCubit;
-
+  late AuthorizationModel _routeAuthorizationModel;
   @override
   void initState() {
     _projectleadCubit = context.read<ProjectLeadCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.projectLead] ??
+        AuthorizationModel();
     super.initState();
   }
 
@@ -105,27 +110,29 @@ class _LandScreenState extends State<LandScreen> {
                           ),
                         ),
                       ),
-                      horizontalSpacing(),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CustomIconButton.edit(
-                            onPressed: () {
-                              goRouter.pushNamed(
-                                AppRoutes.addLand,
-                                extra: {"land": land, "index": index},
-                              );
-                            },
-                          ),
-                          horizontalSpacing(),
-                          CustomIconButton.delete(
-                            onPressed: () {
-                              _showPopupToDeeleteLand(context, land, index);
-                            },
-                          ),
-                        ],
-                      ),
+                      if (_routeAuthorizationModel.isAction) ...[
+                        horizontalSpacing(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CustomIconButton.edit(
+                              onPressed: () {
+                                goRouter.pushNamed(
+                                  AppRoutes.addLand,
+                                  extra: {"land": land, "index": index},
+                                );
+                              },
+                            ),
+                            horizontalSpacing(),
+                            CustomIconButton.delete(
+                              onPressed: () {
+                                _showPopupToDeeleteLand(context, land, index);
+                              },
+                            ),
+                          ],
+                        ),
+                      ],
                     ],
                   ),
                   verticalSpacing(),
@@ -143,6 +150,7 @@ class _LandScreenState extends State<LandScreen> {
                   ),
                   verticalSpacing(),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       buildColumnTitleValue(
@@ -150,6 +158,31 @@ class _LandScreenState extends State<LandScreen> {
                         value: land.totalPlotAreaSqM.toString(),
                       ),
                       horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: "Road Width",
+                        value: land.roadWidth,
+                      ),
+                    ],
+                  ),
+                  verticalSpacing(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Contact Person Name",
+                        value: land.contactPersonName,
+                      ),
+                      horizontalSpacing(),
+                      buildColumnTitleValue(
+                        title: 'Contact Person Mobile Number',
+                        value: land.contactPersonMobile,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode: "+91",
+                          type: ContactType.phone,
+                          value: land.contactPersonMobile,
+                        ),
+                      ),
                     ],
                   ),
                 ],

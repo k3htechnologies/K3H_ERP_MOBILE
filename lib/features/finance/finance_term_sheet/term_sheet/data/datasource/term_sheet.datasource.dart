@@ -217,6 +217,7 @@ class TermSheetDatasourceImpl extends TermSheetDatasource {
         'data': List<TermSheetDetailsView>.from(
           networkResponse['data'].map((x) => TermSheetDetailsView.fromJson(x)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

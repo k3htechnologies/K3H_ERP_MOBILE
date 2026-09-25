@@ -349,24 +349,21 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isEditMode ? "Update Redevelopment" : "Add Redevelopment",
-              style: AppTextStyle.ts14M(color: AppColor.grey),
-            ),
-            verticalSpacing(),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-              margin: EdgeInsets.only(bottom: 10),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 10.0,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode ? "Update Redevelopment" : "Add Redevelopment",
+                style: AppTextStyle.ts14M(color: AppColor.grey),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _card("Redevelopment : Property Details", [
                     CustomTextField(
                       title: "Building Name",
                       hint: "Enter Building Name",
@@ -374,7 +371,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Building is required";
+                          return "Building Name is required.";
                         }
                         return null;
                       },
@@ -409,9 +406,10 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                     ),
                     CustomTextField(
                       title: "Pin Code",
-                      hint: "Pin Code",
+                      hint: "Enter Pin Code",
                       textController: _pinCodeC,
                       isRequired: true,
+                      keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(6),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -424,6 +422,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       title: "Plot / CTS / Survey / Subdivision Number",
                       hint: "Enter Plot Number",
                       textController: _plotCTSSurveySubdivisionNumberC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        100,
+                      ),
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -467,6 +468,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Plot Information", [
                     CustomTextField(
                       title: "Ward Number (Zone)",
                       hint: "Enter Ward Number (Zone)",
@@ -477,9 +481,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       hint: "Enter Total Plot Area",
                       textController: _totalPlotAreaSqMtC,
                       isRequired: true,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total plot area is required.';
@@ -566,14 +570,16 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       title: "Latitude & Longitude (For GIS Mapping)",
                       hint: "Enter Latitude & Longitude (For GIS Mapping)",
                       textController: _latitudeLongitudeMappingC,
+                      inputFormatterList: InputValidator.digitAndCharacterOnly(
+                        50,
+                      ),
                     ),
                     CustomTextField(
                       title: "Identification And Location",
                       hint: "Enter Identification And Location",
                       textController: _identificationAndLocationC,
+                      prefixType: CustomTextFieldPrefix.location,
                       isRequired: true,
-                      minLines: 3,
-                      maxLines: 10,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Identification And Location is required";
@@ -588,15 +594,18 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Contact Information", [
                     CustomTextField(
-                      title: 'Contact Person For Land Name',
+                      title: 'Contact Person Name',
                       textController: _contactPersonC,
-                      hint: "Enter Contact Person For Land Name",
+                      hint: "Enter Contact Person Name",
                       inputFormatterList: InputValidator.textOnly(50),
                       isRequired: true,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return "Contact Person For Land Name is required.";
+                          return "Contact Person Name is required.";
                         }
                         return null;
                       },
@@ -639,6 +648,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         return null;
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Land & Plot Characteristics", [
                     ValueListenableBuilder(
                       valueListenable: _selectedTypeOfLandTenure,
                       builder: (context, value, child) {
@@ -711,6 +723,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         );
                       },
                     ),
+                  ]),
+                  verticalSpacing(),
+                  _card("Building Structure", [
                     CustomTextField(
                       title: "Number of Existing Building / Wings",
                       hint: "Enter Number of Existing Building / Wings",
@@ -750,9 +765,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       hint: "Enter Total Build-Up Area",
                       textController: _totalBuildUpAreaC,
                       isRequired: true,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total Build-Up Area is required.';
@@ -767,7 +782,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       isRequired: true,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total Carpet Area is required.';
@@ -782,7 +797,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       isRequired: true,
                       keyboardType: TextInputType.number,
                       inputFormatterList:
-                          inputFormatterListForDecimalValuesFixedToTwo(7),
+                          inputFormatterListForDecimalValuesFixedToTwo(16),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return 'Total Common Area is required.';
@@ -815,7 +830,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       valueListenable: _isListAvailable,
                       builder: (context, value, child) {
                         return CustomCheckBox(
-                          title: "Lift Available",
+                          title: "Lift Available?",
                           isSelected: value,
                           onChanged: (newValue) {
                             _isListAvailable.value = newValue;
@@ -862,7 +877,9 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                         );
                       },
                     ),
-                    verticalSpacing(),
+                  ]),
+                  verticalSpacing(),
+                  _card("Additional Information", [
                     CustomTextField(
                       title: "Remarks",
                       hint: "Enter Remarks",
@@ -870,11 +887,11 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       minLines: 3,
                       maxLines: 10,
                     ),
-                  ],
-                ),
+                  ]),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -891,6 +908,21 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
             onPressed: _submit,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _card(String title, List<Widget> children) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
       ),
     );
   }

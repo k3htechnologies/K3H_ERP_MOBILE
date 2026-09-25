@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/disbursement/presentation/cubit/disbursement_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet.model.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/data/model/term_sheet_view.model.dart';
@@ -30,10 +31,13 @@ class DisbursementScreen extends StatefulWidget {
 class _DisbursementScreenState extends State<DisbursementScreen> {
   late DisbursementCubit _disbursementCubit;
 
+  late AuthorizationModel _routeAuthorizationModel;
+
   @override
   void initState() {
     _disbursementCubit = context.read<DisbursementCubit>();
-
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.termSheet]!;
     _disbursementCubit.getTermSheetView(
       context,
       widget.termSheetDetailsView.projectId,
@@ -144,18 +148,21 @@ class _DisbursementScreenState extends State<DisbursementScreen> {
                     ],
                   ),
                   horizontalSpacing(),
-                  CustomButton(
-                    text: "Add",
-                    isDisable:
-                        termSheet.totalDisbursedAmount ==
-                        termSheet.facilityAmount,
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addDisbursement,
-                        extra: {"termSheetDetailsView": termSheet},
-                      );
-                    },
-                  ),
+                  if (widget.termSheetModel.approvalStatus.toLowerCase() !=
+                          'closed' &&
+                      _routeAuthorizationModel.isAction)
+                    CustomButton(
+                      text: "Add",
+                      isDisable:
+                          termSheet.totalDisbursedAmount ==
+                          termSheet.facilityAmount,
+                      onPressed: () {
+                        goRouter.pushNamed(
+                          AppRoutes.addDisbursement,
+                          extra: {"termSheetDetailsView": termSheet},
+                        );
+                      },
+                    ),
                 ],
               ),
               verticalSpacing(),
@@ -186,7 +193,11 @@ class _DisbursementScreenState extends State<DisbursementScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  isLatest
+                                  isLatest &&
+                                          widget.termSheetModel.approvalStatus
+                                                  .toLowerCase() !=
+                                              'closed' &&
+                                          _routeAuthorizationModel.isAction
                                       ? Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.end,
