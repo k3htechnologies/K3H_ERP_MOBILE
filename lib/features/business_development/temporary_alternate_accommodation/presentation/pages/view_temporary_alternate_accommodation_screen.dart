@@ -198,6 +198,11 @@ class _ViewTemporaryAlternateAccommodationScreenState
                                       rows: rows,
                                     ),
                                 columnWidthMode: ColumnWidthMode.fill,
+                                onQueryRowHeight: (details) {
+                                  return details.getIntrinsicRowHeight(
+                                    details.rowIndex,
+                                  );
+                                },
                                 columns: [
                                   GridColumn(
                                     columnName: 'label',

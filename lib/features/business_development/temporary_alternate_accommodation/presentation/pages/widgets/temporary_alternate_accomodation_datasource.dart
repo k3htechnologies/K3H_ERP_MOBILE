@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -45,11 +46,13 @@ class TemporaryAlternateAccommodationReportDataSource extends DataGridSource {
               .mapWithIndex(
                 (cell, index) => Container(
                   alignment: Alignment.center,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   child: Text(
                     index == 0
                         ? cell.value.toString()
                         : (cell.value as double).toIndianCurrency(),
+                    softWrap: true,
+                    textAlign: TextAlign.center,
                     style:
                         index == 0
                             ? AppTextStyle.ts14R()

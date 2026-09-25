@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -656,6 +655,14 @@ class _TemporaryAlternateAccommodationScreenState
     required num paidAmount,
     required num totalAmount,
   }) {
+    final chargeType = _temporaryAlternateAccommodationCubit.state.chargeType;
+
+    final isRentViewType = ['TAA', 'Hardship', 'Shifting'].contains(chargeType);
+    final isHardshipOrShifting = ['Hardship', 'Shifting'].contains(chargeType);
+    final isAdditionalOrBrokerage = [
+      'Additional TAA',
+      'Brokerage',
+    ].contains(chargeType);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: commonCardDecoration(),
@@ -681,11 +688,7 @@ class _TemporaryAlternateAccommodationScreenState
                   Expanded(
                     child: InkWell(
                       onTap: () {
-                        if (['TAA', 'Hardship', 'Shifting'].contains(
-                          _temporaryAlternateAccommodationCubit
-                              .state
-                              .chargeType,
-                        )) {
+                        if (isRentViewType) {
                           goRouter.pushNamed(
                             AppRoutes.viewRent,
                             queryParameters: {
@@ -705,24 +708,11 @@ class _TemporaryAlternateAccommodationScreenState
                           );
                         }
                       },
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              tenantRecord.flatNumber,
-                              style: AppTextStyle.ts16M(
-                                color:
-                                    (['TAA', 'Hardship', 'Shifting'].contains(
-                                          _temporaryAlternateAccommodationCubit
-                                              .state
-                                              .chargeType,
-                                        ))
-                                        ? AppColor.primary
-                                        : null,
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        tenantRecord.flatNumber,
+                        style: AppTextStyle.ts16M(
+                          color: isRentViewType ? AppColor.primary : null,
+                        ),
                       ),
                     ),
                   ),
@@ -753,6 +743,7 @@ class _TemporaryAlternateAccommodationScreenState
                   ),
                 ],
               ),
+
               Row(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -767,65 +758,67 @@ class _TemporaryAlternateAccommodationScreenState
                   ),
                 ],
               ),
+
               Row(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   buildColumnTitleValue(
-                    title: "Existing Unit Type",
+                    title: 'Existing Unit Type',
                     value: tenantRecord.flatType,
                   ),
                   buildColumnTitleValue(
-                    title: "Existing Carpet Area (SqFt)",
+                    title: 'Existing Carpet Area (SqFt)',
                     value: tenantRecord.flatCarpetAreaSqFt.addCommas(),
                   ),
                 ],
               ),
+
               Row(
                 spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (!['Hardship', 'Shifting'].contains(
-                    _temporaryAlternateAccommodationCubit.state.chargeType,
-                  ))
+                  if (!isHardshipOrShifting)
                     buildColumnTitleValue(
-                      title: "Proposed Offer Amount (₹)",
+                      title: 'Proposed Offer Amount (₹)',
                       value:
                           tenantRecord.proposedOfferAmount > 0
-                              ? "${tenantRecord.proposedOfferAmount.addCommas()} ${tenantRecord.unit}"
+                              ? '${tenantRecord.proposedOfferAmount.addCommas()} ${tenantRecord.unit}'
                               : '0',
                     ),
 
-                  if (['Hardship', 'Shifting'].contains(
-                    _temporaryAlternateAccommodationCubit.state.chargeType,
-                  ))
+                  if (isHardshipOrShifting)
                     buildColumnTitleValue(
-                      title: "Total",
+                      title: 'Total',
                       value: totalAmount.toIndianCurrency(),
                     ),
 
                   buildColumnTitleValue(
-                    title: "Paid Amount",
+                    title: 'Paid Amount',
                     value: paidAmount.toIndianCurrency(),
                   ),
                 ],
               ),
-              if (['Additional TAA', 'Brokerage'].contains(
-                _temporaryAlternateAccommodationCubit.state.chargeType,
-              ))
-                buildColumnTitleValue(
-                  title: DateFormat('dd MMM yyyy').format(tenantRecord.date),
-                  value: totalAmount.toIndianCurrency(),
-                  removeExpanded: true,
-                ),
-              if (!['Hardship', 'Shifting'].contains(
-                _temporaryAlternateAccommodationCubit.state.chargeType,
-              ))
-                buildColumnTitleValue(
-                  title: "Total",
-                  value: tenantRecord.amount.toIndianCurrency(),
-                  removeExpanded: true,
-                ),
+
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (isAdditionalOrBrokerage)
+                    buildColumnTitleValue(
+                      title: DateFormat(
+                        'dd MMM yyyy',
+                      ).format(tenantRecord.date),
+                      value: totalAmount.toIndianCurrency(),
+                    ),
+
+                  if (!isHardshipOrShifting)
+                    buildColumnTitleValue(
+                      title: 'Total',
+                      value: tenantRecord.amount.toIndianCurrency(),
+                    ),
+                ],
+              ),
             ],
           ),
           Divider(height: 25, color: AppColor.grey2),
@@ -877,7 +870,7 @@ class _TemporaryAlternateAccommodationScreenState
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'View Summary',
+                      'Payment Summary',
                       style: AppTextStyle.ts12R(
                         color:
                             totalAmount == 0

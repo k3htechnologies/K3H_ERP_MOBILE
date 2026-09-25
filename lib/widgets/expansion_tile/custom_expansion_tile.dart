@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-import '../../../../../../../utils/functions/common_function.dart';
+import '../../utils/functions/common_function.dart';
 
 class CustomExpandableCard extends StatefulWidget {
   final Widget header;
@@ -10,6 +10,7 @@ class CustomExpandableCard extends StatefulWidget {
   final EdgeInsetsGeometry? margin;
   final bool initiallyExpanded;
   final VoidCallback? onExpansionChanged;
+  final Decoration? decoration;
 
   const CustomExpandableCard({
     super.key,
@@ -19,6 +20,7 @@ class CustomExpandableCard extends StatefulWidget {
     this.margin,
     this.initiallyExpanded = false,
     this.onExpansionChanged,
+    this.decoration,
   });
 
   @override
@@ -47,7 +49,7 @@ class _CustomExpandableCardState extends State<CustomExpandableCard>
       curve: Curves.easeInOut,
       margin: widget.margin ?? const EdgeInsets.only(bottom: 10),
       padding: widget.padding ?? const EdgeInsets.all(16),
-      decoration: commonCardDecoration(),
+      decoration: widget.decoration ?? commonCardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
