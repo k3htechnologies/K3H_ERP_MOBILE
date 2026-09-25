@@ -6,8 +6,11 @@ import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/c
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/widgets/company_bank_details.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/widgets/company_overview.dart';
 import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/widgets/company_partners.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class CompanyMasterViewScreen extends StatefulWidget {
   final CompanyModel? company;
@@ -53,7 +56,16 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
         authorization: AuthorizationModel(),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              widget.company!.companyName,
+              style: AppTextStyle.ts14M(color: AppColor.grey),
+            ),
+          ),
+          verticalSpacing(),
           ChipStyleTabBar(
             controller: _tabController,
             tabs: ["Overview", "Bank Details", "Partners"],
@@ -64,7 +76,7 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
               physics: NeverScrollableScrollPhysics(),
               children: [
                 CompanyOverview(),
-                CompanyBankDetails(),
+                CompanyBankDetails(companyName: widget.company!.companyName),
                 CompanyPartners(),
               ],
             ),

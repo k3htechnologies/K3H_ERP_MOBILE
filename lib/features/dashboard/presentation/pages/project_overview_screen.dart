@@ -11,7 +11,6 @@ import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
@@ -106,7 +105,10 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     unselectedLabelStyle: AppTextStyle.ts14M(),
                     labelPadding: const EdgeInsets.symmetric(horizontal: 16),
                     padding: EdgeInsets.zero,
-                    tabs: const [Tab(text: 'Overview'), Tab(text: 'Employee')],
+                    tabs: const [
+                      Tab(text: 'Overview'),
+                      Tab(text: 'Employee'),
+                    ],
                   ),
                 ),
               ),
@@ -253,12 +255,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Purchase Start Date",
-                      value:
-                          widget.project.tenderPurchaseStartDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.tenderPurchaseStartDate!,
-                              )
-                              : "-",
+                      value: widget.project.tenderPurchaseStartDate != null
+                          ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.tenderPurchaseStartDate!,
+                            )
+                          : "-",
                     ),
                   ],
                 ),
@@ -269,12 +270,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   children: [
                     buildColumnTitleValue(
                       title: "Purchase End Date",
-                      value:
-                          widget.project.tenderPurchaseEndDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.tenderPurchaseEndDate!,
-                              )
-                              : "-",
+                      value: widget.project.tenderPurchaseEndDate != null
+                          ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.tenderPurchaseEndDate!,
+                            )
+                          : "-",
                     ),
                     buildColumnTitleValue(
                       title: "Payment Mode",
@@ -318,12 +318,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                     ),
                     buildColumnTitleValue(
                       title: "Submission Date",
-                      value:
-                          widget.project.tenderSubmissionDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                widget.project.tenderSubmissionDate!,
-                              )
-                              : "-",
+                      value: widget.project.tenderSubmissionDate != null
+                          ? formatDateTimeAsDDMMMYYYY(
+                              widget.project.tenderSubmissionDate!,
+                            )
+                          : "-",
                     ),
                   ],
                 ),
@@ -370,17 +369,15 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Name",
-                    value:
-                        widget.project.liasoningArchitectName.isEmpty
-                            ? "-"
-                            : widget.project.liasoningArchitectName,
+                    value: widget.project.liasoningArchitectName.isEmpty
+                        ? "-"
+                        : widget.project.liasoningArchitectName,
                   ),
                   buildColumnTitleValue(
                     title: "Mobile Number",
-                    value:
-                        widget.project.liasoningArchitectMobileNumber.isEmpty
-                            ? "-"
-                            : widget.project.liasoningArchitectMobileNumber,
+                    value: widget.project.liasoningArchitectMobileNumber.isEmpty
+                        ? "-"
+                        : widget.project.liasoningArchitectMobileNumber,
                     customValueWidget: CustomClickToContactText(
                       countryCode: "+91",
                       value: widget.project.liasoningArchitectMobileNumber,
@@ -403,17 +400,15 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Name",
-                    value:
-                        widget.project.designingArchitectName.isEmpty
-                            ? "-"
-                            : widget.project.designingArchitectName,
+                    value: widget.project.designingArchitectName.isEmpty
+                        ? "-"
+                        : widget.project.designingArchitectName,
                   ),
                   buildColumnTitleValue(
                     title: "Mobile Number",
-                    value:
-                        widget.project.designingArchitectMobileNumber.isEmpty
-                            ? "-"
-                            : widget.project.designingArchitectMobileNumber,
+                    value: widget.project.designingArchitectMobileNumber.isEmpty
+                        ? "-"
+                        : widget.project.designingArchitectMobileNumber,
                     customValueWidget: CustomClickToContactText(
                       countryCode: "+91",
                       value: widget.project.designingArchitectMobileNumber,
@@ -435,17 +430,15 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "Name",
-                    value:
-                        widget.project.rccConsultantName.isEmpty
-                            ? "-"
-                            : widget.project.rccConsultantName,
+                    value: widget.project.rccConsultantName.isEmpty
+                        ? "-"
+                        : widget.project.rccConsultantName,
                   ),
                   buildColumnTitleValue(
                     title: "Mobile Number",
-                    value:
-                        widget.project.rccConsultantMobileNumber.isEmpty
-                            ? "-"
-                            : widget.project.rccConsultantMobileNumber,
+                    value: widget.project.rccConsultantMobileNumber.isEmpty
+                        ? "-"
+                        : widget.project.rccConsultantMobileNumber,
                     customValueWidget: CustomClickToContactText(
                       countryCode: "+91",
                       value: widget.project.rccConsultantMobileNumber,
@@ -490,12 +483,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                       widget.project.googleLocation.isEmpty
                           ? "-"
                           : widget.project.googleLocation,
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.primary,
-                      ).copyWith(
-                        decoration: TextDecoration.underline,
-                        decorationColor: AppColor.primary,
-                      ),
+                      style: AppTextStyle.ts14M(color: AppColor.primary)
+                          .copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColor.primary,
+                          ),
                     ),
                   ),
                 ),
@@ -559,19 +551,17 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "RERA Number",
-                    value:
-                        widget.project.reraNumber.isNotEmpty
-                            ? widget.project.reraNumber
-                            : "-",
+                    value: widget.project.reraNumber.isNotEmpty
+                        ? widget.project.reraNumber
+                        : "-",
                   ),
                   buildColumnTitleValue(
                     title: "RERA Certificate Date",
-                    value:
-                        widget.project.reraCertificateDate != null
-                            ? formatDateTimeAsDDMMMYYYY(
-                              widget.project.reraCertificateDate!,
-                            )
-                            : "-",
+                    value: widget.project.reraCertificateDate != null
+                        ? formatDateTimeAsDDMMMYYYY(
+                            widget.project.reraCertificateDate!,
+                          )
+                        : "-",
                   ),
                 ],
               ),
@@ -582,12 +572,11 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                 children: [
                   buildColumnTitleValue(
                     title: "RERA Completion Date",
-                    value:
-                        widget.project.reraPossessionDate != null
-                            ? formatDateTimeAsDDMMMYYYY(
-                              widget.project.reraPossessionDate!,
-                            )
-                            : "-",
+                    value: widget.project.reraPossessionDate != null
+                        ? formatDateTimeAsDDMMMYYYY(
+                            widget.project.reraPossessionDate!,
+                          )
+                        : "-",
                   ),
                   buildColumnTitleValue(
                     title: "APF Number",
@@ -891,39 +880,38 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                             backgroundColor: AppColor.primary,
                             child:
                                 state
-                                        .employeeByProject![index]
-                                        .profilePhotoURL
-                                        .isNotEmpty
-                                    ? ClipOval(
-                                      child: NetworkImageWidget(
-                                        key: ValueKey(
-                                          state
-                                              .employeeByProject![index]
-                                              .profilePhotoURL,
-                                        ),
-                                        imageUrl:
-                                            state
-                                                .employeeByProject![index]
-                                                .profilePhotoURL,
-                                        fit: BoxFit.fill,
-                                        width: 70,
-                                        height: 70,
+                                    .employeeByProject![index]
+                                    .profilePhotoURL
+                                    .isNotEmpty
+                                ? ClipOval(
+                                    child: NetworkImageWidget(
+                                      key: ValueKey(
+                                        state
+                                            .employeeByProject![index]
+                                            .profilePhotoURL,
                                       ),
-                                    )
-                                    : Text(
-                                      state
-                                              .employeeByProject![index]
-                                              .fullName
-                                              .isNotEmpty
-                                          ? state
+                                      imageUrl: state
+                                          .employeeByProject![index]
+                                          .profilePhotoURL,
+                                      fit: BoxFit.fill,
+                                      width: 70,
+                                      height: 70,
+                                    ),
+                                  )
+                                : Text(
+                                    state
+                                            .employeeByProject![index]
+                                            .fullName
+                                            .isNotEmpty
+                                        ? state
                                               .employeeByProject![index]
                                               .fullName[0]
                                               .toUpperCase()
-                                          : 'U',
-                                      style: AppTextStyle.ts16B(
-                                        color: AppColor.white,
-                                      ),
+                                        : 'U',
+                                    style: AppTextStyle.ts16B(
+                                      color: AppColor.white,
                                     ),
+                                  ),
                           ),
                           horizontalSpacing(),
                           Flexible(

@@ -60,6 +60,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     required BuildContext context,
     required String filterAssetStatus,
     String? filterAssetName,
+    String? filterEmployeeName,
     String? filterAssetType,
     String? filterAssetBrand,
     String? filterAssetModel,
@@ -70,13 +71,14 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     emit(
       state.copyWith(
         searchText: filterAssetName,
-        filterAssetStatus: filterAssetStatus,
-        filterAssetType: filterAssetType ?? state.filterAssetType,
-        filterAssetBrand: filterAssetBrand ?? state.filterAssetBrand,
-        filterAssetModel: filterAssetModel ?? state.filterAssetModel,
-        filterSerialNumber: filterSerialNumber ?? state.filterSerialNumber,
+        filterByAssetStatus: filterAssetStatus,
+        filterByAssetType: filterAssetType ?? state.filterByAssetType,
+        filterByAssetBrand: filterAssetBrand ?? state.filterByAssetBrand,
+        filterByAssetModel: filterAssetModel ?? state.filterByAssetModel,
+        filterBySerialNumber: filterSerialNumber ?? state.filterBySerialNumber,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
+        filterByEmployeName: filterEmployeeName ?? state.filterByEmployeName,
         assetList: [],
         currentPage: 1,
       ),
@@ -94,12 +96,13 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
 
     final queryParams = {
       "AssetName": state.searchText,
-      "AssetType": state.filterAssetType,
-      "AssetModel": state.filterAssetModel,
-      "Status": state.filterAssetStatus,
-      "AssetBrand": state.filterAssetBrand,
-      "SerialNumber": state.filterSerialNumber,
+      "AssetType": state.filterByAssetType,
+      "AssetModel": state.filterByAssetModel,
+      "Status": state.filterByAssetStatus,
+      "AssetBrand": state.filterByAssetBrand,
+      "SerialNumber": state.filterBySerialNumber,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "EmployeeName": state.filterByEmployeName,
     };
 
     final result = await assetMasterRepository.getAssetList(
@@ -380,11 +383,12 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
     return getActiveFilterCount([
-      state.filterAssetStatus.trim().isNotEmpty,
-      state.filterAssetType.trim().isNotEmpty,
-      state.filterAssetBrand.trim().isNotEmpty,
-      state.filterAssetModel.trim().isNotEmpty,
-      state.filterSerialNumber.trim().isNotEmpty,
+      state.filterByAssetStatus.trim().isNotEmpty,
+      state.filterByAssetType.trim().isNotEmpty,
+      state.filterByAssetBrand.trim().isNotEmpty,
+      state.filterByAssetModel.trim().isNotEmpty,
+      state.filterBySerialNumber.trim().isNotEmpty,
+      state.filterByEmployeName.trim().isNotEmpty,
       hasSort,
     ]);
   }

@@ -858,7 +858,10 @@ final GoRouter goRouter = GoRouter(
                         : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                final companyName =
+                    state.uri.queryParameters['companyName'] ?? '';
                 return AddCompanyBankDetailsScreen(
+                  companyName: companyName,
                   bankDetailsModel: bankDetailsModel,
                   index: index,
                 );

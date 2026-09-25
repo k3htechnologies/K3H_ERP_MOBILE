@@ -123,18 +123,18 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     final isResidential =
         tenant.inventoryFlatType.toLowerCase() == 'residential';
     final configList = isResidential ? residentialFlatList : commercialFlatList;
-    final configMatch = configList.firstWhere(
-      (e) =>
-          e['DisplayName'].toString().toLowerCase() ==
-          tenant.unitConfiguration.toLowerCase(),
-      orElse: () => configList.first,
-    );
+    final configMatch =
+        tenant.unitConfiguration.trim().isEmpty
+            ? null
+            : configList.firstWhereOrNull(
+              (e) =>
+                  e['DisplayName'].toString().toLowerCase() ==
+                  tenant.unitConfiguration.toLowerCase(),
+            );
     selectedFlatType.value = flatTypeMatch;
-    Future.microtask(() {
-      if (mounted) {
-        selectedFlatConfiguration.value = configMatch;
-      }
-    });
+
+    selectedFlatConfiguration.value = configMatch;
+
     _extraFreeCarpetAreaOfferedC.text =
         tenant.extraFreeCarpetAreaOfferedPercent.toString();
     _freeMofaCarpetAreaC.text = tenant.freeMOFACarpetAreaSqFt.toString();
@@ -569,19 +569,11 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                       ),
                                       title: 'Unit Configuration',
                                       hintText: "Select Unit Configuration",
-                                      isRequired: true,
                                       dataList: residentialFlatList,
                                       initialValue: configValue,
                                       onSelected: (selectedValue) {
                                         selectedFlatConfiguration.value =
                                             selectedValue;
-                                      },
-                                      validator: (val) {
-                                        if (selectedFlatConfiguration.value ==
-                                            null) {
-                                          return 'Flat Configuration is required.';
-                                        }
-                                        return null;
                                       },
                                       onValueClear:
                                           () =>
@@ -603,18 +595,11 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                       ),
                                       title: 'Unit Configuration',
                                       hintText: "Select Unit Configuration",
-                                      isRequired: true,
                                       dataList: commercialFlatList,
                                       initialValue: configValue,
                                       onSelected: (selectedValue) {
                                         selectedFlatConfiguration.value =
                                             selectedValue;
-                                      },
-                                      validator: (val) {
-                                        if (val == null) {
-                                          return 'Flat Configuration is required.';
-                                        }
-                                        return null;
                                       },
                                       onValueClear:
                                           () =>

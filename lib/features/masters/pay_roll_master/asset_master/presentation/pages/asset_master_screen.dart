@@ -37,6 +37,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   Timer? _debounce;
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC,
+      _filterEmployeeNameC,
       _filterAssetStatusC,
       _filterAssetTypeC,
       _filterAssetBrandC,
@@ -60,6 +61,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   void dispose() {
     scrollController.dispose();
     _searchC.dispose();
+    _filterEmployeeNameC.dispose();
     _filterAssetStatusC.dispose();
     _filterAssetTypeC.dispose();
     _filterAssetBrandC.dispose();
@@ -73,6 +75,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
   // INITIALIZE TEXT EDITING CONTROLLERS
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
+    _filterEmployeeNameC = TextEditingController();
     _filterAssetStatusC = TextEditingController();
     _filterAssetTypeC = TextEditingController();
     _filterAssetBrandC = TextEditingController();
@@ -123,11 +126,12 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     final state = _assetMasterCubit.state;
 
     _searchC.text = state.searchText;
-    _filterAssetStatusC.text = state.filterAssetStatus;
-    _filterAssetTypeC.text = state.filterAssetType;
-    _filterAssetBrandC.text = state.filterAssetBrand;
-    _filterAssetModelC.text = state.filterAssetModel;
-    _filterSerialNumberC.text = state.filterSerialNumber;
+    _filterEmployeeNameC.text = state.filterByEmployeName;
+    _filterAssetStatusC.text = state.filterByAssetStatus;
+    _filterAssetTypeC.text = state.filterByAssetType;
+    _filterAssetBrandC.text = state.filterByAssetBrand;
+    _filterAssetModelC.text = state.filterByAssetModel;
+    _filterSerialNumberC.text = state.filterBySerialNumber;
 
     String? selectedDirection =
         state.currentSortColumn == "Asset Name"
@@ -135,6 +139,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
             : null;
 
     final String initialAssetName = _searchC.text;
+    final String initialEmployeeName = _filterEmployeeNameC.text;
     final String initialAssetStatus = _filterAssetStatusC.text;
     final String initialAssetType = _filterAssetTypeC.text;
     final String initialAssetBrand = _filterAssetBrandC.text;
@@ -150,6 +155,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialAssetName) ||
+            (_filterEmployeeNameC.text.trim() != initialEmployeeName) ||
             (_filterAssetStatusC.text.trim() != initialAssetStatus) ||
             (_filterAssetTypeC.text.trim() != initialAssetType) ||
             (_filterAssetBrandC.text.trim() != initialAssetBrand) ||
@@ -223,6 +229,12 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
 
                 verticalSpacing(height: 20),
                 CustomTextField(
+                  title: "Employee Name",
+                  hint: "Enter Employee Name",
+                  textController: _filterEmployeeNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "Asset Name",
                   hint: "Enter Asset Name",
                   textController: _searchC,
@@ -272,6 +284,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           filterAssetBrand: "",
           filterAssetModel: "",
           filterSerialNumber: "",
+          filterEmployeeName: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
@@ -287,6 +300,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           filterAssetBrand: _filterAssetBrandC.text.trim(),
           filterAssetModel: _filterAssetModelC.text.trim(),
           filterSerialNumber: _filterSerialNumberC.text.trim(),
+          filterEmployeeName: _filterEmployeeNameC.text.trim(),
           sortColumn: selectedDirection != null ? "Asset Name" : null,
           sortDirection: selectedDirection,
         );
