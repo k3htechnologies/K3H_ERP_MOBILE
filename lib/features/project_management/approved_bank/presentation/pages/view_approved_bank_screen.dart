@@ -267,7 +267,7 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
   ) async {
     final state = _approvedBankFileCubit.state;
 
-    _searchC.text = state.searchTextFolder;
+    _searchC.text = state.searchTextFile;
 
     String? selectedDirection =
         state.currentSortColumnBankFolder == "ApprovedBankFileName"

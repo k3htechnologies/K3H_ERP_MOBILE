@@ -23,7 +23,6 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
-import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -638,38 +637,26 @@ class _BookingScreenState extends State<BookingScreen> {
                                             ),
                                           ),
 
-                                          _routhAuthorizationModel.isAction &&
-                                                  (booking.approvalStatus
-                                                          .toLowerCase() ==
-                                                      'pending')
-                                              ? Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  CustomIconButton.edit(
-                                                    onPressed: () {
-                                                      goRouter.pushNamed(
-                                                        AppRoutes.addBooking,
-                                                        queryParameters: {
-                                                          "booking":
-                                                              Uri.encodeComponent(
-                                                                EncryptionManager.encryptData(
-                                                                  jsonEncode(
-                                                                    booking,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                          "index":
-                                                              index.toString(),
-                                                        },
-                                                      );
-                                                    },
+                                          CustomIconButton.edit(
+                                            isDisabled:
+                                                !(_routhAuthorizationModel
+                                                        .isAction &&
+                                                    (booking.approvalStatus
+                                                            .toLowerCase() ==
+                                                        'pending')),
+                                            onPressed: () {
+                                              goRouter.pushNamed(
+                                                AppRoutes.addBooking,
+                                                queryParameters: {
+                                                  "booking": Uri.encodeComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(booking),
+                                                    ),
                                                   ),
-                                                  horizontalSpacing(),
-                                                ],
-                                              )
-                                              : SizedBox.shrink(),
-                                          approvalStatusWidget(
-                                            booking.approvalStatus,
+                                                  "index": index.toString(),
+                                                },
+                                              );
+                                            },
                                           ),
                                         ],
                                       ),
@@ -740,9 +727,9 @@ class _BookingScreenState extends State<BookingScreen> {
                                       verticalSpacing(),
                                       ApproveRejectWidget(
                                         actionTitle:
-                                            isActionAllowed
-                                                ? "Actions"
-                                                : "History",
+                                            booking.approvalStatus.isEmpty
+                                                ? "Pending"
+                                                : booking.approvalStatus,
                                         showApproval: booking.isApproval,
                                         popupTitle:
                                             booking.bookingType.toLowerCase() ==

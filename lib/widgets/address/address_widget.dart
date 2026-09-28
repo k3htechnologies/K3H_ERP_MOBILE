@@ -1,15 +1,17 @@
 // address_widget.dart
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:k3h_erp_app/core/models/city.model.dart';
+import 'package:k3h_erp_app/core/local_storage_manager.dart';
+import 'package:k3h_erp_app/core/models/address.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:collection/collection.dart';
 
 class AddressParsedResult {
   // country → state → district → city → [villages]
-  final Map<int, Map<int, Map<int, Map<int, List<CityModel>>>>> addressTree;
+  final Map<int, Map<int, Map<int, Map<int, List<AddressModel>>>>> addressTree;
   final List<Map<String, dynamic>> countryList;
 
   AddressParsedResult({required this.addressTree, required this.countryList});
@@ -26,13 +28,13 @@ AddressParsedResult processAddressData(String rawJson) {
           ? decoded['CountryStateCityDistrictVillageData']
           : decoded;
 
-  final dataList = (list as List).map((e) => CityModel.fromJson(e)).toList();
+  final dataList = (list as List).map((e) => AddressModel.fromJson(e)).toList();
 
   // 4-level tree: country → state → district → city → [villages]
   // NOTE: the leaf list can contain multiple rows per village (one per ward),
   // so village/ward dropdowns are derived from this list rather than the
   // tree growing a 5th level.
-  final Map<int, Map<int, Map<int, Map<int, List<CityModel>>>>> tree = {};
+  final Map<int, Map<int, Map<int, Map<int, List<AddressModel>>>>> tree = {};
 
   for (final item in dataList) {
     tree
@@ -104,7 +106,7 @@ class AddressWidget extends StatefulWidget {
 }
 
 class _AddressWidgetState extends State<AddressWidget> {
-  Map<int, Map<int, Map<int, Map<int, List<CityModel>>>>> addressTree = {};
+  Map<int, Map<int, Map<int, Map<int, List<AddressModel>>>>> addressTree = {};
 
   List<Map<String, dynamic>> countryList = [];
 
@@ -133,7 +135,7 @@ class _AddressWidgetState extends State<AddressWidget> {
 
   // Raw rows for the currently selected city — kept around so ward options
   // can be re-derived whenever the village selection changes.
-  List<CityModel> _cityRows = [];
+  List<AddressModel> _cityRows = [];
 
   @override
   void initState() {
@@ -631,4 +633,41 @@ class _AddressWidgetState extends State<AddressWidget> {
       ],
     );
   }
+}
+
+// GST
+// USE: final gstCode = getGstStateCodeFromStorage(selectedStateMasterId);
+Map<String, dynamic>? getGstStateCodeFromStorage(int stateMasterId) {
+  final storage = LocalStorageManager();
+
+  final cachedData = storage.getRawString(StorageKey.addressMasterData);
+
+  if (cachedData == null || cachedData.isEmpty) {
+    return {};
+  }
+
+  final decoded = jsonDecode(cachedData);
+
+  final data =
+      decoded is Map<String, dynamic>
+          ? decoded['CountryStateCityDistrictVillageData']
+          : decoded;
+
+  if (data is! List) {
+    return null;
+  }
+
+  final address = data
+      .map((e) => AddressModel.fromJson(e))
+      .firstWhereOrNull((e) => e.stateMasterId == stateMasterId);
+
+  if (address == null) {
+    return null;
+  }
+
+  return {
+    'zAttributesId': address.stateMasterId,
+    'DisplayName': address.stateName,
+    'gstStateCode': address.gstStateCode,
+  };
 }

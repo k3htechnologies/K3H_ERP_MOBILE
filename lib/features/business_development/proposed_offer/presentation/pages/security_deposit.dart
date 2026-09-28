@@ -390,7 +390,7 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           textController: _interestAmountC,
                           keyboardType: TextInputType.number,
                           inputFormatterList: InputValidator.digitWithDecimal(
-                            maxDigitsBeforeDecimal: 8,
+                            maxDigitsBeforeDecimal: 16,
                           ),
                         ),
                         CustomTextField(

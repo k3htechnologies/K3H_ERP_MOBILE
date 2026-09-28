@@ -206,15 +206,16 @@ class _AddInventorySpecificationScreenState
     if (flat.flatType.isNotEmpty && flat.flatConfiguration.isNotEmpty) {
       switch (flat.flatType) {
         case 'Residential':
-          selectedFlatConfiguration.value = residentialFlatList.firstWhere(
-            (e) => e['DisplayName'] == flat.flatConfiguration,
-            orElse: () => residentialFlatList.first,
-          );
+          selectedFlatConfiguration.value = residentialFlatConfigList
+              .firstWhere(
+                (e) => e['DisplayName'] == flat.flatConfiguration,
+                orElse: () => residentialFlatConfigList.first,
+              );
           break;
         case 'Commercial':
-          selectedFlatConfiguration.value = commercialFlatList.firstWhere(
+          selectedFlatConfiguration.value = commercialFlatConfigList.firstWhere(
             (e) => e['DisplayName'] == flat.flatConfiguration,
-            orElse: () => commercialFlatList.first,
+            orElse: () => commercialFlatConfigList.first,
           );
           break;
         default:
@@ -577,7 +578,7 @@ class _AddInventorySpecificationScreenState
                                 isDisabled: disabled.value,
                                 hintText: 'Select Unit Configuration',
                                 isRequired: true,
-                                dataList: residentialFlatList,
+                                dataList: residentialFlatConfigList,
                                 initialValue: configValue,
                                 onSelected: (value) {
                                   selectedFlatConfiguration.value = value;
@@ -603,7 +604,7 @@ class _AddInventorySpecificationScreenState
                                 hintText: 'Select Unit Configuration',
                                 isRequired: true,
                                 isDisabled: disabled.value,
-                                dataList: commercialFlatList,
+                                dataList: commercialFlatConfigList,
                                 initialValue: configValue,
                                 onSelected: (value) {
                                   selectedFlatConfiguration.value = value;

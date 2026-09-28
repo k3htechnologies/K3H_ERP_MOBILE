@@ -68,6 +68,9 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   int districtMasterId = -1;
   int cityMasterId = -1;
   DateTime? dateOfBirth;
+  final ValueNotifier<Map<String, dynamic>?> _selectedGstCode = ValueNotifier(
+    null,
+  );
   MultiFilePickerModel gstCertificateFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
@@ -319,13 +322,13 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             ),
             SliverToBoxAdapter(child: SizedBox(height: 12)),
             SliverToBoxAdapter(
-              child: _buildSectionContainer(
-                _buildGovernmentIdentifiersSection(),
-              ),
+              child: _buildSectionContainer(_buildAddressSection()),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 12)),
             SliverToBoxAdapter(
-              child: _buildSectionContainer(_buildAddressSection()),
+              child: _buildSectionContainer(
+                _buildGovernmentIdentifiersSection(),
+              ),
             ),
             SliverToBoxAdapter(child: SizedBox(height: 12)),
             SliverToBoxAdapter(
@@ -489,22 +492,36 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildSectionHeader('Government Identifiers'),
-          CustomTextField(
-            inputFormatterList: InputValidator.gstInputFormatters(),
-            textController: _gstNumberC,
-            title: "GST Number",
-            hint: "Enter GST Number",
-            validator: (value) {
-              final hasFile = gstCertificateFile.fileNameList.isNotEmpty;
-              if (hasFile && (value == null || value.isEmpty)) {
-                return "GST Number is required.";
-              }
-              if (value != null && value.isNotEmpty) {
-                if (!InputValidator.isValidGST(value)) {
-                  return "GST Number is invalid";
-                }
-              }
-              return null;
+          ValueListenableBuilder<Map<String, dynamic>?>(
+            valueListenable: _selectedGstCode,
+            builder: (context, gstData, child) {
+              final stateName = gstData?['DisplayName']?.toString() ?? '';
+              final gstCode = gstData?['gstStateCode']?.toString() ?? '';
+
+              return CustomTextField(
+                inputFormatterList: InputValidator.gstInputFormatters(),
+                textController: _gstNumberC,
+                title:
+                    stateName.isNotEmpty && gstCode.isNotEmpty
+                        ? "GST Number ($stateName GST Code - $gstCode)"
+                        : "GST Number",
+                hint: "Enter GST Number",
+                validator: (value) {
+                  final hasFile = gstCertificateFile.fileNameList.isNotEmpty;
+
+                  if (hasFile && (value == null || value.isEmpty)) {
+                    return "GST Number is required.";
+                  }
+
+                  if (value != null && value.isNotEmpty) {
+                    if (!InputValidator.isValidGST(value)) {
+                      return "GST Number is invalid";
+                    }
+                  }
+
+                  return null;
+                },
+              );
             },
           ),
           CustomMultiFilePicker(
@@ -660,7 +677,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildSectionHeader('Company Verification Documents'),
+          _buildSectionHeader('Company Verification'),
           CustomMultiFilePicker(
             title: 'Company Letterhead Header',
             isRequired: true,
@@ -725,6 +742,9 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             incomingCityId: widget.company?.cityMasterId,
             stateChange: (selectedState) {
               stateMasterId = selectedState['zAttributesId'];
+              _selectedGstCode.value = getGstStateCodeFromStorage(
+                stateMasterId,
+              );
             },
             districtChange: (selectedDistrict) {
               districtMasterId = selectedDistrict['zAttributesId'];

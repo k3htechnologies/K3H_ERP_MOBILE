@@ -1,9 +1,11 @@
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
-class CityModel {
+
+class AddressModel {
   final int countryMasterId;
   final String countryName;
   final int stateMasterId;
   final String stateName;
+  final String gstStateCode;
   final int districtMasterId;
   final String districtName;
   final int cityMasterId;
@@ -12,11 +14,12 @@ class CityModel {
   final String villageName;
   final int wardMasterId;
   final String wardName;
-  CityModel({
+  AddressModel({
     required this.countryMasterId,
     required this.countryName,
     required this.stateMasterId,
     required this.stateName,
+    required this.gstStateCode,
     required this.districtMasterId,
     required this.districtName,
     required this.cityMasterId,
@@ -26,12 +29,13 @@ class CityModel {
     required this.wardMasterId,
     required this.wardName,
   });
-  factory CityModel.fromJson(Map<String, dynamic> json) {
-    return CityModel(
+  factory AddressModel.fromJson(Map<String, dynamic> json) {
+    return AddressModel(
       countryMasterId: parseValue<int>(json, "CountryMasterId"),
       countryName: parseValue<String>(json, "CountryName"),
       stateMasterId: parseValue<int>(json, "StateMasterId"),
       stateName: parseValue<String>(json, "StateName"),
+      gstStateCode: parseValue<String>(json, "GSTStateCode"),
       districtMasterId: parseValue<int>(json, "DistrictMasterId"),
       districtName: parseValue<String>(json, "DistrictName"),
       cityMasterId: parseValue<int>(json, "CityMasterId"),
@@ -48,6 +52,7 @@ class CityModel {
       'CountryName': countryName,
       'StateMasterId': stateMasterId,
       'StateName': stateName,
+      'GSTStateCode': gstStateCode,
       'DistrictMasterId': districtMasterId,
       'DistrictName': districtName,
       'CityMasterId': cityMasterId,

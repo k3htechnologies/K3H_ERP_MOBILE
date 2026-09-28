@@ -314,7 +314,11 @@ class BuildingCubit extends Cubit<BuildingState> {
           buildingId: buildingId,
           pageNumber: 1,
         );
-        return true;
+        if (response['message'].toString().contains('already')) {
+          return false;
+        } else {
+          return true;
+        }
       },
     );
   }
@@ -356,7 +360,11 @@ class BuildingCubit extends Cubit<BuildingState> {
 
         updatedList[index] = response['data'][0] as BuildingDocumentModel;
         emit(state.copyWith(buildingDocumentList: updatedList));
-        return true;
+        if (response['message'].toString().contains('already')) {
+          return false;
+        } else {
+          return true;
+        }
       },
     );
   }
@@ -779,11 +787,11 @@ class BuildingCubit extends Cubit<BuildingState> {
     required BuildContext context,
     required int buildingId,
     required int projectId,
-    required double grossPlotAreaSqFt,
-    required double plotAreaPhysicalSurveySqFt,
-    required double plotAreaOldApprovedPlanSqFt,
-    required double plotAreaConveyanceSqFt,
-    required double plotAreaPRCardSqFt,
+    required double grossPlotAreaSqMt,
+    required double plotAreaPhysicalSurveySqMt,
+    required double plotAreaOldApprovedPlanSqMt,
+    required double plotAreaConveyanceSqMt,
+    required double plotAreaPRCardSqMt,
     required double totalCarpetAreaSqFt,
     required int totalResidentialUnits,
     required double totalResidentialCarpetAreaSqFt,
@@ -811,11 +819,11 @@ class BuildingCubit extends Cubit<BuildingState> {
     final formData = {
       'BuildingId': buildingId,
       'ProjectId': projectId,
-      'GrossPlotAreaSqFt': grossPlotAreaSqFt,
-      'PlotAreaPhysicalSurveySqFt': plotAreaPhysicalSurveySqFt,
-      'PlotAreaOldApprovedPlanSqFt': plotAreaOldApprovedPlanSqFt,
-      'PlotAreaConveyanceSqFt': plotAreaConveyanceSqFt,
-      'PlotAreaPRCardSqFt': plotAreaPRCardSqFt,
+      'GrossPlotAreaSqMt': grossPlotAreaSqMt,
+      'PlotAreaPhysicalSurveySqMt': plotAreaPhysicalSurveySqMt,
+      'PlotAreaOldApprovedPlanSqMt': plotAreaOldApprovedPlanSqMt,
+      'PlotAreaConveyanceSqMt': plotAreaConveyanceSqMt,
+      'PlotAreaPRCardSqMt': plotAreaPRCardSqMt,
       'TotalCarpetAreaSqFt': totalCarpetAreaSqFt,
       'TotalResidentialUnits': totalResidentialUnits,
       'TotalResidentialCarpetAreaSqFt': totalResidentialCarpetAreaSqFt,

@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/status/approval_status.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -65,6 +66,8 @@ class ApproveRejectWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final config = approvalStatusConfig[actionTitle.toLowerCase()];
+
     return isMaster
         ? Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,7 +158,10 @@ class ApproveRejectWidget extends StatelessWidget {
                       bottomLeft: Radius.circular(6),
                     ),
                   ),
-                  child: Text('$actionTitle :', style: AppTextStyle.ts14R()),
+                  child: Text(
+                    actionTitle,
+                    style: AppTextStyle.ts14SB(color: config?.textColor),
+                  ),
                 ),
               ),
               if (showApproval && !isActionAlreadyPerformed) ...[

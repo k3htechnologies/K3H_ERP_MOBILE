@@ -29,10 +29,6 @@ final List<Map<String, dynamic>> sourceTypeList = createAttributeList(
   sourceTypeValues,
 );
 
-final List<Map<String, dynamic>> residentialType = createAttributeList(
-  residentialTypeValues,
-);
-
 final List<Map<String, dynamic>> floorBrand = createAttributeList(
   floorBrandValues,
 );
@@ -120,11 +116,10 @@ final List<Map<String, dynamic>> flatTypeList = createAttributeList(
 
 // STATIC LISTS FOR FLAT CONFIGURATION
 
-final List<Map<String, dynamic>> residentialFlatList = createAttributeList(
-  residentialFlatValues,
-);
+final List<Map<String, dynamic>> residentialFlatConfigList =
+    createAttributeList(residentialFlatConfigTypeValues);
 
-final List<Map<String, dynamic>> commercialFlatList = createAttributeList(
+final List<Map<String, dynamic>> commercialFlatConfigList = createAttributeList(
   commercialFlatValues,
 );
 

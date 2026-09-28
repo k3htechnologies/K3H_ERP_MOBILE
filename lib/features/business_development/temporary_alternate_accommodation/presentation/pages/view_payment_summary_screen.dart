@@ -27,6 +27,7 @@ class ViewPaymentSummaryScreen extends StatefulWidget {
   final TemporaryAlternativeAccommodationModel rentModel;
   final String buildingName;
   final double totalAmount;
+
   const ViewPaymentSummaryScreen({
     super.key,
     required this.rentModel,
@@ -43,8 +44,6 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
   _temporaryAlternateAccommodationCubit;
   late AuthorizationModel _routeAuthorizationModel;
   late TextEditingController _searchC;
-  final ValueNotifier<bool> _fullyAmountPaid = ValueNotifier(false);
-  final ValueNotifier<bool> _canExport = ValueNotifier(false);
 
   @override
   void initState() {
@@ -96,197 +95,205 @@ class _ViewPaymentSummaryScreenState extends State<ViewPaymentSummaryScreen> {
     }
   }
 
+  bool _canAddPayment(TemporaryAlternateAccommodationState state) {
+    return (widget.totalAmount -
+            (_temporaryAlternateAccommodationCubit.paidAmountForSummary ?? 0)) >
+        0;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<
+    return BlocBuilder<
       TemporaryAlternateAccommodationCubit,
       TemporaryAlternateAccommodationState
     >(
-      listener: (context, state) {
-        _fullyAmountPaid.value =
-            widget.totalAmount ==
-            _temporaryAlternateAccommodationCubit.paidAmountForSummary;
-        _canExport.value =
-            state.paymentLedgerList != null &&
-            state.paymentLedgerList!.isNotEmpty;
-      },
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_canExport, _fullyAmountPaid]),
-        builder: (context, _) {
-          return Scaffold(
-            appBar: CustomAppBar(
-              screenTitle: "Temporary Alternate\nAccommodation",
-              authorization: _routeAuthorizationModel,
-              extraHeight: 20,
-              showMenuIcon: false,
-              searchHintText: 'Search by Account Holder Name',
-              textController: _searchC,
-              onSearchSubmit: (value) {
-                _temporaryAlternateAccommodationCubit.onPaymentLedgerSearch(
-                  context: context,
-                  value: value,
-                  tenantId: widget.rentModel.tenantId,
-                  tenantApplicantId: widget.rentModel.tenantApplicantId,
-                  buildingId: widget.rentModel.buildingId,
-                  projectId: widget.rentModel.projectId,
-                );
-              },
-              onAddCallback:
-                  _fullyAmountPaid.value
-                      ? null
-                      : () {
-                        goRouter.pushNamed(
-                          AppRoutes.addPayment,
-                          queryParameters: {
-                            'rent': Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(widget.rentModel.toJson()),
-                              ),
+      builder: (context, state) {
+        final canAdd = _canAddPayment(state);
+
+        return Scaffold(
+          appBar: CustomAppBar(
+            screenTitle: "Temporary Alternate\nAccommodation",
+            authorization: _routeAuthorizationModel,
+            extraHeight: 20,
+            showMenuIcon: false,
+            searchHintText: 'Search by Account Holder Name',
+            textController: _searchC,
+            onSearchSubmit: (value) {
+              _temporaryAlternateAccommodationCubit.onPaymentLedgerSearch(
+                context: context,
+                value: value,
+                tenantId: widget.rentModel.tenantId,
+                tenantApplicantId: widget.rentModel.tenantApplicantId,
+                buildingId: widget.rentModel.buildingId,
+                projectId: widget.rentModel.projectId,
+              );
+            },
+            onAddCallback:
+                canAdd
+                    ? () {
+                      goRouter.pushNamed(
+                        AppRoutes.addPayment,
+                        queryParameters: {
+                          'rent': Uri.encodeComponent(
+                            EncryptionManager.encryptData(
+                              jsonEncode(widget.rentModel.toJson()),
                             ),
-                            'totalAmount': widget.totalAmount.toString(),
-                            'paidAmount':
-                                _temporaryAlternateAccommodationCubit
-                                    .paidAmountForSummary
-                                    ?.toString(),
-                            'previousRoute': AppRoutes.viewSummary,
-                            'buildingName': widget.buildingName.toString(),
-                          },
-                        );
-                      },
-              onExportCallback:
-                  !_canExport.value
-                      ? null
-                      : (value) {
-                        _temporaryAlternateAccommodationCubit
-                            .exportExcelPdfForPaymentLedger(
-                              context,
-                              value,
-                              projectId: widget.rentModel.projectId,
-                              buildingId: widget.rentModel.buildingId,
-                              tenantId: widget.rentModel.tenantId,
-                              tenantApplicantId:
-                                  widget.rentModel.tenantApplicantId,
-                            );
-                      },
-            ),
-            body: BlocBuilder<
-              TemporaryAlternateAccommodationCubit,
-              TemporaryAlternateAccommodationState
-            >(
-              builder: (context, state) {
-                if (state.isLoading == true &&
-                    (state.paymentLedgerList ?? []).isEmpty) {
-                  return Center(child: loader());
-                }
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
-                    spacing: 12,
-                    children: [
-                      Column(
-                        spacing: 8,
-                        children: [
-                          showSiteSelectedWidget(
-                            projectName: getProject().projectName,
                           ),
-                          Row(
-                            spacing: 8,
-                            children: [
-                              Icon(
-                                LucideIcons.building2,
-                                color: AppColor.darkBlue,
-                                size: 18,
-                              ),
-                              Text(
-                                toTitleCase(widget.buildingName),
-                                style: AppTextStyle.ts14M(color: AppColor.grey),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      infoCard([
-                        {
-                          "title": "Flat Number",
-                          "value": widget.rentModel.flatNumber,
-                        },
-                        {
-                          "title": "Applicant Name",
-                          "value": widget.rentModel.applicantName,
-                        },
-                        {"title": "Tenure", "value": widget.rentModel.tenure},
-                        {
-                          "title": "Charge Type",
-                          "value":
-                              context
-                                  .read<TemporaryAlternateAccommodationCubit>()
-                                  .state
-                                  .chargeType,
-                        },
-                        {
-                          "title": "Carpet Area (SqFt)",
-                          "value":
-                              '${widget.rentModel.flatCarpetAreaSqFt.addCommas()} SqFt',
-                        },
-                        {
-                          "title": "Unit Type",
-                          "value": widget.rentModel.flatType,
-                        },
-                        {
-                          "title": "Total Amount",
-                          "value": widget.totalAmount.toIndianCurrency(),
-                        },
-                        {
-                          "title": "Paid Total Amount",
-                          "value":
+                          'totalAmount': widget.totalAmount.toString(),
+                          'paidAmount':
                               _temporaryAlternateAccommodationCubit
                                   .paidAmountForSummary
-                                  ?.toIndianCurrency(),
+                                  ?.toString(),
+                          'previousRoute': AppRoutes.viewSummary,
+                          'buildingName': widget.buildingName.toString(),
                         },
-                      ]),
-                      Expanded(
-                        child: BlocBuilder<
-                          TemporaryAlternateAccommodationCubit,
-                          TemporaryAlternateAccommodationState
-                        >(
-                          bloc: _temporaryAlternateAccommodationCubit,
-                          buildWhen:
-                              (previous, current) =>
-                                  previous.paymentLedgerList !=
-                                      current.paymentLedgerList ||
-                                  previous.isLoading != current.isLoading,
-                          builder: (context, state) {
-                            final list = state.paymentLedgerList ?? [];
-                            if (list.isEmpty) {
-                              return Container(
-                                decoration: commonCardDecoration(),
-                                child: Center(child: noDataWidget()),
-                              );
-                            }
-                            return RefreshIndicator(
-                              onRefresh: () async => _loadPaymentLedger(),
-                              child: ListView.builder(
-                                itemCount: list.length,
-                                itemBuilder: (context, index) {
-                                  return _paymentLedgerCard(
-                                    list[index],
-                                    state,
-                                    index,
-                                  );
-                                },
-                              ),
-                            );
-                          },
+                      );
+                    }
+                    : null,
+            onExportCallback: (value) {
+              _temporaryAlternateAccommodationCubit
+                  .exportExcelPdfForPaymentLedger(
+                    context,
+                    value,
+                    projectId: widget.rentModel.projectId,
+                    buildingId: widget.rentModel.buildingId,
+                    tenantId: widget.rentModel.tenantId,
+                    tenantApplicantId: widget.rentModel.tenantApplicantId,
+                  );
+            },
+          ),
+          body: BlocBuilder<
+            TemporaryAlternateAccommodationCubit,
+            TemporaryAlternateAccommodationState
+          >(
+            builder: (context, state) {
+              if (state.isLoading == true &&
+                  (state.paymentLedgerList ?? []).isEmpty) {
+                return Center(child: loader());
+              }
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  spacing: 12,
+                  children: [
+                    Column(
+                      spacing: 8,
+                      children: [
+                        showSiteSelectedWidget(
+                          projectName: getProject().projectName,
                         ),
+                        Row(
+                          spacing: 8,
+                          children: [
+                            Icon(
+                              LucideIcons.building2,
+                              color: AppColor.darkBlue,
+                              size: 18,
+                            ),
+                            Text(
+                              toTitleCase(widget.buildingName),
+                              style: AppTextStyle.ts14M(color: AppColor.grey),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: BlocBuilder<
+                        TemporaryAlternateAccommodationCubit,
+                        TemporaryAlternateAccommodationState
+                      >(
+                        bloc: _temporaryAlternateAccommodationCubit,
+                        buildWhen:
+                            (previous, current) =>
+                                previous.paymentLedgerList !=
+                                    current.paymentLedgerList ||
+                                previous.isLoading != current.isLoading,
+                        builder: (context, state) {
+                          final list = state.paymentLedgerList ?? [];
+                          return RefreshIndicator(
+                            onRefresh: () async => _loadPaymentLedger(),
+                            child: CustomScrollView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              slivers: [
+                                SliverToBoxAdapter(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 12.h),
+                                    child: infoCard([
+                                      {
+                                        "title": "Flat Number",
+                                        "value": widget.rentModel.flatNumber,
+                                      },
+                                      {
+                                        "title": "Applicant Name",
+                                        "value": widget.rentModel.applicantName,
+                                      },
+                                      {
+                                        "title": "Tenure",
+                                        "value": widget.rentModel.tenure,
+                                      },
+                                      {
+                                        "title": "Charge Type",
+                                        "value": state.chargeType,
+                                      },
+                                      {
+                                        "title": "Carpet Area (SqFt)",
+                                        "value":
+                                            '${widget.rentModel.flatCarpetAreaSqFt.addCommas()} SqFt',
+                                      },
+                                      {
+                                        "title": "Unit Type",
+                                        "value": widget.rentModel.flatType,
+                                      },
+                                      {
+                                        "title": "Total Amount",
+                                        "value":
+                                            widget.totalAmount
+                                                .toIndianCurrency(),
+                                      },
+                                      {
+                                        "title": "Paid Total Amount",
+                                        "value":
+                                            _temporaryAlternateAccommodationCubit
+                                                .paidAmountForSummary
+                                                ?.toIndianCurrency(),
+                                      },
+                                    ]),
+                                  ),
+                                ),
+                                if (list.isEmpty)
+                                  SliverFillRemaining(
+                                    hasScrollBody: false,
+                                    child: Container(
+                                      margin: EdgeInsets.only(bottom: 10.h),
+                                      width: double.infinity,
+                                      decoration: commonCardDecoration(),
+                                      child: Center(child: noDataWidget()),
+                                    ),
+                                  )
+                                else
+                                  SliverList.builder(
+                                    itemCount: list.length,
+                                    itemBuilder:
+                                        (context, i) => _paymentLedgerCard(
+                                          list[i],
+                                          state,
+                                          i,
+                                        ),
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
                       ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 

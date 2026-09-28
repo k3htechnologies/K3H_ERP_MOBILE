@@ -339,13 +339,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   ],
                 ),
               ),
-              buildColumnTitleValue(
-                title: "Approval Status",
-                value: document.projectDocumentApprovalStatus,
-                customValueWidget: approvalStatusWidget(
-                  document.projectDocumentApprovalStatus,
-                ),
-              ),
             ],
           ),
           Row(

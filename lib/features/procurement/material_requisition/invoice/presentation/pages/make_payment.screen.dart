@@ -477,7 +477,10 @@ class _MakePaymentScreenState extends State<MakePaymentScreen> {
                           verticalSpacing(),
                           ApproveRejectWidget(
                             isActionAlreadyPerformed: isActionCompleted,
-                            actionTitle: approvalStatus,
+                            actionTitle:
+                                invoice.invoiceStatus.isEmpty
+                                    ? "Pending"
+                                    : invoice.invoiceStatus,
                             showApproval: invoice.isApproval,
                             onApprove: (remark) async {
                               final isSuccess = await context

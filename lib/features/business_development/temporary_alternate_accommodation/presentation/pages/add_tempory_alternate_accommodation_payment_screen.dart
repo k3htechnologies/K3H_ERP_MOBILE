@@ -269,37 +269,6 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                 ),
               ],
             ),
-            infoCard([
-              {"title": "Flat Number", "value": widget.rentModel.flatNumber},
-              {
-                "title": "Applicant Name",
-                "value": widget.rentModel.applicantName,
-              },
-              {"title": "Tenure", "value": widget.rentModel.tenure},
-              {
-                "title": "Charge Type",
-                "value": _temporaryAlternateAccommodationCubit.state.chargeType,
-              },
-              {
-                "title": "Carpet Area (SqFt)",
-                "value":
-                    '${widget.rentModel.flatCarpetAreaSqFt.addCommas()} SqFt',
-              },
-              {"title": "Unit Type", "value": widget.rentModel.flatType},
-              {
-                "title": "Total Amount",
-                "value": widget.totalAmount.toIndianCurrency(),
-              },
-              {
-                "title": "Paid Total Amount",
-                "value":
-                    _isEditMode
-                        ? _temporaryAlternateAccommodationCubit
-                            .paidAmountForSummary
-                            ?.toIndianCurrency()
-                        : widget.paidAmount?.toIndianCurrency(),
-              },
-            ]),
 
             Expanded(
               child: SingleChildScrollView(
@@ -308,6 +277,46 @@ class _AddTemporaryAlternateAccommodationPaymentScreenState
                   child: Column(
                     spacing: 16,
                     children: [
+                      infoCard([
+                        {
+                          "title": "Flat Number",
+                          "value": widget.rentModel.flatNumber,
+                        },
+                        {
+                          "title": "Applicant Name",
+                          "value": widget.rentModel.applicantName,
+                        },
+                        {"title": "Tenure", "value": widget.rentModel.tenure},
+                        {
+                          "title": "Charge Type",
+                          "value":
+                              _temporaryAlternateAccommodationCubit
+                                  .state
+                                  .chargeType,
+                        },
+                        {
+                          "title": "Carpet Area (SqFt)",
+                          "value":
+                              '${widget.rentModel.flatCarpetAreaSqFt.addCommas()} SqFt',
+                        },
+                        {
+                          "title": "Unit Type",
+                          "value": widget.rentModel.flatType,
+                        },
+                        {
+                          "title": "Total Amount",
+                          "value": widget.totalAmount.toIndianCurrency(),
+                        },
+                        {
+                          "title": "Paid Total Amount",
+                          "value":
+                              _isEditMode
+                                  ? _temporaryAlternateAccommodationCubit
+                                      .paidAmountForSummary
+                                      ?.toIndianCurrency()
+                                  : widget.paidAmount?.toIndianCurrency(),
+                        },
+                      ]),
                       _card('Payment Details (Payee)', [
                         CustomTextField(
                           title: "Account Holder Name",

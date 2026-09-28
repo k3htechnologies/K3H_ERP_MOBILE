@@ -201,15 +201,11 @@ class _ProposedPlansScreenState extends State<ProposedPlansScreen>
                 }
                 final count = int.parse(_buildingCountC.text);
                 final plans = _proposedPlansCubit.state.proposedPlansList;
-                final buildingIndex = _buildingTabController.index;
                 final proposedOfferProposedPlanId =
-                    plans.isNotEmpty && buildingIndex < plans.length
-                        ? plans[buildingIndex].proposedOfferProposedPlanId
+                    plans.isNotEmpty
+                        ? plans.first.proposedOfferProposedPlanId
                         : 0;
-                final uniquekey =
-                    plans.isNotEmpty && buildingIndex < plans.length
-                        ? plans[buildingIndex].uniquekey
-                        : "";
+                final uniquekey = plans.isNotEmpty ? plans.first.uniquekey : "";
                 _proposedPlansCubit.addUpdateBuilding(
                   context: context,
                   proposedOfferProposedPlanId: proposedOfferProposedPlanId,

@@ -119,7 +119,6 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
         text: isEditMode ? "Update" : "Add",
         onPressed: () async {
           if (!formKey.currentState!.validate()) return;
-        // TODO: 
           bool success;
           if (!isEditMode) {
             success = await _buildingCubit.addBuildingParentDocument(
@@ -139,8 +138,8 @@ class _BuildingDocumentViewState extends State<BuildingDocumentView> {
               index: index!,
             );
           }
-          if (!mounted & success) return;
-          _newDocumentTitleController.clear();
+          if (!mounted) return;
+          if (success) _newDocumentTitleController.clear();
         },
       ),
     );

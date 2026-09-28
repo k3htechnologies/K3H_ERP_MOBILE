@@ -490,7 +490,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     validator: (fileList) {
                       if (_aadharC.text.trim().isNotEmpty &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Aadhaar Card document is required.";
+                        return "Aadhaar Card Document is required.";
                       }
                       return null;
                     },
@@ -535,7 +535,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     validator: (fileList) {
                       if (_panC.text.trim().isNotEmpty &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "PAN Card document is required.";
+                        return "PAN Card Document is required.";
                       }
                       return null;
                     },
@@ -547,17 +547,13 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     inputFormatterList:
                         InputValidator.passportInputFormatters(),
                     validator: (value) {
-                      if (passportFile.fileNameList.isNotEmpty) {
-                        if (value == null || value.isEmpty) {
-                          return "Passport Number is required.";
-                        }
+                      if (passportFile.fileNameList.isNotEmpty &&
+                          (value == null || value.isEmpty)) {
+                        return "Passport Number is required.";
+                      }
+
+                      if (value != null && value.isNotEmpty) {
                         if (!InputValidator.isValidPassport(value)) {
-                          return "Passport Number is invalid";
-                        }
-                      } else {
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            !InputValidator.isValidPassport(value)) {
                           return "Passport Number is invalid";
                         }
                       }
@@ -583,12 +579,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       passportFile.deletedFileList = deleted;
                     },
                     validator: (fileList) {
-                      if (_passportC.text.isNotEmpty &&
-                          InputValidator.isValidPassport(
-                            _passportC.text.trim(),
-                          ) &&
+                      if (_passportC.text.trim().isNotEmpty &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Passport document is required.";
+                        return "Passport Document is required.";
                       }
                       return null;
                     },
@@ -600,17 +593,13 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     inputFormatterList:
                         InputValidator.drivingLicenceInputFormatters(),
                     validator: (value) {
-                      if (drivingLicenseFile.fileNameList.isNotEmpty) {
-                        if (value == null || value.isEmpty) {
-                          return "Driving License Number is required.";
-                        }
+                      if (drivingLicenseFile.fileNameList.isNotEmpty &&
+                          (value == null || value.isEmpty)) {
+                        return "Driving License Number is required.";
+                      }
+
+                      if (value != null && value.isNotEmpty) {
                         if (!InputValidator.isValidDrivingLicence(value)) {
-                          return "Driving License Number invalid";
-                        }
-                      } else {
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            !InputValidator.isValidDrivingLicence(value)) {
                           return "Driving License Number is invalid";
                         }
                       }
@@ -636,12 +625,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       drivingLicenseFile.deletedFileList = deleted;
                     },
                     validator: (fileList) {
-                      if (_drivingLicenseC.text.isNotEmpty &&
-                          InputValidator.isValidDrivingLicence(
-                            _drivingLicenseC.text.trim(),
-                          ) &&
+                      if (_drivingLicenseC.text.trim().isNotEmpty &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Driving License document is required.";
+                        return "Driving License Document is required.";
                       }
                       return null;
                     },
@@ -652,18 +638,14 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     hint: "Enter Voting ID Number",
                     inputFormatterList: InputValidator.voterIdInputFormatters(),
                     validator: (value) {
-                      if (votingIdFile.fileNameList.isNotEmpty) {
-                        if (value == null || value.isEmpty) {
-                          return "Voting ID is required.";
-                        }
+                      if (votingIdFile.fileNameList.isNotEmpty &&
+                          (value == null || value.isEmpty)) {
+                        return "Voting ID Number is required.";
+                      }
+
+                      if (value != null && value.isNotEmpty) {
                         if (!InputValidator.isValidVoterId(value)) {
-                          return "Voting ID is invalid";
-                        }
-                      } else {
-                        if (value != null &&
-                            value.isNotEmpty &&
-                            !InputValidator.isValidVoterId(value)) {
-                          return "Voting ID is invalid";
+                          return "Voting ID  Number is invalid";
                         }
                       }
                       return null;
@@ -688,12 +670,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       votingIdFile.deletedFileList = deleted;
                     },
                     validator: (fileList) {
-                      if (_votingIdC.text.isNotEmpty &&
-                          InputValidator.isValidVoterId(
-                            _votingIdC.text.trim(),
-                          ) &&
+                      if (_votingIdC.text.trim().isNotEmpty &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "Voting ID document is required.";
+                        return "Voting ID Document is required.";
                       }
                       return null;
                     },
@@ -704,9 +683,8 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                     hint: "Enter GST Number",
                     inputFormatterList: InputValidator.gstInputFormatters(),
                     validator: (value) {
-                      final hasFile = gstFile.fileNameList.isNotEmpty;
-
-                      if (hasFile && (value == null || value.isEmpty)) {
+                      if (gstFile.fileNameList.isNotEmpty &&
+                          (value == null || value.isEmpty)) {
                         return "GST Number is required.";
                       }
 
@@ -737,10 +715,9 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
                       gstFile.deletedFileList = deleted;
                     },
                     validator: (fileList) {
-                      if (_gstC.text.isNotEmpty &&
-                          InputValidator.isValidGST(_gstC.text.trim()) &&
+                      if (_gstC.text.trim().isNotEmpty &&
                           (fileList == null || fileList.isEmpty)) {
-                        return "GST Certificate document is required.";
+                        return "GST Certificate Document is required.";
                       }
                       return null;
                     },

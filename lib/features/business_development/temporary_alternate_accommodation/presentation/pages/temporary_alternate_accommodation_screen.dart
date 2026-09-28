@@ -815,7 +815,7 @@ class _TemporaryAlternateAccommodationScreenState
                   if (!isHardshipOrShifting)
                     buildColumnTitleValue(
                       title: 'Total',
-                      value: tenantRecord.amount.toIndianCurrency(),
+                      value: totalAmount.toIndianCurrency(),
                     ),
                 ],
               ),

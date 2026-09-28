@@ -18,6 +18,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class TemporaryAccommodationAlternativeDetails extends StatefulWidget {
   final int projectId;
@@ -98,8 +99,11 @@ class _TemporaryAccommodationAlternativeDetailsState
       context: context,
       title: 'Are sure you want generate TAA?',
       message:
-          'Once the Temporary Accommodation Alternative is generated, it cannot be deleted',
+          'Once the Temporary Alternate Accommodation is generated, it cannot be deleted',
       confirmText: "Generate",
+      icon: LucideIcons.wandSparkles,
+      iconSize: 28,
+      crossAxisAlignmentForIcon: CrossAxisAlignment.center,
     );
     if (generatePdf && mounted) {
       _cubit.generateProposedOffer(
@@ -267,7 +271,7 @@ class _TemporaryAccommodationAlternativeDetailsState
               children: [
                 Expanded(
                   child: Text(
-                    'Temporary Alternative Accommodation List',
+                    'Temporary Alternate Accommodation List',
                     style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
                 ),

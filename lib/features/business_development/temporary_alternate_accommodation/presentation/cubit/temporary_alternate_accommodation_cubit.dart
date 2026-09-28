@@ -566,7 +566,11 @@ class TemporaryAlternateAccommodationCubit
           updatedList[index] = updatedPaymentLedger;
 
           emit(
-            state.copyWith(isLoading: false, paymentLedgerList: updatedList),
+            state.copyWith(
+              isLoading: false,
+              paymentLedgerList: updatedList,
+              fullPaymentLedgerList: updatedList,
+            ),
           );
         }
 
@@ -575,7 +579,7 @@ class TemporaryAlternateAccommodationCubit
     );
   }
 
-  double? get paidAmountForSummary => state.paymentLedgerList?.fold<double>(
+  double? get paidAmountForSummary => state.fullPaymentLedgerList?.fold<double>(
     0.0,
     (sum, p) => sum + (p.payAmount),
   );
@@ -632,7 +636,16 @@ class TemporaryAlternateAccommodationCubit
         final List<PaymentLedgerModel> rawData = List<PaymentLedgerModel>.from(
           response['data'] ?? [],
         );
-        emit(state.copyWith(isLoading: false, paymentLedgerList: rawData));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            paymentLedgerList: rawData,
+            fullPaymentLedgerList:
+                state.paymentLedgerSearchText.trim().isEmpty
+                    ? rawData
+                    : state.fullPaymentLedgerList,
+          ),
+        );
       },
     );
   }
@@ -670,7 +683,13 @@ class TemporaryAlternateAccommodationCubit
           state.paymentLedgerList ?? [],
         );
         updatedList.removeAt(index!);
-        emit(state.copyWith(paymentLedgerList: updatedList, isLoading: false));
+        emit(
+          state.copyWith(
+            paymentLedgerList: updatedList,
+            isLoading: false,
+            fullPaymentLedgerList: updatedList,
+          ),
+        );
       },
     );
   }
@@ -766,6 +785,10 @@ class TemporaryAlternateAccommodationCubit
     required int tenantId,
     required int tenantApplicantId,
   }) async {
+    if (state.paymentLedgerList == null || state.paymentLedgerList!.isEmpty) {
+      showErrorMessage(context, 'Error', 'No Data Found');
+      return;
+    }
     DialogHelper.showProcessingOverlay(context);
     var result = await _temporaryAlternateAccommodationRepository
         .getPayTrackRentLedgerListForExport(

@@ -367,7 +367,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
         goRouter.pop();
 
         emit(state.copyWith(approvedBankFileList: updatedList));
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

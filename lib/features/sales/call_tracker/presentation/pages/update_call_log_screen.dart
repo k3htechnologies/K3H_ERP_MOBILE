@@ -71,7 +71,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
       );
       if (reqDisplay == "Residential") {
         _selectedResidentialTypeNotifier.value = findItem(
-          residentialType,
+          residentialFlatConfigList,
           callLog.requirementType,
         );
       } else if (reqDisplay == "Commercial") {
@@ -247,7 +247,7 @@ class _UpdateCallLogScreenState extends State<UpdateCallLogScreen> {
                           final reqVal =
                               selectedRequirement["DisplayName"] ?? "";
                           if (reqVal == "Residential") {
-                            dependentList = residentialType;
+                            dependentList = residentialFlatConfigList;
                           } else if (reqVal == "Commercial") {
                             dependentList = commercialUnitTypeList;
                           } else if (reqVal == "Commercial Leasing") {

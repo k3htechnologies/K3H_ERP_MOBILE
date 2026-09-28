@@ -35,7 +35,7 @@ const occupationTypeValues = [
 
 const sourceTypeValues = ['Channel Partner', 'Direct Walkin'];
 
-const residentialTypeValues = [
+const residentialFlatConfigTypeValues = [
   '1 RK',
   '1 BHK',
   '2 BHK',
@@ -250,23 +250,6 @@ const flatTypeValues = [
   'SRA',
   'Upashray',
   'Void',
-];
-
-const residentialFlatValues = [
-  '1 RK',
-  '1 BHK',
-  '2 BHK',
-  '3 BHK',
-  '4 BHK',
-  '5 BHK',
-  '6 BHK',
-  '7 BHK',
-  '8 BHK',
-  '1 + 1 JODI',
-  '2 + 1 JODI',
-  '2 + 2 JODI',
-  '2 + 3 JODI',
-  'PENTHOUSE',
 ];
 
 const commercialFlatValues = ['OFFICE', 'SHOP'];

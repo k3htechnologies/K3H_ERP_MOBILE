@@ -2731,6 +2731,7 @@ final GoRouter goRouter = GoRouter(
 
                 final double totalAmount =
                     double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+
                 final buildingName =
                     state.uri.queryParameters['buildingName'] ?? '';
 

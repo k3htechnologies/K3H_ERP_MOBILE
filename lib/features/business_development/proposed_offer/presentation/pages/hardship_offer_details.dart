@@ -324,7 +324,7 @@ class _HardshipDetailsState extends State<HardshipDetails> {
                                   readOnly: disableAction,
                                   hint: "Enter Remark",
                                   textController: _remarkC,
-                                  maxLines: 3,
+                                  maxLines: 10,
                                   minLines: 3,
                                 ),
                               ],

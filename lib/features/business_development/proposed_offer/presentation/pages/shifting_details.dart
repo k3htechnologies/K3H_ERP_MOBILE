@@ -177,13 +177,13 @@ class _ShiftingDetailsState extends State<ShiftingDetails> {
         return;
       }
       double percentage = double.tryParse(_stagePercentageController.text) ?? 0;
-      if (_selectedShiftingType.value?['zAttributesId'] == 1) {
+      if (_selectedShiftingType.value?['DisplayName'] == 'Residential') {
         _amountC.text =
             ((double.tryParse(_residentialAmountC.text) ?? 0) *
                     percentage /
                     100)
                 .toString();
-      } else if (_selectedShiftingType.value?['zAttributesId'] == 2) {
+      } else if (_selectedShiftingType.value?['DisplayName'] == 'Commercial') {
         _amountC.text =
             ((double.tryParse(_commercialAmountC.text) ?? 0) * percentage / 100)
                 .toString();

@@ -2,6 +2,7 @@ part of 'temporary_alternate_accommodation_cubit.dart';
 
 class TemporaryAlternateAccommodationState extends BaseState {
   final List<PaymentLedgerModel>? paymentLedgerList;
+  final List<PaymentLedgerModel>? fullPaymentLedgerList;
   final List<TemporaryAlternativeAccommodationModel> rentList;
   final int totalNumberOfRecord;
   final int currentPage;
@@ -18,6 +19,7 @@ class TemporaryAlternateAccommodationState extends BaseState {
   const TemporaryAlternateAccommodationState({
     super.isLoading,
     required this.paymentLedgerList,
+    required this.fullPaymentLedgerList,
     required this.rentList,
     required this.totalNumberOfRecord,
     required this.currentPage,
@@ -36,6 +38,7 @@ class TemporaryAlternateAccommodationState extends BaseState {
       TemporaryAlternateAccommodationState(
         isLoading: true,
         paymentLedgerList: [],
+        fullPaymentLedgerList: [],
         rentList: [],
         totalNumberOfRecord: 0,
         currentPage: 1,
@@ -54,6 +57,7 @@ class TemporaryAlternateAccommodationState extends BaseState {
   TemporaryAlternateAccommodationState copyWith({
     bool? isLoading,
     List<PaymentLedgerModel>? paymentLedgerList,
+    List<PaymentLedgerModel>? fullPaymentLedgerList,
     List<TemporaryAlternativeAccommodationDetailsModel>? rentDetails,
     List<TemporaryAlternativeAccommodationModel>? rentList,
     int? totalNumberOfRecord,
@@ -72,6 +76,8 @@ class TemporaryAlternateAccommodationState extends BaseState {
     return TemporaryAlternateAccommodationState(
       isLoading: isLoading ?? this.isLoading,
       paymentLedgerList: paymentLedgerList ?? this.paymentLedgerList,
+      fullPaymentLedgerList:
+          fullPaymentLedgerList ?? this.fullPaymentLedgerList,
       rentList: rentList ?? this.rentList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
@@ -95,6 +101,7 @@ class TemporaryAlternateAccommodationState extends BaseState {
   List<Object?> get props => [
     isLoading,
     paymentLedgerList,
+    fullPaymentLedgerList,
     rentList,
     totalNumberOfRecord,
     currentPage,

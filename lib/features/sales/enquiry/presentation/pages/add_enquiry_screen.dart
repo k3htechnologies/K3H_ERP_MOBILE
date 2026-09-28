@@ -441,7 +441,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
       );
       if (reqDisplay == "Residential") {
         _selectedResidentialTypeNotifier.value = findItem(
-          residentialType,
+          residentialFlatConfigList,
           model.requirementType,
         );
       } else if (reqDisplay == "Commercial") {
@@ -2273,7 +2273,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
           if (selectedRequirement != null) {
             final reqVal = selectedRequirement["DisplayName"] ?? "";
             if (reqVal == "Residential") {
-              dependentList = residentialType;
+              dependentList = residentialFlatConfigList;
             } else if (reqVal == "Commercial") {
               dependentList = commercialUnitTypeList;
             } else if (reqVal == "Commercial Leasing") {
@@ -2541,7 +2541,7 @@ class _AddEnquiryScreenState extends State<AddEnquiryScreen> {
         textController: _remarkC,
         hint: "Enter Remark",
         minLines: 3,
-        maxLines: 3,
+        maxLines: 10,
       ),
     ]);
   }

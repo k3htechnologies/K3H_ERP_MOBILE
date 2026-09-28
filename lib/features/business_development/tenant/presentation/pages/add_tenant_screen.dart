@@ -122,7 +122,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     );
     final isResidential =
         tenant.inventoryFlatType.toLowerCase() == 'residential';
-    final configList = isResidential ? residentialFlatList : commercialFlatList;
+    final configList =
+        isResidential ? residentialFlatConfigList : commercialFlatConfigList;
     final configMatch =
         tenant.unitConfiguration.trim().isEmpty
             ? null
@@ -569,7 +570,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                       ),
                                       title: 'Unit Configuration',
                                       hintText: "Select Unit Configuration",
-                                      dataList: residentialFlatList,
+                                      dataList: residentialFlatConfigList,
                                       initialValue: configValue,
                                       onSelected: (selectedValue) {
                                         selectedFlatConfiguration.value =
@@ -595,7 +596,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                       ),
                                       title: 'Unit Configuration',
                                       hintText: "Select Unit Configuration",
-                                      dataList: commercialFlatList,
+                                      dataList: commercialFlatConfigList,
                                       initialValue: configValue,
                                       onSelected: (selectedValue) {
                                         selectedFlatConfiguration.value =
@@ -613,7 +614,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             },
                           ),
                           CustomTextField(
-                            title: 'Unit Carpet Area SqFt',
+                            title: 'Unit Carpet Area (SqFt)',
                             hint: "Enter Unit Carpet Area",
                             isRequired: true,
                             textController: _flatCarpetAreaC,

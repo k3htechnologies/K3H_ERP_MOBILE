@@ -1731,7 +1731,7 @@ class ProposedOfferCubit extends Cubit<ProposedOfferState> {
     });
 
     if (list.any((e) => e.tenure.isEmpty)) {
-      tenures.add("Additional TAA"); // always last
+      tenures.insert(0, "Additional TAA"); // always last
     }
     return tenures;
   }

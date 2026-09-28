@@ -53,7 +53,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
     "Carpet / Plot Area",
     "Extra Carpet Area",
     "Hardship Offer Details",
-    "Temp Alternative Accom",
+    "Temp Alternate Accom",
     "Shifting Details",
     "GST on Existing + Free Area",
     "Parking Allotment",
@@ -124,6 +124,9 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
       title: 'Generate PDF',
       message: 'Are you sure you want to generate the PDF?',
       confirmText: "Generate",
+      icon: LucideIcons.wandSparkles,
+      iconSize: 28,
+      crossAxisAlignmentForIcon: CrossAxisAlignment.center,
     );
     if (generatePDf && mounted) {
       _proposedOfferCubit.exportPdf(

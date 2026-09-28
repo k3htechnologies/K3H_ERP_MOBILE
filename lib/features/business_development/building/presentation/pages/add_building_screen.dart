@@ -535,20 +535,20 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                             ),
                             CustomTextField(
                               textController: _googleLocationC,
-                              title: "Google Location",
+                              title: "Google Location Link",
                               isRequired: true,
-                              hint: "Enter Google Location",
-                              prefixType: CustomTextFieldPrefix.location,
+                              hint: "Enter Google Location Link",
+                              minLines: 3,
+                              maxLines: 10,
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
                                   return "Google Location is required.";
                                 }
-                                final googleMapRegex = RegExp(
-                                  r'^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps(\?|\/)|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps|share\.google)\/?.*$',
-                                  caseSensitive: false,
-                                );
-                                if (!googleMapRegex.hasMatch(value.trim())) {
-                                  return "Please enter a valid Google Maps location link";
+
+                                if (!InputValidator.isValidGoogleMapUrl(
+                                  value.trim(),
+                                )) {
+                                  return "Enter a valid Google Location";
                                 }
                                 return null;
                               },
@@ -810,7 +810,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                                   _tenderAmountPayOrderRemarkC,
                                               hint: "Enter Payorder Remark",
                                               minLines: 3,
-                                              maxLines: 3,
+                                              maxLines: 10,
                                             ),
                                           ],
                                         );
@@ -956,7 +956,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                                   _tenderEmdPayOrderRemarkC,
                                               hint: "Enter Payorder Remark",
                                               minLines: 3,
-                                              maxLines: 3,
+                                              maxLines: 10,
                                             ),
                                           ],
                                         );
@@ -1202,9 +1202,10 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                                       readOnly: !isLitigation,
                                       hint: 'Enter Litigation Remarks',
                                       minLines: 3,
-                                      maxLines: 3,
-                                      inputFormatterList:
-                                          InputValidator.textDigit(500),
+                                      maxLines: 10,
+                                      inputFormatterList: [
+                                        LengthLimitingTextInputFormatter(500),
+                                      ],
                                       validator: (value) {
                                         if (isLitigation) {
                                           if ((value == null ||

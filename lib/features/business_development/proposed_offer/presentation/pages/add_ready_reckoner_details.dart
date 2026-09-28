@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AddReadyReckonerDetails extends StatefulWidget {
   final ReadyReckonerRateDetailsModel? readyReckonerRateDetails;
@@ -196,9 +197,15 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
           spacing: 12,
           children: [
             showSiteSelectedWidget(projectName: getProject().projectName),
-            Text(
-              toTitleCase(widget.buildingName),
-              style: AppTextStyle.ts14M(color: AppColor.grey),
+            Row(
+              spacing: 8,
+              children: [
+                Icon(LucideIcons.building2, color: AppColor.darkBlue, size: 18),
+                Text(
+                  toTitleCase(widget.buildingName),
+                  style: AppTextStyle.ts14M(color: AppColor.grey),
+                ),
+              ],
             ),
             Expanded(
               child: SingleChildScrollView(
@@ -317,7 +324,7 @@ class _AddReadyReckonerDetailsState extends State<AddReadyReckonerDetails> {
                           textController: _remarkController,
                           hint: "Enter Remark",
                           minLines: 3,
-                          maxLines: 3,
+                          maxLines: 10,
                         ),
                       ],
                     ),

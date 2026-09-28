@@ -524,15 +524,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                             (invoice.invoiceAmount - invoice.paymentAmount)
                                 .toIndianCurrency(),
                       ),
-                      buildRowTitleValue(
-                        fixesWidth: 100.w,
-                        title: "Approval Status",
-                        value: invoice.approvalStatus,
-                        customValueWidget: approvalStatusWidget(
-                          invoice.approvalStatus,
-                          textStyle: AppTextStyle.ts12M(),
-                        ),
-                      ),
                       invoice.approvalStatus.toLowerCase() == 'approved'
                           ? Row(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -571,7 +562,9 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                           : ApproveRejectWidget(
                             isActionAlreadyPerformed: isActionAlreadyPerformed,
                             actionTitle:
-                                invoice.isApproval ? "Approval" : "History",
+                                invoice.approvalStatus.isEmpty
+                                    ? "Pending"
+                                    : invoice.approvalStatus,
                             showApproval: invoice.isApproval,
                             onApprove: (remark) async {
                               final isSuccess = await _utilsCubit
@@ -829,7 +822,10 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
         if (invoice.approvalStatus.toLowerCase().contains('approved'))
           ApproveRejectWidget(
             isActionAlreadyPerformed: true,
-            actionTitle: invoice.isApproval ? "Approval" : "History",
+            actionTitle:
+                invoice.approvalStatus.isEmpty
+                    ? "Pending"
+                    : invoice.approvalStatus,
             showApproval: invoice.isApproval,
             onApprove: (remark) async {
               final isSuccess = await _utilsCubit.updateModulesWorkflowApproval(

@@ -166,7 +166,7 @@ class _AddCallingDataScreenState extends State<AddCallingDataScreen> {
                       title: 'Address',
                       hint: 'Enter Address',
                       minLines: 3,
-                      maxLines: 3,
+                      maxLines: 10,
                     ),
                     ValueListenableBuilder(
                       valueListenable: _selectedSource,

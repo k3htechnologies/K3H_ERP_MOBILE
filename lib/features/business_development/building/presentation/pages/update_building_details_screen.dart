@@ -189,14 +189,14 @@ class _UpdateBuildingDetailsScreenState
         context: context,
         buildingId: widget.buildingDetailsModel.buildingId,
         projectId: _project.projectId,
-        grossPlotAreaSqFt: double.tryParse(_grossPlotAreaC.text) ?? 0.0,
-        plotAreaPhysicalSurveySqFt:
+        grossPlotAreaSqMt: double.tryParse(_grossPlotAreaC.text) ?? 0.0,
+        plotAreaPhysicalSurveySqMt:
             double.tryParse(_plotAreaPhysicalSurveyC.text) ?? 0.0,
-        plotAreaOldApprovedPlanSqFt:
+        plotAreaOldApprovedPlanSqMt:
             double.tryParse(_plotAreaOldApprovedPlanC.text) ?? 0.0,
-        plotAreaConveyanceSqFt:
+        plotAreaConveyanceSqMt:
             double.tryParse(_plotAreaConveyanceC.text) ?? 0.0,
-        plotAreaPRCardSqFt: double.tryParse(_plotAreaPRCardC.text) ?? 0.0,
+        plotAreaPRCardSqMt: double.tryParse(_plotAreaPRCardC.text) ?? 0.0,
         totalCarpetAreaSqFt: double.tryParse(_totalCarpetAreaC.text) ?? 0.0,
         totalResidentialUnits: int.tryParse(_totalResidentialUnitsC.text) ?? 0,
         totalResidentialCarpetAreaSqFt:

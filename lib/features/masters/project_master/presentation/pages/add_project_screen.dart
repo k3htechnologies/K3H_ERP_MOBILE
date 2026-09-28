@@ -1340,25 +1340,24 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         },
                       ),
                       CustomTextField(
-                        title: 'Google Location',
+                        title: 'Google Location Link',
                         isRequired: true,
-                        prefixType: CustomTextFieldPrefix.location,
+                        minLines: 3,
+                        maxLines: 10,
                         textController: _googleLocationC,
-                        hint: "Enter Google Location",
+                        hint: "Enter Google Location Link",
                         inputFormatterList: [
                           LengthLimitingTextInputFormatter(500),
                         ],
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
-                            return "Google Location is required.";
+                            return "Google Location Link is required.";
                           }
 
-                          final googleMapRegex = RegExp(
-                            r'^(https?:\/\/)?(www\.)?(google\.com\/maps|goo\.gl\/maps|maps\.app\.goo\.gl)\/.+',
-                          );
-
-                          if (!googleMapRegex.hasMatch(value.trim())) {
-                            return "Enter a valid Google Maps link";
+                          if (!InputValidator.isValidGoogleMapUrl(
+                            value.trim(),
+                          )) {
+                            return "Enter a valid Google Location";
                           }
 
                           return null;

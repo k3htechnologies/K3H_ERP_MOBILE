@@ -94,7 +94,13 @@ class ProposedPlansCubit extends Cubit<ProposedPlansState> {
         final List<ProposedPlanBuilding> list = List<ProposedPlanBuilding>.from(
           response['data'] ?? [],
         );
-        emit(state.copyWith(isLoading: false, proposedPlansList: list));
+        emit(
+          state.copyWith(
+            isLoading: false,
+            proposedPlansList: list,
+            currentBuildingIndex: 0,
+          ),
+        );
         if (totalNumberOfBuilding == 0) {
           showSuccessMessage(
             context,

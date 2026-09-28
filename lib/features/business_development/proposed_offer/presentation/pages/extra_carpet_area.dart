@@ -212,7 +212,7 @@ class _ExtraCarpetAreaState extends State<ExtraCarpetArea> {
                           hint: "Enter Remark",
                           readOnly: disableAction,
                           textController: _remarkC,
-                          maxLines: 3,
+                          maxLines: 10,
                           minLines: 3,
                         ),
                       ],

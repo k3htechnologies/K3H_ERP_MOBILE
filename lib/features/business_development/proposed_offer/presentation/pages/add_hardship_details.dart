@@ -107,11 +107,11 @@ class _AddHardshipDetailsState extends State<AddHardshipDetails> {
       return;
     }
     double percentage = double.tryParse(_stagePercentageC.text) ?? 0;
-    if (_selectedHardshipType.value?['zAttributesId'] == 1) {
+    if (_selectedHardshipType.value?['DisplayName'] == 'Residential') {
       _amountC.text =
           ((double.tryParse(_residentialAmountC.text) ?? 0) * percentage / 100)
               .toString();
-    } else if (_selectedHardshipType.value?['zAttributesId'] == 2) {
+    } else if (_selectedHardshipType.value?['DisplayName'] == 'Commercial') {
       _amountC.text =
           ((double.tryParse(_commercialAmountC.text) ?? 0) * percentage / 100)
               .toString();

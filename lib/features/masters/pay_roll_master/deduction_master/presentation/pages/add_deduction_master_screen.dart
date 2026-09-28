@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
-import 'package:k3h_erp_app/core/models/city.model.dart';
+import 'package:k3h_erp_app/core/models/address.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_master/data/model/branch_master.model.dart';
@@ -57,7 +57,7 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
   bool get _isEditMode => widget.deductionMasterModel != null;
 
   // INITIALIZE TEXT EDITING CONTROLLERS
-  Map<int, List<CityModel>>? groupedStateData = {};
+  Map<int, List<AddressModel>>? groupedStateData = {};
   List<Map<String, dynamic>>? stateList = [];
   List<Map<String, dynamic>>? selectedStateList = [];
   // GENDER LIST
@@ -226,9 +226,9 @@ class _AddDeductionMasterScreenState extends State<AddDeductionMasterScreen> {
         pullCountryStateCityDistrictVillage,
       );
 
-      var dataList = List<CityModel>.from(
+      var dataList = List<AddressModel>.from(
         networkResponse['data']["CountryStateCityDistrictVillageData"].map(
-          (e) => CityModel.fromJson(e),
+          (e) => AddressModel.fromJson(e),
         ),
       );
 

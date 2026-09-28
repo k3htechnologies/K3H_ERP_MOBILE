@@ -15,8 +15,8 @@ class EmployeeMasterState extends BaseState {
   final List<AssetMappingModel> assetMappingList;
   final List<ShiftMappingModel> shiftManagementList;
   final List<WeekOffMappingModel> weekOffMappingList;
-  final Map<int, List<CityModel>> stateMap;
-  final Map<int, List<CityModel>> districtMap;
+  final Map<int, List<AddressModel>> stateMap;
+  final Map<int, List<AddressModel>> districtMap;
   final List<Map<String, dynamic>> stateList;
   final List<Map<String, dynamic>> districtList;
   final List<Map<String, dynamic>> cityList;
@@ -164,8 +164,8 @@ class EmployeeMasterState extends BaseState {
     List<ShiftMappingModel>? shiftManagementList,
     List<WeekOffMappingModel>? weekOffMappingList,
     bool? isAllSelected,
-    Map<int, List<CityModel>>? stateMap,
-    Map<int, List<CityModel>>? districtMap,
+    Map<int, List<AddressModel>>? stateMap,
+    Map<int, List<AddressModel>>? districtMap,
     List<Map<String, dynamic>>? stateList,
     List<Map<String, dynamic>>? districtList,
     List<Map<String, dynamic>>? cityList,
