@@ -61,6 +61,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   Map<String, dynamic>? selectedCaseType;
   Map<String, dynamic>? selectedCourtType;
   Map<String, dynamic>? _selectedProject;
+  Map<String, dynamic>? _selectedPriority;
   List<Map<String, dynamic>> projects = [];
   @override
   void initState() {
@@ -142,6 +143,10 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
       (e) => e['DisplayName'] == model.courtType,
       orElse: () => courtTypeList.first,
     );
+    _selectedPriority = priorityList.firstWhere(
+      (e) => e['DisplayName'] == model.priority,
+      orElse: () => priorityList.first,
+    );
   }
 
   // SUBMIT FORM
@@ -180,33 +185,47 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   }
 
   void _saveForm() {
-    final payload = {
-      if (_isEditMode) "Uniquekey": widget.litigationModel!.uniquekey,
-      "ProjectId": _selectedProject!['zAttributesId'],
-      "LitigationId": _isEditMode ? widget.litigationModel!.litigationId : 0,
-      "Title": _caseTitleC.text.trim(),
-      "CaseNumber": _caseNumberC.text.trim(),
-      "CaseType": selectedCaseType?['DisplayName'],
-      "CourtType": selectedCourtType?['DisplayName'],
-      "DateOfFilling": dateOfFilling!.toIso8601String(),
-      "CourtName": _courtNameC.text.trim(),
-      "CourtLocation": _courtLocationC.text.trim(),
-      "Plantiff": _plantiffC.text.trim(),
-      "Defendant": _defendantC.text.trim(),
-      "AssignedRepresentative": _assignedRepC.text.trim(),
-      "OpposingRepresentative": _opposingRepC.text.trim(),
-      "Remark": _remarkC.text.trim(),
-      "CaseBrief": _caseBriefC.text.trim(),
-    };
-
     if (_isEditMode) {
       _litigationCubit.updateLitigation(
         context: context,
         index: widget.index,
-        body: payload,
+        uniqueKey: widget.litigationModel!.uniquekey,
+        litigationId: widget.litigationModel!.litigationId,
+        projectId: _selectedProject!['zAttributesId'],
+        title: _caseTitleC.text.trim(),
+        caseNumber: _caseNumberC.text.trim(),
+        caseType: selectedCaseType?['DisplayName'],
+        courtType: selectedCourtType?['DisplayName'],
+        priority: _selectedPriority?['DisplayName'],
+        dateOfFilling: dateOfFilling!,
+        courtName: _courtNameC.text.trim(),
+        courtLocation: _courtLocationC.text.trim(),
+        plantiff: _plantiffC.text.trim(),
+        defendant: _defendantC.text.trim(),
+        assignedRepresentative: _assignedRepC.text.trim(),
+        opposingRepresentative: _opposingRepC.text.trim(),
+        remark: _remarkC.text.trim(),
+        caseBrief: _caseBriefC.text.trim(),
       );
     } else {
-      _litigationCubit.addLitigation(context: context, body: payload);
+      _litigationCubit.addLitigation(
+        context: context,
+        projectId: _selectedProject!['zAttributesId'],
+        title: _caseTitleC.text.trim(),
+        caseNumber: _caseNumberC.text.trim(),
+        caseType: selectedCaseType?['DisplayName'],
+        courtType: selectedCourtType?['DisplayName'],
+        priority: _selectedPriority?['DisplayName'],
+        dateOfFilling: dateOfFilling!,
+        courtName: _courtNameC.text.trim(),
+        courtLocation: _courtLocationC.text.trim(),
+        plantiff: _plantiffC.text.trim(),
+        defendant: _defendantC.text.trim(),
+        assignedRepresentative: _assignedRepC.text.trim(),
+        opposingRepresentative: _opposingRepC.text.trim(),
+        remark: _remarkC.text.trim(),
+        caseBrief: _caseBriefC.text.trim(),
+      );
     }
   }
 
@@ -314,7 +333,23 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
               selectedCaseType = null;
             },
           ),
-
+          CustomDropDownWidget(
+            title: "Priority",
+            hintText: "Select Priority",
+            initialValue: _selectedPriority,
+            isRequired: true,
+            dataList: priorityList,
+            onSelected: (v) => _selectedPriority = v,
+            validator: (value) {
+              if (value == null || value["zAttributesId"] == -1) {
+                return "Priority is required.";
+              }
+              return null;
+            },
+            onValueClear: () {
+              _selectedPriority = null;
+            },
+          ),
           CustomTextField(
             title: "Case / Petition / Dispute Number",
             hint: "Enter Case / Petition / Dispute Number",

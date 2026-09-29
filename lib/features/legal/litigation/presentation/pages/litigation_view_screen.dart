@@ -266,6 +266,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
 
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
                         children: [
                           buildColumnTitleValue(
                             title: "Case Type",
@@ -279,19 +280,27 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                           ),
                         ],
                       ),
-                      buildRowWrapper(
-                        child: buildColumnTitleValue(
-                          title: "Case Status",
-                          value: litigation.status,
-                          valueTextStyle: AppTextStyle.ts14B(
-                            color:
-                                (litigation.status.toLowerCase() == 'open' ||
-                                        litigation.status.toLowerCase() ==
-                                            'reopen')
-                                    ? AppColor.green
-                                    : AppColor.red,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Case Status",
+                            value: litigation.status,
+                            valueTextStyle: AppTextStyle.ts14B(
+                              color:
+                                  (litigation.status.toLowerCase() == 'open' ||
+                                          litigation.status.toLowerCase() ==
+                                              'reopen')
+                                      ? AppColor.green
+                                      : AppColor.red,
+                            ),
                           ),
-                        ),
+                          buildColumnTitleValue(
+                            title: "Priority",
+                            value: litigation.priority,
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -307,6 +316,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                     children: [
                       Text("Court Details", style: AppTextStyle.ts16SB()),
                       Row(
+                        spacing: 10,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(
@@ -320,6 +330,7 @@ class _LitigationViewScreenState extends State<LitigationViewScreen>
                         ],
                       ),
                       Row(
+                        spacing: 10,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           buildColumnTitleValue(

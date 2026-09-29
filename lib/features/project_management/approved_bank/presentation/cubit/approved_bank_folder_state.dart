@@ -52,10 +52,10 @@ class ApprovedBankFolderState extends BaseState {
     searchTextFile: "",
     totalNumberOfRecordBankFile: 0,
     currentPageBankFile: 1,
-    currentSortColumnBankFolder: "Created Date",
-    currentSortDirectionBankFolder: "DESC",
-    currentSortColumnBankFile: "Created Date",
-    currentSortDirectionBankFile: "DESC",
+    currentSortColumnBankFolder: "",
+    currentSortDirectionBankFolder: "",
+    currentSortColumnBankFile: "",
+    currentSortDirectionBankFile: "",
   );
 
   ApprovedBankFolderState copyWith({

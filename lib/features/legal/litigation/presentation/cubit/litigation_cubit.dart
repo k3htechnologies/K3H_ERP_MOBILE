@@ -26,6 +26,7 @@ class LitigationCubit extends Cubit<LitigationState> {
     String? courtName,
     String? sortColumn,
     String? sortDirection,
+    String? priority,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -37,6 +38,7 @@ class LitigationCubit extends Cubit<LitigationState> {
           filterByCourtName: "",
           currentSortColumn: "",
           currentSortDirection: "",
+          filterByPriority: "",
         ),
       );
     } else {
@@ -48,6 +50,7 @@ class LitigationCubit extends Cubit<LitigationState> {
           filterByCourtName: courtName ?? state.filterByCourtName,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
+          filterByPriority: priority ?? state.filterByPriority,
         ),
       );
     }
@@ -86,6 +89,7 @@ class LitigationCubit extends Cubit<LitigationState> {
       "CourtName": state.filterByCourtName,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "ProjectName": state.filterByProjectName,
+      "Priority": state.filterByPriority,
     };
     final result = await _litigationRepository.pullLitigation(
       pageNumber: pageNumber,
@@ -158,9 +162,41 @@ class LitigationCubit extends Cubit<LitigationState> {
   // ADD LITIGATION
   Future addLitigation({
     required BuildContext context,
-    required Map<String, dynamic> body,
+    required dynamic projectId,
+    required String title,
+    required String caseNumber,
+    String? caseType,
+    String? courtType,
+    String? priority,
+    required DateTime dateOfFilling,
+    required String courtName,
+    required String courtLocation,
+    required String plantiff,
+    required String defendant,
+    required String assignedRepresentative,
+    required String opposingRepresentative,
+    required String remark,
+    required String caseBrief,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+    final body = {
+      "ProjectId": projectId,
+      "LitigationId": 0,
+      "Title": title,
+      "CaseNumber": caseNumber,
+      "CaseType": caseType,
+      "CourtType": courtType,
+      "Priority": priority,
+      "DateOfFilling": dateOfFilling.toIso8601String(),
+      "CourtName": courtName,
+      "CourtLocation": courtLocation,
+      "Plantiff": plantiff,
+      "Defendant": defendant,
+      "AssignedRepresentative": assignedRepresentative,
+      "OpposingRepresentative": opposingRepresentative,
+      "Remark": remark,
+      "CaseBrief": caseBrief,
+    };
 
     final result = await _litigationRepository.addUpdateLitigation(body: body);
 
@@ -182,9 +218,44 @@ class LitigationCubit extends Cubit<LitigationState> {
   Future updateLitigation({
     required BuildContext context,
     required int index,
-    required Map<String, dynamic> body,
+    required String uniqueKey,
+    required int litigationId,
+    required dynamic projectId,
+    required String title,
+    required String caseNumber,
+    String? caseType,
+    String? courtType,
+    String? priority,
+    required DateTime dateOfFilling,
+    required String courtName,
+    required String courtLocation,
+    required String plantiff,
+    required String defendant,
+    required String assignedRepresentative,
+    required String opposingRepresentative,
+    required String remark,
+    required String caseBrief,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+    final body = {
+      "Uniquekey": uniqueKey,
+      "ProjectId": projectId,
+      "LitigationId": litigationId,
+      "Title": title,
+      "CaseNumber": caseNumber,
+      "CaseType": caseType,
+      "CourtType": courtType,
+      "Priority": priority,
+      "DateOfFilling": dateOfFilling.toIso8601String(),
+      "CourtName": courtName,
+      "CourtLocation": courtLocation,
+      "Plantiff": plantiff,
+      "Defendant": defendant,
+      "AssignedRepresentative": assignedRepresentative,
+      "OpposingRepresentative": opposingRepresentative,
+      "Remark": remark,
+      "CaseBrief": caseBrief,
+    };
 
     final result = await _litigationRepository.addUpdateLitigation(body: body);
 
@@ -214,6 +285,52 @@ class LitigationCubit extends Cubit<LitigationState> {
           context,
           subTitle: 'Litigation Updated Successfully',
         );
+      },
+    );
+  }
+
+  // UPDATE LITIGATION PRIORITY
+  Future updateLitigationPriority({
+    required BuildContext context,
+    required dynamic projectId,
+    required String uniqueKey,
+    required int litigationId,
+    required String priority,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    final body = {
+      "Uniquekey": uniqueKey,
+      "ProjectId": projectId,
+      "LitigationId": litigationId,
+      "Priority": priority,
+    };
+
+    final result = await _litigationRepository.addUpdateLitigationPriority(
+      body: body,
+    );
+
+    goRouter.pop();
+
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final updatedLitigation = LitigationModel.fromJson(
+          response['data'][0] as Map<String, dynamic>,
+        );
+
+        if (state.litigationList.isNotEmpty &&
+            index < state.litigationList.length) {
+          final updatedList = List<LitigationModel>.from(state.litigationList);
+
+          updatedList[index] = updatedLitigation;
+
+          emit(state.copyWith(isLoading: false, litigationList: updatedList));
+        }
+
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -292,10 +409,7 @@ class LitigationCubit extends Cubit<LitigationState> {
       (response) {
         getLitigationList(context: context, pageNumber: 1);
         goRouter.pop();
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Hearing Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -353,10 +467,7 @@ class LitigationCubit extends Cubit<LitigationState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Hearing Updated Successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -382,7 +493,7 @@ class LitigationCubit extends Cubit<LitigationState> {
         showErrorMessage(context, "Error", failure.message);
         return;
       },
-      (success) {
+      (response) {
         final updatedList = List<LitigationHearingModel>.from(
           state.litigationHearingList,
         );
@@ -397,10 +508,7 @@ class LitigationCubit extends Cubit<LitigationState> {
                     : 0,
           ),
         );
-        showSuccessMessage(
-          context,
-          subTitle: "Litigation hearing deleted successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -479,11 +587,7 @@ class LitigationCubit extends Cubit<LitigationState> {
       },
       (response) {
         goRouter.pop();
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Document Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -541,10 +645,7 @@ class LitigationCubit extends Cubit<LitigationState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Document Updated Successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -568,7 +669,7 @@ class LitigationCubit extends Cubit<LitigationState> {
         showErrorMessage(context, "Error", failure.message);
         return;
       },
-      (success) {
+      (response) {
         final updatedList = List<LitigationDocumentModel>.from(
           state.litigationDocumentList,
         );
@@ -583,10 +684,7 @@ class LitigationCubit extends Cubit<LitigationState> {
                     : 0,
           ),
         );
-        showSuccessMessage(
-          context,
-          subTitle: "Litigation Document Deleted Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -704,10 +802,8 @@ class LitigationCubit extends Cubit<LitigationState> {
 
         emit(state.copyWith(litigationList: updatedLitigationList));
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Closure added successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
+
         getLitigationList(context: context, pageNumber: 1);
       },
     );
@@ -772,10 +868,8 @@ class LitigationCubit extends Cubit<LitigationState> {
 
         emit(state.copyWith(litigationList: updatedLitigationList));
 
-        showSuccessMessage(
-          context,
-          subTitle: 'Litigation Closure updated successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
+
         getLitigationList(context: context, pageNumber: 1);
       },
     );
@@ -806,8 +900,8 @@ class LitigationCubit extends Cubit<LitigationState> {
         showErrorMessage(context, "Error", failure.message);
         return;
       },
-      (success) {
-        final updatedLitigation = LitigationModel.fromJson(success['data'][0]);
+      (response) {
+        final updatedLitigation = LitigationModel.fromJson(response['data'][0]);
 
         final updatedList = List<LitigationModel>.from(state.litigationList);
 
@@ -815,10 +909,7 @@ class LitigationCubit extends Cubit<LitigationState> {
 
         emit(state.copyWith(litigationList: updatedList));
 
-        showSuccessMessage(
-          context,
-          subTitle: "Litigation Reopened Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -861,6 +952,7 @@ class LitigationCubit extends Cubit<LitigationState> {
       state.filterCaseNumber.trim().isNotEmpty,
       state.filterByCourtName.trim().isNotEmpty,
       state.filterByProjectName.trim().isNotEmpty,
+      state.filterByPriority.trim().isNotEmpty,
       hasSort,
     ]);
   }

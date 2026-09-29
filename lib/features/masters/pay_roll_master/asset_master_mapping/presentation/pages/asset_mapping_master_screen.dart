@@ -37,7 +37,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   Timer? _debounce;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterEmployeeNameC;
+  late TextEditingController _searchC, _filterEmployeeNameC, _filterAssetCodeC;
 
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
@@ -61,6 +61,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     scrollController.dispose();
     _searchC.dispose();
     _filterEmployeeNameC.dispose();
+    _filterAssetCodeC.dispose();
     _debounce?.cancel();
     super.dispose();
   }
@@ -69,6 +70,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterEmployeeNameC = TextEditingController();
+    _filterAssetCodeC = TextEditingController();
   }
 
   // PAGINATION
@@ -99,6 +101,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     final state = _assetMappingMasterCubit.state;
     _searchC.text = state.searchText;
     _filterEmployeeNameC.text = state.filterEmployeeName;
+    _filterAssetCodeC.text = state.filterAssetCode;
 
     String? selectedDirection =
         state.currentSortColumn == "Asset Name"
@@ -108,6 +111,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     final String initialAssetName = _searchC.text;
     final String initialEmployeeName = _filterEmployeeNameC.text;
     final String? initialDirection = selectedDirection;
+    final String initialAssetCode = _filterAssetCodeC.text;
 
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
@@ -117,6 +121,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialAssetName) ||
+            (_filterAssetCodeC.text.trim() != initialAssetCode) ||
             (_filterEmployeeNameC.text.trim() != initialEmployeeName) ||
             (selectedDirection != initialDirection);
 
@@ -185,11 +190,16 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                 ),
 
                 verticalSpacing(height: 20),
-
                 CustomTextField(
                   title: "Asset Name",
                   hint: "Enter Asset Name",
                   textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Asset Code",
+                  hint: "Enter Asset Code",
+                  textController: _filterAssetCodeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -209,6 +219,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           context: context,
           filterAssetName: "",
           filterEmployeeName: "",
+          filterAssetCode: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
         );
@@ -222,6 +233,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
           filterEmployeeName: _filterEmployeeNameC.text,
           sortColumn: selectedDirection != null ? "Asset Name" : null,
           sortDirection: selectedDirection,
+          filterAssetCode: _filterAssetCodeC.text.trim(),
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -231,6 +243,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
     // IF CLOSED WITHOUT APPLY
     if (!applied && manualClose) {
       _filterEmployeeNameC.clear();
+      _filterAssetCodeC.clear();
       _searchC.clear();
     }
   }
@@ -368,6 +381,10 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                           ],
                         ),
                         verticalSpacing(height: 8),
+                        buildRowTitleValue(
+                          title: "Code",
+                          value: assetMapping.assetCode,
+                        ),
                         buildRowTitleValue(
                           title: "Employee",
                           value: assetMapping.employeeName,

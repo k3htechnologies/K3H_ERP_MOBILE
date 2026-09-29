@@ -181,7 +181,10 @@ class InputValidator {
     ];
   }
 
-  static bool isValidGST(String input) {
+  static bool isValidGST(String gst, {String? gstStateCode}) {
+    if (gst.length != 15) {
+      return false;
+    }
     final gstRegex = RegExp(
       r'^[0-9]{2}' // State code (2 digits)
       r'[A-Z]{5}' // PAN alpha (first 5 letters)
@@ -191,7 +194,15 @@ class InputValidator {
       r'Z' // Constant Z
       r'[0-9A-Z]{1}$', // Check code (1 digit or letter)
     );
-    return gstRegex.hasMatch(input.toUpperCase());
+    if (!gstRegex.hasMatch(gst)) {
+      return false;
+    }
+
+    if (gstStateCode != null) {
+      return gst.substring(0, 2) == gstStateCode;
+    } else {
+      return true;
+    }
   }
 
   static bool isValidIFSC(String input) {

@@ -67,10 +67,13 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     fileNameList: [],
     deletedFileList: "",
   );
-  String countryMasterId = '1';
-  String stateMasterId = '';
-  String districtMasterId = '';
-  String cityMasterId = '';
+  int countryMasterId = 1;
+  int stateMasterId = -1;
+  int districtMasterId = -1;
+  int cityMasterId = -1;
+  final ValueNotifier<Map<String, dynamic>?> _selectedGstCode = ValueNotifier(
+    null,
+  );
   late final TabController _tabController;
   List<SubMaterialModel> allSubMaterialList = [];
   final ValueNotifier<List<SubMaterialModel>> filteredMaterialList =
@@ -157,10 +160,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     panC.text = vendor.panCardNumber;
     gstC.text = vendor.gstNumber;
     addressC.text = vendor.address;
-    countryMasterId = vendor.countryMasterId.toString();
-    stateMasterId = vendor.stateMasterId.toString();
-    districtMasterId = vendor.districtMasterId.toString();
-    cityMasterId = vendor.cityMasterId.toString();
+    countryMasterId = vendor.countryMasterId;
+    stateMasterId = vendor.stateMasterId;
+    districtMasterId = vendor.districtMasterId;
+    cityMasterId = vendor.cityMasterId;
     selectedCompanyType.value = firmTypeList.firstWhere(
       (element) => element['DisplayName'] == vendor.companyType,
       orElse: () => firmTypeList.first,
@@ -263,10 +266,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         panCardNumber: panC.value.text,
         gstNumber: gstC.value.text,
         address: addressC.value.text,
-        countryMasterId: countryMasterId,
-        stateMasterId: stateMasterId,
-        districtMasterId: districtMasterId,
-        cityMasterId: cityMasterId,
+        countryMasterId: countryMasterId.toString(),
+        stateMasterId: stateMasterId.toString(),
+        districtMasterId: districtMasterId.toString(),
+        cityMasterId: cityMasterId.toString(),
         subMaterialIds: selectedSubMaterialCommaSeperatedIds,
         contractIds: '',
         aadharCard: aadhaarCard,
@@ -292,10 +295,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         panCardNumber: panC.value.text,
         gstNumber: gstC.value.text,
         address: addressC.value.text,
-        countryMasterId: countryMasterId,
-        stateMasterId: stateMasterId,
-        districtMasterId: districtMasterId,
-        cityMasterId: cityMasterId,
+        countryMasterId: countryMasterId.toString(),
+        stateMasterId: stateMasterId.toString(),
+        districtMasterId: districtMasterId.toString(),
+        cityMasterId: cityMasterId.toString(),
         subMaterialIds: selectedSubMaterialCommaSeperatedIds,
         contractIds: '',
         aadharCard: aadhaarCard,
@@ -468,6 +471,54 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                     },
                   ),
                 ]),
+                _card("Address Details", [
+                  CustomTextField(
+                    textController: addressC,
+                    title: "Address",
+                    hint: "Enter Address",
+                    minLines: 3,
+                    maxLines: 3,
+                    isRequired: true,
+                    inputFormatterList: [LengthLimitingTextInputFormatter(500)],
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return "Address is required.";
+                      }
+                      if (value.length < 25) {
+                        return "Address must be at least 25 characters long.";
+                      }
+                      return null;
+                    },
+                  ),
+                  AddressWidget(
+                    formKey: _formKey,
+                    incomingCountryId: widget.vendor?.countryMasterId ?? 1,
+                    incomingStateId: widget.vendor?.stateMasterId,
+                    incomingDistrictId: widget.vendor?.districtMasterId,
+                    incomingCityId: widget.vendor?.cityMasterId,
+                    countryChange: (selectedCountry) {
+                      countryMasterId = selectedCountry['zAttributesId'];
+                    },
+                    stateChange: (selectedState) {
+                      final id = selectedState['zAttributesId'] as int? ?? -1;
+                      stateMasterId = id;
+
+                      if (id == -1) {
+                        _selectedGstCode.value = null;
+                        gstC.clear();
+                      } else {
+                        _selectedGstCode.value = getGstStateCodeFromStorage(id);
+                        gstC.text = _selectedGstCode.value?['gstStateCode'];
+                      }
+                    },
+                    districtChange: (selectedDistrict) {
+                      districtMasterId = selectedDistrict['zAttributesId'];
+                    },
+                    cityChange: (selectedCity) {
+                      cityMasterId = selectedCity['zAttributesId'];
+                    },
+                  ),
+                ]),
                 _card("Government Identifiers", [
                   CustomTextField(
                     inputFormatterList:
@@ -556,20 +607,37 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                       panCard.deletedFileList = deletedFiles;
                     },
                   ),
-                  CustomTextField(
-                    inputFormatterList: InputValidator.gstInputFormatters(),
-                    textController: gstC,
-                    title: "GST Number",
-                    hint: "Enter GST Number",
-                    isRequired: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'GST number is required.';
-                      }
-                      if (!InputValidator.isValidGST(value)) {
-                        return 'Enter a valid GST number';
-                      }
-                      return null;
+                  ValueListenableBuilder<Map<String, dynamic>?>(
+                    valueListenable: _selectedGstCode,
+                    builder: (context, gstData, child) {
+                      final stateName =
+                          gstData?['DisplayName']?.toString() ?? '';
+                      final gstCode =
+                          gstData?['gstStateCode']?.toString() ?? '';
+                      return CustomTextField(
+                        inputFormatterList: InputValidator.gstInputFormatters(),
+                        textController: gstC,
+                        title:
+                            stateName.isNotEmpty && gstCode.isNotEmpty
+                                ? "GST Number ($stateName GST Code - $gstCode)"
+                                : "GST Number",
+                        hint: "Enter GST Number",
+                        isRequired: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'GST number is required.';
+                          }
+                          if (!InputValidator.isValidGST(
+                            value,
+                            gstStateCode: gstCode,
+                          )) {
+                            return gstCode.isNotEmpty
+                                ? "Enter a valid GST Number for selected state ($stateName GST Code - $gstCode)."
+                                : "Enter a valid GST number";
+                          }
+                          return null;
+                        },
+                      );
                     },
                   ),
                   CustomMultiFilePicker(
@@ -596,47 +664,6 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         return "GST Certificate file required.";
                       }
                       return null;
-                    },
-                  ),
-                ]),
-                _card("Address Details", [
-                  CustomTextField(
-                    textController: addressC,
-                    title: "Address",
-                    hint: "Enter Address",
-                    minLines: 3,
-                    maxLines: 3,
-                    isRequired: true,
-                    inputFormatterList: [LengthLimitingTextInputFormatter(500)],
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Address is required.";
-                      }
-                      if (value.length < 25) {
-                        return "Address must be at least 25 characters long.";
-                      }
-                      return null;
-                    },
-                  ),
-                  AddressWidget(
-                    formKey: _formKey,
-                    incomingCountryId: widget.vendor?.countryMasterId ?? 1,
-                    incomingStateId: widget.vendor?.stateMasterId,
-                    incomingDistrictId: widget.vendor?.districtMasterId,
-                    incomingCityId: widget.vendor?.cityMasterId,
-                    countryChange: (selectedCountry) {
-                      countryMasterId =
-                          selectedCountry['zAttributesId'].toString();
-                    },
-                    stateChange: (selectedState) {
-                      stateMasterId = selectedState['zAttributesId'].toString();
-                    },
-                    districtChange: (selectedDistrict) {
-                      districtMasterId =
-                          selectedDistrict['zAttributesId'].toString();
-                    },
-                    cityChange: (selectedCity) {
-                      cityMasterId = selectedCity['zAttributesId'].toString();
                     },
                   ),
                 ]),

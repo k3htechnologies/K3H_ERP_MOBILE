@@ -690,7 +690,7 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
 
                       if (value != null && value.isNotEmpty) {
                         if (!InputValidator.isValidGST(value)) {
-                          return "GST Number is invalid";
+                          return "Enter a valid GST number";
                         }
                       }
                       return null;

@@ -225,8 +225,8 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
 
         _approvedBankCubit.applyFilterAndSortApprovedBankFolder(
           context: context,
-          column: "Created Date",
-          direction: "DESC",
+          column: "",
+          direction: "",
           bankName: '',
           projectId: _project.projectId,
         );
@@ -237,8 +237,8 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
 
         _approvedBankCubit.applyFilterAndSortApprovedBankFolder(
           context: context,
-          column: selectedDirection != null ? "BankName" : "Created Date",
-          direction: selectedDirection ?? "DESC",
+          column: selectedDirection != null ? "BankName" : "",
+          direction: selectedDirection ?? "",
           bankName: _searchC.text.trim(),
           projectId: _project.projectId,
         );

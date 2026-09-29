@@ -270,8 +270,8 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
     _searchC.text = state.searchTextFile;
 
     String? selectedDirection =
-        state.currentSortColumnBankFolder == "ApprovedBankFileName"
-            ? state.currentSortDirectionBankFolder
+        state.currentSortColumnBankFile == "Title"
+            ? state.currentSortDirectionBankFile
             : null;
 
     final String initialMaterialName = _searchC.text;
@@ -373,8 +373,8 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
 
         _approvedBankFileCubit.applyFilterAndSortApprovedBankFile(
           context: context,
-          column: "Created Date",
-          direction: "DESC",
+          column: "",
+          direction: "",
           title: '',
           projectId: _project.projectId,
           approvedBankFolderId: widget.approvedBankFolderId,
@@ -386,11 +386,8 @@ class _ViewApprovedBankScreenState extends State<ViewApprovedBankScreen> {
 
         _approvedBankFileCubit.applyFilterAndSortApprovedBankFile(
           context: context,
-          column:
-              selectedDirection != null
-                  ? "ApprovedBankFileName"
-                  : "Created Date",
-          direction: selectedDirection ?? "DESC",
+          column: selectedDirection != null ? "Title" : "",
+          direction: selectedDirection ?? "",
           title: _searchC.text.trim(),
           projectId: _project.projectId,
           approvedBankFolderId: widget.approvedBankFolderId,

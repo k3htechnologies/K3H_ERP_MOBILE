@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/cubit/approved_bank_folder_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -98,16 +99,23 @@ class _AddApprovedBankScreenState extends State<AddApprovedBankScreen> {
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: SearchWidget(
-              hintText: "Search By Bank Name",
-              onSubmit: (value) {
-                _approvedBankFolderCubit.searchBank(
-                  context,
-                  value,
-                  _project.projectId,
-                );
-              },
-              textController: _searchC,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: 12,
+              children: [
+                Text("Add Bank", style: AppTextStyle.ts14M()),
+                SearchWidget(
+                  hintText: "Search By Bank Name",
+                  onSubmit: (value) {
+                    _approvedBankFolderCubit.searchBank(
+                      context,
+                      value,
+                      _project.projectId,
+                    );
+                  },
+                  textController: _searchC,
+                ),
+              ],
             ),
           ),
           verticalSpacing(),
@@ -175,7 +183,7 @@ class _AddApprovedBankScreenState extends State<AddApprovedBankScreen> {
           padding: EdgeInsets.all(16),
           child: CustomButton(
             leading: Icon(Icons.add, color: AppColor.white, size: 18),
-            text: "Add Bank",
+            text: "Add",
             onPressed: () {
               if (_selectedBankIds.value.isEmpty) {
                 showErrorMessage(

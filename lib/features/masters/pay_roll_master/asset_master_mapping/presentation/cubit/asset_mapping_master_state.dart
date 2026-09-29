@@ -8,6 +8,7 @@ class AssetMappingMasterState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final String filterEmployeeName;
+  final String filterAssetCode;
 
   const AssetMappingMasterState({
     required this.assetMappingList,
@@ -17,7 +18,8 @@ class AssetMappingMasterState extends BaseState {
     this.totalNumberOfRecord = 0,
     required this.currentSortColumn,
     required this.currentSortDirection,
-    this.filterEmployeeName = "",
+    required this.filterAssetCode,
+    required this.filterEmployeeName,
   });
 
   factory AssetMappingMasterState.initial() => AssetMappingMasterState(
@@ -27,6 +29,7 @@ class AssetMappingMasterState extends BaseState {
     currentSortDirection: 'DESC',
     searchText: "",
     totalNumberOfRecord: 0,
+    filterAssetCode: '',
     filterEmployeeName: "",
   );
 
@@ -41,6 +44,7 @@ class AssetMappingMasterState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
     String? filterEmployeeName,
+    String? filterAssetCode,
   }) {
     return AssetMappingMasterState(
       assetMappingList: assetMappingList ?? this.assetMappingList,
@@ -51,6 +55,7 @@ class AssetMappingMasterState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterEmployeeName: filterEmployeeName ?? this.filterEmployeeName,
+      filterAssetCode: filterAssetCode ?? this.filterAssetCode,
     );
   }
 

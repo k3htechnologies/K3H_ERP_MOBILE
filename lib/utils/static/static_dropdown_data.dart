@@ -143,6 +143,10 @@ final List<Map<String, dynamic>> caseTypeList = createAttributeList(
   caseTypeValues,
 );
 
+final List<Map<String, dynamic>> priorityList = createAttributeList(
+  priorityValues,
+);
+
 final List<Map<String, dynamic>> courtTypeList = createAttributeList(
   courtTypeValues,
 );

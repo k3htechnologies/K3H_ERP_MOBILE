@@ -14,10 +14,14 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/status/litigation_priority_status.dart';
+import 'package:k3h_erp_app/widgets/status/status_badge_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -44,6 +48,8 @@ class _LitigationScreenState extends State<LitigationScreen> {
       _filterProjectName,
       _filterCaseNumber,
       _filterCourtName;
+  final ValueNotifier<Map<String, dynamic>?> _selectedPriorityNotifier =
+      ValueNotifier(null);
 
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
@@ -68,6 +74,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
     _filterCaseNumber.dispose();
     _filterCourtName.dispose();
     scrollController.dispose();
+    _selectedPriorityNotifier.dispose();
     _debounce?.cancel();
   }
 
@@ -132,15 +139,26 @@ class _LitigationScreenState extends State<LitigationScreen> {
     final String initialProjectName = _filterProjectName.text;
     final String? initialDirection = selectedDirection;
     final String initialTitle = _searchC.text;
-
+    final initialPriority = state.filterByPriority;
+    if (initialPriority.isNotEmpty) {
+      _selectedPriorityNotifier.value = priorityList.firstWhere(
+        (e) => e['DisplayName'] == initialPriority,
+        orElse: () => priorityList.first,
+      );
+    }
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
 
     void updateApplyState(StateSetter innerState) {
+      final currentPriority =
+          (_selectedPriorityNotifier.value?['zAttributesId'] == -1)
+              ? ''
+              : _selectedPriorityNotifier.value?['DisplayName'] ?? '';
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialTitle) ||
+            (currentPriority != initialPriority) ||
             (_filterCaseNumber.text.trim() != initialCaseNumber) ||
             (_filterCourtName.text.trim() != initialCourtName) ||
             (_filterProjectName.text.trim() != initialProjectName) ||
@@ -235,6 +253,25 @@ class _LitigationScreenState extends State<LitigationScreen> {
                   textController: _filterCourtName,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                ValueListenableBuilder(
+                  valueListenable: _selectedPriorityNotifier,
+                  builder: (context, selectedSubSource, _) {
+                    return CustomDropDownWidget(
+                      title: "Priority",
+                      hintText: "Select Priority",
+                      initialValue: selectedSubSource,
+                      dataList: priorityList,
+                      onSelected: (v) {
+                        _selectedPriorityNotifier.value = v;
+                        updateApplyState(innerState);
+                      },
+                      onValueClear: () {
+                        _selectedPriorityNotifier.value = null;
+                        updateApplyState(innerState);
+                      },
+                    );
+                  },
+                ),
               ],
             ),
           );
@@ -244,6 +281,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
         _filterCaseNumber.clear();
         _filterCourtName.clear();
         _searchC.clear();
+        _selectedPriorityNotifier.value = null;
         _litigationCubit.applyLitigationFilterAndSort(
           context: context,
           isClear: true,
@@ -259,6 +297,11 @@ class _LitigationScreenState extends State<LitigationScreen> {
           projectName: _filterProjectName.text.trim(),
           sortColumn: selectedDirection != null ? "Title" : null,
           sortDirection: selectedDirection,
+          priority:
+              (_selectedPriorityNotifier.value != null &&
+                      _selectedPriorityNotifier.value!['zAttributesId'] != -1)
+                  ? _selectedPriorityNotifier.value!['DisplayName']
+                  : '',
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -271,6 +314,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
       _filterCaseNumber.clear();
       _filterCourtName.clear();
       _filterProjectName.clear();
+      _selectedPriorityNotifier.value = null;
     }
   }
 
@@ -451,6 +495,18 @@ class _LitigationScreenState extends State<LitigationScreen> {
                         value: litigation.caseType,
                       ),
                       buildRowTitleValue(
+                        title: "Status",
+                        value: litigation.status,
+                        valueTextStyle: AppTextStyle.ts14M(
+                          color:
+                              (litigation.status.toLowerCase() == 'open')
+                                  ? AppColor.green20
+                                  : litigation.status.toLowerCase() == 'reopen'
+                                  ? AppColor.holdYellowColor
+                                  : AppColor.missingInformationRed,
+                        ),
+                      ),
+                      buildRowTitleValue(
                         title: "Date Off Filling",
                         value: formatDateTimeAsDDMMMYYYY(
                           litigation.dateOfFilling,
@@ -465,16 +521,28 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                 )
                                 : '-',
                       ),
+
+                      Divider(
+                        height: 20,
+                        color: AppColor.grey2.withValues(alpha: 0.5),
+                      ),
                       buildRowTitleValue(
-                        title: "Status",
-                        value: litigation.status,
-                        valueTextStyle: AppTextStyle.ts14M(
-                          color:
-                              (litigation.status.toLowerCase() == 'open')
-                                  ? AppColor.green20
-                                  : litigation.status.toLowerCase() == 'reopen'
-                                  ? AppColor.holdYellowColor
-                                  : AppColor.missingInformationRed,
+                        title: "Priority",
+                        value: litigation.priority,
+                        customValueWidget: CustomStatusBadgeDropdown(
+                          initialValue: litigation.priority,
+                          itemConfig: litigationPriorityStatusConfig,
+                          disabled: !_routeAuthorizationModel.isAction,
+                          onSelect: (value) async {
+                            await _litigationCubit.updateLitigationPriority(
+                              context: context,
+                              projectId: litigation.projectId,
+                              uniqueKey: litigation.uniquekey,
+                              litigationId: litigation.litigationId,
+                              index: index,
+                              priority: value,
+                            );
+                          },
                         ),
                       ),
                     ],

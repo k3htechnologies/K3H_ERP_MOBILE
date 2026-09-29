@@ -42,7 +42,8 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       _filterAssetTypeC,
       _filterAssetBrandC,
       _filterAssetModelC,
-      _filterSerialNumberC;
+      _filterSerialNumberC,
+      _filterAssetCodeC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
@@ -67,6 +68,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     _filterAssetBrandC.dispose();
     _filterAssetModelC.dispose();
     _filterSerialNumberC.dispose();
+    _filterAssetCodeC.dispose();
     _debounce?.cancel();
     _filterCount.dispose();
     super.dispose();
@@ -81,6 +83,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     _filterAssetBrandC = TextEditingController();
     _filterAssetModelC = TextEditingController();
     _filterSerialNumberC = TextEditingController();
+    _filterAssetCodeC = TextEditingController();
   }
 
   // PAGINATION
@@ -132,6 +135,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     _filterAssetBrandC.text = state.filterByAssetBrand;
     _filterAssetModelC.text = state.filterByAssetModel;
     _filterSerialNumberC.text = state.filterBySerialNumber;
+    _filterAssetCodeC.text = state.filterByAssetCode;
 
     String? selectedDirection =
         state.currentSortColumn == "Asset Name"
@@ -146,6 +150,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
     final String initialAssetModel = _filterAssetModelC.text;
     final String initialSerialNumber = _filterSerialNumberC.text;
     final String? initialDirection = selectedDirection;
+    final String initialAssetCode = _filterAssetCodeC.text;
 
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
@@ -155,6 +160,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialAssetName) ||
+            (_filterAssetCodeC.text.trim() != initialAssetCode) ||
             (_filterEmployeeNameC.text.trim() != initialEmployeeName) ||
             (_filterAssetStatusC.text.trim() != initialAssetStatus) ||
             (_filterAssetTypeC.text.trim() != initialAssetType) ||
@@ -241,6 +247,12 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
+                  title: "Asset Code",
+                  hint: "Enter Asset Code",
+                  textController: _filterAssetCodeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "Asset Type",
                   hint: "Enter Asset Type",
                   textController: _filterAssetTypeC,
@@ -287,7 +299,9 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           filterEmployeeName: "",
           sortColumn: "Created Date",
           sortDirection: "DESC",
+          filterAssetCode: "",
         );
+
         _searchC.clear();
       },
       onApply: () {
@@ -303,6 +317,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
           filterEmployeeName: _filterEmployeeNameC.text.trim(),
           sortColumn: selectedDirection != null ? "Asset Name" : null,
           sortDirection: selectedDirection,
+          filterAssetCode: _filterAssetCodeC.text.trim(),
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -315,6 +330,8 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
       _filterAssetBrandC.clear();
       _filterAssetModelC.clear();
       _filterSerialNumberC.clear();
+      _filterEmployeeNameC.clear();
+      _filterAssetCodeC.clear();
     }
   }
 

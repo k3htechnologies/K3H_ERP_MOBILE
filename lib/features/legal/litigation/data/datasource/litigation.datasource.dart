@@ -16,6 +16,10 @@ abstract interface class LitigationDatasource {
     required Map<String, dynamic> body,
   });
 
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigationPriority({
+    required Map<String, dynamic> body,
+  });
+
   Future<Map<String, dynamic>> apicallDeleteLitigation({
     required int litigationId,
     required String uniqueKey,
@@ -154,6 +158,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
       return {
         'data': networkResponse["data"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
@@ -187,6 +192,31 @@ class LitigationDatasourceImpl extends LitigationDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         apiCallAddUpdateLitigation(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  // UPDATE LITIGATION PRIORITY
+  @override
+  Future<Map<String, dynamic>> apiCallAddUpdateLitigationPriority({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateLitigationUrl = "Litigation/AddUpdateLitigationPriority";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateLitigationUrl,
+        body,
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallAddUpdateLitigationPriority(body: body);
       }
       rethrow;
     }
@@ -344,6 +374,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
       return {
         'data': networkResponse["data"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+        'message': networkResponse['message'],
       };
     } catch (error) {
       if (error is TokenExpiredException) {
@@ -548,6 +579,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -577,6 +609,7 @@ class LitigationDatasourceImpl extends LitigationDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

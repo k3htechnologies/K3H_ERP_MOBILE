@@ -12,7 +12,7 @@ abstract interface class ApprovedBankDatasource {
     Map<String, dynamic>? queryParams,
   });
 
-  Future<Map<String, dynamic>> apicallPullApprovedBankFolderForExport({
+  Future<Map<String, dynamic>> apicallPullApprovedBankFileForExport({
     required int pageSize,
     required int pageNumber,
     required int projectId,
@@ -247,27 +247,27 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
   }
 
   @override
-  Future<Map<String, dynamic>> apicallPullApprovedBankFolderForExport({
+  Future<Map<String, dynamic>> apicallPullApprovedBankFileForExport({
     required int pageSize,
     required int pageNumber,
     required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullApprovedBankFolderUrl({
+    String pullApprovedBankFileUrl({
       required int pageSize,
       required int pageNumber,
       required int projectId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "ApprovedBank/PullApprovedBankFolder?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "ApprovedBank/PullApprovedBankFile?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
       url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullApprovedBankFolderUrl(
+        pullApprovedBankFileUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,
@@ -280,7 +280,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apicallPullApprovedBankFolderForExport(
+        return apicallPullApprovedBankFileForExport(
           pageSize: pageSize,
           pageNumber: pageNumber,
           projectId: projectId,

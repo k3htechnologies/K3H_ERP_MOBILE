@@ -514,8 +514,13 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                   }
 
                   if (value != null && value.isNotEmpty) {
-                    if (!InputValidator.isValidGST(value)) {
-                      return "GST Number is invalid";
+                    if (!InputValidator.isValidGST(
+                      value,
+                      gstStateCode: gstCode,
+                    )) {
+                      return gstCode.isNotEmpty
+                          ? "Enter a valid GST Number for selected state ($stateName GST Code - $gstCode)."
+                          : "Enter a valid GST number";
                     }
                   }
 
@@ -526,7 +531,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             maxFiles: 5,
-            filePickType: FilePickType.both,
+            filePickType: FilePickType.kycDocument,
             initialFileList: gstCertificateFile.fileNameList,
             title: "GST Certificate",
             onFilePickedCallback: (fileByteList, fileNameList) {
@@ -566,7 +571,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
           ),
           CustomMultiFilePicker(
             title: 'PAN Card',
-            filePickType: FilePickType.both,
+            filePickType: FilePickType.kycDocument,
             maxFiles: 5,
             initialFileList: selectedPANCardFile.fileNameList,
             onFilePickedCallback: (bytesList, fileNameList) {
@@ -741,10 +746,14 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
             incomingDistrictId: widget.company?.districtMasterId,
             incomingCityId: widget.company?.cityMasterId,
             stateChange: (selectedState) {
-              stateMasterId = selectedState['zAttributesId'];
-              _selectedGstCode.value = getGstStateCodeFromStorage(
-                stateMasterId,
-              );
+              final id = selectedState['zAttributesId'] as int? ?? -1;
+              stateMasterId = id;
+
+              if (id == -1) {
+                _selectedGstCode.value = null;
+              } else {
+                _selectedGstCode.value = getGstStateCodeFromStorage(id);
+              }
             },
             districtChange: (selectedDistrict) {
               districtMasterId = selectedDistrict['zAttributesId'];

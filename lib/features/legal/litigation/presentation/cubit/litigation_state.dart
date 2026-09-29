@@ -22,6 +22,7 @@ class LitigationState extends BaseState {
   final String filterCaseNumber;
   final String filterByCourtName;
   final String filterByProjectName;
+  final String filterByPriority;
 
   const LitigationState({
     super.isLoading,
@@ -41,6 +42,7 @@ class LitigationState extends BaseState {
     this.filterCaseNumber = "",
     this.filterByCourtName = "",
     this.filterByProjectName = "",
+    this.filterByPriority = "",
   });
 
   factory LitigationState.initial() {
@@ -67,6 +69,7 @@ class LitigationState extends BaseState {
       filterCaseNumber: "",
       filterByCourtName: "",
       filterByProjectName: "",
+      filterByPriority: "",
     );
   }
 
@@ -93,6 +96,7 @@ class LitigationState extends BaseState {
     String? filterCaseNumber,
     String? filterByCourtName,
     String? filterByProjectName,
+    String? filterByPriority,
   }) {
     return LitigationState(
       isLoading: isLoading ?? this.isLoading,
@@ -121,6 +125,7 @@ class LitigationState extends BaseState {
       filterCaseNumber: filterCaseNumber ?? this.filterCaseNumber,
       filterByCourtName: filterByCourtName ?? this.filterByCourtName,
       filterByProjectName: filterByProjectName ?? this.filterByProjectName,
+      filterByPriority: filterByPriority ?? this.filterByPriority,
     );
   }
 
@@ -148,5 +153,6 @@ class LitigationState extends BaseState {
     filterCaseNumber,
     filterByCourtName,
     filterByProjectName,
+    filterByPriority,
   ];
 }

@@ -83,7 +83,6 @@ class AddressWidget extends StatefulWidget {
   final Function(Map<String, dynamic>)? wardChange;
 
   final GlobalKey<FormState> formKey;
-
   const AddressWidget({
     super.key,
     this.incomingCountryId = 1,
@@ -440,6 +439,10 @@ class _AddressWidgetState extends State<AddressWidget> {
                         cityId.value = null;
                         villageId.value = null;
                         wardId.value = null;
+                        widget.stateChange({
+                          'zAttributesId': -1,
+                          'DisplayName': '',
+                        }); // new
                       },
                     );
                   },

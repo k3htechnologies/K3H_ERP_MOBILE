@@ -110,7 +110,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   ValueNotifier<Map<String, dynamic>?> selectedDistrictVN = ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedCityVN = ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedVillageVN = ValueNotifier(null);
-
+  final ValueNotifier<Map<String, dynamic>?> _selectedGstCode = ValueNotifier(
+    null,
+  );
   DateTime? _dob;
   DateTime? _aopFromDate;
   DateTime? _aopToDate;
@@ -695,7 +697,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 10,
+            spacing: 12,
             children: [
               Text(
                 _isEditMode ? "Update Channel Partner" : "Add Channel Partner",
@@ -1117,7 +1119,60 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                 ),
               ]),
 
-              const SizedBox(height: 10.0),
+              _card("Address Details", [
+                AnimatedBuilder(
+                  animation: Listenable.merge([
+                    selectedCountry,
+                    selectedStateVN,
+                  ]),
+                  builder: (context, _) {
+                    return AddressWidget(
+                      key: ValueKey(
+                        "${selectedStateVN.value?['zAttributesId']}_${selectedCityVN.value?['zAttributesId']}",
+                      ),
+                      formKey: _formKey,
+                      incomingCountryId:
+                          selectedCountry.value?['zAttributesId'] ?? 1,
+
+                      incomingStateId: selectedStateVN.value?['zAttributesId'],
+                      incomingDistrictId:
+                          selectedDistrictVN.value?['zAttributesId'],
+                      incomingCityId: selectedCityVN.value?['zAttributesId'],
+                      incomingVillageId:
+                          selectedVillageVN.value?['zAttributesId'],
+                      stateChange: (selectedState) {
+                        selectedStateVN.value = selectedState;
+                        final id = selectedState['zAttributesId'] as int? ?? -1;
+                        if (id == -1) {
+                          _selectedGstCode.value = null;
+                        } else {
+                          _selectedGstCode.value = getGstStateCodeFromStorage(
+                            id,
+                          );
+                        }
+                      },
+                      districtChange: (val) => selectedDistrictVN.value = val,
+                      cityChange: (val) => selectedCityVN.value = val,
+                      villageChange: (val) => selectedVillageVN.value = val,
+                      countryChange: (val) => selectedCountry.value = val,
+                    );
+                  },
+                ),
+                CustomTextField(
+                  textController: _officeAddressC,
+                  title: 'Office Address',
+                  isRequired: true,
+                  minLines: 3,
+                  maxLines: 10,
+                  hint: "Enter Office Address",
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return "Office Address is required.";
+                    }
+                    return null;
+                  },
+                ),
+              ]),
               _card("Document Details", [
                 ValueListenableBuilder(
                   valueListenable: aadhaarTrigger,
@@ -1154,7 +1209,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         CustomMultiFilePicker(
                           title: "Aadhaar Card",
                           isRequired: hasAadhaar,
-                          filePickType: FilePickType.both,
+                          filePickType: FilePickType.kycDocument,
                           initialFileList:
                               selectedAadhaarForPopUpFile.fileNameList,
 
@@ -1229,7 +1284,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         CustomMultiFilePicker(
                           title: "Pan Card",
                           isRequired: hasPan,
-                          filePickType: FilePickType.both,
+                          filePickType: FilePickType.kycDocument,
                           initialFileList: selectedPANForPopUpFile.fileNameList,
 
                           onFilePickedCallback: (bytesList, fileNameList) {
@@ -1277,32 +1332,49 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                         ValueListenableBuilder(
                           valueListenable: isCompanyPrefilled,
                           builder: (context, isPrefilled, _) {
-                            return CustomTextField(
-                              title: 'GST Number',
-                              hint: "Enter GST Number",
-                              textController: _gstNumberC,
-                              readOnly: isExistingCompany,
-                              inputFormatterList:
-                                  InputValidator.gstInputFormatters(),
-                              validator: (value) {
-                                final hasFile =
-                                    selectedGSTCertificateForPopUpFile
-                                        .value
-                                        .fileNameList
-                                        .isNotEmpty;
+                            return ValueListenableBuilder(
+                              valueListenable: _selectedGstCode,
+                              builder: (context, gstData, child) {
+                                final stateName =
+                                    gstData?['DisplayName']?.toString() ?? '';
+                                final gstCode =
+                                    gstData?['gstStateCode']?.toString() ?? '';
+                                return CustomTextField(
+                                  title:
+                                      stateName.isNotEmpty && gstCode.isNotEmpty
+                                          ? "GST Number ($stateName GST Code - $gstCode)"
+                                          : "GST Number",
+                                  hint: "Enter GST Number",
+                                  textController: _gstNumberC,
+                                  readOnly: isExistingCompany,
+                                  inputFormatterList:
+                                      InputValidator.gstInputFormatters(),
+                                  validator: (value) {
+                                    final hasFile =
+                                        selectedGSTCertificateForPopUpFile
+                                            .value
+                                            .fileNameList
+                                            .isNotEmpty;
 
-                                if (hasFile &&
-                                    (value == null || value.isEmpty)) {
-                                  return "GST Number is required.";
-                                }
+                                    if (hasFile &&
+                                        (value == null || value.isEmpty)) {
+                                      return "GST Number is required.";
+                                    }
 
-                                if (value != null && value.isNotEmpty) {
-                                  if (!InputValidator.isValidGST(value)) {
-                                    return "GST Number is invalid";
-                                  }
-                                }
+                                    if (value != null && value.isNotEmpty) {
+                                      if (!InputValidator.isValidGST(
+                                        value,
+                                        gstStateCode: gstCode,
+                                      )) {
+                                        return gstCode.isNotEmpty
+                                            ? "Enter a valid GST Number for selected state ($stateName GST Code - $gstCode)."
+                                            : "Enter a valid GST number";
+                                      }
+                                    }
 
-                                return null;
+                                    return null;
+                                  },
+                                );
                               },
                             );
                           },
@@ -1317,7 +1389,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                                 selectedGSTCertificateForPopUpFile.value,
                               ),
                               title: "GST Certificate",
-                              filePickType: FilePickType.both,
+                              filePickType: FilePickType.kycDocument,
                               readOnly: isExistingCompany,
                               initialFileList:
                                   selectedGSTCertificateForPopUpFile
@@ -1369,52 +1441,6 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                   },
                 ),
               ]),
-              const SizedBox(height: 10.0),
-              _card("Address Details", [
-                AnimatedBuilder(
-                  animation: Listenable.merge([
-                    selectedCountry,
-                    selectedStateVN,
-                  ]),
-                  builder: (context, _) {
-                    return AddressWidget(
-                      key: ValueKey(
-                        "${selectedStateVN.value?['zAttributesId']}_${selectedCityVN.value?['zAttributesId']}",
-                      ),
-                      formKey: _formKey,
-                      incomingCountryId:
-                          selectedCountry.value?['zAttributesId'] ?? 1,
-
-                      incomingStateId: selectedStateVN.value?['zAttributesId'],
-                      incomingDistrictId:
-                          selectedDistrictVN.value?['zAttributesId'],
-                      incomingCityId: selectedCityVN.value?['zAttributesId'],
-                      incomingVillageId:
-                          selectedVillageVN.value?['zAttributesId'],
-                      stateChange: (val) => selectedStateVN.value = val,
-                      districtChange: (val) => selectedDistrictVN.value = val,
-                      cityChange: (val) => selectedCityVN.value = val,
-                      villageChange: (val) => selectedVillageVN.value = val,
-                      countryChange: (val) => selectedCountry.value = val,
-                    );
-                  },
-                ),
-                CustomTextField(
-                  textController: _officeAddressC,
-                  title: 'Office Address',
-                  isRequired: true,
-                  minLines: 3,
-                  maxLines: 10,
-                  hint: "Enter Office Address",
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Office Address is required.";
-                    }
-                    return null;
-                  },
-                ),
-              ]),
-              verticalSpacing(),
               _card("Primary & Secondary Project Portfolio Details", [
                 ValueListenableBuilder(
                   valueListenable: _selectedPrimaryProjectNotifier,
@@ -1452,7 +1478,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
               _card("AOP Details", [
                 CustomMultiFilePicker(
                   title: "AOP Document",
-                  filePickType: FilePickType.both,
+                  filePickType: FilePickType.kycDocument,
                   initialFileList: aopDocument.fileNameList,
 
                   onFilePickedCallback: (bytesList, fileNameList) {

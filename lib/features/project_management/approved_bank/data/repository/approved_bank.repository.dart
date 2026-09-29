@@ -166,7 +166,7 @@ class ApprovedBankRepositoryImpl extends ApprovedBankRepository {
   }) async {
     try {
       var result = await approvedBankDatasource
-          .apicallPullApprovedBankFolderForExport(
+          .apicallPullApprovedBankFileForExport(
             pageSize: pageSize,
             pageNumber: pageNumber,
             projectId: projectId,

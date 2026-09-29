@@ -67,6 +67,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
     String? filterSerialNumber,
     String? sortColumn,
     String? sortDirection,
+    String? filterAssetCode,
   }) async {
     emit(
       state.copyWith(
@@ -79,6 +80,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         filterByEmployeName: filterEmployeeName ?? state.filterByEmployeName,
+        filterByAssetCode: filterAssetCode ?? state.filterByAssetCode,
         assetList: [],
         currentPage: 1,
       ),
@@ -103,6 +105,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
       "SerialNumber": state.filterBySerialNumber,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
       "EmployeeName": state.filterByEmployeName,
+      "AssetCode": state.filterByAssetCode,
     };
 
     final result = await assetMasterRepository.getAssetList(
@@ -389,6 +392,7 @@ class AssetMasterCubit extends Cubit<AssetMasterState> {
       state.filterByAssetModel.trim().isNotEmpty,
       state.filterBySerialNumber.trim().isNotEmpty,
       state.filterByEmployeName.trim().isNotEmpty,
+      state.filterByAssetCode.trim().isNotEmpty,
       hasSort,
     ]);
   }

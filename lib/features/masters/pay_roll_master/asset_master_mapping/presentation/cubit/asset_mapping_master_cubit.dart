@@ -41,7 +41,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     var queryParams = {
       "AssetName": state.searchText,
       "EmployeeName": state.filterEmployeeName,
-      // "Status": "Available",
+      "AssetCode": state.filterAssetCode,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
@@ -223,6 +223,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     required BuildContext context,
     required String filterAssetName,
     required String filterEmployeeName,
+    required String filterAssetCode,
     String? sortColumn,
     String? sortDirection,
   }) async {
@@ -232,6 +233,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
         filterEmployeeName: filterEmployeeName,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
+        filterAssetCode: filterAssetCode,
         assetMappingList: [],
         currentPage: 1,
       ),
@@ -249,6 +251,7 @@ class AssetMappingMasterCubit extends Cubit<AssetMappingMasterState> {
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
       state.filterEmployeeName.trim().isNotEmpty,
+      state.filterAssetCode.trim().isNotEmpty,
       hasSort,
     ]);
   }

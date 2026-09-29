@@ -14,6 +14,10 @@ abstract interface class LitigationRepository {
     required Map<String, dynamic> body,
   });
 
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationPriority({
+    required Map<String, dynamic> body,
+  });
+
   Future<Either<Failure, Map<String, dynamic>>> deleteLitigation({
     required int litigationId,
     required String uniqueKey,
@@ -118,6 +122,20 @@ class LitigationRepositoryImpl extends LitigationRepository {
       final result = await litigationDatasource.apiCallAddUpdateLitigation(
         body: body,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  // UPDATE LITIGATION PRIORITY
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateLitigationPriority({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final result = await litigationDatasource
+          .apiCallAddUpdateLitigationPriority(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

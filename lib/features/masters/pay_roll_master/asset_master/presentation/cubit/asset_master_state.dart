@@ -9,6 +9,7 @@ class AssetMasterState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final String filterByEmployeName;
+  final String filterByAssetCode;
   final String filterByAssetStatus;
   final String filterByAssetType;
   final String filterByAssetBrand;
@@ -32,6 +33,7 @@ class AssetMasterState extends BaseState {
     required this.filterBySerialNumber,
     required this.filterByEmployeName,
     required this.currentTabIndex,
+    required this.filterByAssetCode,
   });
 
   factory AssetMasterState.initial() => AssetMasterState(
@@ -50,6 +52,7 @@ class AssetMasterState extends BaseState {
     filterBySerialNumber: "",
     currentTabIndex: 0,
     filterByEmployeName: '',
+    filterByAssetCode: '',
   );
 
   AssetMasterState copyWith({
@@ -70,6 +73,7 @@ class AssetMasterState extends BaseState {
     String? filterBySerialNumber,
     int? currentTabIndex,
     String? filterByEmployeName,
+    String? filterByAssetCode,
   }) {
     return AssetMasterState(
       assetMappingList: assetMappingList ?? this.assetMappingList,
@@ -87,6 +91,7 @@ class AssetMasterState extends BaseState {
       filterBySerialNumber: filterBySerialNumber ?? this.filterBySerialNumber,
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       filterByEmployeName: filterByEmployeName ?? this.filterByEmployeName,
+      filterByAssetCode: filterByAssetCode ?? this.filterByAssetCode,
     );
   }
 
@@ -106,6 +111,7 @@ class AssetMasterState extends BaseState {
     filterByAssetModel,
     filterBySerialNumber,
     filterByEmployeName,
+    filterByAssetCode,
     currentTabIndex,
   ];
 }

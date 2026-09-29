@@ -13,6 +13,7 @@ class LitigationModel {
   String courtName;
   String courtLocation;
   String courtType;
+  String priority;
   String status;
   String plantiff;
   String defendant;
@@ -39,6 +40,7 @@ class LitigationModel {
     required this.title,
     required this.caseNumber,
     required this.caseType,
+    required this.priority,
     required this.dateOfFilling,
     required this.courtName,
     required this.courtLocation,
@@ -72,6 +74,7 @@ class LitigationModel {
     title: parseValue<String>(json, "Title"),
     caseNumber: parseValue<String>(json, "CaseNumber"),
     caseType: parseValue<String>(json, "CaseType"),
+    priority: parseValue<String>(json, "Priority"),
     dateOfFilling: parseValue<DateTime>(json, "DateOfFilling"),
     courtName: parseValue<String>(json, "CourtName"),
     courtLocation: parseValue<String>(json, "CourtLocation"),
@@ -116,6 +119,7 @@ class LitigationModel {
     "Title": title,
     "CaseNumber": caseNumber,
     "CaseType": caseType,
+    "Priority": priority,
     "DateOfFilling": dateOfFilling.toIso8601String(),
     "CourtName": courtName,
     "CourtLocation": courtLocation,
@@ -153,6 +157,7 @@ class LitigationModel {
       title: title,
       caseNumber: caseNumber,
       caseType: caseType,
+      priority: priority,
       dateOfFilling: dateOfFilling,
       courtName: courtName,
       courtLocation: courtLocation,

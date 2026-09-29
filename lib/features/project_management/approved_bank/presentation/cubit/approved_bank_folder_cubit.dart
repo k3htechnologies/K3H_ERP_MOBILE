@@ -460,12 +460,8 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     int projectId,
     int approvedBankFolderId,
   ) async {
-    if (state.totalNumberOfRecordBank == 0) {
-      showErrorMessage(context, "Error", "No Data Found.");
-      return;
-    }
     DialogHelper.showProcessingOverlay(context);
-    final result = await _approvedBankRepository.getApprovedBankFolderForExport(
+    final result = await _approvedBankRepository.getApprovedBankFileForExport(
       pageNumber: 1,
       pageSize: 1,
       projectId: projectId,
@@ -546,7 +542,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
 
   int updateFilterCountFile(ApprovedBankFolderState state) {
     final hasSort =
-        state.currentSortColumnBankFile == "ApprovedBankFileName" &&
+        state.currentSortColumnBankFile == "Title" &&
         (state.currentSortDirectionBankFile == "ASC" ||
             state.currentSortDirectionBankFile == "DESC");
     return getActiveFilterCount([

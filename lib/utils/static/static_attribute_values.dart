@@ -278,6 +278,8 @@ const flatFacingValues = [
 
 const caseTypeValues = ['Criminal', 'Civil'];
 
+const priorityValues = ['Critical', 'Non - Critical'];
+
 const courtTypeValues = [
   'Civil Court',
   'District Court',

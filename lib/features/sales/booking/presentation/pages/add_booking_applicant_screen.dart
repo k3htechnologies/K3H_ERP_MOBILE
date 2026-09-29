@@ -752,13 +752,13 @@ class _AddBookingApplicantScreenState extends State<AddBookingApplicantScreen> {
                           return "GST Number is required.";
                         }
                         if (!InputValidator.isValidGST(value)) {
-                          return "GST Number is invalid";
+                          return "Enter a valid GST number";
                         }
                       } else {
                         if (value != null &&
                             value.isNotEmpty &&
                             !InputValidator.isValidGST(value)) {
-                          return "GST Number is invalid";
+                          return "Enter a valid GST number";
                         }
                       }
                       return null;
