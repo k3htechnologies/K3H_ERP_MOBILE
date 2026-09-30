@@ -21,6 +21,10 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
   final RERADocumentRepository _reraDocumentRepository =
       serviceLocator<RERADocumentRepository>();
 
+  Future<void> resetSearch() async {
+    emit(state.copyWith(searchText: ""));
+  }
+
   // GET CATEGORY LIST
   Future getCategoryList(
     BuildContext context,
@@ -53,7 +57,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-      (response) {
+      (response) async {
         emit(
           state.copyWith(
             isLoading: false,
@@ -77,7 +81,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           ),
         );
         if ((response['data'] as List<RERADocumentCategoryModel>).isNotEmpty) {
-          getRERADocumentList(context: context, pageNumber: 1);
+          await getRERADocumentList(context: context, pageNumber: 1);
         }
       },
     );
@@ -428,16 +432,20 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
   //UPDATE CATEGORY INDEX AND MAKE GET API CALL AS PER CATEGORY
   void onTabChanged(int index, BuildContext context) {
+    final categoryId =
+        state.documentCategoryModelList[index].projectRERADocumentCategoryId;
+
     emit(
       state.copyWith(
         categoryIndex: index,
-        projectRERADocumentCategoryId:
-            state
-                .documentCategoryModelList[index]
-                .projectRERADocumentCategoryId,
+        projectRERADocumentCategoryId: categoryId,
         reraDocumentList: [],
+        currentPage: 1,
+        totalNumberOfRecord: 0,
+        searchText: "",
       ),
     );
+
     getRERADocumentList(context: context, pageNumber: 1);
   }
 

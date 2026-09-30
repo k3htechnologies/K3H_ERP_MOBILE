@@ -16,6 +16,10 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
   final DocumentCategoryRepository _documentCategoryRepository =
       serviceLocator<DocumentCategoryRepository>();
 
+  Future<void> resetSearch() async {
+    emit(state.copyWith(searchText: ""));
+  }
+
   // SEARCH CATEGORY
   Future searchCategory(
     BuildContext context,

@@ -73,6 +73,7 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
                 children: [
                   Icon(
@@ -80,9 +81,11 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                     color: AppColor.darkBlue,
                     size: 18,
                   ),
-                  Text(
-                    toTitleCase(widget.redevelopmentModel.buildingName),
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  Expanded(
+                    child: Text(
+                      toTitleCase(widget.redevelopmentModel.buildingName),
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
                   ),
                 ],
               ),
@@ -184,27 +187,6 @@ class _ViewRedevelopmentScreenState extends State<ViewRedevelopmentScreen> {
                               },
                             );
                           },
-                        ),
-                      ),
-                      Positioned(
-                        left: 10,
-                        bottom: 10,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColor.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF000000),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              "${widget.redevelopmentModel.cityName}, ${widget.redevelopmentModel.stateName}",
-                            ),
-                          ),
                         ),
                       ),
                     ],

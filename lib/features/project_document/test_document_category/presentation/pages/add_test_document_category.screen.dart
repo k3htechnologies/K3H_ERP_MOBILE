@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/data/model/test_document_category.model.dart';
@@ -129,9 +130,9 @@ class _AddTestDocumentCategoryScreenState
                       hint: "Enter Test Document Category",
                       isRequired: true,
                       textController: _reraDocumentCategoryC,
-                      inputFormatterList: InputValidator.digitAndCharacterOnly(
-                        100,
-                      ),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Test Document Category is required.";

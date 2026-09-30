@@ -403,6 +403,15 @@ class InputValidator {
 
     return true;
   }
+
+  static bool isValidGoogleMapUrl(String url) {
+    final googleMapsRegex = RegExp(
+      r'^(https?:\/\/)?(www\.)?(google\.com\/maps|maps\.google\.com|goo\.gl\/maps|maps\.app\.goo\.gl)\/?.*',
+      caseSensitive: false,
+    );
+
+    return googleMapsRegex.hasMatch(url.trim());
+  }
 }
 
 class UpperCaseTextFormatter extends TextInputFormatter {

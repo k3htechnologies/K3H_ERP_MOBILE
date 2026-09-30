@@ -17,7 +17,6 @@ part 'document_state.dart';
 
 class DocumentCubit extends Cubit<DocumentState> {
   DocumentCubit() : super(DocumentState.initial());
-
   final DocumentCategoryRepository _documentCategoryRepository =
       serviceLocator<DocumentCategoryRepository>();
   final DocumentRepository _documentRepository =
@@ -55,7 +54,7 @@ class DocumentCubit extends Cubit<DocumentState> {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
-      (response) {
+      (response) async {
         emit(
           state.copyWith(
             isLoading: false,
@@ -79,7 +78,7 @@ class DocumentCubit extends Cubit<DocumentState> {
           ),
         );
         if ((response['data'] as List<DocumentCategoryModel>).isNotEmpty) {
-          getProjectDocumentList(context: context, pageNumber: 1);
+          await getProjectDocumentList(context: context, pageNumber: 1);
         }
       },
     );
@@ -404,14 +403,21 @@ class DocumentCubit extends Cubit<DocumentState> {
 
   //UPDATE CATEGORY INDEX AND MAKE GET API CALL AS PER CATEGORY
   void onTabChanged(int index, BuildContext context) {
+    final categoryId =
+        state.documentCategoryModelList[index].projectDocumentCategoryId;
+
     emit(
       state.copyWith(
         categoryIndex: index,
-        projectDocumentCategoryId:
-            state.documentCategoryModelList[index].projectDocumentCategoryId,
+        projectDocumentCategoryId: categoryId,
         documentList: [],
+        currentPage: 1,
+        totalNumberOfRecord: 0,
+        searchText: "",
+        isLoading: true,
       ),
     );
+
     getProjectDocumentList(context: context, pageNumber: 1);
   }
 

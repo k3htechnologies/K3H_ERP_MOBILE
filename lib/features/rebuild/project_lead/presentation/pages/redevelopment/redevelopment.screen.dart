@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -27,13 +28,18 @@ class RedevelopmentScreen extends StatefulWidget {
 class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
   late ProjectLeadCubit _projectleadCubit;
   late AuthorizationModel _routeAuthorizationModel;
+
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
+
   @override
   void initState() {
     _projectleadCubit = context.read<ProjectLeadCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.projectLead] ??
         AuthorizationModel();
-
+    _onScroll();
     super.initState();
   }
 
@@ -58,6 +64,34 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  // <---- PAGINATION ---->
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !(_projectleadCubit.state.isLoading ?? false) &&
+          _projectleadCubit.state.redevelopmentList.length <
+              _projectleadCubit.state.redevelopmentTotalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _projectleadCubit.getRedevelopmentList(
+            context,
+            _projectleadCubit.state.redevelopmentCurrentPage + 1,
+          );
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProjectLeadCubit, ProjectLeadState>(
       builder: (context, state) {
@@ -74,10 +108,20 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
           );
         }
         return ListView.builder(
-          itemCount: state.redevelopmentList.length,
+          controller: scrollController,
+          itemCount: state.redevelopmentList.length + 1,
           shrinkWrap: true,
           physics: AlwaysScrollableScrollPhysics(),
           itemBuilder: (context, index) {
+            if (index == state.redevelopmentList.length) {
+              return state.redevelopmentList.length <
+                      state.redevelopmentTotalNumberOfRecord
+                  ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                  : const SizedBox.shrink();
+            }
             final redevelopment = state.redevelopmentList[index];
             return Container(
               margin: EdgeInsets.only(bottom: 10.0),
@@ -111,43 +155,43 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
                           ),
                         ),
                       ),
-                      if (_routeAuthorizationModel.isAction) ...[
-                        horizontalSpacing(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addRedevelopment,
-                                  extra: {
-                                    "redevelopment": redevelopment,
-                                    "index": index,
-                                  },
-                                );
+                      horizontalSpacing(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomIconButton.edit(
+                            isDisabled: !_routeAuthorizationModel.isAction,
+                            onPressed: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.addRedevelopment,
+                                extra: {
+                                  "redevelopment": redevelopment,
+                                  "index": index,
+                                },
+                              );
 
-                                if (!context.mounted) return;
+                              if (!context.mounted) return;
 
-                                await _projectleadCubit.getRedevelopmentList(
-                                  context,
-                                  1,
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeeleteRedevelopment(
-                                  context,
-                                  redevelopment,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                              await _projectleadCubit.getRedevelopmentList(
+                                context,
+                                1,
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.delete(
+                            isDisabled: !_routeAuthorizationModel.isAction,
+                            onPressed: () {
+                              _showPopupToDeeleteRedevelopment(
+                                context,
+                                redevelopment,
+                                index,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   verticalSpacing(),

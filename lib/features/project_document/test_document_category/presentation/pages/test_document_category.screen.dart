@@ -35,8 +35,7 @@ class _TestDocumentCategoryScreenState
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
-  //PROJECT
-  late ProjectModel _project;
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -52,12 +51,11 @@ class _TestDocumentCategoryScreenState
         Authorization.routeAuthorizationMap[AppRoutes.testDocumentCategory]!;
     _onScroll();
     _initializeTextEditingController();
-    //SET PROJECT ID
-    _project = getProject();
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
     _testDocumentCategoryCubit.getTestDocumentCategoryList(
       context,
       1,
-      _project.projectId,
+      _selectedProjectNotifier.value.projectId,
     );
   }
 
@@ -83,12 +81,12 @@ class _TestDocumentCategoryScreenState
                   .testDocumentCategoryModelList
                   .length <
               _testDocumentCategoryCubit.state.totalNumberOfRecord) {
-        if (_project.projectId != 0) {
+        if (_selectedProjectNotifier.value.projectId != 0) {
           _testDocumentCategoryCubit.getTestDocumentCategoryList(
             context,
             _testDocumentCategoryCubit.state.currentPage + 1,
 
-            _project.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         }
       }
@@ -110,7 +108,7 @@ class _TestDocumentCategoryScreenState
 
     if (shouldDelete && context.mounted) {
       _testDocumentCategoryCubit.deleteTestDocumentCategory(
-        _project.projectId,
+        _selectedProjectNotifier.value.projectId,
         obj,
         context,
       );
@@ -125,17 +123,17 @@ class _TestDocumentCategoryScreenState
         authorization: _routeAuthorizationModel,
         searchHintText: "Search By Test Document Category",
         onSearchSubmit: (value) {
-          if (_project.projectId != 0) {
+          if (_selectedProjectNotifier.value.projectId != 0) {
             _testDocumentCategoryCubit.searchCategory(
               context,
-              _project.projectId,
+              _selectedProjectNotifier.value.projectId,
               value,
             );
           }
         },
         textController: _searchC,
         onAddCallback: () async {
-          if (_project.projectId == 0) {
+          if (_selectedProjectNotifier.value.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
@@ -146,7 +144,7 @@ class _TestDocumentCategoryScreenState
               _testDocumentCategoryCubit.getTestDocumentCategoryList(
                 context,
                 1,
-                _project.projectId,
+                _selectedProjectNotifier.value.projectId,
               );
             }
           });
@@ -159,149 +157,181 @@ class _TestDocumentCategoryScreenState
           _testDocumentCategoryCubit.exportExcelPdf(
             context,
             value,
-            _project.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         },
         onProjectChangeCallback: (value) {
-          _project = value;
+          _selectedProjectNotifier.value = value;
+          _searchC.clear();
+          _testDocumentCategoryCubit.resetSearch();
           _testDocumentCategoryCubit.getTestDocumentCategoryList(
             context,
             1,
-            _project.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         },
       ),
-      body: BlocBuilder<TestDocumentCategoryCubit, TestDocumentCategoryState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) &&
-              state.testDocumentCategoryModelList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.testDocumentCategoryModelList.isEmpty) {
-            return Center(
-              child: Padding(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ValueListenableBuilder(
+            valueListenable: _selectedProjectNotifier,
+            builder: (context, value, child) {
+              return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: noDataWidget(
-                  message: "No Test Document Category Data Found",
-                ),
-              ),
-            );
-          }
-          return ListView.builder(
-            controller: scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            itemCount: state.testDocumentCategoryModelList.length + 1,
-            itemBuilder: (context, index) {
-              if (index == state.testDocumentCategoryModelList.length) {
-                return state.testDocumentCategoryModelList.length <
-                        state.totalNumberOfRecord
-                    ? const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Center(child: CircularProgressIndicator()),
-                    )
-                    : const SizedBox.shrink();
-              }
-              var testDocumentCategory =
-                  state.testDocumentCategoryModelList[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 10),
-                padding: const EdgeInsets.all(12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      spacing: 10,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Flexible(
-                          child: GestureDetector(
-                            onTap: () {
-                              goRouter.pushNamed(
-                                AppRoutes.viewTestDocumentCategory,
-                                queryParameters: {
-                                  "testDocumentCategory":
-                                      Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(
-                                            testDocumentCategory.toJson(),
-                                          ),
-                                        ),
-                                      ),
-                                },
-                              );
-                            },
-                            child: Text(
-                              testDocumentCategory.testDocumentCategoryName,
-                              style: AppTextStyle.ts16M(
-                                color: AppColor.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                        if (_routeAuthorizationModel.isAction)
+                child: showSiteSelectedWidget(),
+              );
+            },
+          ),
+          Expanded(
+            child: BlocBuilder<
+              TestDocumentCategoryCubit,
+              TestDocumentCategoryState
+            >(
+              builder: (context, state) {
+                if ((state.isLoading ?? true) &&
+                    state.testDocumentCategoryModelList.isEmpty) {
+                  return Center(child: loader());
+                }
+                if (state.testDocumentCategoryModelList.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: noDataWidget(
+                        message: "No Test Document Category Data Found",
+                      ),
+                    ),
+                  );
+                }
+                return ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  itemCount: state.testDocumentCategoryModelList.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == state.testDocumentCategoryModelList.length) {
+                      return state.testDocumentCategoryModelList.length <
+                              state.totalNumberOfRecord
+                          ? const Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                          : const SizedBox.shrink();
+                    }
+                    var testDocumentCategory =
+                        state.testDocumentCategoryModelList[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      padding: const EdgeInsets.all(12),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Row(
+                            spacing: 10,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              CustomIconButton.edit(
-                                onPressed: () async {
-                                  if (_project.projectId == 0) {
-                                    showErrorMessage(
-                                      context,
-                                      'Error',
-                                      'Please select a project',
-                                    );
-                                    return;
-                                  }
-                                  await goRouter.pushNamed(
-                                    AppRoutes.addTestDocumentCategory,
-                                    queryParameters: {
-                                      "testDocumentCategory":
-                                          Uri.encodeQueryComponent(
-                                            EncryptionManager.encryptData(
-                                              jsonEncode(
-                                                testDocumentCategory.toJson(),
+                              Flexible(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    goRouter.pushNamed(
+                                      AppRoutes.viewTestDocumentCategory,
+                                      queryParameters: {
+                                        "testDocumentCategory":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                jsonEncode(
+                                                  testDocumentCategory.toJson(),
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                      'index': index.toString(),
-                                    },
-                                  );
-                                },
+                                      },
+                                    );
+                                  },
+                                  child: Text(
+                                    testDocumentCategory
+                                        .testDocumentCategoryName,
+                                    style: AppTextStyle.ts16M(
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
+                                ),
                               ),
-                              const SizedBox(width: 8),
-                              CustomIconButton.delete(
-                                isDisabled:
-                                    testDocumentCategory.documentCount == 0
-                                        ? false
-                                        : true,
-                                onPressed: () {
-                                  _showPopupToDeleteTestDocumentCategory(
-                                    context,
-                                    testDocumentCategory,
-                                    state.currentPage,
-                                    index,
-                                  );
-                                },
+                              Row(
+                                children: [
+                                  CustomIconButton.edit(
+                                    isDisabled:
+                                        !_routeAuthorizationModel.isAction,
+                                    onPressed: () async {
+                                      if (_selectedProjectNotifier
+                                              .value
+                                              .projectId ==
+                                          0) {
+                                        showErrorMessage(
+                                          context,
+                                          'Error',
+                                          'Please select a project',
+                                        );
+                                        return;
+                                      }
+                                      await goRouter.pushNamed(
+                                        AppRoutes.addTestDocumentCategory,
+                                        queryParameters: {
+                                          "testDocumentCategory":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    testDocumentCategory
+                                                        .toJson(),
+                                                  ),
+                                                ),
+                                              ),
+                                          'index': index.toString(),
+                                        },
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  CustomIconButton.delete(
+                                    isDisabled:
+                                        (!_routeAuthorizationModel.isAction ||
+                                            testDocumentCategory
+                                                    .documentCount ==
+                                                0),
+                                    onPressed: () {
+                                      _showPopupToDeleteTestDocumentCategory(
+                                        context,
+                                        testDocumentCategory,
+                                        state.currentPage,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                      ],
-                    ),
-                    verticalSpacing(height: 8),
-                    buildRowTitleValue(
-                      title: "Sequencce",
-                      value: testDocumentCategory.orderBy.toString(),
-                    ),
-                    buildRowTitleValue(
-                      title: "Document Count",
-                      value: testDocumentCategory.documentCount.toString(),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                          verticalSpacing(height: 8),
+                          buildRowTitleValue(
+                            title: "Sequence",
+                            value: testDocumentCategory.orderBy.toString(),
+                          ),
+                          buildRowTitleValue(
+                            title: "Document Count",
+                            value:
+                                testDocumentCategory.documentCount.toString(),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

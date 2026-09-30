@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/document_category/data/model/document_category.model.dart';
@@ -140,6 +141,9 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
                       hint: "Enter project document category",
                       isRequired: true,
                       textController: _documentCategoryC,
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Project Document Category is required.";

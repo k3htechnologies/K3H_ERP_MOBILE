@@ -72,6 +72,7 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: 8,
                 children: [
                   Icon(
@@ -79,9 +80,11 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
                     color: AppColor.darkBlue,
                     size: 18,
                   ),
-                  Text(
-                    toTitleCase(widget.landModel.landOwnerName),
-                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  Expanded(
+                    child: Text(
+                      toTitleCase(widget.landModel.landOwnerName),
+                      style: AppTextStyle.ts14M(color: AppColor.grey),
+                    ),
                   ),
                 ],
               ),
@@ -183,27 +186,6 @@ class _ViewLandScreenState extends State<ViewLandScreen> {
                               },
                             );
                           },
-                        ),
-                      ),
-                      Positioned(
-                        left: 10,
-                        bottom: 10,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: AppColor.white,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: Color(0xFF000000),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              "${widget.landModel.cityName}, ${widget.landModel.stateName}",
-                            ),
-                          ),
                         ),
                       ),
                     ],

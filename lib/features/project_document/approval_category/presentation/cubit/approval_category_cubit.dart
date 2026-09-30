@@ -14,6 +14,10 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
   final ApprovalCategoryRepository _documentCategoryRepository =
       serviceLocator<ApprovalCategoryRepository>();
 
+  Future<void> resetSearch() async {
+    emit(state.copyWith(searchText: ""));
+  }
+
   // GET APPROVE DOCUMENT CATEGORY LIST
   Future getApprovalapprovalCategoryList(
     BuildContext context,

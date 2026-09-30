@@ -127,13 +127,17 @@ class _ViewApprovalDocumentScreenState
         child: Column(
           spacing: 15,
           children: [
+            showSiteSelectedWidget(),
             Row(
               spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.documentModel.approvalDocumentName,
-                  style: AppTextStyle.ts16SB(),
+                Expanded(
+                  child: Text(
+                    widget.documentModel.approvalDocumentName,
+                    style: AppTextStyle.ts16SB(),
+                  ),
                 ),
                 _routeAuthorizationModel.isAction
                     ? CustomButton(
@@ -229,39 +233,39 @@ class _ViewApprovalDocumentScreenState
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-              if (_routeAuthorizationModel.isAction) ...[
-                CustomIconButton.edit(
-                  isDisabled:
-                      !document.approvalDocumentApprovalStatus
-                          .toLowerCase()
-                          .contains('pending'),
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addApprovalDocument,
-                      queryParameters: {
-                        "approvalDocument": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(document.toJson()),
-                          ),
+              CustomIconButton.edit(
+                isDisabled:
+                    (!_routeAuthorizationModel.isAction ||
+                        !document.approvalDocumentApprovalStatus
+                            .toLowerCase()
+                            .contains('pending')),
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.addApprovalDocument,
+                    queryParameters: {
+                      "approvalDocument": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(document.toJson()),
                         ),
-                        "index": index.toString(),
-                        "isEdit": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(true.toString()),
-                        ),
-                      },
-                    );
-                  },
-                ),
-                CustomIconButton.delete(
-                  isDisabled:
-                      !document.approvalDocumentApprovalStatus
-                          .toLowerCase()
-                          .contains('pending'),
-                  onPressed: () {
-                    _showPopupToDeleteSubDocument(context, document, index);
-                  },
-                ),
-              ],
+                      ),
+                      "index": index.toString(),
+                      "isEdit": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(true.toString()),
+                      ),
+                    },
+                  );
+                },
+              ),
+              CustomIconButton.delete(
+                isDisabled:
+                    (_routeAuthorizationModel.isAction ||
+                        !document.approvalDocumentApprovalStatus
+                            .toLowerCase()
+                            .contains('pending')),
+                onPressed: () {
+                  _showPopupToDeleteSubDocument(context, document, index);
+                },
+              ),
             ],
           ),
           Row(

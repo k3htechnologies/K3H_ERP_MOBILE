@@ -121,6 +121,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         child: Column(
           spacing: 15,
           children: [
+            showSiteSelectedWidget(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
@@ -319,6 +320,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             ],
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
                 title: "View Document",
@@ -338,17 +340,13 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   ],
                 ),
               ),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
               buildColumnTitleValue(
                 title: "Remark",
                 value: document.projectDocumentRemark,
               ),
             ],
           ),
+
           ApproveRejectWidget(
             showApproval: document.isApproval,
             actionTitle:

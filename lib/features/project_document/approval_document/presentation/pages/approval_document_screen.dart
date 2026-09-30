@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_cubit.dart';
@@ -39,7 +41,12 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
   // TAB CONTROLLERS
   TabController? _categoryTabController;
 
-  late int projectId;
+  // TEXT EDIT CONTROLLER
+  late TextEditingController _searchC, _documentC;
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
+
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
 
   //PAGINATION
   late ScrollController scrollController;
@@ -51,8 +58,12 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.approvalDocument]!;
     _documentCubit = context.read<ApprovalDocumentCubit>();
-    projectId = getProject().projectId;
-    _documentCubit.getCategoryList(context, 1, projectId);
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
+    _documentCubit.getCategoryList(
+      context,
+      1,
+      _selectedProjectNotifier.value.projectId,
+    );
     _initControllers();
     _onScroll();
   }
@@ -81,6 +92,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
   // CATEGORY TAB
   void _onBuildingTabChanged() {
     if (!_categoryTabController!.indexIsChanging && mounted) {
+      _searchC.clear();
       _documentCubit.onTabChanged(_categoryTabController!.index, context);
     }
   }
@@ -98,11 +110,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
 
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
-
-  // TEXT EDIT CONTROLLER
-  late TextEditingController _searchC, _documentC;
-  // FORM KEY
-  final _formKey = GlobalKey<FormState>();
 
   // INITIALIZE CONTROLLERS
   void _initControllers() {
@@ -183,6 +190,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
               hint: "Enter Document Name",
               isRequired: true,
               textController: _documentC,
+              inputFormatterList: [LengthLimitingTextInputFormatter(100)],
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return "Document Name is required.";
@@ -220,9 +228,13 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           _documentCubit.searchApprovalDocument(value, context);
         },
         onProjectChangeCallback: (project) {
-          projectId = project.projectId;
+          _selectedProjectNotifier.value = project;
           if (context.mounted) {
-            _documentCubit.getCategoryList(context, 1, projectId);
+            _documentCubit.getCategoryList(
+              context,
+              1,
+              _selectedProjectNotifier.value.projectId,
+            );
           }
         },
         extraHeight: 20,
@@ -247,83 +259,105 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
             ),
       ),
       body: SafeArea(
-        child: BlocListener<ApprovalDocumentCubit, ApprovalDocumentState>(
-          listener: (context, state) {
-            if (!mounted) return;
-            if (!state.isLoading! &&
-                state.documentCategoryModelList.isNotEmpty) {
-              if (_categoryTabController == null ||
-                  _categoryTabController!.length !=
-                      state.documentCategoryModelList.length) {
-                _initCategoryController(state);
-              }
-            }
-          },
-          child: BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
-            builder: (context, state) {
-              // 1. Initial loading
-              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              // 2. Loaded but no categories
-              if (state.documentCategoryModelList.isEmpty) {
-                return Center(
-                  child: noDataWidget(
-                    message: "No Approval Document Data Found",
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: _selectedProjectNotifier,
+              builder: (context, value, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: showSiteSelectedWidget(),
                 );
-              }
+              },
+            ),
+            Expanded(
+              child: BlocListener<ApprovalDocumentCubit, ApprovalDocumentState>(
+                listener: (context, state) {
+                  if (!mounted) return;
+                  if (!state.isLoading! &&
+                      state.documentCategoryModelList.isNotEmpty) {
+                    if (_categoryTabController == null ||
+                        _categoryTabController!.length !=
+                            state.documentCategoryModelList.length) {
+                      _initCategoryController(state);
+                    }
+                  }
+                },
+                child: BlocBuilder<
+                  ApprovalDocumentCubit,
+                  ApprovalDocumentState
+                >(
+                  builder: (context, state) {
+                    // 1. Initial loading
+                    if (state.isLoading! &&
+                        state.documentCategoryModelList.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-              // 3. Categories exist but controller not ready yet
-              if (_categoryTabController == null) {
-                return const Center(child: CircularProgressIndicator());
-              }
+                    // 2. Loaded but no categories
+                    if (state.documentCategoryModelList.isEmpty) {
+                      return Center(
+                        child: noDataWidget(
+                          message: "No Approval Document Data Found",
+                        ),
+                      );
+                    }
 
-              return Column(
-                children: [
-                  // CATEGORY TAB
-                  _buildCategoryTab(state),
-                  verticalSpacing(),
-                  Expanded(
-                    child: TabBarView(
-                      physics: NeverScrollableScrollPhysics(),
-                      controller: _categoryTabController,
-                      children:
-                          state.documentCategoryModelList.map((category) {
-                            final documentsForCategory =
-                                state.documentList
-                                    .where(
-                                      (d) =>
-                                          d.approvalDocumentCategoryId ==
-                                          category.approvalDocumentCategoryId,
-                                    )
-                                    .toList();
+                    // 3. Categories exist but controller not ready yet
+                    if (_categoryTabController == null) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-                            return (state.documentList.isEmpty &&
-                                    state.isLoading!)
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : RefreshIndicator(
-                                  onRefresh: () async {
-                                    _searchC.clear();
-                                    _documentCubit.searchApprovalDocument(
-                                      "",
-                                      context,
-                                    );
-                                  },
-                                  child: _buildApprovalDocumentListForCategory(
-                                    documentsForCategory,
-                                  ),
-                                );
-                          }).toList(),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                    return Column(
+                      children: [
+                        // CATEGORY TAB
+                        _buildCategoryTab(state),
+                        verticalSpacing(),
+                        Expanded(
+                          child: TabBarView(
+                            physics: NeverScrollableScrollPhysics(),
+                            controller: _categoryTabController,
+                            children:
+                                state.documentCategoryModelList.map((category) {
+                                  final documentsForCategory =
+                                      state.documentList
+                                          .where(
+                                            (d) =>
+                                                d.approvalDocumentCategoryId ==
+                                                category
+                                                    .approvalDocumentCategoryId,
+                                          )
+                                          .toList();
+
+                                  return (state.documentList.isEmpty &&
+                                          state.isLoading!)
+                                      ? const Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                      : RefreshIndicator(
+                                        onRefresh: () async {
+                                          _searchC.clear();
+                                          _documentCubit.searchApprovalDocument(
+                                            "",
+                                            context,
+                                          );
+                                        },
+                                        child:
+                                            _buildApprovalDocumentListForCategory(
+                                              documentsForCategory,
+                                            ),
+                                      );
+                                }).toList(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -383,8 +417,10 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
 
               decoration: commonCardDecoration(),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Flexible(
@@ -411,68 +447,66 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                           child: Text(
                             document.approvalDocumentName,
                             style: AppTextStyle.ts16M(color: AppColor.primary),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
-                      if (_routeAuthorizationModel.isAction)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomIconButton(
-                              icon: Icon(
-                                Icons.add,
-                                size: 16,
-                                color: AppColor.primary,
-                              ),
-                              onPressed: () async {
-                                goRouter.pushNamed(
-                                  AppRoutes.addApprovalDocument,
-                                  queryParameters: {
-                                    "approvalDocument":
-                                        Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(document.toJson()),
-                                          ),
-                                        ),
-                                    "index": index.toString(),
-
-                                    "isEdit": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        false.toString(),
-                                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomIconButton(
+                            isDisable: !_routeAuthorizationModel.isAction,
+                            icon: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: AppColor.primary,
+                            ),
+                            onPressed: () async {
+                              goRouter.pushNamed(
+                                AppRoutes.addApprovalDocument,
+                                queryParameters: {
+                                  "approvalDocument": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(document.toJson()),
                                     ),
-                                  },
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                _showPopUpToAddUpdateApprovalDocument(
-                                  documentModel: document,
-                                  index: index,
-                                  context: context,
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 8),
-                            CustomIconButton.delete(
-                              isDisabled:
-                                  document.uploadedApprovalDocumentCount == 0
-                                      ? false
-                                      : true,
-                              onPressed: () {
-                                _showPopupToDeleteApprovalDocument(
-                                  context,
-                                  document,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
+                                  ),
+                                  "index": index.toString(),
+
+                                  "isEdit": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      false.toString(),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          CustomIconButton.edit(
+                            isDisabled: !_routeAuthorizationModel.isAction,
+                            onPressed: () async {
+                              _showPopUpToAddUpdateApprovalDocument(
+                                documentModel: document,
+                                index: index,
+                                context: context,
+                              );
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          CustomIconButton.delete(
+                            isDisabled:
+                                (!_routeAuthorizationModel.isAction ||
+                                    document.uploadedApprovalDocumentCount ==
+                                        0),
+                            onPressed: () {
+                              _showPopupToDeleteApprovalDocument(
+                                context,
+                                document,
+                                index,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   verticalSpacing(height: 10),

@@ -121,6 +121,7 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
           spacing: 15,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            showSiteSelectedWidget(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
@@ -231,40 +232,40 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-              if (_routeAuthorizationModel.isAction) ...[
-                CustomIconButton.edit(
-                  isDisabled:
-                      !document.approvalStatus.toLowerCase().contains(
-                        'pending',
-                      ),
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addTestDocument,
-                      queryParameters: {
-                        "document": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(document.toJson()),
-                          ),
+              CustomIconButton.edit(
+                isDisabled:
+                    (!_routeAuthorizationModel.isAction ||
+                        !document.approvalStatus.toLowerCase().contains(
+                          'pending',
+                        )),
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.addTestDocument,
+                    queryParameters: {
+                      "document": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(document.toJson()),
                         ),
-                        "index": index.toString(),
+                      ),
+                      "index": index.toString(),
 
-                        "isEdit": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(true.toString()),
-                        ),
-                      },
-                    );
-                  },
-                ),
-                CustomIconButton.delete(
-                  isDisabled:
-                      !document.approvalStatus.toLowerCase().contains(
-                        'pending',
+                      "isEdit": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(true.toString()),
                       ),
-                  onPressed: () {
-                    _showPopupToDeleteSubDocument(context, document, index);
-                  },
-                ),
-              ],
+                    },
+                  );
+                },
+              ),
+              CustomIconButton.delete(
+                isDisabled:
+                    (!_routeAuthorizationModel.isAction ||
+                        !document.approvalStatus.toLowerCase().contains(
+                          'pending',
+                        )),
+                onPressed: () {
+                  _showPopupToDeleteSubDocument(context, document, index);
+                },
+              ),
             ],
           ),
           buildColumnTitleValue(

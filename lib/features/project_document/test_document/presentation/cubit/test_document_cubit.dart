@@ -435,6 +435,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
         categoryIndex: index,
         testDocumentCategoryId:
             state.tesDocumentCategoryModelList[index].testDocumentCategoryId,
+        searchText: "",
         testDocumentList: [],
       ),
     );

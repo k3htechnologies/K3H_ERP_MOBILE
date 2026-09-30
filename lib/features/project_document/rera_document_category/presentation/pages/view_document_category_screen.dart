@@ -20,101 +20,118 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Column(
-            spacing: 10,
-            children: [
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: showSiteSelectedWidget(),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                 child: Column(
                   spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Project RERA Document Category Master Details",
-                      style: AppTextStyle.ts16SB(),
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "RERA Document Category",
-                          value:
-                              reraDocumentCategoryModel
-                                  .projectRERADocumentCategoryName,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Sequence",
-                          value: reraDocumentCategoryModel.orderBy.toString(),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Document Count",
-                          value:
-                              reraDocumentCategoryModel.documentCount
-                                  .toString(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: reraDocumentCategoryModel.createdBy,
-                        ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            reraDocumentCategoryModel.createdDate,
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Project RERA Document Category Master Details",
+                            style: AppTextStyle.ts16SB(),
                           ),
-                        ),
-                      ],
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "RERA Document Category",
+                                value:
+                                    reraDocumentCategoryModel
+                                        .projectRERADocumentCategoryName,
+                              ),
+                              buildColumnTitleValue(
+                                title: "Sequence",
+                                value:
+                                    reraDocumentCategoryModel.orderBy
+                                        .toString(),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Document Count",
+                                value:
+                                    reraDocumentCategoryModel.documentCount
+                                        .toString(),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              reraDocumentCategoryModel.modifiedBy.isNotEmpty
-                                  ? reraDocumentCategoryModel.modifiedBy
-                                  : '-',
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              reraDocumentCategoryModel.modifiedDate != null
-                                  ? formatDate(
-                                    reraDocumentCategoryModel.modifiedDate!,
-                                  )
-                                  : '-',
-                        ),
-                      ],
+
+                    Container(
+                      padding: EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Action Details", style: AppTextStyle.ts16SB()),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Created By",
+                                value: reraDocumentCategoryModel.createdBy,
+                              ),
+                              buildColumnTitleValue(
+                                title: "Created Date",
+                                value: formatDate(
+                                  reraDocumentCategoryModel.createdDate,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Modified By",
+                                value:
+                                    reraDocumentCategoryModel
+                                            .modifiedBy
+                                            .isNotEmpty
+                                        ? reraDocumentCategoryModel.modifiedBy
+                                        : '-',
+                              ),
+                              buildColumnTitleValue(
+                                title: "Modified Date",
+                                value:
+                                    reraDocumentCategoryModel.modifiedDate !=
+                                            null
+                                        ? formatDate(
+                                          reraDocumentCategoryModel
+                                              .modifiedDate!,
+                                        )
+                                        : '-',
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

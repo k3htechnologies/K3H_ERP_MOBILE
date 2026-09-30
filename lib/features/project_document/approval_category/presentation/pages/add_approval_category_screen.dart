@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
@@ -142,9 +143,9 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
                       hint: "Enter approval document category",
                       isRequired: true,
                       textController: _documentCategoryC,
-                      inputFormatterList: InputValidator.digitAndCharacterOnly(
-                        100,
-                      ),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Approval Document Category is required.";

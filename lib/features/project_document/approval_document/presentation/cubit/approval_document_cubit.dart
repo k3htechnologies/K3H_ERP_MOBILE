@@ -418,6 +418,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         categoryIndex: index,
         approvalDocumentCategoryId:
             state.documentCategoryModelList[index].approvalDocumentCategoryId,
+        searchText: "",
         documentList: [],
       ),
     );
