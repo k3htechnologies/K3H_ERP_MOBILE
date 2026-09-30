@@ -372,7 +372,7 @@ class _ShiftMappingMasterScreenState extends State<ShiftMappingMasterScreen> {
                                 },
                                 child: Text(
                                   shiftMappingMaster.shiftName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

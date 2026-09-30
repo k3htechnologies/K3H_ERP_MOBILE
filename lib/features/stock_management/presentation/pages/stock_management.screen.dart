@@ -132,7 +132,7 @@ class _StockManagementScreenState extends State<StockManagementScreen> {
                               },
                               child: Text(
                                 stocks.materialName,
-                                style: AppTextStyle.ts16M(
+                                style: AppTextStyle.ts14M(
                                   color: AppColor.primary,
                                 ),
                               ),

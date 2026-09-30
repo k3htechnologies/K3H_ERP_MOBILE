@@ -316,7 +316,7 @@ class _BranchAssociationMasterScreenState
                               },
                               child: Text(
                                 branchAssociation.employeeName,
-                                style: AppTextStyle.ts16M(
+                                style: AppTextStyle.ts14M(
                                   color: AppColor.primary,
                                 ),
                               ),

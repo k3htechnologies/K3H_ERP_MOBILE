@@ -563,7 +563,7 @@ class _IbmObmReportScreenState extends State<IbmObmReportScreen> {
                                     },
                                     child: Text(
                                       ibmObm.fullName,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
                                       ),
                                     ),

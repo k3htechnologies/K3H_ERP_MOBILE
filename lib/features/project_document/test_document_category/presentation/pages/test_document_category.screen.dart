@@ -253,7 +253,7 @@ class _TestDocumentCategoryScreenState
                                   child: Text(
                                     testDocumentCategory
                                         .testDocumentCategoryName,
-                                    style: AppTextStyle.ts16M(
+                                    style: AppTextStyle.ts14M(
                                       color: AppColor.primary,
                                     ),
                                   ),

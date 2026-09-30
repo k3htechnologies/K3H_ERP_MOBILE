@@ -656,7 +656,7 @@ class _ChannelPartnerScreenState extends State<ChannelPartnerScreen> {
                                 },
                                 child: Text(
                                   channelPartner.name,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

@@ -440,7 +440,7 @@ class _FinalizeVendorScreenState extends State<FinalizeVendorScreen> {
                                           },
                                           child: Text(
                                             vendor.vendorName,
-                                            style: AppTextStyle.ts16M(
+                                            style: AppTextStyle.ts14M(
                                               color: AppColor.primary,
                                             ).copyWith(
                                               decoration:

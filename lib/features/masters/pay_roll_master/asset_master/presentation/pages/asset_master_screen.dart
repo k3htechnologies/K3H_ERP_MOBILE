@@ -442,7 +442,7 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                                   ),
                                   child: Text(
                                     asset.assetName,
-                                    style: AppTextStyle.ts16M(
+                                    style: AppTextStyle.ts14M(
                                       color: AppColor.primary,
                                     ),
                                   ),
@@ -484,7 +484,6 @@ class _AssetMasterScreenState extends State<AssetMasterScreen> {
                             ),
                           ],
                         ),
-                        verticalSpacing(height: 8),
                         buildRowTitleValue(
                           title: "Code",
                           value: asset.assetCode,

@@ -369,7 +369,7 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                                 },
                                 child: Text(
                                   branch.branchName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),
@@ -409,7 +409,6 @@ class _BranchMasterScreenState extends State<BranchMasterScreen> {
                             ),
                           ],
                         ),
-                        verticalSpacing(height: 8),
                         buildRowTitleValue(
                           title: "Branch Code",
                           value: branch.branchCode,

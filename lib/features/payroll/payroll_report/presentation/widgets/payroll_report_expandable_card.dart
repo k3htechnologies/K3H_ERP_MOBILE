@@ -46,9 +46,7 @@ class _PayrollReportExpandableCardState
       curve: Curves.easeInOut,
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
-      decoration: commonCardDecoration().copyWith(
-        color: AppColor.white,
-      ),
+      decoration: commonCardDecoration().copyWith(color: AppColor.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -63,7 +61,7 @@ class _PayrollReportExpandableCardState
                     children: [
                       Text(
                         widget.title,
-                        style: AppTextStyle.ts16M(color: AppColor.primary),
+                        style: AppTextStyle.ts14M(color: AppColor.primary),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -91,14 +89,12 @@ class _PayrollReportExpandableCardState
             firstChild: const SizedBox.shrink(),
             secondChild: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                verticalSpacing(height: 10),
-                widget.expandedContent,
-              ],
+              children: [verticalSpacing(height: 10), widget.expandedContent],
             ),
-            crossFadeState: _isExpanded
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
+            crossFadeState:
+                _isExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
             duration: const Duration(milliseconds: 250),
           ),
         ],
@@ -106,4 +102,3 @@ class _PayrollReportExpandableCardState
     );
   }
 }
-

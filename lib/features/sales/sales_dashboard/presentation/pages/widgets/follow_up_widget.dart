@@ -126,7 +126,7 @@ class AwaitingFollowUpsWidget extends StatelessWidget {
                                     },
                                     child: Text(
                                       activeFollowUps.name,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color:
                                             activeFollowUps.isAction == 1
                                                 ? AppColor.primary

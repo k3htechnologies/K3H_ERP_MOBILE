@@ -337,7 +337,7 @@ class _MaterialMasterScreenState extends State<MaterialMasterScreen> {
                                 },
                                 child: Text(
                                   material.materialName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

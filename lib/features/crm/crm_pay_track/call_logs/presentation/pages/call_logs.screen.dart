@@ -398,7 +398,7 @@ class _CallLogsScreenState extends State<CallLogsScreen> {
                                   Expanded(
                                     child: Text(
                                       callLog.applicantName,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
                                       ),
                                     ),

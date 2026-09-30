@@ -446,7 +446,7 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
                                 },
                                 child: Text(
                                   company.companyName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

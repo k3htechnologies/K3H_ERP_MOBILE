@@ -346,7 +346,7 @@ class _SubMaterialMasterScreenState extends State<SubMaterialMasterScreen> {
                                 },
                                 child: Text(
                                   subMaterial.subMaterialName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

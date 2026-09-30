@@ -223,10 +223,8 @@ class _ContentFolderScreenState extends State<ContentFolderScreen> {
                               },
                               child: Text(
                                 folder.marketingContentFolderName,
-                                style: AppTextStyle.ts14M().copyWith(
+                                style: AppTextStyle.ts14M(
                                   color: AppColor.primary,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: AppColor.primary,
                                 ),
                               ),
                             ),

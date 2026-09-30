@@ -492,7 +492,7 @@ class _HolidayMappingMasterScreenState
                                     },
                                     child: Text(
                                       holidayMapping.holidayName,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
                                       ),
                                     ),

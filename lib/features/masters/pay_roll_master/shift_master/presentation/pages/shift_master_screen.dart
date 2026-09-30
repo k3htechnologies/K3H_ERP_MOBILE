@@ -328,7 +328,7 @@ class _ShiftMasterScreenState extends State<ShiftMasterScreen> {
                                 },
                                 child: Text(
                                   shiftMaster.shiftName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

@@ -331,7 +331,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           },
                           child: Text(
                             document.projectRERADocumentName,
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
+                            style: AppTextStyle.ts14M(color: AppColor.primary),
                           ),
                         ),
                       ),

@@ -339,7 +339,7 @@ class _WeekOffMasterScreenState extends State<WeekOffMasterScreen> {
                                 },
                                 child: Text(
                                   weekOffMaster.weekOffPolicyName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

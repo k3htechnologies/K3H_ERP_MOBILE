@@ -557,7 +557,7 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
                                 },
                                 child: Text(
                                   project.projectName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

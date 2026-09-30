@@ -436,7 +436,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                           },
                           child: Text(
                             document.testDocumentName.toString(),
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
+                            style: AppTextStyle.ts14M(color: AppColor.primary),
                           ),
                         ),
                       ),

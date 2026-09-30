@@ -387,7 +387,7 @@ class _WeekOffMappingMasterScreenState
                                 },
                                 child: Text(
                                   weekOffMappingMaster.weekOffPolicyName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

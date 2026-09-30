@@ -695,7 +695,7 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                     payTrack.applicantName.isNotEmpty
                         ? payTrack.applicantName
                         : '-',
-                    style: AppTextStyle.ts16M(color: AppColor.primary),
+                    style: AppTextStyle.ts14M(color: AppColor.primary),
                   ),
                 ),
               ),

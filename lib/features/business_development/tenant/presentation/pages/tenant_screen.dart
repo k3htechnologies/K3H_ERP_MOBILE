@@ -702,7 +702,7 @@ class _TenantScreenState extends State<TenantScreen> {
                                               },
                                               child: Text(
                                                 tenant.unitAnnexureSurveyNumber,
-                                                style: AppTextStyle.ts16M(
+                                                style: AppTextStyle.ts14M(
                                                   color: AppColor.primary,
                                                 ),
                                               ),

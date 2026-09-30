@@ -261,7 +261,7 @@ class _RERADocumentCategoryScreenState
                                     child: Text(
                                       reraCategory
                                           .projectRERADocumentCategoryName,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
                                       ),
                                     ),

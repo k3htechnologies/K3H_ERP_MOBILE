@@ -458,7 +458,7 @@ class _LeaveCreditConfigurationMasterScreenState
                                 },
                                 child: Text(
                                   leaveCreditConfigurationMaster.departmentName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

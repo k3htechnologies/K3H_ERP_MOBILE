@@ -630,7 +630,7 @@ class _BookingScreenState extends State<BookingScreen> {
                                               },
                                               child: Text(
                                                 booking.applicantName,
-                                                style: AppTextStyle.ts16M(
+                                                style: AppTextStyle.ts14M(
                                                   color: AppColor.primary,
                                                 ),
                                               ),

@@ -424,7 +424,7 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                       },
                                       child: Text(
                                         building.buildingName,
-                                        style: AppTextStyle.ts16M(
+                                        style: AppTextStyle.ts14M(
                                           color: AppColor.primary,
                                         ),
                                       ),

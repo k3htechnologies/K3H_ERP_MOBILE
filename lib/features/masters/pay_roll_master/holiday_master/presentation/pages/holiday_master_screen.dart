@@ -323,7 +323,7 @@ class _HolidayMasterScreenState extends State<HolidayMasterScreen> {
                                   ),
                                   child: Text(
                                     holiday.holidayName,
-                                    style: AppTextStyle.ts16M(
+                                    style: AppTextStyle.ts14M(
                                       color: AppColor.primary,
                                     ),
                                   ),

@@ -414,7 +414,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
                                   litigation.title,
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),

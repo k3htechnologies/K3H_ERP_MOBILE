@@ -355,7 +355,7 @@ class _LeaveScreenState extends State<LeaveScreen>
                                             },
                                             child: Text(
                                               leave.leaveType,
-                                              style: AppTextStyle.ts16M(
+                                              style: AppTextStyle.ts14M(
                                                 color: AppColor.primary,
                                               ),
                                             ),

@@ -437,7 +437,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
                     gatePass.noOfParticipants == 0
                         ? gatePass.fullName
                         : "${gatePass.fullName} +${gatePass.noOfParticipants}",
-                    style: AppTextStyle.ts16M(color: AppColor.primary),
+                    style: AppTextStyle.ts14M(color: AppColor.primary),
                   ),
                 ),
               ),

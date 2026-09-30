@@ -256,7 +256,7 @@ class _OutdoorScreenState extends State<OutdoorScreen> {
                               },
                               child: Text(
                                 formatDateTimeAsDDMMMYYYY(outdoor.outDoorDate),
-                                style: AppTextStyle.ts16M(
+                                style: AppTextStyle.ts14M(
                                   color: AppColor.primary,
                                 ),
                               ),

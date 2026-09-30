@@ -471,9 +471,6 @@ class _TargetScreenState extends State<TargetScreen>
                                       sourcing.employeeName,
                                       style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
-                                      ).copyWith(
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColor.primary,
                                       ),
                                     ),
                                   ),

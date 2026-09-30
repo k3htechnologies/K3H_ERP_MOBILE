@@ -710,7 +710,7 @@ class _TemporaryAlternateAccommodationScreenState
                       },
                       child: Text(
                         tenantRecord.flatNumber,
-                        style: AppTextStyle.ts16M(
+                        style: AppTextStyle.ts14M(
                           color: isRentViewType ? AppColor.primary : null,
                         ),
                       ),

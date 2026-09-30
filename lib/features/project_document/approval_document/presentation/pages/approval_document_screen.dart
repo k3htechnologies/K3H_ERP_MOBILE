@@ -446,7 +446,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                           },
                           child: Text(
                             document.approvalDocumentName,
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
+                            style: AppTextStyle.ts14M(color: AppColor.primary),
                           ),
                         ),
                       ),

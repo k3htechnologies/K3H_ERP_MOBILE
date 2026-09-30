@@ -443,7 +443,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                           },
                           child: Text(
                             document.projectDocumentName,
-                            style: AppTextStyle.ts16M(color: AppColor.primary),
+                            style: AppTextStyle.ts14M(color: AppColor.primary),
                           ),
                         ),
                       ),

@@ -385,7 +385,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
                                           },
                                           child: Text(
                                             folder.bankName,
-                                            style: AppTextStyle.ts16M(
+                                            style: AppTextStyle.ts14M(
                                               color: AppColor.primary,
                                             ),
                                           ),

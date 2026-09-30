@@ -290,7 +290,7 @@ class _CompOffScreenState extends State<CompOffScreen> {
                       },
                       child: Text(
                         formatDateTimeAsDDMMMYYYY(compOff.compOffDate),
-                        style: AppTextStyle.ts16M(color: AppColor.primary),
+                        style: AppTextStyle.ts14M(color: AppColor.primary),
                       ),
                     ),
                   ),

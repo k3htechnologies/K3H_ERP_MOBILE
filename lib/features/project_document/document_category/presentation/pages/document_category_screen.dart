@@ -241,7 +241,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                                     },
                                     child: Text(
                                       category.projectDocumentCategoryName,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
                                       ),
                                     ),

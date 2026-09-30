@@ -640,11 +640,8 @@ class _SourcingScreenState extends State<SourcingScreen> {
                                     },
                                     child: Text(
                                       channelPartner.name,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
-                                      ).copyWith(
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColor.primary,
                                       ),
                                     ),
                                   ),

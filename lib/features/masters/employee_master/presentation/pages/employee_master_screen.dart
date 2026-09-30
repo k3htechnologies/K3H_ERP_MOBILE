@@ -712,7 +712,7 @@ class _EmployeeMasterMobileScreenState extends State<EmployeeMasterScreen> {
                                               employee.fullName,
                                               overflow: TextOverflow.ellipsis,
                                               maxLines: 1,
-                                              style: AppTextStyle.ts16M(
+                                              style: AppTextStyle.ts14M(
                                                 color: AppColor.primary,
                                               ),
                                             ),

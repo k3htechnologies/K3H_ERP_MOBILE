@@ -293,7 +293,7 @@ class _EarningMasterScreenState extends State<EarningMasterScreen> {
                               },
                               child: Text(
                                 earning.name,
-                                style: AppTextStyle.ts16M(
+                                style: AppTextStyle.ts14M(
                                   color: AppColor.primary,
                                 ),
                               ),

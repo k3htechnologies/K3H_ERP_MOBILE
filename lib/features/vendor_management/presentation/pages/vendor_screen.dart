@@ -535,7 +535,7 @@ class _VendorScreenState extends State<VendorScreen> {
                                         },
                                         child: Text(
                                           vendor.vendorName,
-                                          style: AppTextStyle.ts16M(
+                                          style: AppTextStyle.ts14M(
                                             color: AppColor.primary,
                                           ),
                                         ),

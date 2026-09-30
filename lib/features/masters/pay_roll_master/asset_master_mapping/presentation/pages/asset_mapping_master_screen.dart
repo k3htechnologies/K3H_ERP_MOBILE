@@ -350,7 +350,7 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                                 },
                                 child: Text(
                                   assetMapping.assetName,
-                                  style: AppTextStyle.ts16M(
+                                  style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
                                   ),
                                 ),
@@ -380,7 +380,6 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
                             ),
                           ],
                         ),
-                        verticalSpacing(height: 8),
                         buildRowTitleValue(
                           title: "Code",
                           value: assetMapping.assetCode,

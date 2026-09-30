@@ -292,7 +292,7 @@ class _DeductionMasterScreenState extends State<DeductionMasterScreen> {
                               },
                               child: Text(
                                 deduction.name,
-                                style: AppTextStyle.ts16M(
+                                style: AppTextStyle.ts14M(
                                   color: AppColor.primary,
                                 ),
                                 maxLines: 1,

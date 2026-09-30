@@ -250,7 +250,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                     child: Text(
                                       approvalCategory
                                           .approvalDocumentCategoryName,
-                                      style: AppTextStyle.ts16M(
+                                      style: AppTextStyle.ts14M(
                                         color: AppColor.primary,
                                       ),
                                     ),

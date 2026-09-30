@@ -492,7 +492,7 @@ class _AopAchievementDrillDownReportScreenState
                   },
                   child: Text(
                     channelPartner.name,
-                    style: AppTextStyle.ts16M(color: AppColor.primary),
+                    style: AppTextStyle.ts14M(color: AppColor.primary),
                   ),
                 ),
               ),

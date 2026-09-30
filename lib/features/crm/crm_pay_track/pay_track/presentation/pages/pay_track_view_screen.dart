@@ -359,7 +359,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         children: [
           Text(
             widget.applicantName,
-            style: AppTextStyle.ts16M(color: AppColor.primary),
+            style: AppTextStyle.ts14M(color: AppColor.primary),
           ),
           if (showUpdateRegistrationButton)
             Row(
