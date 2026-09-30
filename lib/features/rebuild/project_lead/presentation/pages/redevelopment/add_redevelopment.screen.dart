@@ -345,7 +345,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Redevlopment",
+        screenTitle: "Redevelopment",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -575,23 +575,17 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                       ),
                     ),
                     CustomTextField(
-                      title: "Identification And Location",
-                      hint: "Enter Identification And Location",
+                      title: "Google Location Link",
+                      hint: "Enter Google Location Link",
                       textController: _identificationAndLocationC,
-                      prefixType: CustomTextFieldPrefix.location,
                       minLines: 3,
                       maxLines: 10,
                       isRequired: true,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Identification And Location is required";
-                        }
-                        final googleMapRegex = RegExp(
-                          r'^(https?:\/\/)?(www\.)?(google\.[a-z.]+\/maps(\?|\/)|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps|share\.google)\/?.*$',
-                          caseSensitive: false,
-                        );
-                        if (!googleMapRegex.hasMatch(value.trim())) {
-                          return "Please enter a valid Google Maps location link";
+                        if (!InputValidator.isValidGoogleMapUrl(
+                          value!.trim(),
+                        )) {
+                          return "Enter a valid Google Location";
                         }
                         return null;
                       },

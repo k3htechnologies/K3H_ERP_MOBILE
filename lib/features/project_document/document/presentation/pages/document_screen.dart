@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/document/data/model/document.model.dart';
 import 'package:k3h_erp_app/features/project_document/document/presentation/cubit/document_cubit.dart';
@@ -14,7 +16,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -41,9 +42,6 @@ class _DocumentScreenState extends State<DocumentScreen>
   // TAB CONTROLLERS
   TabController? _categoryTabController;
 
-  // PROJECT ID
-  late int projectId;
-
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
@@ -53,14 +51,19 @@ class _DocumentScreenState extends State<DocumentScreen>
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
   @override
   void initState() {
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.document]!;
     _documentCubit = context.read<DocumentCubit>();
-    projectId = getProject().projectId;
-    _documentCubit.getCategoryList(context, 1, projectId);
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
+    _documentCubit.getCategoryList(
+      context,
+      1,
+      _selectedProjectNotifier.value.projectId,
+    );
     _initControllers();
     _onScroll();
   }
@@ -70,6 +73,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
     scrollController.dispose();
+    _debounce?.cancel();
     super.dispose();
   }
 
@@ -103,6 +107,7 @@ class _DocumentScreenState extends State<DocumentScreen>
   // CATEGORY TAB
   void _onBuildingTabChanged() {
     if (!_categoryTabController!.indexIsChanging && mounted) {
+      _searchC.clear();
       _documentCubit.onTabChanged(_categoryTabController!.index, context);
     }
   }
@@ -186,7 +191,7 @@ class _DocumentScreenState extends State<DocumentScreen>
               title: "Document Name",
               hint: "Enter Document Name",
               textController: _documentC,
-              inputFormatterList: InputValidator.digitAndCharacterOnly(100),
+              inputFormatterList: [LengthLimitingTextInputFormatter(100)],
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -229,11 +234,21 @@ class _DocumentScreenState extends State<DocumentScreen>
         searchHintText: "Search by Document Name",
         onSearchSubmit: (value) {
           _documentCubit.searchDocument(value, context);
+
+          _documentCubit.getCategoryList(
+            context,
+            1,
+            _selectedProjectNotifier.value.projectId,
+          );
         },
         onProjectChangeCallback: (project) {
-          projectId = project.projectId;
+          _selectedProjectNotifier.value = project;
           if (context.mounted) {
-            _documentCubit.getCategoryList(context, 1, projectId);
+            _documentCubit.getCategoryList(
+              context,
+              1,
+              _selectedProjectNotifier.value.projectId,
+            );
           }
         },
         extraHeight: 20,
@@ -258,66 +273,88 @@ class _DocumentScreenState extends State<DocumentScreen>
             ),
       ),
       body: SafeArea(
-        child: BlocListener<DocumentCubit, DocumentState>(
-          listener: (context, state) {
-            if (!mounted) return;
-            if (!state.isLoading! &&
-                state.documentCategoryModelList.isNotEmpty) {
-              if (_categoryTabController == null ||
-                  _categoryTabController!.length !=
-                      state.documentCategoryModelList.length) {
-                _initCategoryController(state);
-              }
-            }
-          },
-          child: BlocBuilder<DocumentCubit, DocumentState>(
-            builder: (context, state) {
-              if (state.isLoading! && state.documentCategoryModelList.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state.documentCategoryModelList.isEmpty) {
-                return Center(
-                  child: noDataWidget(
-                    message: "No Project Document Data Found",
-                  ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: _selectedProjectNotifier,
+              builder: (context, value, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: showSiteSelectedWidget(),
                 );
-              }
+              },
+            ),
+            Expanded(
+              child: BlocListener<DocumentCubit, DocumentState>(
+                listener: (context, state) {
+                  if (!mounted) return;
+                  if (!state.isLoading! &&
+                      state.documentCategoryModelList.isNotEmpty) {
+                    if (_categoryTabController == null ||
+                        _categoryTabController!.length !=
+                            state.documentCategoryModelList.length) {
+                      _initCategoryController(state);
+                    }
+                  }
+                },
+                child: BlocBuilder<DocumentCubit, DocumentState>(
+                  builder: (context, state) {
+                    if (state.isLoading! &&
+                        state.documentCategoryModelList.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-              if (_categoryTabController == null) {
-                return const Center(child: CircularProgressIndicator());
-              }
+                    if (state.documentCategoryModelList.isEmpty) {
+                      return Center(
+                        child: noDataWidget(
+                          message: "No Project Document Data Found",
+                        ),
+                      );
+                    }
 
-              return Column(
-                children: [
-                  // CATEGORY TAB
-                  _buildCategoryTab(state),
-                  verticalSpacing(),
-                  Expanded(
-                    child: TabBarView(
-                      physics: NeverScrollableScrollPhysics(),
-                      controller: _categoryTabController,
-                      children:
-                          state.documentCategoryModelList.map((category) {
-                            return (state.documentList.isEmpty &&
-                                    state.isLoading!)
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : RefreshIndicator(
-                                  onRefresh: () async {
-                                    _searchC.clear();
-                                    _documentCubit.searchDocument("", context);
-                                  },
-                                  child: _buildDocumentListForCategory(state),
-                                );
-                          }).toList(),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                    if (_categoryTabController == null) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    return Column(
+                      children: [
+                        // CATEGORY TAB
+                        _buildCategoryTab(state),
+                        verticalSpacing(),
+                        Expanded(
+                          child: TabBarView(
+                            physics: NeverScrollableScrollPhysics(),
+                            controller: _categoryTabController,
+                            children:
+                                state.documentCategoryModelList.map((category) {
+                                  if (state
+                                      .documentCategoryModelList
+                                      .isNotEmpty) {
+                                    return RefreshIndicator(
+                                      onRefresh: () async {
+                                        _searchC.clear();
+                                        _documentCubit.searchDocument(
+                                          "",
+                                          context,
+                                        );
+                                      },
+                                      child: _buildDocumentListForCategory(
+                                        state,
+                                      ),
+                                    );
+                                  }
+                                  return Center(child: loader());
+                                }).toList(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -345,6 +382,9 @@ class _DocumentScreenState extends State<DocumentScreen>
 
   // BUILD DOCUMENT LIST FOR CATEGORY
   Widget _buildDocumentListForCategory(DocumentState state) {
+    if (state.isLoading == true && state.documentList.isEmpty) {
+      return Center(child: loader());
+    }
     if (state.documentList.isEmpty) {
       return Center(
         child: noDataWidget(message: "No Project Document Data Found"),
@@ -407,62 +447,63 @@ class _DocumentScreenState extends State<DocumentScreen>
                           ),
                         ),
                       ),
-                      if (_routeAuthorizationModel.isAction) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomIconButton(
-                              icon: Icon(
-                                Icons.add,
-                                size: 16,
-                                color: AppColor.primary,
-                              ),
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addDocument,
-                                  queryParameters: {
-                                    "document": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(document.toJson()),
-                                      ),
-                                    ),
-                                    "index": index.toString(),
 
-                                    "isEdit": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        false.toString(),
-                                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomIconButton(
+                            isDisable: !_routeAuthorizationModel.isAction,
+                            icon: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: AppColor.primary,
+                            ),
+                            onPressed: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.addDocument,
+                                queryParameters: {
+                                  "document": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(document.toJson()),
                                     ),
-                                  },
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                _showPopUpToAddUpdateDocument(
-                                  documentModel: document,
-                                  index: index,
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              isDisabled:
-                                  document.uploadedProjectDocumentCount == 0
-                                      ? false
-                                      : true,
-                              onPressed: () {
-                                _showPopupToDeleteDocument(
-                                  context,
-                                  document,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                                  ),
+                                  "index": index.toString(),
+
+                                  "isEdit": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      false.toString(),
+                                    ),
+                                  ),
+                                },
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.edit(
+                            isDisabled: !_routeAuthorizationModel.isAction,
+                            onPressed: () async {
+                              _showPopUpToAddUpdateDocument(
+                                documentModel: document,
+                                index: index,
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.delete(
+                            isDisabled:
+                                (!_routeAuthorizationModel.isAction ||
+                                    document.uploadedProjectDocumentCount == 0),
+
+                            onPressed: () {
+                              _showPopupToDeleteDocument(
+                                context,
+                                document,
+                                index,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   verticalSpacing(height: 10),

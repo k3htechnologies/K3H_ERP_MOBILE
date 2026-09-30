@@ -19,6 +19,15 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
   final ProjectLeadRepository _projectLeadRepository =
       serviceLocator<ProjectLeadRepository>();
 
+  Future searchRedevlopment(
+    BuildContext context,
+    int pageNumber,
+    String value,
+  ) async {
+    emit(state.copyWith(redevelopmentSearchText: value, redevelopmentList: []));
+    await getRedevelopmentList(context, pageNumber);
+  }
+
   Future getRedevelopmentList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     final Map<String, dynamic> queryParams = {
@@ -34,6 +43,8 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
       "TypeOfLandTenure": state.redevelopmentTypeOfLandTenure,
       "FromDate": state.redevelopmentByFromDate.apiDate,
       "ToDate": state.redevelopmentByToDate.apiDate,
+      "SortBy":
+          "${state.redevelopmentCurrentSortColumn} ${state.redevelopmentCurrentSortDirection}",
     };
     var result = await _projectLeadRepository.getRedevelopmentList(
       pageNumber: pageNumber,
@@ -168,7 +179,7 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
         showErrorMessage(context, 'Error Message', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
         getRedevelopmentList(context, 1);
@@ -271,13 +282,12 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
         "fileName": projectPhotoMap.fileNameList[i],
       });
     }
-    var updateResult = await _projectLeadRepository
-        .addUpdateProjectLeadRedevelopment(
-          body: requestBody,
-          fileList: fileList,
-        );
+    var result = await _projectLeadRepository.addUpdateProjectLeadRedevelopment(
+      body: requestBody,
+      fileList: fileList,
+    );
     goRouter.pop();
-    updateResult.fold(
+    result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error Message', failure.message);
@@ -325,15 +335,6 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
     );
   }
 
-  Future searchRedevlopment(
-    BuildContext context,
-    int pageNumber,
-    String value,
-  ) async {
-    emit(state.copyWith(redevelopmentSearchText: value, redevelopmentList: []));
-    await getRedevelopmentList(context, pageNumber);
-  }
-
   Future applyRedevlopmentFilterAndSort({
     required BuildContext context,
     String? buildingName,
@@ -348,6 +349,8 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
     String? typeOfLandTenure,
     DateTime? filterByFromDate,
     DateTime? filterByToDate,
+    String? sortColumn,
+    String? sortDirection,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -365,6 +368,8 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
           redevelopmentTypeOfLandTenure: "",
           redevelopmentByFromDate: null,
           redevelopmentByToDate: null,
+          redevelopmentCurrentSortColumn: "Created Date",
+          redevelopmentCurrentSortDirection: "DESC",
         ),
       );
     } else {
@@ -392,6 +397,10 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
               typeOfLandTenure ?? state.redevelopmentTypeOfLandTenure,
           redevelopmentByFromDate: filterByFromDate,
           redevelopmentByToDate: filterByToDate,
+          redevelopmentCurrentSortColumn:
+              sortColumn ?? state.redevelopmentCurrentSortColumn,
+          redevelopmentCurrentSortDirection:
+              sortDirection ?? state.redevelopmentCurrentSortDirection,
         ),
       );
     }
@@ -399,6 +408,10 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
   }
 
   int updateRedevelopmentFilterCount(ProjectLeadState state) {
+    final hasSort =
+        state.redevelopmentCurrentSortColumn == "Building Name" &&
+        (state.redevelopmentCurrentSortDirection == "ASC" ||
+            state.redevelopmentCurrentSortDirection == "DESC");
     return getActiveFilterCount([
       state.redevelopmentSearchText.trim().isNotEmpty,
       state.redevelopmentBuildingAddressText.trim().isNotEmpty,
@@ -412,7 +425,48 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
       state.redevelopmentTypeOfLandTenure.trim().isNotEmpty,
       state.redevelopmentByFromDate != null,
       state.redevelopmentByToDate != null,
+      hasSort,
     ]);
+  }
+
+  Future exportRedevelopmentExcelPdf(
+    BuildContext context,
+    String exportType,
+  ) async {
+    if (state.redevelopmentTotalNumberOfRecord == 0) {
+      showErrorMessage(context, "Error", "No Data Found");
+      return;
+    }
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _projectLeadRepository.exportRedevlopment(
+      pageNumber: 1,
+      pageSize: state.redevelopmentTotalNumberOfRecord,
+      queryParams:
+          state.redevelopmentSearchText != ""
+              ? {
+                "BuildingName": state.redevelopmentSearchText,
+                "ExportType": exportType,
+              }
+              : {"ExportType": exportType},
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "Project Redevelopment ${DateTime.now()}.pdf"
+              : "Project Redevelopment ${DateTime.now()}.xlsx",
+        );
+      },
+    );
   }
 
   Future getLandList(BuildContext context, int pageNumber) async {
@@ -429,6 +483,8 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
       "LandOwnershipType": state.landOwnershipType,
       "FromDate": state.landByFromDate.apiDate,
       "ToDate": state.landByToDate.apiDate,
+      "SortBy":
+          "${state.landCurrentSortColumn} ${state.landCurrentSortDirection}",
     };
     var result = await _projectLeadRepository.getLandList(
       pageNumber: pageNumber,
@@ -456,128 +512,6 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
             landCurrentPage: pageNumber,
           ),
         );
-      },
-    );
-  }
-
-  Future updateLand({
-    required BuildContext context,
-    required int projectLandId,
-    required String uniquekey,
-    required String ownerName,
-    required int selectedCountryNameId,
-    required int selectedStateId,
-    required int selectedDistrictId,
-    required int selectedCityId,
-    required String pinCode,
-    required String plotCTSSurveySubdivisionNumberC,
-    required String landAddress,
-    required String wardNumberZone,
-    required String totalPlotAreaSqM,
-    required String identificationLocation,
-    required String latitudeLongitude,
-    required String contactPersonName,
-    required String contactPersonMobile,
-    required String contactPersonEmail,
-    required String typeOfLandTenureType,
-    required String plotShape,
-    required String frontage,
-    required String plotDepth,
-    required String roadWidth,
-    required String soilType,
-    required String existingGroundCondition,
-    bool? isAnyPowerOfAttorneyInvolved,
-    bool? isFencingBoundaryWallPresent,
-    bool? isLandConvertedToNonAgricultural,
-    bool? isAccessRoadAvailable,
-    bool? isElectricityConnectionNearby,
-    bool? isUnderLitigationOrStayOrder,
-    bool? is712Available,
-    required String fsiPermissible,
-    required String waterSupplyAvailable,
-    String? surroundingLandUse,
-    String? landOwnershipType,
-    required String distanceFromNearestTownKM,
-    required String distanceFromHighwayKM,
-    required String distanceFromRailwayStationKM,
-    required String distanceFromAirportKM,
-    required String totalNumberOfTreesonSite,
-    required String remark,
-    required MultiFilePickerModel projectPhotoMap,
-  }) async {
-    DialogHelper.showProcessingOverlay(context);
-    final Map<String, String> requestBody = {
-      "ProjectLandId": projectLandId.toString(),
-      "Uniquekey": uniquekey,
-      "LandOwnerName": ownerName,
-      "LandAddress": landAddress,
-      "CountryMasterId": selectedCountryNameId.toString(),
-      "StateMasterId": selectedStateId.toString(),
-      "DistrictMasterId": selectedDistrictId.toString(),
-      "CityMasterId": selectedCityId.toString(),
-      "PinCode": pinCode,
-      "PlotNumber_CTSNumber_SurveyNumber_SubdivisionNumber":
-          plotCTSSurveySubdivisionNumberC,
-      "WardNumberZone": wardNumberZone,
-      "TotalPlotAreaSqM": totalPlotAreaSqM,
-      "IdentificationLocation": identificationLocation,
-      "LatitudeLongitude": latitudeLongitude,
-      "ContactPersonName": contactPersonName,
-      "ContactPersonMobile": contactPersonMobile,
-      "ContactPersonEmail": contactPersonEmail,
-      "TypeOfLandTenureType": typeOfLandTenureType,
-      "PlotShape": plotShape,
-      "Frontage": frontage,
-      "PlotDepth": plotDepth,
-      "RoadWidth": roadWidth,
-      "SoilType": soilType,
-      "ExistingGroundCondition": existingGroundCondition,
-      "IsAnyPowerofAttorneyInvolved": isAnyPowerOfAttorneyInvolved.toString(),
-      "IsFencingBoundaryWallPresent": isFencingBoundaryWallPresent.toString(),
-      "IsLandConvertedToNonAgricultural":
-          isLandConvertedToNonAgricultural.toString(),
-      "IsAccessRoadAvailable": isAccessRoadAvailable.toString(),
-      "IsElectricityConnectionNearby": isElectricityConnectionNearby.toString(),
-      "IsUnderLitigationOrStayOrder": isUnderLitigationOrStayOrder.toString(),
-      "Is712Available": is712Available.toString(),
-      "FSIPermissible": fsiPermissible,
-      "WaterSupplyAvailable": waterSupplyAvailable,
-      "SurroundingLandUse": surroundingLandUse.toString(),
-      "LandOwnershipType": landOwnershipType.toString(),
-      "DistanceFromNearestTownKM": distanceFromNearestTownKM,
-      "DistanceFromHighwayKM": distanceFromHighwayKM,
-      "DistanceFromRailwayStationKM": distanceFromRailwayStationKM,
-      "DistanceFromAirportKM": distanceFromAirportKM,
-      "TotalNumberOfTreesonSite": totalNumberOfTreesonSite,
-      "Remark": remark,
-      "RemovePhotoURL": projectPhotoMap.deletedFileList,
-    };
-    List<Map<String, dynamic>> fileList = [];
-    for (int i = 0; i < projectPhotoMap.fileBytesList.length; i++) {
-      if (projectPhotoMap.fileNameList[i].contains("http")) {
-        continue;
-      }
-      fileList.add({
-        "key": "PhotoURL",
-        "value": projectPhotoMap.fileBytesList[i],
-        "fileName": projectPhotoMap.fileNameList[i],
-      });
-    }
-    var updateResult = await _projectLeadRepository.addUpdateProjectLand(
-      body: requestBody,
-      fileList: fileList,
-    );
-    goRouter.pop();
-    updateResult.fold(
-      (failure) {
-        emit(state.copyWith(isLoading: false));
-        showErrorMessage(context, 'Error Message', failure.message);
-        return;
-      },
-      (response) {
-        goRouter.pop();
-        showSuccessMessage(context, subTitle: response['message']);
-        getLandList(context, 1);
       },
     );
   }
@@ -682,12 +616,139 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
         "fileName": projectPhotoMap.fileNameList[i],
       });
     }
-    var updateResult = await _projectLeadRepository.addUpdateProjectLand(
+    var result = await _projectLeadRepository.addUpdateProjectLand(
       body: requestBody,
       fileList: fileList,
     );
     goRouter.pop();
-    updateResult.fold(
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error Message', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+        getLandList(context, 1);
+      },
+    );
+  }
+
+  Future updateLand({
+    required BuildContext context,
+    required int projectLandId,
+    required String uniquekey,
+    required String ownerName,
+    required int selectedCountryNameId,
+    required int selectedStateId,
+    required int selectedDistrictId,
+    required int selectedCityId,
+    required String pinCode,
+    required String plotCTSSurveySubdivisionNumberC,
+    required String landAddress,
+    required String wardNumberZone,
+    required String totalPlotAreaSqM,
+    required String identificationLocation,
+    required String latitudeLongitude,
+    required String contactPersonName,
+    required String contactPersonMobile,
+    required String contactPersonEmail,
+    required String typeOfLandTenureType,
+    required String plotShape,
+    required String frontage,
+    required String plotDepth,
+    required String roadWidth,
+    required String soilType,
+    required String existingGroundCondition,
+    bool? isAnyPowerOfAttorneyInvolved,
+    bool? isFencingBoundaryWallPresent,
+    bool? isLandConvertedToNonAgricultural,
+    bool? isAccessRoadAvailable,
+    bool? isElectricityConnectionNearby,
+    bool? isUnderLitigationOrStayOrder,
+    bool? is712Available,
+    required String fsiPermissible,
+    required String waterSupplyAvailable,
+    String? surroundingLandUse,
+    String? landOwnershipType,
+    required String distanceFromNearestTownKM,
+    required String distanceFromHighwayKM,
+    required String distanceFromRailwayStationKM,
+    required String distanceFromAirportKM,
+    required String totalNumberOfTreesonSite,
+    required String remark,
+    required MultiFilePickerModel projectPhotoMap,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    final Map<String, String> requestBody = {
+      "ProjectLandId": projectLandId.toString(),
+      "Uniquekey": uniquekey,
+      "LandOwnerName": ownerName,
+      "LandAddress": landAddress,
+      "CountryMasterId": selectedCountryNameId.toString(),
+      "StateMasterId": selectedStateId.toString(),
+      "DistrictMasterId": selectedDistrictId.toString(),
+      "CityMasterId": selectedCityId.toString(),
+      "PinCode": pinCode,
+      "PlotNumber_CTSNumber_SurveyNumber_SubdivisionNumber":
+          plotCTSSurveySubdivisionNumberC,
+      "WardNumberZone": wardNumberZone,
+      "TotalPlotAreaSqM": totalPlotAreaSqM,
+      "IdentificationLocation": identificationLocation,
+      "LatitudeLongitude": latitudeLongitude,
+      "ContactPersonName": contactPersonName,
+      "ContactPersonMobile": contactPersonMobile,
+      "ContactPersonEmail": contactPersonEmail,
+      "TypeOfLandTenureType": typeOfLandTenureType,
+      "PlotShape": plotShape,
+      "Frontage": frontage,
+      "PlotDepth": plotDepth,
+      "RoadWidth": roadWidth,
+      "SoilType": soilType,
+      "ExistingGroundCondition": existingGroundCondition,
+      "IsAnyPowerofAttorneyInvolved": isAnyPowerOfAttorneyInvolved.toString(),
+      "IsFencingBoundaryWallPresent": isFencingBoundaryWallPresent.toString(),
+      "IsLandConvertedToNonAgricultural":
+          isLandConvertedToNonAgricultural.toString(),
+      "IsAccessRoadAvailable": isAccessRoadAvailable.toString(),
+      "IsElectricityConnectionNearby": isElectricityConnectionNearby.toString(),
+      "IsUnderLitigationOrStayOrder": isUnderLitigationOrStayOrder.toString(),
+      "Is712Available": is712Available.toString(),
+      "FSIPermissible": fsiPermissible,
+      "WaterSupplyAvailable": waterSupplyAvailable,
+      "SurroundingLandUse": surroundingLandUse.toString(),
+      "LandOwnershipType": landOwnershipType.toString(),
+      if (distanceFromNearestTownKM.trim().isNotEmpty)
+        "DistanceFromNearestTownKM": distanceFromNearestTownKM,
+      if (distanceFromHighwayKM.trim().isNotEmpty)
+        "DistanceFromHighwayKM": distanceFromHighwayKM,
+      if (distanceFromRailwayStationKM.trim().isNotEmpty)
+        "DistanceFromRailwayStationKM": distanceFromRailwayStationKM,
+      if (distanceFromAirportKM.trim().isNotEmpty)
+        "DistanceFromAirportKM": distanceFromAirportKM,
+      if (totalNumberOfTreesonSite.trim().isNotEmpty)
+        "TotalNumberOfTreesonSite": totalNumberOfTreesonSite,
+      "Remark": remark,
+      "RemovePhotoURL": projectPhotoMap.deletedFileList,
+    };
+    List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < projectPhotoMap.fileBytesList.length; i++) {
+      if (projectPhotoMap.fileNameList[i].contains("http")) {
+        continue;
+      }
+      fileList.add({
+        "key": "PhotoURL",
+        "value": projectPhotoMap.fileBytesList[i],
+        "fileName": projectPhotoMap.fileNameList[i],
+      });
+    }
+    var result = await _projectLeadRepository.addUpdateProjectLand(
+      body: requestBody,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error Message', failure.message);
@@ -719,6 +780,8 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
     String? ownershipType,
     DateTime? filterByLandFromDate,
     DateTime? filterByLandToDate,
+    String? sortColumn,
+    String? sortDirection,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -735,6 +798,8 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
           landOwnershipType: "",
           landByFromDate: null,
           landByToDate: null,
+          landCurrentSortColumn: "Created Date",
+          landCurrentSortDirection: "DESC",
         ),
       );
     } else {
@@ -746,7 +811,7 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
               landContactPersonName ?? state.landContactPersonName,
           landContactPersonMobileNumber:
               landContactPersonMobileNumber ??
-              state.redevelopmentContactPersonMobileNumberText,
+              state.landContactPersonMobileNumber,
           landPinCode: landPinCode ?? state.landPinCode,
           landPlotNumberText: landPlotNumber ?? state.landPlotNumberText,
           landWardNumberZone: landWardNumber ?? state.landWardNumberZone,
@@ -754,6 +819,9 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
           landOwnershipType: ownershipType ?? state.landOwnershipType,
           landByFromDate: filterByLandFromDate,
           landByToDate: filterByLandToDate,
+          landCurrentSortColumn: sortColumn ?? state.landCurrentSortColumn,
+          landCurrentSortDirection:
+              sortDirection ?? state.landCurrentSortDirection,
         ),
       );
     }
@@ -761,6 +829,10 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
   }
 
   int updateLandFilterCount(ProjectLeadState state) {
+    final hasSort =
+        state.landCurrentSortColumn == "Land Owner Name" &&
+        (state.landCurrentSortDirection == "ASC" ||
+            state.landCurrentSortDirection == "DESC");
     return getActiveFilterCount([
       state.landSearchText.trim().isNotEmpty,
       state.landAddress.trim().isNotEmpty,
@@ -773,6 +845,7 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
       state.landOwnershipType.trim().isNotEmpty,
       state.landByFromDate != null,
       state.landByToDate != null,
+      hasSort,
     ]);
   }
 
@@ -797,46 +870,6 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
       (response) async {
         showSuccessMessage(context, subTitle: response["message"]);
         await getLandList(context, 1);
-      },
-    );
-  }
-
-  Future exportRedevelopmentExcelPdf(
-    BuildContext context,
-    String exportType,
-  ) async {
-    if (state.redevelopmentTotalNumberOfRecord == 0) {
-      showErrorMessage(context, "Error", "No Data Found");
-      return;
-    }
-    DialogHelper.showProcessingOverlay(context);
-    var result = await _projectLeadRepository.exportRedevlopment(
-      pageNumber: 1,
-      pageSize: state.redevelopmentTotalNumberOfRecord,
-      queryParams:
-          state.redevelopmentSearchText != ""
-              ? {
-                "BuildingName": state.redevelopmentSearchText,
-                "ExportType": exportType,
-              }
-              : {"ExportType": exportType},
-    );
-    goRouter.pop();
-    result.fold(
-      (failure) {
-        showErrorMessage(context, 'Error', failure.message);
-      },
-      (response) {
-        showSuccessMessage(
-          context,
-          subTitle: 'Successfully Exported as $exportType',
-        );
-        exportExcelOrPdfMobile(
-          response["data"],
-          exportType.toLowerCase() == "pdf"
-              ? "Project Redevelopment ${DateTime.now()}.pdf"
-              : "Project Redevelopment ${DateTime.now()}.xlsx",
-        );
       },
     );
   }

@@ -20,99 +20,111 @@ class ViewDocumentCategoryScreen extends StatelessWidget {
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-          child: Column(
-            spacing: 10,
-            children: [
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Project Document Category Details",
-                      style: AppTextStyle.ts16SB(),
-                    ),
-                    Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: showSiteSelectedWidget(),
+            ),
+            SingleChildScrollView(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              child: Column(
+                spacing: 10,
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
                       spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildColumnTitleValue(
-                          title: "Document Category",
-                          value:
-                              documentCategoryModel.projectDocumentCategoryName,
+                        Text(
+                          "Project Document Category Details",
+                          style: AppTextStyle.ts16SB(),
                         ),
-                        buildColumnTitleValue(
-                          title: "Sequence",
-                          value: documentCategoryModel.orderBy.toString(),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Document Category",
+                              value:
+                                  documentCategoryModel
+                                      .projectDocumentCategoryName,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Sequence",
+                              value: documentCategoryModel.orderBy.toString(),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Document Count",
+                              value:
+                                  documentCategoryModel.documentCount
+                                      .toString(),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Document Count",
-                          value: documentCategoryModel.documentCount.toString(),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+                  ),
 
-              Container(
-                padding: EdgeInsets.all(16),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Action Details", style: AppTextStyle.ts16SB()),
-                    Row(
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      spacing: 10,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildColumnTitleValue(
-                          title: "Created By",
-                          value: documentCategoryModel.createdBy,
+                        Text("Action Details", style: AppTextStyle.ts16SB()),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Created By",
+                              value: documentCategoryModel.createdBy,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Created Date",
+                              value: formatDate(
+                                documentCategoryModel.createdDate,
+                              ),
+                            ),
+                          ],
                         ),
-                        buildColumnTitleValue(
-                          title: "Created Date",
-                          value: formatDate(
-                            documentCategoryModel.createdDate,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Modified By",
+                              value:
+                                  documentCategoryModel.modifiedBy.isNotEmpty
+                                      ? documentCategoryModel.modifiedBy
+                                      : '',
+                            ),
+                            buildColumnTitleValue(
+                              title: "Modified Date",
+                              value:
+                                  documentCategoryModel.modifiedDate != null
+                                      ? formatDate(
+                                        documentCategoryModel.modifiedDate!,
+                                      )
+                                      : '',
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildColumnTitleValue(
-                          title: "Modified By",
-                          value:
-                              documentCategoryModel.modifiedBy.isNotEmpty
-                                  ? documentCategoryModel.modifiedBy
-                                  : '',
-                        ),
-                        buildColumnTitleValue(
-                          title: "Modified Date",
-                          value:
-                              documentCategoryModel.modifiedDate != null
-                                  ? formatDate(
-                                    documentCategoryModel.modifiedDate!,
-                                  )
-                                  : '',
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

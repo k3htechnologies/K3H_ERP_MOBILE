@@ -21,7 +21,6 @@ import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
-import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ViewDocumentScreen extends StatefulWidget {
@@ -122,6 +121,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         child: Column(
           spacing: 15,
           children: [
+            showSiteSelectedWidget(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: 10,
@@ -320,6 +320,7 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
             ],
           ),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
                 title: "View Document",
@@ -340,23 +341,12 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                 ),
               ),
               buildColumnTitleValue(
-                title: "Approval Status",
-                value: document.projectDocumentApprovalStatus,
-                customValueWidget: approvalStatusWidget(
-                  document.projectDocumentApprovalStatus,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumnTitleValue(
                 title: "Remark",
                 value: document.projectDocumentRemark,
               ),
             ],
           ),
+
           ApproveRejectWidget(
             showApproval: document.isApproval,
             actionTitle:

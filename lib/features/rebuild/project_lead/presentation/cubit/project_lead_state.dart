@@ -16,6 +16,8 @@ class ProjectLeadState extends BaseState {
   final String redevelopmentTypeOfLandTenure;
   final DateTime? redevelopmentByFromDate;
   final DateTime? redevelopmentByToDate;
+  final String redevelopmentCurrentSortColumn;
+  final String redevelopmentCurrentSortDirection;
   final List<LandModel> landList;
   final int landCurrentPage;
   final int landTotalNumberOfRecord;
@@ -30,6 +32,8 @@ class ProjectLeadState extends BaseState {
   final String landOwnershipType;
   final DateTime? landByFromDate;
   final DateTime? landByToDate;
+  final String landCurrentSortColumn;
+  final String landCurrentSortDirection;
   const ProjectLeadState({
     super.isLoading,
     required this.redevelopmentList,
@@ -45,6 +49,8 @@ class ProjectLeadState extends BaseState {
     required this.redevelopmentExistingBuildingType,
     required this.redevelopmentConstructionType,
     required this.redevelopmentTypeOfLandTenure,
+    required this.redevelopmentCurrentSortColumn,
+    required this.redevelopmentCurrentSortDirection,
     required this.landList,
     required this.landCurrentPage,
     required this.landTotalNumberOfRecord,
@@ -61,6 +67,8 @@ class ProjectLeadState extends BaseState {
     required this.landOwnershipType,
     required this.landByFromDate,
     required this.landByToDate,
+    required this.landCurrentSortColumn,
+    required this.landCurrentSortDirection,
   });
   factory ProjectLeadState.initial() => ProjectLeadState(
     isLoading: false,
@@ -77,6 +85,8 @@ class ProjectLeadState extends BaseState {
     redevelopmentExistingBuildingType: '',
     redevelopmentConstructionType: '',
     redevelopmentTypeOfLandTenure: '',
+    redevelopmentCurrentSortColumn: "Created Date",
+    redevelopmentCurrentSortDirection: "DESC",
     landList: [],
     landCurrentPage: 1,
     landTotalNumberOfRecord: 0,
@@ -93,6 +103,8 @@ class ProjectLeadState extends BaseState {
     landOwnershipType: '',
     landByFromDate: null,
     landByToDate: null,
+    landCurrentSortColumn: "Created Date",
+    landCurrentSortDirection: "DESC",
   );
   static const _noChange = Object();
 
@@ -113,6 +125,8 @@ class ProjectLeadState extends BaseState {
     String? redevelopmentTypeOfLandTenure,
     Object? redevelopmentByFromDate = _noChange,
     Object? redevelopmentByToDate = _noChange,
+    String? redevelopmentCurrentSortColumn,
+    String? redevelopmentCurrentSortDirection,
     List<LandModel>? landList,
     int? landCurrentPage,
     int? landTotalNumberOfRecord,
@@ -127,6 +141,8 @@ class ProjectLeadState extends BaseState {
     String? landOwnershipType,
     Object? landByFromDate = _noChange,
     Object? landByToDate = _noChange,
+    String? landCurrentSortColumn,
+    String? landCurrentSortDirection,
   }) {
     return ProjectLeadState(
       isLoading: isLoading ?? this.isLoading,
@@ -168,6 +184,11 @@ class ProjectLeadState extends BaseState {
           redevelopmentByToDate == _noChange
               ? this.redevelopmentByToDate
               : redevelopmentByToDate as DateTime?,
+      redevelopmentCurrentSortColumn:
+          redevelopmentCurrentSortColumn ?? this.redevelopmentCurrentSortColumn,
+      redevelopmentCurrentSortDirection:
+          redevelopmentCurrentSortDirection ??
+          this.redevelopmentCurrentSortDirection,
       landList: landList ?? this.landList,
       landCurrentPage: landCurrentPage ?? this.landCurrentPage,
       landTotalNumberOfRecord:
@@ -192,6 +213,10 @@ class ProjectLeadState extends BaseState {
           landByToDate == _noChange
               ? this.landByToDate
               : landByToDate as DateTime?,
+      landCurrentSortColumn:
+          landCurrentSortColumn ?? this.landCurrentSortColumn,
+      landCurrentSortDirection:
+          landCurrentSortDirection ?? this.landCurrentSortDirection,
     );
   }
 
@@ -213,6 +238,8 @@ class ProjectLeadState extends BaseState {
     redevelopmentTypeOfLandTenure,
     redevelopmentByFromDate,
     redevelopmentByToDate,
+    redevelopmentCurrentSortColumn,
+    redevelopmentCurrentSortDirection,
     landList,
     landCurrentPage,
     landTotalNumberOfRecord,
@@ -227,5 +254,7 @@ class ProjectLeadState extends BaseState {
     landOwnershipType,
     landByFromDate,
     landByToDate,
+    landCurrentSortColumn,
+    landCurrentSortDirection,
   ];
 }

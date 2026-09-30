@@ -122,13 +122,17 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
         child: Column(
           spacing: 15,
           children: [
+            showSiteSelectedWidget(),
             Row(
               spacing: 10,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.documentModel.projectRERADocumentName,
-                  style: AppTextStyle.ts16SB(),
+                Expanded(
+                  child: Text(
+                    widget.documentModel.projectRERADocumentName,
+                    style: AppTextStyle.ts16SB(),
+                  ),
                 ),
                 if (_routeAuthorizationModel.isAction)
                   CustomButton(
@@ -223,39 +227,39 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-              if (_routeAuthorizationModel.isAction) ...[
-                CustomIconButton.edit(
-                  isDisabled:
-                      !document.projectRERADocumentApprovalStatus
-                          .toLowerCase()
-                          .contains('pending'),
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addReraDocument,
-                      queryParameters: {
-                        "reraDocument": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(document.toJson()),
-                          ),
+              CustomIconButton.edit(
+                isDisabled:
+                    (!_routeAuthorizationModel.isAction ||
+                        !document.projectRERADocumentApprovalStatus
+                            .toLowerCase()
+                            .contains('pending')),
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.addReraDocument,
+                    queryParameters: {
+                      "reraDocument": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(document.toJson()),
                         ),
-                        "index": index.toString(),
-                        "isEdit": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(true.toString()),
-                        ),
-                      },
-                    );
-                  },
-                ),
-                CustomIconButton.delete(
-                  isDisabled:
-                      !document.projectRERADocumentApprovalStatus
-                          .toLowerCase()
-                          .contains('pending'),
-                  onPressed: () {
-                    _showPopupToDeleteRERASubDocument(context, document, index);
-                  },
-                ),
-              ],
+                      ),
+                      "index": index.toString(),
+                      "isEdit": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(true.toString()),
+                      ),
+                    },
+                  );
+                },
+              ),
+              CustomIconButton.delete(
+                isDisabled:
+                    (!_routeAuthorizationModel.isAction ||
+                        !document.projectRERADocumentApprovalStatus
+                            .toLowerCase()
+                            .contains('pending')),
+                onPressed: () {
+                  _showPopupToDeleteRERASubDocument(context, document, index);
+                },
+              ),
             ],
           ),
           Row(

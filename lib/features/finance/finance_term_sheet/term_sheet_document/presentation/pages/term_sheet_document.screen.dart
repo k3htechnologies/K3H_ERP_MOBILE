@@ -230,41 +230,41 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  if (_routeAuthorizationModel.isAction)
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              if (documents
-                                                  .documentUrl
-                                                  .isNotEmpty) {
-                                                showFilePreviewDialog(
-                                                  title: documents.documentName,
-                                                  context,
-                                                  documents.documentUrl.split(
-                                                    ",",
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                            child: Text(
-                                              documents.documentName,
-                                              style: AppTextStyle.ts14M(
-                                                color: AppColor.primary,
-                                              ).copyWith(
-                                                decoration:
-                                                    TextDecoration.underline,
-                                                decorationColor:
-                                                    AppColor.primary,
-                                              ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            if (documents
+                                                .documentUrl
+                                                .isNotEmpty) {
+                                              showFilePreviewDialog(
+                                                title: documents.documentName,
+                                                context,
+                                                documents.documentUrl.split(
+                                                  ",",
+                                                ),
+                                              );
+                                            }
+                                          },
+                                          child: Text(
+                                            documents.documentName,
+                                            style: AppTextStyle.ts14M(
+                                              color: AppColor.primary,
+                                            ).copyWith(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              decorationColor: AppColor.primary,
                                             ),
                                           ),
                                         ),
+                                      ),
+                                      if (_routeAuthorizationModel
+                                          .isAction) ...[
                                         horizontalSpacing(),
                                         Expanded(
                                           child: Row(
@@ -306,7 +306,8 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                                           ),
                                         ),
                                       ],
-                                    ),
+                                    ],
+                                  ),
                                   buildRowTitleValue(
                                     title: "Document Count",
                                     value: documentCount.toString(),

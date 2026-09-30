@@ -7,6 +7,8 @@ import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/lan
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/redevelopment.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
@@ -235,6 +237,7 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
                 _projectLeadCubit.searchLand(context, 1, value);
               }
             },
+
             textController:
                 isRedevelopment ? _redevlopmentSearchC : _landSearchC,
             hintText:
@@ -294,7 +297,10 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
     BuildContext context,
   ) async {
     final state = _projectLeadCubit.state;
-
+    String? selectedDirection =
+        state.redevelopmentCurrentSortColumn == "Building Name"
+            ? state.redevelopmentCurrentSortDirection
+            : null;
     _redevlopmentSearchC.text = state.redevelopmentSearchText;
     _filterBuildingAddressC.text = state.redevelopmentBuildingAddressText;
     _filterContactPersonNameC.text = state.redevelopmentContactPersonNameText;
@@ -323,7 +329,7 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
     final String initialTypeOfLandTenure = _filterTypeOfLandTenureC.text;
     final DateTime? initialFromDate = _startDateNotifier.value;
     final DateTime? initialToDate = _endDateNotifier.value;
-
+    final String? initialDirection = selectedDirection;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
@@ -345,7 +351,8 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
             (_filterConstructionTypeC.text.trim() != initialConstructionType) ||
             (_filterTypeOfLandTenureC.text.trim() != initialTypeOfLandTenure) ||
             (_startDateNotifier.value != initialFromDate) ||
-            (_endDateNotifier.value != initialToDate);
+            (_endDateNotifier.value != initialToDate) ||
+            (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
       });
@@ -356,11 +363,62 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
       title: "Filter - Project Redevelopment",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
           return SingleChildScrollView(
             padding: const EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text("Sort By Building Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
                 CustomTextField(
                   title: "Building Name",
                   hint: "Enter Building Name",
@@ -508,6 +566,8 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
           typeOfLandTenure: _filterTypeOfLandTenureC.text.trim(),
           filterByFromDate: _startDateNotifier.value,
           filterByToDate: _endDateNotifier.value,
+          sortColumn: selectedDirection != null ? "Building Name" : null,
+          sortDirection: selectedDirection,
         );
       },
 
@@ -532,7 +592,10 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
 
   Future<void> _showBottomSheetToFilterLand(BuildContext context) async {
     final state = _projectLeadCubit.state;
-
+    String? selectedDirection =
+        state.landCurrentSortColumn == "Land Owner Name"
+            ? state.landCurrentSortDirection
+            : null;
     _landSearchC.text = state.landSearchText;
     _filterLandAddressC.text = state.landAddress;
     _filterLandContactPersonName.text = state.landContactPersonName;
@@ -559,7 +622,7 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
     final String initialLandOwnershipType = _filterLandOwnershipTypeC.text;
     final DateTime? initialLandFromDate = _landStartDateNotifier.value;
     final DateTime? initialLandToDate = _landEndDateNotifier.value;
-
+    final String? initialDirection = selectedDirection;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
@@ -579,7 +642,8 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
             (_filterLandOwnershipTypeC.text.trim() !=
                 initialLandOwnershipType) ||
             (_landStartDateNotifier.value != initialLandFromDate) ||
-            (_landEndDateNotifier.value != initialLandToDate);
+            (_landEndDateNotifier.value != initialLandToDate) ||
+            (selectedDirection != initialDirection);
 
         applyEnabled.value = manualClose;
       });
@@ -590,11 +654,62 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
       title: "Filter - Project Land",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
           return SingleChildScrollView(
             padding: const EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text("Sort By Land Owner Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
                 CustomTextField(
                   title: "Land Owner Name",
                   hint: "Enter Land Owner Name",
@@ -736,6 +851,8 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
           ownershipType: _filterLandOwnershipTypeC.text.trim(),
           filterByLandFromDate: _landStartDateNotifier.value,
           filterByLandToDate: _landEndDateNotifier.value,
+          sortColumn: selectedDirection != null ? "Land Owner Name" : null,
+          sortDirection: selectedDirection,
         );
       },
 

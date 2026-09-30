@@ -33,7 +33,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
   late AuthorizationModel _routeAuthorizationModel;
 
   //PROJECT ID
-  late ProjectModel _project;
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -50,11 +50,11 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
 
     _initializeTextEditingController();
     _onScroll();
-    _project = getProject();
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
     _documentCategoryCubit.getDocumentCategoryList(
       context,
       1,
-      _project.projectId,
+      _selectedProjectNotifier.value.projectId,
     );
   }
 
@@ -77,12 +77,12 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
           !_documentCategoryCubit.state.isLoading! &&
           _documentCategoryCubit.state.documentCategoryList.length <
               _documentCategoryCubit.state.totalNumberOfRecord) {
-        if (_project.projectId != 0) {
+        if (_selectedProjectNotifier.value.projectId != 0) {
           _documentCategoryCubit.getDocumentCategoryList(
             context,
             _documentCategoryCubit.state.currentPage + 1,
 
-            _project.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         }
       }
@@ -104,7 +104,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
 
     if (shouldDelete && context.mounted) {
       _documentCategoryCubit.deleteDocumentCategory(
-        _project.projectId,
+        _selectedProjectNotifier.value.projectId,
         obj,
         context,
       );
@@ -118,10 +118,10 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
         screenTitle: "Project Document Category",
         authorization: _routeAuthorizationModel,
         onSearchSubmit: (value) {
-          if (_project.projectId != 0) {
+          if (_selectedProjectNotifier.value.projectId != 0) {
             _documentCategoryCubit.searchCategory(
               context,
-              _project.projectId,
+              _selectedProjectNotifier.value.projectId,
               value,
             );
           }
@@ -129,14 +129,16 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
         textController: _searchC,
         searchHintText: "Search by Project Document Category",
         onAddCallback: () {
-          if (_project.projectId == 0) {
+          if (_selectedProjectNotifier.value.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
           goRouter.pushNamed(AppRoutes.addDocumentCategory);
         },
         onProjectChangeCallback: (value) {
-          _project = value;
+          _selectedProjectNotifier.value = value;
+          _searchC.clear();
+          _documentCategoryCubit.resetSearch();
           if (context.mounted) {
             _documentCategoryCubit.getDocumentCategoryList(
               context,
@@ -153,96 +155,80 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
           _documentCategoryCubit.exportExcelPdf(
             context,
             value,
-            _project.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         },
       ),
-      body: BlocBuilder<DocumentCategoryCubit, DocumentCategoryState>(
-        bloc: _documentCategoryCubit,
-        builder: (context, state) {
-          if ((state.isLoading ?? true) && state.documentCategoryList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.documentCategoryList.isEmpty) {
-            return Center(
-              child: noDataWidget(
-                message: "No Project Document Category Data Found",
-              ),
-            );
-          }
-          return RefreshIndicator(
-            onRefresh: () async {
-              _searchC.clear();
-              _documentCategoryCubit.searchCategory(
-                context,
-                _project.projectId,
-                "",
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ValueListenableBuilder(
+            valueListenable: _selectedProjectNotifier,
+            builder: (context, value, child) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
               );
             },
-            child: ListView.builder(
-              controller: scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.documentCategoryList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.documentCategoryList.length) {
-                  return state.documentCategoryList.length <
-                          state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
+          ),
+          Expanded(
+            child: BlocBuilder<DocumentCategoryCubit, DocumentCategoryState>(
+              bloc: _documentCategoryCubit,
+              builder: (context, state) {
+                if ((state.isLoading ?? true) &&
+                    state.documentCategoryList.isEmpty) {
+                  return Center(child: loader());
                 }
-                var category = state.documentCategoryList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        spacing: 10,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewDocumentCategory,
-                                  queryParameters: {
-                                    "documentCategory":
-                                        Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(category.toJson()),
-                                          ),
-                                        ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                category.projectDocumentCategoryName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          _routeAuthorizationModel.isAction
-                              ? Row(
-                                children: [
-                                  CustomIconButton.edit(
-                                    onPressed: () async {
-                                      if (_project.projectId == 0) {
-                                        showErrorMessage(
-                                          context,
-                                          'Error',
-                                          'Please select a project',
-                                        );
-                                        return;
-                                      }
-                                      await goRouter.pushNamed(
-                                        AppRoutes.addDocumentCategory,
+                if (state.documentCategoryList.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: "No Project Document Category Data Found",
+                    ),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _searchC.clear();
+                    _documentCategoryCubit.searchCategory(
+                      context,
+                      _selectedProjectNotifier.value.projectId,
+                      "",
+                    );
+                  },
+                  child: ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.documentCategoryList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.documentCategoryList.length) {
+                        return state.documentCategoryList.length <
+                                state.totalNumberOfRecord
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      var category = state.documentCategoryList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.viewDocumentCategory,
                                         queryParameters: {
                                           "documentCategory":
                                               Uri.encodeQueryComponent(
@@ -250,47 +236,87 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                                                   jsonEncode(category.toJson()),
                                                 ),
                                               ),
-                                          'index': index.toString(),
                                         },
                                       );
                                     },
+                                    child: Text(
+                                      category.projectDocumentCategoryName,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
                                   ),
-                                  horizontalSpacing(),
-                                  CustomIconButton.delete(
-                                    isDisabled:
-                                        category.documentCount == 0
-                                            ? false
-                                            : true,
-                                    onPressed: () {
-                                      _showPopupToDeleteDocumentCategory(
-                                        context,
-                                        category,
-                                        state.currentPage,
-                                        index,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              )
-                              : SizedBox.shrink(),
-                        ],
-                      ),
-                      verticalSpacing(height: 8),
-                      buildRowTitleValue(
-                        title: "Sequence",
-                        value: category.orderBy.toString(),
-                      ),
-                      buildRowTitleValue(
-                        title: "Document Count",
-                        value: category.documentCount.toString(),
-                      ),
-                    ],
+                                ),
+                                Row(
+                                  children: [
+                                    CustomIconButton.edit(
+                                      isDisabled:
+                                          !_routeAuthorizationModel.isAction,
+                                      onPressed: () async {
+                                        if (_selectedProjectNotifier
+                                                .value
+                                                .projectId ==
+                                            0) {
+                                          showErrorMessage(
+                                            context,
+                                            'Error',
+                                            'Please select a project',
+                                          );
+                                          return;
+                                        }
+                                        await goRouter.pushNamed(
+                                          AppRoutes.addDocumentCategory,
+                                          queryParameters: {
+                                            "documentCategory":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      category.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                            'index': index.toString(),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    horizontalSpacing(),
+                                    CustomIconButton.delete(
+                                      isDisabled:
+                                          (!_routeAuthorizationModel.isAction ||
+                                              category.documentCount == 0),
+                                      onPressed: () {
+                                        _showPopupToDeleteDocumentCategory(
+                                          context,
+                                          category,
+                                          state.currentPage,
+                                          index,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 8),
+                            buildRowTitleValue(
+                              title: "Sequence",
+                              value: category.orderBy.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Document Count",
+                              value: category.documentCount.toString(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 );
               },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
@@ -136,9 +137,9 @@ class _AddRERADocumentCategoryScreenState
                       hint: "Enter project RERA document category",
                       isRequired: true,
                       textController: _reraDocumentCategoryC,
-                      inputFormatterList: InputValidator.digitAndCharacterOnly(
-                        100,
-                      ),
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
                           return "Project Document RERA Category is required.";

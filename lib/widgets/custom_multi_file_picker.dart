@@ -487,6 +487,17 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     for (var file in result.files) {
       String extension = file.extension?.toLowerCase() ?? "";
 
+      if (extension == "apk") {
+        if (context.mounted) {
+          showErrorMessage(
+            context,
+            "Invalid File Type",
+            "APK files are not allowed.",
+          );
+        }
+        continue;
+      }
+
       // MANUAL EXTENSION VALIDATION
       if (!finalExtensions.contains(extension)) {
         if (context.mounted) {

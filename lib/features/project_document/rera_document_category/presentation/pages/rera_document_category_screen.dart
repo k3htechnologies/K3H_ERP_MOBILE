@@ -35,8 +35,7 @@ class _RERADocumentCategoryScreenState
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
 
-  //PROJECT
-  late ProjectModel _project;
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
@@ -53,12 +52,11 @@ class _RERADocumentCategoryScreenState
 
     _initializeTextEditingController();
     _onScroll();
-    //SET PROJECT ID
-    _project = getProject();
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
     _reraDocumentCategoryCubit.getRERADocumentCategoryList(
       context,
       1,
-      _project.projectId,
+      _selectedProjectNotifier.value.projectId,
     );
   }
 
@@ -81,12 +79,12 @@ class _RERADocumentCategoryScreenState
           !_reraDocumentCategoryCubit.state.isLoading! &&
           _reraDocumentCategoryCubit.state.reraDocumentCategoryList.length <
               _reraDocumentCategoryCubit.state.totalNumberOfRecord) {
-        if (_project.projectId != 0) {
+        if (_selectedProjectNotifier.value.projectId != 0) {
           _reraDocumentCategoryCubit.getRERADocumentCategoryList(
             context,
             _reraDocumentCategoryCubit.state.currentPage + 1,
 
-            _project.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         }
       }
@@ -108,7 +106,7 @@ class _RERADocumentCategoryScreenState
 
     if (shouldDelete && context.mounted) {
       _reraDocumentCategoryCubit.deleteRERADocumentCategory(
-        _project.projectId,
+        _selectedProjectNotifier.value.projectId,
         obj,
         context,
       );
@@ -123,17 +121,17 @@ class _RERADocumentCategoryScreenState
         authorization: _routeAuthorizationModel,
         searchHintText: "Search By Project RERA Document Category",
         onSearchSubmit: (value) {
-          if (_project.projectId != 0) {
+          if (_selectedProjectNotifier.value.projectId != 0) {
             _reraDocumentCategoryCubit.searchCategory(
               context,
-              _project.projectId,
+              _selectedProjectNotifier.value.projectId,
               value,
             );
           }
         },
         textController: _searchC,
         onAddCallback: () async {
-          if (_project.projectId == 0) {
+          if (_selectedProjectNotifier.value.projectId == 0) {
             showErrorMessage(context, 'Error', 'Please select a project');
             return;
           }
@@ -144,7 +142,7 @@ class _RERADocumentCategoryScreenState
               _reraDocumentCategoryCubit.getRERADocumentCategoryList(
                 context,
                 1,
-                _project.projectId,
+                _selectedProjectNotifier.value.projectId,
               );
             }
           });
@@ -157,156 +155,188 @@ class _RERADocumentCategoryScreenState
           _reraDocumentCategoryCubit.exportExcelPdf(
             context,
             value,
-            _project.projectId,
+            _selectedProjectNotifier.value.projectId,
           );
         },
-        onProjectChangeCallback: (value) {
-          _project = value;
-          _reraDocumentCategoryCubit.getRERADocumentCategoryList(
-            context,
-            1,
-            _project.projectId,
-          );
-        },
-      ),
-      body: BlocBuilder<RERADocumentCategoryCubit, RERADocumentCategoryState>(
-        builder: (context, state) {
-          if ((state.isLoading ?? true) &&
-              state.reraDocumentCategoryList.isEmpty) {
-            return Center(child: loader());
-          }
-          if (state.reraDocumentCategoryList.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: noDataWidget(
-                  message: "No Project RERA Document Category Data Found",
-                ),
-              ),
+        onProjectChangeCallback: (value) async {
+          _selectedProjectNotifier.value = value;
+          _searchC.clear();
+          await _reraDocumentCategoryCubit.resetSearch();
+          if (context.mounted) {
+            _reraDocumentCategoryCubit.getRERADocumentCategoryList(
+              context,
+              1,
+              _selectedProjectNotifier.value.projectId,
             );
           }
-          return RefreshIndicator(
-            onRefresh: () async {
-              _searchC.clear();
-              _reraDocumentCategoryCubit.searchCategory(
-                context,
-                _project.projectId,
-                "",
+        },
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ValueListenableBuilder(
+            valueListenable: _selectedProjectNotifier,
+            builder: (context, value, child) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: showSiteSelectedWidget(),
               );
             },
-            child: ListView.builder(
-              controller: scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              itemCount: state.reraDocumentCategoryList.length + 1,
-              itemBuilder: (context, index) {
-                if (index == state.reraDocumentCategoryList.length) {
-                  return state.reraDocumentCategoryList.length <
-                          state.totalNumberOfRecord
-                      ? const Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      )
-                      : const SizedBox.shrink();
+          ),
+          Expanded(
+            child: BlocBuilder<
+              RERADocumentCategoryCubit,
+              RERADocumentCategoryState
+            >(
+              builder: (context, state) {
+                if ((state.isLoading ?? true) &&
+                    state.reraDocumentCategoryList.isEmpty) {
+                  return Center(child: loader());
                 }
-                var reraCategory = state.reraDocumentCategoryList[index];
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  padding: const EdgeInsets.all(12),
-                  decoration: commonCardDecoration(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        spacing: 10,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Flexible(
-                            child: GestureDetector(
-                              onTap: () {
-                                goRouter.pushNamed(
-                                  AppRoutes.viewReraDocumentCategory,
-                                  queryParameters: {
-                                    "reraDocumentCategory":
-                                        Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(reraCategory.toJson()),
-                                          ),
-                                        ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                reraCategory.projectRERADocumentCategoryName,
-                                style: AppTextStyle.ts16M(
-                                  color: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (_routeAuthorizationModel.isAction)
+                if (state.reraDocumentCategoryList.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: noDataWidget(
+                        message: "No Project RERA Document Category Data Found",
+                      ),
+                    ),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    _searchC.clear();
+                    _reraDocumentCategoryCubit.searchCategory(
+                      context,
+                      _selectedProjectNotifier.value.projectId,
+                      "",
+                    );
+                  },
+                  child: ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    itemCount: state.reraDocumentCategoryList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.reraDocumentCategoryList.length) {
+                        return state.reraDocumentCategoryList.length <
+                                state.totalNumberOfRecord
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      var reraCategory = state.reraDocumentCategoryList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Row(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                CustomIconButton.edit(
-                                  onPressed: () async {
-                                    if (_project.projectId == 0) {
-                                      showErrorMessage(
-                                        context,
-                                        'Error',
-                                        'Please select a project',
-                                      );
-                                      return;
-                                    }
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addReraDocumentCategory,
-                                      queryParameters: {
-                                        "reraDocumentCategory":
-                                            Uri.encodeQueryComponent(
-                                              EncryptionManager.encryptData(
-                                                jsonEncode(
-                                                  reraCategory.toJson(),
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.viewReraDocumentCategory,
+                                        queryParameters: {
+                                          "reraDocumentCategory":
+                                              Uri.encodeQueryComponent(
+                                                EncryptionManager.encryptData(
+                                                  jsonEncode(
+                                                    reraCategory.toJson(),
+                                                  ),
                                                 ),
                                               ),
-                                            ),
-                                        'index': index.toString(),
-                                      },
-                                    );
-                                  },
+                                        },
+                                      );
+                                    },
+                                    child: Text(
+                                      reraCategory
+                                          .projectRERADocumentCategoryName,
+                                      style: AppTextStyle.ts16M(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(width: 8),
-                                CustomIconButton.delete(
-                                  isDisabled:
-                                      reraCategory.documentCount == 0
-                                          ? false
-                                          : true,
-                                  onPressed: () {
-                                    _showPopupToDeleteDocumentCategory(
-                                      context,
-                                      reraCategory,
-                                      state.currentPage,
-                                      index,
-                                    );
-                                  },
+                                Row(
+                                  children: [
+                                    CustomIconButton.edit(
+                                      isDisabled:
+                                          !_routeAuthorizationModel.isAction,
+                                      onPressed: () async {
+                                        if (_selectedProjectNotifier
+                                                .value
+                                                .projectId ==
+                                            0) {
+                                          showErrorMessage(
+                                            context,
+                                            'Error',
+                                            'Please select a project',
+                                          );
+                                          return;
+                                        }
+                                        await goRouter.pushNamed(
+                                          AppRoutes.addReraDocumentCategory,
+                                          queryParameters: {
+                                            "reraDocumentCategory":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      reraCategory.toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                            'index': index.toString(),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                    CustomIconButton.delete(
+                                      isDisabled:
+                                          (!_routeAuthorizationModel.isAction ||
+                                              reraCategory.documentCount == 0),
+                                      onPressed: () {
+                                        _showPopupToDeleteDocumentCategory(
+                                          context,
+                                          reraCategory,
+                                          state.currentPage,
+                                          index,
+                                        );
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                        ],
-                      ),
-                      verticalSpacing(height: 8),
-                      buildRowTitleValue(
-                        title: "Sequencce",
-                        value: reraCategory.orderBy.toString(),
-                      ),
-                      buildRowTitleValue(
-                        title: "Document Count",
-                        value: reraCategory.documentCount.toString(),
-                      ),
-                    ],
+                            verticalSpacing(height: 8),
+                            buildRowTitleValue(
+                              title: "Sequence",
+                              value: reraCategory.orderBy.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Document Count",
+                              value: reraCategory.documentCount.toString(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 );
               },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

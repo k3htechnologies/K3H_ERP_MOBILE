@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
@@ -15,7 +16,6 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -49,8 +49,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
   // TAB CONTROLLERS
   TabController? _categoryTabController;
 
-  //PROJECT
-  late ProjectModel _project;
+  late ValueNotifier<ProjectModel> _selectedProjectNotifier;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
@@ -59,9 +58,13 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
     super.initState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.testDocument]!;
-    _project = getProject();
+    _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
     _testDocumentCubit = context.read<TestDocumentCubit>();
-    _testDocumentCubit.getTestCategoryList(context, 1, _project.projectId);
+    _testDocumentCubit.getTestCategoryList(
+      context,
+      1,
+      _selectedProjectNotifier.value.projectId,
+    );
     _initControllers();
     _onScroll();
   }
@@ -105,6 +108,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
   // CATEGORY TAB
   void _onBuildingTabChanged() {
     if (!_categoryTabController!.indexIsChanging && mounted) {
+      _searchC.clear();
       _testDocumentCubit.onTabChanged(_categoryTabController!.index, context);
     }
   }
@@ -187,7 +191,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
               title: "Document Name",
               hint: "Enter Document Name",
               textController: _documentC,
-              inputFormatterList: InputValidator.digitAndCharacterOnly(100),
+              inputFormatterList: [LengthLimitingTextInputFormatter(100)],
               isRequired: true,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -232,12 +236,12 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
           _testDocumentCubit.searchDocument(value, context);
         },
         onProjectChangeCallback: (value) {
-          _project.projectId = value.projectId;
+          _selectedProjectNotifier.value = value;
           if (context.mounted) {
             _testDocumentCubit.getTestCategoryList(
               context,
               1,
-              _project.projectId,
+              _selectedProjectNotifier.value.projectId,
             );
           }
         },
@@ -262,69 +266,91 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
             ),
       ),
       body: SafeArea(
-        child: BlocListener<TestDocumentCubit, TestDocumentState>(
-          listener: (context, state) {
-            if (!mounted) return;
-            if (!state.isLoading! &&
-                state.tesDocumentCategoryModelList.isNotEmpty) {
-              if (_categoryTabController == null ||
-                  _categoryTabController!.length !=
-                      state.tesDocumentCategoryModelList.length) {
-                _initCategoryController(state);
-              }
-            }
-          },
-          child: BlocBuilder<TestDocumentCubit, TestDocumentState>(
-            builder: (context, state) {
-              if (state.isLoading! &&
-                  state.tesDocumentCategoryModelList.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (state.tesDocumentCategoryModelList.isEmpty) {
-                return Center(
-                  child: noDataWidget(message: "No Test Document Data Found"),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: _selectedProjectNotifier,
+              builder: (context, value, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: showSiteSelectedWidget(),
                 );
-              }
+              },
+            ),
+            Expanded(
+              child: BlocListener<TestDocumentCubit, TestDocumentState>(
+                listener: (context, state) {
+                  if (!mounted) return;
+                  if (!state.isLoading! &&
+                      state.tesDocumentCategoryModelList.isNotEmpty) {
+                    if (_categoryTabController == null ||
+                        _categoryTabController!.length !=
+                            state.tesDocumentCategoryModelList.length) {
+                      _initCategoryController(state);
+                    }
+                  }
+                },
+                child: BlocBuilder<TestDocumentCubit, TestDocumentState>(
+                  builder: (context, state) {
+                    if (state.isLoading! &&
+                        state.tesDocumentCategoryModelList.isEmpty) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
 
-              if (_categoryTabController == null) {
-                return const Center(child: CircularProgressIndicator());
-              }
+                    if (state.tesDocumentCategoryModelList.isEmpty) {
+                      return Center(
+                        child: noDataWidget(
+                          message: "No Test Document Data Found",
+                        ),
+                      );
+                    }
 
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // CATEGORY TAB
-                  _buildCategoryTab(state),
-                  verticalSpacing(),
-                  Expanded(
-                    child: TabBarView(
-                      physics: NeverScrollableScrollPhysics(),
-                      controller: _categoryTabController,
-                      children:
-                          state.tesDocumentCategoryModelList.map((category) {
-                            return (state.testDocumentList.isEmpty &&
-                                    state.isLoading!)
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : RefreshIndicator(
-                                  onRefresh: () async {
-                                    _searchC.clear();
-                                    _testDocumentCubit.searchDocument(
-                                      "",
-                                      context,
-                                    );
-                                  },
-                                  child: _buildDocumentListForCategory(state),
-                                );
-                          }).toList(),
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                    if (_categoryTabController == null) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // CATEGORY TAB
+                        _buildCategoryTab(state),
+                        verticalSpacing(),
+                        Expanded(
+                          child: TabBarView(
+                            physics: NeverScrollableScrollPhysics(),
+                            controller: _categoryTabController,
+                            children:
+                                state.tesDocumentCategoryModelList.map((
+                                  category,
+                                ) {
+                                  return (state.testDocumentList.isEmpty &&
+                                          state.isLoading!)
+                                      ? const Center(
+                                        child: CircularProgressIndicator(),
+                                      )
+                                      : RefreshIndicator(
+                                        onRefresh: () async {
+                                          _searchC.clear();
+                                          _testDocumentCubit.searchDocument(
+                                            "",
+                                            context,
+                                          );
+                                        },
+                                        child: _buildDocumentListForCategory(
+                                          state,
+                                        ),
+                                      );
+                                }).toList(),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -414,61 +440,61 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                           ),
                         ),
                       ),
-                      if (_routeAuthorizationModel.isAction) ...[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomIconButton(
-                              icon: Icon(
-                                Icons.add,
-                                size: 16,
-                                color: AppColor.primary,
-                              ),
-                              onPressed: () async {
-                                await goRouter.pushNamed(
-                                  AppRoutes.addTestDocument,
-                                  queryParameters: {
-                                    "document": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        jsonEncode(document.toJson()),
-                                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomIconButton(
+                            isDisable: !_routeAuthorizationModel.isAction,
+                            icon: Icon(
+                              Icons.add,
+                              size: 16,
+                              color: AppColor.primary,
+                            ),
+                            onPressed: () async {
+                              await goRouter.pushNamed(
+                                AppRoutes.addTestDocument,
+                                queryParameters: {
+                                  "document": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(document.toJson()),
                                     ),
-                                    "index": index.toString(),
-                                    "isEdit": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        false.toString(),
-                                      ),
+                                  ),
+                                  "index": index.toString(),
+                                  "isEdit": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      false.toString(),
                                     ),
-                                  },
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                _showPopUpToAddUpdateDocument(
-                                  documentModel: document,
-                                  index: index,
-                                );
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              isDisabled:
-                                  document.uploadedApprovalDocumentCount == 0
-                                      ? false
-                                      : true,
-                              onPressed: () {
-                                _showPopupToDeleteTestDocument(
-                                  context,
-                                  document,
-                                  index,
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                                  ),
+                                },
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.edit(
+                            isDisabled: !_routeAuthorizationModel.isAction,
+                            onPressed: () async {
+                              _showPopUpToAddUpdateDocument(
+                                documentModel: document,
+                                index: index,
+                              );
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.delete(
+                            isDisabled:
+                                (!_routeAuthorizationModel.isAction ||
+                                    document.uploadedApprovalDocumentCount ==
+                                        0),
+                            onPressed: () {
+                              _showPopupToDeleteTestDocument(
+                                context,
+                                document,
+                                index,
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   verticalSpacing(height: 10),

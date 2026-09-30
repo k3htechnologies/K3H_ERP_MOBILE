@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -27,12 +28,17 @@ class LandScreen extends StatefulWidget {
 class _LandScreenState extends State<LandScreen> {
   late ProjectLeadCubit _projectleadCubit;
   late AuthorizationModel _routeAuthorizationModel;
+
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
   @override
   void initState() {
     _projectleadCubit = context.read<ProjectLeadCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.projectLead] ??
         AuthorizationModel();
+    _onScroll();
     super.initState();
   }
 
@@ -57,6 +63,34 @@ class _LandScreenState extends State<LandScreen> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  // <---- PAGINATION ---->
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !(_projectleadCubit.state.isLoading ?? false) &&
+          _projectleadCubit.state.landList.length <
+              _projectleadCubit.state.landTotalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _projectleadCubit.getRedevelopmentList(
+            context,
+            _projectleadCubit.state.landCurrentPage + 1,
+          );
+        });
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocBuilder<ProjectLeadCubit, ProjectLeadState>(
       builder: (context, state) {
@@ -73,10 +107,19 @@ class _LandScreenState extends State<LandScreen> {
           );
         }
         return ListView.builder(
-          itemCount: state.landList.length,
+          controller: scrollController,
+          itemCount: state.landList.length + 1,
           shrinkWrap: true,
           physics: AlwaysScrollableScrollPhysics(),
           itemBuilder: (context, index) {
+            if (index == state.landList.length) {
+              return state.landList.length < state.landTotalNumberOfRecord
+                  ? Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                  : const SizedBox.shrink();
+            }
             final land = state.landList[index];
             return Container(
               margin: EdgeInsets.only(bottom: 10.0),
@@ -110,32 +153,32 @@ class _LandScreenState extends State<LandScreen> {
                           ),
                         ),
                       ),
-                      if (_routeAuthorizationModel.isAction) ...[
-                        horizontalSpacing(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            CustomIconButton.edit(
-                              onPressed: () async {
-                                goRouter.pushNamed(
-                                  AppRoutes.addLand,
-                                  extra: {"land": land, "index": index},
-                                );
-                                if (!context.mounted) return;
+                      horizontalSpacing(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          CustomIconButton.edit(
+                            isDisabled: !_routeAuthorizationModel.isAction,
+                            onPressed: () async {
+                              goRouter.pushNamed(
+                                AppRoutes.addLand,
+                                extra: {"land": land, "index": index},
+                              );
+                              if (!context.mounted) return;
 
-                                await _projectleadCubit.getLandList(context, 1);
-                              },
-                            ),
-                            horizontalSpacing(),
-                            CustomIconButton.delete(
-                              onPressed: () {
-                                _showPopupToDeeleteLand(context, land, index);
-                              },
-                            ),
-                          ],
-                        ),
-                      ],
+                              await _projectleadCubit.getLandList(context, 1);
+                            },
+                          ),
+                          horizontalSpacing(),
+                          CustomIconButton.delete(
+                            isDisabled: !_routeAuthorizationModel.isAction,
+                            onPressed: () {
+                              _showPopupToDeeleteLand(context, land, index);
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                   verticalSpacing(),
