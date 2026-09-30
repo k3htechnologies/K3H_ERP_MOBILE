@@ -6,7 +6,10 @@ import '../custom_chip_for_status_widget.dart';
 class CustomStatusBadgeDropdown extends StatefulWidget {
   final String initialValue;
   final Map<String, StatusConfig> itemConfig;
-  final ValueChanged<String> onSelect;
+
+  // Changed from ValueChanged<String>
+  final Future<bool> Function(String value) onSelect;
+
   final bool disabled;
 
   const CustomStatusBadgeDropdown({
@@ -49,14 +52,19 @@ class _CustomStatusBadgeDropdownState extends State<CustomStatusBadgeDropdown> {
     super.dispose();
   }
 
-  void _onSelect(String value) {
-    setState(() {
-      selectedValue = value;
-    });
-
+  // Only changed this logic
+  Future<void> _onSelect(String value) async {
     _removeOverlay();
 
-    widget.onSelect(value);
+    final bool success = await widget.onSelect(value);
+
+    if (!mounted) return;
+
+    if (success) {
+      setState(() {
+        selectedValue = value;
+      });
+    }
   }
 
   void _toggleDropdown() {
@@ -173,7 +181,7 @@ class _CustomStatusBadgeDropdownState extends State<CustomStatusBadgeDropdown> {
 
   @override
   Widget build(BuildContext context) {
-    final statusConfig = widget.itemConfig[selectedValue];
+    final statusConfig = widget.itemConfig[selectedValue.toLowerCase()];
 
     final badge = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),

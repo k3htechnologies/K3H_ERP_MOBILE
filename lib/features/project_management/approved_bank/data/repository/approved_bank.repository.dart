@@ -10,7 +10,7 @@ abstract interface class ApprovedBankRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-  Future<Either<Failure, Map<String, dynamic>>> getApprovedBankFolderForExport({
+  Future<Either<Failure, Map<String, dynamic>>> getApprovedBankFileForExport({
     required int pageSize,
     required int pageNumber,
     required int projectId,
@@ -158,7 +158,7 @@ class ApprovedBankRepositoryImpl extends ApprovedBankRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getApprovedBankFolderForExport({
+  Future<Either<Failure, Map<String, dynamic>>> getApprovedBankFileForExport({
     required int pageSize,
     required int pageNumber,
     required int projectId,

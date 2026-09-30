@@ -245,18 +245,76 @@ Duration calculateShiftDuration(DateTime? shiftStart, DateTime? shiftEnd) {
 }
 
 // <---- EXPORT AND DOWNLOAD FILE FOR MOBILE
+// Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
+//   try {
+//     Uint8List bytes = base64Decode(base64);
+//     Directory? dir;
+//     if (Platform.isAndroid) {
+//       dir = await getExternalStorageDirectory();
+//     } else if (Platform.isIOS) {
+//       dir = await getApplicationDocumentsDirectory();
+//     }
+//     if (dir == null) throw Exception("Cannot find storage directory");
+//     final filePath = '${dir.path}/$fileName';
+//     final file = File(filePath);
+//     await file.writeAsBytes(bytes);
+//     await OpenFilex.open(filePath);
+//   } catch (e) {
+//     developer.log("Error saving file: $e");
+//   }
+// }
+
 Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
   try {
     Uint8List bytes = base64Decode(base64);
+
+    // ZIP FOR ANDROID ONLY
+    if (fileName.toLowerCase().endsWith('.zip') && Platform.isAndroid) {
+      try {
+        final tempDir = await getTemporaryDirectory();
+        final filePath = '${tempDir.path}/$fileName';
+
+        final file = File(filePath);
+        await file.writeAsBytes(bytes);
+
+        final result = await SharePlus.instance.share(
+          ShareParams(
+            files: [
+              XFile(filePath, name: fileName, mimeType: 'application/zip'),
+            ],
+            title: fileName,
+          ),
+        );
+
+        debugPrint('ZIP share result: ${result.status}');
+
+        return;
+      } catch (e, stackTrace) {
+        developer.log(
+          'Error sharing ZIP: $e',
+          error: e,
+          stackTrace: stackTrace,
+        );
+        return;
+      }
+    }
+
+    // EXISTING LOGIC
     Directory? dir;
+
     if (Platform.isAndroid) {
       dir = await getExternalStorageDirectory();
     } else if (Platform.isIOS) {
       dir = await getApplicationDocumentsDirectory();
     }
-    if (dir == null) throw Exception("Cannot find storage directory");
+
+    if (dir == null) {
+      throw Exception("Cannot find storage directory");
+    }
+
     final filePath = '${dir.path}/$fileName';
     final file = File(filePath);
+
     await file.writeAsBytes(bytes);
     await OpenFilex.open(filePath);
   } catch (e) {
@@ -587,5 +645,3 @@ String getApiMobileNumber(String phoneNumber) {
 
   return digits;
 }
-
-

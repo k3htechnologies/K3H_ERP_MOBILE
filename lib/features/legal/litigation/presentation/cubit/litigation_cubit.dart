@@ -290,7 +290,7 @@ class LitigationCubit extends Cubit<LitigationState> {
   }
 
   // UPDATE LITIGATION PRIORITY
-  Future updateLitigationPriority({
+  Future<bool> updateLitigationPriority({
     required BuildContext context,
     required dynamic projectId,
     required String uniqueKey,
@@ -312,9 +312,10 @@ class LitigationCubit extends Cubit<LitigationState> {
 
     goRouter.pop();
 
-    result.fold(
+    return result.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
+        return false;
       },
       (response) {
         final updatedLitigation = LitigationModel.fromJson(
@@ -331,6 +332,7 @@ class LitigationCubit extends Cubit<LitigationState> {
         }
 
         showSuccessMessage(context, subTitle: response['message']);
+        return true;
       },
     );
   }
