@@ -13,12 +13,14 @@ import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class RERADocumentScreen extends StatefulWidget {
@@ -46,6 +48,8 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
 
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
 
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
@@ -68,6 +72,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _categoryTabController?.dispose();
     scrollController.dispose();
     _debounce?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -119,128 +124,282 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "RERA Document",
-        authorization: _routeAuthorizationModel,
-        textController: _searchC,
-        searchHintText: "Search By Document Name",
-        onSearchSubmit: (value) {
-          _reraDocumentCubit.searchDocument(value, context);
-        },
-        onProjectChangeCallback: (project) {
-          _selectedProjectNotifier.value = project;
-          _searchC.clear();
-          _reraDocumentCubit.resetSearch();
-          _reraDocumentCubit.getCategoryList(
-            context,
-            1,
-            _selectedProjectNotifier.value.projectId,
+  Future<void> _showBottomSheetToFilterRERADocument(
+    BuildContext context,
+  ) async {
+    final state = _reraDocumentCubit.state;
+
+    _searchC.text = state.searchText;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Project RERA Document Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialRERADocumentName = _searchC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    bool applied = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            _searchC.text.trim() != initialRERADocumentName ||
+            selectedDirection != initialDirection;
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter -  RERA Document",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Sort By Document Name", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+
+              verticalSpacing(height: 20),
+
+              CustomTextField(
+                textController: _searchC,
+                hint: "Enter Document Name",
+                title: "Document Name",
+                onChangeFunction: (_) => updateApplyState(innerState),
+              ),
+            ],
           );
         },
       ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ValueListenableBuilder(
-              valueListenable: _selectedProjectNotifier,
-              builder: (context, value, child) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: showSiteSelectedWidget(),
-                );
-              },
-            ),
-            Expanded(
-              child: BlocListener<RERADocumentCubit, RERADocumentState>(
-                listener: (context, state) {
-                  if (!mounted) return;
-                  if (!state.isLoading! &&
-                      state.documentCategoryModelList.isNotEmpty) {
-                    if (_categoryTabController == null ||
-                        _categoryTabController!.length !=
-                            state.documentCategoryModelList.length) {
-                      _initCategoryController(state);
-                    }
-                  }
+
+      onClear: () {
+        applied = true;
+
+        _searchC.clear();
+
+        _reraDocumentCubit.applyFilterAndSortRERADocument(
+          context: context,
+          column: "",
+          direction: "",
+          documentName: '',
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _reraDocumentCubit.applyFilterAndSortRERADocument(
+          context: context,
+          column: selectedDirection != null ? "Project RERA Document Name" : "",
+          direction: selectedDirection ?? "",
+          documentName: _searchC.text.trim(),
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // User closed bottom sheet without clicking Apply/Clear
+    if (!applied && manualClose) {
+      _searchC.text = initialRERADocumentName;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<RERADocumentCubit, RERADocumentState>(
+      listener: (context, state) {
+        _filterCount.value = _reraDocumentCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "RERA Document",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          searchHintText: "Search By Document Name",
+          onSearchSubmit: (value) {
+            _reraDocumentCubit.searchDocument(value, context);
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            if (_selectedProjectNotifier.value.projectId == 0) {
+              showErrorMessage(context, 'Error', 'Please select a project');
+              return;
+            }
+            _showBottomSheetToFilterRERADocument(context);
+          },
+          filterCountNotifier: _filterCount,
+          onProjectChangeCallback: (project) {
+            _selectedProjectNotifier.value = project;
+            _searchC.clear();
+            _reraDocumentCubit.resetSearch();
+            _reraDocumentCubit.getCategoryList(
+              context,
+              1,
+              _selectedProjectNotifier.value.projectId,
+            );
+          },
+        ),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ValueListenableBuilder(
+                valueListenable: _selectedProjectNotifier,
+                builder: (context, value, child) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: showSiteSelectedWidget(),
+                  );
                 },
-                child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
-                  builder: (context, state) {
-                    if (state.isLoading! &&
-                        state.documentCategoryModelList.isEmpty) {
-                      return Center(child: loader());
+              ),
+              Expanded(
+                child: BlocListener<RERADocumentCubit, RERADocumentState>(
+                  listener: (context, state) {
+                    if (!mounted) return;
+                    if (!state.isLoading! &&
+                        state.documentCategoryModelList.isNotEmpty) {
+                      if (_categoryTabController == null ||
+                          _categoryTabController!.length !=
+                              state.documentCategoryModelList.length) {
+                        _initCategoryController(state);
+                      }
                     }
-
-                    if (state.documentCategoryModelList.isEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Center(
-                          child: noDataWidget(
-                            message:
-                                "No Project RERA Document Category Data Found",
-                          ),
-                        ),
-                      );
-                    }
-
-                    if (_categoryTabController == null) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    return Column(
-                      children: [
-                        // CATEGORY TAB
-                        _buildCategoryTab(state),
-                        verticalSpacing(),
-                        Expanded(
-                          child: TabBarView(
-                            physics: NeverScrollableScrollPhysics(),
-                            controller: _categoryTabController,
-                            children:
-                                state.documentCategoryModelList.map((category) {
-                                  final documentsForCategory =
-                                      state.reraDocumentList
-                                          .where(
-                                            (d) =>
-                                                d.projectRERADocumentCategoryId ==
-                                                category
-                                                    .projectRERADocumentCategoryId,
-                                          )
-                                          .toList();
-
-                                  return (state.reraDocumentList.isEmpty &&
-                                          state.isLoading!)
-                                      ? const Center(
-                                        child: CircularProgressIndicator(),
-                                      )
-                                      : RefreshIndicator(
-                                        onRefresh: () async {
-                                          await _reraDocumentCubit
-                                              .getCategoryList(
-                                                context,
-                                                1,
-                                                _selectedProjectNotifier
-                                                    .value
-                                                    .projectId,
-                                              );
-                                        },
-                                        child: _buildDocumentListForCategory(
-                                          documentsForCategory,
-                                        ),
-                                      );
-                                }).toList(),
-                          ),
-                        ),
-                      ],
-                    );
                   },
+                  child: BlocBuilder<RERADocumentCubit, RERADocumentState>(
+                    builder: (context, state) {
+                      if (state.isLoading! &&
+                          state.documentCategoryModelList.isEmpty) {
+                        return Center(child: loader());
+                      }
+
+                      if (state.documentCategoryModelList.isEmpty) {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: Center(
+                            child: noDataWidget(
+                              message:
+                                  "No Project RERA Document Category Data Found",
+                            ),
+                          ),
+                        );
+                      }
+
+                      if (_categoryTabController == null) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Column(
+                        children: [
+                          // CATEGORY TAB
+                          _buildCategoryTab(state),
+                          verticalSpacing(),
+                          Expanded(
+                            child: TabBarView(
+                              physics: NeverScrollableScrollPhysics(),
+                              controller: _categoryTabController,
+                              children:
+                                  state.documentCategoryModelList.map((
+                                    category,
+                                  ) {
+                                    final documentsForCategory =
+                                        state.reraDocumentList
+                                            .where(
+                                              (d) =>
+                                                  d.projectRERADocumentCategoryId ==
+                                                  category
+                                                      .projectRERADocumentCategoryId,
+                                            )
+                                            .toList();
+
+                                    return (state.reraDocumentList.isEmpty &&
+                                            state.isLoading!)
+                                        ? const Center(
+                                          child: CircularProgressIndicator(),
+                                        )
+                                        : RefreshIndicator(
+                                          onRefresh: () async {
+                                            await _reraDocumentCubit
+                                                .getCategoryList(
+                                                  context,
+                                                  1,
+                                                  _selectedProjectNotifier
+                                                      .value
+                                                      .projectId,
+                                                );
+                                          },
+                                          child: _buildDocumentListForCategory(
+                                            documentsForCategory,
+                                          ),
+                                        );
+                                  }).toList(),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

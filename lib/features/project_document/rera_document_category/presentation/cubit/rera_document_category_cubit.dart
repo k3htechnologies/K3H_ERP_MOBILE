@@ -247,4 +247,30 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
       },
     );
   }
+
+  Future applyFilterAndSortRERADocumentCategory({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String categoryName,
+    required int projectId,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: categoryName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        documentCategoryList: [],
+      ),
+    );
+    await getRERADocumentCategoryList(context, 1, projectId);
+  }
+
+  int updateFilterCount(RERADocumentCategoryState state) {
+    final hasSort =
+        state.currentSortColumn == "Project RERA Document Category" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
+  }
 }

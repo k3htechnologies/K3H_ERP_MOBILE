@@ -130,12 +130,14 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
   void _prefillForm(DocumentModel document) {
     _documentNameC.text = document.projectDocumentName;
     // Find the matching status in the list
-    final matchedStatus = statusList.firstWhere(
-      (status) => status['DisplayName'] == document.projectDocumentStatus,
-      orElse: () => statusList.first, // fallback to "Select Status"
-    );
+    if (document.projectDocumentStatus.isNotEmpty) {
+      final matchedStatus = statusList.firstWhere(
+        (status) => status['DisplayName'] == document.projectDocumentStatus,
+        orElse: () => statusList.first, // fallback to "Select Status"
+      );
 
-    _selectedStatus.value = matchedStatus;
+      _selectedStatus.value = matchedStatus;
+    }
 
     // Prefill expiry date
     expiryDate = document.projectDocumentExpiryDate;

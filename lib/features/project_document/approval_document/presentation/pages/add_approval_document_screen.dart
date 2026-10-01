@@ -128,13 +128,14 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
 
   // POPULATE FORM FIELDS
   void _prefillForm(ApprovalDocumentModel document) {
-    final matchedStatus = statusList.firstWhere(
-      (status) => status['DisplayName'] == document.approvalDocumentStatus,
-      orElse: () => statusList.first,
-    );
+    if (document.approvalDocumentStatus.isNotEmpty) {
+      final matchedStatus = statusList.firstWhere(
+        (status) => status['DisplayName'] == document.approvalDocumentStatus,
+        orElse: () => statusList.first,
+      );
 
-    _selectedStatus.value = matchedStatus;
-
+      _selectedStatus.value = matchedStatus;
+    }
     expiryDate = document.approvalDocumentExpiryDate;
 
     _remarkC.text =

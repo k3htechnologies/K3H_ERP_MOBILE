@@ -258,4 +258,30 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
       },
     );
   }
+
+  Future applyFilterAndSortProjectDocumentCategory({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String categoryName,
+    required int projectId,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: categoryName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        documentCategoryList: [],
+      ),
+    );
+    await getDocumentCategoryList(context, 1, projectId);
+  }
+
+  int updateFilterCount(DocumentCategoryState state) {
+    final hasSort =
+        state.currentSortColumn == "Project Document Category" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
+  }
 }

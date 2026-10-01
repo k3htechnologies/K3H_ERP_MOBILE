@@ -133,12 +133,14 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
 
   // PREFILL FORM
   void _prefillForm(RERADocumentModel document) {
-    final matchedStatus = statusList.firstWhere(
-      (status) => status['DisplayName'] == document.projectRERADocumentStatus,
-      orElse: () => statusList.first,
-    );
+    if (document.projectRERADocumentStatus.isNotEmpty) {
+      final matchedStatus = statusList.firstWhere(
+        (status) => status['DisplayName'] == document.projectRERADocumentStatus,
+        orElse: () => statusList.first,
+      );
 
-    _selectedStatus.value = matchedStatus;
+      _selectedStatus.value = matchedStatus;
+    }
 
     if (document.reraPortalScreenShotURL != null) {
       selectedScreenShotFile.fileNameList =

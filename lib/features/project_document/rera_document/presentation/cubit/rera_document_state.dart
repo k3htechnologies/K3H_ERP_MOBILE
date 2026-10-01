@@ -44,8 +44,8 @@ class RERADocumentState extends BaseState {
     currentPageOfSubDoc: 1,
     searchText: "",
     isLoading: true,
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
 
   RERADocumentState copyWith({

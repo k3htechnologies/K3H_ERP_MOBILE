@@ -414,6 +414,8 @@ class DocumentCubit extends Cubit<DocumentState> {
         currentPage: 1,
         totalNumberOfRecord: 0,
         searchText: "",
+        currentSortColumn: "",
+        currentSortDirection: "",
         isLoading: true,
       ),
     );
@@ -489,5 +491,30 @@ class DocumentCubit extends Cubit<DocumentState> {
         showSuccessMessage(context, subTitle: "Document Deleted Successfully");
       },
     );
+  }
+
+  Future applyFilterAndSortDocument({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String documentName,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: documentName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        documentList: [],
+      ),
+    );
+    await getProjectDocumentList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(DocumentState state) {
+    final hasSort =
+        state.currentSortColumn == "Project Document Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }

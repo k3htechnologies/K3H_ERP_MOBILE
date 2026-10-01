@@ -42,8 +42,8 @@ class DocumentState extends BaseState {
     currentPageOfSubDoc: 1,
     searchText: "",
     isLoading: true,
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
 
   DocumentState copyWith({

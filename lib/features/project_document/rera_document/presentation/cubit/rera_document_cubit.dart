@@ -443,6 +443,8 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         currentPage: 1,
         totalNumberOfRecord: 0,
         searchText: "",
+        currentSortColumn: "",
+        currentSortDirection: "",
       ),
     );
 
@@ -524,5 +526,30 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         showSuccessMessage(context, subTitle: success["message"]);
       },
     );
+  }
+
+  Future applyFilterAndSortRERADocument({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String documentName,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: documentName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        reraDocumentList: [],
+      ),
+    );
+    await getRERADocumentList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(RERADocumentState state) {
+    final hasSort =
+        state.currentSortColumn == "Project RERA Document Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }

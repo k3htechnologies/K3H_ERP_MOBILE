@@ -52,6 +52,7 @@ class _DocumentScreenState extends State<DocumentScreen>
   final _formKey = GlobalKey<FormState>();
 
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
   @override
   void initState() {
     super.initState();
@@ -74,6 +75,7 @@ class _DocumentScreenState extends State<DocumentScreen>
     _categoryTabController?.dispose();
     scrollController.dispose();
     _debounce?.cancel();
+    _filterCount.dispose();
     super.dispose();
   }
 
@@ -224,137 +226,285 @@ class _DocumentScreenState extends State<DocumentScreen>
     _documentC.clear();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Project Document",
-        authorization: _routeAuthorizationModel,
-        textController: _searchC,
-        searchHintText: "Search by Document Name",
-        onSearchSubmit: (value) {
-          _documentCubit.searchDocument(value, context);
+  Future<void> _showBottomSheetToFilterDocumentMaster(
+    BuildContext context,
+  ) async {
+    final state = _documentCubit.state;
 
-          _documentCubit.getCategoryList(
-            context,
-            1,
-            _selectedProjectNotifier.value.projectId,
+    _searchC.text = state.searchText;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Project Document Name"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialDocumentCategoryName = _searchC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    bool applied = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            _searchC.text.trim() != initialDocumentCategoryName ||
+            selectedDirection != initialDirection;
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter -  Project Document",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
+          }
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Sort By Document Name", style: AppTextStyle.ts14M()),
+              verticalSpacing(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+
+              verticalSpacing(height: 20),
+
+              CustomTextField(
+                textController: _searchC,
+                hint: "Enter Document Name",
+                title: "Document Name",
+                onChangeFunction: (_) => updateApplyState(innerState),
+              ),
+            ],
           );
         },
-        onProjectChangeCallback: (project) {
-          _selectedProjectNotifier.value = project;
-          if (context.mounted) {
-            _documentCubit.getCategoryList(
-              context,
-              1,
-              _selectedProjectNotifier.value.projectId,
-            );
-          }
-        },
-        extraHeight: 20,
-        secondaryBuilder:
-            (_) => BlocBuilder<DocumentCubit, DocumentState>(
-              builder: (context, state) {
-                final list = state.documentCategoryModelList;
-
-                if (list.isNotEmpty) {
-                  return CustomButton(
-                    text: "Add",
-                    onPressed: () {
-                      _showPopUpToAddUpdateDocument();
-                    },
-                    backgroundColor: AppColor.primary,
-                    leading: Icon(Icons.add, size: 16, color: AppColor.white),
-                  );
-                }
-
-                return const SizedBox.shrink();
-              },
-            ),
       ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ValueListenableBuilder(
-              valueListenable: _selectedProjectNotifier,
-              builder: (context, value, child) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: showSiteSelectedWidget(),
-                );
-              },
-            ),
-            Expanded(
-              child: BlocListener<DocumentCubit, DocumentState>(
-                listener: (context, state) {
-                  if (!mounted) return;
-                  if (!state.isLoading! &&
-                      state.documentCategoryModelList.isNotEmpty) {
-                    if (_categoryTabController == null ||
-                        _categoryTabController!.length !=
-                            state.documentCategoryModelList.length) {
-                      _initCategoryController(state);
-                    }
-                  }
-                },
-                child: BlocBuilder<DocumentCubit, DocumentState>(
-                  builder: (context, state) {
-                    if (state.isLoading! &&
-                        state.documentCategoryModelList.isEmpty) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
 
-                    if (state.documentCategoryModelList.isEmpty) {
-                      return Center(
-                        child: noDataWidget(
-                          message: "No Project Document Data Found",
-                        ),
-                      );
-                    }
+      onClear: () {
+        applied = true;
 
-                    if (_categoryTabController == null) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+        _searchC.clear();
 
-                    return Column(
-                      children: [
-                        // CATEGORY TAB
-                        _buildCategoryTab(state),
-                        verticalSpacing(),
-                        Expanded(
-                          child: TabBarView(
-                            physics: NeverScrollableScrollPhysics(),
-                            controller: _categoryTabController,
-                            children:
-                                state.documentCategoryModelList.map((category) {
-                                  if (state
-                                      .documentCategoryModelList
-                                      .isNotEmpty) {
-                                    return RefreshIndicator(
-                                      onRefresh: () async {
-                                        _searchC.clear();
-                                        _documentCubit.searchDocument(
-                                          "",
-                                          context,
-                                        );
-                                      },
-                                      child: _buildDocumentListForCategory(
-                                        state,
-                                      ),
-                                    );
-                                  }
-                                  return Center(child: loader());
-                                }).toList(),
-                          ),
-                        ),
-                      ],
+        _documentCubit.applyFilterAndSortDocument(
+          context: context,
+          column: "",
+          direction: "",
+          documentName: '',
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _documentCubit.applyFilterAndSortDocument(
+          context: context,
+          column: selectedDirection != null ? "Project Document Name" : "",
+          direction: selectedDirection ?? "",
+          documentName: _searchC.text.trim(),
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // User closed bottom sheet without clicking Apply/Clear
+    if (!applied && manualClose) {
+      _searchC.text = initialDocumentCategoryName;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<DocumentCubit, DocumentState>(
+      listener: (context, state) {
+        _filterCount.value = _documentCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Project Document",
+          authorization: _routeAuthorizationModel,
+          textController: _searchC,
+          searchHintText: "Search by Document Name",
+          filterCountNotifier: _filterCount,
+          isFilterOn: true,
+          onFilterTap: () {
+            if (_selectedProjectNotifier.value.projectId == 0) {
+              showErrorMessage(context, 'Error', 'Please select a project');
+              return;
+            }
+            _showBottomSheetToFilterDocumentMaster(context);
+          },
+          onSearchSubmit: (value) {
+            _documentCubit.searchDocument(value, context);
+          },
+          onProjectChangeCallback: (project) {
+            _selectedProjectNotifier.value = project;
+            if (context.mounted) {
+              _documentCubit.getCategoryList(
+                context,
+                1,
+                _selectedProjectNotifier.value.projectId,
+              );
+            }
+          },
+          extraHeight: 20,
+          secondaryBuilder:
+              (_) => BlocBuilder<DocumentCubit, DocumentState>(
+                builder: (context, state) {
+                  final list = state.documentCategoryModelList;
+
+                  if (list.isNotEmpty) {
+                    return CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        _showPopUpToAddUpdateDocument();
+                      },
+                      backgroundColor: AppColor.primary,
+                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
                     );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
+        ),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ValueListenableBuilder(
+                valueListenable: _selectedProjectNotifier,
+                builder: (context, value, child) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: showSiteSelectedWidget(),
+                  );
+                },
+              ),
+              Expanded(
+                child: BlocListener<DocumentCubit, DocumentState>(
+                  listener: (context, state) {
+                    if (!mounted) return;
+                    if (!state.isLoading! &&
+                        state.documentCategoryModelList.isNotEmpty) {
+                      if (_categoryTabController == null ||
+                          _categoryTabController!.length !=
+                              state.documentCategoryModelList.length) {
+                        _initCategoryController(state);
+                      }
+                    }
                   },
+                  child: BlocBuilder<DocumentCubit, DocumentState>(
+                    builder: (context, state) {
+                      if (state.isLoading! &&
+                          state.documentCategoryModelList.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (state.documentCategoryModelList.isEmpty) {
+                        return Center(
+                          child: noDataWidget(
+                            message: "No Project Document Data Found",
+                          ),
+                        );
+                      }
+
+                      if (_categoryTabController == null) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      return Column(
+                        children: [
+                          // CATEGORY TAB
+                          _buildCategoryTab(state),
+                          verticalSpacing(),
+                          Expanded(
+                            child: TabBarView(
+                              physics: NeverScrollableScrollPhysics(),
+                              controller: _categoryTabController,
+                              children:
+                                  state.documentCategoryModelList.map((
+                                    category,
+                                  ) {
+                                    if (state
+                                        .documentCategoryModelList
+                                        .isNotEmpty) {
+                                      return RefreshIndicator(
+                                        onRefresh: () async {
+                                          _searchC.clear();
+                                          _documentCubit.searchDocument(
+                                            "",
+                                            context,
+                                          );
+                                        },
+                                        child: _buildDocumentListForCategory(
+                                          state,
+                                        ),
+                                      );
+                                    }
+                                    return Center(child: loader());
+                                  }).toList(),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
