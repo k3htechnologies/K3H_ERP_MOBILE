@@ -748,6 +748,7 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
                   hint: "Enter Plot Number",
                   textController: _filterLandPlotNumberC,
                   keyboardType: TextInputType.numberWithOptions(),
+                  inputFormatterList: [LengthLimitingTextInputFormatter(100)],
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(

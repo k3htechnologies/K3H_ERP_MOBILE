@@ -453,13 +453,8 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          CustomIconButton(
-                            isDisable: !_routeAuthorizationModel.isAction,
-                            icon: Icon(
-                              Icons.add,
-                              size: 16,
-                              color: AppColor.primary,
-                            ),
+                          CustomIconButton.add(
+                            isDisabled: !_routeAuthorizationModel.isAction,
                             onPressed: () async {
                               goRouter.pushNamed(
                                 AppRoutes.addApprovalDocument,

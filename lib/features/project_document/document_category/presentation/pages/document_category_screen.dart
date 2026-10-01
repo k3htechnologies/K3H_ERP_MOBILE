@@ -284,7 +284,7 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                                     CustomIconButton.delete(
                                       isDisabled:
                                           (!_routeAuthorizationModel.isAction ||
-                                              category.documentCount == 0),
+                                              category.documentCount > 0),
                                       onPressed: () {
                                         _showPopupToDeleteDocumentCategory(
                                           context,

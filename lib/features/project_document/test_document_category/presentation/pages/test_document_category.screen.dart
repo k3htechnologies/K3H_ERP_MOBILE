@@ -297,8 +297,7 @@ class _TestDocumentCategoryScreenState
                                   CustomIconButton.delete(
                                     isDisabled:
                                         (!_routeAuthorizationModel.isAction ||
-                                            testDocumentCategory
-                                                    .documentCount ==
+                                            testDocumentCategory.documentCount >
                                                 0),
                                     onPressed: () {
                                       _showPopupToDeleteTestDocumentCategory(
