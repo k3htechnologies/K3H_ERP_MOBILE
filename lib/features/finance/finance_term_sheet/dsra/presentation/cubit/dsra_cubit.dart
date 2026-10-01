@@ -62,7 +62,7 @@ class DsraCubit extends Cubit<DsraState> {
   Future<void> addDsra({
     required BuildContext context,
     required String term,
-    required int unit,
+    required double unit,
     required double perUnitRate,
     required double amount,
     required DateTime date,
@@ -123,7 +123,7 @@ class DsraCubit extends Cubit<DsraState> {
     required int termSheetDebtServiceReserveAccountId,
     required String uniqueKey,
     required String term,
-    required int unit,
+    required double unit,
     required double perUnitRate,
     required double amount,
     required DateTime date,

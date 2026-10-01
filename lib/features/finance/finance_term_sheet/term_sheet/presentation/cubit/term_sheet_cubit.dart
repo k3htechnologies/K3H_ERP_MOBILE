@@ -71,6 +71,7 @@ class TermSheetCubit extends Cubit<TermSheetState> {
           filterByInstitutionName: "",
           currentSortColumn: "Created Date",
           currentSortDirection: "DESC",
+          termSheetList: [],
         ),
       );
     } else {
@@ -83,6 +84,7 @@ class TermSheetCubit extends Cubit<TermSheetState> {
               institutionName ?? state.filterByInstitutionName,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
+          termSheetList: [],
         ),
       );
     }

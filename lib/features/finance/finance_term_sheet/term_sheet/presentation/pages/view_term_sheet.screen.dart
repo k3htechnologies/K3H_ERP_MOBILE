@@ -265,7 +265,9 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
     final bool areAmountsEqual =
         disbursedAmount == repaymentAmount && repaymentAmount == facilityAmount;
     final bool showCloseButton = isApproved && !isClosed && areAmountsEqual;
-
+    if (state.companyByProject.isEmpty) {
+      return Center(child: loader());
+    }
     return Padding(
       padding: EdgeInsets.all(20.0),
       child: Column(
@@ -868,6 +870,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                       ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          verticalSpacing(),
                           Container(
                             padding: EdgeInsets.symmetric(
                               horizontal: 16.0,

@@ -465,7 +465,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
     }
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
-      withData: true,
+      withData: false,
       type: FileType.custom,
       allowedExtensions: finalExtensions,
     );

@@ -134,7 +134,7 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
     final bool isFixedDeposit = term == 'Fixed Deposit (FD)';
 
     // COMMON VALUES
-    final int unit = int.tryParse(_unitC.text.trim()) ?? 0;
+    final double unit = double.tryParse(_unitC.text.trim()) ?? 0;
 
     final double perUnitRate = double.tryParse(_perUnitRateC.text.trim()) ?? 0;
 

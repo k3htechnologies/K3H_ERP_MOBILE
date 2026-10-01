@@ -451,28 +451,26 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (canShowEdit) ...[
-                        CustomIconButton.edit(
-                          isDisabled:
-                              isEditDisabled &&
-                              detailApprovalStatus != "pending",
-                          onPressed: () async {
-                            final result = await goRouter
-                                .pushNamed<TermSheetModel>(
-                                  AppRoutes.addTermSheet,
-                                  extra: {
-                                    "termSheet": termSheet,
-                                    "termSheetView": termSheetView,
-                                  },
-                                );
-                            if (result != null && context.mounted) {
-                              await _termSheetCubit.getTermSheet(context, 1);
-                            }
-                          },
-                        ),
-                        horizontalSpacing(),
-                      ],
+                      // if (canShowEdit) ...[
+                      CustomIconButton.edit(
+                        isDisabled: isEditDisabled || !canShowEdit,
+                        onPressed: () async {
+                          final result = await goRouter
+                              .pushNamed<TermSheetModel>(
+                                AppRoutes.addTermSheet,
+                                extra: {
+                                  "termSheet": termSheet,
+                                  "termSheetView": termSheetView,
+                                },
+                              );
+                          if (result != null && context.mounted) {
+                            await _termSheetCubit.getTermSheet(context, 1);
+                          }
+                        },
+                      ),
+                      horizontalSpacing(),
 
+                      // ],
                       CustomIconButton.delete(
                         isDisabled:
                             termSheet.approvalStatus.toLowerCase() != "pending",
@@ -495,7 +493,12 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
             singleLine: false,
           ),
           buildRowTitleValue(
-            title: "Laon Taken By",
+            title: "Company Name",
+            value: termSheet.companyName,
+            singleLine: false,
+          ),
+          buildRowTitleValue(
+            title: "Loan Taken By",
             value: termSheet.loanTakenBy,
             singleLine: false,
           ),

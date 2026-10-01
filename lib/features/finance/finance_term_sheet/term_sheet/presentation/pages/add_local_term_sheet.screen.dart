@@ -482,7 +482,7 @@ class _AddLocalTermSheetState extends State<AddLocalTermSheet> {
                     CustomFromToDatePicker(
                       fromDateTitle: "Loan Start Date",
                       toDateTitle: "Loan End Date",
-                      removeBottomMargin: false,
+                      alignVertical: true,
                       initialFromDate: _loanFromDateNotifier.value,
                       initialToDate: _loanToDateNotifier.value,
                       onToDateChanged: (DateTime? fromDate, DateTime? toDate) {

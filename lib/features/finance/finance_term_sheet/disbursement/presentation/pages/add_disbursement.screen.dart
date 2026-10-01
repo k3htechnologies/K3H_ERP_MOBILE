@@ -205,7 +205,7 @@ class _AddDisbursementScreenState extends State<AddDisbursementScreen> {
 
                         if (enteredAmount > remainingAmount) {
                           return "Total Disbursed Amount cannot be greater than "
-                              "Facility Amount (${facilityAmount.toIndianCurrency()})";
+                              "Facility Amount (${remainingAmount.toIndianCurrency()})";
                         }
 
                         return null;
