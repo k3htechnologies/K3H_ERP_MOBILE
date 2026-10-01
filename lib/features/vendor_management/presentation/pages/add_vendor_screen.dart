@@ -50,6 +50,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
   final ValueNotifier<Map<String, dynamic>?> selectedVendorType = ValueNotifier(
     null,
   );
+  final ValueNotifier<Map<String, dynamic>?> selectedOwnershipType =
+      ValueNotifier(null);
+  final ValueNotifier<Map<String, dynamic>?> selectedVendorBusinessType =
+      ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> selectedCompanyType =
       ValueNotifier(null);
   MultiFilePickerModel aadhaarCard = MultiFilePickerModel(
@@ -209,6 +213,14 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     subMaterialListForSelection = List.from(vendor.submaterialList);
     selectedMaterialIds.value =
         subMaterialListForSelection.map((e) => e.subMaterialMasterId).toSet();
+    selectedOwnershipType.value = ownershipTypeList.firstWhere(
+      (element) => element['DisplayName'] == vendor.ownershipType,
+      orElse: () => ownershipTypeList.first,
+    );
+    selectedVendorBusinessType.value = vendorBusinessTypeList.firstWhere(
+      (element) => element['DisplayName'] == vendor.vendorBusinessType,
+      orElse: () => vendorBusinessTypeList.first,
+    );
   }
 
   void _searchMaterialList() {
@@ -260,6 +272,8 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         context: context,
         companyName: companyNameC.value.text,
         companyType: selectedCompanyType.value?["DisplayName"],
+        ownershipType: selectedOwnershipType.value?["DisplayName"],
+        vendorBusinessType: selectedVendorBusinessType.value?["DisplayName"],
         vendorName: nameC.value.text,
         mobileNumber: mobileC.value.text,
         emailId: emailC.value.text,
@@ -287,6 +301,8 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         context: context,
         companyName: companyNameC.value.text,
         companyType: selectedCompanyType.value?["DisplayName"],
+        ownershipType: selectedOwnershipType.value?["DisplayName"],
+        vendorBusinessType: selectedVendorBusinessType.value?["DisplayName"],
         vendorName: nameC.value.text,
         vendorType: selectedVendorType.value?['DisplayName'],
         mobileNumberCountryCode: selectedMobileNoCountry.value.code,
@@ -363,30 +379,6 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         return "Vendor Name is required.";
                       }
                       return null;
-                    },
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: selectedCompanyType,
-                    builder: (context, value, child) {
-                      return CustomDropDownWidget(
-                        title: "Company Type",
-                        hintText: "Select Company Type",
-                        initialValue: selectedCompanyType.value,
-                        isRequired: true,
-                        dataList: firmTypeList,
-                        onSelected: (value) {
-                          selectedCompanyType.value = value;
-                        },
-                        validator: (value) {
-                          if (value == null) {
-                            return 'Company Type is required.';
-                          }
-                          return null;
-                        },
-                        onValueClear: () {
-                          selectedCompanyType.value = null;
-                        },
-                      );
                     },
                   ),
                   CustomTextField(
@@ -469,6 +461,84 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         return "Enter a Valid E-Mail ID";
                       }
                       return null;
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: selectedCompanyType,
+                    builder: (context, value, child) {
+                      return CustomDropDownWidget(
+                        title: "Company Type",
+                        hintText: "Select Company Type",
+                        initialValue: selectedCompanyType.value,
+                        isRequired: true,
+                        dataList: firmTypeList,
+                        onSelected: (value) {
+                          selectedCompanyType.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Company Type is required.';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          selectedCompanyType.value = null;
+                        },
+                      );
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: selectedOwnershipType,
+                    builder: (context, selectedOwnerT, child) {
+                      return CustomDropDownWidget(
+                        key: ValueKey(
+                          'type_${selectedOwnerT?['zAttributesId'] ?? ""}',
+                        ),
+                        title: "Ownership Type",
+                        hintText: "Select Ownership Type",
+                        initialValue: selectedOwnerT,
+                        isRequired: true,
+                        dataList: ownershipTypeList,
+                        onSelected: (value) {
+                          selectedOwnershipType.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Ownership Type is required.';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          selectedOwnershipType.value = null;
+                        },
+                      );
+                    },
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: selectedVendorBusinessType,
+                    builder: (context, selectedVendorBusinessT, child) {
+                      return CustomDropDownWidget(
+                        key: ValueKey(
+                          'type_${selectedVendorBusinessT?['zAttributesId'] ?? ""}',
+                        ),
+                        title: "Business Type",
+                        hintText: "Select Business Type",
+                        initialValue: selectedVendorBusinessT,
+                        isRequired: true,
+                        dataList: vendorBusinessTypeList,
+                        onSelected: (value) {
+                          selectedVendorBusinessType.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Business Type is required.';
+                          }
+                          return null;
+                        },
+                        onValueClear: () {
+                          selectedVendorBusinessType.value = null;
+                        },
+                      );
                     },
                   ),
                 ]),

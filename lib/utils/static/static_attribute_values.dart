@@ -530,6 +530,10 @@ const statusValues = ['Active', 'Inactive'];
 
 const vendorTypeValues = ['Material', 'Contractor', 'Both'];
 
+const ownershipTypeValues = ['Owner', 'Partner'];
+
+const vendorBusinessTypeValues = ['Dealer', 'Manufacturer', 'Both'];
+
 // TERM SHEET TYPE LIST VALUES
 const termSheetTypeValues = [
   'Construction Finance (CF)',

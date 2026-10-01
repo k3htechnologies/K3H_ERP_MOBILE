@@ -55,6 +55,9 @@ class RequisitionVendorModel extends VendorModel {
          mobileNumberCountryCode: '',
          verifiedNonVerified: '',
          systemGeneratedCode: '',
+         ownershipType: '',
+         vendorBusinessType: '',
+         specialist: '',
        );
 
   factory RequisitionVendorModel.fromJson(Map<String, dynamic> json) =>

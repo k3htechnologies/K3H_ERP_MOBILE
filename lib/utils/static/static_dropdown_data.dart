@@ -271,6 +271,12 @@ final List<Map<String, dynamic>> vendorTypeList = createAttributeList(
   vendorTypeValues,
 );
 
+final List<Map<String, dynamic>> ownershipTypeList = createAttributeList(
+  ownershipTypeValues,
+);
+final List<Map<String, dynamic>> vendorBusinessTypeList = createAttributeList(
+  vendorBusinessTypeValues,
+);
 // TERM SHEET TYPE
 final List<Map<String, dynamic>> typeList = createAttributeList(
   termSheetTypeValues,

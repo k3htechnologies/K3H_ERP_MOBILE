@@ -48,7 +48,10 @@ class _VendorScreenState extends State<VendorScreen> {
       _filterCityC,
       _filterGstNumberC,
       _filterAadhaarCardNumberC,
-      _filterPanCardNumberC;
+      _filterPanCardNumberC,
+      _filterOwnershipTypeC,
+      _filterVendorBusinessTypeC,
+      _filterSpecialistC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
   late UserModel? _user;
 
@@ -80,6 +83,10 @@ class _VendorScreenState extends State<VendorScreen> {
     _filterCount.dispose();
     _filterVendorCodeC.dispose();
     scrollController.dispose();
+    _filterOwnershipTypeC.dispose();
+    _filterVendorBusinessTypeC.dispose();
+    _filterSpecialistC.dispose();
+    _debounce?.cancel();
   }
 
   Future getCurrentUser() async {
@@ -119,6 +126,9 @@ class _VendorScreenState extends State<VendorScreen> {
     _filterGstNumberC = TextEditingController();
     _filterAadhaarCardNumberC = TextEditingController();
     _filterPanCardNumberC = TextEditingController();
+    _filterOwnershipTypeC = TextEditingController();
+    _filterVendorBusinessTypeC = TextEditingController();
+    _filterSpecialistC = TextEditingController();
   }
 
   void _onScroll() {
@@ -150,6 +160,9 @@ class _VendorScreenState extends State<VendorScreen> {
     _filterGstNumberC.text = state.filterByGstNumber;
     _filterAadhaarCardNumberC.text = state.filterByAadhaarCardNumber;
     _filterPanCardNumberC.text = state.filterByPanCardNumber;
+    _filterOwnershipTypeC.text = state.filterByOwnershipType;
+    _filterVendorBusinessTypeC.text = state.filterByVendorBusinessType;
+    _filterSpecialistC.text = state.filterBySpecialist;
     String? selectedDirection =
         state.currentSortColumn == "Vendor Name"
             ? state.currentSortDirection
@@ -164,6 +177,9 @@ class _VendorScreenState extends State<VendorScreen> {
     final String initialAadhaarNumber = _filterAadhaarCardNumberC.text;
     final String initialPanNumber = _filterPanCardNumberC.text;
     final String? initialDirection = selectedDirection;
+    final String initialOwnershipType = _filterOwnershipTypeC.text;
+    final String initialVendorBusinessType = _filterVendorBusinessTypeC.text;
+    final String initialSpecialist = _filterSpecialistC.text;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
@@ -179,6 +195,10 @@ class _VendorScreenState extends State<VendorScreen> {
             (_filterGstNumberC.text.trim() != initialGSTNumber) ||
             (_filterAadhaarCardNumberC.text.trim() != initialAadhaarNumber) ||
             (_filterPanCardNumberC.text.trim() != initialPanNumber) ||
+            (_filterOwnershipTypeC.text.trim() != initialOwnershipType) ||
+            (_filterVendorBusinessTypeC.text.trim() !=
+                initialVendorBusinessType) ||
+            (_filterSpecialistC.text.trim() != initialSpecialist) ||
             (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
@@ -271,6 +291,24 @@ class _VendorScreenState extends State<VendorScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
+                  title: "Ownership Type",
+                  hint: "Enter Ownership Type",
+                  textController: _filterOwnershipTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Business Type",
+                  hint: "Enter Business Type",
+                  textController: _filterVendorBusinessTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Specialist",
+                  hint: "Enter Specialist",
+                  textController: _filterSpecialistC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
                   title: "Mobile Number",
                   hint: "Enter Mobile Number",
                   keyboardType: TextInputType.number,
@@ -318,11 +356,14 @@ class _VendorScreenState extends State<VendorScreen> {
         _filterGstNumberC.clear();
         _filterAadhaarCardNumberC.clear();
         _filterPanCardNumberC.clear();
-        _vendorCubit.sortVendor(context: context, isClear: true);
+        _filterOwnershipTypeC.clear();
+        _filterVendorBusinessTypeC.clear();
+        _filterSpecialistC.clear();
+        _vendorCubit.applyFilterAndSort(context: context, isClear: true);
       },
       onApply: () {
         applied = true;
-        _vendorCubit.sortVendor(
+        _vendorCubit.applyFilterAndSort(
           context: context,
           vendorName: _searchC.text.trim(),
           vendorCode: _filterVendorCodeC.text.trim(),
@@ -334,6 +375,9 @@ class _VendorScreenState extends State<VendorScreen> {
           aadhaarCardNumber: _filterAadhaarCardNumberC.text.trim(),
           panCardNumber: _filterPanCardNumberC.text.trim(),
           sortColumn: selectedDirection != null ? "Vendor Name" : null,
+          ownershipType: _filterOwnershipTypeC.text.trim(),
+          vendorBusinessType: _filterVendorBusinessTypeC.text.trim(),
+          specialist: _filterSpecialistC.text.trim(),
           sortDirection: selectedDirection,
         );
       },
@@ -350,6 +394,9 @@ class _VendorScreenState extends State<VendorScreen> {
       _filterGstNumberC.clear();
       _filterAadhaarCardNumberC.clear();
       _filterPanCardNumberC.clear();
+      _filterOwnershipTypeC.clear();
+      _filterVendorBusinessTypeC.clear();
+      _filterSpecialistC.clear();
     }
   }
 
@@ -636,6 +683,24 @@ class _VendorScreenState extends State<VendorScreen> {
                                   fixesWidth: 120.w,
                                   title: "Company Type",
                                   value: vendor.companyType,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  fixesWidth: 120.w,
+                                  title: "Ownership Type",
+                                  value: vendor.ownershipType,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  fixesWidth: 120.w,
+                                  title: "Business Type",
+                                  value: vendor.vendorBusinessType,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  fixesWidth: 120.w,
+                                  title: "Specialist",
+                                  value: vendor.specialist,
                                   singleLine: false,
                                 ),
                                 buildRowTitleValue(

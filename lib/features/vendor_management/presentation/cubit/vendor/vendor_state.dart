@@ -15,6 +15,10 @@ class VendorState extends BaseState {
   final String filterByGstNumber;
   final String filterByAadhaarCardNumber;
   final String filterByPanCardNumber;
+  final String filterByOwnershipType;
+  final String filterByVendorBusinessType;
+  final String filterBySpecialist;
+
   const VendorState({
     super.isLoading,
     super.stateType,
@@ -32,6 +36,9 @@ class VendorState extends BaseState {
     required this.filterByGstNumber,
     required this.filterByAadhaarCardNumber,
     required this.filterByPanCardNumber,
+    required this.filterByOwnershipType,
+    required this.filterByVendorBusinessType,
+    required this.filterBySpecialist,
   });
   factory VendorState.initial() => VendorState(
     isLoading: true,
@@ -49,6 +56,9 @@ class VendorState extends BaseState {
     filterByGstNumber: "",
     filterByAadhaarCardNumber: "",
     filterByPanCardNumber: "",
+    filterByOwnershipType: "",
+    filterByVendorBusinessType: "",
+    filterBySpecialist: "",
   );
   VendorState copyWith({
     bool? isLoading,
@@ -67,6 +77,9 @@ class VendorState extends BaseState {
     String? filterByGstNumber,
     String? filterByAadhaarCardNumber,
     String? filterByPanCardNumber,
+    String? filterByOwnershipType,
+    String? filterByVendorBusinessType,
+    String? filterBySpecialist,
   }) {
     return VendorState(
       isLoading: isLoading ?? this.isLoading,
@@ -87,6 +100,11 @@ class VendorState extends BaseState {
           filterByAadhaarCardNumber ?? this.filterByAadhaarCardNumber,
       filterByPanCardNumber:
           filterByPanCardNumber ?? this.filterByPanCardNumber,
+      filterByOwnershipType:
+          filterByOwnershipType ?? this.filterByOwnershipType,
+      filterByVendorBusinessType:
+          filterByVendorBusinessType ?? this.filterByVendorBusinessType,
+      filterBySpecialist: filterBySpecialist ?? this.filterBySpecialist,
     );
   }
 
@@ -108,5 +126,8 @@ class VendorState extends BaseState {
     filterByGstNumber,
     filterByAadhaarCardNumber,
     filterByPanCardNumber,
+    filterByOwnershipType,
+    filterByVendorBusinessType,
+    filterBySpecialist,
   ];
 }

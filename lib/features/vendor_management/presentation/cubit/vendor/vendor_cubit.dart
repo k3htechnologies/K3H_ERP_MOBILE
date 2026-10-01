@@ -42,6 +42,9 @@ class VendorCubit extends Cubit<VendorState> {
       "GSTNumber": state.filterByGstNumber,
       "AadharCardNumber": state.filterByAadhaarCardNumber,
       "PanCardNumber": state.filterByPanCardNumber,
+      "OwnershipType": state.filterByOwnershipType,
+      "VendorBusinessType": state.filterByVendorBusinessType,
+      "Specialist": state.filterBySpecialist,
     };
     var result = await vendorRepository.getVendorsList(
       pageNumber: pageNumber,
@@ -183,6 +186,8 @@ class VendorCubit extends Cubit<VendorState> {
     required BuildContext context,
     required String companyName,
     required String companyType,
+    required String ownershipType,
+    required String vendorBusinessType,
     required String vendorType,
     required String vendorName,
     required String mobileNumberCountryCode,
@@ -211,6 +216,8 @@ class VendorCubit extends Cubit<VendorState> {
       "MobileNumberCountryCode": mobileNumberCountryCode,
       "MobileNumber": mobileNumber,
       "EmailId": emailId,
+      "OwnershipType": ownershipType,
+      "VendorBusinessType": vendorBusinessType,
       "AadharCardNumber": aadharCardNumber,
       "RemoveAadharCardURL": "",
       "PanCardNumber": panCardNumber,
@@ -276,6 +283,8 @@ class VendorCubit extends Cubit<VendorState> {
     required String mobileNumberCountryCode,
     required String mobileNumber,
     required String emailId,
+    required String ownershipType,
+    required String vendorBusinessType,
     required String aadharCardNumber,
     required String panCardNumber,
     required String gstNumber,
@@ -301,6 +310,8 @@ class VendorCubit extends Cubit<VendorState> {
       "MobileNumberCountryCode": mobileNumberCountryCode,
       "MobileNumber": mobileNumber,
       "EmailId": emailId,
+      "OwnershipType": ownershipType,
+      "VendorBusinessType": vendorBusinessType,
       "AadharCardNumber": aadharCardNumber,
       "RemoveAadharCardURL": aadharCard.deletedFileList,
       "PanCardNumber": panCardNumber,
@@ -368,7 +379,7 @@ class VendorCubit extends Cubit<VendorState> {
     );
   }
 
-  Future sortVendor({
+  Future applyFilterAndSort({
     required BuildContext context,
     String? vendorCode,
     String? vendorName,
@@ -381,6 +392,9 @@ class VendorCubit extends Cubit<VendorState> {
     String? panCardNumber,
     String? sortColumn,
     String? sortDirection,
+    String? ownershipType,
+    String? vendorBusinessType,
+    String? specialist,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -397,6 +411,10 @@ class VendorCubit extends Cubit<VendorState> {
           filterByPanCardNumber: "",
           currentSortColumn: "Created Date",
           currentSortDirection: "DESC",
+          filterByOwnershipType: "",
+          filterByVendorBusinessType: "",
+          filterBySpecialist: "",
+          vendorList: [],
           currentPage: 1,
         ),
       );
@@ -415,6 +433,11 @@ class VendorCubit extends Cubit<VendorState> {
           filterByPanCardNumber: panCardNumber ?? state.filterByPanCardNumber,
           currentSortColumn: sortColumn ?? state.currentSortColumn,
           currentSortDirection: sortDirection ?? state.currentSortDirection,
+          filterByOwnershipType: ownershipType ?? state.filterByOwnershipType,
+          filterByVendorBusinessType:
+              vendorBusinessType ?? state.filterByVendorBusinessType,
+          filterBySpecialist: specialist ?? state.filterBySpecialist,
+          vendorList: [],
           currentPage: 1,
         ),
       );
@@ -482,6 +505,9 @@ class VendorCubit extends Cubit<VendorState> {
       state.filterByGstNumber.trim().isNotEmpty,
       state.filterByAadhaarCardNumber.trim().isNotEmpty,
       state.filterByPanCardNumber.trim().isNotEmpty,
+      state.filterByOwnershipType.trim().isNotEmpty,
+      state.filterByVendorBusinessType.trim().isNotEmpty,
+      state.filterBySpecialist.trim().isNotEmpty,
       hasSort,
     ]);
   }

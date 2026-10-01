@@ -140,23 +140,45 @@ class _VendorViewScreenState extends State<VendorViewScreen>
                       ],
                     ),
                     verticalSpacing(),
-                    if (widget.vendor.vendorType.isNotEmpty)
-                      statusChip(
-                        widget.vendor.vendorType,
-                        AppColor.lightOrangeBg.withValues(alpha: 0.5),
-                        AppColor.orange,
-                        textStyle: AppTextStyle.ts12M().copyWith(
-                          color: AppColor.orange,
-                        ),
-                        leading: Container(
-                          width: 6,
-                          height: 6,
-                          decoration: BoxDecoration(
-                            color: AppColor.orange,
-                            shape: BoxShape.circle,
+                    Row(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        statusChip(
+                          widget.vendor.ownershipType,
+                          AppColor.lightBlue,
+                          AppColor.primary,
+                          textStyle: AppTextStyle.ts12M().copyWith(
+                            color: AppColor.primary,
+                          ),
+                          leading: Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: AppColor.primary,
+                              shape: BoxShape.circle,
+                            ),
                           ),
                         ),
-                      ),
+                        if (widget.vendor.vendorType.isNotEmpty)
+                          statusChip(
+                            widget.vendor.vendorType,
+                            AppColor.lightOrangeBg.withValues(alpha: 0.5),
+                            AppColor.orange,
+                            textStyle: AppTextStyle.ts12M().copyWith(
+                              color: AppColor.orange,
+                            ),
+                            leading: Container(
+                              width: 6,
+                              height: 6,
+                              decoration: BoxDecoration(
+                                color: AppColor.orange,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
               ),
@@ -223,6 +245,12 @@ class _VendorViewScreenState extends State<VendorViewScreen>
             value: widget.vendor.emailId,
             type: ContactType.email,
           ),
+        ),
+        buildRowTitleValue(
+          fixesWidth: 120.w,
+          title: "Business Type",
+          value: widget.vendor.vendorBusinessType,
+          singleLine: false,
         ),
       ],
     );

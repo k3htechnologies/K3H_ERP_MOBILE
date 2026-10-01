@@ -8,6 +8,9 @@ class VendorModel {
   String companyName;
   String vendorType;
   String companyType;
+  String ownershipType;
+  String vendorBusinessType;
+  String specialist;
   String vendorName;
   String mobileNumberCountryCode;
   String mobileNumber;
@@ -45,6 +48,9 @@ class VendorModel {
     required this.companyName,
     required this.vendorType,
     required this.companyType,
+    required this.ownershipType,
+    required this.vendorBusinessType,
+    required this.specialist,
     required this.vendorName,
     required this.mobileNumberCountryCode,
     required this.mobileNumber,
@@ -83,6 +89,9 @@ class VendorModel {
     companyName: parseValue<String>(json, "CompanyName"),
     vendorType: parseValue<String>(json, "VendorType"),
     companyType: parseValue<String>(json, "CompanyType"),
+    ownershipType: parseValue<String>(json, "OwnershipType"),
+    vendorBusinessType: parseValue<String>(json, "VendorBusinessType"),
+    specialist: parseValue<String>(json, "Specialist"),
     vendorName: parseValue<String>(json, "VendorName"),
     mobileNumberCountryCode: parseValue<String>(
       json,
@@ -131,6 +140,9 @@ class VendorModel {
     "CompanyName": companyName,
     "VendorType": vendorType,
     "CompanyType": companyType,
+    "OwnershipType": ownershipType,
+    "VendorBusinessType": vendorBusinessType,
+    "Specialist": specialist,
     "VendorName": vendorName,
     "MobileNumberCountryCode": mobileNumberCountryCode,
     "MobileNumber": mobileNumber,
