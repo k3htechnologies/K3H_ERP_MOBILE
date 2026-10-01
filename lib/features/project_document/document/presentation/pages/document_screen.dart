@@ -492,7 +492,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                           CustomIconButton.delete(
                             isDisabled:
                                 (!_routeAuthorizationModel.isAction ||
-                                    document.uploadedProjectDocumentCount == 0),
+                                    document.uploadedProjectDocumentCount > 0),
 
                             onPressed: () {
                               _showPopupToDeleteDocument(

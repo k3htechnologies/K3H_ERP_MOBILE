@@ -399,11 +399,29 @@ class _AddDsraScreenState extends State<AddDsraScreen> {
                                     16,
                                   ),
                               validator: (value) {
+                                if (isMutualFund) {
+                                  if (_unitC.text.trim().isEmpty) {
+                                    return null;
+                                  }
+                                  if (_perUnitRateC.text.trim().isEmpty) {
+                                    return null;
+                                  }
+                                  if (_amountC.text.trim().isEmpty) {
+                                    return "Unable to calculate Amount";
+                                  }
+                                  return null;
+                                }
                                 if (value == null || value.trim().isEmpty) {
                                   return "Amount is required";
                                 }
                                 return null;
                               },
+                              // validator: (value) {
+                              //   if (value == null || value.trim().isEmpty) {
+                              //     return "Amount is required";
+                              //   }
+                              //   return null;
+                              // },
                             ),
                             CustomDatePicker(
                               title: "Date",

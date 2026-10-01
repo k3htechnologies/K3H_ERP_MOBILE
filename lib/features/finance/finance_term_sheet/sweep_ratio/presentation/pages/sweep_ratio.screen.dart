@@ -223,13 +223,21 @@ class _SweepRatioScreenState extends State<SweepRatioScreen> {
                                   ),
                                   buildRowTitleValue(
                                     title: "Last Modified By",
-                                    value: sweepRatio.createdBy,
+                                    value:
+                                        sweepRatio.modifiedBy.isEmpty
+                                            ? sweepRatio.createdBy
+                                            : sweepRatio.modifiedBy,
                                     singleLine: false,
                                   ),
 
                                   buildRowTitleValue(
                                     title: "Last Modified Date",
-                                    value: formatDate(sweepRatio.createdDate),
+                                    value:
+                                        sweepRatio.modifiedDate == null
+                                            ? formatDate(sweepRatio.createdDate)
+                                            : formatDate(
+                                              sweepRatio.modifiedDate,
+                                            ),
                                     singleLine: false,
                                   ),
                                 ],

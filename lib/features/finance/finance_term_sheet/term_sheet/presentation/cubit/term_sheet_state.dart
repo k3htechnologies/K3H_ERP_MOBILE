@@ -16,6 +16,8 @@ class TermSheetState extends BaseState {
   final String filterByInstitutionName;
   // TO TRACK UNSAVED CHANGES
   final bool hasUnsavedTermSheetChanges;
+  final String currentSortColumn;
+  final String currentSortDirection;
   const TermSheetState({
     super.isLoading,
     required this.termSheetList,
@@ -32,6 +34,8 @@ class TermSheetState extends BaseState {
     required this.filterByCompanyName,
     required this.filterByStatus,
     required this.filterByInstitutionName,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory TermSheetState.inital() => TermSheetState(
@@ -49,6 +53,8 @@ class TermSheetState extends BaseState {
     filterByCompanyName: '',
     filterByStatus: '',
     filterByInstitutionName: '',
+    currentSortColumn: "Created Date",
+    currentSortDirection: 'DESC',
   );
   TermSheetState copyWith({
     bool? isLoading,
@@ -66,6 +72,8 @@ class TermSheetState extends BaseState {
     String? filterByCompanyName,
     String? filterByStatus,
     String? filterByInstitutionName,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return TermSheetState(
       isLoading: isLoading ?? this.isLoading,
@@ -88,6 +96,8 @@ class TermSheetState extends BaseState {
 
       filterByInstitutionName:
           filterByInstitutionName ?? this.filterByInstitutionName,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -108,5 +118,7 @@ class TermSheetState extends BaseState {
     filterByCompanyName,
     filterByStatus,
     filterByInstitutionName,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

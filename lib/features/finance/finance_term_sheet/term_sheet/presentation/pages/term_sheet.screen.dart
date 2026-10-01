@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -115,7 +116,10 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
 
   Future<void> _showBottomSheetToFilterTermSheet(BuildContext context) async {
     final state = _termSheetCubit.state;
-
+    String? selectedDirection =
+        state.currentSortColumn == "Name of Institution / Bank / NBFC"
+            ? state.currentSortDirection
+            : null;
     _searchC.text = state.searchText;
     _filterProjectNameC.text = state.searchText;
     _filterByCompanyNameC.text = state.filterByCompanyName;
@@ -125,6 +129,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     final String initialCompanyName = _filterByCompanyNameC.text;
     final String initialInstitionName = _nameOfInstitutionBankNBFCC.text;
     final initialApprovalStatus = state.filterByStatus;
+    final String? initialDirection = selectedDirection;
     if (initialApprovalStatus.isNotEmpty) {
       _selectedApprovalStatus.value = approvalStatus.firstWhere(
         (e) => e['DisplayName'] == initialApprovalStatus,
@@ -145,7 +150,8 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
             (_filterProjectNameC.text.trim() != initialName) ||
             (_filterByCompanyNameC.text.trim() != initialCompanyName) ||
             (currentApprovalStatus != initialApprovalStatus) ||
-            (_nameOfInstitutionBankNBFCC.text.trim() != initialInstitionName);
+            (_nameOfInstitutionBankNBFCC.text.trim() != initialInstitionName) ||
+            (selectedDirection != initialDirection);
         applyEnabled.value = manualClose;
       });
     }
@@ -155,11 +161,66 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
       title: "Filter - Term Sheet",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
           return SingleChildScrollView(
             padding: const EdgeInsets.only(right: 16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Text(
+                  "Sort By Name of Institution / Bank / NBFC",
+                  style: AppTextStyle.ts14M(),
+                ),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+
                 CustomTextField(
                   title: "Project Name",
                   hint: "Enter Project Name",
@@ -224,6 +285,11 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
           companyName: _filterByCompanyNameC.text.trim(),
           status: _selectedApprovalStatus.value?["DisplayName"] ?? "",
           institutionName: _nameOfInstitutionBankNBFCC.text.trim(),
+          sortColumn:
+              selectedDirection != null
+                  ? "Name of Institution / Bank / NBFC"
+                  : null,
+          sortDirection: selectedDirection,
         );
       },
 
@@ -342,6 +408,11 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     final bool canShowEdit =
         termSheet.approvalStatus.toLowerCase() != "closed" &&
         !amountsAreFullyMatched;
+    final bool isMainTermSheetApproved = mainApprovalStatus == "approved";
+    final bool isEditDisabled =
+        (isEditDisbaled && detailApprovalStatus != "pending") &&
+        isMainTermSheetApproved &&
+        amountsAreFullyMatched;
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: const EdgeInsets.all(16),
@@ -369,7 +440,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                     termSheet.nameOfInstitutionBankNbfc.isEmpty
                         ? "-"
                         : termSheet.nameOfInstitutionBankNbfc,
-                    style: AppTextStyle.ts16M(color: AppColor.primary),
+                    style: AppTextStyle.ts14M(color: AppColor.primary),
                   ),
                 ),
               ),
@@ -383,16 +454,20 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                       if (canShowEdit) ...[
                         CustomIconButton.edit(
                           isDisabled:
-                              isEditDisbaled &&
+                              isEditDisabled &&
                               detailApprovalStatus != "pending",
                           onPressed: () async {
-                            await goRouter.pushNamed(
-                              AppRoutes.addTermSheet,
-                              extra: {
-                                "termSheet": termSheet,
-                                "termSheetView": termSheetView,
-                              },
-                            );
+                            final result = await goRouter
+                                .pushNamed<TermSheetModel>(
+                                  AppRoutes.addTermSheet,
+                                  extra: {
+                                    "termSheet": termSheet,
+                                    "termSheetView": termSheetView,
+                                  },
+                                );
+                            if (result != null && context.mounted) {
+                              await _termSheetCubit.getTermSheet(context, 1);
+                            }
                           },
                         ),
                         horizontalSpacing(),
@@ -438,6 +513,14 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
             title: "Rate Of Interest (%)",
             value: "${termSheet.rateOfInterestInPercentage} %",
             singleLine: false,
+          ),
+          buildRowTitleValue(
+            title: "Approval Status",
+            value: termSheet.approvalStatus,
+            customValueWidget:
+                termSheet.approvalStatus.isNotEmpty
+                    ? approvalStatusWidget(termSheet.approvalStatus)
+                    : null,
           ),
         ],
       ),

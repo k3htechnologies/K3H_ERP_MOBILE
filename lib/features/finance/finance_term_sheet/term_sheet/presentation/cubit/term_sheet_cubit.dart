@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -28,11 +30,16 @@ class TermSheetCubit extends Cubit<TermSheetState> {
   }
 
   int updateTermSheetFilterCount(TermSheetState state) {
+    final hasSort =
+        state.currentSortColumn == "Name of Institution / Bank / NBFC" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
       state.filterByCompanyName.trim().isNotEmpty,
       state.filterByStatus.trim().isNotEmpty,
       state.filterByInstitutionName.trim().isNotEmpty,
+      hasSort,
     ]);
   }
 
@@ -51,6 +58,8 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     String? companyName,
     String? status,
     String? institutionName,
+    String? sortColumn,
+    String? sortDirection,
     bool? isClear,
   }) async {
     if (isClear ?? false) {
@@ -60,6 +69,8 @@ class TermSheetCubit extends Cubit<TermSheetState> {
           filterByCompanyName: "",
           filterByStatus: "",
           filterByInstitutionName: "",
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
         ),
       );
     } else {
@@ -70,6 +81,8 @@ class TermSheetCubit extends Cubit<TermSheetState> {
           filterByStatus: status ?? state.filterByStatus,
           filterByInstitutionName:
               institutionName ?? state.filterByInstitutionName,
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
         ),
       );
     }
@@ -124,6 +137,7 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       "CompanyName": state.filterByCompanyName,
       "ApprovalStatus": state.filterByStatus,
       "NameOfInstitutionBankNbfc": state.filterByInstitutionName,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
     try {
@@ -284,7 +298,6 @@ class TermSheetCubit extends Cubit<TermSheetState> {
 
       requestBody["AddUpdateTermSheetDetails[$index].TermSheetId"] = "0";
 
-      requestBody["AddUpdateTermSheetDetails[$index].ProjectId"] = projectId;
       requestBody["AddUpdateTermSheetDetails[$index].LoanTakenBy"] =
           termSheet.loanTakenBy;
       requestBody["AddUpdateTermSheetDetails[$index].NameOfInstitutionBankNBFC"] =
@@ -354,11 +367,10 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     required BuildContext context,
     required TermSheetModel termSheetModel,
     required List<LocalTermSheetModel> termSheetList,
+    required String projectId,
+    required String companyId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
-    final String projectId = termSheetModel.projectId.toString();
-    final String companyId = termSheetModel.companyId.toString();
 
     final Map<String, String> requestBody = {
       "TermSheetId": termSheetModel.termSheetId.toString(),
@@ -366,6 +378,8 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       "ProjectId": projectId,
       "CompanyId": companyId,
     };
+
+    log("the request body is : $requestBody");
 
     final List<Map<String, dynamic>> fileList = [];
 
@@ -380,8 +394,6 @@ class TermSheetCubit extends Cubit<TermSheetState> {
 
       requestBody["AddUpdateTermSheetDetails[$index].TermSheetId"] =
           termSheetModel.termSheetId.toString();
-
-      requestBody["AddUpdateTermSheetDetails[$index].ProjectId"] = projectId;
 
       requestBody["AddUpdateTermSheetDetails[$index].LoanTakenBy"] =
           termSheet.loanTakenBy;
@@ -474,6 +486,7 @@ class TermSheetCubit extends Cubit<TermSheetState> {
             localTermSheetList: termSheetList,
           ),
         );
+        await getTermSheet(context, 1);
         goRouter.pop();
       },
     );
@@ -624,10 +637,9 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (response) {
+      (response) async {
         showSuccessMessage(context, subTitle: response["message"]);
-        getTermSheet(context, 1);
-        getTermSheetView(context, projectId, termSheetId);
+        await getTermSheet(context, 1);
         if (context.mounted) {
           goRouter.pop();
         }

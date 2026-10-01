@@ -436,7 +436,7 @@ class _AddRedevelopmentScreenState extends State<AddRedevelopmentScreen> {
                     CustomMultiFilePicker(
                       initialFileList: projectPhotoImage.fileNameList,
                       title: "Building Photo",
-                      filePickType: FilePickType.both,
+                      filePickType: FilePickType.kycDocument,
                       isRequired: true,
                       onFilePickedCallback: (bytes, fileName) {
                         projectPhotoImage.fileBytesList = bytes;

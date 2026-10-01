@@ -469,7 +469,7 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
     );
   }
 
-  Future getLandList(BuildContext context, int pageNumber) async {
+  Future getLandList(BuildContext context, int landPageNumber) async {
     emit(state.copyWith(isLoading: true));
     final Map<String, dynamic> queryParams = {
       "LandOwnerName": state.landSearchText,
@@ -487,7 +487,7 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
           "${state.landCurrentSortColumn} ${state.landCurrentSortDirection}",
     };
     var result = await _projectLeadRepository.getLandList(
-      pageNumber: pageNumber,
+      pageNumber: landPageNumber,
       pageSize: 10,
       queryParams: queryParams,
     );
@@ -498,18 +498,16 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<LandModel> newData = List<LandModel>.from(
-          response['data'] ?? [],
-        );
+        final List<LandModel> newList = response['data'] as List<LandModel>;
 
-        final List<LandModel> updatedList =
-            pageNumber == 1 ? newData : [...state.landList, ...newData];
+        final updatedList =
+            landPageNumber == 1 ? newList : [...state.landList, ...newList];
         emit(
           state.copyWith(
             landList: updatedList,
-            isLoading: false,
+            landCurrentPage: landPageNumber,
             landTotalNumberOfRecord: response["totalNumberOfRecord"],
-            landCurrentPage: pageNumber,
+            isLoading: false,
           ),
         );
       },
@@ -715,10 +713,11 @@ class ProjectLeadCubit extends Cubit<ProjectLeadState> {
       "IsElectricityConnectionNearby": isElectricityConnectionNearby.toString(),
       "IsUnderLitigationOrStayOrder": isUnderLitigationOrStayOrder.toString(),
       "Is712Available": is712Available.toString(),
-      "FSIPermissible": fsiPermissible,
+      if (fsiPermissible.trim().isNotEmpty) "FSIPermissible": fsiPermissible,
       "WaterSupplyAvailable": waterSupplyAvailable,
       "SurroundingLandUse": surroundingLandUse.toString(),
-      "LandOwnershipType": landOwnershipType.toString(),
+      if (landOwnershipType!.isNotEmpty)
+        "LandOwnershipType": landOwnershipType.toString(),
       if (distanceFromNearestTownKM.trim().isNotEmpty)
         "DistanceFromNearestTownKM": distanceFromNearestTownKM,
       if (distanceFromHighwayKM.trim().isNotEmpty)

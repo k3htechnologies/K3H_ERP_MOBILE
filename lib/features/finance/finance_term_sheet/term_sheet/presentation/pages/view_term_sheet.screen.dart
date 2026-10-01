@@ -121,7 +121,6 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
       message: 'Are you sure you want to give Final Approval?',
       confirmText: "Final Approval",
       icon: LucideIcons.wandSparkles,
-      confirmColor: AppColor.error,
     );
     if (result && context.mounted) {
       _termSheetCubit.finalizeTermSheetApproval(
@@ -488,7 +487,16 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                           termSheetView.facilityAmount -
                           termSheetView.totalDisbursedAmount;
                       return SectionCard(
-                        margin: 0,
+                        margin:
+                            index ==
+                                    state
+                                            .termSheetViewList
+                                            .first
+                                            .termSheetDetailsData
+                                            .length -
+                                        1
+                                ? 0
+                                : 20,
                         title: termSheetView.nameOfInstitutionBankNbfc,
                         children: [
                           Column(
@@ -504,8 +512,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       context,
                                       bgColor: AppColor.white,
                                       title: "Facility (₹)",
-                                      titleColor:
-                                          AppColor.greyTitleAndValueColor,
+                                      titleColor: AppColor.grey,
                                       value:
                                           termSheetView.facilityAmount
                                               .toIndianCurrency(),
@@ -521,8 +528,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       context,
                                       bgColor: AppColor.white,
                                       title: "Disbursed (₹)",
-                                      titleColor:
-                                          AppColor.greyTitleAndValueColor,
+                                      titleColor: AppColor.grey,
                                       value:
                                           termSheetView.totalDisbursedAmount
                                               .toIndianCurrency(),
@@ -545,8 +551,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       context,
                                       bgColor: AppColor.white,
                                       title: "Repaid (₹)",
-                                      titleColor:
-                                          AppColor.greyTitleAndValueColor,
+                                      titleColor: AppColor.grey,
                                       value:
                                           termSheetView.totalRepayLedgerAmount
                                               .toIndianCurrency(),
@@ -586,8 +591,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       context,
                                       bgColor: AppColor.white,
                                       title: "Rate Of Interest",
-                                      titleColor:
-                                          AppColor.greyTitleAndValueColor,
+                                      titleColor: AppColor.grey,
                                       value:
                                           "${termSheetView.rateOfInterestInPercentage.toString()} %",
                                       valueColor: AppColor.black,
@@ -602,8 +606,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                                       context,
                                       bgColor: AppColor.white,
                                       title: "Loan Tenure",
-                                      titleColor:
-                                          AppColor.greyTitleAndValueColor,
+                                      titleColor: AppColor.grey,
                                       value:
                                           "${termSheetView.loanTenureInMonth.toString()} Months",
                                       valueColor: AppColor.black,
@@ -829,6 +832,7 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                       headerBackgroundColor: AppColor.grey30,
                       title: 'Closing Details',
                       titleTextColor: AppColor.black,
+                      margin: 0,
                       children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -847,7 +851,9 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                               child: buildRowWrapper(
                                 child: buildColumnTitleValue(
                                   title: "Closing Date",
-                                  value: formatDate(termSheetView.closingDate),
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    termSheetView.closingDate,
+                                  ),
                                 ),
                               ),
                             ),
@@ -855,105 +861,119 @@ class _ViewTermSheetScreenState extends State<ViewTermSheetScreen>
                         ),
                       ],
                     ),
-
                   showFinalizeApproval &&
                           ((termSheetView.closingRemark.isEmpty) &&
                               (termSheetView.closingDate == null)) &&
                           _routeAuthorizationModel.isAction
-                      ? Container(
-                        padding: EdgeInsets.only(
-                          left: 16.0,
-                          right: 16.0,
-                          bottom: 16.0,
-                          top: 16.0,
-                        ),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 12.0,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8.0),
-                                color: AppColor.brownYellowText.withValues(
-                                  alpha: 0.12,
-                                ),
-                                border: Border.all(
-                                  width: 1,
-                                  color: AppColor.brownYellowText,
-                                ),
-                              ),
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "Final Approval Warning: ",
-                                      style: AppTextStyle.ts14SB(
-                                        color: AppColor.brownYellowText,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: "If any one ",
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.brownYellowText,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: "Name of Institution / Bank / NBFC",
-                                      style: AppTextStyle.ts14SB(
-                                        color: AppColor.brownYellowText,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: " is approved, clicking ",
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.brownYellowText,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text: "Final Approval ",
-                                      style: AppTextStyle.ts14SB(
-                                        color: AppColor.brownYellowText,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          "will remove all other pending entries.",
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.brownYellowText,
-                                      ),
-                                    ),
-                                    TextSpan(
-                                      text:
-                                          " Only the approved Institution / Bank / NBFC will be retained as a separate entry.",
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.brownYellowText,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                      ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                              vertical: 12.0,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              color: AppColor.lightYellowBg2,
+                              border: Border.all(
+                                width: 0.3,
+                                color: AppColor.brownYellowText,
                               ),
                             ),
-                            verticalSpacing(),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                CustomButton(
-                                  text: "Final Approval",
-                                  onPressed: () {
-                                    _showPopupToFinaliseTermSheetApproval(
-                                      context,
-                                    );
-                                  },
-                                ),
-                              ],
+                            child: RichText(
+                              text: TextSpan(
+                                children: [
+                                  TextSpan(
+                                    text: "Final Approval Warning: \n",
+                                    style: AppTextStyle.ts14SB(
+                                      color: AppColor.brownYellowText,
+                                    ).copyWith(
+                                      letterSpacing: 0.3,
+                                      height: 1.51,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: "If any one ",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.brownYellowText
+                                          .withValues(alpha: 0.7),
+                                    ).copyWith(
+                                      letterSpacing: 0.3,
+                                      height: 1.51,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: "Name of Institution / Bank / NBFC",
+                                    style: AppTextStyle.ts14SB(
+                                      color: AppColor.brownYellowText,
+                                    ).copyWith(
+                                      letterSpacing: 0.3,
+                                      height: 1.51,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: " is approved, clicking ",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.brownYellowText
+                                          .withValues(alpha: 0.7),
+                                    ).copyWith(
+                                      letterSpacing: 0.3,
+                                      height: 1.51,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text: "Final Approval ",
+                                    style: AppTextStyle.ts14SB(
+                                      color: AppColor.brownYellowText
+                                          .withValues(alpha: 0.7),
+                                    ).copyWith(
+                                      letterSpacing: 0.3,
+                                      height: 1.51,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        "will remove all other pending entries.",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.brownYellowText
+                                          .withValues(alpha: 0.7),
+                                    ).copyWith(
+                                      letterSpacing: 0.3,
+                                      height: 1.51,
+                                    ),
+                                  ),
+                                  TextSpan(
+                                    text:
+                                        " Only the approved Institution / Bank / NBFC will be retained as a separate entry.",
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.brownYellowText
+                                          .withValues(alpha: 0.7),
+                                    ).copyWith(
+                                      letterSpacing: 0.3,
+                                      height: 1.51,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ],
-                        ),
+                          ),
+                          verticalSpacing(),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              CustomButton(
+                                text: "Final Approval",
+                                onPressed: () {
+                                  _showPopupToFinaliseTermSheetApproval(
+                                    context,
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
                       )
                       : SizedBox.shrink(),
                 ],

@@ -228,12 +228,18 @@ class _DSAScreenState extends State<DSAScreen> {
                                   ),
                                   buildRowTitleValue(
                                     title: "Last Modified By",
-                                    value: dsa.createdBy,
+                                    value:
+                                        dsa.modifiedBy.isEmpty
+                                            ? dsa.createdBy
+                                            : dsa.modifiedBy,
                                     singleLine: false,
                                   ),
                                   buildRowTitleValue(
                                     title: "Last Modified Date",
-                                    value: formatDate(dsa.createdDate),
+                                    value:
+                                        dsa.modifiedDate == null
+                                            ? formatDate(dsa.createdDate)
+                                            : formatDate(dsa.modifiedDate),
                                     singleLine: false,
                                   ),
                                 ],

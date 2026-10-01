@@ -320,12 +320,18 @@ class _DSRAScreenState extends State<DSRAScreen> {
                                   ),
                                   buildRowTitleValue(
                                     title: "Last Modified By",
-                                    value: dsra.createdBy,
+                                    value:
+                                        dsra.modifiedBy.isEmpty
+                                            ? dsra.createdBy
+                                            : dsra.modifiedBy,
                                     singleLine: false,
                                   ),
                                   buildRowTitleValue(
                                     title: "Last Modified Date",
-                                    value: formatDate(dsra.createdDate),
+                                    value:
+                                        dsra.modifiedDate == null
+                                            ? formatDate(dsra.createdDate)
+                                            : formatDate(dsra.modifiedDate),
                                     singleLine: false,
                                   ),
                                 ],
