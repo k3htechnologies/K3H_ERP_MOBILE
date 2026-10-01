@@ -304,7 +304,7 @@ class _RERADocumentCategoryScreenState
                                     CustomIconButton.delete(
                                       isDisabled:
                                           (!_routeAuthorizationModel.isAction ||
-                                              reraCategory.documentCount == 0),
+                                              reraCategory.documentCount > 0),
                                       onPressed: () {
                                         _showPopupToDeleteDocumentCategory(
                                           context,

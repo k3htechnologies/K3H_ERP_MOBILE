@@ -294,7 +294,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                                     CustomIconButton.delete(
                                       isDisabled:
                                           (!_routeAuthorizationModel.isAction ||
-                                              approvalCategory.documentCount ==
+                                              approvalCategory.documentCount >
                                                   0),
                                       onPressed: () {
                                         _showPopupToDeleteApprovalDocumentCategory(
