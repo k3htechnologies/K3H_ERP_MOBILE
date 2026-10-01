@@ -95,7 +95,7 @@ class _RedevelopmentScreenState extends State<RedevelopmentScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ProjectLeadCubit, ProjectLeadState>(
       builder: (context, state) {
-        if (state.isLoading == true) {
+        if ((state.isLoading ?? false) && state.redevelopmentList.isEmpty) {
           return Center(child: loader());
         }
 

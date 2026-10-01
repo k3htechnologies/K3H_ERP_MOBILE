@@ -175,9 +175,6 @@ class _ProjectLeadScreenState extends State<ProjectLeadScreen>
             Expanded(
               child: BlocBuilder<ProjectLeadCubit, ProjectLeadState>(
                 builder: (context, state) {
-                  if (state.isLoading ?? true) {
-                    return Center(child: loader());
-                  }
                   return TabBarView(
                     controller: _tabController,
                     physics: NeverScrollableScrollPhysics(),

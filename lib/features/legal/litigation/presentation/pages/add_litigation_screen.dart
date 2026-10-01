@@ -182,7 +182,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         verificationSteps: {
           "Title": _caseTitleC.text.trim().isNotEmpty,
           "Date Of Filling": dateOfFilling != null,
-          "Case Type": selectedCaseType.va != null,
+          "Case Type": selectedCaseType.value != null,
           "Case Number": _caseNumberC.text.trim().isNotEmpty,
         },
         onVerifyOTP: () {

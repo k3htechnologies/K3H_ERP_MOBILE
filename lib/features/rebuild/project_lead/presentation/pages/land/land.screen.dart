@@ -95,7 +95,7 @@ class _LandScreenState extends State<LandScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<ProjectLeadCubit, ProjectLeadState>(
       builder: (context, state) {
-        if (state.isLoading == true) {
+        if ((state.isLoading ?? false) && state.landList.isEmpty) {
           return Center(child: loader());
         }
 
