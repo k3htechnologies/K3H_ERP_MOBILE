@@ -63,7 +63,19 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
   // ADD BUTTON SHOULD DISAPPEAR AFTER MAIN APPROVAL
   bool get isMainTermSheetApproved => mainApprovalStatus == "approved";
 
-  bool get lockProject => _isEditMode && mainApprovalStatus != "pending";
+  bool get hasApprovedTermSheetDetail {
+    final details = widget.termSheetView?.termSheetDetailsData ?? [];
+
+    return details.any(
+      (detail) => detail.approvalStatus.trim().toLowerCase() == "approved",
+    );
+  }
+
+  // bool get lockProject => _isEditMode && mainApprovalStatus != "pending";
+  bool get lockProject {
+    return (_isEditMode && mainApprovalStatus != "pending") ||
+        hasApprovedTermSheetDetail;
+  }
 
   final _formKey = GlobalKey<FormState>();
   @override
@@ -155,6 +167,8 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
         context: context,
         termSheetModel: widget.termSheet!,
         termSheetList: state.localTermSheetList,
+        projectId: projectId,
+        companyId: companyId,
       );
     } else {
       _termSheetCubit.addTermSheet(
@@ -383,7 +397,7 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
                   },
                 ),
                 verticalSpacing(),
-                if (!isMainTermSheetApproved) ...[
+                if (!isMainTermSheetApproved && !lockProject) ...[
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -395,7 +409,8 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
                         ),
                       ),
                       horizontalSpacing(),
-                      CustomButton.add(
+                      CustomButton(
+                        text: "Add",
                         onPressed: () async {
                           final result = await goRouter
                               .pushNamed<LocalTermSheetModel>(

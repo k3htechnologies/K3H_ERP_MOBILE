@@ -190,7 +190,20 @@ class _AddDisbursementScreenState extends State<AddDisbursementScreen> {
                         final facilityAmount =
                             widget.termSheetDetailsView?.facilityAmount ?? 0;
 
-                        if (enteredAmount > facilityAmount) {
+                        final alreadyDisbursedAmount =
+                            widget.termSheetDetailsView?.totalDisbursedAmount ??
+                            0;
+
+                        final currentDisbursementAmount =
+                            _isEditMode
+                                ? widget.disbursementData?.disbursedAmount ?? 0
+                                : 0;
+                        final remainingAmount =
+                            facilityAmount -
+                            alreadyDisbursedAmount +
+                            currentDisbursementAmount;
+
+                        if (enteredAmount > remainingAmount) {
                           return "Total Disbursed Amount cannot be greater than "
                               "Facility Amount (${facilityAmount.toIndianCurrency()})";
                         }

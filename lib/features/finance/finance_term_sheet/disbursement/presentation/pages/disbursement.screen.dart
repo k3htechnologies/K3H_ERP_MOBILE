@@ -253,12 +253,23 @@ class _DisbursementScreenState extends State<DisbursementScreen> {
 
                                   buildRowTitleValue(
                                     title: "Last Modified By",
-                                    value: disbursement.createdBy,
+                                    value:
+                                        disbursement.modifiedBy.isEmpty
+                                            ? disbursement.createdBy
+                                            : disbursement.modifiedBy,
                                   ),
 
                                   buildRowTitleValue(
                                     title: "Last Modified Date",
-                                    value: formatDate(disbursement.createdDate),
+                                    value:
+                                        disbursement.modifiedDate == null
+                                            ? formatDate(
+                                              disbursement.createdDate,
+                                            )
+                                            : formatDate(
+                                              disbursement.modifiedDate,
+                                            ),
+                                    singleLine: false,
                                   ),
                                 ],
                               ),

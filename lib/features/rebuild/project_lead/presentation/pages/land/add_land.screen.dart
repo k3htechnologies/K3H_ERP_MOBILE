@@ -461,7 +461,7 @@ class _AddLandScreenState extends State<AddLandScreen> {
                     CustomMultiFilePicker(
                       initialFileList: projectPhotoImage.fileNameList,
                       title: "Land Photo",
-                      filePickType: FilePickType.both,
+                      filePickType: FilePickType.kycDocument,
                       isRequired: true,
                       onFilePickedCallback: (bytes, fileName) {
                         projectPhotoImage.fileBytesList = bytes;

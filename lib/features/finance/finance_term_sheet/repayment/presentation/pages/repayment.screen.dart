@@ -243,12 +243,20 @@ class _RepaymentScreenState extends State<RepaymentScreen> {
                                   ),
                                   buildRowTitleValue(
                                     title: "Last Modified By",
-                                    value: repayment.createdBy,
+                                    value:
+                                        repayment.modifiedBy.isEmpty
+                                            ? repayment.createdBy
+                                            : repayment.modifiedBy,
                                     singleLine: false,
                                   ),
                                   buildRowTitleValue(
                                     title: "Last Modified Date",
-                                    value: formatDate(repayment.createdDate),
+                                    value:
+                                        repayment.modifiedDate == null
+                                            ? formatDate(repayment.createdDate)
+                                            : formatDate(
+                                              repayment.modifiedDate,
+                                            ),
                                     singleLine: false,
                                   ),
                                 ],

@@ -180,13 +180,27 @@ class _AddRepaymentScreenState extends State<AddRepaymentScreen> {
                           return "Please enter a valid amount";
                         }
 
-                        final disbursedAmount =
-                            widget.termSheetDetailsView?.totalDisbursedAmount ??
+                        final facilityAmount =
+                            widget.termSheetDetailsView?.facilityAmount ?? 0;
+
+                        final alreadyRepaymentAmount =
+                            widget
+                                .termSheetDetailsView
+                                ?.totalRepayLedgerAmount ??
                             0;
 
-                        if (enteredAmount > disbursedAmount) {
+                        final currentDisbursementAmount =
+                            _isEditMode
+                                ? widget.termSheetRepayLedgerData?.amount ?? 0
+                                : 0;
+                        final remainingAmount =
+                            facilityAmount -
+                            alreadyRepaymentAmount +
+                            currentDisbursementAmount;
+
+                        if (enteredAmount > remainingAmount) {
                           return "Total Repayment Amount cannot be greater than "
-                              "Disbursed Amount (${disbursedAmount.toIndianCurrency()})";
+                              "Disbursed Amount (${remainingAmount.toIndianCurrency()})";
                         }
                         return null;
                       },

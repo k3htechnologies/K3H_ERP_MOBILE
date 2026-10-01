@@ -221,6 +221,7 @@ class _AddTermSheetDocumentScreenState
                       readOnly: _isEditMode && isClosed,
                       title: "Files",
                       isRequired: true,
+                      maxFiles: 20,
                       filePickType: FilePickType.both,
                       initialFileList: files.fileNameList,
 

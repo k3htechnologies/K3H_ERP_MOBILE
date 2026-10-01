@@ -56,10 +56,10 @@ class TargetState extends BaseState {
       salesTargetClosing: salesTargetClosing ?? this.salesTargetClosing,
       salesTargetSourcing: salesTargetSourcing ?? this.salesTargetSourcing,
       closingTotalNumberOfRecordSalesTarget:
-      closingTotalNumberOfRecordSalesTarget ??
+          closingTotalNumberOfRecordSalesTarget ??
           this.closingTotalNumberOfRecordSalesTarget,
       sourcingTotalNumberOfRecordSalesTarget:
-      sourcingTotalNumberOfRecordSalesTarget ??
+          sourcingTotalNumberOfRecordSalesTarget ??
           this.sourcingTotalNumberOfRecordSalesTarget,
       sourcingPage: sourcingPage ?? this.sourcingPage,
       closingPage: closingPage ?? this.closingPage,
@@ -68,9 +68,9 @@ class TargetState extends BaseState {
       isClosingLoading: isClosingLoading ?? this.isClosingLoading,
 
       selectedMonth:
-      selectedMonth == _noChange
-          ? this.selectedMonth
-          : selectedMonth as String?,
+          selectedMonth == _noChange
+              ? this.selectedMonth
+              : selectedMonth as String?,
     );
   }
 

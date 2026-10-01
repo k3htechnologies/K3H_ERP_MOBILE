@@ -232,40 +232,40 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                   style: AppTextStyle.ts16SB(),
                 ),
               ),
-              if (_routeAuthorizationModel.isAction) ...[
-                CustomIconButton.edit(
-                  isDisabled:
-                      !document.projectDocumentApprovalStatus
-                          .toLowerCase()
-                          .contains('pending'),
-                  onPressed: () {
-                    goRouter.pushNamed(
-                      AppRoutes.addDocument,
-                      queryParameters: {
-                        "document": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(
-                            jsonEncode(document.toJson()),
-                          ),
+              CustomIconButton.edit(
+                isDisabled:
+                    !_routeAuthorizationModel.isAction ||
+                    !document.projectDocumentApprovalStatus
+                        .toLowerCase()
+                        .contains('pending'),
+                onPressed: () {
+                  goRouter.pushNamed(
+                    AppRoutes.addDocument,
+                    queryParameters: {
+                      "document": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(
+                          jsonEncode(document.toJson()),
                         ),
-                        "index": index.toString(),
+                      ),
+                      "index": index.toString(),
 
-                        "isEdit": Uri.encodeQueryComponent(
-                          EncryptionManager.encryptData(true.toString()),
-                        ),
-                      },
-                    );
-                  },
-                ),
-                CustomIconButton.delete(
-                  isDisabled:
-                      !document.projectDocumentApprovalStatus
-                          .toLowerCase()
-                          .contains('pending'),
-                  onPressed: () {
-                    _showPopupToDeleteSubDocument(context, document, index);
-                  },
-                ),
-              ],
+                      "isEdit": Uri.encodeQueryComponent(
+                        EncryptionManager.encryptData(true.toString()),
+                      ),
+                    },
+                  );
+                },
+              ),
+              CustomIconButton.delete(
+                isDisabled:
+                    !_routeAuthorizationModel.isAction ||
+                    !document.projectDocumentApprovalStatus
+                        .toLowerCase()
+                        .contains('pending'),
+                onPressed: () {
+                  _showPopupToDeleteSubDocument(context, document, index);
+                },
+              ),
             ],
           ),
           Row(

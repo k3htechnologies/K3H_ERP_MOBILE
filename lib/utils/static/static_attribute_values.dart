@@ -533,7 +533,7 @@ const vendorTypeValues = ['Material', 'Contractor', 'Both'];
 // TERM SHEET TYPE LIST VALUES
 const termSheetTypeValues = [
   'Construction Finance (CF)',
-  'Loan Against Property (LAN)',
+  'Loan Against Property (LAP)',
   'Lease Rental Discounting (LRD)',
   'Overdraft Facility (OD)',
 ];

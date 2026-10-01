@@ -32,6 +32,7 @@ class _LandScreenState extends State<LandScreen> {
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
+
   @override
   void initState() {
     _projectleadCubit = context.read<ProjectLeadCubit>();
@@ -81,7 +82,7 @@ class _LandScreenState extends State<LandScreen> {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _projectleadCubit.getRedevelopmentList(
+          _projectleadCubit.getLandList(
             context,
             _projectleadCubit.state.landCurrentPage + 1,
           );

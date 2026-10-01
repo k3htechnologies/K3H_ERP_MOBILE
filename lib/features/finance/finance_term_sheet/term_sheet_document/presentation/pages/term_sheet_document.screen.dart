@@ -340,7 +340,10 @@ class _TermSheetDocumentScreenState extends State<TermSheetDocumentScreen> {
                                   buildRowTitleValue(
                                     title: "Uploaded By / Date",
                                     value:
-                                        "${documents.createdBy} / ${formatDate(documents.createdDate)}",
+                                        documents.modifiedBy.isEmpty &&
+                                                documents.modifiedDate == null
+                                            ? "${documents.createdBy} / ${formatDate(documents.createdDate)}"
+                                            : "${documents.modifiedBy} / ${formatDate(documents.modifiedDate)}",
                                     singleLine: false,
                                   ),
                                 ],
