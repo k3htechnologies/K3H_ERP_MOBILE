@@ -153,7 +153,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
       },
       (response) {
         goRouter.pop();
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response['message']);
         getApprovedBankFolderList(context, 1, projectId);
       },
     );

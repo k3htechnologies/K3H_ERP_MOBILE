@@ -187,6 +187,7 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
   Future<void> _populateFormFields(CompanyModel? company) async {
     countryMasterId = widget.company?.countryMasterId ?? -1;
     stateMasterId = widget.company?.stateMasterId ?? -1;
+    _selectedGstCode.value = getGstStateCodeFromStorage(stateMasterId);
     districtMasterId = widget.company?.districtMasterId ?? -1;
     cityMasterId = widget.company?.cityMasterId ?? -1;
     _companyMasterAddCubit.resetCompanyPartner(

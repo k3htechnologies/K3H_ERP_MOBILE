@@ -165,8 +165,8 @@ class _VendorViewScreenState extends State<VendorViewScreen>
                   child: Column(
                     children: [
                       _buildBasicInformationSection(),
-                      _buildGovernmentIdentifiersSection(),
                       _buildAddressSection(),
+                      _buildGovernmentIdentifiersSection(),
                       _buildMaterialAndContractSection(),
                       _buildActionDetailsSection(),
                     ],
@@ -248,11 +248,7 @@ class _VendorViewScreenState extends State<VendorViewScreen>
     ];
     final validDocuments =
         documents.where((doc) => (doc["url"] ?? "").isNotEmpty).toList();
-    if (validDocuments.isEmpty) {
-      return Center(
-        child: noDataWidget(message: "No Documents Available", iconSize: 100),
-      );
-    }
+
     return SectionCard(
       title: "Government Identifiers",
       iconColor: AppColor.darkGreen10,
@@ -260,27 +256,36 @@ class _VendorViewScreenState extends State<VendorViewScreen>
       icon: LucideIcons.badgeCheck,
       childSpacing: 0,
       children:
-          List.generate((validDocuments.length), (index) {
-            final doc = validDocuments[index];
-            return buildRowTitleValue(
-              title: doc['title'] ?? "-",
-              value:
-                  (doc['number'] != null && doc['number']!.isNotEmpty)
-                      ? doc['number']!
-                      : "-",
-              fixesWidth: 120.w,
-              customValueWidget: buildDocumentRow(
-                iconWithoutBg: true,
-                context: context,
-                docNumber:
-                    (doc['number'] != null && doc['number']!.isNotEmpty)
-                        ? doc['number']!
-                        : "-",
-                url: doc['url'] ?? "-",
-                title: doc['title']!,
-              ),
-            );
-          }).toList(),
+          validDocuments.isEmpty
+              ? [
+                Center(
+                  child: noDataWidget(
+                    message: "No Documents Available",
+                    iconSize: 100,
+                  ),
+                ),
+              ]
+              : List.generate((validDocuments.length), (index) {
+                final doc = validDocuments[index];
+                return buildRowTitleValue(
+                  title: doc['title'] ?? "-",
+                  value:
+                      (doc['number'] != null && doc['number']!.isNotEmpty)
+                          ? doc['number']!
+                          : "-",
+                  fixesWidth: 120.w,
+                  customValueWidget: buildDocumentRow(
+                    iconWithoutBg: true,
+                    context: context,
+                    docNumber:
+                        (doc['number'] != null && doc['number']!.isNotEmpty)
+                            ? doc['number']!
+                            : "-",
+                    url: doc['url'] ?? "-",
+                    title: doc['title']!,
+                  ),
+                );
+              }).toList(),
     );
   }
 

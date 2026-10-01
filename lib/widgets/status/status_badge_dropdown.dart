@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 import '../custom_chip_for_status_widget.dart';
 
@@ -56,13 +57,13 @@ class _CustomStatusBadgeDropdownState extends State<CustomStatusBadgeDropdown> {
   Future<void> _onSelect(String value) async {
     _removeOverlay();
 
-    final bool success = await widget.onSelect(value);
+    final bool success = await widget.onSelect(toTitleCase(value));
 
     if (!mounted) return;
 
     if (success) {
       setState(() {
-        selectedValue = value;
+        selectedValue = toTitleCase(value);
       });
     }
   }
@@ -153,7 +154,7 @@ class _CustomStatusBadgeDropdownState extends State<CustomStatusBadgeDropdown> {
                                   child: Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(
-                                      item,
+                                      toTitleCase(item),
                                       style: AppTextStyle.ts12M(),
                                     ),
                                   ),

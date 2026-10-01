@@ -162,6 +162,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     addressC.text = vendor.address;
     countryMasterId = vendor.countryMasterId;
     stateMasterId = vendor.stateMasterId;
+    _selectedGstCode.value = getGstStateCodeFromStorage(stateMasterId);
     districtMasterId = vendor.districtMasterId;
     cityMasterId = vendor.cityMasterId;
     selectedCompanyType.value = firmTypeList.firstWhere(

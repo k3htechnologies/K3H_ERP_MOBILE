@@ -793,108 +793,125 @@ class _TenantScreenState extends State<TenantScreen> {
                                     ],
                                   ),
                                   verticalSpacing(),
-                                  CustomExpandableCard(
-                                    padding: EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 16,
-                                    ),
+                                  Container(
                                     decoration: BoxDecoration(
-                                      color: AppColor.lightBlue,
-                                      border: Border.all(
-                                        color: AppColor.lightBlue,
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border(
+                                        left: BorderSide(
+                                          color: AppColor.primary,
+                                          width: 4,
+                                        ),
                                       ),
-                                    ),
-                                    header: Text(
-                                      "Unit Details",
-                                      style: AppTextStyle.ts14M(),
-                                    ),
-                                    body: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        _sectionChip(
-                                          "ELIGIBILITY",
-                                          Colors.deepPurple.shade50,
-                                          Colors.deepPurple,
-                                        ),
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          children: [
-                                            buildColumnTitleValue(
-                                              title: "Free Offer Area",
-                                              value:
-                                                  "${tenant.extraFreeCarpetAreaOfferedPercent}%",
-                                            ),
-                                            buildColumnTitleValue(
-                                              title: "Free MOFA",
-                                              value:
-                                                  "${tenant.freeMOFACarpetAreaSqFt} SqFt",
-                                            ),
-                                          ],
-                                        ),
-                                        Divider(
-                                          height: 28,
-                                          color: AppColor.grey2.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                        ),
-                                        buildRowWrapper(
-                                          child: buildColumnTitleValue(
-                                            title:
-                                                "Total New RERA CA With Deck & Terrace",
-                                            value:
-                                                "${tenant.totalNewRERACarpetAreaSqFt + tenant.deckAreaSqFt + tenant.areaAgainstTerraceSqFt} SqFt",
-                                          ),
-                                        ),
-                                        Divider(
-                                          height: 28,
-                                          color: AppColor.grey2.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                        ),
-                                        _sectionChip(
-                                          "NEW UNIT",
-                                          Colors.green.shade50,
-                                          Colors.green,
-                                        ),
-                                        const SizedBox(height: 12),
-                                        Row(
-                                          children: [
-                                            buildColumnTitleValue(
-                                              title: "Building",
-                                              value: tenant.buildingNumber,
-                                            ),
-                                            buildColumnTitleValue(
-                                              title: "Wing | Floor",
-                                              value:
-                                                  tenant.wing.isNotEmpty &&
-                                                          tenant
-                                                              .floor
-                                                              .isNotEmpty
-                                                      ? "${tenant.wing} | ${tenant.floor}"
-                                                      : '-',
-                                            ),
-                                          ],
-                                        ),
-                                        Divider(
-                                          height: 28,
-                                          color: AppColor.grey2.withValues(
-                                            alpha: 0.5,
-                                          ),
-                                        ),
-                                        Row(
-                                          children: [
-                                            buildColumnTitleValue(
-                                              title: "Unit No.",
-                                              value: tenant.inventoryFlatType,
-                                            ),
-                                            buildColumnTitleValue(
-                                              title: "Unit Type",
-                                              value: tenant.inventoryFlatType,
-                                            ),
-                                          ],
+                                      boxShadow: const [
+                                        BoxShadow(
+                                          color: Color(0x11000000),
+                                          blurRadius: 6,
+                                          offset: Offset(0, 2),
                                         ),
                                       ],
+                                    ),
+                                    child: CustomExpandableCard(
+                                      padding: EdgeInsets.only(
+                                        top: 12,
+                                        right: 16,
+                                        left: 16,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppColor.white,
+                                      ),
+                                      header: Text(
+                                        "Unit Details",
+                                        style: AppTextStyle.ts14M(),
+                                      ),
+                                      body: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          _sectionChip(
+                                            "ELIGIBILITY",
+                                            Colors.deepPurple.shade50,
+                                            Colors.deepPurple,
+                                          ),
+                                          const SizedBox(height: 10),
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Free Offer Area",
+                                                value:
+                                                    "${tenant.extraFreeCarpetAreaOfferedPercent}%",
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Free MOFA",
+                                                value:
+                                                    "${tenant.freeMOFACarpetAreaSqFt} SqFt",
+                                              ),
+                                            ],
+                                          ),
+                                          Divider(
+                                            height: 28,
+                                            color: AppColor.grey2.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                          buildRowWrapper(
+                                            child: buildColumnTitleValue(
+                                              title:
+                                                  "Total New RERA CA With Deck & Terrace",
+                                              value:
+                                                  "${tenant.totalNewRERACarpetAreaSqFt + tenant.deckAreaSqFt + tenant.areaAgainstTerraceSqFt} SqFt",
+                                            ),
+                                          ),
+                                          Divider(
+                                            height: 28,
+                                            color: AppColor.grey2.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                          _sectionChip(
+                                            "NEW UNIT",
+                                            Colors.green.shade50,
+                                            Colors.green,
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Building",
+                                                value: tenant.buildingNumber,
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Wing | Floor",
+                                                value:
+                                                    tenant.wing.isNotEmpty &&
+                                                            tenant
+                                                                .floor
+                                                                .isNotEmpty
+                                                        ? "${tenant.wing} | ${tenant.floor}"
+                                                        : '-',
+                                              ),
+                                            ],
+                                          ),
+                                          Divider(
+                                            height: 28,
+                                            color: AppColor.grey2.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Unit No.",
+                                                value: tenant.inventoryFlatType,
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Unit Type",
+                                                value: tenant.inventoryFlatType,
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],

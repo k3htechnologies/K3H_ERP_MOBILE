@@ -98,6 +98,41 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                 ],
               ),
               SectionCard(
+                title: 'Address Details',
+                titleTextColor: Colors.blue,
+                headerBackgroundColor: Colors.blue.shade100.withValues(
+                  alpha: 0.5,
+                ),
+                children: [
+                  Row(
+                    spacing: 10,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Country",
+                        value: company.countryName,
+                      ),
+                      buildColumnTitleValue(
+                        title: "State",
+                        value: company.stateName,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 10,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "District",
+                        value: company.districtName,
+                      ),
+                      buildColumnTitleValue(
+                        title: "City",
+                        value: company.cityName,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              SectionCard(
                 title: 'Government Identifiers',
                 titleTextColor: AppColor.orange,
                 headerBackgroundColor: AppColor.lightOrangeBg.withValues(
@@ -201,41 +236,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                           docNumber: "View Letter Footer",
                           url: company.companyLetterheadFooterURL,
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              SectionCard(
-                title: 'Address Details',
-                titleTextColor: Colors.blue,
-                headerBackgroundColor: Colors.blue.shade100.withValues(
-                  alpha: 0.5,
-                ),
-                children: [
-                  Row(
-                    spacing: 10,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Country",
-                        value: company.countryName,
-                      ),
-                      buildColumnTitleValue(
-                        title: "State",
-                        value: company.stateName,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "District",
-                        value: company.districtName,
-                      ),
-                      buildColumnTitleValue(
-                        title: "City",
-                        value: company.cityName,
                       ),
                     ],
                   ),

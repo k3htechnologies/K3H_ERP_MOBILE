@@ -58,10 +58,18 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
   DateTime? dateOfFilling;
 
   // DROPDOWN VARIABLE
-  Map<String, dynamic>? selectedCaseType;
-  Map<String, dynamic>? selectedCourtType;
-  Map<String, dynamic>? _selectedProject;
-  Map<String, dynamic>? _selectedPriority;
+  final ValueNotifier<Map<String, dynamic>?> selectedCaseType = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> selectedCourtType = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedProject = ValueNotifier(
+    null,
+  );
+  final ValueNotifier<Map<String, dynamic>?> _selectedPriority = ValueNotifier(
+    null,
+  );
   List<Map<String, dynamic>> projects = [];
   @override
   void initState() {
@@ -119,7 +127,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
   // POPULATE FORM
   void _populateFormFields(LitigationModel model) {
-    _selectedProject =
+    _selectedProject.value =
         projects.where((m) => m['zAttributesId'] == model.projectId).first;
     _caseTitleC.text = model.title;
     _caseNumberC.text = model.caseNumber;
@@ -134,16 +142,16 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
 
     dateOfFilling = model.dateOfFilling;
 
-    selectedCaseType = caseTypeList.firstWhere(
+    selectedCaseType.value = caseTypeList.firstWhere(
       (e) => e['DisplayName'] == model.caseType,
       orElse: () => caseTypeList.first,
     );
 
-    selectedCourtType = courtTypeList.firstWhere(
+    selectedCourtType.value = courtTypeList.firstWhere(
       (e) => e['DisplayName'] == model.courtType,
       orElse: () => courtTypeList.first,
     );
-    _selectedPriority = priorityList.firstWhere(
+    _selectedPriority.value = priorityList.firstWhere(
       (e) => e['DisplayName'] == model.priority,
       orElse: () => priorityList.first,
     );
@@ -165,7 +173,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
                 style: AppTextStyle.ts14R(color: AppColor.grey),
               ),
               TextSpan(
-                text: ' • ${_selectedProject?['DisplayName']}',
+                text: ' • ${_selectedProject.value?['DisplayName']}',
                 style: AppTextStyle.ts14M(color: AppColor.primary),
               ),
             ],
@@ -174,7 +182,7 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         verificationSteps: {
           "Title": _caseTitleC.text.trim().isNotEmpty,
           "Date Of Filling": dateOfFilling != null,
-          "Case Type": selectedCaseType != null,
+          "Case Type": selectedCaseType.va != null,
           "Case Number": _caseNumberC.text.trim().isNotEmpty,
         },
         onVerifyOTP: () {
@@ -191,12 +199,12 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         index: widget.index,
         uniqueKey: widget.litigationModel!.uniquekey,
         litigationId: widget.litigationModel!.litigationId,
-        projectId: _selectedProject!['zAttributesId'],
+        projectId: _selectedProject.value!['zAttributesId'],
         title: _caseTitleC.text.trim(),
         caseNumber: _caseNumberC.text.trim(),
-        caseType: selectedCaseType?['DisplayName'],
-        courtType: selectedCourtType?['DisplayName'],
-        priority: _selectedPriority?['DisplayName'],
+        caseType: selectedCaseType.value?['DisplayName'],
+        courtType: selectedCourtType.value?['DisplayName'],
+        priority: _selectedPriority.value?['DisplayName'],
         dateOfFilling: dateOfFilling!,
         courtName: _courtNameC.text.trim(),
         courtLocation: _courtLocationC.text.trim(),
@@ -210,12 +218,12 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
     } else {
       _litigationCubit.addLitigation(
         context: context,
-        projectId: _selectedProject!['zAttributesId'],
+        projectId: _selectedProject.value!['zAttributesId'],
         title: _caseTitleC.text.trim(),
         caseNumber: _caseNumberC.text.trim(),
-        caseType: selectedCaseType?['DisplayName'],
-        courtType: selectedCourtType?['DisplayName'],
-        priority: _selectedPriority?['DisplayName'],
+        caseType: selectedCaseType.value?['DisplayName'],
+        courtType: selectedCourtType.value?['DisplayName'],
+        priority: _selectedPriority.value?['DisplayName'],
         dateOfFilling: dateOfFilling!,
         courtName: _courtNameC.text.trim(),
         courtLocation: _courtLocationC.text.trim(),
@@ -275,20 +283,26 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
         children: [
           Text("Case Details", style: AppTextStyle.ts14M(color: AppColor.grey)),
           verticalSpacing(),
-          CustomDropDownWidget(
-            title: "Project",
-            hintText: "Select Project",
-            isDisabled: _isEditMode,
-            initialValue: _selectedProject,
-            dataList: projects,
-            isRequired: true,
-            validator:
-                (v) => (v == null || v.isEmpty) ? "Project is required" : null,
-            onSelected: (v) {
-              _selectedProject = v;
-            },
-            onValueClear: () {
-              _selectedProject = null;
+          ValueListenableBuilder(
+            valueListenable: _selectedProject,
+            builder: (context, value, child) {
+              return CustomDropDownWidget(
+                title: "Project",
+                hintText: "Select Project",
+                isDisabled: _isEditMode,
+                initialValue: value,
+                dataList: projects,
+                isRequired: true,
+                validator:
+                    (v) =>
+                        (v == null || v.isEmpty) ? "Project is required" : null,
+                onSelected: (v) {
+                  _selectedProject.value = v;
+                },
+                onValueClear: () {
+                  _selectedProject.value = null;
+                },
+              );
             },
           ),
 
@@ -316,38 +330,48 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             },
           ),
 
-          CustomDropDownWidget(
-            title: "Case Type",
-            hintText: "Select Case Type",
-            initialValue: selectedCaseType,
-            isRequired: true,
-            dataList: caseTypeList,
-            onSelected: (v) => selectedCaseType = v,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return "Case Type is required.";
-              }
-              return null;
-            },
-            onValueClear: () {
-              selectedCaseType = null;
+          ValueListenableBuilder(
+            valueListenable: selectedCaseType,
+            builder: (context, value, child) {
+              return CustomDropDownWidget(
+                title: "Case Type",
+                hintText: "Select Case Type",
+                initialValue: value,
+                isRequired: true,
+                dataList: caseTypeList,
+                onSelected: (v) => selectedCaseType.value = v,
+                validator: (value) {
+                  if (value == null || value["zAttributesId"] == -1) {
+                    return "Case Type is required.";
+                  }
+                  return null;
+                },
+                onValueClear: () {
+                  selectedCaseType.value = null;
+                },
+              );
             },
           ),
-          CustomDropDownWidget(
-            title: "Priority",
-            hintText: "Select Priority",
-            initialValue: _selectedPriority,
-            isRequired: true,
-            dataList: priorityList,
-            onSelected: (v) => _selectedPriority = v,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return "Priority is required.";
-              }
-              return null;
-            },
-            onValueClear: () {
-              _selectedPriority = null;
+          ValueListenableBuilder(
+            valueListenable: _selectedPriority,
+            builder: (context, value, child) {
+              return CustomDropDownWidget(
+                title: "Priority",
+                hintText: "Select Priority",
+                initialValue: value,
+                isRequired: true,
+                dataList: priorityList,
+                onSelected: (v) => _selectedPriority.value = v,
+                validator: (value) {
+                  if (value == null || value["zAttributesId"] == -1) {
+                    return "Priority is required.";
+                  }
+                  return null;
+                },
+                onValueClear: () {
+                  _selectedPriority.value = null;
+                },
+              );
             },
           ),
           CustomTextField(
@@ -396,21 +420,26 @@ class _AddLitigationScreenState extends State<AddLitigationScreen> {
             validator: (v) => v!.isEmpty ? "Court Location is required" : null,
           ),
 
-          CustomDropDownWidget(
-            title: "Court Type",
-            hintText: "Select Court Type",
-            initialValue: selectedCourtType,
-            dataList: courtTypeList,
-            isRequired: true,
-            onSelected: (v) => selectedCourtType = v,
-            validator: (value) {
-              if (value == null || value["zAttributesId"] == -1) {
-                return "Court Type is required.";
-              }
-              return null;
-            },
-            onValueClear: () {
-              selectedCourtType = null;
+          ValueListenableBuilder(
+            valueListenable: selectedCourtType,
+            builder: (context, value, child) {
+              return CustomDropDownWidget(
+                title: "Court Type",
+                hintText: "Select Court Type",
+                initialValue: value,
+                dataList: courtTypeList,
+                isRequired: true,
+                onSelected: (v) => selectedCourtType.value = v,
+                validator: (value) {
+                  if (value == null || value["zAttributesId"] == -1) {
+                    return "Court Type is required.";
+                  }
+                  return null;
+                },
+                onValueClear: () {
+                  selectedCourtType.value = null;
+                },
+              );
             },
           ),
 

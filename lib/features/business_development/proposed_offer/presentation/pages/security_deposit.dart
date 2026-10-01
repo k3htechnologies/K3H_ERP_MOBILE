@@ -364,23 +364,29 @@ class _SecurityDepositState extends State<SecurityDeposit> {
                           ],
                         ),
                         verticalSpacing(height: 15),
-                        CustomTextField(
-                          title: 'Security Deposit Amount',
-                          isRequired: true,
-                          readOnly: disableAction,
-                          hint: 'Enter Security Deposit Amount',
-                          textController: _securityDepositAmountC,
-                          keyboardType: TextInputType.number,
-                          inputFormatterList: InputValidator.digitWithDecimal(
-                            maxDigitsBeforeDecimal: 16,
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Please enter security deposit amount';
-                            }
-                            return null;
+                        ValueListenableBuilder(
+                          valueListenable: _securityDepositListNotifier,
+                          builder: (context, value, child) {
+                            return CustomTextField(
+                              title: 'Security Deposit Amount',
+                              isRequired: true,
+                              readOnly: disableAction || value.isNotEmpty,
+                              hint: 'Enter Security Deposit Amount',
+                              textController: _securityDepositAmountC,
+                              keyboardType: TextInputType.number,
+                              inputFormatterList:
+                                  InputValidator.digitWithDecimal(
+                                    maxDigitsBeforeDecimal: 16,
+                                  ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Please enter security deposit amount';
+                                }
+                                return null;
+                              },
+                              prefixType: CustomTextFieldPrefix.rupees,
+                            );
                           },
-                          prefixType: CustomTextFieldPrefix.rupees,
                         ),
                         CustomTextField(
                           title: 'Interest Amount',

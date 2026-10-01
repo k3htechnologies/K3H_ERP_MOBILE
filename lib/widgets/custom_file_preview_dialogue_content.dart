@@ -78,55 +78,6 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
     setState(() => _failedIndexes.add(index));
   }
 
-  Widget _buildErrorView() {
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(),
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              color: AppColor.grey,
-              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Text(
-                "Server Error",
-                style: AppTextStyle.ts16SB(color: AppColor.white),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Image(
-                      height: 50.h,
-                      width: 50.w,
-                      image: AssetImage(AppAssets.notFoundIcon),
-                    ),
-                    verticalSpacing(height: 30),
-                    Text(
-                      'File not found',
-                      style: AppTextStyle.ts20SB(color: AppColor.red),
-                    ),
-                    verticalSpacing(),
-                    Text(
-                      'The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.',
-                      style: AppTextStyle.ts16R(),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   bool isImage(String url) {
     final cleanUrl = url.split('?').first.toLowerCase();
@@ -502,4 +453,54 @@ class _CommonFileViewerState extends State<CommonFileViewer> {
       ),
     );
   }
+    Widget _buildErrorView() {
+    return Center(
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              color: AppColor.grey,
+              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Text(
+                "Server Error",
+                style: AppTextStyle.ts16SB(color: AppColor.white),
+              ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image(
+                      height: 50.h,
+                      width: 50.w,
+                      image: AssetImage(AppAssets.notFoundIcon),
+                    ),
+                    verticalSpacing(height: 30),
+                    Text(
+                      'File not found',
+                      style: AppTextStyle.ts20SB(color: AppColor.red),
+                    ),
+                    verticalSpacing(),
+                    Text(
+                      'The resource you are looking for might have been removed, had its name changed, or is temporarily unavailable.',
+                      style: AppTextStyle.ts16R(),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 }

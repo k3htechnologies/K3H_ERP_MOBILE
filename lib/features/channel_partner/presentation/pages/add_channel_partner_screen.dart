@@ -410,6 +410,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
       "DisplayName": channelPartnerMasterModel.stateName,
       "zAttributesId": channelPartnerMasterModel.stateMasterId,
     };
+    _selectedGstCode.value = getGstStateCodeFromStorage(
+      channelPartnerMasterModel.stateMasterId,
+    );
+
     selectedDistrictVN.value = {
       "DisplayName": channelPartnerMasterModel.districtName,
       "zAttributesId": channelPartnerMasterModel.districtMasterId,
