@@ -222,9 +222,8 @@ class _AddTermSheetDocumentScreenState
                       title: "Files",
                       isRequired: true,
                       maxFiles: 20,
-                      filePickType: FilePickType.both,
+                      filePickType: FilePickType.kycDocument,
                       initialFileList: files.fileNameList,
-
                       onFilePickedCallback: (bytesList, fileNameList) {
                         files.fileNameList = fileNameList;
                         files.fileBytesList = bytesList;
