@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/project_document/test_document_category/dat
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 part 'test_document_category_state.dart';
 
@@ -38,6 +39,7 @@ class TestDocumentCategoryCubit extends Cubit<TestDocumentCategoryState> {
     }
     Map<String, dynamic> queryParams = {
       "TestDocumentCategory": state.searchText,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _testDocumentCategoryRepository.getTestDocumentCategory(
       pageNumber: pageNumber,
@@ -253,5 +255,31 @@ class TestDocumentCategoryCubit extends Cubit<TestDocumentCategoryState> {
         );
       },
     );
+  }
+
+  // SORT TEST DOCUMENT CATEGORY
+  Future applyFilterAndSortTestDocumentCategory({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String testDocument,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: testDocument,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        testDocumentCategoryModelList: [],
+      ),
+    );
+    await getTestDocumentCategoryList(context, 1, getProject().projectId);
+  }
+
+  int updateFilterCount(TestDocumentCategoryState state) {
+    final hasSort =
+        state.currentSortColumn == "Test Document Category" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }

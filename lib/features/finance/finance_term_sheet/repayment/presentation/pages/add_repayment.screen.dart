@@ -180,8 +180,9 @@ class _AddRepaymentScreenState extends State<AddRepaymentScreen> {
                           return "Please enter a valid amount";
                         }
 
-                        final facilityAmount =
-                            widget.termSheetDetailsView?.facilityAmount ?? 0;
+                        final disbursementAmount =
+                            widget.termSheetDetailsView?.totalDisbursedAmount ??
+                            0;
 
                         final alreadyRepaymentAmount =
                             widget
@@ -189,14 +190,14 @@ class _AddRepaymentScreenState extends State<AddRepaymentScreen> {
                                 ?.totalRepayLedgerAmount ??
                             0;
 
-                        final currentDisbursementAmount =
+                        final currentRepaymentAmount =
                             _isEditMode
                                 ? widget.termSheetRepayLedgerData?.amount ?? 0
                                 : 0;
                         final remainingAmount =
-                            facilityAmount -
+                            disbursementAmount -
                             alreadyRepaymentAmount +
-                            currentDisbursementAmount;
+                            currentRepaymentAmount;
 
                         if (enteredAmount > remainingAmount) {
                           return "Total Repayment Amount cannot be greater than "

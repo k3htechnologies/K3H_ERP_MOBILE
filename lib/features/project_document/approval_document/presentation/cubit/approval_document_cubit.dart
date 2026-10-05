@@ -419,6 +419,8 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         approvalDocumentCategoryId:
             state.documentCategoryModelList[index].approvalDocumentCategoryId,
         searchText: "",
+        currentSortColumn: "",
+        currentSortDirection: "",
         documentList: [],
       ),
     );
@@ -499,5 +501,31 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         );
       },
     );
+  }
+
+  // SORT Approval Document
+  Future applyFilterAndSortApprovalDocument({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String approvalDocumentName,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: approvalDocumentName,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        documentList: [],
+      ),
+    );
+    await getProjectApprovalDocumentList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(ApprovalDocumentState state) {
+    final hasSort =
+        state.currentSortColumn == "Approval Document Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }

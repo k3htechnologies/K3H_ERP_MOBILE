@@ -427,14 +427,25 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
             children: [
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
-                    goRouter.pushNamed(
-                      AppRoutes.viewTermSheet,
-                      extra: {
-                        "termSheet": termSheet,
-                        "termSheetDetailsView": state.termSheetDetailsViewModel,
-                      },
-                    );
+                  onTap: () async {
+                    await _termSheetCubit.clearTermsheetView();
+                    goRouter
+                        .pushNamed(
+                          AppRoutes.viewTermSheet,
+                          extra: {
+                            "termSheet": termSheet,
+                            "termSheetDetailsView":
+                                state.termSheetDetailsViewModel,
+                          },
+                        )
+                        .then((_) async {
+                          if (context.mounted) {
+                            await _termSheetCubit.getTermSheetById(
+                              context,
+                              index,
+                              termSheet.termSheetId                           );
+                          }
+                        });
                   },
                   child: Text(
                     termSheet.nameOfInstitutionBankNbfc.isEmpty
@@ -454,18 +465,31 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                       // if (canShowEdit) ...[
                       CustomIconButton.edit(
                         isDisabled: isEditDisabled || !canShowEdit,
+                        // onPressed: () async {
+                        //   await goRouter.pushNamed<TermSheetModel>(
+                        //     AppRoutes.addTermSheet,
+                        //     extra: {
+                        //       "termSheet": termSheet,
+                        //       "termSheetView": termSheetView,
+                        //     },
+                        //   );
+
+                        //   if (context.mounted) {
+                        //     await _termSheetCubit.getTermSheet(context, 1);
+                        //   }
+                        // },
                         onPressed: () async {
-                          final result = await goRouter
-                              .pushNamed<TermSheetModel>(
-                                AppRoutes.addTermSheet,
-                                extra: {
-                                  "termSheet": termSheet,
-                                  "termSheetView": termSheetView,
-                                },
-                              );
-                          if (result != null && context.mounted) {
-                            await _termSheetCubit.getTermSheet(context, 1);
-                          }
+                          await goRouter.pushNamed<TermSheetModel>(
+                            AppRoutes.addTermSheet,
+                            extra: {
+                              "termSheet": termSheet,
+                              "termSheetView": termSheetView,
+                            },
+                          );
+
+                          if (!context.mounted) return;
+
+                          await _termSheetCubit.refreshAfterEdit(context);
                         },
                       ),
                       horizontalSpacing(),

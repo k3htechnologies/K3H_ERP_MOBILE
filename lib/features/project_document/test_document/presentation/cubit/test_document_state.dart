@@ -11,6 +11,9 @@ class TestDocumentState extends BaseState {
   final int currentPage;
   final int currentPageOfSubDoc;
   final String searchText;
+  final String currentSortColumn;
+  final String currentSortDirection;
+
   const TestDocumentState({
     super.isLoading,
     required this.categoryIndex,
@@ -23,6 +26,8 @@ class TestDocumentState extends BaseState {
     required this.searchText,
     required this.totalNumberOfRecordOfSubDoc,
     required this.currentPageOfSubDoc,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
 
   factory TestDocumentState.initial() => TestDocumentState(
@@ -37,6 +42,8 @@ class TestDocumentState extends BaseState {
     currentPageOfSubDoc: 1,
     searchText: "",
     isLoading: true,
+    currentSortColumn: "Created Date",
+    currentSortDirection: "DESC",
   );
 
   TestDocumentState copywith({
@@ -51,6 +58,8 @@ class TestDocumentState extends BaseState {
     int? currentPage,
     int? currentPageOfSubDoc,
     String? searchText,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return TestDocumentState(
       isLoading: isLoading ?? this.isLoading,
@@ -67,6 +76,8 @@ class TestDocumentState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       currentPageOfSubDoc: currentPageOfSubDoc ?? this.currentPageOfSubDoc,
       searchText: searchText ?? this.searchText,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -83,5 +94,7 @@ class TestDocumentState extends BaseState {
     currentPage,
     currentPageOfSubDoc,
     searchText,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

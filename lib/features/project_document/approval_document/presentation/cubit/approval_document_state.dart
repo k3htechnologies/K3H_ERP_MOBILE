@@ -1,5 +1,3 @@
-
-
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
@@ -71,7 +69,8 @@ class ApprovalDocumentState extends BaseState {
       approvalDocumentCategoryId:
           approvalDocumentCategoryId ?? this.approvalDocumentCategoryId,
       documentList: documentList ?? this.documentList,
-      subApprovalDocumentList: subApprovalDocumentList ?? this.subApprovalDocumentList,
+      subApprovalDocumentList:
+          subApprovalDocumentList ?? this.subApprovalDocumentList,
       documentCategoryModelList:
           documentCategoryModelList ?? this.documentCategoryModelList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,

@@ -18,6 +18,7 @@ class TermSheetState extends BaseState {
   final bool hasUnsavedTermSheetChanges;
   final String currentSortColumn;
   final String currentSortDirection;
+  final bool isRefreshingAfterEdit;
   const TermSheetState({
     super.isLoading,
     required this.termSheetList,
@@ -36,6 +37,7 @@ class TermSheetState extends BaseState {
     required this.filterByInstitutionName,
     required this.currentSortColumn,
     required this.currentSortDirection,
+    required this.isRefreshingAfterEdit,
   });
 
   factory TermSheetState.inital() => TermSheetState(
@@ -55,6 +57,7 @@ class TermSheetState extends BaseState {
     filterByInstitutionName: '',
     currentSortColumn: "Created Date",
     currentSortDirection: 'DESC',
+    isRefreshingAfterEdit: false,
   );
   TermSheetState copyWith({
     bool? isLoading,
@@ -74,6 +77,7 @@ class TermSheetState extends BaseState {
     String? filterByInstitutionName,
     String? currentSortColumn,
     String? currentSortDirection,
+    bool? isRefreshingAfterEdit,
   }) {
     return TermSheetState(
       isLoading: isLoading ?? this.isLoading,
@@ -98,6 +102,8 @@ class TermSheetState extends BaseState {
           filterByInstitutionName ?? this.filterByInstitutionName,
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      isRefreshingAfterEdit:
+          isRefreshingAfterEdit ?? this.isRefreshingAfterEdit,
     );
   }
 
@@ -120,5 +126,6 @@ class TermSheetState extends BaseState {
     filterByInstitutionName,
     currentSortColumn,
     currentSortDirection,
+    isRefreshingAfterEdit,
   ];
 }

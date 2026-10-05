@@ -65,44 +65,25 @@ class OtpLogsCubit extends Cubit<OtpLogsState> {
       );
     }
 
-    await getCallLogsList(
-      context,
-      1,
-      projectId,
-      mobileNumber: mobileNumber,
-      moduleName: moduleName,
-      fromDate: fromDate,
-      toDate: toDate,
-    );
+    await getCallLogsList(context, 1, projectId);
   }
 
   Future getCallLogsList(
     BuildContext context,
     int pageNumber,
-    int projectId, {
-    String? mobileNumber,
-    String? moduleName,
-    DateTime? fromDate,
-    DateTime? toDate,
-  }) async {
+    int projectId,
+  ) async {
     emit(state.copyWith(isLoading: true));
     final queryParams = <String, dynamic>{};
 
-    if ((state.searchText).isNotEmpty) {
-      queryParams["MobileNumber"] = state.searchText;
-    }
+    queryParams["MobileNumber"] = state.searchText;
 
-    if ((moduleName ?? "").isNotEmpty) {
-      queryParams["Module"] = moduleName;
-    }
+    queryParams["Module"] = state.filterModuleName;
 
-    if (fromDate != null) {
-      queryParams["FromDate"] = fromDate.apiDate;
-    }
+    queryParams["FromDate"] = state.filterFromDate.apiDate;
 
-    if (toDate != null) {
-      queryParams["ToDate"] = toDate.apiDate;
-    }
+    queryParams["ToDate"] = state.filterToDate.apiDate;
+
     var result = await _otpLogsRepository.getOTPLogsList(
       pageNumber: pageNumber,
       pageSize: 20,

@@ -5,12 +5,16 @@ class TestDocumentCategoryState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
+  final String currentSortColumn;
+  final String currentSortDirection;
   const TestDocumentCategoryState({
     super.isLoading,
     required this.testDocumentCategoryModelList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
   });
   factory TestDocumentCategoryState.initial() => TestDocumentCategoryState(
     testDocumentCategoryModelList: [],
@@ -18,6 +22,8 @@ class TestDocumentCategoryState extends BaseState {
     currentPage: 1,
     searchText: "",
     isLoading: true,
+    currentSortColumn: "Created Date",
+    currentSortDirection: "DESC",
   );
   TestDocumentCategoryState copyWith({
     bool? isLoading,
@@ -25,6 +31,8 @@ class TestDocumentCategoryState extends BaseState {
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
+    String? currentSortColumn,
+    String? currentSortDirection,
   }) {
     return TestDocumentCategoryState(
       isLoading: isLoading ?? this.isLoading,
@@ -33,6 +41,8 @@ class TestDocumentCategoryState extends BaseState {
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
     );
   }
 
@@ -43,5 +53,7 @@ class TestDocumentCategoryState extends BaseState {
     totalNumberOfRecord,
     currentPage,
     searchText,
+    currentSortColumn,
+    currentSortDirection,
   ];
 }

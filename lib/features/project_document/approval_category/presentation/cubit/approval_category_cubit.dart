@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/project_document/approval_category/presenta
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
   ApprovalCategoryCubit() : super(ApprovalCategoryState.initial());
@@ -255,5 +256,31 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
         );
       },
     );
+  }
+
+  // SORT Approval Document category
+  Future applyFilterAndSortApprovalDocumentCategory({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String approvalDocumentCategory,
+  }) async {
+    emit(
+      state.copyWith(
+        searchText: approvalDocumentCategory,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        approvalCategoryList: [],
+      ),
+    );
+    await getApprovalapprovalCategoryList(context, 1, getProject().projectId);
+  }
+
+  int updateFilterCount(ApprovalCategoryState state) {
+    final hasSort =
+        state.currentSortColumn == "Approval Document Category" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }
