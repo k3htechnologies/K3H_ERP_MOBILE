@@ -45,7 +45,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
 
     var result = await _documentCategoryRepository.getApprovalDocumentCategory(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 500,
       projectId: projectId,
     );
     result.fold(

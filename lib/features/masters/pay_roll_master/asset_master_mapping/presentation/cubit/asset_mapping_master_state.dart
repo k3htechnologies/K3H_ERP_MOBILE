@@ -69,5 +69,6 @@ class AssetMappingMasterState extends BaseState {
     currentSortColumn,
     currentSortDirection,
     filterEmployeeName,
+    filterAssetCode,
   ];
 }

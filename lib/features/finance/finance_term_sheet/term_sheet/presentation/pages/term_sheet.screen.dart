@@ -443,7 +443,11 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                             await _termSheetCubit.getTermSheetById(
                               context,
                               index,
-                              termSheet.termSheetId                           );
+                              termSheet.termSheetId,
+                            );
+                          }
+                          if (context.mounted) {
+                            await _termSheetCubit.refreshAfterEdit(context);
                           }
                         });
                   },

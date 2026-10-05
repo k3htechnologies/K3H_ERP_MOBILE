@@ -49,7 +49,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
 
     var result = await _reraDocumentCategoryRepository.getReraDocumentCategory(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 500,
       projectId: projectId,
     );
     result.fold(

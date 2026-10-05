@@ -46,7 +46,7 @@ class DocumentCubit extends Cubit<DocumentState> {
 
     var result = await _documentCategoryRepository.getDocumentCategory(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 500,
       projectId: projectId,
     );
     result.fold(

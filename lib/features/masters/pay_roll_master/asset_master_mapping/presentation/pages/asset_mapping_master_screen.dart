@@ -215,6 +215,10 @@ class _AssetMappingMasterScreenState extends State<AssetMappingMasterScreen> {
         },
       ),
       onClear: () {
+        _searchC.clear();
+        _filterEmployeeNameC.clear();
+        _filterAssetCodeC.clear();
+
         _assetMappingMasterCubit.applyFilterAndSort(
           context: context,
           filterAssetName: "",

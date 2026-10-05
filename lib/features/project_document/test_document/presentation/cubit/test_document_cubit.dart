@@ -60,7 +60,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
 
     var result = await _testDocumentCategoryRepositor.getTestDocumentCategory(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 500,
       projectId: projectId,
     );
     result.fold(
