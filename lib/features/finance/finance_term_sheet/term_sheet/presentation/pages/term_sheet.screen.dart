@@ -404,15 +404,12 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
         detail != null &&
         detail.facilityAmount == detail.totalDisbursedAmount &&
         detail.totalDisbursedAmount == detail.totalRepayLedgerAmount;
+    final bool isDataLoaded = detail != null;
+    final bool isClosed = mainApprovalStatus == "closed";
+    final bool isPending = mainApprovalStatus != "pending";
 
-    final bool canShowEdit =
-        termSheet.approvalStatus.toLowerCase() != "closed" &&
-        !amountsAreFullyMatched;
-    final bool isMainTermSheetApproved = mainApprovalStatus == "approved";
-    final bool isEditDisabled =
-        (isEditDisbaled && detailApprovalStatus != "pending") &&
-        isMainTermSheetApproved &&
-        amountsAreFullyMatched;
+    final bool disableEdit =
+        !isDataLoaded || isClosed || amountsAreFullyMatched || isPending;
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: const EdgeInsets.all(16),
@@ -468,7 +465,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                     children: [
                       // if (canShowEdit) ...[
                       CustomIconButton.edit(
-                        isDisabled: isEditDisabled || !canShowEdit,
+                        isDisabled: disableEdit,
                         // onPressed: () async {
                         //   await goRouter.pushNamed<TermSheetModel>(
                         //     AppRoutes.addTermSheet,
