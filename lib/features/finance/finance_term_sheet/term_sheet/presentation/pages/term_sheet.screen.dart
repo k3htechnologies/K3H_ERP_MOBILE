@@ -456,22 +456,8 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // if (canShowEdit) ...[
                       CustomIconButton.edit(
                         isDisabled: disableEdit,
-                        // onPressed: () async {
-                        //   await goRouter.pushNamed<TermSheetModel>(
-                        //     AppRoutes.addTermSheet,
-                        //     extra: {
-                        //       "termSheet": termSheet,
-                        //       "termSheetView": termSheetView,
-                        //     },
-                        //   );
-
-                        //   if (context.mounted) {
-                        //     await _termSheetCubit.getTermSheet(context, 1);
-                        //   }
-                        // },
                         onPressed: () async {
                           await goRouter.pushNamed<TermSheetModel>(
                             AppRoutes.addTermSheet,
@@ -488,7 +474,6 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                       ),
                       horizontalSpacing(),
 
-                      // ],
                       CustomIconButton.delete(
                         isDisabled:
                             termSheet.approvalStatus.toLowerCase() != "pending",
