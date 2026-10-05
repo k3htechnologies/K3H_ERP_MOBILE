@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -17,6 +18,7 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TestDocumentCategoryScreen extends StatefulWidget {
@@ -39,9 +41,12 @@ class _TestDocumentCategoryScreenState
 
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
+  Timer? _debounce;
 
   // TEXT EDITING CONTROLLER
   late TextEditingController _searchC;
+
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
   void initState() {
@@ -63,6 +68,8 @@ class _TestDocumentCategoryScreenState
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterCount.dispose();
+    _debounce?.cancel();
   }
 
   // INITIALIZE TEXT EDITING CONTROLLER
@@ -82,12 +89,15 @@ class _TestDocumentCategoryScreenState
                   .length <
               _testDocumentCategoryCubit.state.totalNumberOfRecord) {
         if (_selectedProjectNotifier.value.projectId != 0) {
-          _testDocumentCategoryCubit.getTestDocumentCategoryList(
-            context,
-            _testDocumentCategoryCubit.state.currentPage + 1,
+          if (_debounce?.isActive ?? false) _debounce?.cancel();
+          _debounce = Timer(const Duration(milliseconds: 300), () {
+            _testDocumentCategoryCubit.getTestDocumentCategoryList(
+              context,
+              _testDocumentCategoryCubit.state.currentPage + 1,
 
-            _selectedProjectNotifier.value.projectId,
-          );
+              _selectedProjectNotifier.value.projectId,
+            );
+          });
         }
       }
     });
@@ -115,169 +125,286 @@ class _TestDocumentCategoryScreenState
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Test Document Category",
-        authorization: _routeAuthorizationModel,
-        searchHintText: "Search By Test Document Category",
-        onSearchSubmit: (value) {
-          if (_selectedProjectNotifier.value.projectId != 0) {
-            _testDocumentCategoryCubit.searchCategory(
-              context,
-              _selectedProjectNotifier.value.projectId,
-              value,
-            );
+  // TEST DOCUMENT CATEGORY FILTER
+  Future<void> _showBottomSheetToFilterTestDocument(
+    BuildContext context,
+  ) async {
+    final state = _testDocumentCategoryCubit.state;
+
+    _searchC.text = state.searchText;
+
+    String? selectedDirection =
+        state.currentSortColumn == "Test Document Category"
+            ? state.currentSortDirection
+            : null;
+
+    final String initialTestDocumentCategory = _searchC.text;
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    bool applied = false;
+
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            _searchC.text.trim() != initialTestDocumentCategory ||
+            selectedDirection != initialDirection;
+
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter Test Document Category",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+
+            updateApplyState(innerState);
           }
-        },
-        textController: _searchC,
-        onAddCallback: () async {
-          if (_selectedProjectNotifier.value.projectId == 0) {
-            showErrorMessage(context, 'Error', 'Please select a project');
-            return;
-          }
-          _searchC.clear();
-          await _testDocumentCategoryCubit.resetSearch();
-          goRouter.pushNamed(AppRoutes.addTestDocumentCategory).then((_) {
-            if (context.mounted) {
-              _testDocumentCategoryCubit.getTestDocumentCategoryList(
-                context,
-                1,
-                _selectedProjectNotifier.value.projectId,
-              );
-            }
-          });
-        },
-        onExportCallback: (value) {
-          if (_testDocumentCategoryCubit.state.totalNumberOfRecord == 0) {
-            showErrorMessage(context, "Error", "No Data Found");
-            return;
-          }
-          _testDocumentCategoryCubit.exportExcelPdf(
-            context,
-            value,
-            _selectedProjectNotifier.value.projectId,
-          );
-        },
-        onProjectChangeCallback: (value) {
-          _selectedProjectNotifier.value = value;
-          _searchC.clear();
-          _testDocumentCategoryCubit.resetSearch();
-          _testDocumentCategoryCubit.getTestDocumentCategoryList(
-            context,
-            1,
-            _selectedProjectNotifier.value.projectId,
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Sort By Test Document Category",
+                style: AppTextStyle.ts14M(),
+              ),
+              verticalSpacing(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => selectDirection("ASC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "ASC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("A-Z", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                  horizontalSpacing(),
+                  GestureDetector(
+                    onTap: () => selectDirection("DESC"),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color:
+                            selectedDirection == "DESC"
+                                ? AppColor.lightBlue
+                                : Colors.transparent,
+                        border: Border.all(color: AppColor.grey, width: .5),
+                      ),
+                      child: Text("Z-A", style: AppTextStyle.ts12R()),
+                    ),
+                  ),
+                ],
+              ),
+
+              verticalSpacing(height: 20),
+
+              CustomTextField(
+                textController: _searchC,
+                hint: "Enter Test Document Category",
+                title: "Approval Test Document Category",
+                onChangeFunction: (_) => updateApplyState(innerState),
+              ),
+            ],
           );
         },
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ValueListenableBuilder(
-            valueListenable: _selectedProjectNotifier,
-            builder: (context, value, child) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: showSiteSelectedWidget(),
+
+      onClear: () {
+        applied = true;
+
+        _searchC.clear();
+
+        _testDocumentCategoryCubit.applyFilterAndSortTestDocumentCategory(
+          context: context,
+          column: "",
+          direction: "",
+          testDocument: '',
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _testDocumentCategoryCubit.applyFilterAndSortTestDocumentCategory(
+          context: context,
+          column: selectedDirection != null ? "Test Document Category" : "",
+          direction: selectedDirection ?? "",
+          testDocument: _searchC.text.trim(),
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // User closed bottom sheet without clicking Apply/Clear
+    if (!applied && manualClose) {
+      _searchC.text = initialTestDocumentCategory;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<TestDocumentCategoryCubit, TestDocumentCategoryState>(
+      listener: (context, state) {
+        _filterCount.value = _testDocumentCategoryCubit.updateFilterCount(
+          state,
+        );
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Test Document Category",
+          authorization: _routeAuthorizationModel,
+          searchHintText: "Search By Test Document Category",
+          onSearchSubmit: (value) {
+            if (_selectedProjectNotifier.value.projectId != 0) {
+              _testDocumentCategoryCubit.searchCategory(
+                context,
+                _selectedProjectNotifier.value.projectId,
+                value,
               );
-            },
-          ),
-          Expanded(
-            child: BlocBuilder<
-              TestDocumentCategoryCubit,
-              TestDocumentCategoryState
-            >(
-              builder: (context, state) {
-                if ((state.isLoading ?? true) &&
-                    state.testDocumentCategoryModelList.isEmpty) {
-                  return Center(child: loader());
-                }
-                if (state.testDocumentCategoryModelList.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: noDataWidget(
-                        message: "No Test Document Category Data Found",
+            }
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            if (_selectedProjectNotifier.value.projectId == 0) {
+              showErrorMessage(context, "Error", "Please select a project");
+              return;
+            }
+            _showBottomSheetToFilterTestDocument(context);
+          },
+          filterCountNotifier: _filterCount,
+          textController: _searchC,
+          onAddCallback: () async {
+            if (_selectedProjectNotifier.value.projectId == 0) {
+              showErrorMessage(context, 'Error', 'Please select a project');
+              return;
+            }
+            _searchC.clear();
+            await _testDocumentCategoryCubit.resetSearch();
+            goRouter.pushNamed(AppRoutes.addTestDocumentCategory).then((_) {
+              if (context.mounted) {
+                _testDocumentCategoryCubit.getTestDocumentCategoryList(
+                  context,
+                  1,
+                  _selectedProjectNotifier.value.projectId,
+                );
+              }
+            });
+          },
+          onExportCallback: (value) {
+            if (_testDocumentCategoryCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No Data Found");
+              return;
+            }
+            _testDocumentCategoryCubit.exportExcelPdf(
+              context,
+              value,
+              _selectedProjectNotifier.value.projectId,
+            );
+          },
+          onProjectChangeCallback: (value) {
+            _selectedProjectNotifier.value = value;
+            _searchC.clear();
+            _testDocumentCategoryCubit.resetSearch();
+            _testDocumentCategoryCubit.getTestDocumentCategoryList(
+              context,
+              1,
+              _selectedProjectNotifier.value.projectId,
+            );
+          },
+        ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ValueListenableBuilder(
+              valueListenable: _selectedProjectNotifier,
+              builder: (context, value, child) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: showSiteSelectedWidget(),
+                );
+              },
+            ),
+            Expanded(
+              child: BlocBuilder<
+                TestDocumentCategoryCubit,
+                TestDocumentCategoryState
+              >(
+                builder: (context, state) {
+                  if ((state.isLoading ?? true) &&
+                      state.testDocumentCategoryModelList.isEmpty) {
+                    return Center(child: loader());
+                  }
+                  if (state.testDocumentCategoryModelList.isEmpty) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: noDataWidget(
+                          message: "No Test Document Category Data Found",
+                        ),
                       ),
+                    );
+                  }
+                  return ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
                     ),
-                  );
-                }
-                return ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  itemCount: state.testDocumentCategoryModelList.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == state.testDocumentCategoryModelList.length) {
-                      return state.testDocumentCategoryModelList.length <
-                              state.totalNumberOfRecord
-                          ? const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    var testDocumentCategory =
-                        state.testDocumentCategoryModelList[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 10),
-                      padding: const EdgeInsets.all(12),
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            spacing: 10,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Flexible(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    goRouter.pushNamed(
-                                      AppRoutes.viewTestDocumentCategory,
-                                      queryParameters: {
-                                        "testDocumentCategory":
-                                            Uri.encodeQueryComponent(
-                                              EncryptionManager.encryptData(
-                                                jsonEncode(
-                                                  testDocumentCategory.toJson(),
-                                                ),
-                                              ),
-                                            ),
-                                      },
-                                    );
-                                  },
-                                  child: Text(
-                                    testDocumentCategory
-                                        .testDocumentCategoryName,
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.primary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Row(
-                                children: [
-                                  CustomIconButton.edit(
-                                    isDisabled:
-                                        !_routeAuthorizationModel.isAction,
-                                    onPressed: () async {
-                                      if (_selectedProjectNotifier
-                                              .value
-                                              .projectId ==
-                                          0) {
-                                        showErrorMessage(
-                                          context,
-                                          'Error',
-                                          'Please select a project',
-                                        );
-                                        return;
-                                      }
-                                      await goRouter.pushNamed(
-                                        AppRoutes.addTestDocumentCategory,
+                    itemCount: state.testDocumentCategoryModelList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.testDocumentCategoryModelList.length) {
+                        return state.testDocumentCategoryModelList.length <
+                                state.totalNumberOfRecord
+                            ? const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+                      var testDocumentCategory =
+                          state.testDocumentCategoryModelList[index];
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              spacing: 10,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Flexible(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      goRouter.pushNamed(
+                                        AppRoutes.viewTestDocumentCategory,
                                         queryParameters: {
                                           "testDocumentCategory":
                                               Uri.encodeQueryComponent(
@@ -288,49 +415,92 @@ class _TestDocumentCategoryScreenState
                                                   ),
                                                 ),
                                               ),
-                                          'index': index.toString(),
                                         },
                                       );
                                     },
+                                    child: Text(
+                                      testDocumentCategory
+                                          .testDocumentCategoryName,
+                                      style: AppTextStyle.ts14M(
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
                                   ),
-                                  const SizedBox(width: 8),
-                                  CustomIconButton.delete(
-                                    isDisabled:
-                                        (!_routeAuthorizationModel.isAction ||
-                                            testDocumentCategory.documentCount >
-                                                0),
-                                    onPressed: () {
-                                      _showPopupToDeleteTestDocumentCategory(
-                                        context,
-                                        testDocumentCategory,
-                                        state.currentPage,
-                                        index,
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          verticalSpacing(height: 8),
-                          buildRowTitleValue(
-                            title: "Sequence",
-                            value: testDocumentCategory.orderBy.toString(),
-                          ),
-                          buildRowTitleValue(
-                            title: "Document Count",
-                            value:
-                                testDocumentCategory.documentCount.toString(),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
+                                ),
+                                Row(
+                                  children: [
+                                    CustomIconButton.edit(
+                                      isDisabled:
+                                          !_routeAuthorizationModel.isAction,
+                                      onPressed: () async {
+                                        if (_selectedProjectNotifier
+                                                .value
+                                                .projectId ==
+                                            0) {
+                                          showErrorMessage(
+                                            context,
+                                            'Error',
+                                            'Please select a project',
+                                          );
+                                          return;
+                                        }
+                                        await goRouter.pushNamed(
+                                          AppRoutes.addTestDocumentCategory,
+                                          queryParameters: {
+                                            "testDocumentCategory":
+                                                Uri.encodeQueryComponent(
+                                                  EncryptionManager.encryptData(
+                                                    jsonEncode(
+                                                      testDocumentCategory
+                                                          .toJson(),
+                                                    ),
+                                                  ),
+                                                ),
+                                            'index': index.toString(),
+                                          },
+                                        );
+                                      },
+                                    ),
+                                    const SizedBox(width: 8),
+                                    CustomIconButton.delete(
+                                      isDisabled:
+                                          (!_routeAuthorizationModel.isAction ||
+                                              testDocumentCategory
+                                                      .documentCount >
+                                                  0),
+                                      onPressed: () {
+                                        _showPopupToDeleteTestDocumentCategory(
+                                          context,
+                                          testDocumentCategory,
+                                          state.currentPage,
+                                          index,
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            verticalSpacing(height: 8),
+                            buildRowTitleValue(
+                              title: "Sequence",
+                              value: testDocumentCategory.orderBy.toString(),
+                            ),
+                            buildRowTitleValue(
+                              title: "Document Count",
+                              value:
+                                  testDocumentCategory.documentCount.toString(),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

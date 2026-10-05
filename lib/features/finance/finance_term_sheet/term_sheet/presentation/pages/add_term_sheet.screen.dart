@@ -71,10 +71,19 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
     );
   }
 
-  // bool get lockProject => _isEditMode && mainApprovalStatus != "pending";
+  bool get hasPartialApprovedTermSheetDetail {
+    final details = widget.termSheetView?.termSheetDetailsData ?? [];
+
+    return details.any(
+      (detail) =>
+          detail.approvalStatus.trim().toLowerCase() == "partial approved",
+    );
+  }
+
   bool get lockProject {
     return (_isEditMode && mainApprovalStatus != "pending") ||
-        hasApprovedTermSheetDetail;
+        hasApprovedTermSheetDetail ||
+        hasPartialApprovedTermSheetDetail;
   }
 
   final _formKey = GlobalKey<FormState>();
@@ -118,21 +127,14 @@ class _AddTermSheetScreenState extends State<AddTermSheetScreen> {
   Future<void> _fetchTermSheetDetails() async {
     if (widget.termSheet == null) return;
 
-    await _termSheetCubit.getTermSheetView(
+    final termSheetView = await _termSheetCubit.getTermSheetView(
       context,
       widget.termSheet!.projectId,
       widget.termSheet!.termSheetId,
+      updateGlobalViewList: false,
     );
 
-    if (!mounted) return;
-
-    final state = _termSheetCubit.state;
-
-    if (state.termSheetViewList.isEmpty) {
-      return;
-    }
-
-    final termSheetView = state.termSheetViewList.first;
+    if (!mounted || termSheetView == null) return;
 
     final localList =
         termSheetView.termSheetDetailsData

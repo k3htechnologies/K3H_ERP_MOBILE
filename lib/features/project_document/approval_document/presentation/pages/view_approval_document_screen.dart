@@ -258,7 +258,7 @@ class _ViewApprovalDocumentScreenState
               ),
               CustomIconButton.delete(
                 isDisabled:
-                    (_routeAuthorizationModel.isAction ||
+                    (!_routeAuthorizationModel.isAction ||
                         !document.approvalDocumentApprovalStatus
                             .toLowerCase()
                             .contains('pending')),

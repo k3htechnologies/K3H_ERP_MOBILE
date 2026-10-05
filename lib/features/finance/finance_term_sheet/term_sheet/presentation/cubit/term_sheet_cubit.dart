@@ -25,6 +25,19 @@ class TermSheetCubit extends Cubit<TermSheetState> {
   final ProjectMasterRepository _projectMasterRepository =
       serviceLocator<ProjectMasterRepository>();
 
+  Future<void> refreshAfterEdit(BuildContext context) async {
+    emit(state.copyWith(isRefreshingAfterEdit: true));
+
+    await getTermSheet(context, 1);
+
+    emit(state.copyWith(isRefreshingAfterEdit: false));
+  }
+
+  Future clearTermsheetView() async {
+    emit(state.copyWith(termSheetDetailsViewModel: null));
+    clearProjectCompany();
+  }
+
   void clearProjectCompany() {
     emit(state.copyWith(companyByProject: [], isFetchingCompany: false));
   }
@@ -212,6 +225,38 @@ class TermSheetCubit extends Cubit<TermSheetState> {
 
       emit(state.copyWith(isLoading: false));
     }
+  }
+
+  Future<void> getTermSheetById(
+    BuildContext context,
+    int index,
+    int termsheetId,
+  ) async {
+    final result = await _termSheetRepository.getTermSheet(
+      pageSize: 10,
+      pageNumber: 1,
+      queryParams: {"TermSheetId": termsheetId},
+    );
+
+    await result.fold(
+      (failure) async {
+        emit(state.copyWith(isLoading: false));
+
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) async {
+        final logs = response['data'][0] as TermSheetModel;
+
+        final updatedList = List<TermSheetModel>.from(state.termSheetList);
+
+        if (index < 0 || index >= updatedList.length) {
+          return;
+        }
+
+        updatedList[index] = logs;
+        emit(state.copyWith(termSheetList: updatedList));
+      },
+    );
   }
 
   void addTermSheetLocally(LocalTermSheetModel termSheet) {
@@ -494,11 +539,12 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     );
   }
 
-  Future<void> getTermSheetView(
+  Future<TermSheetViewModel?> getTermSheetView(
     BuildContext context,
     int projectId,
-    int termSheetId,
-  ) async {
+    int termSheetId, {
+    bool updateGlobalViewList = true,
+  }) async {
     emit(state.copyWith(isLoading: true));
 
     final Map<String, dynamic> queryParams = {};
@@ -509,27 +555,36 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       queryParams: queryParams,
     );
 
-    result.fold(
+    return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
+        return null;
       },
       (response) {
         final List<TermSheetViewModel> newList =
             response['data'] as List<TermSheetViewModel>;
 
-        emit(
-          state.copyWith(
-            termSheetViewList: newList,
-            termSheetDetailsViewModel:
-                newList.isNotEmpty &&
-                        newList.first.termSheetDetailsData.isNotEmpty
-                    ? newList.first.termSheetDetailsData.first
-                    : null,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-            isLoading: false,
-          ),
-        );
+        // IMPORTANT:
+        // Only update the shared parent state when requested.
+        if (updateGlobalViewList) {
+          emit(
+            state.copyWith(
+              termSheetViewList: newList,
+              termSheetDetailsViewModel:
+                  newList.isNotEmpty &&
+                          newList.first.termSheetDetailsData.isNotEmpty
+                      ? newList.first.termSheetDetailsData.first
+                      : null,
+              totalNumberOfRecord: response['totalNumberOfRecord'],
+              isLoading: false,
+            ),
+          );
+        } else {
+          emit(state.copyWith(isLoading: false));
+        }
+
+        return newList.isNotEmpty ? newList.first : null;
       },
     );
   }
@@ -641,7 +696,19 @@ class TermSheetCubit extends Cubit<TermSheetState> {
       },
       (response) async {
         showSuccessMessage(context, subTitle: response["message"]);
-        await getTermSheet(context, 1);
+        await getTermSheetView(context, projectId, termSheetId);
+        // final List<TermSheetDetailsView> newList =
+        //     response['data'] as List<TermSheetDetailsView>;
+
+        // // IMPORTANT:
+        // // Only update the shared parent state when requested.
+        // emit(
+        //   state.copyWith(
+        //     termSheetDetailsViewModel:
+        //         newList.isNotEmpty ? newList.first : null,
+        //   ),
+        // );
+
         if (context.mounted) {
           goRouter.pop();
         }

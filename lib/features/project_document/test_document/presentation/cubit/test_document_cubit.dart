@@ -112,6 +112,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       if (testDocumentId != null) "TestDocumentId": testDocumentId,
       if (testDocumentCategory != null)
         "TestDocumentCategory": testDocumentCategory,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
     var result = await _testDocumentRepository.pullTestDocument(
@@ -436,6 +437,8 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
         testDocumentCategoryId:
             state.tesDocumentCategoryModelList[index].testDocumentCategoryId,
         searchText: "",
+        currentSortColumn: "",
+        currentSortDirection: "",
         testDocumentList: [],
       ),
     );
@@ -505,5 +508,31 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
         );
       },
     );
+  }
+
+  // SORT TEST Document
+  Future applyFilterAndSortTestDocument({
+    required BuildContext context,
+    required String column,
+    required String direction,
+    required String testDocument,
+  }) async {
+    emit(
+      state.copywith(
+        searchText: testDocument,
+        currentSortColumn: column,
+        currentSortDirection: direction,
+        testDocumentList: [],
+      ),
+    );
+    await getTestDocumentList(context: context, pageNumber: 1);
+  }
+
+  int updateFilterCount(TestDocumentState state) {
+    final hasSort =
+        state.currentSortColumn == "Test Document" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
   }
 }
