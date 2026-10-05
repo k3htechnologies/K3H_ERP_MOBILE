@@ -501,7 +501,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
 
   int updateFilterCountFolder(ApprovedBankFolderState state) {
     final hasSort =
-        state.currentSortColumnBankFolder == "BankName" &&
+        state.currentSortColumnBankFolder == "Bank Name" &&
         (state.currentSortDirectionBankFolder == "ASC" ||
             state.currentSortDirectionBankFolder == "DESC");
     return getActiveFilterCount([
