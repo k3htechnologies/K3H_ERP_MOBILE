@@ -122,7 +122,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
     _searchC.text = state.searchTextFolder;
 
     String? selectedDirection =
-        state.currentSortColumnBankFolder == "BankName"
+        state.currentSortColumnBankFolder == "Bank Name"
             ? state.currentSortDirectionBankFolder
             : null;
 
@@ -237,7 +237,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
 
         _approvedBankCubit.applyFilterAndSortApprovedBankFolder(
           context: context,
-          column: selectedDirection != null ? "BankName" : "",
+          column: selectedDirection != null ? "Bank Name" : "",
           direction: selectedDirection ?? "",
           bankName: _searchC.text.trim(),
           projectId: _project.projectId,
