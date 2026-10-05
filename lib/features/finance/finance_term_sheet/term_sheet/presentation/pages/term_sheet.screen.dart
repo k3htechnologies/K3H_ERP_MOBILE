@@ -399,10 +399,10 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
         detail.totalDisbursedAmount == detail.totalRepayLedgerAmount;
     final bool isDataLoaded = detail != null;
     final bool isClosed = mainApprovalStatus == "closed";
-    final bool isPending = mainApprovalStatus != "pending";
+    final bool isPending = mainApprovalStatus == "pending";
 
     final bool disableEdit =
-        !isDataLoaded || isClosed || amountsAreFullyMatched || isPending;
+        !isDataLoaded || isClosed || amountsAreFullyMatched || !isPending;
     return Container(
       margin: EdgeInsets.only(bottom: 10.0),
       padding: const EdgeInsets.all(16),
