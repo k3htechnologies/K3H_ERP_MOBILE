@@ -252,7 +252,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Approval Document",
+      title: "Filter - Approval Document",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {

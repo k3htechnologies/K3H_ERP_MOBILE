@@ -144,7 +144,7 @@ class _DepartmentMasterMobileScreenState extends State<DepartmentMasterScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter Department",
+      title: "Filter - Department",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
