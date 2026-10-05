@@ -379,7 +379,6 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
   Widget termSheetCard(BuildContext context, TermSheetState state, int index) {
     final termSheet = state.termSheetList[index];
     final mainApprovalStatus = termSheet.approvalStatus.trim().toLowerCase();
-    final bool isEditDisbaled = mainApprovalStatus == "pending";
     TermSheetViewModel? termSheetView;
 
     for (final view in state.termSheetViewList) {
@@ -389,12 +388,6 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
       }
     }
 
-    final detailApprovalStatus =
-        termSheetView != null && termSheetView.termSheetDetailsData.isNotEmpty
-            ? termSheetView.termSheetDetailsData.first.approvalStatus
-                .trim()
-                .toLowerCase()
-            : "";
     final detail =
         termSheetView?.termSheetDetailsData.isNotEmpty == true
             ? termSheetView!.termSheetDetailsData.first
