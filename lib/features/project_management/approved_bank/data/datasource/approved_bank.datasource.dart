@@ -318,7 +318,7 @@ class ApprovedBankDatasourceImpl extends ApprovedBankDatasource {
       );
       return {
         'data': networkResponse["data"],
-        'message': networkResponse['message'],
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

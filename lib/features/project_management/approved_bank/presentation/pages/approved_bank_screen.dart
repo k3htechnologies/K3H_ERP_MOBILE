@@ -439,6 +439,7 @@ class _ApprovedBankScreenState extends State<ApprovedBankScreen> {
                                             context,
                                             _project.projectId,
                                             folder.approvedBankFolderId,
+                                            folder.numberOfApprovedBankFile,
                                           );
                                         },
                                         icon: Icon(

@@ -264,7 +264,7 @@ Duration calculateShiftDuration(DateTime? shiftStart, DateTime? shiftEnd) {
 //   }
 // }
 
-Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
+Future<bool> exportExcelOrPdfMobile(String base64, String fileName) async {
   try {
     Uint8List bytes = base64Decode(base64);
 
@@ -288,14 +288,15 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
 
         debugPrint('ZIP share result: ${result.status}');
 
-        return;
+        return result.status == ShareResultStatus.success;
       } catch (e, stackTrace) {
         developer.log(
           'Error sharing ZIP: $e',
           error: e,
           stackTrace: stackTrace,
         );
-        return;
+
+        return false;
       }
     }
 
@@ -317,8 +318,12 @@ Future<void> exportExcelOrPdfMobile(String base64, String fileName) async {
 
     await file.writeAsBytes(bytes);
     await OpenFilex.open(filePath);
-  } catch (e) {
-    developer.log("Error saving file: $e");
+
+    return true;
+  } catch (e, stackTrace) {
+    developer.log("Error saving file: $e", error: e, stackTrace: stackTrace);
+
+    return false;
   }
 }
 

@@ -296,21 +296,13 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
       },
       (response) {
         goRouter.pop();
-        var list = [
-          response['data'][0] as ApprovedBankFileModel,
-          ...state.approvedBankFileList,
-        ];
-
-        emit(
-          state.copyWith(
-            approvedBankFileList: list,
-            totalNumberOfRecordBankFile:
-                state.totalNumberOfRecordBankFile == -1
-                    ? 1
-                    : state.totalNumberOfRecordBankFile + 1,
-          ),
-        );
         showSuccessMessage(context, subTitle: response['message']);
+        getApprovedBankFileList(
+          context,
+          1,
+          int.parse(projectId),
+          int.parse(approvedBankFolderId),
+        );
       },
     );
   }
@@ -426,7 +418,6 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
         return false;
       },
       (response) {
-        showSuccessMessage(context);
         if (index != null) {
           final updatedList = List<ApprovedBankFileModel>.from(
             state.approvedBankFileList,
@@ -450,6 +441,7 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
             approvedBankFolderId,
           );
         }
+        showSuccessMessage(context, subTitle: response["message"]);
         return true;
       },
     );
@@ -459,11 +451,12 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
     BuildContext context,
     int projectId,
     int approvedBankFolderId,
+    int pageSize,
   ) async {
     DialogHelper.showProcessingOverlay(context);
     final result = await _approvedBankRepository.getApprovedBankFileForExport(
       pageNumber: 1,
-      pageSize: 1,
+      pageSize: pageSize,
       projectId: projectId,
       queryParams: {
         "ExportType": "zip",
@@ -476,18 +469,14 @@ class ApprovedBankFolderCubit extends Cubit<ApprovedBankFolderState> {
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
-        exportExcelOrPdfMobile(
+      (success) async {
+        final successResult = await exportExcelOrPdfMobile(
           success["data"],
           "approved_bank_${DateTime.now()}.zip",
-        ).then((_) {
-          if (context.mounted) {
-            showSuccessMessage(
-              context,
-              subTitle: 'Successfully Exported as ZIP',
-            );
-          }
-        });
+        );
+        if (context.mounted && successResult) {
+          showSuccessMessage(context, subTitle: 'Successfully Exported as ZIP');
+        }
       },
     );
   }
