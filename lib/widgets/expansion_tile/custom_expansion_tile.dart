@@ -9,7 +9,7 @@ class CustomExpandableCard extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final bool initiallyExpanded;
-  final VoidCallback? onExpansionChanged;
+  final ValueChanged<bool>? onExpansionChanged;
   final Decoration? decoration;
 
   const CustomExpandableCard({
@@ -38,8 +38,13 @@ class _CustomExpandableCardState extends State<CustomExpandableCard>
   }
 
   void _toggle() {
-    setState(() => _expanded = !_expanded);
-    widget.onExpansionChanged?.call();
+    final newValue = !_expanded;
+
+    setState(() {
+      _expanded = newValue;
+    });
+
+    widget.onExpansionChanged?.call(newValue);
   }
 
   @override

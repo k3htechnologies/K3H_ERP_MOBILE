@@ -136,7 +136,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                                     ? AppColor.slightDarkBlue
                                     : AppColor.black,
                           ),
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
@@ -161,7 +161,7 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
                                   ? AppColor.slightDarkBlue
                                   : AppColor.black,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),

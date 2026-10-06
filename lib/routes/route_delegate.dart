@@ -8,6 +8,8 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/cubit/specification_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/pages/specification_master_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
@@ -2356,6 +2358,25 @@ final GoRouter goRouter = GoRouter(
                         )
                         : null;
                 return SubMaterialMasterViewScreen(subMaterial: subMaterial!);
+              },
+            ),
+          ],
+        ),
+        // SPECIFICATION AND BUDGET MASTER
+        // SPECIFICATION MASTER
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => SpecificationMasterCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.specificationMaster,
+              path: AppRoutes.specificationMaster,
+              builder: (context, state) {
+                return const SpecificationMasterScreen();
               },
             ),
           ],

@@ -66,6 +66,9 @@ class AppRoutes {
   static String addTermsAndConditions = "/addTnc";
   static String viewTermsAndConditions = "/viewTnc";
 
+  // SPECIFICATION AND BUDGET MASTER
+  static String specificationMaster = "/specificationMaster";
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PROCUREMENT MASTER
   // MATERIAL MASTER
