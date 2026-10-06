@@ -782,7 +782,6 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.companyMaster,
               builder: (context, state) {
                 return CompanyMasterScreen();
-                // return ComingSoonScreen(title: "Company Master");
               },
             ),
             GoRoute(
@@ -2388,7 +2387,6 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.building,
               builder: (context, state) {
                 return const BuildingScreen();
-                // return const ComingSoonScreen(title: "Building");
               },
             ),
             GoRoute(
@@ -2528,7 +2526,6 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.tenant,
               builder: (context, state) {
                 return const TenantScreen();
-                // return const ComingSoonScreen(title: "Tenant");
               },
             ),
             GoRoute(
@@ -2616,7 +2613,6 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.rent,
               builder: (context, state) {
                 return TemporaryAlternateAccommodationScreen();
-                // return const ComingSoonScreen(title: "TAA");
               },
             ),
             GoRoute(
@@ -2757,7 +2753,6 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.proposedPlan,
               builder: (context, state) {
                 return const ProposedPlansScreen();
-                // return const ComingSoonScreen(title: "Proposed Plan");
               },
             ),
             GoRoute(
@@ -2801,7 +2796,6 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.proposedOffer,
               builder: (context, state) {
                 return const ProposedOfferScreen();
-                // return const ComingSoonScreen(title: "Proposed Offer");
               },
             ),
             GoRoute(
@@ -3414,7 +3408,6 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.approvedBank,
               builder: (context, state) {
                 return ApprovedBankScreen();
-                // return ComingSoonScreen(title: "Approved Bank");
               },
             ),
             GoRoute(
@@ -7661,7 +7654,6 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.taxTracker,
               path: AppRoutes.taxTracker,
               builder: (context, state) {
-                // return const TaxTrackerScreen();
                 return ComingSoonScreen(title: "Tax Tracker");
               },
             ),
@@ -7922,7 +7914,6 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.projectLead,
               path: AppRoutes.projectLead,
               builder: (context, state) {
-                // return ComingSoonScreen(title: "Project Lead");
                 return ProjectLeadScreen();
               },
             ),
