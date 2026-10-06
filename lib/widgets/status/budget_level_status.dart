@@ -12,7 +12,7 @@ final Map<String, StatusConfig> budgetLevelConfig = {
     textColor: const Color(0xFFFFFFFF),
   ),
   'L3': StatusConfig(
-    backgroundColor: const Color.fromARGB(255, 69, 85, 109),
+    backgroundColor: const Color(0xFF334155),
     textColor: const Color(0xFFFFFFFF),
   ),
   'L4': StatusConfig(
