@@ -6,9 +6,6 @@ class SpecificationMasterState extends BaseState {
   final List<SpecificationMasterModel> specificationList;
   final int totalNumberOfRecord;
   final int currentPage;
-  final List<SpecificationMasterModel> specificationViewList;
-  final int totalNumberOfViewRecord;
-  final int currentPageView;
   final String searchText;
   final String currentTabName;
   // Map to hold the children of each specification by their parent ID
@@ -20,9 +17,6 @@ class SpecificationMasterState extends BaseState {
     required this.specificationList,
     required this.totalNumberOfRecord,
     required this.currentPage,
-    required this.specificationViewList,
-    required this.totalNumberOfViewRecord,
-    required this.currentPageView,
     required this.searchText,
     this.childrenMap = const {},
     this.loadingIds = const {},
@@ -33,9 +27,6 @@ class SpecificationMasterState extends BaseState {
     specificationList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
-    specificationViewList: [],
-    totalNumberOfViewRecord: 0,
-    currentPageView: 1,
     searchText: "",
     isLoading: true,
     currentTabName: "L1",
@@ -46,14 +37,8 @@ class SpecificationMasterState extends BaseState {
     List<SpecificationMasterModel>? specificationList,
     int? totalNumberOfRecord,
     int? currentPage,
-    List<SpecificationMasterModel>? specificationViewList,
-    int? totalNumberOfViewRecord,
-    int? currentPageView,
     String? searchText,
     Map<String, List<SpecificationMasterModel>>? childrenMap,
-    Map<String, int>? childPageMap,
-    Map<String, int>? childTotalMap,
-    Set<String>? expandedIds,
     Set<String>? loadingIds,
     String? currentTabName,
   }) {
@@ -62,11 +47,6 @@ class SpecificationMasterState extends BaseState {
       specificationList: specificationList ?? this.specificationList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
-      specificationViewList:
-          specificationViewList ?? this.specificationViewList,
-      totalNumberOfViewRecord:
-          totalNumberOfViewRecord ?? this.totalNumberOfViewRecord,
-      currentPageView: currentPageView ?? this.currentPageView,
       searchText: searchText ?? this.searchText,
       childrenMap: childrenMap ?? this.childrenMap,
       loadingIds: loadingIds ?? this.loadingIds,
@@ -80,9 +60,6 @@ class SpecificationMasterState extends BaseState {
     specificationList,
     totalNumberOfRecord,
     currentPage,
-    specificationViewList,
-    totalNumberOfViewRecord,
-    currentPageView,
     searchText,
     childrenMap,
     loadingIds,

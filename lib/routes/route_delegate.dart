@@ -8,6 +8,8 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/cubit/budget_cubit.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/pages/budget_screen.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/cubit/specification_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/pages/specification_master_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
@@ -7883,6 +7885,23 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+
+        // ESTIMATION AND BUDGET
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(create: (_) => BudgetCubit(), child: child);
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.budget,
+              path: AppRoutes.budget,
+              builder: (context, state) {
+                return const BudgetMasterScreen();
+              },
+            ),
+          ],
+        ),
+
         //  GATE PASS
         ShellRoute(
           builder: (context, state, child) {

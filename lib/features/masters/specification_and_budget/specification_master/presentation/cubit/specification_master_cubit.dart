@@ -28,7 +28,6 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
         searchText: "",
         specificationList: [],
         childrenMap: {},
-        childPageMap: {},
         loadingIds: {},
       ),
     );

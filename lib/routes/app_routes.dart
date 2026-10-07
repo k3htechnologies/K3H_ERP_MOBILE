@@ -558,6 +558,9 @@ class AppRoutes {
   static String termSheetDocuments = "/termSheetDocuments";
   static String addDocuments = "/addDocuments";
 
+  //ESTIMATION AND BUDGET
+  static String budget = "/budget";
+
   // otp LOGS
   static String otpLogs = "/otpLogs";
 
