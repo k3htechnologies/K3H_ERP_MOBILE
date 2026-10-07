@@ -298,8 +298,7 @@ class _LitigationScreenState extends State<LitigationScreen> {
           sortColumn: selectedDirection != null ? "Title" : null,
           sortDirection: selectedDirection,
           priority:
-              (_selectedPriorityNotifier.value != null &&
-                      _selectedPriorityNotifier.value!['zAttributesId'] != -1)
+              (_selectedPriorityNotifier.value != null)
                   ? _selectedPriorityNotifier.value!['DisplayName']
                   : '',
         );

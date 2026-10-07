@@ -617,3 +617,5 @@ const selectedLandOwnershipValues = [
   'Society',
 ];
 const constructionTypeValues = ['RCC', 'Load - Bearing'];
+
+const budgetLevelTypeValues = ['L1', 'L2', 'L3', 'L4'];

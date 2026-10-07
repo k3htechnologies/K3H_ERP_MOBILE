@@ -560,6 +560,7 @@ class AppRoutes {
 
   //ESTIMATION AND BUDGET
   static String budget = "/budget";
+  static String viewBudget = "/viewBudget";
 
   // otp LOGS
   static String otpLogs = "/otpLogs";

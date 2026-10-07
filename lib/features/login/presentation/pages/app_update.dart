@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/env/env.dart';
@@ -22,10 +21,10 @@ class AppUpdateHelper {
     required Map<String, dynamic> data,
     required VoidCallback onNoUpdate,
   }) async {
-    if (kDebugMode) {
-      onNoUpdate();
-      return;
-    }
+    // if (kDebugMode) {
+    //   onNoUpdate();
+    //   return;
+    // }
 
     final currentVersion = Platform.isAndroid ? androidVersion : iosVersion;
 

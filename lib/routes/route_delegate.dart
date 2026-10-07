@@ -8,8 +8,10 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/budget/data/model/budget.model.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/cubit/budget_cubit.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/pages/budget_screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/pages/view_budget_screen.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/cubit/specification_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/pages/specification_master_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
@@ -7897,6 +7899,24 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.budget,
               builder: (context, state) {
                 return const BudgetMasterScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBudget,
+              path: AppRoutes.viewBudget,
+              builder: (context, state) {
+                final queryParameterL1Name =
+                    state.uri.queryParameters['budgetList'];
+
+                final decryptedData = EncryptionManager.decryptData(
+                  Uri.decodeComponent(queryParameterL1Name!),
+                );
+                final budgetList =
+                    (jsonDecode(decryptedData) as List)
+                        .map((json) => BudgetModel.fromJson(json))
+                        .toList();
+
+                return ViewBudgetMasterScreen(budgetList: budgetList);
               },
             ),
           ],

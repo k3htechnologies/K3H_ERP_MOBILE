@@ -30,6 +30,9 @@ class BudgetCubit extends Cubit<BudgetState> {
     Map<String, dynamic> queryParams = {
       "CategoryName": state.searchText,
       "ProjectId": projectId,
+      "LevelType": state.filterByLevelType,
+      "Uom": state.filterByUom,
+      "Flat": state.filterByFlatType,
     };
     var result = await _budgetRepository.pullBudget(
       pageNumber: pageNumber,
@@ -51,14 +54,53 @@ class BudgetCubit extends Cubit<BudgetState> {
             pageNumber == 1 ? newData : [...state.budgetList, ...newData];
         emit(
           state.copyWith(
-            budgetList: updatedList,
             isLoading: false,
+            budgetList: updatedList,
             totalNumberOfRecord: response["totalNumberOfRecord"],
+            originalBudgetList:
+                state.searchText.isNotEmpty
+                    ? state.originalBudgetList
+                    : updatedList,
             currentPage: pageNumber,
           ),
         );
       },
     );
+  }
+
+  Future<void> applyBudgetFilter({
+    required BuildContext context,
+    required int projectId,
+    String? categoryName,
+    String? uom,
+    String? levelType,
+    String? flatType,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          searchText: "",
+          filterByCategoryName: "",
+          filterByUom: "",
+          filterByLevelType: "",
+          filterByFlatLevelType: "",
+          budgetList: [],
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          searchText: categoryName ?? state.searchText,
+          filterByUom: uom ?? state.filterByUom,
+          filterByLevelType: levelType ?? state.filterByLevelType,
+          filterByFlatLevelType: flatType ?? state.filterByFlatType,
+          budgetList: [],
+        ),
+      );
+    }
+
+    await getBudgetList(context, 1, projectId: projectId);
   }
 
   Future exportExcelPdf(BuildContext context, String exportType) async {
@@ -94,5 +136,14 @@ class BudgetCubit extends Cubit<BudgetState> {
         );
       },
     );
+  }
+
+  int updateFilterCount(BudgetState state) {
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByFlatType.trim().isNotEmpty,
+      state.filterByLevelType.trim().isNotEmpty,
+      state.filterByUom.trim().isNotEmpty,
+    ]);
   }
 }

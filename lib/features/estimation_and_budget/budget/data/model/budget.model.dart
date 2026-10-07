@@ -13,11 +13,11 @@ class BudgetModel {
   int levelId3;
   String level3Name;
   int levelId4;
-  // String level4Name;
-  // String level4MaterialName;
-  // String level4SubMaterialUomCode;
-  // String level4SubMaterialUom;
-  // String level4IsTolerant;
+  String level4Name;
+  String level4MaterialName;
+  String level4SubMaterialUomCode;
+  String level4SubMaterialUom;
+  String level4IsTolerant;
   int level4LeadTimeInDays;
   String uom;
   String inventoryFlatId;
@@ -57,12 +57,12 @@ class BudgetModel {
     required this.levelId3,
     required this.level3Name,
     required this.levelId4,
-    // required this.level4Name,
-    // required this.level4MaterialName,
-    // required this.level4SubMaterialUomCode,
-    // required this.level4SubMaterialUom,
-    // required this.level4IsTolerant,
+    required this.level4Name,
+    required this.level4MaterialName,
+    required this.level4SubMaterialUomCode,
+    required this.level4SubMaterialUom,
     required this.level4LeadTimeInDays,
+    required this.level4IsTolerant,
     required this.uom,
     required this.inventoryFlatId,
     required this.flat,
@@ -102,15 +102,15 @@ class BudgetModel {
     levelId3: parseValue<int>(json, "LevelId3"),
     level3Name: parseValue<String>(json, "Level3Name"),
     levelId4: parseValue<int>(json, "LevelId4"),
-    // level4Name: parseValue<String>(json, "Level4Name"),
-    // level4MaterialName: parseValue<String>(json, "Level4MaterialName"),
-    // level4SubMaterialUomCode: parseValue<String>(
-    //   json,
-    //   "Level4SubMaterialUomCode",
-    // ),
-    // level4SubMaterialUom: parseValue<String>(json, "Level4SubMaterialUom"),
-    // level4IsTolerant: parseValue<String>(json, "Level4IsTolerant"),
+    level4Name: parseValue<String>(json, "Level4Name"),
+    level4MaterialName: parseValue<String>(json, "Level4MaterialName"),
+    level4SubMaterialUomCode: parseValue<String>(
+      json,
+      "Level4SubMaterialUomCode",
+    ),
+    level4SubMaterialUom: parseValue<String>(json, "Level4SubMaterialUom"),
     level4LeadTimeInDays: parseValue<int>(json, "Level4LeadTimeInDays"),
+    level4IsTolerant: parseValue<String>(json, "Level4IsTolerant"),
     uom: parseValue<String>(json, "Uom"),
     inventoryFlatId: parseValue<String>(json, "InventoryFlatId"),
     flat: parseValue<String>(json, "Flat"),
@@ -153,12 +153,12 @@ class BudgetModel {
     "LevelId3": levelId3,
     "Level3Name": level3Name,
     "LevelId4": levelId4,
-    // "Level4Name": level4Name,
-    // "Level4MaterialName": level4MaterialName,
-    // "Level4SubMaterialUomCode": level4SubMaterialUomCode,
-    // "Level4SubMaterialUom": level4SubMaterialUom,
-    // "Level4IsTolerant": level4IsTolerant,
+    "Level4Name": level4Name,
+    "Level4MaterialName": level4MaterialName,
+    "Level4SubMaterialUomCode": level4SubMaterialUomCode,
+    "Level4SubMaterialUom": level4SubMaterialUom,
     "Level4LeadTimeInDays": level4LeadTimeInDays,
+    "Level4IsTolerant": level4IsTolerant,
     "Uom": uom,
     "InventoryFlatId": inventoryFlatId,
     "Flat": flat,
