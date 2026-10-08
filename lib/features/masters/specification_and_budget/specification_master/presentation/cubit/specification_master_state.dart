@@ -1,5 +1,4 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-
 import '../../data/model/specification_master.model.dart';
 
 class SpecificationMasterState extends BaseState {
@@ -11,7 +10,6 @@ class SpecificationMasterState extends BaseState {
   // Map to hold the children of each specification by their parent ID
   final Map<String, List<SpecificationMasterModel>> childrenMap;
   final Set<String> loadingIds;
-
   const SpecificationMasterState({
     super.isLoading,
     required this.specificationList,
@@ -22,7 +20,6 @@ class SpecificationMasterState extends BaseState {
     this.loadingIds = const {},
     required this.currentTabName,
   });
-
   factory SpecificationMasterState.initial() => SpecificationMasterState(
     specificationList: [],
     totalNumberOfRecord: 0,
@@ -31,7 +28,6 @@ class SpecificationMasterState extends BaseState {
     isLoading: true,
     currentTabName: "L1",
   );
-
   SpecificationMasterState copyWith({
     bool? isLoading,
     List<SpecificationMasterModel>? specificationList,

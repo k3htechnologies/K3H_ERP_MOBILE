@@ -7,11 +7,9 @@ class BudgetState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
-
   final String filterByLevelType;
   final String filterByUom;
   final String filterByFlatType;
-
   const BudgetState({
     super.isLoading,
     required this.budgetList,
@@ -23,10 +21,9 @@ class BudgetState extends BaseState {
     required this.filterByUom,
     required this.filterByFlatType,
   });
-
   factory BudgetState.initial() => BudgetState(
     budgetList: [],
-    originalBudgetList:[],
+    originalBudgetList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
     searchText: "",
@@ -35,7 +32,6 @@ class BudgetState extends BaseState {
     filterByFlatType: "",
     isLoading: true,
   );
-
   BudgetState copyWith({
     bool? isLoading,
     List<BudgetModel>? budgetList,
@@ -46,7 +42,7 @@ class BudgetState extends BaseState {
     String? filterByLevelType,
     String? filterByCategoryName,
     String? filterByUom,
-    String? filterByFlatLevelType,
+    String? filterByFlatType,
   }) {
     return BudgetState(
       isLoading: isLoading ?? this.isLoading,
@@ -57,8 +53,7 @@ class BudgetState extends BaseState {
       searchText: searchText ?? this.searchText,
       filterByLevelType: filterByLevelType ?? this.filterByLevelType,
       filterByUom: filterByUom ?? this.filterByUom,
-      filterByFlatType:
-          filterByFlatLevelType ?? this.filterByFlatType,
+      filterByFlatType: filterByFlatType ?? this.filterByFlatType,
     );
   }
 

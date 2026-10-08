@@ -19,11 +19,9 @@ abstract interface class SpecificationMasterRepository {
 
 class SpecificationMasterRepositoryImpl extends SpecificationMasterRepository {
   final SpecificationMasterDatasource specificationMasterDatasource;
-
   SpecificationMasterRepositoryImpl({
     required this.specificationMasterDatasource,
   });
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullSpecificationMaster({
     required int pageNumber,

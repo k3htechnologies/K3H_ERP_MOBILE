@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,7 +19,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SpecificationMasterScreen extends StatefulWidget {
   const SpecificationMasterScreen({super.key});
-
   @override
   State<SpecificationMasterScreen> createState() =>
       _SpecificationMasterScreenState();
@@ -30,14 +28,11 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
     with SingleTickerProviderStateMixin {
   // CUBIT
   late SpecificationMasterCubit _specificationMasterCubit;
-
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC;
   late TabController _tabController;
@@ -209,7 +204,6 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
 
   Widget _childrenList(SpecificationMasterModel parent, int childLevel) {
     final key = parent.specificationMasterId.toString();
-
     return BlocBuilder<SpecificationMasterCubit, SpecificationMasterState>(
       buildWhen:
           (prev, curr) =>
@@ -218,7 +212,6 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
       builder: (context, state) {
         final children = state.childrenMap[key] ?? [];
         final isLoading = state.loadingIds.contains(key);
-
         return Column(
           children: [
             for (final child in children)
@@ -281,7 +274,6 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
                   ],
                 ),
               ),
-
             if (isLoading)
               Padding(
                 padding: EdgeInsets.all(8.h),
@@ -291,7 +283,6 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
                   child: const CircularProgressIndicator(strokeWidth: 2),
                 ),
               ),
-
             if (!isLoading && children.isEmpty)
               Padding(
                 padding: EdgeInsets.all(8.h),

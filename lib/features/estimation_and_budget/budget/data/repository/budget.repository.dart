@@ -18,9 +18,7 @@ abstract interface class BudgetRepository {
 
 class BudgetRepositoryImpl extends BudgetRepository {
   final BudgetDatasource budgetDatasource;
-
   BudgetRepositoryImpl({required this.budgetDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullBudget({
     required int pageNumber,

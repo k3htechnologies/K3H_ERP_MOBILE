@@ -27,7 +27,6 @@ class SpecificationMasterModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   SpecificationMasterModel({
     required this.specificationMasterId,
     required this.uniqueKey,
@@ -56,7 +55,6 @@ class SpecificationMasterModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory SpecificationMasterModel.fromJson(Map<String, dynamic> json) =>
       SpecificationMasterModel(
         specificationMasterId: parseValue<int>(json, "SpecificationMasterId"),
@@ -89,7 +87,6 @@ class SpecificationMasterModel {
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
       );
-
   Map<String, dynamic> toJson() => {
     "SpecificationMasterId": specificationMasterId,
     "UniqueKey": uniqueKey,

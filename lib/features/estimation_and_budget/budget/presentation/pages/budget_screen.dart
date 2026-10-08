@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,7 +28,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BudgetMasterScreen extends StatefulWidget {
   const BudgetMasterScreen({super.key});
-
   @override
   State<BudgetMasterScreen> createState() => _BudgetMasterScreenState();
 }
@@ -38,19 +36,14 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
   // CUBIT
   late BudgetCubit _budgetCubit;
   late UtilsCubit _utilsCubit;
-
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
-
   // TEXT EDITING CONTROLLERS
   late TextEditingController _searchC, _filterFlatC, _filterUomC;
-
   late ProjectModel _selectedProject;
   final ValueNotifier<Map<String, dynamic>?> _selectedLevelTypeNotifier =
       ValueNotifier(null);
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -84,11 +77,9 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
 
   Future<void> _showBottomSheetToFilterBudget(BuildContext context) async {
     final state = _budgetCubit.state;
-
     _filterFlatC.text = state.filterByFlatType;
     _filterUomC.text = state.filterByUom;
     _searchC.text = state.searchText;
-
     final initialLevelType = state.filterByLevelType;
     if (initialLevelType.isNotEmpty) {
       _selectedLevelTypeNotifier.value = budgetLevelTypeList.firstWhere(
@@ -99,11 +90,9 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
     final String initialCategoryName = _searchC.text;
     final String initialUom = _filterUomC.text;
     final String initialFlatLevelType = _filterFlatC.text;
-
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
-
     void updateApplyState(StateSetter innerState) {
       final currentLevelType =
           (_selectedLevelTypeNotifier.value?['zAttributesId'] == -1)
@@ -115,7 +104,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             (_filterUomC.text.trim() != initialUom) ||
             (currentLevelType != initialLevelType) ||
             (_filterFlatC.text.trim() != initialFlatLevelType);
-
         applyEnabled.value = manualClose;
       });
     }
@@ -152,7 +140,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                     );
                   },
                 ),
-
                 // CATEGORY NAME
                 CustomTextField(
                   title: "Category Name",
@@ -160,7 +147,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                   textController: _searchC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 // UOM
                 CustomTextField(
                   title: "UOM",
@@ -168,7 +154,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                   textController: _filterUomC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
-
                 // FLAT LEVEL TYPE
                 CustomTextField(
                   title: "Flat",
@@ -186,7 +171,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
         _filterUomC.clear();
         _filterFlatC.clear();
         _selectedLevelTypeNotifier.value = null;
-
         _budgetCubit.applyBudgetFilter(
           context: context,
           isClear: true,
@@ -195,7 +179,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
       },
       onApply: () {
         applied = true;
-
         _budgetCubit.applyBudgetFilter(
           context: context,
           categoryName: _searchC.text.trim(),
@@ -211,7 +194,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _filterFlatC.clear();
@@ -223,8 +205,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final config = budgetLevelConfig["L1"];
-
     return BlocListener<BudgetCubit, BudgetState>(
       listener: (context, state) {
         _filterCount.value = _budgetCubit.updateFilterCount(state);
@@ -234,10 +214,14 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
       },
       child: Scaffold(
         appBar: CustomAppBar(
-          screenTitle: 'Budget Master',
+          screenTitle: 'Budget',
           authorization: _routeAuthorizationModel,
           onExportCallback: (value) {
-            _budgetCubit.exportExcelPdf(context, value);
+            _budgetCubit.exportExcelPdf(
+              context,
+              value,
+              projectId: _selectedProject.projectId,
+            );
           },
           searchHintText: "Search by Category Name",
           onSearchSubmit: (value) {
@@ -304,7 +288,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                           );
                         }
                       },
-
                       onReject: (val) async {
                         final success = await _utilsCubit
                             .updateModulesWorkflowApproval(
@@ -331,7 +314,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                               id: _selectedProject.projectId,
                               moduleName: "BUDGET APPROVAL",
                             );
-
                         if (context.mounted) {
                           goRouter.pushNamed(
                             AppRoutes.approvalLogHistory,
@@ -358,18 +340,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                   );
                 },
               ),
-
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                decoration: BoxDecoration(
-                  color: config?.backgroundColor ?? AppColor.primary,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-                child: Text(
-                  "L1 Categories",
-                  style: AppTextStyle.ts12M(color: Colors.white),
-                ),
-              ),
               Expanded(
                 child: BlocBuilder<BudgetCubit, BudgetState>(
                   builder: (context, state) {
@@ -381,16 +351,25 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                         child: noDataWidget(message: "No Budget Data Found"),
                       );
                     } else {
-                      return ListView.builder(
-                        itemCount: state.budgetList.length,
-                        itemBuilder: (context, index) {
-                          final budget = state.budgetList[index];
-
-                          return estimatedWorkCard(
-                            budget,
-                            state.originalBudgetList,
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          _searchC.clear();
+                          _budgetCubit.searchBudget(
+                            context,
+                            "",
+                            _selectedProject.projectId,
                           );
                         },
+                        child: ListView.builder(
+                          itemCount: state.budgetList.length,
+                          itemBuilder: (context, index) {
+                            final budget = state.budgetList[index];
+                            return estimatedWorkCard(
+                              budget,
+                              state.originalBudgetList,
+                            );
+                          },
+                        ),
                       );
                     }
                   },
@@ -399,6 +378,40 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             ],
           ),
         ),
+        bottomNavigationBar: BlocBuilder<BudgetCubit, BudgetState>(
+          builder: (context, state) {
+            final grandTotal = state.originalBudgetList
+                .where((element) => element.levelType == 'L1')
+                .fold(0.0, (a, b) => a + b.budgetAmount);
+            return Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: AppColor.blue,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  spacing: 5,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Grand Total Project Budget:",
+                      style: AppTextStyle.ts14M(color: AppColor.lightBlue),
+                    ),
+                    Text(
+                      grandTotal.toIndianCurrency(),
+                      style: AppTextStyle.ts14M(color: AppColor.lightBlue),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -406,21 +419,18 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
   Widget estimatedWorkCard(BudgetModel budget, List<BudgetModel> budgetList) {
     final groupItems =
         budgetList.where((e) => e.levelId1 == budget.levelId1).toList();
-
     final l2Count =
         groupItems
             .where((e) => e.levelType == 'L2')
             .map((e) => e.levelId2)
             .toSet()
             .length;
-
     final l3Count =
         groupItems
             .where((e) => e.levelType == 'L3')
             .map((e) => e.levelId3)
             .toSet()
             .length;
-
     final l4Count =
         groupItems
             .where((e) => e.levelType == 'L4')
@@ -480,24 +490,20 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
               ),
             ],
           ),
-
           SizedBox(height: 10.h),
-
           buildRowTitleValue(
             title: "Total Amount",
             value: budget.totalRate.toIndianCurrency(),
+            singleLine: false,
           ),
           buildRowTitleValue(
             title: "Budget Amount",
             value: budget.budgetAmount.toIndianCurrency(),
+            singleLine: false,
           ),
-
           SizedBox(height: 8.h),
-
           Divider(height: 1, thickness: 1, color: AppColor.grey30),
-
           SizedBox(height: 7.h),
-
           Row(
             children: [
               Text(
@@ -526,11 +532,9 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                   final budgetListJson = jsonEncode(
                     groupItems.map((item) => item.toJson()).toList(),
                   );
-
                   final encryptedData = EncryptionManager.encryptData(
                     budgetListJson,
                   );
-
                   await goRouter.pushNamed(
                     AppRoutes.viewBudget,
                     queryParameters: {

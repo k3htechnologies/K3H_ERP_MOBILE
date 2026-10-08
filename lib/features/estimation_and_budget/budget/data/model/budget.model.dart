@@ -43,7 +43,6 @@ class BudgetModel {
   String approvalStatus;
   double l3Quantity;
   double orderQuantity;
-
   BudgetModel({
     required this.budgetId,
     required this.uniqueKey,
@@ -88,7 +87,6 @@ class BudgetModel {
     required this.l3Quantity,
     required this.orderQuantity,
   });
-
   factory BudgetModel.fromJson(Map<String, dynamic> json) => BudgetModel(
     budgetId: parseValue<int>(json, "BudgetId"),
     uniqueKey: parseValue<String>(json, "UniqueKey"),
@@ -139,7 +137,6 @@ class BudgetModel {
     l3Quantity: parseValue<double>(json, "L3Quantity"),
     orderQuantity: parseValue<double>(json, "OrderQuantity"),
   );
-
   Map<String, dynamic> toJson() => {
     "BudgetId": budgetId,
     "UniqueKey": uniqueKey,

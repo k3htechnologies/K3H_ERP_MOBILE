@@ -10,11 +10,9 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
   SpecificationMasterCubit() : super(SpecificationMasterState.initial());
-
   // REPOSITORIES
   final SpecificationMasterRepository _specificationMasterRepository =
       serviceLocator<SpecificationMasterRepository>();
-
   // SEARCH SPECIFICATION
   Future searchSpecification(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, specificationList: []));
@@ -46,7 +44,6 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
       pageSize: 10,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -55,7 +52,6 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
       (response) {
         final List<SpecificationMasterModel> newData =
             List<SpecificationMasterModel>.from(response['data'] ?? []);
-
         final List<SpecificationMasterModel> updatedList =
             pageNumber == 1
                 ? newData
@@ -79,7 +75,6 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
   ) async {
     final key = specificationMasterId.toString();
     emit(state.copyWith(loadingIds: {...state.loadingIds, key}));
-
     Map<String, dynamic> queryParams = {
       "SpecificationMasterId": specificationMasterId,
       "LevelType": state.currentTabName,
@@ -91,7 +86,6 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
       pageSize: 1000,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(
@@ -104,7 +98,6 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
       (response) {
         final List<SpecificationMasterModel> newData =
             List<SpecificationMasterModel>.from(response['data'] ?? []);
-
         // explicit type fixes the List<dynamic> error
         final List<SpecificationMasterModel> updatedList =
             pageNumber == 1
@@ -113,7 +106,6 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
                   ...(state.childrenMap[key] ?? <SpecificationMasterModel>[]),
                   ...newData,
                 ];
-
         emit(
           state.copyWith(
             childrenMap: {...state.childrenMap, key: updatedList},

@@ -10,10 +10,8 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class BudgetCubit extends Cubit<BudgetState> {
   BudgetCubit() : super(BudgetState.initial());
-
   // REPOSITORIES
   final BudgetRepository _budgetRepository = serviceLocator<BudgetRepository>();
-
   // SEARCH BUDGET
   Future searchBudget(BuildContext context, String value, int projectId) async {
     emit(state.copyWith(searchText: value, budgetList: []));
@@ -39,7 +37,6 @@ class BudgetCubit extends Cubit<BudgetState> {
       pageSize: 10,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -49,7 +46,6 @@ class BudgetCubit extends Cubit<BudgetState> {
         final List<BudgetModel> newData = List<BudgetModel>.from(
           response['data'] ?? [],
         );
-
         final List<BudgetModel> updatedList =
             pageNumber == 1 ? newData : [...state.budgetList, ...newData];
         emit(
@@ -84,7 +80,7 @@ class BudgetCubit extends Cubit<BudgetState> {
           filterByCategoryName: "",
           filterByUom: "",
           filterByLevelType: "",
-          filterByFlatLevelType: "",
+          filterByFlatType: "",
           budgetList: [],
         ),
       );
@@ -94,16 +90,23 @@ class BudgetCubit extends Cubit<BudgetState> {
           searchText: categoryName ?? state.searchText,
           filterByUom: uom ?? state.filterByUom,
           filterByLevelType: levelType ?? state.filterByLevelType,
-          filterByFlatLevelType: flatType ?? state.filterByFlatType,
+          filterByFlatType: flatType ?? state.filterByFlatType,
           budgetList: [],
         ),
       );
     }
-
     await getBudgetList(context, 1, projectId: projectId);
   }
 
-  Future exportExcelPdf(BuildContext context, String exportType) async {
+  Future exportExcelPdf(
+    BuildContext context,
+    String exportType, {
+    required int projectId,
+  }) async {
+    if (projectId == 0) {
+      showErrorMessage(context, "Error", "Please Select a Project");
+      return;
+    }
     if (state.totalNumberOfRecord == 0) {
       showErrorMessage(context, 'Error', 'No Data Found');
       return;
@@ -113,9 +116,9 @@ class BudgetCubit extends Cubit<BudgetState> {
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       queryParams: {
-        "CategoryName": state.searchText,
         "ExportType": exportType,
         "IsCheckPermission": true,
+        "ProjectId": projectId,
       },
     );
     goRouter.pop();
