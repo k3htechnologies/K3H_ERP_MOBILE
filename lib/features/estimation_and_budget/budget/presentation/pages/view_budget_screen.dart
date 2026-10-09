@@ -70,8 +70,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
     required String note,
   }) {
     final ScrollController controller = ScrollController();
-
-    // "GR - 001, P4 - 401, A - 0501" -> ["GR - 001", "P4 - 401", "A - 0501"]
+    //FOR FLATS LISTING IN VIEW
     final List<String> items =
         note
             .split(',')
@@ -81,7 +80,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
 
     DialogHelper.showCustomDialogue(
       context,
-      title: title,
+      title: title == 'Flats' ? "$title (${items.length})" : title,
       childContent: ConstrainedBox(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.5,
@@ -102,7 +101,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (title == 'Flat')
+                      if (title == 'Flats')
                         Padding(
                           padding: const EdgeInsets.only(top: 6, right: 8),
                           child: Container(
@@ -116,7 +115,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                         ),
                       Expanded(
                         child: Text(
-                          title == 'Flat' ? items[index] : note,
+                          title == 'Flats' ? items[index] : note,
                           style: AppTextStyle.ts14R(),
                         ),
                       ),
@@ -556,7 +555,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
     return (formattedAmount.length < 22)
         ? Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: level == 'L4' ? 0 : 5,
+          spacing: level == 'L4' ? 0 : 10,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -599,16 +598,25 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                       ? Text("--", style: _mutedStyle)
                       : InkWell(
                         onTap: () {
-                          showDialog(context, title: "Flat", note: flat);
+                          showDialog(context, title: "Flats", note: flat);
                         },
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 10.w),
-                          child: Icon(
-                            Icons.info_outline,
-                            size: 18,
+                        child: Text(
+                          "View Flats",
+                          style: AppTextStyle.ts12M(
                             color: AppColor.primary,
+                          ).copyWith(
+                            decoration: TextDecoration.underline,
+                            decorationColor: AppColor.primary,
                           ),
                         ),
+                        //  Padding(
+                        //   padding: EdgeInsets.only(right: 10.w),
+                        //   child: Icon(
+                        //     Icons.info_outline,
+                        //     size: 18,
+                        //     color: AppColor.primary,
+                        //   ),
+                        // ),
                       ),
                 ],
               ),
@@ -672,14 +680,15 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                         ? Text("--", style: _mutedStyle)
                         : InkWell(
                           onTap: () {
-                            showDialog(context, title: "Flat", note: flat);
+                            showDialog(context, title: "Flats", note: flat);
                           },
-                          child: Padding(
-                            padding: EdgeInsets.only(right: 10.w),
-                            child: Icon(
-                              Icons.info_outline,
-                              size: 18,
+                          child: Text(
+                            "View Flats",
+                            style: AppTextStyle.ts12M(
                               color: AppColor.primary,
+                            ).copyWith(
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColor.primary,
                             ),
                           ),
                         ),

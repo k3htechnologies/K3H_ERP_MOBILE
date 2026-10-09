@@ -223,7 +223,7 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
               projectId: _selectedProject.projectId,
             );
           },
-          searchHintText: "Search by Category Name",
+          searchHintText: "Search by Cost Head / Description",
           onSearchSubmit: (value) {
             _budgetCubit.searchBudget(
               context,
@@ -437,7 +437,11 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             .map((e) => e.levelId4)
             .toSet()
             .length;
-    if (budget.levelType != "L1" && _searchC.text.isEmpty) {
+    if (budget.levelType != "L1" &&
+        _searchC.text.isEmpty &&
+        _selectedLevelTypeNotifier.value == null &&
+        _filterUomC.text.trim().isEmpty &&
+        _filterFlatC.text.trim().isEmpty) {
       return SizedBox.shrink();
     }
     final config = budgetLevelConfig[budget.levelType];

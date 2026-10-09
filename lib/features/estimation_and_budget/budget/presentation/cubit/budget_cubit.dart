@@ -48,13 +48,19 @@ class BudgetCubit extends Cubit<BudgetState> {
         );
         final List<BudgetModel> updatedList =
             pageNumber == 1 ? newData : [...state.budgetList, ...newData];
+
+        final keepExistingOriginalBudgetList =
+            (state.searchText.isNotEmpty ||
+                state.filterByUom.isNotEmpty ||
+                state.filterByLevelType.isNotEmpty ||
+                state.filterByFlatType.isNotEmpty);
         emit(
           state.copyWith(
             isLoading: false,
             budgetList: updatedList,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             originalBudgetList:
-                state.searchText.isNotEmpty
+                keepExistingOriginalBudgetList
                     ? state.originalBudgetList
                     : updatedList,
             currentPage: pageNumber,

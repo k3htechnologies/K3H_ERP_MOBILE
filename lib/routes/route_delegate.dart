@@ -14,7 +14,6 @@ import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/p
 import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/pages/view_budget_screen.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/cubit/specification_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/presentation/pages/specification_master_screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
@@ -6400,8 +6399,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.materialRequisition,
               builder:
                   (context, state) =>
-                      // ComingSoonScreen(title: "Material Requisition"),
-                      MaterialRequisitonScreen(),
+                      ComingSoonScreen(title: "Material Requisition"),
+              // MaterialRequisitonScreen(),
             ),
             GoRoute(
               name: AppRoutes.addMaterialRequisition,
