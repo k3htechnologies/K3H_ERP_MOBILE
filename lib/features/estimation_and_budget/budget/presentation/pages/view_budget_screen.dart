@@ -171,7 +171,9 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
             Expanded(
               child:
                   l1List.isEmpty
-                      ? const Center(child: Text('No budget data available'))
+                      ? Center(
+                        child: noDataWidget(message: 'No Budget Data Found'),
+                      )
                       : ValueListenableBuilder<TextEditingValue>(
                         valueListenable: _searchC,
                         builder: (context, value, _) {
