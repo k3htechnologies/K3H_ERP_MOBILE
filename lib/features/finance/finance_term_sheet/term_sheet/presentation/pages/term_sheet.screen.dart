@@ -131,9 +131,9 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
     final initialApprovalStatus = state.filterByStatus;
     final String? initialDirection = selectedDirection;
     if (initialApprovalStatus.isNotEmpty) {
-      _selectedApprovalStatus.value = approvalStatus.firstWhere(
+      _selectedApprovalStatus.value = termSheetApprovalStatus.firstWhere(
         (e) => e['DisplayName'] == initialApprovalStatus,
-        orElse: () => approvalStatus.first,
+        orElse: () => termSheetApprovalStatus.first,
       );
     }
     bool manualClose = false;
@@ -240,7 +240,7 @@ class _TermSheetScreenState extends State<TermSheetScreen> {
                       title: "Status",
                       hintText: "Select Status",
                       initialValue: value,
-                      dataList: approvalStatus,
+                      dataList: termSheetApprovalStatus,
                       onSelected: (value) {
                         _selectedApprovalStatus.value = value;
                         updateApplyState(innerState);

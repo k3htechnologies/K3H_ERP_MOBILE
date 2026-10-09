@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/widgets/status/inward_outward_status.dart';
 import 'package:k3h_erp_app/widgets/status/litigation_priority_status.dart';
 import 'package:k3h_erp_app/widgets/status/payment_mode_status.dart';
 import 'package:k3h_erp_app/widgets/status/project_status.dart';
+import 'package:k3h_erp_app/widgets/status/term_sheet_report_status.dart';
 import 'package:k3h_erp_app/widgets/status/test_document_status.dart';
 
 Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
@@ -194,6 +195,29 @@ Widget litigationPriorityStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
     status: status,
     config: litigationPriorityStatusConfig,
+    textStyle: textStyle,
+  );
+}
+
+Widget termSheetReportStatusWidget(String status, {TextStyle? textStyle}) {
+  String localStatus = '';
+  switch (status.toLowerCase()) {
+    case String s when s.contains('(lrd)'):
+      localStatus = "LRD";
+      break;
+
+    case String s when s.contains('(cf)'):
+      localStatus = "CF";
+      break;
+    case String s when s.contains('(od)'):
+      localStatus = "OD";
+      break;
+    default:
+      break;
+  }
+  return commonStatusWidget(
+    status: localStatus,
+    config: termSheetReportStatusConfig,
     textStyle: textStyle,
   );
 }

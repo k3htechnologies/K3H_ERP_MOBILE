@@ -291,7 +291,7 @@ final List<Map<String, dynamic>> dsraTermList = createAttributeList(
 final List<Map<String, dynamic>> termSheetDocumentList = createAttributeList(
   termSheetDocumentsValues,
 );
-final List<Map<String, dynamic>> approvalStatus = createAttributeList(
+final List<Map<String, dynamic>> termSheetApprovalStatus = createAttributeList(
   approvalStatusValues,
 );
 

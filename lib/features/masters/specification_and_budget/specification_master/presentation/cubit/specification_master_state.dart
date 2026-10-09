@@ -6,7 +6,7 @@ class SpecificationMasterState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
-  final String currentTabName;
+  final String currentLevelName;
   // Map to hold the children of each specification by their parent ID
   final Map<String, List<SpecificationMasterModel>> childrenMap;
   final Set<String> loadingIds;
@@ -18,7 +18,7 @@ class SpecificationMasterState extends BaseState {
     required this.searchText,
     this.childrenMap = const {},
     this.loadingIds = const {},
-    required this.currentTabName,
+    required this.currentLevelName,
   });
   factory SpecificationMasterState.initial() => SpecificationMasterState(
     specificationList: [],
@@ -26,7 +26,7 @@ class SpecificationMasterState extends BaseState {
     currentPage: 1,
     searchText: "",
     isLoading: true,
-    currentTabName: "L1",
+    currentLevelName: "L1",
   );
   SpecificationMasterState copyWith({
     bool? isLoading,
@@ -36,7 +36,7 @@ class SpecificationMasterState extends BaseState {
     String? searchText,
     Map<String, List<SpecificationMasterModel>>? childrenMap,
     Set<String>? loadingIds,
-    String? currentTabName,
+    String? currentLevelName,
   }) {
     return SpecificationMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -46,7 +46,7 @@ class SpecificationMasterState extends BaseState {
       searchText: searchText ?? this.searchText,
       childrenMap: childrenMap ?? this.childrenMap,
       loadingIds: loadingIds ?? this.loadingIds,
-      currentTabName: currentTabName ?? this.currentTabName,
+      currentLevelName: currentLevelName ?? this.currentLevelName,
     );
   }
 
@@ -59,6 +59,6 @@ class SpecificationMasterState extends BaseState {
     searchText,
     childrenMap,
     loadingIds,
-    currentTabName,
+    currentLevelName,
   ];
 }

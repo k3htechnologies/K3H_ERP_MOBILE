@@ -22,7 +22,7 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
   onTabChange(BuildContext context, String tabName) async {
     emit(
       state.copyWith(
-        currentTabName: tabName,
+        currentLevelName: tabName,
         searchText: "",
         specificationList: [],
         childrenMap: {},
@@ -37,7 +37,7 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "CategoryName": state.searchText,
-      "LevelType": state.currentTabName,
+      "LevelType": state.currentLevelName,
     };
     var result = await _specificationMasterRepository.pullSpecificationMaster(
       pageNumber: pageNumber,
@@ -77,7 +77,7 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
     emit(state.copyWith(loadingIds: {...state.loadingIds, key}));
     Map<String, dynamic> queryParams = {
       "SpecificationMasterId": specificationMasterId,
-      "LevelType": state.currentTabName,
+      "LevelType": state.currentLevelName,
       "IsCheckPermission": true,
       "IsExpandChild": true,
     };
@@ -129,7 +129,7 @@ class SpecificationMasterCubit extends Cubit<SpecificationMasterState> {
           queryParams: {
             "CategoryName": state.searchText,
             "ExportType": exportType,
-            "LevelType": state.currentTabName,
+            "LevelType": state.currentLevelName,
             "IsCheckPermission": true,
             "IsExpandChild": true,
           },

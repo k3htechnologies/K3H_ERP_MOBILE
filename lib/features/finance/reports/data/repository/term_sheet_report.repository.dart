@@ -17,8 +17,8 @@ abstract interface class TermSheetReportRepository {
 }
 
 class TermSheetReportRepositoryImpl extends TermSheetReportRepository {
-  final TermSheetReportDatasource termsheetReportDatasource;
-  TermSheetReportRepositoryImpl({required this.termsheetReportDatasource});
+  final TermSheetReportDatasource termSheetReportDatasource;
+  TermSheetReportRepositoryImpl({required this.termSheetReportDatasource});
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullTermSheetReport({
     required int pageNumber,
@@ -26,7 +26,7 @@ class TermSheetReportRepositoryImpl extends TermSheetReportRepository {
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      final result = await termsheetReportDatasource.apiCallPullTermSheetReport(
+      final result = await termSheetReportDatasource.apiCallPullTermSheetReport(
         pageNumber: pageNumber,
         pageSize: pageSize,
         queryParams: queryParams,
@@ -44,7 +44,7 @@ class TermSheetReportRepositoryImpl extends TermSheetReportRepository {
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      final result = await termsheetReportDatasource
+      final result = await termSheetReportDatasource
           .apiCallPullTermSheetReportForExport(
             pageNumber: pageNumber,
             pageSize: pageSize,

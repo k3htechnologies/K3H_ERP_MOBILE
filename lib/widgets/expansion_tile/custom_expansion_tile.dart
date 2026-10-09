@@ -7,6 +7,7 @@ class CustomExpandableCard extends StatefulWidget {
   final Widget header;
   final Widget body;
   final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? headerPadding;
   final EdgeInsetsGeometry? margin;
   final bool initiallyExpanded;
   final ValueChanged<bool>? onExpansionChanged;
@@ -17,6 +18,7 @@ class CustomExpandableCard extends StatefulWidget {
     required this.header,
     required this.body,
     this.padding,
+    this.headerPadding,
     this.margin,
     this.initiallyExpanded = false,
     this.onExpansionChanged,
@@ -59,23 +61,26 @@ class _CustomExpandableCardState extends State<CustomExpandableCard>
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          InkWell(
-            onTap: _toggle,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: widget.header),
-                horizontalSpacing(),
-                Padding(
-                  padding: const EdgeInsets.only(top: 2.0),
-                  child: AnimatedRotation(
-                    turns: _expanded ? .5 : 0,
-                    duration: const Duration(milliseconds: 250),
-                    child: const Icon(Icons.keyboard_arrow_down),
+          Padding(
+            padding: widget.headerPadding ?? EdgeInsets.zero,
+            child: InkWell(
+              onTap: _toggle,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: widget.header),
+                  horizontalSpacing(),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2.0),
+                    child: AnimatedRotation(
+                      turns: _expanded ? .5 : 0,
+                      duration: const Duration(milliseconds: 250),
+                      child: const Icon(Icons.keyboard_arrow_down),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           ClipRect(
