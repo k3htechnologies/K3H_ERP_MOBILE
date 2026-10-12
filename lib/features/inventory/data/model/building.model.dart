@@ -242,6 +242,7 @@ class FloorModel {
   int inventoryFlatFloorBasementPodiumWingId;
   String floor;
   double slabHeight;
+  int drawingCount;
   int parkingCount;
   List<FlatModel> flatList;
   // FOLLOWING VARIABLES ARE CREATED AND CALCULATED ON THE FRONTEND
@@ -259,6 +260,7 @@ class FloorModel {
     required this.inventoryFlatFloorBasementPodiumWingId,
     required this.floor,
     required this.slabHeight,
+    required this.drawingCount,
     required this.parkingCount,
     required this.flatList,
     this.totalFlat = 0,
@@ -296,6 +298,7 @@ class FloorModel {
       ),
       floor: parseValue<String>(json, "Floor"),
       slabHeight: parseValue<double>(json, "SlabHeight"),
+      drawingCount: parseValue<int>(json, "DrawingCount"),
       parkingCount: parseValue<int>(json, "ParkingCount"),
       flatList: flatList,
       totalFlat: flatList.length,
@@ -315,6 +318,7 @@ class FloorModel {
         inventoryFlatFloorBasementPodiumWingId,
     "Floor": floor,
     "SlabHeight": slabHeight,
+    "DrawingCount": drawingCount,
     "ParkingCount": parkingCount,
     "InventoryFlatData": List<dynamic>.from(flatList.map((x) => x.toJson())),
   };
@@ -325,6 +329,7 @@ class FloorModel {
     int? inventoryFlatFloorBasementPodiumWingId,
     String? floor,
     double? slabHeight,
+    int? drawingCount,
     int? parkingCount,
     List<FlatModel>? flatList,
     int? totalFlat,
@@ -343,6 +348,7 @@ class FloorModel {
           this.inventoryFlatFloorBasementPodiumWingId,
       floor: floor ?? this.floor,
       slabHeight: slabHeight ?? this.slabHeight,
+      drawingCount: drawingCount ?? this.drawingCount,
       parkingCount: parkingCount ?? this.parkingCount,
       flatList: flatList ?? this.flatList,
       totalFlat: totalFlat ?? this.totalFlat,
@@ -365,6 +371,7 @@ class FlatModel {
   int inventoryFloorId;
   String floor;
   double slabHeight;
+  int drawingCount;
   int parkingCount;
   String flat;
   double reraCarpetAreaSqFt;
@@ -396,6 +403,7 @@ class FlatModel {
     required this.inventoryFloorId,
     required this.floor,
     required this.slabHeight,
+    required this.drawingCount,
     required this.parkingCount,
     required this.flat,
     required this.reraCarpetAreaSqFt,
@@ -431,6 +439,7 @@ class FlatModel {
     inventoryFloorId: parseValue<int>(json, "InventoryFloorId"),
     floor: parseValue<String>(json, "Floor"),
     slabHeight: parseValue<double>(json, "SlabHeight"),
+    drawingCount: parseValue<int>(json, "DrawingCount"),
     parkingCount: parseValue<int>(json, "ParkingCount"),
     flat: parseValue<String>(json, "Flat"),
     reraCarpetAreaSqFt: parseValue<double>(json, "RERACarpetAreaSqFt"),
@@ -474,6 +483,7 @@ class FlatModel {
     "InventoryFloorId": inventoryFloorId,
     "Floor": floor,
     "SlabHeight": slabHeight.toDouble(),
+    "DrawingCount": drawingCount,
     "ParkingCount": parkingCount,
     "Flat": flat,
     "RERACarpetAreaSqFt": reraCarpetAreaSqFt,
@@ -508,6 +518,7 @@ class FlatModel {
     int? inventoryFloorId,
     String? floor,
     double? slabHeight,
+    int? drawingCount,
     int? parkingCount,
     String? flat,
     double? reraCarpetAreaSqFt,
@@ -541,6 +552,7 @@ class FlatModel {
       inventoryFloorId: inventoryFloorId ?? this.inventoryFloorId,
       floor: floor ?? this.floor,
       slabHeight: slabHeight ?? this.slabHeight,
+      drawingCount: drawingCount ?? this.drawingCount,
       parkingCount: parkingCount ?? this.parkingCount,
       flat: flat ?? this.flat,
       reraCarpetAreaSqFt: reraCarpetAreaSqFt ?? this.reraCarpetAreaSqFt,
@@ -626,5 +638,34 @@ class FlatSpecificationModel {
     "FlatLayoutLengthSqFt": flatLayoutLengthSqFt,
     "FlatLayoutWidthSqFt": flatLayoutWidthSqFt,
     "Note": note,
+  };
+}
+
+class PaginatedFloorModel {
+  int inventoryFloorId;
+  String buildingNumber;
+  String wing;
+  String floor;
+
+  PaginatedFloorModel({
+    required this.inventoryFloorId,
+    required this.buildingNumber,
+    required this.wing,
+    required this.floor,
+  });
+
+  factory PaginatedFloorModel.fromJson(Map<String, dynamic> json) =>
+      PaginatedFloorModel(
+        inventoryFloorId: parseValue<int>(json, "InventoryFloorId"),
+        buildingNumber: parseValue<String>(json, "BuildingNumber"),
+        wing: parseValue<String>(json, "Wing"),
+        floor: parseValue<String>(json, "Floor"),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "InventoryFloorId": inventoryFloorId,
+    "BuildingNumber": buildingNumber,
+    "Wing": wing,
+    "Floor": floor,
   };
 }

@@ -8,6 +8,19 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
+import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/inventory_drawing_document.model.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/cubit/drawing_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/pages/add_drawing_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/pages/drawing_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/pages/view_drawing_document.screen.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document_category/data/model/drawing_document_category.model.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document_category/presentation/cubit/drawing_document_category_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document_category/presentation/pages/add_drawing_document_category.screen.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document_category/presentation/pages/drawing_document_category.screen.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document_category/presentation/pages/view_drawing_document_category.screen.dart';
 import 'package:k3h_erp_app/features/project_management/approved_bank/presentation/pages/approved_bank_screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet/presentation/pages/term_sheet.screen.dart';
 import 'package:k3h_erp_app/features/project_document/test_document/data/model/test_document.model.dart';
@@ -3513,6 +3526,7 @@ final GoRouter goRouter = GoRouter(
                   create: (_) => InventoryReportCubit(),
                 ),
                 BlocProvider(create: (_) => ParkingCubit()),
+                BlocProvider(create: (_) => DrawingDocumentCubit()),
               ],
               child: child,
             );
@@ -3723,6 +3737,61 @@ final GoRouter goRouter = GoRouter(
                 );
               },
             ),
+
+            GoRoute(
+              name: AppRoutes.inventoryDrawing,
+              path: AppRoutes.inventoryDrawing,
+              builder: (context, state) {
+                final queryParameterFlatModel =
+                    state.uri.queryParameters['flatModel'];
+                FlatModel? flat;
+                if (queryParameterFlatModel != null) {
+                  final flatJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterFlatModel),
+                    ),
+                  );
+                  flat = FlatModel.fromJson(flatJson);
+                }
+                return InventoryDrawingScreen(flatModel: flat);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.inventoryDrawingOverall,
+              path: AppRoutes.inventoryDrawingOverall,
+              builder: (context, state) {
+                final queryParameterInventoryDrawingDocumentModel =
+                    state.uri.queryParameters['inventoryDrawingDocumentModel'];
+                final queryParameterFlatModel =
+                    state.uri.queryParameters['flatModel'];
+                InventoryDrawingDocumentModel? inventoryDrawingDocumentModel;
+                FlatModel? flat;
+                if (queryParameterInventoryDrawingDocumentModel != null) {
+                  final flatJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(
+                        queryParameterInventoryDrawingDocumentModel,
+                      ),
+                    ),
+                  );
+                  inventoryDrawingDocumentModel =
+                      InventoryDrawingDocumentModel.fromJson(flatJson);
+                }
+
+                if (queryParameterFlatModel != null) {
+                  final flatJson = jsonDecode(
+                    EncryptionManager.decryptData(
+                      Uri.decodeQueryComponent(queryParameterFlatModel),
+                    ),
+                  );
+                  flat = FlatModel.fromJson(flatJson);
+                }
+                return InventoryDrawingDocumentOverallScreen(
+                  inventoryDrawingDocumentModel: inventoryDrawingDocumentModel,
+                  flatModel: flat,
+                );
+              },
+            ),
           ],
         ),
         // PARKING
@@ -3904,6 +3973,12 @@ final GoRouter goRouter = GoRouter(
                 ),
                 BlocProvider<TestDocumentCategoryCubit>(
                   create: (_) => TestDocumentCategoryCubit(),
+                ),
+                BlocProvider<DrawingDocumentCubit>(
+                  create: (_) => DrawingDocumentCubit(),
+                ),
+                BlocProvider<DrawingDocumentCategoryCubit>(
+                  create: (_) => DrawingDocumentCategoryCubit(),
                 ),
               ],
               child: child,
@@ -4161,6 +4236,95 @@ final GoRouter goRouter = GoRouter(
                 ),
               ],
             ),
+            // DRAWING DOCUMENT
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<DrawingDocumentCubit>.value(
+                  value: context.read<DrawingDocumentCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.drawingDocument,
+                  path: AppRoutes.drawingDocument,
+                  builder: (context, state) {
+                    return DrawingDocumentScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.viewDrawingDocument,
+                  path: AppRoutes.viewDrawingDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['document'];
+                    final DrawingDocumentModel? document =
+                        queryParameterDocument != null
+                            ? DrawingDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return ViewDrawingDocumentScreen(
+                      drawingDocumentModel: document!,
+                      index: index,
+                    );
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addDrawingDocument,
+                  path: AppRoutes.addDrawingDocument,
+                  builder: (context, state) {
+                    final queryParameterDocument =
+                        state.uri.queryParameters['document'];
+
+                    final DrawingDocumentModel? document =
+                        queryParameterDocument != null
+                            ? DrawingDocumentModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(queryParameterDocument),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(
+                              state.uri.queryParameters['index'] ?? '0',
+                            ),
+                          ),
+                        ) ??
+                        0;
+
+                    final isEdit = bool.parse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['isEdit'] ?? 'false',
+                        ),
+                      ),
+                    );
+                    return AddDrawingDocumentScreen(
+                      drawingDocumentModel: document,
+                      index: index,
+                      isEdit: isEdit,
+                    );
+                  },
+                ),
+              ],
+            ),
+
             ShellRoute(
               builder: (context, state, child) {
                 return BlocProvider<TestDocumentCategoryCubit>.value(
@@ -4228,6 +4392,82 @@ final GoRouter goRouter = GoRouter(
                             : null;
                     return ViewTestDocumentCategoryScreen(
                       testDocumentCategoryModel: testDocumentCategory!,
+                    );
+                  },
+                ),
+              ],
+            ),
+            // DRAWING DOCUMENT CATEGORY
+            ShellRoute(
+              builder: (context, state, child) {
+                return BlocProvider<DrawingDocumentCategoryCubit>.value(
+                  value: context.read<DrawingDocumentCategoryCubit>(),
+                  child: child,
+                );
+              },
+              routes: [
+                GoRoute(
+                  name: AppRoutes.drawingDocumentCategory,
+                  path: AppRoutes.drawingDocumentCategory,
+                  builder: (context, state) {
+                    return const DrawingDocumentCategoryScreen();
+                  },
+                ),
+                GoRoute(
+                  name: AppRoutes.addDrawingDocumentCategory,
+                  path: AppRoutes.addDrawingDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterDrawingDocumentCategory =
+                        state.uri.queryParameters['drawingDocumentCategory'];
+
+                    final DrawingDocumentCategoryModel?
+                    drawingDocumentCategory =
+                        queryParameterDrawingDocumentCategory != null
+                            ? DrawingDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterDrawingDocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+
+                    final index =
+                        int.tryParse(
+                          state.uri.queryParameters['index'] ?? '',
+                        ) ??
+                        0;
+                    return AddDrawingDocumentCategoryScreen(
+                      drawingDocumentCategoryModel: drawingDocumentCategory,
+                      index: index,
+                    );
+                  },
+                ),
+
+                GoRoute(
+                  name: AppRoutes.viewDrawingDocumentCategory,
+                  path: AppRoutes.viewDrawingDocumentCategory,
+                  builder: (context, state) {
+                    final queryParameterRERADocumentCategory =
+                        state.uri.queryParameters['drawingDocumentCategory'];
+
+                    final DrawingDocumentCategoryModel?
+                    drawingDocumentCategory =
+                        queryParameterRERADocumentCategory != null
+                            ? DrawingDocumentCategoryModel.fromJson(
+                              jsonDecode(
+                                EncryptionManager.decryptData(
+                                  Uri.decodeComponent(
+                                    queryParameterRERADocumentCategory,
+                                  ),
+                                ),
+                              ),
+                            )
+                            : null;
+                    return ViewDrawingDocumentCategoryScreen(
+                      drawingDocumentCategoryModel: drawingDocumentCategory!,
                     );
                   },
                 ),

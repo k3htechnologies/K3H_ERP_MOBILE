@@ -31,6 +31,8 @@ import 'package:k3h_erp_app/di/feature_dependencies/payroll/resignation/resignat
 import 'package:k3h_erp_app/di/feature_dependencies/profile/profile.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_category/approval_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/approval_document/approval_document.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/project_document/drawing_document/drawing_document.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/project_document/drawing_document_category/drawing_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/rera_document_category/rera_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/test_document/test_document.dependencies.dart';
@@ -192,7 +194,10 @@ void initDependencies() {
   registerDocumentCategoryDependencies(serviceLocator);
   // TEST DOCUMENT CATEGORY DEPENDENCIES
   registerTestDocumentCategoryDependencies(serviceLocator);
-  // DOCUMENT DEPENDENCIES
+  // DRAWING DOCUMENT CATEGORY DEPENDENCIES
+  registerDrawingDocumentCategoryDependencies(
+    serviceLocator,
+  ); // DOCUMENT DEPENDENCIES
   registerDocumentDependencies(serviceLocator);
   // RERA DOCUMENT CATEGORY DEPENDENCIES
   registerRERADocumentCategoryDependencies(serviceLocator);
@@ -200,6 +205,8 @@ void initDependencies() {
   registerRERADocumentDependencies(serviceLocator);
   //TEST DOCUMENT
   registerTestDocumentDependencies(serviceLocator);
+  // DRAWING DOCUMENT
+  registerDrawingDocumentDependencies(serviceLocator);
   //APPROVAL DOCUMENT CATEGORY DEPENDENCIES
   registerApprovalCategoryDependencies(serviceLocator);
   //APPROVAL DOCUMENT DEPENDENCIES

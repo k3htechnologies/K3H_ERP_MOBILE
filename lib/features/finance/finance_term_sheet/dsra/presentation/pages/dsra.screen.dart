@@ -213,12 +213,6 @@ class _DSRAScreenState extends State<DSRAScreen> {
                                         if (showEdit)
                                           CustomIconButton.edit(
                                             isDisabled: false,
-                                            // TODO
-                                            // widget
-                                            //     .termSheetModel
-                                            //     .approvalStatus
-                                            //     .toLowerCase() ==
-                                            // 'closed',
                                             onPressed: () {
                                               goRouter.pushNamed(
                                                 AppRoutes.addDsra,

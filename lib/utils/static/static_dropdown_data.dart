@@ -334,3 +334,6 @@ final List<Map<String, dynamic>> selectedselectedLandOwnershipList =
 final List<Map<String, dynamic>> constructionTypeList = createAttributeList(
   constructionTypeValues,
 );
+final List<Map<String, dynamic>> drawingStatusTypeList = createAttributeList(
+  drawingStatusTypeValues,
+);

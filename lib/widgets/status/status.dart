@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/widgets/status/aop_status.dart';
 import 'package:k3h_erp_app/widgets/status/approval_status.dart';
 import 'package:k3h_erp_app/widgets/status/call_log_status.dart';
 import 'package:k3h_erp_app/widgets/status/channel_partner_category_status.dart';
+import 'package:k3h_erp_app/widgets/status/drawing_document_status.dart';
 import 'package:k3h_erp_app/widgets/status/enquiry_status.dart';
 import 'package:k3h_erp_app/widgets/status/flat_handover_checklist.dart';
 import 'package:k3h_erp_app/widgets/status/gate_pass_purpose_status.dart';
@@ -177,6 +178,15 @@ Widget testDocumentStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
     status: formatted,
     config: testDocumentStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
+  );
+}
+
+Widget drawingDocumentStatusWidget(String status, {TextStyle? textStyle}) {
+  final formatted = formattedStatus(status.trim());
+  return commonStatusWidget(
+    status: formatted,
+    config: drawingDocumentStatusConfig,
     textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }
