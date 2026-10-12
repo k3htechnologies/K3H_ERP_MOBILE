@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_import_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/core/presentation/pages/main_screen.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -51,6 +52,9 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final Function(String)? onImportResult;
   final bool showMenuIcon;
   final ValueNotifier<int>? filterCountNotifier;
+  final ImportCallback? onUploadCallback;
+  final ImportValidator? importValidator;
+  final bool isTenantAlloted;
 
   const CustomAppBar({
     super.key,
@@ -79,6 +83,9 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.textControllerInputType = TextInputType.text,
     this.showMenuIcon = true,
     this.filterCountNotifier,
+    this.onUploadCallback,
+    this.isTenantAlloted = false,
+    this.importValidator,
   });
 
   static const double _baseHeight = 90;
@@ -405,15 +412,14 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         ),
                       ],
                       if (widget.authorization.isExport &&
-                          widget.importTableName != null) ...[
+                          widget.importTableName != null &&
+                          widget.onUploadCallback != null) ...[
                         horizontalSpacing(),
-                        importButton(
-                          context,
-                          widget.importTableName!,
-                          widget.onImportResult ?? (value) {},
-                          projectId: widget.projectId,
-                          buildingId: widget.buildingId,
-                          monthYear: widget.exportMonthYear,
+                        CustomImportButton(
+                          importTableName: widget.importTableName!,
+                          onUploadCallback: widget.onUploadCallback!,
+                          isTenantAlloted: widget.isTenantAlloted,
+                          validator: widget.importValidator,
                         ),
                       ],
                     ],
@@ -448,15 +454,15 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
       final String fileName = dialogResult["fileName"];
 
       var result = await importExcel(
-        context,
-        {
+        context: context,
+        body: {
           "TableName": importTableName,
           "IsAllDelete": deleteAll ? "1" : "0",
           "ProjectId": projectId?.toString() ?? "0",
           "BuildingId": buildingId?.toString() ?? "0",
           "MonthYear": monthYear ?? "",
         },
-        [
+        fileList: [
           {"key": "ExcelFile", "value": fileBytes, "fileName": fileName},
         ],
       );
@@ -490,7 +496,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
               } else if (importTableName == "SALES TARGET CLOSING") {
                 widget.onImportResult!("download");
               } else {
-                sampleExcelImport(context, importTableName);
+                sampleExcelImport(context: context, tableName: importTableName);
               }
             }
           }

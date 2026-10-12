@@ -64,6 +64,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
       _matches(l2, query) ||
       _matches(l3, query) ||
       _anyL4Matches(l3, all, query);
+  
   void showDialog(
     BuildContext context, {
     required String title,

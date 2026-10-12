@@ -12,7 +12,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:file_picker/file_picker.dart';
 
-enum FilePickType { image, document, both, kycDocument }
+enum FilePickType { image, document, both, kycDocument, excel }
 
 class CustomMultiFilePicker extends StatefulWidget {
   // DEFINING REQUIRED AND OPTIONAL PARAMETERS
@@ -462,6 +462,10 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
       case FilePickType.kycDocument:
         finalExtensions = ['jpg', 'jpeg', 'png', 'heic', 'heif', 'pdf'];
         break;
+
+      case FilePickType.excel:
+        finalExtensions = ['xls', 'xlsx', 'csv'];
+        break;
     }
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
@@ -683,7 +687,7 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                   Expanded(
                                     child: Text(
                                       fileNamesList.isEmpty
-                                          ? "Upload ${widget.title}"
+                                          ? "Upload ${(widget.title?.isNotEmpty == true) ? widget.title : 'File'}"
                                           : "${fileNamesList.length} file(s) selected",
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -704,25 +708,36 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                         onTap:
                                             widget.readOnly
                                                 ? null
-                                                : () =>
-                                                    (widget.filePickType ==
-                                                                FilePickType
-                                                                    .image ||
-                                                            widget.filePickType ==
-                                                                FilePickType
-                                                                    .both ||
-                                                            widget.filePickType ==
-                                                                FilePickType
-                                                                    .kycDocument)
-                                                        ? _showAttachmentOptions(
-                                                          context,
-                                                          formFieldState,
-                                                          portalContext,
-                                                        )
-                                                        : showUploadDocumentDialog(
-                                                          context,
-                                                          formFieldState,
-                                                        ),
+                                                : () {
+                                                  switch (widget.filePickType) {
+                                                    case FilePickType.excel:
+                                                      // Directly open the file picker, no dialog
+                                                      pickFile(
+                                                        context,
+                                                        formFieldState,
+                                                        portalContext,
+                                                      );
+                                                      break;
+
+                                                    case FilePickType.image:
+                                                    case FilePickType.both:
+                                                    case FilePickType
+                                                        .kycDocument:
+                                                      _showAttachmentOptions(
+                                                        context,
+                                                        formFieldState,
+                                                        portalContext,
+                                                      );
+                                                      break;
+
+                                                    case FilePickType.document:
+                                                      showUploadDocumentDialog(
+                                                        context,
+                                                        formFieldState,
+                                                      );
+                                                      break;
+                                                  }
+                                                },
                                         child: SvgPicture.asset(
                                           AppAssets.attachFileIcon,
                                           height: 18,

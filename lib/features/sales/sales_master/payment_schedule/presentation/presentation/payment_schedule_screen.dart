@@ -54,7 +54,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   @override
   void initState() {
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.paymentSchedule]!;
+        Authorization.routeAuthorizationMap[AppRoutes.paymentScheduleMaster]!;
     _paymentScheduleCubit = context.read<PaymentScheduleCubit>();
     super.initState();
     _onScroll();

@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/features/business_development/building/data/model/bu
 import 'package:k3h_erp_app/features/business_development/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/cubit/tenant_cubit.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_import_button.dart';
 import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -487,6 +488,35 @@ class _TenantScreenState extends State<TenantScreen> {
           isFilterOn: true,
           onFilterTap: () {
             _showBottomSheetToFilterTenant(context);
+          },
+          importTableName: "TENANT",
+          isTenantAlloted: true,
+          importValidator: () {
+            if (_project.projectId == 0) {
+              return "Please Select a Project";
+            }
+            if (_selectedBuildingNotifier.value.isEmpty) {
+              return 'Please select building';
+            }
+            return null;
+          },
+          onUploadCallback: (fileBytes, fileName, deleteAll) async {
+            await importExcel(
+              context: context,
+              body: {
+                "TableName": "TENANT",
+                "IsAllDelete": deleteAll ? "1" : "0",
+                "ProjectId": _project.projectId.toString(),
+                "BuildingId":
+                    _selectedBuildingNotifier.value.isNotEmpty
+                        ? _selectedBuildingNotifier.value.first['zAttributesId']
+                            .toString()
+                        : "0",
+              },
+              fileList: [
+                {"key": "ExcelFile", "value": fileBytes, "fileName": fileName},
+              ],
+            );
           },
         ),
         body: Column(

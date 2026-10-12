@@ -186,7 +186,7 @@ class AppRoutes {
   static String viewTarget = "/viewTarget";
 
   // PAYMENT SCHEDULE SUMMARY
-  static String paymentSchedule = "/paymentSchedule";
+  static String paymentScheduleMaster = "/paymentSchedules";
   static String addPaymentSchedule = "/addPaymentSchedule";
   static String paymentScheduleScheme = "/paymentScheduleScheme";
   static String addPaymentScheduleScheme = "/addPaymentScheduleScheme";

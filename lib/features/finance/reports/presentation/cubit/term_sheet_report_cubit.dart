@@ -87,8 +87,8 @@ class TermSheetReportCubit extends Cubit<TermSheetReportState> {
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"
-              ? "Term Sheet Report Master ${DateTime.now()}.pdf"
-              : "Term Sheet Report Master ${DateTime.now()}.xlsx",
+              ? "Term Sheet Report ${DateTime.now()}.pdf"
+              : "Term Sheet Report ${DateTime.now()}.xlsx",
         );
       },
     );

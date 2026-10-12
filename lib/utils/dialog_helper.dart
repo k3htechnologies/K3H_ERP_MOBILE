@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -913,6 +914,7 @@ class DialogHelper {
   // <--- IMPORT  DIALOG
   static Future<Map<String, dynamic>?> showDeleteAllConfirmationDialog({
     required BuildContext context,
+    bool isTenantAlloted = false,
   }) async {
     Uint8List? fileBytes;
     String? fileName;
@@ -962,133 +964,74 @@ class DialogHelper {
                             ),
                           ],
                         ),
-
+                        Divider(color: AppColor.grey2, height: 10),
                         verticalSpacing(),
-
                         // FILE PICKER
-                        GestureDetector(
-                          onTap: () async {
-                            FilePickerResult? result = await FilePicker.platform
-                                .pickFiles(
-                                  type: FileType.custom,
-                                  allowedExtensions: ['xlsx', 'xls', 'csv'],
-                                  withData: true,
-                                );
-
-                            if (result != null && result.files.isNotEmpty) {
-                              final file = result.files.first;
-
-                              setState(() {
-                                fileBytes = file.bytes;
-                                fileName = file.name;
-                              });
-                            }
+                        CustomMultiFilePicker(
+                          title: "Excel File",
+                          maxFiles: 1,
+                          filePickType: FilePickType.excel,
+                          onFilePickedCallback: (bytes, names) {
+                            setState(() {
+                              fileBytes = bytes.isNotEmpty ? bytes.first : null;
+                              fileName = names.isNotEmpty ? names.first : null;
+                            });
                           },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: AppColor.grey.withValues(alpha: .4),
-                              ),
-                              borderRadius: BorderRadius.circular(8),
-                              color: AppColor.white,
-                            ),
-                            child: Row(
-                              children: [
-                                /// ICON
-                                Icon(
-                                  fileName == null
-                                      ? Icons.attach_file
-                                      : Icons.description_outlined,
-                                  color: AppColor.primary,
-                                ),
-
-                                horizontalSpacing(),
-
-                                // FILE NAME OR PLACEHOLDER
-                                Expanded(
-                                  child: Text(
-                                    fileName ?? "Attach Excel File",
-                                    style: AppTextStyle.ts14R(
-                                      color:
-                                          fileName == null
-                                              ? AppColor.grey
-                                              : AppColor.black,
-                                    ),
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-
-                                // DELETE BUTTON
-                                if (fileName != null)
-                                  GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        fileBytes = null;
-                                        fileName = null;
-                                      });
-                                    },
-                                    child: Icon(
-                                      Icons.close,
-                                      size: 20,
-                                      color: AppColor.red,
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
+                          onFileDeleteCallback: (bytes, names, deletedUrl) {
+                            setState(() {
+                              fileBytes = bytes.isNotEmpty ? bytes.first : null;
+                              fileName = names.isNotEmpty ? names.first : null;
+                            });
+                          },
                         ),
-
-                        verticalSpacing(),
+                        verticalSpacing(height: 5),
 
                         // RADIO BUTTONS
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Do you want to upload the file with existing record?",
-                              style: AppTextStyle.ts14SB(),
-                            ),
-                            verticalSpacing(),
-                            Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    Radio<String>(
-                                      value: "yes",
-                                      groupValue: uploadChoice,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          uploadChoice = value!;
-                                        });
-                                      },
-                                    ),
-                                    const Text("Yes"),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Radio<String>(
-                                      value: "no",
-                                      groupValue: uploadChoice,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          uploadChoice = value!;
-                                        });
-                                      },
-                                    ),
-                                    const Text("No"),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-
-                        verticalSpacing(),
+                        if (!isTenantAlloted)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              verticalSpacing(height: 5),
+                              Text(
+                                "Do you want to upload the file with existing record?",
+                                style: AppTextStyle.ts14SB(),
+                              ),
+                              verticalSpacing(),
+                              Row(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Radio<String>(
+                                        value: "yes",
+                                        groupValue: uploadChoice,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            uploadChoice = value!;
+                                          });
+                                        },
+                                      ),
+                                      const Text("Yes"),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Radio<String>(
+                                        value: "no",
+                                        groupValue: uploadChoice,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            uploadChoice = value!;
+                                          });
+                                        },
+                                      ),
+                                      const Text("No"),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(height: 5),
+                            ],
+                          ),
 
                         // EXPANSION TILE
                         Theme(
@@ -1121,32 +1064,77 @@ class DialogHelper {
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        bulletRichText([
-                                          const TextSpan(text: "If "),
-                                          TextSpan(
-                                            text: "Yes",
-                                            style: AppTextStyle.ts14SB(),
-                                          ),
-                                          const TextSpan(
-                                            text:
-                                                " is selected, existing records will be kept and new data will be merged.",
-                                          ),
-                                        ]),
-
-                                        bulletRichText([
-                                          const TextSpan(text: "If "),
-                                          TextSpan(
-                                            text: "No",
-                                            style: AppTextStyle.ts14R(
-                                              color: AppColor.error,
+                                        if (isTenantAlloted) ...[
+                                          bulletRichText([
+                                            const TextSpan(
+                                              text:
+                                                  "Ensure that the Excel file includes the details of",
                                             ),
-                                          ),
-                                          const TextSpan(
-                                            text:
-                                                " is selected, all existing records will be permanently deleted before uploading new data.",
-                                          ),
-                                        ]),
+                                            TextSpan(
+                                              text: " already allotted tenants",
+                                              style: AppTextStyle.ts14SB(
+                                                color: AppColor.primary,
+                                              ),
+                                            ),
+                                            const TextSpan(
+                                              text:
+                                                  " along with their respective",
+                                            ),
+                                            TextSpan(
+                                              text: " New Unit",
+                                              style: AppTextStyle.ts14SB(),
+                                            ),
+                                            const TextSpan(
+                                              text: " No before uploading.",
+                                            ),
+                                          ]),
 
+                                          bulletRichText([
+                                            const TextSpan(
+                                              text:
+                                                  "Once allotted, member data should not be re-uploaded via Excel.",
+                                            ),
+                                          ]),
+
+                                          bulletRichText([
+                                            const TextSpan(text: "The "),
+                                            TextSpan(
+                                              text: "New Unit No",
+                                              style: AppTextStyle.ts14SB(),
+                                            ),
+                                            const TextSpan(
+                                              text:
+                                                  " must be provided in the Excel file.",
+                                            ),
+                                          ]),
+                                        ],
+                                        if (!isTenantAlloted) ...[
+                                          bulletRichText([
+                                            const TextSpan(text: "If "),
+                                            TextSpan(
+                                              text: "Yes",
+                                              style: AppTextStyle.ts14SB(),
+                                            ),
+                                            const TextSpan(
+                                              text:
+                                                  " is selected, existing records will be kept and new data will be merged.",
+                                            ),
+                                          ]),
+
+                                          bulletRichText([
+                                            const TextSpan(text: "If "),
+                                            TextSpan(
+                                              text: "No",
+                                              style: AppTextStyle.ts14R(
+                                                color: AppColor.error,
+                                              ),
+                                            ),
+                                            const TextSpan(
+                                              text:
+                                                  " is selected, all existing records will be permanently deleted before uploading new data.",
+                                            ),
+                                          ]),
+                                        ],
                                         bulletRichText([
                                           const TextSpan(
                                             text:
@@ -1200,7 +1188,7 @@ class DialogHelper {
                           ),
                         ),
 
-                        verticalSpacing(height: 20),
+                        verticalSpacing(height: 5),
 
                         /// MAIN BUTTONS
                         Row(

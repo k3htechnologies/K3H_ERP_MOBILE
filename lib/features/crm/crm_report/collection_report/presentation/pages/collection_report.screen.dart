@@ -163,9 +163,6 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                                   report.projectName,
                                   style: AppTextStyle.ts14M(
                                     color: AppColor.primary,
-                                  ).copyWith(
-                                    decoration: TextDecoration.underline,
-                                    decorationColor: AppColor.primary,
                                   ),
                                 ),
                               ),

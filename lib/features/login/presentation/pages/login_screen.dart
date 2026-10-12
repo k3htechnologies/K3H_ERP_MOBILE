@@ -162,6 +162,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     // OTP FIELD
                                     if (state.message.isNotEmpty)
                                       CustomTextField(
+                                        obscureText: true,
                                         focusNode: _otpFocus,
                                         readOnly: !state.isSendOtp,
                                         inputFormatterList:

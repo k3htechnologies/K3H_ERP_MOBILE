@@ -244,6 +244,7 @@ class TenantCubit extends Cubit<TenantState> {
     required double totalNewRERACarpetAreaWithDeckSqFt,
     required String remark,
     required List<TenantApplicantData> addUpdateTenantApplicant,
+    required int inventoryFlatId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -272,6 +273,7 @@ class TenantCubit extends Cubit<TenantState> {
       "TotalNewRERACarpetAreaWithDeckSqFt":
           totalNewRERACarpetAreaWithDeckSqFt.toString(),
       "Remark": remark,
+      "InventoryFlatId": inventoryFlatId.toString(),
     };
     for (
       int applicantIndex = 0;
@@ -446,6 +448,7 @@ class TenantCubit extends Cubit<TenantState> {
     required double totalNewRERACarpetAreaWithDeckSqFt,
     required String remark,
     required List<TenantApplicantData> addUpdateTenantApplicant,
+    required int inventoryFlatId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -475,6 +478,7 @@ class TenantCubit extends Cubit<TenantState> {
       "TotalNewRERACarpetAreaWithDeckSqFt":
           totalNewRERACarpetAreaWithDeckSqFt.toString(),
       "Remark": remark,
+      "InventoryFlatId": inventoryFlatId.toString(),
     };
     for (
       int applicantIndex = 0;

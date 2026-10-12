@@ -4,9 +4,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/add_tenant_applicant_screen.dart';
+import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
+import 'package:k3h_erp_app/features/inventory/data/repository/inventory.repository.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -20,6 +23,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -46,6 +50,11 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   final _formKey = GlobalKey<FormState>();
   late TenantCubit _cubit;
   late AuthorizationModel _routeAuthorizationModel;
+  final InventoryRepository _inventoryRepository =
+      serviceLocator<InventoryRepository>();
+
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedFlatNotifier =
+      ValueNotifier([]);
   final ValueNotifier<List<TenantApplicantData>> _applicants =
       ValueNotifier<List<TenantApplicantData>>([]);
   late TextEditingController _unitNumberC,
@@ -104,7 +113,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _remarkControllerC = TextEditingController();
   }
 
-  void _populateFormFields(TenantModel? tenant) {
+  void _populateFormFields(TenantModel? tenant) async {
     if (tenant == null) return;
     _unitNumberC.text = tenant.unitAnnexureSurveyNumber;
     _flatCarpetAreaC.text = tenant.unitCarpetAreaSqFt.toString();
@@ -155,6 +164,17 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _totalNewReraCarpetAreaC.text =
         tenant.totalNewRERACarpetAreaSqFt.toString();
     _remarkControllerC.text = tenant.remark;
+    if (tenant.inventoryFlatId != 0) {
+      final result = await _fetchFlatsByProjectId(
+        1,
+        projectId: widget.projectId,
+        inventoryFlatId: tenant.inventoryFlatId,
+      );
+      final items = (result['itemList'] as List).cast<Map<String, dynamic>>();
+      if (items.isNotEmpty && mounted) {
+        _selectedFlatNotifier.value = [items.first];
+      }
+    }
     _calculateTotalArea();
   }
 
@@ -316,6 +336,10 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         totalNewRERACarpetAreaWithDeckSqFt:
             double.tryParse(_areaAgainstTerraceC.text) ?? 0,
         remark: _remarkControllerC.text.trim(),
+        inventoryFlatId:
+            _selectedFlatNotifier.value.isNotEmpty
+                ? _selectedFlatNotifier.value.first['zAttributesId']
+                : 0,
       );
     } else {
       _cubit.addTenant(
@@ -350,8 +374,60 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         totalNewRERACarpetAreaWithDeckSqFt:
             double.tryParse(_areaAgainstTerraceC.text) ?? 0,
         remark: _remarkControllerC.text.trim(),
+        inventoryFlatId:
+            _selectedFlatNotifier.value.isNotEmpty
+                ? _selectedFlatNotifier.value.first['zAttributesId']
+                : 0,
       );
     }
+  }
+
+  Future<Map<String, dynamic>> _fetchFlatsByProjectId(
+    int pageNumber, {
+    String? value,
+    required int projectId,
+    int? inventoryFlatId,
+  }) async {
+    final isSearchById = inventoryFlatId != null;
+    final selectedFlat = _selectedFlatNotifier.value.firstOrNull;
+
+    final result = await _inventoryRepository.getPaginatedFlats(
+      pageNumber: pageNumber,
+      pageSize: 15,
+      projectId: projectId,
+      queryParams: {
+        if (value?.isNotEmpty ?? false) "Flat": value,
+        if (isSearchById) "InventoryFlatId": inventoryFlatId,
+        "IsAcessOnlyLienToSociety": false,
+        "IsAllotedBookingDone": !isSearchById,
+        if (!isSearchById) ...{
+          "FlatStatus": "Available,Alloted",
+          "ApprovalStatus": "Approved",
+        },
+        if (selectedFlat != null)
+          "DisplayInventoryFlatId": selectedFlat['zAttributesId'],
+      },
+    );
+
+    return result.fold(
+      (_) => {"itemList": <Map<String, dynamic>>[], "totalNumberOfRecord": 0},
+      (response) {
+        final flats = response['data'] as List<FlatModel>;
+        return {
+          "itemList":
+              flats
+                  .map(
+                    (flat) => {
+                      "zAttributesId": flat.inventoryFlatId,
+                      "DisplayName": flat.flat,
+                      "flatModel": flat,
+                    },
+                  )
+                  .toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
   }
 
   @override
@@ -795,6 +871,52 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                         ],
                       ),
                     ),
+                    verticalSpacing(),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: commonCardDecoration(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'New Unit Details',
+                            style: AppTextStyle.ts14M(color: AppColor.grey),
+                          ),
+                          verticalSpacing(),
+                          ValueListenableBuilder<List<Map<String, dynamic>>>(
+                            valueListenable: _selectedFlatNotifier,
+                            builder: (context, selectedFlat, _) {
+                              return CustomMultipleSelectPopup(
+                                title: 'Unit Number',
+                                hintText: "Select Unit Number",
+                                isMultiSelect: false,
+                                initialValue: selectedFlat,
+                                dataList: const [],
+                                onSelected: (value) {
+                                  _selectedFlatNotifier.value = value;
+                                },
+                                dataFetchCallBack: (page, {value}) {
+                                  return _fetchFlatsByProjectId(
+                                    page,
+                                    value: value,
+                                    projectId: widget.projectId,
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          ValueListenableBuilder(
+                            valueListenable: _selectedFlatNotifier,
+                            builder: (context, value, child) {
+                              if (value.isEmpty) {
+                                return SizedBox.shrink();
+                              }
+                              return _flatDetails();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -819,6 +941,53 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         ),
       ),
     );
+  }
+
+  Widget _flatDetails() {
+    if (_selectedFlatNotifier.value.first['flatModel'] == null) {
+      return SizedBox.shrink();
+    }
+    return infoCard([
+      {
+        "title": "Building",
+        "value": _selectedFlatNotifier.value.first['flatModel']?.buildingNumber,
+      },
+      {
+        "title": "Wing",
+        "value": _selectedFlatNotifier.value.first['flatModel']?.wing,
+      },
+      {
+        "title": "Floor",
+        "value": _selectedFlatNotifier.value.first['flatModel']?.floor,
+      },
+      {
+        "title": "Unit Number",
+        "value": _selectedFlatNotifier.value.first['flatModel']?.flat,
+      },
+      {
+        "title": "Carpet Area (SqFt)",
+        "value":
+            _selectedFlatNotifier.value.first['flatModel']?.reraCarpetAreaSqFt
+                .toString(),
+      },
+      {
+        "title": "Unit Type",
+        "value": _selectedFlatNotifier.value.first['flatModel']?.flatType,
+      },
+      {
+        "title": "Unit Configuration",
+        "value":
+            _selectedFlatNotifier.value.first['flatModel']?.flatConfiguration,
+      },
+      {
+        "title": "Unit Facing",
+        "value": _selectedFlatNotifier.value.first['flatModel']?.flatFacing,
+      },
+      {
+        "title": "Status",
+        "value": _selectedFlatNotifier.value.first['flatModel']?.flatStatus,
+      },
+    ]);
   }
 
   Widget _buildApplicantCard(TenantApplicantData applicant, int index) {

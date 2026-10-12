@@ -6346,8 +6346,8 @@ final GoRouter goRouter = GoRouter(
               },
               routes: [
                 GoRoute(
-                  name: AppRoutes.paymentSchedule,
-                  path: AppRoutes.paymentSchedule,
+                  name: AppRoutes.paymentScheduleMaster,
+                  path: AppRoutes.paymentScheduleMaster,
                   builder: (context, state) {
                     return const PaymentScheduleScreen();
                   },
