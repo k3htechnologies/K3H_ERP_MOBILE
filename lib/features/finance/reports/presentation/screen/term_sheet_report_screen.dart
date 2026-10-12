@@ -362,9 +362,7 @@ class _TermSheetReportScreenState extends State<TermSheetReportScreen>
                           Expanded(
                             child: Text(
                               termSheetReport.projectName,
-                              style: AppTextStyle.ts14M(
-                                color: Color(0xFF1C2B4A),
-                              ),
+                              style: AppTextStyle.ts14M(),
                             ),
                           ),
                         ],
