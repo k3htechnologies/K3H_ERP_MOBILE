@@ -617,5 +617,6 @@ const selectedLandOwnershipValues = [
   'Society',
 ];
 const constructionTypeValues = ['RCC', 'Load - Bearing'];
+const drawingStatusTypeValues = ['Advance', "Good For Construction (GFC)"];
 
 const budgetLevelTypeValues = ['L1', 'L2', 'L3', 'L4'];

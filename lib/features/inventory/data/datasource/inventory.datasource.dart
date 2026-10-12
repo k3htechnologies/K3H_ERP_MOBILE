@@ -97,6 +97,13 @@ abstract interface class InventoryDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  // PAGINATED FLOORS
+  Future<Map<String, dynamic>> apicallPullPaginatedFloor({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class InventoryDatasourceImpl implements InventoryDatasource {
@@ -689,6 +696,54 @@ class InventoryDatasourceImpl implements InventoryDatasource {
         apicallPullProjectInventoryParkingDetails(
           pageNumber: pageNumber,
           pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullPaginatedFloor({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullPaginatedFloorUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "Inventory/PullPaginatedFloor?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      final networkResponse = await baseClient.getRequestWithAuthentication(
+        pullPaginatedFloorUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': List<PaginatedFloorModel>.from(
+          networkResponse["data"].map((e) => PaginatedFloorModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullPaginatedFloor(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
           queryParams: queryParams,
         );
       }

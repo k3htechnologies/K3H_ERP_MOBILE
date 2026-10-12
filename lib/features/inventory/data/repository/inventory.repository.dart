@@ -88,6 +88,12 @@ abstract interface class InventoryRepository {
   Future<Either<Failure, Map<String, dynamic>>> addFloor({
     required Map<String, dynamic> requestBody,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getPaginatedFloors({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class InventoryRepositoryImpl implements InventoryRepository {
@@ -368,6 +374,26 @@ class InventoryRepositoryImpl implements InventoryRepository {
     try {
       var result = await inventoryDatasource.apicallToAddFloor(
         body: requestBody,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getPaginatedFloors({
+    required int pageNumber,
+    required int pageSize,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      final result = await inventoryDatasource.apicallPullPaginatedFloor(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        projectId: projectId,
+        queryParams: queryParams,
       );
       return right(result);
     } catch (error) {

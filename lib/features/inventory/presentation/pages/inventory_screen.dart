@@ -28,6 +28,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class InventoryScreen extends StatefulWidget {
   const InventoryScreen({super.key});
@@ -750,6 +751,9 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                             slabHeight:
                                                                 floor
                                                                     .slabHeight,
+                                                            drawingCount:
+                                                                floor
+                                                                    .drawingCount,
                                                             parkingCount:
                                                                 floor
                                                                     .parkingCount,
@@ -838,23 +842,119 @@ class _InventoryScreenState extends State<InventoryScreen>
                                     ),
                                     horizontalSpacing(),
                                     Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        SvgPicture.asset(
-                                          AppAssets.car,
-                                          height: 20.0,
-                                          width: 20.0,
-                                          color: AppColor.black.withValues(
-                                            alpha: 0.4,
+                                        GestureDetector(
+                                          onTap: () {
+                                            if (floor.drawingCount == 0) {
+                                              return;
+                                            } else {
+                                              goRouter.pushNamed(
+                                                AppRoutes.inventoryDrawing,
+                                                queryParameters: {
+                                                  "flatModel": Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(
+                                                        FlatModel(
+                                                          inventoryFlatId: 0,
+                                                          uniquekey: "",
+                                                          inventoryBuildingId:
+                                                              floor
+                                                                  .inventoryBuildingId,
+                                                          buildingNumber:
+                                                              building
+                                                                  .buildingNumber,
+                                                          inventoryFlatFloorBasementPodiumWingId:
+                                                              floor
+                                                                  .inventoryFlatFloorBasementPodiumWingId,
+                                                          wing: wing.wing,
+                                                          inventoryFloorId:
+                                                              floor
+                                                                  .inventoryFloorId,
+                                                          floor: floor.floor,
+                                                          slabHeight:
+                                                              floor.slabHeight,
+                                                          drawingCount:
+                                                              floor
+                                                                  .drawingCount,
+                                                          parkingCount:
+                                                              floor
+                                                                  .parkingCount,
+                                                          note: "",
+                                                          flat: "",
+                                                          reraCarpetAreaSqFt: 0,
+                                                          flatType: "",
+                                                          flatConfiguration: "",
+                                                          flatStatus: "",
+                                                          ownerName: "",
+                                                          flatFacing: "",
+                                                          createdBy: "",
+                                                          createdById: 0,
+                                                          modifiedBy: "",
+                                                          modifiedById: 0,
+                                                          createdDate:
+                                                              DateTime.now(),
+                                                          modifiedDate:
+                                                              DateTime.now(),
+                                                          bookingId: 0,
+                                                          bookingCreatedById: 0,
+                                                          bookingCreatedBy: "",
+                                                          bookingCreatedDate:
+                                                              DateTime.now(),
+                                                          specificationList: [],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                },
+                                              );
+                                            }
+                                          },
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Icon(
+                                                LucideIcons.draftingCompass,
+                                                size: 20.0,
+                                                color: AppColor.black
+                                                    .withValues(alpha: 0.4),
+                                              ),
+                                              horizontalSpacing(width: 3.0),
+                                              Text(
+                                                "${floor.drawingCount}",
+                                                style: AppTextStyle.ts12R(),
+                                              ),
+                                            ],
                                           ),
                                         ),
-                                        horizontalSpacing(width: 3),
-                                        Text(":", style: AppTextStyle.ts12R()),
-                                        horizontalSpacing(width: 3),
-                                        Text(
-                                          "${floor.parkingCount}",
-                                          style: AppTextStyle.ts12R(),
+                                        horizontalSpacing(),
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            SvgPicture.asset(
+                                              AppAssets.car,
+                                              height: 20.0,
+                                              width: 20.0,
+                                              color: AppColor.black.withValues(
+                                                alpha: 0.4,
+                                              ),
+                                            ),
+                                            horizontalSpacing(width: 3),
+                                            Text(
+                                              ":",
+                                              style: AppTextStyle.ts12R(),
+                                            ),
+                                            horizontalSpacing(width: 3),
+                                            Text(
+                                              "${floor.parkingCount}",
+                                              style: AppTextStyle.ts12R(),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),

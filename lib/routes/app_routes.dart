@@ -471,6 +471,18 @@ class AppRoutes {
   static String viewTestDocument = "/viewTestDocument";
   static String addTestDocument = "/addTestDocument";
 
+  // DRAWING DOCUMENT
+  static String drawingDocument = "/drawing";
+  static String viewDrawingDocument = "/viewDrawingDocument";
+  static String addDrawingDocument = "/addDrawingDocument";
+
+  // DRAWING DOCUMENT CATEGORY
+  static String drawingDocumentCategory = "/drawingCategory";
+  static String addDrawingDocumentCategory = "/addDrawingDocumentCategory";
+  static String viewDrawingDocumentCategory = "/viewDrawingDocumentCategory";
+  static String inventoryDrawing = "/inventoryDrawing";
+  static String inventoryDrawingOverall = "/inventoryDrawingOverall";
+
   // TEST DOCUMENT CATEGORY
   static String testDocumentCategory = "/testCategory";
   static String addTestDocumentCategory = "/addTestDocumentCategory";
