@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
@@ -382,11 +383,14 @@ class _TermSheetReportScreenState extends State<TermSheetReportScreen>
                           ),
                           Text(" : "),
                           Expanded(
-                            child: Text(
-                              termSheetReport.nameOfInstitutionBankNBFC,
-                              style: AppTextStyle.ts14M(
-                                color: Color(0xFF1C2B4A),
-                              ),
+                            child: buildDocumentRow(
+                              context: context,
+                              docNumber:
+                                  termSheetReport.nameOfInstitutionBankNBFC,
+                              title:
+                                  "Termsheet - ${termSheetReport.nameOfInstitutionBankNBFC}",
+                              url: termSheetReport.termSheetURL,
+                              iconWithoutBg: true,
                             ),
                           ),
                         ],
