@@ -1238,10 +1238,11 @@ class BookingCubit extends Cubit<BookingState> {
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       projectId: projectId,
-      queryParams:
-          state.searchText != ""
-              ? {"ApplicantName": state.searchText, "ExportType": exportType}
-              : {"ExportType": exportType},
+      queryParams: {
+        "ApplicantName": state.searchText,
+        "ExportType": exportType,
+        "BookingSearchKey": "SALE BOOKING",
+      },
     );
     goRouter.pop();
     result.fold(
@@ -1277,6 +1278,7 @@ class BookingCubit extends Cubit<BookingState> {
         "BookingId": bookingModel.bookingId,
         "ExportType":
             isSendEmail ? "BOOKING+FORM+PDF+MAIL" : "BOOKING+FORM+PDF",
+        "BookingSearchKey": "SALE BOOKING",
       },
     );
     goRouter.pop();
