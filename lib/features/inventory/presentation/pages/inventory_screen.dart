@@ -258,33 +258,6 @@ class _InventoryScreenState extends State<InventoryScreen>
     }
   }
 
-  void showNoteDialog(BuildContext context, {required String note}) {
-    final ScrollController controller = ScrollController();
-
-    DialogHelper.showCustomDialogue(
-      context,
-      title: "Note",
-      childContent: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.5,
-        ),
-        child: RawScrollbar(
-          controller: controller,
-          thumbVisibility: true,
-          thumbColor: AppColor.lightBlue,
-          radius: const Radius.circular(8),
-          child: SingleChildScrollView(
-            controller: controller,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: Text(note, style: AppTextStyle.ts14R()),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1138,7 +1111,7 @@ class _InventoryScreenState extends State<InventoryScreen>
               if (flat.note.isNotEmpty)
                 InkWell(
                   onTap: () {
-                    showNoteDialog(context, note: flat.note);
+                    DialogHelper.showNoteDialog(context, note: flat.note);
                   },
                   child: Padding(
                     padding: EdgeInsets.only(left: 10.w),

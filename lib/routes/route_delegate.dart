@@ -3787,34 +3787,44 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.inventoryDrawingOverall,
               path: AppRoutes.inventoryDrawingOverall,
               builder: (context, state) {
-                final queryParameterInventoryDrawingDocumentModel =
+                final documentParam =
                     state.uri.queryParameters['inventoryDrawingDocumentModel'];
-                final queryParameterFlatModel =
-                    state.uri.queryParameters['flatModel'];
-                InventoryDrawingDocumentModel? inventoryDrawingDocumentModel;
+                final flatParam = state.uri.queryParameters['flatModel'];
+
+                List<InventoryDrawingDocumentModel> documents = [];
                 FlatModel? flat;
-                if (queryParameterInventoryDrawingDocumentModel != null) {
-                  final flatJson = jsonDecode(
-                    EncryptionManager.decryptData(
-                      Uri.decodeQueryComponent(
-                        queryParameterInventoryDrawingDocumentModel,
-                      ),
-                    ),
-                  );
-                  inventoryDrawingDocumentModel =
-                      InventoryDrawingDocumentModel.fromJson(flatJson);
+
+                if (documentParam != null) {
+                  final decoded =
+                      jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(documentParam),
+                            ),
+                          )
+                          as List;
+
+                  documents =
+                      decoded
+                          .map(
+                            (item) => InventoryDrawingDocumentModel.fromJson(
+                              Map<String, dynamic>.from(item),
+                            ),
+                          )
+                          .toList();
                 }
 
-                if (queryParameterFlatModel != null) {
+                if (flatParam != null) {
                   final flatJson = jsonDecode(
                     EncryptionManager.decryptData(
-                      Uri.decodeQueryComponent(queryParameterFlatModel),
+                      Uri.decodeQueryComponent(flatParam),
                     ),
                   );
+
                   flat = FlatModel.fromJson(flatJson);
                 }
+
                 return InventoryDrawingDocumentOverallScreen(
-                  inventoryDrawingDocumentModel: inventoryDrawingDocumentModel,
+                  inventoryDrawingDocumentModel: documents,
                   flatModel: flat,
                 );
               },

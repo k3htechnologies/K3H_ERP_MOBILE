@@ -239,6 +239,42 @@ class DialogHelper {
     );
   }
 
+  static Future<bool> showNoteDialog(
+    BuildContext context, {
+    required String note,
+  }) async {
+    final ScrollController controller = ScrollController();
+
+    try {
+      final result = await DialogHelper.showCustomDialogue(
+        context,
+        title: "Note",
+        childContent: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.5,
+          ),
+          child: RawScrollbar(
+            controller: controller,
+            thumbVisibility: true,
+            thumbColor: AppColor.lightBlue,
+            radius: const Radius.circular(8),
+            child: SingleChildScrollView(
+              controller: controller,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Text(note, style: AppTextStyle.ts14R()),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      return result ?? false;
+    } finally {
+      controller.dispose();
+    }
+  }
+
   static Future<bool> logoutDialog(
     BuildContext context,
     String title,

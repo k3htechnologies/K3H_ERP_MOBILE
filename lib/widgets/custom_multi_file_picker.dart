@@ -12,7 +12,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:file_picker/file_picker.dart';
 
-enum FilePickType { image, document, both, kycDocument, excel }
+enum FilePickType { image, document, both, kycDocument, excel, drawingDocument }
 
 class CustomMultiFilePicker extends StatefulWidget {
   // DEFINING REQUIRED AND OPTIONAL PARAMETERS
@@ -466,6 +466,9 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
       case FilePickType.excel:
         finalExtensions = ['xls', 'xlsx', 'csv'];
         break;
+
+      case FilePickType.drawingDocument:
+        finalExtensions = ['dwg'];
     }
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
