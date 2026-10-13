@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/features/business_development/temporary_alternate_ac
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/tenant_booking_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/view_tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
@@ -3076,6 +3077,40 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.tenantBooking,
               builder: (context, state) {
                 return TenantBookingScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewTenantBooking,
+              path: AppRoutes.viewTenantBooking,
+              builder: (context, state) {
+                final queryParameterBooking =
+                    state.uri.queryParameters['bookingId'];
+                final queryParameterProjectId =
+                    state.uri.queryParameters['projectId'];
+
+                final bookingId =
+                    queryParameterBooking != null &&
+                            queryParameterBooking.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterBooking),
+                          ),
+                        )
+                        : 0;
+                final projectId =
+                    queryParameterProjectId != null &&
+                            queryParameterProjectId.isNotEmpty
+                        ? int.parse(
+                          EncryptionManager.decryptData(
+                            Uri.decodeComponent(queryParameterProjectId),
+                          ),
+                        )
+                        : 0;
+
+                return ViewTenantBookingScreen(
+                  projectId: projectId,
+                  bookingId: bookingId,
+                );
               },
             ),
           ],

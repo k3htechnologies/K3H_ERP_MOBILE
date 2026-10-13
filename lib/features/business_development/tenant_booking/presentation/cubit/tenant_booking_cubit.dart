@@ -6,6 +6,9 @@ import 'package:gallery_saver_plus/files.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/data/repository/tenant.repository.dart';
+import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_state.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.dart';
 import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
@@ -13,9 +16,6 @@ import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/re
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
-import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
-import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
-import 'package:k3h_erp_app/features/sales/enquiry/data/repository/enquiry.repository.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/repository/other_charges.repository.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/data/model/payment_schedule.model.dart';
@@ -25,15 +25,14 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
-class TenantBookingCubit extends Cubit<BookingState> {
-  TenantBookingCubit() : super(BookingState.initial());
+class TenantBookingCubit extends Cubit<TenantBookingState> {
+  TenantBookingCubit() : super(TenantBookingState.initial());
 
   // REPOSITORIES
   final BookingRepository _bookingRepository =
       serviceLocator<BookingRepository>();
 
-  final EnquiryRepository _enquiryRepository =
-      serviceLocator<EnquiryRepository>();
+  final TenantRepository _tenantRepository = serviceLocator<TenantRepository>();
 
   final OtherChargesRepository _otherChargesRepository =
       serviceLocator<OtherChargesRepository>();
@@ -47,12 +46,12 @@ class TenantBookingCubit extends Cubit<BookingState> {
       serviceLocator<TermsAndConditionsMasterRepository>();
 
   Future<void> resetState() async {
-    emit(BookingState.initial());
+    emit(TenantBookingState.initial());
   }
 
   // CLEAR ENQUIRY LIST
   void clearEnquiryList() {
-    emit(state.copyWith(enquiryList: []));
+    emit(state.copyWith(tenantList: []));
   }
 
   // VIEW BOOKINGS TAB
@@ -194,24 +193,23 @@ class TenantBookingCubit extends Cubit<BookingState> {
     );
   }
 
-  //  GET ENQUIRY LIST
-  Future getEnquiryList(
-    BuildContext context,
-    int pageNumber,
-    int projectId,
-    String? systemGeneratedCode,
-    int? enquiryId,
-  ) async {
-    emit(state.copyWith(isLoading: true, enquiryList: []));
+  //  GET TENANT LIST
+  Future getTenantList({
+    required BuildContext context,
+    required int pageNumber,
+    required int projectId,
+    required int buildingId,
+    int? tenantId,
+  }) async {
+    emit(state.copyWith(isLoading: true, tenantList: []));
     Map<String, dynamic> queryParams = {
-      if (systemGeneratedCode != null)
-        "SystemGeneratedCode": systemGeneratedCode,
-      if (enquiryId != null) "EnquiryId": enquiryId,
+      if (tenantId != null) "TenantId": tenantId,
     };
-    var result = await _enquiryRepository.getEnquiryList(
+    var result = await _tenantRepository.getTenantList(
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
+      buildingId: buildingId,
       queryParams: queryParams,
     );
 
@@ -221,13 +219,13 @@ class TenantBookingCubit extends Cubit<BookingState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<EnquiryModel> newData = List<EnquiryModel>.from(
+        final List<TenantModel> newData = List<TenantModel>.from(
           response['data'] ?? [],
         );
 
-        final List<EnquiryModel> updatedList =
-            pageNumber == 1 ? newData : [...state.enquiryList, ...newData];
-        emit(state.copyWith(enquiryList: updatedList, isLoading: false));
+        final List<TenantModel> updatedList =
+            pageNumber == 1 ? newData : [...state.tenantList, ...newData];
+        emit(state.copyWith(tenantList: updatedList, isLoading: false));
       },
     );
   }

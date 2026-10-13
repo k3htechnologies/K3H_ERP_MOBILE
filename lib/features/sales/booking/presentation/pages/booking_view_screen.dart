@@ -2307,74 +2307,32 @@ class _BookingViewScreenState extends State<BookingViewScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Unit / Modulation / Customization Remark",
-                  style: AppTextStyle.ts14SB(),
-                ),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: bookingModel!.flatAlterationRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          SectionCard(
+            title: "Unit / Modulation / Customization Remark",
+            children: [
+              Text(
+                bookingModel!.flatAlterationRemark,
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+            ],
           ),
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Payment Related Remark", style: AppTextStyle.ts14SB()),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: bookingModel!.paymentRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          SectionCard(
+            title: "Payment Related Remark",
+            children: [
+              Text(
+                bookingModel!.paymentRemark,
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+            ],
           ),
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Other Remark", style: AppTextStyle.ts14SB()),
-                verticalSpacing(),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Other Remark",
-                      value: bookingModel!.otherRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          SectionCard(
+            title: "Other Remark",
+            children: [
+              Text(
+                bookingModel!.otherRemark,
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+            ],
           ),
         ],
       ),

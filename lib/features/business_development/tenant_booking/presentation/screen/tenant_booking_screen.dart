@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_state.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -508,14 +509,14 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<TenantBookingCubit, BookingState>(
+    return BlocListener<TenantBookingCubit, TenantBookingState>(
       listener: (context, state) {
         _filterCount.value = _bookingCubit.updateFilterCount();
       },
 
       child: Scaffold(
         appBar: CustomAppBar(
-          screenTitle: "Booking",
+          screenTitle: "Tenant Booking",
           authorization: _routhAuthorizationModel,
           textController: _searchC,
           filterCountNotifier: _filterCount,
@@ -546,7 +547,7 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
             _showBottomSheetToFilterBooking(context);
           },
         ),
-        body: BlocBuilder<TenantBookingCubit, BookingState>(
+        body: BlocBuilder<TenantBookingCubit, TenantBookingState>(
           builder: (context, state) {
             return Column(
               children: [
@@ -560,7 +561,7 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                       _searchC.clear();
                       _bookingCubit.searchBooking(context, "");
                     },
-                    child: BlocBuilder<TenantBookingCubit, BookingState>(
+                    child: BlocBuilder<TenantBookingCubit, TenantBookingState>(
                       builder: (context, state) {
                         if ((state.isLoading ?? true) &&
                             state.bookingList.isEmpty) {
@@ -610,7 +611,7 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                             child: GestureDetector(
                                               onTap: () {
                                                 goRouter.pushNamed(
-                                                  AppRoutes.viewBooking,
+                                                  AppRoutes.viewTenantBooking,
                                                   queryParameters: {
                                                     "bookingId":
                                                         Uri.encodeQueryComponent(

@@ -17,7 +17,6 @@ class BookingModel {
   String otherRemark;
   int transferBookingId;
   String transferFlat;
-  int tenantId;
   int paymentScheduleSchemeMasterId;
   String paymentScheduleScheme;
   String communicationAddress;
@@ -108,6 +107,10 @@ class BookingModel {
   String proofOfDocumentUrl;
   String cancelBookingApprovalStatus;
   int refundedPaymentLedgerCount;
+  int tenantId;
+  int tenantBuildingId;
+  String tenantBuildingName;
+  String carpetAreaPurchasedSqFt;
 
   BookingModel({
     required this.bookingId,
@@ -214,6 +217,9 @@ class BookingModel {
     required this.proofOfDocumentUrl,
     required this.cancelBookingApprovalStatus,
     required this.refundedPaymentLedgerCount,
+    required this.tenantBuildingId,
+    required this.tenantBuildingName,
+    required this.carpetAreaPurchasedSqFt,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -431,6 +437,12 @@ class BookingModel {
       json,
       "RefundedPaymentLedgerCount",
     ),
+    tenantBuildingId: parseValue<int>(json, "TenantBuildingId"),
+    tenantBuildingName: parseValue<String>(json, "TenantBuildingName"),
+    carpetAreaPurchasedSqFt: parseValue<String>(
+      json,
+      "CarpetAreaPurchasedSqFt",
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -541,6 +553,9 @@ class BookingModel {
     "ProofOfDocumentURL": proofOfDocumentUrl,
     "CancelBookingApprovalStatus": cancelBookingApprovalStatus,
     "RefundedPaymentLedgerCount": refundedPaymentLedgerCount,
+    "TenantBuildingId": tenantBuildingId,
+    "TenantBuildingName": tenantBuildingName,
+    "CarpetAreaPurchasedSqFt": carpetAreaPurchasedSqFt,
   };
 }
 
