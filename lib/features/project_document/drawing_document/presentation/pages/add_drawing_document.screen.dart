@@ -332,7 +332,7 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                     CustomMultiFilePicker(
                       maxFiles: 5,
                       title: "Files (.DWG)",
-                      filePickType: FilePickType.onlyDwg,
+                      filePickType: FilePickType.drawingDocument,
                       initialFileList: selectedDocumentDWGFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedDocumentDWGFile.fileNameList = fileNameList;
