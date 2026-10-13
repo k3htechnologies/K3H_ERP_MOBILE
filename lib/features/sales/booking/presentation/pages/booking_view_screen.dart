@@ -13,6 +13,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class BookingViewScreen extends StatefulWidget {
@@ -329,10 +330,16 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
               return Column(
                 children: [
-                  infoCard(items, title: "Enquiry Details"),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  SectionCard(
+                    title: "Enquiry Details",
+                    titleTextColor: AppColor.blueBgColor,
+                    headerBackgroundColor: Color(0xffF6F9FF),
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                     children: [
+                      infoCard(items),
                       if (isReference)
                         infoCard([
                           {
@@ -434,448 +441,471 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                         ]),
                     ],
                   ),
-                ],
-              );
-            },
-          ), // APPLICANT SECTION
-          verticalSpacing(),
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Applicant Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                SizedBox(
-                  height: 250.0,
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
-                    shrinkWrap: true,
-                    itemCount: bookingModel!.bookingApplicantData.length,
-                    itemBuilder: (_, index) {
-                      final applicant =
-                          bookingModel!.bookingApplicantData[index];
-                      return infoCard(
-                        bgColor: AppColor.white,
-                        borderColor: AppColor.primary,
+                  // APPLICANT DETAILS
+                  SectionCard(
+                    title: "Applicant Details",
+                    headerBackgroundColor: AppColor.lightYellowBg2,
+                    titleTextColor: AppColor.brownYellowText,
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    children: [
+                      SizedBox(
+                        height: 250.0,
+                        child: ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2,
+                            vertical: 10,
+                          ),
+                          shrinkWrap: true,
+                          itemCount: bookingModel!.bookingApplicantData.length,
+                          itemBuilder: (_, index) {
+                            final applicant =
+                                bookingModel!.bookingApplicantData[index];
+                            return infoCard(
+                              bgColor: AppColor.white,
+                              borderColor: AppColor.primary,
 
-                        titleWidget: Row(
-                          spacing: 5,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                applicant.applicantName,
-                                style: AppTextStyle.ts14M(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            horizontalSpacing(),
-                            _buildApplicantTypeWidget(applicant.applicantType),
-                          ],
-                        ),
-
-                        [
-                          {
-                            "title": "Mobile Number",
-                            "value": applicant.applicantMobileNumber,
-                            "widget": CustomClickToContactText(
-                              countryCode:
-                                  applicant.applicantMobileNumberCountryCode,
-                              value: applicant.applicantMobileNumber,
-                              type: ContactType.phone,
-                            ),
-                          },
-                          {
-                            "title": "E-Mail ID",
-                            "value": applicant.applicantEmailId,
-                            "widget": CustomClickToContactText(
-                              value: applicant.applicantEmailId,
-                              type: ContactType.email,
-                            ),
-                          },
-                          {
-                            "title": "Aadhaar Card No.",
-                            "value": applicant.aadharCardNumber,
-                          },
-                          {
-                            "title": "Aadhaar Card",
-                            "value": applicant.aadharCardURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.aadharCardURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Aadhaar Card",
-                                    applicant.aadharCardURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.aadharCardURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "PAN Card No.",
-                            "value": applicant.panNumber,
-                          },
-                          {
-                            "title": "PAN Card.",
-                            "value": applicant.panCardURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.panCardURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "PAN Card.",
-                                    applicant.panCardURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.panCardURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Driving License",
-                            "value": applicant.drivingLicenseNumber,
-                          },
-                          {
-                            "title": "Driving License",
-                            "value": applicant.drivingLicenseURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.drivingLicenseURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Driving License",
-                                    applicant.drivingLicenseURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.drivingLicenseURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Voting ID No.",
-                            "value": applicant.votingIdNumber,
-                          },
-                          {
-                            "title": "Voting ID",
-                            "value": applicant.votingIdURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.votingIdURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Voting ID",
-                                    applicant.votingIdURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.votingIdURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Passport No.",
-                            "value": applicant.passportNumber,
-                          },
-                          {
-                            "title": "Passport",
-                            "value": applicant.passportURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.passportURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Passport",
-                                    applicant.passportURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.passportURL.isEmpty,
-                            ),
-                          },
-                          {"title": "GST No.", "value": applicant.gstNumber},
-                          {
-                            "title": "GST Certificate",
-                            "value": applicant.gstNumberURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.gstNumberURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "GST Certificate",
-                                    applicant.gstNumberURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.gstNumberURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Cancelled Cheque",
-                            "value": applicant.cancelledChequeUrl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.cancelledChequeUrl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Cancelled Cheque",
-                                    applicant.cancelledChequeUrl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.cancelledChequeUrl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "POA (if NRI Execution)",
-                            "value": applicant.poaurl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.poaurl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "POA (if NRI Execution)",
-                                    applicant.poaurl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.poaurl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Income Docs (Form 16 / ITR)",
-                            "value": applicant.incomeForm16Itrurl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.incomeForm16Itrurl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Income Docs (Form 16 / ITR)",
-                                    applicant.incomeForm16Itrurl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.incomeForm16Itrurl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "NRE / NRO Bank Details",
-                            "value": applicant.nreNroBankDetailsUrl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "NRE / NRO Bank Details",
-                                    applicant.nreNroBankDetailsUrl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Nominee Form",
-                            "value": applicant.nomineeFormUrl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.nomineeFormUrl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Nominee Form",
-                                    applicant.nomineeFormUrl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.nomineeFormUrl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Statement Of Source Of Funds",
-                            "value": applicant.statementOfSourceOfFundsURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant
-                                    .statementOfSourceOfFundsURL
-                                    .isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Statement Of Source Of Funds",
-                                    applicant.statementOfSourceOfFundsURL.split(
-                                      ",",
+                              titleWidget: Row(
+                                spacing: 5,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      applicant.applicantName,
+                                      style: AppTextStyle.ts14M(),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                  );
-                                }
-                              },
-                              isDisable:
-                                  applicant.statementOfSourceOfFundsURL.isEmpty,
-                            ),
-                          },
+                                  ),
+                                  horizontalSpacing(),
+                                  _buildApplicantTypeWidget(
+                                    applicant.applicantType,
+                                  ),
+                                ],
+                              ),
 
-                          {
-                            "title": "Payment Proof",
-                            "value": applicant.paymentProofURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.paymentProofURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Payment Proof",
-                                    applicant.paymentProofURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.paymentProofURL.isEmpty,
-                            ),
+                              [
+                                {
+                                  "title": "Mobile Number",
+                                  "value": applicant.applicantMobileNumber,
+                                  "widget": CustomClickToContactText(
+                                    countryCode:
+                                        applicant
+                                            .applicantMobileNumberCountryCode,
+                                    value: applicant.applicantMobileNumber,
+                                    type: ContactType.phone,
+                                  ),
+                                },
+                                {
+                                  "title": "E-Mail ID",
+                                  "value": applicant.applicantEmailId,
+                                  "widget": CustomClickToContactText(
+                                    value: applicant.applicantEmailId,
+                                    type: ContactType.email,
+                                  ),
+                                },
+                                {
+                                  "title": "Aadhaar Card No.",
+                                  "value": applicant.aadharCardNumber,
+                                },
+                                {
+                                  "title": "Aadhaar Card",
+                                  "value": applicant.aadharCardURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.aadharCardURL.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Aadhaar Card",
+                                          applicant.aadharCardURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.aadharCardURL.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "PAN Card No.",
+                                  "value": applicant.panNumber,
+                                },
+                                {
+                                  "title": "PAN Card.",
+                                  "value": applicant.panCardURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.panCardURL.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "PAN Card.",
+                                          applicant.panCardURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.panCardURL.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Driving License",
+                                  "value": applicant.drivingLicenseNumber,
+                                },
+                                {
+                                  "title": "Driving License",
+                                  "value": applicant.drivingLicenseURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant
+                                          .drivingLicenseURL
+                                          .isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Driving License",
+                                          applicant.drivingLicenseURL.split(
+                                            ",",
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    isDisable:
+                                        applicant.drivingLicenseURL.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Voting ID No.",
+                                  "value": applicant.votingIdNumber,
+                                },
+                                {
+                                  "title": "Voting ID",
+                                  "value": applicant.votingIdURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.votingIdURL.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Voting ID",
+                                          applicant.votingIdURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.votingIdURL.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Passport No.",
+                                  "value": applicant.passportNumber,
+                                },
+                                {
+                                  "title": "Passport",
+                                  "value": applicant.passportURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.passportURL.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Passport",
+                                          applicant.passportURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.passportURL.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "GST No.",
+                                  "value": applicant.gstNumber,
+                                },
+                                {
+                                  "title": "GST Certificate",
+                                  "value": applicant.gstNumberURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.gstNumberURL.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "GST Certificate",
+                                          applicant.gstNumberURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.gstNumberURL.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Cancelled Cheque",
+                                  "value": applicant.cancelledChequeUrl,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant
+                                          .cancelledChequeUrl
+                                          .isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Cancelled Cheque",
+                                          applicant.cancelledChequeUrl.split(
+                                            ",",
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    isDisable:
+                                        applicant.cancelledChequeUrl.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "POA (if NRI Execution)",
+                                  "value": applicant.poaurl,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.poaurl.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "POA (if NRI Execution)",
+                                          applicant.poaurl.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.poaurl.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Income Docs (Form 16 / ITR)",
+                                  "value": applicant.incomeForm16Itrurl,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant
+                                          .incomeForm16Itrurl
+                                          .isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Income Docs (Form 16 / ITR)",
+                                          applicant.incomeForm16Itrurl.split(
+                                            ",",
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    isDisable:
+                                        applicant.incomeForm16Itrurl.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "NRE / NRO Bank Details",
+                                  "value": applicant.nreNroBankDetailsUrl,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant
+                                          .nreNroBankDetailsUrl
+                                          .isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "NRE / NRO Bank Details",
+                                          applicant.nreNroBankDetailsUrl.split(
+                                            ",",
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    isDisable:
+                                        applicant.nreNroBankDetailsUrl.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Nominee Form",
+                                  "value": applicant.nomineeFormUrl,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.nomineeFormUrl.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Nominee Form",
+                                          applicant.nomineeFormUrl.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.nomineeFormUrl.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Statement Of Source Of Funds",
+                                  "value":
+                                      applicant.statementOfSourceOfFundsURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant
+                                          .statementOfSourceOfFundsURL
+                                          .isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Statement Of Source Of Funds",
+                                          applicant.statementOfSourceOfFundsURL
+                                              .split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable:
+                                        applicant
+                                            .statementOfSourceOfFundsURL
+                                            .isEmpty,
+                                  ),
+                                },
+
+                                {
+                                  "title": "Payment Proof",
+                                  "value": applicant.paymentProofURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant
+                                          .paymentProofURL
+                                          .isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Payment Proof",
+                                          applicant.paymentProofURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable:
+                                        applicant.paymentProofURL.isEmpty,
+                                  ),
+                                },
+                                {
+                                  "title": "Profile Photo",
+                                  "value": applicant.photoURL,
+                                  "widget": CustomButton.documentOutline(
+                                    onPressed: () {
+                                      if (applicant.photoURL.isNotEmpty) {
+                                        showFilePreviewDialog(
+                                          context,
+                                          title: "Profile Photo",
+                                          applicant.photoURL.split(","),
+                                        );
+                                      }
+                                    },
+                                    isDisable: applicant.photoURL.isEmpty,
+                                  ),
+                                },
+                              ],
+                            );
                           },
-                          {
-                            "title": "Profile Photo",
-                            "value": applicant.photoURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.photoURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Profile Photo",
-                                    applicant.photoURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.photoURL.isEmpty,
-                            ),
-                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  // ADDRESS DETAILS
+                  SectionCard(
+                    title: "Address Details",
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    children: [
+                      buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Permanent Address",
+                          value: bookingModel!.permanentAddress,
+                        ),
+                      ),
+                      buildRowWrapper(
+                        child: buildColumnTitleValue(
+                          title: "Communication Address",
+                          value: bookingModel!.communicationAddress,
+                        ),
+                      ),
+                    ],
+                  ),
+                  //  PROJECT DETAILS
+                  SectionCard(
+                    title: "Project Details",
+                    titleTextColor: AppColor.blueBgColor,
+                    headerBackgroundColor: Color(0xffF6F9FF),
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    children: [
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Project Name",
+                            value: bookingModel!.projectName,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Booking Type",
+                            value: bookingModel!.bookingType,
+                          ),
                         ],
-                      );
-                    },
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Unit No.",
+                            value: bookingModel!.flat,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Wing",
+                            value: bookingModel!.wing,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Floor",
+                            value: bookingModel!.floor,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Building Number",
+                            value: bookingModel!.buildingNumber,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Flat Type",
+                            value: bookingModel!.flatType,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Flat Configuration",
+                            value: bookingModel!.flatConfiguration,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "RERA Carpet Area (SqFt)",
+                            value: bookingModel!.reraCarpetAreaSqFt.toString(),
+                          ),
+                          buildColumnTitleValue(
+                            title: "Parking Number",
+                            value: bookingModel!.parkingNumber,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          verticalSpacing(),
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Address Details", style: AppTextStyle.ts16SB()),
-
-                buildRowWrapper(
-                  child: buildColumnTitleValue(
-                    title: "Permanent Address",
-                    value: bookingModel!.permanentAddress,
-                  ),
-                ),
-                buildRowWrapper(
-                  child: buildColumnTitleValue(
-                    title: "Communication Address",
-                    value: bookingModel!.communicationAddress,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          verticalSpacing(),
-          // PROJECT DETAILS SECTION
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Project Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Project Name",
-                      value: bookingModel!.projectName,
+                  // PARKING DETAILS
+                  SectionCard(
+                    title: "Parking Details",
+                    titleTextColor: AppColor.blueBgColor,
+                    headerBackgroundColor: Color(0xffF6F9FF),
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
                     ),
-                    buildColumnTitleValue(
-                      title: "Booking Type",
-                      value: bookingModel!.bookingType,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Unit No.",
-                      value: bookingModel!.flat,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Wing",
-                      value: bookingModel!.wing,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Floor",
-                      value: bookingModel!.floor,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Building Number",
-                      value: bookingModel!.buildingNumber,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Flat Type",
-                      value: bookingModel!.flatType,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Flat Configuration",
-                      value: bookingModel!.flatConfiguration,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "RERA Carpet Area (SqFt)",
-                      value: bookingModel!.reraCarpetAreaSqFt.toString(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Parking Number",
-                      value: bookingModel!.parkingNumber,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          verticalSpacing(),
-          // PARKING SECTION
-          Container(
-            height: 450,
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Parking Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Expanded(
-                  child:
+                    children: [
                       bookingModel!.parkingData.isEmpty
                           ? Center(child: noDataWidget(message: 'No Parking'))
                           : ListView.builder(
@@ -964,676 +994,685 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                               );
                             },
                           ),
-                ),
-              ],
-            ),
-          ),
-          verticalSpacing(),
-          // BOOKING DETAILS SECTION
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Booking Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Expected Registration Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        bookingModel!.registrationDate,
-                      ),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Final Registration Date",
-                      value:
-                          bookingModel!.finalRegistrationDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                bookingModel!.finalRegistrationDate!,
-                              )
-                              : "-",
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Handover Type",
-                      value: bookingModel!.handoverType,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Source Of Funding",
-                      value: bookingModel!.sourceOfFunding,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Number Of Parking",
-                      value: bookingModel!.numberOfParking.toString(),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          verticalSpacing(),
-          // BOOKING SUMMARY
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            margin: EdgeInsets.only(bottom: 10),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Booking Summary", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Agreement Value (₹) With TDS",
-                      value: bookingModel!.agreementValue.toIndianCurrency(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Agreement Value (₹) Without TDS",
-                      value:
-                          (bookingModel!.agreementValue -
-                                  bookingModel!.agreementValueTDS)
-                              .toIndianCurrency(),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "TDS (₹)",
-                      value: bookingModel!.agreementValueTDS.toIndianCurrency(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "GST (%)",
-                      value: "${bookingModel!.agreementValueGSTPercentage}%",
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "GST (₹)",
-                      value:
-                          bookingModel!.agreementValueGSTAmount
-                              .toIndianCurrency(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Stamp Duty (%)",
-                      value: "${bookingModel!.stampDutyPercentage}%",
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Stamp Duty (₹)",
-                      value: bookingModel!.stampDutyAmount.toIndianCurrency(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Registration Fees (₹)",
-                      value: bookingModel!.registrationFees.toIndianCurrency(),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Booking Amount (₹)",
-                      value: bookingModel!.bookingAmount.toIndianCurrency(),
-                    ),
-                  ],
-                ),
-                if (bookingModel!.loyaltyAmount > 0)
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Loyalty (%)",
-                        value: "${bookingModel!.loyaltyPercentage} %",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Loyalty Amount (₹)",
-                        value: bookingModel!.loyaltyAmount.toIndianCurrency(),
-                      ),
                     ],
                   ),
-                if (bookingModel!.brokerageAmount > 0)
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  // BOOKING DETAILS
+                  SectionCard(
+                    title: "Booking Details",
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
                     children: [
-                      buildColumnTitleValue(
-                        title: "Brokerage (%)",
-                        value: "${bookingModel!.brokeragePercentage} %",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Brokerage Amount (₹)",
-                        value: bookingModel!.brokerageAmount.toIndianCurrency(),
-                      ),
-                    ],
-                  ),
-                if (bookingModel!.referelAmount > 0)
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Employee Reference (%)",
-                        value: "${bookingModel!.referelPercentage} %",
-                      ),
-                      buildColumnTitleValue(
-                        title: "Employee Reference Amount (₹)",
-                        value: bookingModel!.referelAmount.toIndianCurrency(),
-                      ),
-                    ],
-                  ),
-              ],
-            ),
-          ),
-          // PAYMENT DETAILS
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Payment Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 10,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Cheque / RTGS No.",
-                      value: bookingModel!.chequeRTGSNumber,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Cheque / RTGS Date",
-                      value:
-                          bookingModel?.chequeRTGSDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                bookingModel!.chequeRTGSDate!,
-                              )
-                              : "-",
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Bank Name",
-                      value: bookingModel!.bankName,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // OTHER CHARGES SECTION
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Other Charges", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                SizedBox(
-                  height: 250.0,
-                  child:
-                      bookingModel!.bookingOtherChargesData.isNotEmpty
-                          ? ListView.builder(
-                            shrinkWrap: true,
-                            itemCount:
-                                bookingModel!.bookingOtherChargesData.length,
-                            itemBuilder: (_, index) {
-                              final extraCharge =
-                                  bookingModel!.bookingOtherChargesData[index];
-                              final bool isLast =
-                                  index ==
-                                  bookingModel!.bookingOtherChargesData.length -
-                                      1;
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColor.primary,
-                                    width: .3,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                margin: EdgeInsets.only(
-                                  bottom: isLast ? 0.0 : 10.0,
-                                ),
-                                padding: EdgeInsets.all(10),
-                                child: Column(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Name",
-                                          value: extraCharge.chargeName,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Calculated On",
-                                          value: extraCharge.calculatedOn,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Value (In ₹)",
-                                          value:
-                                              extraCharge.value
-                                                  .toIndianCurrency(),
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "GST (%)",
-                                          value:
-                                              extraCharge.gstPercentage
-                                                  .toString(),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "GST Value (₹)",
-                                          value:
-                                              extraCharge.gstValue
-                                                  .toIndianCurrency(),
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Total Value (₹)",
-                                          value:
-                                              (extraCharge.value +
-                                                      extraCharge.gstValue)
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          )
-                          : Center(
-                            child: noDataWidget(
-                              message: "No Charges Available",
-                              iconSize: 180,
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Expected Registration Date",
+                            value: formatDateTimeAsDDMMMYYYY(
+                              bookingModel!.registrationDate,
                             ),
                           ),
-                ),
-              ],
-            ),
-          ),
-          // PAYMENT SCHEDULE SECTION
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Payment Schedule",
-                        style: AppTextStyle.ts16SB(),
+                          buildColumnTitleValue(
+                            title: "Final Registration Date",
+                            value:
+                                bookingModel!.finalRegistrationDate != null
+                                    ? formatDateTimeAsDDMMMYYYY(
+                                      bookingModel!.finalRegistrationDate!,
+                                    )
+                                    : "-",
+                          ),
+                        ],
                       ),
-                      TextSpan(
-                        text: " (${bookingModel?.paymentScheduleScheme ?? ""})",
-                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Handover Type",
+                            value: bookingModel!.handoverType,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Source Of Funding",
+                            value: bookingModel!.sourceOfFunding,
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Number Of Parking",
+                            value: bookingModel!.numberOfParking.toString(),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                ),
-                verticalSpacing(),
-                SizedBox(
-                  height: 250.0,
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
-                    shrinkWrap: true,
-                    itemCount: bookingModel!.bookingPaymentScheduleData.length,
-                    itemBuilder: (context, index) {
-                      final payment =
-                          bookingModel!.bookingPaymentScheduleData[index];
-                      final bool isLast =
-                          index ==
-                          bookingModel!.bookingPaymentScheduleData.length - 1;
-                      return Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColor.primary,
-                            width: .3,
+                  // BOOKING SUMMARY
+                  SectionCard(
+                    title: "Booking Summary",
+                    headerBackgroundColor: AppColor.lightPurpleBg2,
+                    titleTextColor: AppColor.purpleColor,
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    children: [
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Agreement Value (₹) With TDS",
+                            value:
+                                bookingModel!.agreementValue.toIndianCurrency(),
                           ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        margin: EdgeInsets.only(bottom: isLast ? 0.0 : 10),
-                        padding: EdgeInsets.all(10.0),
-                        child: Column(
+                          buildColumnTitleValue(
+                            title: "Agreement Value (₹) Without TDS",
+                            value:
+                                (bookingModel!.agreementValue -
+                                        bookingModel!.agreementValueTDS)
+                                    .toIndianCurrency(),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "TDS (₹)",
+                            value:
+                                bookingModel!.agreementValueTDS
+                                    .toIndianCurrency(),
+                          ),
+                          buildColumnTitleValue(
+                            title: "GST (%)",
+                            value:
+                                "${bookingModel!.agreementValueGSTPercentage}%",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "GST (₹)",
+                            value:
+                                bookingModel!.agreementValueGSTAmount
+                                    .toIndianCurrency(),
+                          ),
+                          buildColumnTitleValue(
+                            title: "Stamp Duty (%)",
+                            value: "${bookingModel!.stampDutyPercentage}%",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Stamp Duty (₹)",
+                            value:
+                                bookingModel!.stampDutyAmount
+                                    .toIndianCurrency(),
+                          ),
+                          buildColumnTitleValue(
+                            title: "Registration Fees (₹)",
+                            value:
+                                bookingModel!.registrationFees
+                                    .toIndianCurrency(),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Booking Amount (₹)",
+                            value:
+                                bookingModel!.bookingAmount.toIndianCurrency(),
+                          ),
+                        ],
+                      ),
+                      if (bookingModel!.loyaltyAmount > 0)
+                        Row(
                           spacing: 10,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Type",
-                                  value: payment.type,
-                                ),
-                                payment.type.contains("Date")
-                                    ? buildColumnTitleValue(
-                                      title: "Date",
-                                      value:
-                                          payment.date != null
-                                              ? formatDateTimeAsDDMMMYYYY(
-                                                payment.date!,
-                                              )
-                                              : "-",
-                                    )
-                                    : buildColumnTitleValue(
-                                      title: "Stage",
-                                      value: payment.name,
-                                    ),
-                              ],
+                            buildColumnTitleValue(
+                              title: "Loyalty (%)",
+                              value: "${bookingModel!.loyaltyPercentage} %",
                             ),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Percentage (%)",
-                                  value:
-                                      "${payment.paymentSchedulePercentage} %",
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Amount Without TDS (₹)",
-                                  value:
-                                      payment.paymentScheduleAmount
-                                          .toIndianCurrency(),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "GST Amount (₹)",
-                                  value:
-                                      payment.paymentScheduleGSTAmount
-                                          .toIndianCurrency(),
-                                ),
-                                buildColumnTitleValue(
-                                  title: "TDS Amount (₹)",
-                                  value:
-                                      payment.paymentScheduleTDSAmount
-                                          .toIndianCurrency(),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Total Amount With TDS (₹)",
-                                  value:
-                                      (payment.paymentScheduleAmount +
-                                              payment.paymentScheduleTDSAmount)
-                                          .toIndianCurrency(),
-                                ),
-                                Spacer(),
-                              ],
+                            buildColumnTitleValue(
+                              title: "Loyalty Amount (₹)",
+                              value:
+                                  bookingModel!.loyaltyAmount
+                                      .toIndianCurrency(),
                             ),
                           ],
                         ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // FLAT ALTERATION REMARKS SECTION
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Unit / Modulation / Customization Remark",
-                  style: AppTextStyle.ts16SB(),
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: bookingModel!.flatAlterationRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // PAYMENT REMARK
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Payment Remarks", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: bookingModel!.paymentRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // OTHER REMARK
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Other Remarks", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: bookingModel!.otherRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // TERMS AND CONDITIONS
-          Container(
-            decoration: commonCardDecoration(),
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(16),
-            child: ValueListenableBuilder<bool>(
-              valueListenable: isExpanded,
-              builder: (context, value, child) {
-                final hasData =
-                    bookingModel!.termsAndConditionsDescription
-                        .trim()
-                        .isNotEmpty;
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        isExpanded.value = !isExpanded.value;
-                      },
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Row(
+                      if (bookingModel!.brokerageAmount > 0)
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Text(
-                                "Terms & Conditions",
-                                style: AppTextStyle.ts16SB(),
-                              ),
+                            buildColumnTitleValue(
+                              title: "Brokerage (%)",
+                              value: "${bookingModel!.brokeragePercentage} %",
                             ),
-                            Icon(
-                              value
-                                  ? Icons.keyboard_arrow_up
-                                  : Icons.keyboard_arrow_down,
+                            buildColumnTitleValue(
+                              title: "Brokerage Amount (₹)",
+                              value:
+                                  bookingModel!.brokerageAmount
+                                      .toIndianCurrency(),
                             ),
                           ],
                         ),
-                      ),
+                      if (bookingModel!.referelAmount > 0)
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Employee Reference (%)",
+                              value: "${bookingModel!.referelPercentage} %",
+                            ),
+                            buildColumnTitleValue(
+                              title: "Employee Reference Amount (₹)",
+                              value:
+                                  bookingModel!.referelAmount
+                                      .toIndianCurrency(),
+                            ),
+                          ],
+                        ),
+                    ],
+                  ),
+                  // PAYMENT DETAILS
+                  SectionCard(
+                    title: "Payment Details",
+                    headerBackgroundColor: AppColor.lightYellow,
+                    titleTextColor: AppColor.brown,
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
                     ),
-
-                    if (value && hasData) ...[
-                      const SizedBox(height: 10),
-                      isHtml
-                          ? Html(
-                            data: bookingModel!.termsAndConditionsDescription,
-                            style: {
-                              "body": Style(
-                                fontSize: FontSize(14),
-                                margin: Margins.zero,
-                                padding: HtmlPaddings.zero,
-                              ),
-                            },
-                          )
-                          : Text(
-                            bookingModel!.termsAndConditionsDescription,
-                            style: AppTextStyle.ts14R(color: AppColor.grey),
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 10,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Cheque / RTGS No.",
+                            value: bookingModel!.chequeRTGSNumber,
                           ),
-                    ] else if (value && !hasData) ...[
-                      Center(
-                        child: noDataWidget(
-                          message: "No Terms & Conditions Available",
-                          iconSize: 180,
+                          buildColumnTitleValue(
+                            title: "Cheque / RTGS Date",
+                            value:
+                                bookingModel?.chequeRTGSDate != null
+                                    ? formatDateTimeAsDDMMMYYYY(
+                                      bookingModel!.chequeRTGSDate!,
+                                    )
+                                    : "-",
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Bank Name",
+                            value: bookingModel!.bankName,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  //  OTHER CHARGES
+                  SectionCard(
+                    title: "Other Charges",
+                    headerBackgroundColor: AppColor.lightPurpleBg2,
+                    titleTextColor: AppColor.purple,
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    children: [
+                      SizedBox(
+                        height: 250.0,
+                        child:
+                            bookingModel!.bookingOtherChargesData.isNotEmpty
+                                ? ListView.builder(
+                                  shrinkWrap: true,
+                                  itemCount:
+                                      bookingModel!
+                                          .bookingOtherChargesData
+                                          .length,
+                                  itemBuilder: (_, index) {
+                                    final extraCharge =
+                                        bookingModel!
+                                            .bookingOtherChargesData[index];
+                                    final bool isLast =
+                                        index ==
+                                        bookingModel!
+                                                .bookingOtherChargesData
+                                                .length -
+                                            1;
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppColor.primary,
+                                          width: .3,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      margin: EdgeInsets.only(
+                                        bottom: isLast ? 0.0 : 10.0,
+                                      ),
+                                      padding: EdgeInsets.all(10),
+                                      child: Column(
+                                        spacing: 10,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Name",
+                                                value: extraCharge.chargeName,
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Calculated On",
+                                                value: extraCharge.calculatedOn,
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Value (In ₹)",
+                                                value:
+                                                    extraCharge.value
+                                                        .toIndianCurrency(),
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "GST (%)",
+                                                value:
+                                                    extraCharge.gstPercentage
+                                                        .toString(),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "GST Value (₹)",
+                                                value:
+                                                    extraCharge.gstValue
+                                                        .toIndianCurrency(),
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Total Value (₹)",
+                                                value:
+                                                    (extraCharge.value +
+                                                            extraCharge
+                                                                .gstValue)
+                                                        .toIndianCurrency(),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                )
+                                : Center(
+                                  child: noDataWidget(
+                                    message: "No Charges Available",
+                                    iconSize: 180,
+                                  ),
+                                ),
+                      ),
+                    ],
+                  ),
+                  // PAYMENT SCHEDULE
+                  SectionCard(
+                    headerBackgroundColor: AppColor.lightBlueBg2,
+                    titleTextColor: AppColor.blue,
+                    title:
+                        "Payment Schedule (${bookingModel?.paymentScheduleScheme ?? ""})",
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    children: [
+                      SizedBox(
+                        height: 250.0,
+                        child: ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2,
+                            vertical: 10,
+                          ),
+                          shrinkWrap: true,
+                          itemCount:
+                              bookingModel!.bookingPaymentScheduleData.length,
+                          itemBuilder: (context, index) {
+                            final payment =
+                                bookingModel!.bookingPaymentScheduleData[index];
+                            final bool isLast =
+                                index ==
+                                bookingModel!
+                                        .bookingPaymentScheduleData
+                                        .length -
+                                    1;
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColor.primary,
+                                  width: .3,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              margin: EdgeInsets.only(
+                                bottom: isLast ? 0.0 : 10,
+                              ),
+                              padding: EdgeInsets.all(10.0),
+                              child: Column(
+                                spacing: 10,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    spacing: 10,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Type",
+                                        value: payment.type,
+                                      ),
+                                      payment.type.contains("Date")
+                                          ? buildColumnTitleValue(
+                                            title: "Date",
+                                            value:
+                                                payment.date != null
+                                                    ? formatDateTimeAsDDMMMYYYY(
+                                                      payment.date!,
+                                                    )
+                                                    : "-",
+                                          )
+                                          : buildColumnTitleValue(
+                                            title: "Stage",
+                                            value: payment.name,
+                                          ),
+                                    ],
+                                  ),
+                                  Row(
+                                    spacing: 10,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Percentage (%)",
+                                        value:
+                                            "${payment.paymentSchedulePercentage} %",
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Amount Without TDS (₹)",
+                                        value:
+                                            payment.paymentScheduleAmount
+                                                .toIndianCurrency(),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    spacing: 10,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "GST Amount (₹)",
+                                        value:
+                                            payment.paymentScheduleGSTAmount
+                                                .toIndianCurrency(),
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "TDS Amount (₹)",
+                                        value:
+                                            payment.paymentScheduleTDSAmount
+                                                .toIndianCurrency(),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Total Amount With TDS (₹)",
+                                        value:
+                                            (payment.paymentScheduleAmount +
+                                                    payment
+                                                        .paymentScheduleTDSAmount)
+                                                .toIndianCurrency(),
+                                      ),
+                                      Spacer(),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
-                  ],
-                );
-              },
-            ),
-          ),
-          // ACTION DETAILS
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Created By",
-                      value: bookingModel!.createdBy,
+                  ),
+                  // FLAT ALTERATION REMARKS
+                  SectionCard(
+                    title: "Unit / Modulation / Customization Remark",
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
                     ),
-                    buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(bookingModel!.createdDate),
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Remarks",
+                        value: bookingModel!.flatAlterationRemark,
+                        removeExpanded: true,
+                      ),
+                    ],
+                  ),
+                  // PAYMENT REMARK
+                  SectionCard(
+                    title: "Payment Remarks",
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
                     ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Modified By",
-                      value: bookingModel!.modifiedBy,
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Remarks",
+                        value: bookingModel!.paymentRemark,
+                        removeExpanded: true,
+                      ),
+                    ],
+                  ),
+                  // OTHER REMARK
+                  SectionCard(
+                    title: "Other Remarks",
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
                     ),
-                    buildColumnTitleValue(
-                      title: "Modified Date",
-                      value: formatDate(bookingModel!.modifiedDate),
+                    children: [
+                      buildColumnTitleValue(
+                        title: "Remarks",
+                        value: bookingModel!.otherRemark,
+                        removeExpanded: true,
+                      ),
+                    ],
+                  ),
+                  // TERMS AND CONDITIONS
+                  SectionCard(
+                    title: "Terms & Conditions",
+                    headerBackgroundColor: AppColor.lightRed,
+                    titleTextColor: AppColor.missingInformationRed,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(10.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.0),
+                          border: Border.all(
+                            width: 1,
+                            color: AppColor.grey.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: isExpanded,
+                          builder: (context, value, child) {
+                            final hasData =
+                                bookingModel!.termsAndConditionsDescription
+                                    .trim()
+                                    .isNotEmpty;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // InkWell(
+                                //   onTap: () {
+                                //     isExpanded.value = !isExpanded.value;
+                                //   },
+                                //   child: SizedBox(
+                                //     width: double.infinity,
+                                //     child: Row(
+                                //       children: [
+                                //         Expanded(
+                                //           child: Text(
+                                //             "Terms & Conditions",
+                                //             style: AppTextStyle.ts16SB(),
+                                //           ),
+                                //         ),
+                                //         Icon(
+                                //           value
+                                //               ? Icons.keyboard_arrow_up
+                                //               : Icons.keyboard_arrow_down,
+                                //         ),
+                                //       ],
+                                //     ),
+                                //   ),
+                                // ),
+                                if (hasData) ...[
+                                  const SizedBox(height: 10),
+                                  isHtml
+                                      ? Html(
+                                        data:
+                                            bookingModel!
+                                                .termsAndConditionsDescription,
+                                        style: {
+                                          "body": Style(
+                                            fontSize: FontSize(14),
+                                            margin: Margins.zero,
+                                            padding: HtmlPaddings.zero,
+                                          ),
+                                        },
+                                      )
+                                      : Text(
+                                        bookingModel!
+                                            .termsAndConditionsDescription,
+                                        style: AppTextStyle.ts14R(
+                                          color: AppColor.grey,
+                                        ),
+                                      ),
+                                ] else if (value && !hasData) ...[
+                                  Center(
+                                    child: noDataWidget(
+                                      message:
+                                          "No Terms & Conditions Available",
+                                      iconSize: 180,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  // ACTION DETAILS
+                  SectionCard(
+                    title: "Action Details",
+                    headerBackgroundColor: AppColor.grey.withValues(alpha: 0.2),
+                    titleTextColor: AppColor.black,
+                    border: Border.all(
+                      color: AppColor.grey.withValues(alpha: 0.3),
+                      width: 1,
                     ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Approval Status",
-                      value: bookingModel!.approvalStatus,
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                    children: [
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Created By",
+                            value: bookingModel!.createdBy,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Created Date",
+                            value: formatDate(bookingModel!.createdDate),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Modified By",
+                            value: bookingModel!.modifiedBy,
+                          ),
+                          buildColumnTitleValue(
+                            title: "Modified Date",
+                            value: formatDate(bookingModel!.modifiedDate),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Approval Status",
+                            value: bookingModel!.approvalStatus,
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -1642,289 +1681,318 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD APPLICANT DETAILS
   Widget _buildApplicantDetailsTab() {
-    return ListView.builder(
+    return Padding(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-      shrinkWrap: true,
-      itemCount: bookingModel!.bookingApplicantData.length,
-      itemBuilder: (_, index) {
-        final applicant = bookingModel!.bookingApplicantData[index];
+      child: SectionCard(
+        title: "Applicant Details",
+        headerBackgroundColor: AppColor.lightYellowBg2,
+        titleTextColor: AppColor.brownYellowText,
+        border: Border.all(
+          color: AppColor.grey.withValues(alpha: 0.3),
+          width: 1,
+        ),
+        children: [
+          SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.55,
+            child: ListView.builder(
+              shrinkWrap: true,
+              physics: AlwaysScrollableScrollPhysics(),
+              itemCount: bookingModel!.bookingApplicantData.length,
+              itemBuilder: (_, index) {
+                final applicant = bookingModel!.bookingApplicantData[index];
 
-        return infoCard(
-          bgColor: AppColor.white,
-          borderColor: AppColor.primary,
+                return infoCard(
+                  bgColor: AppColor.white,
+                  borderColor: AppColor.primary,
 
-          titleWidget: Row(
-            spacing: 5,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  applicant.applicantName,
-                  style: AppTextStyle.ts14M(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              horizontalSpacing(),
-              _buildApplicantTypeWidget(applicant.applicantType),
-            ],
+                  titleWidget: Row(
+                    spacing: 5,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          applicant.applicantName,
+                          style: AppTextStyle.ts14M(),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      horizontalSpacing(),
+                      _buildApplicantTypeWidget(applicant.applicantType),
+                    ],
+                  ),
+
+                  [
+                    {
+                      "title": "Mobile Number",
+                      "value": applicant.applicantMobileNumber,
+                      "widget": CustomClickToContactText(
+                        countryCode: applicant.applicantMobileNumberCountryCode,
+                        value: applicant.applicantMobileNumber,
+                        type: ContactType.phone,
+                      ),
+                    },
+                    {
+                      "title": "E-Mail ID",
+                      "value": applicant.applicantEmailId,
+                      "widget": CustomClickToContactText(
+                        value: applicant.applicantEmailId,
+                        type: ContactType.email,
+                      ),
+                    },
+                    {
+                      "title": "Aadhaar Card No.",
+                      "value": applicant.aadharCardNumber,
+                    },
+                    {
+                      "title": "Aadhaar Card",
+                      "value": applicant.aadharCardURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.aadharCardURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Aadhaar Card",
+                              applicant.aadharCardURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.aadharCardURL.isEmpty,
+                      ),
+                    },
+                    {"title": "PAN Card No.", "value": applicant.panNumber},
+                    {
+                      "title": "PAN Card.",
+                      "value": applicant.panCardURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.panCardURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "PAN Card.",
+                              applicant.panCardURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.panCardURL.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Driving License",
+                      "value": applicant.drivingLicenseNumber,
+                    },
+                    {
+                      "title": "Driving License",
+                      "value": applicant.drivingLicenseURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.drivingLicenseURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Driving License",
+                              applicant.drivingLicenseURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.drivingLicenseURL.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Voting ID No.",
+                      "value": applicant.votingIdNumber,
+                    },
+                    {
+                      "title": "Voting ID",
+                      "value": applicant.votingIdURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.votingIdURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Voting ID",
+                              applicant.votingIdURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.votingIdURL.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Passport No.",
+                      "value": applicant.passportNumber,
+                    },
+                    {
+                      "title": "Passport",
+                      "value": applicant.passportURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.passportURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Passport",
+                              applicant.passportURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.passportURL.isEmpty,
+                      ),
+                    },
+                    {"title": "GST No.", "value": applicant.gstNumber},
+                    {
+                      "title": "GST Certificate",
+                      "value": applicant.gstNumberURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.gstNumberURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "GST Certificate",
+                              applicant.gstNumberURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.gstNumberURL.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Cancelled Cheque",
+                      "value": applicant.cancelledChequeUrl,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.cancelledChequeUrl.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Cancelled Cheque",
+                              applicant.cancelledChequeUrl.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.cancelledChequeUrl.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "POA (if NRI Execution)",
+                      "value": applicant.poaurl,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.poaurl.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "POA (if NRI Execution)",
+                              applicant.poaurl.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.poaurl.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Income Docs (Form 16 / ITR)",
+                      "value": applicant.incomeForm16Itrurl,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.incomeForm16Itrurl.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Income Docs (Form 16 / ITR)",
+                              applicant.incomeForm16Itrurl.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.incomeForm16Itrurl.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "NRE / NRO Bank Details",
+                      "value": applicant.nreNroBankDetailsUrl,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "NRE / NRO Bank Details",
+                              applicant.nreNroBankDetailsUrl.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Nominee Form",
+                      "value": applicant.nomineeFormUrl,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.nomineeFormUrl.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Nominee Form",
+                              applicant.nomineeFormUrl.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.nomineeFormUrl.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Statement Of Source Of Funds",
+                      "value": applicant.statementOfSourceOfFundsURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant
+                              .statementOfSourceOfFundsURL
+                              .isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Statement Of Source Of Funds",
+                              applicant.statementOfSourceOfFundsURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable:
+                            applicant.statementOfSourceOfFundsURL.isEmpty,
+                      ),
+                    },
+
+                    {
+                      "title": "Payment Proof",
+                      "value": applicant.paymentProofURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.paymentProofURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Payment Proof",
+                              applicant.paymentProofURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.paymentProofURL.isEmpty,
+                      ),
+                    },
+                    {
+                      "title": "Profile Photo",
+                      "value": applicant.photoURL,
+                      "widget": CustomButton.documentOutline(
+                        onPressed: () {
+                          if (applicant.photoURL.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Profile Photo",
+                              applicant.photoURL.split(","),
+                            );
+                          }
+                        },
+                        isDisable: applicant.photoURL.isEmpty,
+                      ),
+                    },
+                  ],
+                );
+              },
+            ),
           ),
-
-          [
-            {
-              "title": "Mobile Number",
-              "value": applicant.applicantMobileNumber,
-              "widget": CustomClickToContactText(
-                countryCode: applicant.applicantMobileNumberCountryCode,
-                value: applicant.applicantMobileNumber,
-                type: ContactType.phone,
-              ),
-            },
-            {
-              "title": "E-Mail ID",
-              "value": applicant.applicantEmailId,
-              "widget": CustomClickToContactText(
-                value: applicant.applicantEmailId,
-                type: ContactType.email,
-              ),
-            },
-            {"title": "Aadhaar Card No.", "value": applicant.aadharCardNumber},
-            {
-              "title": "Aadhaar Card",
-              "value": applicant.aadharCardURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.aadharCardURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Aadhaar Card",
-                      applicant.aadharCardURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.aadharCardURL.isEmpty,
-              ),
-            },
-            {"title": "PAN Card No.", "value": applicant.panNumber},
-            {
-              "title": "PAN Card.",
-              "value": applicant.panCardURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.panCardURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "PAN Card.",
-                      applicant.panCardURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.panCardURL.isEmpty,
-              ),
-            },
-            {
-              "title": "Driving License",
-              "value": applicant.drivingLicenseNumber,
-            },
-            {
-              "title": "Driving License",
-              "value": applicant.drivingLicenseURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.drivingLicenseURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Driving License",
-                      applicant.drivingLicenseURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.drivingLicenseURL.isEmpty,
-              ),
-            },
-            {"title": "Voting ID No.", "value": applicant.votingIdNumber},
-            {
-              "title": "Voting ID",
-              "value": applicant.votingIdURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.votingIdURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Voting ID",
-                      applicant.votingIdURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.votingIdURL.isEmpty,
-              ),
-            },
-            {"title": "Passport No.", "value": applicant.passportNumber},
-            {
-              "title": "Passport",
-              "value": applicant.passportURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.passportURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Passport",
-                      applicant.passportURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.passportURL.isEmpty,
-              ),
-            },
-            {"title": "GST No.", "value": applicant.gstNumber},
-            {
-              "title": "GST Certificate",
-              "value": applicant.gstNumberURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.gstNumberURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "GST Certificate",
-                      applicant.gstNumberURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.gstNumberURL.isEmpty,
-              ),
-            },
-            {
-              "title": "Cancelled Cheque",
-              "value": applicant.cancelledChequeUrl,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.cancelledChequeUrl.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Cancelled Cheque",
-                      applicant.cancelledChequeUrl.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.cancelledChequeUrl.isEmpty,
-              ),
-            },
-            {
-              "title": "POA (if NRI Execution)",
-              "value": applicant.poaurl,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.poaurl.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "POA (if NRI Execution)",
-                      applicant.poaurl.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.poaurl.isEmpty,
-              ),
-            },
-            {
-              "title": "Income Docs (Form 16 / ITR)",
-              "value": applicant.incomeForm16Itrurl,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.incomeForm16Itrurl.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Income Docs (Form 16 / ITR)",
-                      applicant.incomeForm16Itrurl.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.incomeForm16Itrurl.isEmpty,
-              ),
-            },
-            {
-              "title": "NRE / NRO Bank Details",
-              "value": applicant.nreNroBankDetailsUrl,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "NRE / NRO Bank Details",
-                      applicant.nreNroBankDetailsUrl.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
-              ),
-            },
-            {
-              "title": "Nominee Form",
-              "value": applicant.nomineeFormUrl,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.nomineeFormUrl.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Nominee Form",
-                      applicant.nomineeFormUrl.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.nomineeFormUrl.isEmpty,
-              ),
-            },
-            {
-              "title": "Statement Of Source Of Funds",
-              "value": applicant.statementOfSourceOfFundsURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.statementOfSourceOfFundsURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Statement Of Source Of Funds",
-                      applicant.statementOfSourceOfFundsURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.statementOfSourceOfFundsURL.isEmpty,
-              ),
-            },
-
-            {
-              "title": "Payment Proof",
-              "value": applicant.paymentProofURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.paymentProofURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Payment Proof",
-                      applicant.paymentProofURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.paymentProofURL.isEmpty,
-              ),
-            },
-            {
-              "title": "Profile Photo",
-              "value": applicant.photoURL,
-              "widget": CustomButton.documentOutline(
-                onPressed: () {
-                  if (applicant.photoURL.isNotEmpty) {
-                    showFilePreviewDialog(
-                      context,
-                      title: "Profile Photo",
-                      applicant.photoURL.split(","),
-                    );
-                  }
-                },
-                isDisable: applicant.photoURL.isEmpty,
-              ),
-            },
-          ],
-        );
-      },
+        ],
+      ),
     );
   }
 
@@ -2234,7 +2302,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD REMARKS TAB
   Widget _buildRemarkTab() {
-    return Padding(
+    return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2360,61 +2428,59 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD PAYMENT DETAILS TAB
   Widget _buildPaymentDetailsTab() {
-    return Container(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Payment Details", style: AppTextStyle.ts16SB()),
-          verticalSpacing(),
-          Container(
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              children: [
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Booking Amount (₹)",
-                      value: bookingModel!.bookingAmount.toIndianCurrency(),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Cheque/ RTGS Number",
-                      value: bookingModel!.chequeRTGSNumber,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Cheque/ RTGS Date",
-                      value:
-                          bookingModel!.chequeRTGSDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                bookingModel!.chequeRTGSDate!,
-                              )
-                              : '-',
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Payment Bank",
-                      value: bookingModel!.bankName,
-                    ),
-                  ],
-                ),
-              ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(16),
+          child: SectionCard(
+            title: "Payment Details",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
             ),
+            children: [
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Booking Amount (₹)",
+                    value: bookingModel!.bookingAmount.toIndianCurrency(),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Cheque/ RTGS Number",
+                    value: bookingModel!.chequeRTGSNumber,
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Cheque/ RTGS Date",
+                    value:
+                        bookingModel!.chequeRTGSDate != null
+                            ? formatDateTimeAsDDMMMYYYY(
+                              bookingModel!.chequeRTGSDate!,
+                            )
+                            : '-',
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Payment Bank",
+                    value: bookingModel!.bankName,
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
