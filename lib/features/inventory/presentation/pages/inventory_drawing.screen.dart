@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
-import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/inventory_drawing_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/cubit/drawing_document_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -113,6 +112,15 @@ class _InventoryDrawingScreenState extends State<InventoryDrawingScreen> {
                                 )
                                 .length,
                         onTap: () {
+                          final categoryDocuments =
+                              documents
+                                  .where(
+                                    (document) =>
+                                        document.drawingDocumentCategory ==
+                                        category,
+                                  )
+                                  .toList();
+
                           goRouter.pushNamed(
                             AppRoutes.inventoryDrawingOverall,
                             queryParameters: {
@@ -120,85 +128,43 @@ class _InventoryDrawingScreenState extends State<InventoryDrawingScreen> {
                                   Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       jsonEncode(
-                                        InventoryDrawingDocumentModel(
-                                          drawingDocumentName:
-                                              documents[index]
-                                                  .drawingDocumentName,
-                                          drawingDocumentUrl:
-                                              documents[index]
-                                                  .drawingDocumentUrl,
-                                          drawingDocumentDwgurl:
-                                              documents[index]
-                                                  .drawingDocumentDwgurl,
-                                          drawingDocumentCategory:
-                                              documents[index]
-                                                  .drawingDocumentCategory,
-                                          drawingDocumentRevisionDate:
-                                              documents[index]
-                                                  .drawingDocumentRevisionDate,
-                                          drawingDocumentRemark:
-                                              documents[index]
-                                                  .drawingDocumentRemark,
-                                          drawingDocumentStatus:
-                                              documents[index]
-                                                  .drawingDocumentStatus,
-                                          approvalStatus:
-                                              documents[index].approvalStatus,
-                                          createdBy: documents[index].createdBy,
-                                          createdDate:
-                                              documents[index].createdDate,
-                                          modifiedBy:
-                                              documents[index].modifiedBy,
-                                          modifiedDate:
-                                              documents[index].modifiedDate,
-                                        ),
+                                        categoryDocuments.map((document) {
+                                          return {
+                                            "DrawingDocumentName":
+                                                document.drawingDocumentName,
+                                            "DrawingDocumentURL":
+                                                document.drawingDocumentUrl,
+                                            "DrawingDocumentDWGURL":
+                                                document.drawingDocumentDwgurl,
+                                            "DrawingDocumentCategory":
+                                                document
+                                                    .drawingDocumentCategory,
+                                            "DrawingDocumentRevisionDate":
+                                                document
+                                                    .drawingDocumentRevisionDate
+                                                    ?.toIso8601String(),
+                                            "DrawingDocumentRemark":
+                                                document.drawingDocumentRemark,
+                                            "DrawingDocumentStatus":
+                                                document.drawingDocumentStatus,
+                                            "ApprovalStatus":
+                                                document.approvalStatus,
+                                            "CreatedBy": document.createdBy,
+                                            "CreatedDate":
+                                                document.createdDate
+                                                    .toIso8601String(),
+                                            "ModifiedBy": document.modifiedBy,
+                                            "ModifiedDate":
+                                                document.modifiedDate
+                                                    ?.toIso8601String(),
+                                          };
+                                        }).toList(),
                                       ),
                                     ),
                                   ),
                               "flatModel": Uri.encodeQueryComponent(
                                 EncryptionManager.encryptData(
-                                  jsonEncode(
-                                    FlatModel(
-                                      inventoryFlatId: 0,
-                                      uniquekey: "",
-                                      inventoryBuildingId:
-                                          widget.flatModel!.inventoryBuildingId,
-                                      buildingNumber:
-                                          widget.flatModel!.buildingNumber,
-                                      inventoryFlatFloorBasementPodiumWingId:
-                                          widget
-                                              .flatModel!
-                                              .inventoryFlatFloorBasementPodiumWingId,
-                                      wing: widget.flatModel!.wing,
-                                      inventoryFloorId:
-                                          widget.flatModel!.inventoryFloorId,
-                                      floor: widget.flatModel!.floor,
-                                      slabHeight: widget.flatModel!.slabHeight,
-                                      drawingCount:
-                                          widget.flatModel!.drawingCount,
-                                      parkingCount:
-                                          widget.flatModel!.parkingCount,
-                                      note: "",
-                                      flat: "",
-                                      reraCarpetAreaSqFt: 0,
-                                      flatType: "",
-                                      flatConfiguration: "",
-                                      flatStatus: "",
-                                      ownerName: "",
-                                      flatFacing: "",
-                                      createdBy: "",
-                                      createdById: 0,
-                                      modifiedBy: "",
-                                      modifiedById: 0,
-                                      createdDate: DateTime.now(),
-                                      modifiedDate: DateTime.now(),
-                                      bookingId: 0,
-                                      bookingCreatedById: 0,
-                                      bookingCreatedBy: "",
-                                      bookingCreatedDate: DateTime.now(),
-                                      specificationList: [],
-                                    ),
-                                  ),
+                                  jsonEncode(widget.flatModel!.toJson()),
                                 ),
                               ),
                             },
@@ -250,7 +216,7 @@ class _InventoryDrawingScreenState extends State<InventoryDrawingScreen> {
                 Expanded(
                   child: Text(
                     title,
-                    style: AppTextStyle.ts16M(
+                    style: AppTextStyle.ts14M(
                       color: AppColor.greyTitleAndValueColor,
                     ),
                   ),
@@ -280,7 +246,7 @@ class _InventoryDrawingScreenState extends State<InventoryDrawingScreen> {
             verticalSpacing(height: 12.0),
             Divider(
               height: 1,
-              thickness: 1,
+              thickness: 0.2,
               color: AppColor.primary.withValues(alpha: 0.50),
             ),
             verticalSpacing(height: 12.0),
@@ -291,11 +257,12 @@ class _InventoryDrawingScreenState extends State<InventoryDrawingScreen> {
                 buildColumnTitleValue(
                   title: "Advance",
                   value: advanceCount.toString(),
+                  removeExpanded: true,
                 ),
-                horizontalSpacing(width: 12),
                 buildColumnTitleValue(
                   title: "Good For Construction",
                   value: advanceCount.toString(),
+                  removeExpanded: true,
                 ),
               ],
             ),

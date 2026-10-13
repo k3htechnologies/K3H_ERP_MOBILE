@@ -98,9 +98,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
       );
 
       _selectedStatus.value = matchedStatus;
-
-      print("Document status: ${document.drawingDocumentStatus}");
-      print("Matched status: $_selectedStatus");
     }
     if (document.inventoryFloorId > 0) {
       _selectedFloorNotifier.value = [
@@ -335,12 +332,9 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                     CustomMultiFilePicker(
                       maxFiles: 5,
                       title: "Files (.DWG)",
-                      filePickType: FilePickType.document,
+                      filePickType: FilePickType.onlyDwg,
                       initialFileList: selectedDocumentDWGFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
-                        print(
-                          "the file name is: ${selectedDocumentDWGFile.fileNameList}",
-                        );
                         selectedDocumentDWGFile.fileNameList = fileNameList;
                         selectedDocumentDWGFile.fileBytesList = bytesList;
                       },

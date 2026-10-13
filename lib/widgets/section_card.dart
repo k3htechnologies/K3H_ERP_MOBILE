@@ -27,6 +27,7 @@ class SectionCard extends StatelessWidget {
   final List<Widget> children;
 
   final double? margin;
+  final BoxBorder? border;
 
   const SectionCard({
     super.key,
@@ -41,6 +42,7 @@ class SectionCard extends StatelessWidget {
     this.suffix,
     this.childSpacing,
     this.margin,
+    this.border,
   });
 
   @override
@@ -53,7 +55,8 @@ class SectionCard extends StatelessWidget {
       width: double.infinity,
       margin: EdgeInsets.only(bottom: margin ?? 16.h),
       clipBehavior: Clip.antiAlias,
-      decoration: commonCardDecoration(),
+      decoration: commonCardDecoration().copyWith(border: border),
+
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [_buildViewHeader(), _buildViewContent()],
