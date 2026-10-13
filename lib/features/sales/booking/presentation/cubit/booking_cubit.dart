@@ -108,7 +108,7 @@ class BookingCubit extends Cubit<BookingState> {
         "AgreementValue": state.filterAgreementValue,
       if (state.filterBookingType.isNotEmpty)
         "BookingType": state.filterBookingType,
-
+      "BookingSearchKey": "SALE BOOKING",
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
