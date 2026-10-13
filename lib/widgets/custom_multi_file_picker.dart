@@ -734,6 +734,8 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                                       break;
 
                                                     case FilePickType.document:
+                                                    case FilePickType
+                                                        .drawingDocument:
                                                       showUploadDocumentDialog(
                                                         context,
                                                         formFieldState,
