@@ -42,6 +42,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/project_document/test_docume
 import 'package:k3h_erp_app/di/feature_dependencies/project_document/test_document_category/test_document_category.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/rebuild/project_lead/project_lead.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/dashboard/redevelopment_dashboard.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/redevelopment/tenant_booking/tenant_booking.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/register/register.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/booking/booking.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/sales/master/channel_partner_category/channel_partner_category.dependencies.dart';
@@ -242,6 +243,8 @@ void initDependencies() {
   registerPaymentScheduleDependencies(serviceLocator);
   // BOOKING DEPENDENCIES
   registerBookingDependencies(serviceLocator);
+  // TENANT BOOKING DEPENDENCIES
+  registerTenantBookingDependencies(serviceLocator);
   // SOURCING DEPENDENCIES
   registerSourcingDependencies(serviceLocator);
   // DASHBOARD DEPENDENCIES
@@ -294,7 +297,7 @@ void initDependencies() {
   registerPaytrackCallTrackerDependencies(serviceLocator);
   // FINANCE
   registerTermSheetDependencies(serviceLocator);
-  // FINANCE REPORT 
+  // FINANCE REPORT
   registerTermSheetReportDependencies(serviceLocator);
   // ESTIMATION AND BUDGET MASTER DEPENDENCIES
   registerBudgetDependencies(serviceLocator);

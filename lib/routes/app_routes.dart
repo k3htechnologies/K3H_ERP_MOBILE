@@ -405,6 +405,9 @@ class AppRoutes {
   static String addTenant = "/addTenant";
   static String viewTenant = "/viewTenant";
 
+  // TENANT BOOKING
+  static String tenantBooking = "/tenantBooking";
+
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
 
   /// PAYROLL

@@ -8,6 +8,8 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/proposed_plans_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
+import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
@@ -2555,273 +2557,6 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-        // TENANT
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(create: (_) => TenantCubit(), child: child);
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.tenant,
-              path: AppRoutes.tenant,
-              builder: (context, state) {
-                return const TenantScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addTenant,
-              path: AppRoutes.addTenant,
-              builder: (context, state) {
-                final queryParameterTenant =
-                    state.uri.queryParameters['tenant'];
-
-                final TenantModel? tenant =
-                    queryParameterTenant != null
-                        ? TenantModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterTenant),
-                            ),
-                          ),
-                        )
-                        : null;
-                final index =
-                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-
-                final projectId =
-                    int.tryParse(
-                      state.uri.queryParameters['projectId'] ?? '',
-                    ) ??
-                    tenant?.projectId ??
-                    0;
-                final buildingId =
-                    int.tryParse(
-                      state.uri.queryParameters['buildingId'] ?? '',
-                    ) ??
-                    tenant?.buildingId ??
-                    0;
-                final buildingName =
-                    state.uri.queryParameters['buildingName'] ?? '';
-                return AddTenantScreen(
-                  tenant: tenant,
-                  index: index,
-                  projectId: projectId,
-                  buildingId: buildingId,
-                  buildingName: buildingName,
-                );
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewTenant,
-              path: AppRoutes.viewTenant,
-              builder: (context, state) {
-                final queryParameterTenant =
-                    state.uri.queryParameters['tenant'];
-
-                final TenantModel? tenant =
-                    queryParameterTenant != null
-                        ? TenantModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterTenant),
-                            ),
-                          ),
-                        )
-                        : null;
-                final buildingName =
-                    state.uri.queryParameters['buildingName'] ?? '';
-
-                return TenantViewScreen(
-                  tenant: tenant!,
-                  buildingName: buildingName,
-                );
-              },
-            ),
-          ],
-        ),
-        // RENT
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => TemporaryAlternateAccommodationCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.rent,
-              path: AppRoutes.rent,
-              builder: (context, state) {
-                return TemporaryAlternateAccommodationScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewRent,
-              path: AppRoutes.viewRent,
-              builder: (context, state) {
-                final queryParameterRent = state.uri.queryParameters['rent'];
-                final queryParameterTotalAmount =
-                    state.uri.queryParameters['totalAmount'];
-                final queryParameterPaidAmount =
-                    state.uri.queryParameters['paidAmount'];
-                final buildingName =
-                    state.uri.queryParameters['buildingName'] ?? '';
-
-                final TemporaryAlternativeAccommodationModel tenantModel =
-                    TemporaryAlternativeAccommodationModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterRent!),
-                        ),
-                      ),
-                    );
-                final double totalAmount =
-                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
-                final double paidAmount =
-                    double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
-                return ViewTemporaryAlternateAccommodationScreen(
-                  tenantModel: tenantModel,
-                  totalAmount: totalAmount,
-                  paidAmount: paidAmount,
-                  buildingName: buildingName,
-                );
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.addPayment,
-              path: AppRoutes.addPayment,
-              builder: (context, state) {
-                final queryParameterRent = state.uri.queryParameters['rent'];
-                final queryParameterPaymentLedger =
-                    state.uri.queryParameters['paymentLedger'];
-                final queryParameterTotalAmount =
-                    state.uri.queryParameters['totalAmount'];
-                final queryParameterPaidAmount =
-                    state.uri.queryParameters['paidAmount'];
-                final queryParameterPaymentLedgerIndex =
-                    state.uri.queryParameters['paymentLedgerIndex'];
-
-                // Take previous route directly from query parameter
-                final String previousRoute =
-                    state.uri.queryParameters['previousRoute'] ?? '';
-
-                final TemporaryAlternativeAccommodationModel rentModel =
-                    TemporaryAlternativeAccommodationModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterRent!),
-                        ),
-                      ),
-                    );
-
-                final double totalAmount =
-                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
-
-                final double paidAmount =
-                    double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
-
-                final PaymentLedgerModel? paymentLedgerModel =
-                    queryParameterPaymentLedger != null
-                        ? PaymentLedgerModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterPaymentLedger),
-                            ),
-                          ),
-                        )
-                        : null;
-
-                final int? paymentLedgerIndex = int.tryParse(
-                  queryParameterPaymentLedgerIndex ?? '',
-                );
-                final buildingName =
-                    state.uri.queryParameters['buildingName'] ?? '';
-
-                return AddTemporaryAlternateAccommodationPaymentScreen(
-                  rentModel: rentModel,
-                  totalAmount: totalAmount,
-                  paidAmount: paidAmount,
-                  paymentLedger: paymentLedgerModel,
-                  paymentLedgerIndex: paymentLedgerIndex,
-                  previousRoute: previousRoute,
-                  buildingName: buildingName,
-                );
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.viewSummary,
-              path: AppRoutes.viewSummary,
-              builder: (context, state) {
-                final queryParameterRent = state.uri.queryParameters['rent'];
-                final queryParameterTotalAmount =
-                    state.uri.queryParameters['totalAmount'];
-                final TemporaryAlternativeAccommodationModel rentModel =
-                    TemporaryAlternativeAccommodationModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterRent!),
-                        ),
-                      ),
-                    );
-
-                final double totalAmount =
-                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
-
-                final buildingName =
-                    state.uri.queryParameters['buildingName'] ?? '';
-
-                return ViewPaymentSummaryScreen(
-                  rentModel: rentModel,
-                  totalAmount: totalAmount,
-                  buildingName: buildingName,
-                );
-              },
-            ),
-          ],
-        ),
-        // PROPOSED PLANS
-        ShellRoute(
-          builder: (context, state, child) {
-            return BlocProvider(
-              create: (_) => ProposedPlansCubit(),
-              child: child,
-            );
-          },
-          routes: [
-            GoRoute(
-              name: AppRoutes.proposedPlan,
-              path: AppRoutes.proposedPlan,
-              builder: (context, state) {
-                return const ProposedPlansScreen();
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.wingDetails,
-              path: AppRoutes.wingDetails,
-              builder: (context, state) {
-                final data = state.extra as Map<String, dynamic>;
-
-                return AddWingDetailsScreen(
-                  wingIndex: data["index"],
-                  wing: data["wing"],
-                );
-              },
-            ),
-            GoRoute(
-              name: AppRoutes.duplicateBuildingProposedPlan,
-              path: AppRoutes.duplicateBuildingProposedPlan,
-              builder: (context, state) {
-                final data = state.extra as Map<String, dynamic>;
-
-                return DuplicateBuildingProposedPlanScreen(
-                  projectId: data["projectId"],
-                  selectedBuildingIndex: data["selectedBuildingIndex"],
-                  buildingName: data["buildingName"],
-                );
-              },
-            ),
-          ],
-        ),
         // PROPOSED OFFER
         ShellRoute(
           builder: (context, state, child) {
@@ -3061,7 +2796,290 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-        // CALENDAR
+        // PROPOSED PLANS
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => ProposedPlansCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.proposedPlan,
+              path: AppRoutes.proposedPlan,
+              builder: (context, state) {
+                return const ProposedPlansScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.wingDetails,
+              path: AppRoutes.wingDetails,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return AddWingDetailsScreen(
+                  wingIndex: data["index"],
+                  wing: data["wing"],
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.duplicateBuildingProposedPlan,
+              path: AppRoutes.duplicateBuildingProposedPlan,
+              builder: (context, state) {
+                final data = state.extra as Map<String, dynamic>;
+
+                return DuplicateBuildingProposedPlanScreen(
+                  projectId: data["projectId"],
+                  selectedBuildingIndex: data["selectedBuildingIndex"],
+                  buildingName: data["buildingName"],
+                );
+              },
+            ),
+          ],
+        ),
+        // TENANT
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(create: (_) => TenantCubit(), child: child);
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.tenant,
+              path: AppRoutes.tenant,
+              builder: (context, state) {
+                return const TenantScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addTenant,
+              path: AppRoutes.addTenant,
+              builder: (context, state) {
+                final queryParameterTenant =
+                    state.uri.queryParameters['tenant'];
+
+                final TenantModel? tenant =
+                    queryParameterTenant != null
+                        ? TenantModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterTenant),
+                            ),
+                          ),
+                        )
+                        : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                final projectId =
+                    int.tryParse(
+                      state.uri.queryParameters['projectId'] ?? '',
+                    ) ??
+                    tenant?.projectId ??
+                    0;
+                final buildingId =
+                    int.tryParse(
+                      state.uri.queryParameters['buildingId'] ?? '',
+                    ) ??
+                    tenant?.buildingId ??
+                    0;
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
+                return AddTenantScreen(
+                  tenant: tenant,
+                  index: index,
+                  projectId: projectId,
+                  buildingId: buildingId,
+                  buildingName: buildingName,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewTenant,
+              path: AppRoutes.viewTenant,
+              builder: (context, state) {
+                final queryParameterTenant =
+                    state.uri.queryParameters['tenant'];
+
+                final TenantModel? tenant =
+                    queryParameterTenant != null
+                        ? TenantModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterTenant),
+                            ),
+                          ),
+                        )
+                        : null;
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
+
+                return TenantViewScreen(
+                  tenant: tenant!,
+                  buildingName: buildingName,
+                );
+              },
+            ),
+          ],
+        ),
+        // TAA
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => TemporaryAlternateAccommodationCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.rent,
+              path: AppRoutes.rent,
+              builder: (context, state) {
+                return TemporaryAlternateAccommodationScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewRent,
+              path: AppRoutes.viewRent,
+              builder: (context, state) {
+                final queryParameterRent = state.uri.queryParameters['rent'];
+                final queryParameterTotalAmount =
+                    state.uri.queryParameters['totalAmount'];
+                final queryParameterPaidAmount =
+                    state.uri.queryParameters['paidAmount'];
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
+
+                final TemporaryAlternativeAccommodationModel tenantModel =
+                    TemporaryAlternativeAccommodationModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterRent!),
+                        ),
+                      ),
+                    );
+                final double totalAmount =
+                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+                final double paidAmount =
+                    double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
+                return ViewTemporaryAlternateAccommodationScreen(
+                  tenantModel: tenantModel,
+                  totalAmount: totalAmount,
+                  paidAmount: paidAmount,
+                  buildingName: buildingName,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addPayment,
+              path: AppRoutes.addPayment,
+              builder: (context, state) {
+                final queryParameterRent = state.uri.queryParameters['rent'];
+                final queryParameterPaymentLedger =
+                    state.uri.queryParameters['paymentLedger'];
+                final queryParameterTotalAmount =
+                    state.uri.queryParameters['totalAmount'];
+                final queryParameterPaidAmount =
+                    state.uri.queryParameters['paidAmount'];
+                final queryParameterPaymentLedgerIndex =
+                    state.uri.queryParameters['paymentLedgerIndex'];
+
+                // Take previous route directly from query parameter
+                final String previousRoute =
+                    state.uri.queryParameters['previousRoute'] ?? '';
+
+                final TemporaryAlternativeAccommodationModel rentModel =
+                    TemporaryAlternativeAccommodationModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterRent!),
+                        ),
+                      ),
+                    );
+
+                final double totalAmount =
+                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+
+                final double paidAmount =
+                    double.tryParse(queryParameterPaidAmount ?? '0') ?? 0;
+
+                final PaymentLedgerModel? paymentLedgerModel =
+                    queryParameterPaymentLedger != null
+                        ? PaymentLedgerModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterPaymentLedger),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final int? paymentLedgerIndex = int.tryParse(
+                  queryParameterPaymentLedgerIndex ?? '',
+                );
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
+
+                return AddTemporaryAlternateAccommodationPaymentScreen(
+                  rentModel: rentModel,
+                  totalAmount: totalAmount,
+                  paidAmount: paidAmount,
+                  paymentLedger: paymentLedgerModel,
+                  paymentLedgerIndex: paymentLedgerIndex,
+                  previousRoute: previousRoute,
+                  buildingName: buildingName,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewSummary,
+              path: AppRoutes.viewSummary,
+              builder: (context, state) {
+                final queryParameterRent = state.uri.queryParameters['rent'];
+                final queryParameterTotalAmount =
+                    state.uri.queryParameters['totalAmount'];
+                final TemporaryAlternativeAccommodationModel rentModel =
+                    TemporaryAlternativeAccommodationModel.fromJson(
+                      jsonDecode(
+                        EncryptionManager.decryptData(
+                          Uri.decodeComponent(queryParameterRent!),
+                        ),
+                      ),
+                    );
+
+                final double totalAmount =
+                    double.tryParse(queryParameterTotalAmount ?? '0') ?? 0;
+
+                final buildingName =
+                    state.uri.queryParameters['buildingName'] ?? '';
+
+                return ViewPaymentSummaryScreen(
+                  rentModel: rentModel,
+                  totalAmount: totalAmount,
+                  buildingName: buildingName,
+                );
+              },
+            ),
+          ],
+        ),
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => TenantBookingCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.tenantBooking,
+              path: AppRoutes.tenantBooking,
+              builder: (context, state) {
+                return TenantBookingScreen();
+              },
+            ),
+          ],
+        ), // CALENDAR
         ShellRoute(
           builder: (context, state, child) {
             return MultiBlocProvider(

@@ -665,7 +665,7 @@ class _TenantScreenState extends State<TenantScreen> {
                                     ? applicant.first.applicantName
                                     : '';
                             return Container(
-                              padding: const EdgeInsets.all(14),
+                              padding: const EdgeInsets.all(16),
                               decoration: commonCardDecoration(),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -721,7 +721,7 @@ class _TenantScreenState extends State<TenantScreen> {
                                                 ],
                                               ),
                                             ),
-                                            const SizedBox(height: 8),
+                                            verticalSpacing(),
                                             Row(
                                               spacing: 10,
                                               children: [
@@ -803,20 +803,16 @@ class _TenantScreenState extends State<TenantScreen> {
                                                 ),
                                               ],
                                             ),
-                                            const SizedBox(height: 4),
-                                            RichText(
-                                              text: TextSpan(
-                                                text: applicantName,
-                                                style: AppTextStyle.ts14M(),
-                                                children: [
-                                                  TextSpan(
-                                                    text:
-                                                        "\n • ${tenant.unitType} ${tenant.unitConfiguration.isNotEmpty ? '(${tenant.unitConfiguration})' : ''}",
-                                                    style: AppTextStyle.ts12M(
-                                                      color: AppColor.grey,
-                                                    ),
-                                                  ),
-                                                ],
+                                            verticalSpacing(),
+                                            Text(
+                                              applicantName,
+                                              style: AppTextStyle.ts14M(),
+                                            ),
+                                            verticalSpacing(),
+                                            Text(
+                                              "• ${tenant.unitType} ${tenant.unitConfiguration.isNotEmpty ? '(${tenant.unitConfiguration})' : ''}",
+                                              style: AppTextStyle.ts12M(
+                                                color: AppColor.grey,
                                               ),
                                             ),
                                           ],
