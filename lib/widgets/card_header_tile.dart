@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 
 class CardHeaderTile extends StatelessWidget {
   final String? svgIcon;
@@ -34,26 +35,13 @@ class CardHeaderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Container(
-          height: containerSize,
-          width: containerSize,
-          decoration: BoxDecoration(
-            color: backgroundColor,
-            borderRadius: BorderRadius.circular(6),
-          ),
-          alignment: Alignment.center,
-          child:
-              svgIcon != null
-                  ? SvgPicture.asset(
-                    svgIcon!,
-                    height: iconSize,
-                    width: iconSize,
-                  )
-                  : Icon(
-                    icon,
-                    size: iconSize,
-                    color: iconColor ?? AppColor.darkBlue,
-                  ),
+        CustomIconContainer(
+          containerSize: containerSize,
+          iconSize: iconSize,
+          backgroundColor: backgroundColor,
+          iconColor: iconColor,
+          icon: icon,
+          svgIcon: svgIcon,
         ),
         const SizedBox(width: 12),
         Expanded(

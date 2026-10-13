@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 
@@ -17,6 +19,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_import_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_month_year_picker.dart';
@@ -300,7 +303,6 @@ class _TargetScreenState extends State<TargetScreen>
             authorization: _routeAuthorizationModel,
             textController: _searchC,
             searchHintText: "Search by Employee Name",
-            projectId: _project.projectId,
             onSearchSubmit: (value) {
               _targetCubit.searchSalesTarget(
                 context,
@@ -333,37 +335,7 @@ class _TargetScreenState extends State<TargetScreen>
               }
               setState(() {});
             },
-            // TODO: NEW COMPONENT CHANGES
-            importTableName:
-                _tabController.index == 0
-                    ? "SALES TARGET SOURCING"
-                    : "SALES TARGET CLOSING",
-            exportMonthYear: _getFormattedMonth(),
-            onImportResult: (action) {
-              if (action == "success") {
-                if (_tabController.index == 0) {
-                  _targetCubit.getSalesTargetSourcingList(
-                    context: context,
-                    projectId: getProject().projectId,
-                    pageNumber: 1,
-                  );
-                  _tabController.animateTo(0);
-                } else {
-                  _targetCubit.getSalesTargetClosingList(
-                    context: context,
-                    projectId: getProject().projectId,
-                    pageNumber: 1,
-                  );
-                  _tabController.animateTo(1);
-                }
-              } else if (action == "download") {
-                if (_tabController.index == 0) {
-                  salesTargetSampleExcelImportSourcing(context);
-                } else {
-                  salesTargetSampleExcelImportClosing(context);
-                }
-              }
-            },
+
             onExportCallback: (value) {
               if (_tabController.index == 0) {
                 salesTargetSampleExcelImportSourcing(context);
@@ -371,6 +343,69 @@ class _TargetScreenState extends State<TargetScreen>
                 salesTargetSampleExcelImportClosing(context);
               }
             },
+            importConfig: ImportConfig(
+              tableName:
+                  _tabController.index == 0
+                      ? "SALES TARGET SOURCING"
+                      : "SALES TARGET CLOSING",
+              validator: (action) {
+                if (_project.projectId == 0) {
+                  return "Please Select a Project";
+                }
+                if (_getFormattedMonth() == null) {
+                  return "Please Select a Month";
+                }
+                return null;
+              },
+              onUpload: (fileBytes, fileName, deleteAll, option) async {
+                final isSourcing = _tabController.index == 0;
+
+                final success = await importExcel(
+                  context: context,
+                  body: {
+                    "TableName":
+                        isSourcing
+                            ? "SALES TARGET SOURCING"
+                            : "SALES TARGET CLOSING",
+                    "IsAllDelete": deleteAll ? "1" : "0",
+                    "ProjectId": _project.projectId.toString(),
+                    "MonthYear": _getFormattedMonth() ?? "",
+                  },
+                  fileList: [
+                    {
+                      "key": "ExcelFile",
+                      "value": fileBytes,
+                      "fileName": fileName,
+                    },
+                  ],
+                );
+
+                if (success) {
+                  if (isSourcing) {
+                    _targetCubit.getSalesTargetSourcingList(
+                      context: context,
+                      projectId: getProject().projectId,
+                      pageNumber: 1,
+                    );
+                    _tabController.animateTo(0);
+                  } else {
+                    _targetCubit.getSalesTargetClosingList(
+                      context: context,
+                      projectId: getProject().projectId,
+                      pageNumber: 1,
+                    );
+                    _tabController.animateTo(1);
+                  }
+                }
+              },
+              onSampleDownload: () {
+                if (_tabController.index == 0) {
+                  salesTargetSampleExcelImportSourcing(context);
+                } else {
+                  salesTargetSampleExcelImportClosing(context);
+                }
+              },
+            ),
           ),
           body: BlocBuilder<TargetCubit, TargetState>(
             builder: (context, state) {

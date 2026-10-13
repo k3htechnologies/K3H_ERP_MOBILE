@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -458,6 +459,51 @@ Widget titleValue(String title, String value) {
   );
 }
 
+class CustomIconContainer extends StatelessWidget {
+  final double containerSize;
+  final double iconSize;
+  final Color backgroundColor;
+  final Color? iconColor;
+  final IconData? icon;
+  final String? svgIcon;
+
+  const CustomIconContainer({
+    super.key,
+    required this.containerSize,
+    required this.iconSize,
+    required this.backgroundColor,
+    this.iconColor,
+    this.icon,
+    this.svgIcon,
+  }) : assert(
+         icon != null || svgIcon != null,
+         'Either icon or svgIcon must be provided.',
+       );
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: containerSize,
+      width: containerSize,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(6),
+      ),
+      alignment: Alignment.center,
+      child: svgIcon != null
+          ? SvgPicture.asset(
+              svgIcon!,
+              height: iconSize,
+              width: iconSize,
+            )
+          : Icon(
+              icon,
+              size: iconSize,
+              color: iconColor ?? AppColor.darkBlue,
+            ),
+    );
+  }
+}
 class DottedDivider extends StatelessWidget {
   final double height;
   final Color color;

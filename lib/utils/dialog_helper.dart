@@ -2,9 +2,7 @@
 
 import 'dart:typed_data';
 import 'dart:ui';
-
 import 'package:country_flags/country_flags.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';

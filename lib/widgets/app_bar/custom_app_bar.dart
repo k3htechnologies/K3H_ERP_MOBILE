@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -16,7 +14,6 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_import_button.dart';
@@ -45,16 +42,9 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final bool isFilterOn;
   final VoidCallback? onFilterTap;
 
-  final String? importTableName;
-  final int? projectId;
-  final int? buildingId;
-  final String? exportMonthYear;
-  final Function(String)? onImportResult;
+  final ImportConfig? importConfig;
   final bool showMenuIcon;
   final ValueNotifier<int>? filterCountNotifier;
-  final ImportCallback? onUploadCallback;
-  final ImportValidator? importValidator;
-  final bool isTenantAlloted;
 
   const CustomAppBar({
     super.key,
@@ -75,17 +65,10 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
     this.onProjectChangeCallback,
     this.isFilterOn = false,
     this.onFilterTap,
-    this.importTableName,
-    this.projectId,
-    this.buildingId,
-    this.exportMonthYear,
-    this.onImportResult,
+    this.importConfig,
     this.textControllerInputType = TextInputType.text,
     this.showMenuIcon = true,
     this.filterCountNotifier,
-    this.onUploadCallback,
-    this.isTenantAlloted = false,
-    this.importValidator,
   });
 
   static const double _baseHeight = 90;
@@ -412,15 +395,9 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                         ),
                       ],
                       if (widget.authorization.isExport &&
-                          widget.importTableName != null &&
-                          widget.onUploadCallback != null) ...[
+                          widget.importConfig != null) ...[
                         horizontalSpacing(),
-                        CustomImportButton(
-                          importTableName: widget.importTableName!,
-                          onUploadCallback: widget.onUploadCallback!,
-                          isTenantAlloted: widget.isTenantAlloted,
-                          validator: widget.importValidator,
-                        ),
+                        CustomImportButton(config: widget.importConfig!),
                       ],
                     ],
                   ),
@@ -429,83 +406,6 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget importButton(
-    BuildContext context,
-    String importTableName,
-    Function(String) onImportCallback, {
-    int? projectId,
-    int? buildingId,
-    String? monthYear,
-  }) {
-    Future<bool> importFile() async {
-      final Map<String, dynamic>? dialogResult =
-          await DialogHelper.showDeleteAllConfirmationDialog(context: context);
-
-      if (dialogResult == null || !context.mounted) {
-        return false;
-      }
-
-      final bool deleteAll = dialogResult["deleteAll"];
-      final Uint8List fileBytes = dialogResult["fileBytes"];
-      final String fileName = dialogResult["fileName"];
-
-      var result = await importExcel(
-        context: context,
-        body: {
-          "TableName": importTableName,
-          "IsAllDelete": deleteAll ? "1" : "0",
-          "ProjectId": projectId?.toString() ?? "0",
-          "BuildingId": buildingId?.toString() ?? "0",
-          "MonthYear": monthYear ?? "",
-        },
-        fileList: [
-          {"key": "ExcelFile", "value": fileBytes, "fileName": fileName},
-        ],
-      );
-
-      return result;
-    }
-
-    return CustomIconButton(
-      onPressed: () async {
-        if (projectId == 0) {
-          showErrorMessage(context, "", "Please select a project");
-          return;
-        }
-        if ((monthYear ?? "").isEmpty) {
-          showErrorMessage(context, "", "Please select a month");
-          return;
-        }
-
-        final result = await DialogHelper.showUploadExcelDialog(context);
-        if (result != null) {
-          if (result == true) {
-            var resultValue = await importFile();
-
-            if (context.mounted) {
-              onImportCallback(resultValue ? "success" : "failed");
-            }
-          } else if (result == false) {
-            if (context.mounted) {
-              if (importTableName == "SALES TARGET SOURCING") {
-                widget.onImportResult!("download");
-              } else if (importTableName == "SALES TARGET CLOSING") {
-                widget.onImportResult!("download");
-              } else {
-                sampleExcelImport(context: context, tableName: importTableName);
-              }
-            }
-          }
-        }
-      },
-      icon: Icon(
-        Icons.file_upload_outlined,
-        size: 16.0,
-        color: AppColor.primary,
       ),
     );
   }

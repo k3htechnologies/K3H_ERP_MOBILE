@@ -27,6 +27,7 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class TenantScreen extends StatefulWidget {
   const TenantScreen({super.key});
@@ -489,35 +490,47 @@ class _TenantScreenState extends State<TenantScreen> {
           onFilterTap: () {
             _showBottomSheetToFilterTenant(context);
           },
-          importTableName: "TENANT",
-          isTenantAlloted: true,
-          importValidator: () {
-            if (_project.projectId == 0) {
-              return "Please Select a Project";
-            }
-            if (_selectedBuildingNotifier.value.isEmpty) {
-              return 'Please select building';
-            }
-            return null;
-          },
-          onUploadCallback: (fileBytes, fileName, deleteAll) async {
-            await importExcel(
-              context: context,
-              body: {
-                "TableName": "TENANT",
-                "IsAllDelete": deleteAll ? "1" : "0",
-                "ProjectId": _project.projectId.toString(),
-                "BuildingId":
-                    _selectedBuildingNotifier.value.isNotEmpty
-                        ? _selectedBuildingNotifier.value.first['zAttributesId']
-                            .toString()
-                        : "0",
-              },
-              fileList: [
-                {"key": "ExcelFile", "value": fileBytes, "fileName": fileName},
-              ],
-            );
-          },
+          importConfig: ImportConfig(
+            tableName: "TENANT",
+            isTenantAlloted: true,
+            validator: (action) {
+              if (action == ImportAction.upload) {
+                if (_project.projectId == 0) {
+                  return "Please Select a Project";
+                }
+                if (_selectedBuildingNotifier.value.isEmpty) {
+                  return 'Please select building';
+                }
+              }
+              return null;
+            },
+            onUpload: (fileBytes, fileName, deleteAll, option) async {
+              await importExcel(
+                context: context,
+                body: {
+                  "TableName": "TENANT",
+                  "IsAllDelete": deleteAll ? "1" : "0",
+                  "ProjectId": _project.projectId.toString(),
+                  "BuildingId":
+                      _selectedBuildingNotifier.value.isNotEmpty
+                          ? _selectedBuildingNotifier
+                              .value
+                              .first['zAttributesId']
+                              .toString()
+                          : "0",
+                  "IsTenantAlloted":
+                      option == 'Tenant Alloted' ? 'true' : 'false',
+                },
+                fileList: [
+                  {
+                    "key": "ExcelFile",
+                    "value": fileBytes,
+                    "fileName": fileName,
+                  },
+                ],
+              );
+            },
+          ),
         ),
         body: Column(
           children: [
@@ -709,33 +722,86 @@ class _TenantScreenState extends State<TenantScreen> {
                                               ),
                                             ),
                                             const SizedBox(height: 8),
-                                            GestureDetector(
-                                              onTap: () async {
-                                                await _tenantCubit
-                                                    .clearTenantDocument();
-                                                goRouter.pushNamed(
-                                                  AppRoutes.viewTenant,
-                                                  queryParameters: {
-                                                    "tenant":
-                                                        EncryptionManager.encryptData(
-                                                          jsonEncode(
-                                                            tenant.toJson(),
-                                                          ),
+                                            Row(
+                                              spacing: 10,
+                                              children: [
+                                                if (tenant.bookingId != 0)
+                                                  Stack(
+                                                    children: [
+                                                      CustomIconContainer(
+                                                        containerSize: 32,
+                                                        iconSize: 20,
+                                                        backgroundColor: Color(
+                                                          0xffDCFCE7,
+                                                        ).withValues(
+                                                          alpha: 0.85,
                                                         ),
-                                                    'buildingName':
-                                                        _selectedBuildingNotifier
-                                                            .value
-                                                            .first["DisplayName"]
-                                                            .toString(),
+                                                        iconColor:
+                                                            AppColor.green20,
+                                                        icon:
+                                                            LucideIcons
+                                                                .userRound,
+                                                      ),
+
+                                                      Positioned(
+                                                        right: 1,
+                                                        bottom: 4,
+                                                        child: Icon(
+                                                          Icons.home_filled,
+                                                          size: 14,
+                                                          color: AppColor
+                                                              .rustOrange
+                                                              .withValues(
+                                                                alpha: 0.8,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                if (tenant.inventoryFlatId !=
+                                                        0 &&
+                                                    tenant.bookingId == 0)
+                                                  CustomIconContainer(
+                                                    containerSize: 32,
+                                                    iconSize: 20,
+                                                    iconColor:
+                                                        AppColor.purple700,
+                                                    backgroundColor:
+                                                        AppColor.lightPurpleBg2,
+                                                    icon:
+                                                        LucideIcons.circleCheck,
+                                                  ),
+
+                                                GestureDetector(
+                                                  onTap: () async {
+                                                    await _tenantCubit
+                                                        .clearTenantDocument();
+                                                    goRouter.pushNamed(
+                                                      AppRoutes.viewTenant,
+                                                      queryParameters: {
+                                                        "tenant":
+                                                            EncryptionManager.encryptData(
+                                                              jsonEncode(
+                                                                tenant.toJson(),
+                                                              ),
+                                                            ),
+                                                        'buildingName':
+                                                            _selectedBuildingNotifier
+                                                                .value
+                                                                .first["DisplayName"]
+                                                                .toString(),
+                                                      },
+                                                    );
                                                   },
-                                                );
-                                              },
-                                              child: Text(
-                                                tenant.unitAnnexureSurveyNumber,
-                                                style: AppTextStyle.ts14M(
-                                                  color: AppColor.primary,
+                                                  child: Text(
+                                                    tenant
+                                                        .unitAnnexureSurveyNumber,
+                                                    style: AppTextStyle.ts14M(
+                                                      color: AppColor.primary,
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
                                             const SizedBox(height: 4),
                                             RichText(
