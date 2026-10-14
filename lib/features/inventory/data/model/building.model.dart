@@ -391,6 +391,10 @@ class FlatModel {
   String bookingCreatedBy;
   DateTime? bookingCreatedDate;
   String note;
+  int tenantId;
+  String tenantSystemGeneratedCode;
+  int tenantBuildingId;
+  String tenantBuildingName;
   List<FlatSpecificationModel> specificationList;
 
   FlatModel({
@@ -424,6 +428,10 @@ class FlatModel {
     required this.bookingCreatedDate,
     required this.specificationList,
     required this.note,
+    required this.tenantId,
+    required this.tenantSystemGeneratedCode,
+    required this.tenantBuildingId,
+    required this.tenantBuildingName,
   });
 
   factory FlatModel.fromJson(Map<String, dynamic> json) => FlatModel(
@@ -449,6 +457,13 @@ class FlatModel {
     ownerName: parseValue<String>(json, "OwnerName"),
     flatFacing: parseValue<String>(json, "FlatFacing"),
     note: parseValue<String>(json, "Note"),
+    tenantId: parseValue<int>(json, "TenantId"),
+    tenantSystemGeneratedCode: parseValue<String>(
+      json,
+      "TenantSystemGeneratedCode",
+    ),
+    tenantBuildingId: parseValue<int>(json, "TenantBuildingId"),
+    tenantBuildingName: parseValue<String>(json, "TenantBuildingName"),
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -493,6 +508,10 @@ class FlatModel {
     "OwnerName": ownerName,
     "FlatFacing": flatFacing,
     "Note": note,
+    "TenantId": tenantId,
+    "TenantSystemGeneratedCode": tenantSystemGeneratedCode,
+    "TenantBuildingId": tenantBuildingId,
+    "TenantBuildingName": tenantBuildingName,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
@@ -538,6 +557,10 @@ class FlatModel {
     String? bookingCreatedBy,
     DateTime? bookingCreatedDate,
     String? note,
+    int? tenantId,
+    String? tenantSystemGeneratedCode,
+    int? tenantBuildingId,
+    String? tenantBuildingName,
     List<FlatSpecificationModel>? specificationList,
   }) {
     return FlatModel(
@@ -573,6 +596,11 @@ class FlatModel {
       bookingCreatedDate: bookingCreatedDate ?? this.bookingCreatedDate,
       specificationList: specificationList ?? this.specificationList,
       note: note ?? this.note,
+      tenantId: tenantId ?? this.tenantId,
+      tenantSystemGeneratedCode:
+          tenantSystemGeneratedCode ?? this.tenantSystemGeneratedCode,
+      tenantBuildingName: tenantBuildingName ?? this.tenantBuildingName,
+      tenantBuildingId: tenantBuildingId ?? this.tenantBuildingId,
     );
   }
 }

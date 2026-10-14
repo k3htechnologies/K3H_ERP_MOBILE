@@ -3079,6 +3079,7 @@ final GoRouter goRouter = GoRouter(
                 return TenantBookingScreen();
               },
             ),
+
             GoRoute(
               name: AppRoutes.viewTenantBooking,
               path: AppRoutes.viewTenantBooking,

@@ -731,6 +731,12 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                                 floor
                                                                     .parkingCount,
                                                             note: "",
+                                                            tenantId: 0,
+                                                            tenantBuildingId: 0,
+                                                            tenantBuildingName:
+                                                                "",
+                                                            tenantSystemGeneratedCode:
+                                                                "",
                                                             flat: "",
                                                             reraCarpetAreaSqFt:
                                                                 0,
@@ -857,6 +863,12 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                               floor
                                                                   .parkingCount,
                                                           note: "",
+                                                          tenantId: 0,
+                                                          tenantBuildingId: 0,
+                                                          tenantBuildingName:
+                                                              "",
+                                                          tenantSystemGeneratedCode:
+                                                              "",
                                                           flat: "",
                                                           reraCarpetAreaSqFt: 0,
                                                           flatType: "",
@@ -1080,13 +1092,20 @@ class _InventoryScreenState extends State<InventoryScreen>
         (status == "available" || status == "blocked" || status == "hold");
 
     final showDelete = canAction && status == "available" && !isApproved;
-
-    final showBookBtn =
+    final showBookBtnForAvailable =
         status == "available" &&
         approvalStatus.toLowerCase() == "approved" &&
         flat.flatType != "" &&
         flat.reraCarpetAreaSqFt > 0 &&
         _routeAuthorizationModelBooking.isAction;
+    final showBookBtnForAlloted =
+        status == "alloted" &&
+        approvalStatus.toLowerCase() == "approved" &&
+        flat.flatType != "" &&
+        flat.reraCarpetAreaSqFt > 0 &&
+        flat.bookingId == 0 &&
+        _routeAuthorizationModelBooking.isAction;
+    final showBookBtn = showBookBtnForAvailable || showBookBtnForAlloted;
 
     return Container(
       width: double.infinity,
@@ -1248,28 +1267,40 @@ class _InventoryScreenState extends State<InventoryScreen>
               ),
             ],
           ),
-          if (flat.ownerName.isNotEmpty &&
-              flat.flatStatus.toLowerCase() == "booked") ...[
+          if (flat.ownerName.isNotEmpty) ...[
             verticalSpacing(),
             InkWell(
               onTap: () {
-                goRouter.pushNamed(
-                  AppRoutes.viewBooking,
-                  queryParameters: {
-                    "bookingId": Uri.encodeQueryComponent(
-                      EncryptionManager.encryptData(flat.bookingId.toString()),
-                    ),
-                    "projectId": Uri.encodeQueryComponent(
-                      EncryptionManager.encryptData(
-                        _project.projectId.toString(),
-                      ),
-                    ),
-                  },
-                );
+                flat.bookingId != 0
+                    ? goRouter.pushNamed(
+                      flat.tenantId != 0
+                          ? AppRoutes.viewTenantBooking
+                          : AppRoutes.viewBooking,
+                      queryParameters: {
+                        "bookingId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            flat.bookingId.toString(),
+                          ),
+                        ),
+                        "projectId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            _project.projectId.toString(),
+                          ),
+                        ),
+                      },
+                    )
+                    : null;
               },
               child: Text(
-                "Owner : ${flat.ownerName}",
-                style: AppTextStyle.ts14M(color: AppColor.primary),
+                flat.tenantId != 0
+                    ? "Alloted : ${flat.ownerName}"
+                    : "Owner : ${flat.ownerName}",
+                style: AppTextStyle.ts14M(
+                  color:
+                      (flat.tenantId != 0 && flat.bookingId != 0)
+                          ? AppColor.primary
+                          : AppColor.black,
+                ),
               ),
             ),
           ],
@@ -1299,7 +1330,10 @@ class _InventoryScreenState extends State<InventoryScreen>
                 ];
 
                 final result = await goRouter.pushNamed(
-                  AppRoutes.addBooking,
+                  (flat.flatStatus.toLowerCase() == "alloted" ||
+                          flat.tenantId != 0)
+                      ? AppRoutes.addTenant
+                      : AppRoutes.addBooking,
                   queryParameters: {
                     "inventoryObject": Uri.encodeComponent(
                       EncryptionManager.encryptData(jsonEncode(list)),
