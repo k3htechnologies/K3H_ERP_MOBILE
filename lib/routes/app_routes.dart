@@ -406,6 +406,7 @@ class AppRoutes {
   static String viewTenant = "/viewTenant";
 
   // TENANT BOOKING
+  static String addTenantBooking = "/addTenantBooking";
   static String tenantBooking = "/tenantBooking";
   static String viewTenantBooking = "/viewTenantBooking";
 
