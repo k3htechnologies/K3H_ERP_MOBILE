@@ -46,6 +46,7 @@ class _InventoryScreenState extends State<InventoryScreen>
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
   late AuthorizationModel _routeAuthorizationModelBooking;
+  late AuthorizationModel _routeAuthorizationModelTenantBooking;
 
   // CURRENT PROJECT
   late ProjectModel _project;
@@ -70,6 +71,8 @@ class _InventoryScreenState extends State<InventoryScreen>
         Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
     _routeAuthorizationModelBooking =
         Authorization.routeAuthorizationMap[AppRoutes.booking]!;
+    _routeAuthorizationModelTenantBooking =
+        Authorization.routeAuthorizationMap[AppRoutes.tenantBooking]!;
     user = getCurrentUser();
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();
@@ -1092,19 +1095,21 @@ class _InventoryScreenState extends State<InventoryScreen>
         (status == "available" || status == "blocked" || status == "hold");
 
     final showDelete = canAction && status == "available" && !isApproved;
+    // SALES BOOKING
     final showBookBtnForAvailable =
         status == "available" &&
         approvalStatus.toLowerCase() == "approved" &&
         flat.flatType != "" &&
         flat.reraCarpetAreaSqFt > 0 &&
         _routeAuthorizationModelBooking.isAction;
+    // TENANT BOOKING
     final showBookBtnForAlloted =
         status == "alloted" &&
         approvalStatus.toLowerCase() == "approved" &&
         flat.flatType != "" &&
         flat.reraCarpetAreaSqFt > 0 &&
         flat.bookingId == 0 &&
-        _routeAuthorizationModelBooking.isAction;
+        _routeAuthorizationModelTenantBooking.isAction;
     final showBookBtn = showBookBtnForAvailable || showBookBtnForAlloted;
 
     return Container(
@@ -1297,9 +1302,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                     : "Owner : ${flat.ownerName}",
                 style: AppTextStyle.ts14M(
                   color:
-                      (flat.tenantId != 0 && flat.bookingId != 0)
-                          ? AppColor.primary
-                          : AppColor.black,
+                      (flat.bookingId != 0) ? AppColor.primary : AppColor.black,
                 ),
               ),
             ),
@@ -1326,13 +1329,17 @@ class _InventoryScreenState extends State<InventoryScreen>
                     "wingIndex": wingIndex,
                     "floorIndex": floorIndex,
                     "flatIndex": flatIndex,
+                    "buildingName": flat.tenantBuildingName,
+                    "tenantId": flat.tenantId,
+                    "tenantBuildingId": flat.tenantBuildingId,
+                    "tenantSystemGeneratedCode": flat.tenantSystemGeneratedCode,
                   },
                 ];
 
                 final result = await goRouter.pushNamed(
                   (flat.flatStatus.toLowerCase() == "alloted" ||
                           flat.tenantId != 0)
-                      ? AppRoutes.addTenant
+                      ? AppRoutes.addTenantBooking
                       : AppRoutes.addBooking,
                   queryParameters: {
                     "inventoryObject": Uri.encodeComponent(

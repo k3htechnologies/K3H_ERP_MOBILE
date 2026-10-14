@@ -647,13 +647,14 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                                         'pending')),
                                             onPressed: () {
                                               goRouter.pushNamed(
-                                                AppRoutes.addBooking,
+                                                AppRoutes.addTenantBooking,
                                                 queryParameters: {
-                                                  "booking": Uri.encodeComponent(
-                                                    EncryptionManager.encryptData(
-                                                      jsonEncode(booking),
-                                                    ),
-                                                  ),
+                                                  "tenantBooking":
+                                                      Uri.encodeComponent(
+                                                        EncryptionManager.encryptData(
+                                                          jsonEncode(booking),
+                                                        ),
+                                                      ),
                                                   "index": index.toString(),
                                                 },
                                               );

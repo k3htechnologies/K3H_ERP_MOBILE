@@ -271,7 +271,7 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Column(
         children: [
-          // ENQUIRY SECTION
+          // TENANT SECTION
           BlocBuilder<TenantBookingCubit, TenantBookingState>(
             builder: (context, state) {
               if (state.tenantList.isEmpty) {
@@ -281,7 +281,7 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
               return Column(
                 children: [
                   SectionCard(
-                    title: "Exisiting Unit Details",
+                    title: "Existing Unit Details",
                     titleTextColor: AppColor.darkBlue29,
                     headerBackgroundColor: AppColor.darkBlue29.withValues(
                       alpha: 0.1,

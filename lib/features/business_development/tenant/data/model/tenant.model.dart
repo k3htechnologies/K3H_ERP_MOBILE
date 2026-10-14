@@ -8,6 +8,7 @@ class TenantModel {
   String systemGeneratedCode;
   int projectId;
   int buildingId;
+  String buildingName;
   String unitAnnexureSurveyNumber;
   String applicantName;
   String unitType;
@@ -53,6 +54,7 @@ class TenantModel {
     required this.systemGeneratedCode,
     required this.projectId,
     required this.buildingId,
+    required this.buildingName,
     required this.unitAnnexureSurveyNumber,
     required this.applicantName,
     required this.unitType,
@@ -100,6 +102,7 @@ class TenantModel {
       systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
       projectId: parseValue<int>(json, "ProjectId"),
       buildingId: parseValue<int>(json, "BuildingId"),
+      buildingName: parseValue<String>(json, "BuildingName"),
       unitAnnexureSurveyNumber: parseValue<String>(
         json,
         "UnitAnnexureSurveyNumber",
@@ -207,6 +210,7 @@ class TenantModel {
       "SystemGeneratedCode": systemGeneratedCode,
       "ProjectId": projectId,
       "BuildingId": buildingId,
+      "BuildingName": buildingName,
       "UnitAnnexureSurveyNumber": unitAnnexureSurveyNumber,
       "ApplicantName": applicantName,
       "UnitType": unitType,

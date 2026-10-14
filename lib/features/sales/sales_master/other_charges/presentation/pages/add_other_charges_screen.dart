@@ -8,6 +8,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -44,13 +45,10 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
       _totalValuePlusGst;
 
   // SELECTED VALUES
+  final ValueNotifier<Map<String, dynamic>?> _selectedApplicableForNotifier =
+      ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedCalculatedOnNotifier =
       ValueNotifier(null);
-
-  List<Map<String, dynamic>> calculatedOnList = [
-    {"zAttributesId": 1, "DisplayName": "Per SqFt"},
-    {"zAttributesId": 2, "DisplayName": "Lumpsum"},
-  ];
 
   final ValueNotifier<double> _gstValueNotifier = ValueNotifier<double>(0.0);
 
@@ -81,6 +79,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
     _gstValueNotifier.dispose();
     _totalValuePlusGst.dispose();
     _selectedCalculatedOnNotifier.dispose();
+    _selectedApplicableForNotifier.dispose();
     super.dispose();
   }
 
@@ -109,10 +108,15 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
     _valueC.text = otherChargeModel.value.toString();
     _gstPercentageC.text = otherChargeModel.gstPercentage.toString();
     _gstValueC.text = otherChargeModel.gstValue.toString();
-    _selectedCalculatedOnNotifier.value = calculatedOnList.firstWhere(
+    _selectedCalculatedOnNotifier.value = unitSqFtLumpsumList.firstWhere(
       (item) => item['DisplayName'] == otherChargeModel.calculatedOn,
-      orElse: () => calculatedOnList.first,
+      orElse: () => unitSqFtLumpsumList.first,
     );
+    _selectedApplicableForNotifier.value = otherChargesApplicableForList
+        .firstWhere(
+          (item) => item['DisplayName'] == otherChargeModel.applicableFor,
+          orElse: () => otherChargesApplicableForList.first,
+        );
   }
 
   @override
@@ -139,6 +143,30 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                 decoration: commonCardDecoration(),
                 child: Column(
                   children: [
+                    ValueListenableBuilder<Map<String, dynamic>?>(
+                      valueListenable: _selectedApplicableForNotifier,
+                      builder: (context, selectedValue, _) {
+                        return CustomDropDownWidget(
+                          title: "Applicable For",
+                          isRequired: true,
+                          hintText: "Select Applicable For",
+                          initialValue: selectedValue,
+                          dataList: otherChargesApplicableForList,
+                          onSelected: (value) {
+                            _selectedApplicableForNotifier.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null) {
+                              return 'Applicable For is required.';
+                            }
+                            return null;
+                          },
+                          onValueClear: () {
+                            _selectedApplicableForNotifier.value = null;
+                          },
+                        );
+                      },
+                    ),
                     CustomTextField(
                       title: "Charge Name",
                       isRequired: true,
@@ -176,7 +204,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                           isRequired: true,
                           hintText: "Select Calculated On",
                           initialValue: selectedValue,
-                          dataList: calculatedOnList,
+                          dataList: unitSqFtLumpsumList,
                           onSelected: (value) {
                             _selectedCalculatedOnNotifier.value = value;
                           },

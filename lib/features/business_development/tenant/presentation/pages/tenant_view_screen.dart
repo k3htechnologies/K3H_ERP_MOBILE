@@ -624,7 +624,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
             ],
           ),
           SectionCard(
-            title: "Exisiting Unit Details",
+            title: "Existing Unit Details",
             titleTextColor: AppColor.darkBlue29,
             headerBackgroundColor: AppColor.darkBlue29.withValues(alpha: 0.1),
             children: [

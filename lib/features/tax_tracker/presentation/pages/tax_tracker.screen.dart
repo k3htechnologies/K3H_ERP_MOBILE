@@ -107,6 +107,7 @@ class _TaxTrackerScreenState extends State<TaxTrackerScreen> {
             CustomMultipleSelectPopup(
               hintText: "Select Company",
               isMultiSelect: false,
+              initialValue: _selectedCompany,
               dataList: [],
               onSelected: (value) {
                 _selectedCompany = value;

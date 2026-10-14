@@ -5,6 +5,7 @@ class OtherChargeModel {
   String uniquekey;
   int bookingOtherChargesId;
   String chargeName;
+  String applicableFor;
   String calculatedOn;
   double value;
   double gstPercentage;
@@ -22,6 +23,7 @@ class OtherChargeModel {
     required this.uniquekey,
     required this.bookingOtherChargesId,
     required this.chargeName,
+    required this.applicableFor,
     required this.calculatedOn,
     required this.value,
     required this.gstPercentage,
@@ -39,6 +41,7 @@ class OtherChargeModel {
       OtherChargeModel(
         otherChargesId: parseValue<int>(json, "OtherChargesId"),
         uniquekey: parseValue<String>(json, "Uniquekey"),
+        applicableFor: parseValue<String>(json, "ApplicableFor"),
         bookingOtherChargesId: parseValue<int>(json, "BookingOtherChargesId"),
         chargeName: parseValue<String>(json, "ChargeName"),
         calculatedOn: parseValue<String>(json, "CalculatedOn"),
@@ -60,6 +63,7 @@ class OtherChargeModel {
   Map<String, dynamic> toJson() => {
     "OtherChargesId": otherChargesId,
     "Uniquekey": uniquekey,
+    "ApplicableFor": applicableFor,
     "BookingOtherChargesId": bookingOtherChargesId,
     "ChargeName": chargeName,
     "CalculatedOn": calculatedOn,
@@ -80,6 +84,7 @@ class OtherChargeModel {
     String? uniquekey,
     int? bookingOtherChargesId,
     String? chargeName,
+    String? applicableFor,
     String? calculatedOn,
     double? value,
     double? gstPercentage,
@@ -99,6 +104,7 @@ class OtherChargeModel {
       bookingOtherChargesId:
           bookingOtherChargesId ?? this.bookingOtherChargesId,
       chargeName: chargeName ?? this.chargeName,
+      applicableFor: applicableFor ?? this.applicableFor,
       calculatedOn: calculatedOn ?? this.calculatedOn,
       value: value ?? this.value,
       gstPercentage: gstPercentage ?? this.gstPercentage,

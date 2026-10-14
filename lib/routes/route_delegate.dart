@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/business_development/proposed_plans/present
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/temporary_alternate_accommodation_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/tenant_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/add_tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/view_tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
@@ -3079,7 +3080,54 @@ final GoRouter goRouter = GoRouter(
                 return TenantBookingScreen();
               },
             ),
+            GoRoute(
+              name: AppRoutes.addTenantBooking,
+              path: AppRoutes.addTenantBooking,
+              builder: (context, state) {
+                final queryParameterBooking =
+                    state.uri.queryParameters['tenatBooking'];
+                final queryParameterInventoryObject =
+                    state.uri.queryParameters['inventoryObject'];
+                final booking =
+                    queryParameterBooking != null &&
+                            queryParameterBooking.isNotEmpty
+                        ? BookingModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterBooking),
+                            ),
+                          ),
+                        )
+                        : null;
+                final inventoryObject =
+                    queryParameterInventoryObject != null &&
+                            queryParameterInventoryObject.isNotEmpty
+                        ? (jsonDecode(
+                                  EncryptionManager.decryptData(
+                                    Uri.decodeComponent(
+                                      queryParameterInventoryObject,
+                                    ),
+                                  ),
+                                )
+                                as List<dynamic>)
+                            .map<Map<String, dynamic>>(
+                              (e) => Map<String, dynamic>.from(
+                                e as Map<String, dynamic>,
+                              ),
+                            )
+                            .toList()
+                        : null;
 
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddTenantBookingScreen(
+                  tenantBookingModel: booking,
+                  index: index,
+                  inventoryObject: inventoryObject,
+                );
+              },
+            ),
             GoRoute(
               name: AppRoutes.viewTenantBooking,
               path: AppRoutes.viewTenantBooking,

@@ -28,7 +28,7 @@ class SectionCard extends StatelessWidget {
 
   final double? margin;
   final BoxBorder? border;
-
+  final double? maxContentHeight;
   const SectionCard({
     super.key,
     required this.title,
@@ -43,6 +43,7 @@ class SectionCard extends StatelessWidget {
     this.childSpacing,
     this.margin,
     this.border,
+    this.maxContentHeight,
   });
 
   @override
@@ -86,16 +87,29 @@ class SectionCard extends StatelessWidget {
   }
 
   Widget _buildViewContent() {
+    final hasMax = maxContentHeight != null;
+
+    final list = ListView.separated(
+      shrinkWrap: true,
+      physics:
+          hasMax
+              ? const ClampingScrollPhysics()
+              : const NeverScrollableScrollPhysics(),
+      itemCount: children.length,
+      separatorBuilder:
+          (_, __) => Divider(height: 20.h, color: AppColor.lightBlue),
+      itemBuilder: (context, index) => children[index],
+    );
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: children.length,
-        separatorBuilder:
-            (_, __) => Divider(height: 20.h, color: AppColor.lightBlue),
-        itemBuilder: (context, index) => children[index],
-      ),
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child:
+          hasMax
+              ? ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: maxContentHeight!),
+                child: list,
+              )
+              : list,
     );
   }
 
@@ -125,7 +139,7 @@ class SectionCard extends StatelessWidget {
   }
 
   Widget _buildNormalContent() {
-    return Column(
+    final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: List.generate(children.length, (index) {
         final isLastItem = index == children.length - 1;
@@ -137,6 +151,13 @@ class SectionCard extends StatelessWidget {
           child: children[index],
         );
       }),
+    );
+
+    if (maxContentHeight == null) return content;
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: maxContentHeight!),
+      child: SingleChildScrollView(child: content),
     );
   }
 }

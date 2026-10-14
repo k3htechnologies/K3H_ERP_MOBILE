@@ -50,7 +50,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
   }
 
   // CLEAR ENQUIRY LIST
-  void clearEnquiryList() {
+  void clearTenantList() {
     emit(state.copyWith(tenantList: []));
   }
 
@@ -200,14 +200,17 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required int projectId,
     required int buildingId,
     int? tenantId,
+    String? systemGeneratedCode,
   }) async {
     emit(state.copyWith(isLoading: true, tenantList: []));
     Map<String, dynamic> queryParams = {
       if (tenantId != null) "TenantId": tenantId,
+      "SystemGeneratedCode": systemGeneratedCode,
+      "IsCheckPermission": false,
     };
     var result = await _tenantRepository.getTenantList(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 1,
       projectId: projectId,
       buildingId: buildingId,
       queryParams: queryParams,
@@ -244,7 +247,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       pageNumber: pageNumber,
       pageSize: 500,
       projectId: projectId,
-      queryParams: {"IsCheckPermission": false},
+      queryParams: {"IsCheckPermission": false, "ApplicableFor": "Tenant"},
     );
 
     result.fold(
@@ -393,18 +396,16 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
   }
 
   //  ADD BOOKING
-  Future addBooking({
+  Future addTenantBooking({
     required int buildingIndex,
     required int wingIndex,
     required int floorIndex,
     required int flatIndex,
     required BuildContext context,
     required int projectId,
-    required int enquiryId,
+    required int tenantId,
     required String permanentAddress,
     required String communicationAddress,
-    required double brokeragePercentage,
-    required double brokerageAmount,
     required int inventoryFlatId,
     required double agreementValue,
     required double agreementValueTds,
@@ -418,19 +419,9 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     int? numberOfParking,
     required String handoverType,
     required DateTime registrationDate,
-    required String modeOfPayment,
     required int paymentScheduleSchemeMasterId,
     required String paymentScheduleScheme,
 
-    /// CHANGE LATER IN API
-    required double referelPercentage,
-    required double referelAmount,
-
-    required double loyaltyPercentage,
-    required double loyaltyAmount,
-
-    required double employeeReferencePercentage,
-    required double employeeReferenceAmount,
     required String flatAlterationRemark,
     required String paymentRemark,
     required String otherRemark,
@@ -443,29 +434,20 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     DateTime? chequeRTGSDate,
     int? bankListMasterId,
     int? transferBookingId,
-    int? tenantId,
     required String otp,
-    required List<BookingApplicantData> addUpdateBookingApplicant,
+    required List<TenantApplicantData> addUpdateBookingApplicant,
     required bool isApplicableOtherCharge,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "BookingId": 0.toString(),
       "ProjectId": projectId.toString(),
-      "EnquiryId": enquiryId.toString(),
+      //?Ask
+      "EnquiryId": 0.toString(),
+
+      "TenantId": tenantId.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
-      "BrokeragePercentage": brokeragePercentage.toString(),
-      "BrokerageAmount": brokerageAmount.toString(),
-
-      "ReferelPercentage": referelPercentage.toString(),
-      "ReferelAmount": referelAmount.toString(),
-
-      "LoyaltyPercentage": loyaltyPercentage.toString(),
-      "LoyaltyAmount": loyaltyAmount.toString(),
-
-      "EmployeeReferencePercentage": employeeReferencePercentage.toString(),
-      "EmployeeReferenceAmount": employeeReferenceAmount.toString(),
       "InventoryFlatId": inventoryFlatId.toString(),
       "AgreementValue": agreementValue.toString(),
       "AgreementValueTDS": agreementValueTds.toString(),
@@ -480,7 +462,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         "NumberOfParking": numberOfParking.toString(),
       "HandoverType": handoverType,
       "RegistrationDate": registrationDate.toIso8601String(),
-      "ModeOfPayment": modeOfPayment,
 
       /// CHANGE LATER IN API
       "FlatAlterationRemark": flatAlterationRemark,
@@ -531,7 +512,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         "BankListMasterId": bankListMasterId.toString(),
       if (transferBookingId != null)
         "TransferBookingId": transferBookingId.toString(),
-      if (tenantId != null) "TenantId": tenantId.toString(),
       "OTP": otp,
     };
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
@@ -539,7 +519,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       requestBody.addAll({
         "AddUpdateBookingApplicant[$i].ApplicantType": e.applicantType,
         "AddUpdateBookingApplicant[$i].BookingApplicantId":
-            e.bookingApplicantId.toString(),
+            e.tenantApplicantId.toString(),
         "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
         "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
             e.applicantMobileNumber,
@@ -613,55 +593,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         fieldName: "GstNumberURL",
         fileModel: applicant.gstImage,
       );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "CancelledChequeURL",
-        fileModel: applicant.cancelledChequeImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "POAURL",
-        fileModel: applicant.poaImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "IncomeForm16ITRURL",
-        fileModel: applicant.incomeForm16ItrImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "NreNroBankDetailsURL",
-        fileModel: applicant.nreNroBankDetailsImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "NomineeFormURL",
-        fileModel: applicant.nomineeFormImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "StatementOfSourceOfFundsURL",
-        fileModel: applicant.statementOfSourceOfFundImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PaymentProofURL",
-        fileModel: applicant.paymentProofImage,
-      );
     }
 
     var addResult = await _bookingRepository.addUpdateBooking(
@@ -698,11 +629,9 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required int bookingId,
     required String uniqueKey,
     required int projectId,
-    required int enquiryId,
+    required int tenantId,
     required String permanentAddress,
     required String communicationAddress,
-    required double brokeragePercentage,
-    required double brokerageAmount,
     required int inventoryFlatId,
     required String sourceOfFunding,
     required double agreementValue,
@@ -716,19 +645,10 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     int? numberOfParking,
     required String handoverType,
     required DateTime registrationDate,
-    required String modeOfPayment,
 
     /// CHANGE LATER IN API
     required String paymentRemark,
     required String otherRemark,
-    required double referelPercentage,
-    required double referelAmount,
-
-    required double loyaltyPercentage,
-    required double loyaltyAmount,
-
-    required double employeeReferencePercentage,
-    required double employeeReferenceAmount,
     required String flatAlterationRemark,
     required String termsAndConditionsDescription,
     String bookingType = 'FLAT',
@@ -741,10 +661,11 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     DateTime? chequeRTGSDate,
     int? bankListMasterId,
     int? transferBookingId,
-    int? tenantId,
     required String otp,
-    required List<BookingApplicantData> addUpdateBookingApplicant,
+    required List<TenantApplicantData> addUpdateBookingApplicant,
     required bool isApplicableOtherCharge,
+    required int tenantBuildingId,
+    required String carpetAreaPurchaseSqFt,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -752,11 +673,17 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       "BookingId": bookingId.toString(),
       "Uniquekey": uniqueKey,
       "ProjectId": projectId.toString(),
-      "EnquiryId": enquiryId.toString(),
+      "TenantId": tenantId.toString(),
+      "EnquiryId": 0.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
-      "BrokeragePercentage": brokeragePercentage.toString(),
-      "BrokerageAmount": brokerageAmount.toString(),
+      "BrokerageAmount": "0",
+      "ReferelPercentage": "0",
+      "ReferelAmount": "0",
+      "EmployeeReferencePercentage": "0",
+      "EmployeeReferenceAmount": "0",
+      "LoyaltyPercentage": "0",
+      "LoyaltyAmount": "0",
       "InventoryFlatId": inventoryFlatId.toString(),
       "AgreementValue": agreementValue.toString(),
       "AgreementValueTDS": agreementValueTds.toString(),
@@ -765,19 +692,12 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       "StampDutyPercentage": stampDutyPercentage.toString(),
       "StampDutyAmount": stampDutyAmount.toString(),
       "RegistrationFees": registrationFees.toString(),
-      "SourceOfFunding": sourceOfFunding,
       if (parkingId != null && parkingId.isNotEmpty) "ParkingId": parkingId,
       if (numberOfParking != null)
         "NumberOfParking": numberOfParking.toString(),
       "HandoverType": handoverType,
       "RegistrationDate": registrationDate.toIso8601String(),
-      "ModeOfPayment": modeOfPayment,
-      "ReferelPercentage": referelPercentage.toString(),
-      "ReferelAmount": referelAmount.toString(),
-      "EmployeeReferencePercentage": employeeReferencePercentage.toString(),
-      "EmployeeReferenceAmount": employeeReferenceAmount.toString(),
-      "LoyaltyPercentage": loyaltyPercentage.toString(),
-      "LoyaltyAmount": loyaltyAmount.toString(),
+      "SourceOfFunding": sourceOfFunding,
       "FlatAlterationRemark": flatAlterationRemark,
       "PaymentRemark": paymentRemark,
       "OtherRemark": otherRemark,
@@ -827,7 +747,8 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         "BankListMasterId": bankListMasterId.toString(),
       if (transferBookingId != null)
         "TransferBookingId": transferBookingId.toString(),
-      if (tenantId != null) "TenantId": tenantId.toString(),
+      "TenantBuildingId": tenantBuildingId.toString(),
+      "CarpetAreaPurchaseSqFt": carpetAreaPurchaseSqFt,
       "OTP": otp,
     };
 
@@ -836,7 +757,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       requestBody.addAll({
         "AddUpdateBookingApplicant[$i].ApplicantType": e.applicantType,
         "AddUpdateBookingApplicant[$i].BookingApplicantId":
-            e.bookingApplicantId.toString(),
+            e.tenantApplicantId.toString(),
         "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
         "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
             e.applicantMobileNumber,
@@ -864,20 +785,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         "AddUpdateBookingApplicant[$i].GstNumber": e.gstNumber,
         "AddUpdateBookingApplicant[$i].RemoveGSTNumberURL":
             e.gstImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].RemoveCancelledChequeURL":
-            e.cancelledChequeImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].RemovePOAURL":
-            e.poaImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].RemoveIncomeForm16ITRURL":
-            e.incomeForm16ItrImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].RemoveNreNroBankDetailsURL":
-            e.nreNroBankDetailsImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].RemoveNomineeFormURL":
-            e.nomineeFormImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].RemoveStatementOfSourceOfFundsURL":
-            e.statementOfSourceOfFundImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].RemovePaymentProofURL":
-            e.paymentProofImage.deletedFileList,
       });
     }
 
@@ -936,55 +843,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         applicantIndex: applicantIndex,
         fieldName: "GstNumberURL",
         fileModel: applicant.gstImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "CancelledChequeURL",
-        fileModel: applicant.cancelledChequeImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "POAURL",
-        fileModel: applicant.poaImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "IncomeForm16ITRURL",
-        fileModel: applicant.incomeForm16ItrImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "NreNroBankDetailsURL",
-        fileModel: applicant.nreNroBankDetailsImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "NomineeFormURL",
-        fileModel: applicant.nomineeFormImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "StatementOfSourceOfFundsURL",
-        fileModel: applicant.statementOfSourceOfFundImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PaymentProofURL",
-        fileModel: applicant.paymentProofImage,
       );
     }
 

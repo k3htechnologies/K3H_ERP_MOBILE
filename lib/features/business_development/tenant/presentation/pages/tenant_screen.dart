@@ -314,8 +314,8 @@ class _TenantScreenState extends State<TenantScreen> {
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
-                  title: "Exisiting Unit Type",
-                  hint: "Enter Exisiting Unit Type",
+                  title: "Existing Unit Type",
+                  hint: "Enter Existing Unit Type",
                   textController: _filterFlatTypeC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),

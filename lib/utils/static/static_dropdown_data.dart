@@ -341,3 +341,5 @@ final List<Map<String, dynamic>> drawingStatusTypeList = createAttributeList(
 final List<Map<String, dynamic>> budgetLevelTypeList = createAttributeList(
   budgetLevelTypeValues,
 );
+final List<Map<String, dynamic>> otherChargesApplicableForList =
+    createAttributeList(otherChargesApplicableForValues);

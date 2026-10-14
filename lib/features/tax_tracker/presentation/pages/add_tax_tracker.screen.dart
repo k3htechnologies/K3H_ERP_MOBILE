@@ -198,6 +198,7 @@ class _AddTaxTrackerScreenState extends State<AddTaxTrackerScreen> {
                     CustomMultipleSelectPopup(
                       title: "Department",
                       isRequired: true,
+                      initialValue: _selectedDepartment,
                       isMultiSelect: false,
                       dataList: [],
                       onSelected: (value) {

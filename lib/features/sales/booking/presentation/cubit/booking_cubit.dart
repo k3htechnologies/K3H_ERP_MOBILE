@@ -248,7 +248,7 @@ class BookingCubit extends Cubit<BookingState> {
       pageNumber: pageNumber,
       pageSize: 500,
       projectId: projectId,
-      queryParams: {"IsCheckPermission": false},
+      queryParams: {"IsCheckPermission": false, "ApplicableFor": "Sale"},
     );
 
     result.fold(
@@ -422,7 +422,6 @@ class BookingCubit extends Cubit<BookingState> {
     int? numberOfParking,
     required String handoverType,
     required DateTime registrationDate,
-    required String modeOfPayment,
     required int paymentScheduleSchemeMasterId,
     required String paymentScheduleScheme,
 
@@ -484,7 +483,6 @@ class BookingCubit extends Cubit<BookingState> {
         "NumberOfParking": numberOfParking.toString(),
       "HandoverType": handoverType,
       "RegistrationDate": registrationDate.toIso8601String(),
-      "ModeOfPayment": modeOfPayment,
 
       /// CHANGE LATER IN API
       "FlatAlterationRemark": flatAlterationRemark,
@@ -720,7 +718,6 @@ class BookingCubit extends Cubit<BookingState> {
     int? numberOfParking,
     required String handoverType,
     required DateTime registrationDate,
-    required String modeOfPayment,
 
     /// CHANGE LATER IN API
     required String paymentRemark,
@@ -775,7 +772,6 @@ class BookingCubit extends Cubit<BookingState> {
         "NumberOfParking": numberOfParking.toString(),
       "HandoverType": handoverType,
       "RegistrationDate": registrationDate.toIso8601String(),
-      "ModeOfPayment": modeOfPayment,
       "ReferelPercentage": referelPercentage.toString(),
       "ReferelAmount": referelAmount.toString(),
       "EmployeeReferencePercentage": employeeReferencePercentage.toString(),
@@ -1225,6 +1221,16 @@ class BookingCubit extends Cubit<BookingState> {
     }
 
     emit(state.copyWith(bookingPaymentScheduleList: updatedList));
+  }
+
+  Future deleteOtherCharges(int index, BuildContext context) async {
+    final updatedList = List<OtherChargeModel>.from(state.otherChargesList);
+
+    /// REMOVE ITEM
+    updatedList.removeAt(index);
+
+    emit(state.copyWith(otherChargesList: updatedList));
+    showSuccessMessage(context, subTitle: "Other Charges deleted successfully");
   }
 
   // EXPORT BOOKING

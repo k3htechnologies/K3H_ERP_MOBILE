@@ -994,7 +994,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         _selectedExpectedRegistrationDate.value ?? DateTime.now();
     final chequeDate = _selectedChequeDate;
     final parkingId = selectedParkings;
-    final modeOfPayment = _selectedFundingSource.value!['DisplayName'] ?? "";
     final handoverType = _selectedHandOverType.value!['DisplayName'] ?? "";
     final inventoryFlatId =
         widget.inventoryObject?[0]['inventoryFlatId'] ??
@@ -1036,7 +1035,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
         parkingId: parkingId,
         handoverType: handoverType,
         registrationDate: registrationDate,
-        modeOfPayment: modeOfPayment,
         flatAlterationRemark: _unitModCustomizationRemarkC.text.trim(),
         paymentRemark: _paymentRemarkC.text.trim(),
         otherRemark: _otherRemarkC.text.trim(),
@@ -1097,7 +1095,6 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                 : 0,
         handoverType: handoverType,
         registrationDate: registrationDate,
-        modeOfPayment: modeOfPayment,
         flatAlterationRemark: _unitModCustomizationRemarkC.text.trim(),
         paymentRemark: _paymentRemarkC.text.trim(),
         otherRemark: _otherRemarkC.text.trim(),
@@ -1157,6 +1154,20 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     );
     if (result && context.mounted) {
       _deleteApplicant(index);
+    }
+  }
+
+  Future<void> _showPopupToDeleteOtherCharges(
+    BuildContext context,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a other charges ?',
+      'Deleting this other charges will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      _bookingCubit.deleteOtherCharges(index, context);
     }
   }
 
@@ -1657,6 +1668,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                   CustomTextField(
                     key: const ValueKey("permanent_address"),
                     title: "Permanent Address",
+                    minLines: 3,
+                    maxLines: 3,
                     isRequired: true,
                     hint: "Enter Permanent Address",
                     textController: _permanentAddressC,
@@ -1674,6 +1687,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                     title: "Communication Address",
                     key: const ValueKey("communication_address"),
                     isRequired: true,
+                    minLines: 3,
+                    maxLines: 3,
                     hint: "Enter Communication Address",
                     textController: _communicationAddressC,
                     validator: (value) {
@@ -2425,7 +2440,12 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                       if ((state.isLoading ?? false) &&
                           list.isEmpty &&
                           _agreementValueNotifier.value > 0) {
-                        return const Center(child: CircularProgressIndicator());
+                        return Center(
+                          child: noDataWidget(
+                            message: "No payment schedules found",
+                            iconSize: 200,
+                          ),
+                        );
                       }
 
                       if (list.isEmpty) {
@@ -2670,9 +2690,8 @@ class _AddBookingScreenState extends State<AddBookingScreen>
               ValueListenableBuilder(
                 valueListenable: _isOtherChargeApplicable,
                 builder: (context, isOcApplicable, child) {
-                  if (!isOcApplicable &&
-                      ((state.isLoading == false) &&
-                          state.otherChargesList.isEmpty)) {
+                  if (((state.isLoading == false) &&
+                      state.otherChargesList.isEmpty)) {
                     return Expanded(
                       child: Center(
                         child: noDataWidget(
@@ -2701,7 +2720,25 @@ class _AddBookingScreenState extends State<AddBookingScreen>
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: 10,
                             children: [
-                              Text(oc.chargeName, style: AppTextStyle.ts14M()),
+                              Row(
+                                spacing: 10,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    oc.chargeName,
+                                    style: AppTextStyle.ts14M(),
+                                  ),
+                                  CustomIconButton.delete(
+                                    onPressed: () {
+                                      _showPopupToDeleteOtherCharges(
+                                        context,
+                                        index,
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
                               Row(
                                 children: [
                                   buildColumnTitleValue(
