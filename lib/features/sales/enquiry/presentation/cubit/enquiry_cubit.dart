@@ -617,10 +617,28 @@ class EnquiryCubit extends Cubit<EnquiryState> {
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
       projectId: getProject().projectId,
-      queryParams:
-          state.searchText != ""
-              ? {"Name": state.searchText, "ExportType": exportType}
-              : {"ExportType": exportType},
+      queryParams: {
+        "Name": state.searchText,
+        "ExportType": exportType,
+        "SystemGeneratedCode": state.filterSystemCode,
+        "MobileNumber": state.filterMobileNumber,
+        "Budget": state.filterBudget,
+        "RequirementType": state.filterRequirementType,
+        "Source": state.filterSource,
+        "SubSource": state.filterSubSource,
+        "ChannelPartnerMobileNumber": state.filterChannelPartnerMobile,
+        "Nationality": state.filterNationality,
+        "CurrentLocation": state.filterCurrentLocation,
+        "CustomerClassification": state.filterCustomerClassification,
+        "Ethnicity": state.filterEthnicity,
+        "SalesAdvisor": state.filterSalesAdvisor,
+        "SourcingManager": state.filterSourcingManager,
+        "Accommodation": state.filterAccommodation,
+        "EnquiryFollowUpDays": state.filterFollowUpDays,
+        "FinalStage": state.filterFinalStage,
+        "FromDate": state.filterStartDate?.toIso8601String(),
+        "ToDate": state.filterEndDate?.toIso8601String(),
+      },
     );
 
     goRouter.pop();

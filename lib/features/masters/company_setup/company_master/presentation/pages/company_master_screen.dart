@@ -1,0 +1,534 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/core/models/company.model.dart';
+import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/cubit/company_master/company_master_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/input_validator.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
+import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+class CompanyMasterScreen extends StatefulWidget {
+  const CompanyMasterScreen({super.key});
+  @override
+  State<CompanyMasterScreen> createState() => _CompanyMasterMobileScreenState();
+}
+
+class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
+  late CompanyMasterCubit _companyMasterCubit;
+  late AuthorizationModel _routeAuthorizationModel;
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
+  late TextEditingController _searchC,
+      _filterFirmsTypeC,
+      _filterContactPersonC,
+      _filterMobileNumberC,
+      _filterCityNameC,
+      _filterGstNumberC,
+      _filterCinNumberC,
+      _filterPanCardNumberC,
+      _filterTanNumberC;
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+  @override
+  void initState() {
+    super.initState();
+    initializeTextEditingController();
+    _companyMasterCubit = context.read<CompanyMasterCubit>();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.companyMaster] ??
+        AuthorizationModel();
+    _companyMasterCubit.getCompanyMaster(context, 1);
+    scrollController = ScrollController();
+    scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _searchC.dispose();
+    _filterFirmsTypeC.dispose();
+    _filterContactPersonC.dispose();
+    _filterMobileNumberC.dispose();
+    _filterCityNameC.dispose();
+    _filterGstNumberC.dispose();
+    _filterCinNumberC.dispose();
+    _filterPanCardNumberC.dispose();
+    _filterTanNumberC.dispose();
+    scrollController.dispose();
+    _filterCount.dispose();
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void initializeTextEditingController() {
+    _searchC = TextEditingController();
+    scrollController = ScrollController();
+    _filterFirmsTypeC = TextEditingController();
+    _filterContactPersonC = TextEditingController();
+    _filterMobileNumberC = TextEditingController();
+    _filterCityNameC = TextEditingController();
+    _filterGstNumberC = TextEditingController();
+    _filterCinNumberC = TextEditingController();
+    _filterPanCardNumberC = TextEditingController();
+    _filterTanNumberC = TextEditingController();
+  }
+
+  // PAGINATION
+  void _onScroll() {
+    if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 100 &&
+        !_companyMasterCubit.state.isLoading! &&
+        _companyMasterCubit.state.companyList.length <
+            _companyMasterCubit.state.totalNumberOfRecord) {
+      // TO HANDLE MULTIPLE TIME API CALLS
+      if (_debounce?.isActive ?? false) _debounce?.cancel();
+      _debounce = Timer(const Duration(milliseconds: 300), () {
+        _companyMasterCubit.getCompanyMaster(
+          context,
+          _companyMasterCubit.state.currentPage + 1,
+        );
+      });
+    }
+  }
+
+  // DELETE COMPANY DIALOG
+  void _showPopUpToDeleteVendor(
+    BuildContext context,
+    CompanyModel company,
+    int index,
+  ) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      "You are about to delete a company ",
+      "Deleting this company will permanently remove its contents.",
+    );
+    if (result && context.mounted) {
+      _companyMasterCubit.deleteCompanyMaster(
+        context: context,
+        companyMasterId: company.companyId,
+        uniqueKey: company.uniquekey,
+        index: index,
+        pageNumber: _companyMasterCubit.state.currentPage,
+        pageSize: 10,
+      );
+    }
+  }
+
+  // COMPANY FILTER
+  Future<void> _showBottomSheetToFilterCompanyMaster(
+    BuildContext context,
+  ) async {
+    final state = _companyMasterCubit.state;
+    _searchC.text = state.searchText;
+    _filterFirmsTypeC.text = state.filterByFirmType;
+    _filterContactPersonC.text = state.filterByContactPerson;
+    _filterMobileNumberC.text = state.filterByMobileNumber;
+    _filterCityNameC.text = state.filterByCityName;
+    _filterGstNumberC.text = state.filterByGstNumber;
+    _filterCinNumberC.text = state.filterByCinNumber;
+    _filterPanCardNumberC.text = state.filterByPanNumber;
+    _filterTanNumberC.text = state.filterByTanNumber;
+    String? selectedDirection =
+        state.currentSortColumn == "Company Name"
+            ? state.currentSortDirection
+            : null;
+    final String initialCompanyName = _searchC.text;
+    final String initialFirmsType = _filterFirmsTypeC.text;
+    final String initialContactPerson = _filterContactPersonC.text;
+    final String initialMobileNumber = _filterMobileNumberC.text;
+    final String initialCityName = _filterCityNameC.text;
+    final String initialGSTNumber = _filterGstNumberC.text;
+    final String initialCINNumber = _filterCinNumberC.text;
+    final String initialPanNumber = _filterPanCardNumberC.text;
+    final String initialTanNumber = _filterTanNumberC.text;
+
+    final String? initialDirection = selectedDirection;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool manualClose = false;
+    bool applied = false;
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_searchC.text.trim() != initialCompanyName) ||
+            (_filterFirmsTypeC.text.trim() != initialFirmsType) ||
+            (_filterContactPersonC.text.trim() != initialContactPerson) ||
+            (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
+            (_filterCityNameC.text.trim() != initialCityName) ||
+            (_filterGstNumberC.text.trim() != initialGSTNumber) ||
+            (_filterCinNumberC.text.trim() != initialCINNumber) ||
+            (_filterPanCardNumberC.text.trim() != initialPanNumber) ||
+            (_filterTanNumberC.text.trim() != initialTanNumber) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    await DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Company Master",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.only(right: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Company Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+                CustomTextField(
+                  title: "Company Name",
+                  hint: "Enter Company Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Firms Type",
+                  hint: "Enter Firms Type",
+                  textController: _filterFirmsTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Contact Person",
+                  hint: "Enter Contact Person",
+                  textController: _filterContactPersonC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  keyboardType: TextInputType.number,
+                  inputFormatterList: InputValidator.digit(10),
+                  textController: _filterMobileNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "City",
+                  hint: "Enter City",
+                  textController: _filterCityNameC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "GST Number",
+                  hint: "Enter GST Number",
+                  textController: _filterGstNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "CIN Number",
+                  hint: "Enter CIN Number",
+                  keyboardType: TextInputType.number,
+                  textController: _filterCinNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Pan Card Number",
+                  hint: "Enter Pan Card Number",
+                  textController: _filterPanCardNumberC,
+                  inputFormatterList: InputValidator.panInputFormatters(),
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "TAN Number",
+                  hint: "Enter TAN Number",
+                  textController: _filterTanNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      onClear: () {
+        _filterFirmsTypeC.clear();
+        _filterContactPersonC.clear();
+        _filterMobileNumberC.clear();
+        _filterCityNameC.clear();
+        _searchC.clear();
+        _filterGstNumberC.clear();
+        _filterCinNumberC.clear();
+        _filterPanCardNumberC.clear();
+        _filterTanNumberC.clear();
+        _companyMasterCubit.applyCompanyFilterAndSort(
+          context: context,
+          isClear: true,
+        );
+      },
+      onApply: () {
+        applied = true;
+        _companyMasterCubit.applyCompanyFilterAndSort(
+          context: context,
+          companyName: _searchC.text.trim(),
+          companyType: _filterFirmsTypeC.text.trim(),
+          contactPerson: _filterContactPersonC.text.trim(),
+          mobileNumber: _filterMobileNumberC.text.trim(),
+          cityName: _filterCityNameC.text.trim(),
+          sortColumn: selectedDirection != null ? "Company Name" : null,
+          sortDirection: selectedDirection,
+          gstNumber: _filterGstNumberC.text.trim(),
+          cinNumber: _filterCinNumberC.text.trim(),
+          panNumber: _filterPanCardNumberC.text.trim(),
+          tanNumber: _filterTanNumberC.text.trim(),
+        );
+      },
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterFirmsTypeC.clear();
+      _filterContactPersonC.clear();
+      _filterMobileNumberC.clear();
+      _filterCityNameC.clear();
+      _searchC.clear();
+      _filterGstNumberC.clear();
+      _filterCinNumberC.clear();
+      _filterPanCardNumberC.clear();
+      _filterTanNumberC.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<CompanyMasterCubit, CompanyMasterState>(
+      listener: (context, state) {
+        _filterCount.value = _companyMasterCubit.updateFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: 'Company Master',
+          authorization: _routeAuthorizationModel,
+          filterCountNotifier: _filterCount,
+          onExportCallback: (value) {
+            if (_companyMasterCubit.state.totalNumberOfRecord == 0) {
+              showErrorMessage(context, "Error", "No data found");
+              return;
+            }
+            _companyMasterCubit.exportExcelPdf(context, value);
+          },
+          searchHintText: "Search by Company Name",
+          onSearchSubmit: (value) {
+            _companyMasterCubit.searchCompany(context, value);
+          },
+          onAddCallback: () async {
+            await goRouter.pushNamed(AppRoutes.addCompany);
+            if (context.mounted) {
+              _companyMasterCubit.searchCompany(context, "");
+            }
+          },
+          textController: _searchC,
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterCompanyMaster(context);
+          },
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            await _companyMasterCubit.searchCompany(context, "");
+          },
+          child: BlocBuilder<CompanyMasterCubit, CompanyMasterState>(
+            builder: (context, state) {
+              if ((state.isLoading ?? false) && state.companyList.isEmpty) {
+                return Center(child: loader());
+              }
+              if (state.companyList.isEmpty) {
+                return ListView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.7,
+                      child: Center(
+                        child: noDataWidget(message: "No companies Data found"),
+                      ),
+                    ),
+                  ],
+                );
+              }
+              return ListView.builder(
+                controller: scrollController,
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                itemCount: _companyMasterCubit.state.companyList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.companyList.length) {
+                    return state.companyList.length < state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
+                  var company = state.companyList[index];
+                  return Container(
+                    padding: EdgeInsets.all(16),
+                    margin: EdgeInsets.only(bottom: 10),
+                    decoration: commonCardDecoration(),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          spacing: 10,
+                          children: [
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.viewCompanyDetails,
+                                    queryParameters: {
+                                      "company": Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(company),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                },
+                                child: Text(
+                                  company.companyName,
+                                  style: AppTextStyle.ts14M(
+                                    color: AppColor.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              spacing: 10,
+                              children: [
+                                CustomIconButton.edit(
+                                  isDisabled:
+                                      !_routeAuthorizationModel.isAction,
+                                  onPressed: () async {
+                                    final result = await goRouter.pushNamed(
+                                      AppRoutes.addCompany,
+                                      queryParameters: {
+                                        "company": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            jsonEncode(company),
+                                          ),
+                                        ),
+                                      },
+                                    );
+                                    if (result != null &&
+                                        result is CompanyModel) {
+                                      _companyMasterCubit.updateCompany(
+                                        result,
+                                        index,
+                                      );
+                                    }
+                                  },
+                                ),
+                                CustomIconButton.delete(
+                                  isDisabled:
+                                      !_routeAuthorizationModel.isAction,
+                                  onPressed: () {
+                                    _showPopUpToDeleteVendor(
+                                      context,
+                                      company,
+                                      index,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        verticalSpacing(height: 5),
+                        buildRowTitleValue(
+                          title: "Contact Person",
+                          value: company.contactPerson,
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "Firms Type",
+                          value: company.firmsType,
+                          singleLine: false,
+                        ),
+                        buildRowTitleValue(
+                          title: "Mobile Number",
+                          value: company.mobileNumber,
+                          customValueWidget: CustomClickToContactText(
+                            countryCode: "+91",
+                            value: company.mobileNumber,
+                          ),
+                        ),
+                        buildRowTitleValue(
+                          title: "E-Mail ID",
+                          value: company.emailId,
+                          customValueWidget: CustomClickToContactText(
+                            value: company.emailId,
+                            type: ContactType.email,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -343,3 +343,6 @@ final List<Map<String, dynamic>> budgetLevelTypeList = createAttributeList(
 );
 final List<Map<String, dynamic>> otherChargesApplicableForList =
     createAttributeList(otherChargesApplicableForValues);
+final List<Map<String, dynamic>> noticeSectionTypeList = createAttributeList(
+  noticeSectionTypeValues,
+);

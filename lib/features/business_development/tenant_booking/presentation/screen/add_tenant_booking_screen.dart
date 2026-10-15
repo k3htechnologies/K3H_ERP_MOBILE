@@ -12,7 +12,7 @@ import 'package:k3h_erp_app/features/business_development/tenant/data/model/tena
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_state.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/add_tenant_booking_payment_schedule_screen.dart';
-import 'package:k3h_erp_app/features/masters/bank_list_master/data/model/bank_list_master.model.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
@@ -35,7 +35,7 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/data/repository/employee_master.repository.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/employee_master/data/repository/employee_master.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 
 // ONE FILE PER TAB (they share this file's imports and private members)

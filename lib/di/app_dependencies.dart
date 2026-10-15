@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/inventory/inventory_report.d
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation/litigation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/legal/litigation_dashboard/litigation_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/marketing/content/content.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/masters/compliance_master/notice_section_master.dependecies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/payroll_master/holiday_mapping_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/payroll_master/leave_encashment_master.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/masters/payroll_master/leave_type_master.dependencies.dart';
@@ -301,7 +302,8 @@ void initDependencies() {
   registerTermSheetReportDependencies(serviceLocator);
   // ESTIMATION AND BUDGET MASTER DEPENDENCIES
   registerBudgetDependencies(serviceLocator);
-
+  //COMPLIANCE MASTERS
+  registerNoticeSectionMasterDependencies(serviceLocator);
   // VISITOR MANAGEMENT
   // GATE PASS
   registerGatePassDependencies(serviceLocator);

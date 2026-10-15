@@ -14,6 +14,8 @@ import 'package:k3h_erp_app/features/business_development/tenant_booking/present
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/view_tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
+import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/presentation/cubit/notice_section_cubit.dart';
+import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/presentation/screen/notice_section_master_screen.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/inventory_drawing_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/cubit/drawing_document_cubit.dart';
@@ -110,8 +112,8 @@ import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentati
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/presentation/pages/collection_report_overall.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/dcr/presentation/cubit/dcr_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
-import 'package:k3h_erp_app/features/masters/company_master/data/model/company_bank.model.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_bank_details_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/data/model/company_bank.model.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/add_company_bank_details_screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/disbursement/presentation/cubit/disbursement_cubit.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/disbursement/presentation/pages/add_disbursement.screen.dart';
 import 'package:k3h_erp_app/features/finance/finance_term_sheet/term_sheet_document/data/model/term_sheet_documents.model.dart';
@@ -233,9 +235,9 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/pr
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/view_payment.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/copy_material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/module_access_screen.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/data/model/designation.model.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/add_designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/designation_master/presentation/pages/module_access_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/designation_master/data/model/designation.model.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/designation_master/presentation/pages/add_designation_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/branch_association_master/presentation/pages/branch_association_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/deduction_master/presentation/pages/deduction_master_view_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/earning_master/presentation/pages/earning_master_view_screen.dart';
@@ -322,11 +324,11 @@ import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/p
 import 'package:k3h_erp_app/features/masters/project_master/presentation/pages/project_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/setting_dashboard/presentation/cubit/setting_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/masters/setting_dashboard/presentation/pages/setting_dashboard.screen.dart';
-import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
-import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/cubit/terms_and_conditions_cubit.dart';
-import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
-import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
-import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/presentation/cubit/terms_and_conditions_cubit.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_edit.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_get_quotation.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
@@ -388,20 +390,20 @@ import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/conten
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_folder/content_folder_cubit.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/pages/content_document_screen.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/pages/content_folder_screen.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master/company_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/cubit/company_master_add/company_master_add_cubit.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/add_company_partner_screen.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/company_master/presentation/pages/company_master_view.dart';
-import 'package:k3h_erp_app/features/masters/department_master/data/model/department.model.dart';
-import 'package:k3h_erp_app/features/masters/department_master/presentation/cubit/department_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/add_department_screen.dart';
-import 'package:k3h_erp_app/features/masters/department_master/presentation/pages/department_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/presentation/cubit/designation_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/designation_master/presentation/pages/designation_screen.dart';
-import 'package:k3h_erp_app/features/masters/bank_list_master/presentation/cubit/bank_list_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/bank_list_master/presentation/pages/bank_list_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/cubit/company_master/company_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/cubit/company_master_add/company_master_add_cubit.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/add_company_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/add_company_partner_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/company_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/company_master_view.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/department_master/data/model/department.model.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/department_master/presentation/cubit/department_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/department_master/presentation/pages/add_department_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/department_master/presentation/pages/department_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/designation_master/presentation/cubit/designation_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/designation_master/presentation/pages/designation_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/bank_list_master/presentation/cubit/bank_list_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/bank_list_master/presentation/pages/bank_list_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/data/model/asset_master.model.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/cubit/asset_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master/presentation/pages/add_asset_master_screen.dart';
@@ -410,10 +412,10 @@ import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mappin
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/cubit/asset_mapping_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/add_asset_mapping_master_screen.dart';
 import 'package:k3h_erp_app/features/masters/pay_roll_master/asset_master_mapping/presentation/pages/asset_mapping_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/presentation/cubit/employee_master_cubit.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/add_employee_screen.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_screen.dart';
-import 'package:k3h_erp_app/features/masters/employee_master/presentation/pages/employee_master_view_details_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/employee_master/presentation/cubit/employee_master_cubit.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/employee_master/presentation/pages/add_employee_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/employee_master/presentation/pages/employee_master_screen.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/employee_master/presentation/pages/employee_master_view_details_screen.dart';
 import 'package:k3h_erp_app/features/profile/presentation/pages/update_user_details_screen.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/data/model/approval_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_category/presentation/cubit/approval_category_cubit.dart';
@@ -8292,7 +8294,25 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-
+        // COMPLIANCE MASTER
+        // NOTICE SECTION
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => NoticeSectionMasterCubit(),
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.noticeSectionMaster,
+              path: AppRoutes.noticeSectionMaster,
+              builder: (context, state) {
+                return const NoticeSectionMasterScreen();
+              },
+            ),
+          ],
+        ),
         //  GATE PASS
         ShellRoute(
           builder: (context, state, child) {

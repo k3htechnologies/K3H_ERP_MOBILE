@@ -9,8 +9,8 @@ import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/parking/data/repository/parking.repository.dart';
-import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
-import 'package:k3h_erp_app/features/masters/terms_and_conditions_master/data/repository/terms_and_conditions.repository.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/data/model/terms_and_conditions.model.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/data/repository/terms_and_conditions.repository.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/payment_schedule_data.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
@@ -97,18 +97,16 @@ class BookingCubit extends Cubit<BookingState> {
     }
     Map<String, dynamic> queryParams = {
       if (state.searchText.isNotEmpty) "ApplicantName": state.searchText.trim(),
-      if (state.filterMobileNumber.isNotEmpty)
-        "ApplicantMobileNumber": state.filterMobileNumber,
-      if (state.filterWing.isNotEmpty) "Wing": state.filterWing,
-      if (state.filterFlat.isNotEmpty) "Flat": state.filterFlat,
-      if (state.filterFloor.isNotEmpty) "Floor": state.filterFloor,
-      if (state.filterSource.isNotEmpty) "Source": state.filterSource,
-      if (state.filterSubSource.isNotEmpty) "SubSource": state.filterSubSource,
+      "BookingSearchKey": "SALE BOOKING",
+      "ApplicantMobileNumber": state.filterMobileNumber,
+      "Wing": state.filterWing,
+      "Flat": state.filterFlat,
+      "Floor": state.filterFloor,
+      "Source": state.filterSource,
+      "SubSource": state.filterSubSource,
       if (state.filterAgreementValue != 0)
         "AgreementValue": state.filterAgreementValue,
-      if (state.filterBookingType.isNotEmpty)
-        "BookingType": state.filterBookingType,
-      "BookingSearchKey": "SALE BOOKING",
+      "BookingType": state.filterBookingType,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
 
@@ -1248,6 +1246,15 @@ class BookingCubit extends Cubit<BookingState> {
         "ApplicantName": state.searchText,
         "ExportType": exportType,
         "BookingSearchKey": "SALE BOOKING",
+        "ApplicantMobileNumber": state.filterMobileNumber,
+        "Wing": state.filterWing,
+        "Flat": state.filterFlat,
+        "Floor": state.filterFloor,
+        "Source": state.filterSource,
+        "SubSource": state.filterSubSource,
+        if (state.filterAgreementValue != 0)
+          "AgreementValue": state.filterAgreementValue,
+        "BookingType": state.filterBookingType,
       },
     );
     goRouter.pop();
@@ -1346,7 +1353,6 @@ class BookingCubit extends Cubit<BookingState> {
       ),
     );
 
-    // Fetch new filtered list
     await getBookingList(context, 1, getProject().projectId);
   }
 

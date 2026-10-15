@@ -68,6 +68,8 @@ class AppRoutes {
 
   // SPECIFICATION AND BUDGET MASTER
   static String specificationMaster = "/specificationMaster";
+  // COMPLIANCE MASTER
+  static String noticeSectionMaster = "/noticeSection";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PROCUREMENT MASTER
