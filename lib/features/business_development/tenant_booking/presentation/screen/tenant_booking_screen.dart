@@ -415,8 +415,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
           );
         },
       ),
-
-      /// CLEAR
       onClear: () {
         _startDateNotifier.value = null;
         _endDateNotifier.value = null;
@@ -448,8 +446,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
           sortDirection: "DESC",
         );
       },
-
-      /// APPLY
       onApply: () {
         applied = true;
 

@@ -1,8 +1,6 @@
 part of '../add_tenant_booking_screen.dart';
 
-// ═══════════════════════════ DETAILS TAB ═══════════════════════════
 extension _DetailsTab on _AddTenantBookingScreenState {
-  // BUILD DETAILS
   Widget _buildDetails() {
     return Form(
       key: _detailsFormKey,
@@ -11,7 +9,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // TENANT SYSTEM GENERATED CODE
             Column(
               children: [
                 BlocConsumer<TenantBookingCubit, TenantBookingState>(
@@ -89,7 +86,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                                   }
 
                                   if (value.length != 18) {
-                                    // CLEAR ANY PREVIOUS TENANT RESULT AND FETCH FLAGS
                                     _bookingCubit.clearTenantList();
                                     _tenantFetchTried.value = false;
                                     _isFetchingTenant.value = false;
@@ -112,6 +108,14 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                                                   .value
                                                   .first['zAttributesId'],
                                         );
+                                        _applicants.value =
+                                            List<TenantApplicantData>.from(
+                                              _bookingCubit
+                                                  .state
+                                                  .tenantList
+                                                  .first
+                                                  .tenantApplicantData,
+                                            );
                                         _isFetchingTenant.value = false;
                                       }
                                     },
@@ -129,7 +133,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                         ),
                         if (tenant != null &&
                             _selectedBuildingNotifier.value.isNotEmpty
-                        // &&
+                        //? &&
                         // (tenant.finalStage.toLowerCase() !=
                         //         'booking done'
                         // ||
@@ -345,7 +349,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                           verticalSpacing(),
                         ] else if (tenant != null &&
                             _selectedBuildingNotifier.value.isNotEmpty
-                        // &&
+                        //? &&
                         // tenant.finalStage.toLowerCase() ==
                         // 'booking done'
                         ) ...[
@@ -410,8 +414,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                 ),
               ],
             ),
-
-            // APPLICANT
             ValueListenableBuilder<List<TenantApplicantData>>(
               valueListenable: _applicants,
               builder: (context, applicants, child) {
@@ -510,7 +512,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
               },
             ),
             verticalSpacing(height: 16),
-            // ADDRESS
             Container(
               decoration: commonCardDecoration(),
               padding: EdgeInsets.all(16),
@@ -562,54 +563,52 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                 ],
               ),
             ),
-            // PROJECT DETAILS
             infoCard(title: "Project Details", [
               {
                 "title": "Building Number",
                 "value":
                     widget.inventoryObject?[0]["buildingNumber"] ??
-                    widget.tenantBookingModel!.buildingNumber,
+                    widget.tenantBookingModel?.buildingNumber,
               },
               {
                 "title": "Wing",
                 "value":
                     widget.inventoryObject?[0]["wing"] ??
-                    widget.tenantBookingModel!.wing,
+                    widget.tenantBookingModel?.wing,
               },
               {
                 "title": "Floor",
                 "value":
                     widget.inventoryObject?[0]["floor"] ??
-                    widget.tenantBookingModel!.floor,
+                    widget.tenantBookingModel?.floor,
               },
               {
                 "title": "Unit No",
                 "value":
                     widget.inventoryObject?[0]["flat"] ??
-                    widget.tenantBookingModel!.flat,
+                    widget.tenantBookingModel?.flat,
               },
               {
                 "title": "Flat Type",
                 "value":
                     widget.inventoryObject?[0]["flatType"] ??
-                    widget.tenantBookingModel!.flatType,
+                    widget.tenantBookingModel?.flatType,
               },
               {
                 "title": "Flat Configuration",
                 "value":
                     widget.inventoryObject?[0]["flatConfiguration"] ??
-                    widget.tenantBookingModel!.flatConfiguration,
+                    widget.tenantBookingModel?.flatConfiguration,
               },
               {
                 "title": "RERA Carpet Area (SqFt)",
                 "value":
                     widget.inventoryObject?[0]["reraCarpetAreaSqFt"]
                         .toString() ??
-                    widget.tenantBookingModel!.reraCarpetAreaSqFt.toString(),
+                    widget.tenantBookingModel?.reraCarpetAreaSqFt.toString(),
               },
             ]),
             verticalSpacing(height: 12),
-            // AGREEMENT DETAILS
             Container(
               decoration: commonCardDecoration(),
               margin: EdgeInsets.only(bottom: 10),
@@ -701,7 +700,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
               ),
             ),
             verticalSpacing(height: 8),
-            // TAX DETAILS
             Container(
               decoration: commonCardDecoration(),
               padding: EdgeInsets.all(16),
@@ -817,8 +815,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                 ],
               ),
             ),
-
-            // PARKING SECTION
             (!_isEditMode || widget.tenantBookingModel!.parkingData.isEmpty)
                 ? SizedBox.shrink()
                 : Container(
@@ -927,7 +923,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                     ],
                   ),
                 ),
-            // OTHER DETAILS
             Container(
               decoration: commonCardDecoration(),
               padding: EdgeInsets.all(16),
@@ -1065,7 +1060,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     );
   }
 
-  // BUILD APPLICANT CARD
   Widget _buildApplicantCard(TenantApplicantData applicant) {
     return infoCard(
       bgColor: AppColor.white,

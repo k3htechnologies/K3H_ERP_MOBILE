@@ -1,8 +1,6 @@
 part of '../add_tenant_booking_screen.dart';
 
-// ═══════════════════════════ PAYMENT DETAILS TAB ═══════════════════════════
 extension _PaymentDetailsTab on _AddTenantBookingScreenState {
-  // PAYMENTS DETAILS
   Widget _buildPaymentDetails() {
     return Form(
       key: _paymentDetailsFormKey,
@@ -42,7 +40,6 @@ extension _PaymentDetailsTab on _AddTenantBookingScreenState {
                         _selectedChequeDate = value;
                       },
                     ),
-                    // BANK MULTI SELECT
                     ValueListenableBuilder<List<Map<String, dynamic>>>(
                       valueListenable: _selectedBankNotifier,
                       builder: (context, selectedBanks, child) {

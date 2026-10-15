@@ -1,8 +1,6 @@
 part of '../add_tenant_booking_screen.dart';
 
-// ═══════════════════════════ OTHER CHARGES TAB ═══════════════════════════
 extension _OtherChargesTab on _AddTenantBookingScreenState {
-  // BUILD EXTRA CHARGES
   Widget _buildOtherCharges() {
     return Form(
       key: _otherChargesFormKey,
@@ -34,10 +32,7 @@ extension _OtherChargesTab on _AddTenantBookingScreenState {
                           valueListenable: _isOtherChargeApplicable,
                           builder: (context, isApplicable, child) {
                             return ToggleButtons(
-                              isSelected: [
-                                isApplicable, // Yes
-                                !isApplicable, // No
-                              ],
+                              isSelected: [isApplicable, !isApplicable],
                               onPressed: (index) {
                                 _isOtherChargeApplicable.value = index == 0;
                                 if (_isOtherChargeApplicable.value) {

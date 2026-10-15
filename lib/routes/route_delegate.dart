@@ -3085,7 +3085,7 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.addTenantBooking,
               builder: (context, state) {
                 final queryParameterBooking =
-                    state.uri.queryParameters['tenatBooking'];
+                    state.uri.queryParameters['tenantBooking'];
                 final queryParameterInventoryObject =
                     state.uri.queryParameters['inventoryObject'];
                 final booking =

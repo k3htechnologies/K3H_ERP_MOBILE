@@ -1,8 +1,6 @@
 part of '../add_tenant_booking_screen.dart';
 
-// ═══════════════════════════ TERMS & CONDITION TAB ═══════════════════════════
 extension _TermsTab on _AddTenantBookingScreenState {
-  // BUILD TERMS AND CONDITION
   Widget _buildTermsAndCondition() {
     return Form(
       key: _termsFormKey,

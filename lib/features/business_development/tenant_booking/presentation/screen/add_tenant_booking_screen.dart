@@ -6,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
@@ -31,7 +30,6 @@ import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
-import 'package:k3h_erp_app/widgets/custom_verification_dialog.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
@@ -67,7 +65,6 @@ class AddTenantBookingScreen extends StatefulWidget {
 class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     with SingleTickerProviderStateMixin {
   // CUBIT
-  late UtilsCubit _utilsCubit;
   late TenantBookingCubit _bookingCubit;
 
   // TAB CONTROLLER
@@ -222,7 +219,6 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     super.initState();
     _initializeTextControllers();
     _bookingCubit = context.read<TenantBookingCubit>();
-    _utilsCubit = context.read<UtilsCubit>();
     _project = getProject();
 
     _tabController = TabController(length: 6, vsync: this);
@@ -248,7 +244,10 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
 
     try {
       _tenantUniqueCodeC.text =
-          widget.inventoryObject?[0]["tenantSystemGeneratedCode"];
+          widget.inventoryObject?.isNotEmpty == true
+              ? (widget.inventoryObject![0]["tenantSystemGeneratedCode"] ?? '')
+                  .toString()
+              : (bm?.systemGeneratedCode ?? '');
       await _bookingCubit.getTenantList(
         context: context,
         pageNumber: 1,
@@ -331,9 +330,6 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     // ADDRESS
     _permanentAddressC.text = bm.permanentAddress;
     _communicationAddressC.text = bm.communicationAddress;
-
-    // APPLICANT
-    _applicants.value = List<TenantApplicantData>.from(bm.bookingApplicantData);
     final tenant = _bookingCubit.state.tenantList.first;
 
     _tenantUniqueCodeC.text = tenant.systemGeneratedCode;
@@ -793,52 +789,6 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
 
   // SUBMIT BOOKING FORM
   void _saveForm() async {
-    if (_isEditMode) {
-      _submitDetails();
-      return;
-    }
-    {
-      String applicantMobile =
-          _applicants.value
-              .firstWhere((a) => a.applicantType == "Applicant")
-              .applicantMobileNumber;
-      // CHECK DETAILS FILLED
-      bool isPaymentDetails =
-          _bookingAmountC.text.isNotEmpty &&
-          _chequeNoC.text.isNotEmpty &&
-          _selectedChequeDate != null &&
-          _selectedBankNotifier.value.isNotEmpty;
-      bool isOtherDetails = _bookingCubit.state.otherChargesList.isNotEmpty;
-      // TRIGGER OTP SEND FIST TIME
-      _utilsCubit.sendOTPModuleBased(
-        context: context,
-        mobileNumber: applicantMobile,
-        module: "BOOKING",
-        name:
-            _applicants.value
-                .firstWhere((a) => a.applicantType == "Applicant")
-                .applicantName,
-        projectName: _project.projectName,
-      );
-      showCompleteVerificationDialog(
-        context,
-        otpController: _otpController,
-        verificationSteps: {
-          "Applicant Details": true,
-          "Project Details": true,
-          "Payment Schedule": true,
-          "Payment Details": isPaymentDetails,
-          "Other Charge Details": isOtherDetails,
-        },
-        onVerifyOTP: () async {
-          _submitDetails();
-        },
-      );
-    }
-  }
-
-  //SUBMIT DETAILS
-  void _submitDetails() async {
     final registrationDate =
         _selectedExpectedRegistrationDate.value ?? DateTime.now();
     final chequeDate = _selectedChequeDate;
@@ -927,6 +877,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
                 ? int.parse(_noOfParkingC.text.trim())
                 : 0,
         handoverType: handoverType,
+        carpetAreaPurchaseSqFt: _isRERA.value ? "RERA" : "MOFA",
         registrationDate: registrationDate,
         flatAlterationRemark: _unitModCustomizationRemarkC.text.trim(),
         paymentRemark: _paymentRemarkC.text.trim(),

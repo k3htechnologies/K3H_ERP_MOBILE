@@ -915,8 +915,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     if (_isEditMode) {
       _submitDetails();
       return;
-    }
-    {
+    } else {
       String applicantMobile =
           _applicants.value
               .firstWhere((a) => a.applicantType == "Applicant")

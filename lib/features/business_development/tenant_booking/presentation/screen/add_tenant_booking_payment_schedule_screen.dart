@@ -84,11 +84,11 @@ class _AddTenantBookingPaymentScheduleScreenState
 
   void _populateFormFields() {
     if (!_isEditMode) return;
-    final data = _tenantBookingCubit.state.bookingPaymentScheduleList[widget.index!];
+    final data =
+        _tenantBookingCubit.state.bookingPaymentScheduleList[widget.index!];
 
     _percentageC.text = data.paymentSchedulePercentage.toString();
 
-    /// SELECT TAB
     if (data.type == "Date") {
       _tabController.index = 0;
       _selectedDate.value = data.date;
@@ -116,7 +116,6 @@ class _AddTenantBookingPaymentScheduleScreenState
     super.dispose();
   }
 
-  /// SAVE FORM
   void _saveForm() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -127,7 +126,6 @@ class _AddTenantBookingPaymentScheduleScreenState
       _tenantBookingCubit.state.bookingPaymentScheduleList,
     );
 
-    /// CHECK TOTAL PERCENTAGE
     final currentTotal = _tenantBookingCubit.totalCumulativePercentage;
 
     double newTotal;
@@ -221,7 +219,6 @@ class _AddTenantBookingPaymentScheduleScreenState
       ranking: ranking,
     );
 
-    /// ADD / EDIT LOGIC
     if (_isEditMode) {
       schedules[widget.index!] = model;
     } else {
@@ -239,12 +236,10 @@ class _AddTenantBookingPaymentScheduleScreenState
       );
     }
 
-    /// UPDATE CUBIT
     _tenantBookingCubit.updatePaymentScheduleList(schedules);
     goRouter.pop();
   }
 
-  /// FETCH STAGES
   Future<void> _fetchStages() async {
     final result = await _bookingRepository.getPaymentScheduleStagesList(
       pageNumber: 1,
@@ -274,7 +269,6 @@ class _AddTenantBookingPaymentScheduleScreenState
     );
   }
 
-  /// PERCENTAGE FIELD
   Widget _percentageField() {
     return CustomTextField(
       title: "Percentage",
@@ -300,7 +294,6 @@ class _AddTenantBookingPaymentScheduleScreenState
     );
   }
 
-  /// DATE TAB
   Widget _dateTab() {
     return Column(
       children: [
@@ -326,7 +319,6 @@ class _AddTenantBookingPaymentScheduleScreenState
     );
   }
 
-  /// STAGE TAB
   Widget _stageTab() {
     return Column(
       children: [
@@ -400,7 +392,6 @@ class _AddTenantBookingPaymentScheduleScreenState
             key: _formKey,
             child: Column(
               children: [
-                /// TAB BAR
                 Align(
                   alignment: Alignment.centerLeft,
                   child: SizedBox(
@@ -454,8 +445,6 @@ class _AddTenantBookingPaymentScheduleScreenState
                 ),
 
                 const SizedBox(height: 20),
-
-                /// TAB VIEW
                 Expanded(
                   child: TabBarView(
                     controller: _tabController,
@@ -469,7 +458,6 @@ class _AddTenantBookingPaymentScheduleScreenState
         ),
       ),
 
-      /// BUTTON
       bottomNavigationBar: SafeArea(
         child: Container(
           height: 70,

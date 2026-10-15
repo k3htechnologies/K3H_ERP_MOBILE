@@ -20,15 +20,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ViewTenantBookingScreen extends StatefulWidget {
   final int bookingId;
   final int projectId;
-  // final int buildingId;
-  // final String buildingName;
 
   const ViewTenantBookingScreen({
     super.key,
     required this.bookingId,
     required this.projectId,
-    // required this.buildingId,
-    // required this.buildingName,
   });
 
   @override
@@ -238,7 +234,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     );
   }
 
-  // BUILD APPLICANT TYPE WIDGET
   Widget _buildApplicantTypeWidget(String type) {
     return Container(
       alignment: Alignment.center,
@@ -262,7 +257,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     );
   }
 
-  // BUILD DETAILS TAB
   Widget _buildOverviewTab() {
     final isHtml =
         bookingModel!.termsAndConditionsDescription.contains('<') &&
@@ -271,7 +265,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Column(
         children: [
-          // TENANT SECTION
           BlocBuilder<TenantBookingCubit, TenantBookingState>(
             builder: (context, state) {
               if (state.tenantList.isEmpty) {
@@ -444,7 +437,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // APPLICANT DETAILS
                   SectionCard(
                     title: "Applicant Details",
                     headerBackgroundColor: AppColor.lightYellowBg2,
@@ -795,7 +787,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // ADDRESS DETAILS
                   SectionCard(
                     title: "Address Details",
                     border: Border.all(
@@ -817,7 +808,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  //  PROJECT DETAILS
                   SectionCard(
                     title: "Project Details",
                     titleTextColor: AppColor.blueBgColor,
@@ -899,7 +889,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // PARKING DETAILS
                   SectionCard(
                     title: "Parking Details",
                     titleTextColor: AppColor.blueBgColor,
@@ -999,7 +988,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                           ),
                     ],
                   ),
-                  // BOOKING DETAILS
                   SectionCard(
                     title: "Booking Details",
                     border: Border.all(
@@ -1054,7 +1042,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // BOOKING SUMMARY
                   SectionCard(
                     title: "Booking Summary",
                     headerBackgroundColor: AppColor.lightPurpleBg2,
@@ -1197,7 +1184,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                         ),
                     ],
                   ),
-                  // PAYMENT DETAILS
                   SectionCard(
                     title: "Payment Details",
                     headerBackgroundColor: AppColor.lightYellow,
@@ -1236,7 +1222,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  //  OTHER CHARGES
                   SectionCard(
                     title: "Other Charges",
                     headerBackgroundColor: AppColor.lightPurpleBg2,
@@ -1355,7 +1340,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // PAYMENT SCHEDULE
                   SectionCard(
                     headerBackgroundColor: AppColor.lightBlueBg2,
                     titleTextColor: AppColor.blue,
@@ -1491,7 +1475,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // FLAT ALTERATION REMARKS
                   SectionCard(
                     title: "Unit / Modulation / Customization Remark",
                     border: Border.all(
@@ -1506,7 +1489,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // PAYMENT REMARK
                   SectionCard(
                     title: "Payment Remarks",
                     border: Border.all(
@@ -1521,7 +1503,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // OTHER REMARK
                   SectionCard(
                     title: "Other Remarks",
                     border: Border.all(
@@ -1536,7 +1517,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // TERMS AND CONDITIONS
                   SectionCard(
                     title: "Terms & Conditions",
                     headerBackgroundColor: AppColor.lightRed,
@@ -1562,6 +1542,8 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                //TODO : ASK DESIGNER
+                                //
                                 // InkWell(
                                 //   onTap: () {
                                 //     isExpanded.value = !isExpanded.value;
@@ -1623,7 +1605,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                       ),
                     ],
                   ),
-                  // ACTION DETAILS
                   SectionCard(
                     title: "Action Details",
                     headerBackgroundColor: AppColor.grey.withValues(alpha: 0.2),
@@ -1682,7 +1663,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     );
   }
 
-  // BUILD APPLICANT DETAILS
   Widget _buildApplicantDetailsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -1805,7 +1785,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     };
   }
 
-  // BUILD OTHER CHARGES TAB
   Widget _buildOtherChargesTab() {
     if (bookingModel!.bookingOtherChargesData.isEmpty) {
       return Center(
@@ -1923,7 +1902,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     );
   }
 
-  // BUILD PAYMENT SCHEDULE
   Widget _buildPaymentSchedule() {
     if (bookingModel!.bookingPaymentScheduleData.isEmpty) {
       return noDataWidget();
@@ -2109,7 +2087,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     );
   }
 
-  // BUILD REMARKS TAB
   Widget _buildRemarkTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 16.0),
@@ -2148,7 +2125,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     );
   }
 
-  // BUILD TERMS AND CONDITION TAB
   Widget _buildTermsAndConditionTab() {
     final isHtml =
         bookingModel!.termsAndConditionsDescription.contains('<') &&
@@ -2193,7 +2169,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     );
   }
 
-  // BUILD PAYMENT DETAILS TAB
   Widget _buildPaymentDetailsTab() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

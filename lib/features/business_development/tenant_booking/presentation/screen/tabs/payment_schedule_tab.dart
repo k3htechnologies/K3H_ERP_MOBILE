@@ -1,8 +1,6 @@
 part of '../add_tenant_booking_screen.dart';
 
-// ═══════════════════════ PAYMENT SCHEDULE TAB ═══════════════════════
 extension _PaymentScheduleTab on _AddTenantBookingScreenState {
-  // BUILD PAYMENT SCHEDULE
   Widget _buildPaymentSchedule() {
     return BlocBuilder<TenantBookingCubit, TenantBookingState>(
       builder: (context, state) {
@@ -86,7 +84,6 @@ extension _PaymentScheduleTab on _AddTenantBookingScreenState {
                   },
                 ),
 
-                /// Header Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -138,12 +135,10 @@ extension _PaymentScheduleTab on _AddTenantBookingScreenState {
                 ValueListenableBuilder(
                   valueListenable: selectedScheme,
                   builder: (context, value, child) {
-                    // HIDE WHEN SCHEME IS NOT SELECTED
                     if (selectedScheme.value.isEmpty) {
                       return const SizedBox.shrink();
                     }
 
-                    // HIDE WHEN CUMULATIVE IS 100
                     if (_bookingCubit.totalCumulativePercentage >= 100) {
                       return const SizedBox.shrink();
                     }
@@ -367,7 +362,6 @@ extension _PaymentScheduleTab on _AddTenantBookingScreenState {
     );
   }
 
-  // AGGREMENT CARD (also used by the Other Charges tab)
   Widget _buildAgreementCard() {
     double agreementValueWithTds =
         double.tryParse(

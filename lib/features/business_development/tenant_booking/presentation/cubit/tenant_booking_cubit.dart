@@ -437,14 +437,13 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required String otp,
     required List<TenantApplicantData> addUpdateBookingApplicant,
     required bool isApplicableOtherCharge,
+    required String carpetAreaPurchaseSqFt,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "BookingId": 0.toString(),
       "ProjectId": projectId.toString(),
-      //?Ask
       "EnquiryId": 0.toString(),
-
       "TenantId": tenantId.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
@@ -512,6 +511,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         "BankListMasterId": bankListMasterId.toString(),
       if (transferBookingId != null)
         "TransferBookingId": transferBookingId.toString(),
+      "CarpetAreaPurchaseSqFt": carpetAreaPurchaseSqFt,
       "OTP": otp,
     };
     for (int i = 0; i < addUpdateBookingApplicant.length; i++) {

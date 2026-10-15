@@ -1,8 +1,6 @@
 part of '../add_tenant_booking_screen.dart';
 
-// ═══════════════════════════ REMARK TAB ═══════════════════════════
 extension _RemarkTab on _AddTenantBookingScreenState {
-  // BUILD REMARK
   Widget _buildRemark() {
     return Form(
       key: _remarkFormKey,
