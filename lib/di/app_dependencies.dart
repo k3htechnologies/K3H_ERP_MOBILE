@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track_call
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/collection_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/reports.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/estimation_and_budget/baseline_cost_plan_document.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/estimation_and_budget/budget.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/finance/term_sheet.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/finance/term_sheet_report.dependencies.dart';
@@ -301,7 +302,7 @@ void initDependencies() {
   registerTermSheetReportDependencies(serviceLocator);
   // ESTIMATION AND BUDGET MASTER DEPENDENCIES
   registerBudgetDependencies(serviceLocator);
-
+  registerBaselineCostPlanDocumentDependencies(serviceLocator);
   // VISITOR MANAGEMENT
   // GATE PASS
   registerGatePassDependencies(serviceLocator);

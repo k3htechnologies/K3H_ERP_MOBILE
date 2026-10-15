@@ -11,6 +11,11 @@ import 'package:k3h_erp_app/features/business_development/tenant/presentation/pa
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/view_tenant_booking_screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/data/model/baseline_cost_plan.model.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/cubit/baseline_cost_plan_cubit.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/add_baseline_plan_cost.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/baseline_cost_plan.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/view_baseline_cost_plan.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
@@ -8214,7 +8219,13 @@ final GoRouter goRouter = GoRouter(
         // ESTIMATION AND BUDGET
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(create: (_) => BudgetCubit(), child: child);
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => BudgetCubit()),
+                BlocProvider(create: (_) => BaselineCostPlanCubit()),
+              ],
+              child: child,
+            );
           },
           routes: [
             GoRoute(
@@ -8240,6 +8251,80 @@ final GoRouter goRouter = GoRouter(
                         .toList();
 
                 return ViewBudgetMasterScreen(budgetList: budgetList);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.baselineCostPlan,
+              path: AppRoutes.baselineCostPlan,
+              builder: (context, state) {
+                return const BaselineCostPlanScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBaselineCostPlan,
+              path: AppRoutes.addBaselineCostPlan,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+
+                final BaselineCostPlanDocumentModel? document =
+                    queryParameterDocument != null
+                        ? BaselineCostPlanDocumentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['index'] ?? '0',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final isEdit = bool.parse(
+                  EncryptionManager.decryptData(
+                    Uri.decodeComponent(
+                      state.uri.queryParameters['isEdit'] ?? 'false',
+                    ),
+                  ),
+                );
+                return AddBaselinePlanCostDocumentScreen(
+                  baselineCostPlanDocumentModel: document,
+                  index: index,
+                  isEdit: isEdit,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBaselineCostPlan,
+              path: AppRoutes.viewBaselineCostPlan,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+                final BaselineCostPlanDocumentModel? document =
+                    queryParameterDocument != null
+                        ? BaselineCostPlanDocumentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewBaselineCostPlanScreen(
+                  baselineCostPlanDocumentModel: document!,
+                  index: index,
+                );
               },
             ),
           ],

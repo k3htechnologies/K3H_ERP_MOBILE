@@ -581,6 +581,10 @@ class AppRoutes {
   //ESTIMATION AND BUDGET
   static String budget = "/budget";
   static String viewBudget = "/viewBudget";
+  // BASELINE COST PLAN
+  static String baselineCostPlan = "/baselineCostPlan";
+  static String addBaselineCostPlan = "/addBaselineCostPlan";
+  static String viewBaselineCostPlan = "/viewBaselineCostPlan";
 
   // otp LOGS
   static String otpLogs = "/otpLogs";
