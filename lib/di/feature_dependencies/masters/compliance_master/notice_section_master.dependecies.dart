@@ -13,7 +13,6 @@ void registerNoticeSectionMasterDependencies(GetIt serviceLocator) {
     ),
   );
 
-  //- CUBITS -
   serviceLocator.registerSingleton<NoticeSectionMasterCubit>(
     NoticeSectionMasterCubit(),
   );
