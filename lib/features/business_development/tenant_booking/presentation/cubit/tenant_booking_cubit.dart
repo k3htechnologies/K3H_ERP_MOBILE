@@ -229,6 +229,18 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         final List<TenantModel> updatedList =
             pageNumber == 1 ? newData : [...state.tenantList, ...newData];
         emit(state.copyWith(tenantList: updatedList, isLoading: false));
+        if (newData.isNotEmpty) {
+          for (final tenant in newData.first.tenantApplicantData) {
+            if (tenant.photoURL.trim().isEmpty) {
+              showErrorMessage(
+                context,
+                "Error",
+                "${tenant.applicantName}: Photo is required.",
+              );
+              return;
+            }
+          }
+        }
       },
     );
   }

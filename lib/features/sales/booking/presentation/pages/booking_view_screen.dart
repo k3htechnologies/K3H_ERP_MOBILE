@@ -38,13 +38,9 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   late BookingCubit _bookingCubit;
   late BookingModel? bookingModel;
 
-  // FOR TERMS AND CONDITIONS EXPANSION TILE
-  late ValueNotifier<bool> isExpanded;
-
   @override
   void initState() {
     super.initState();
-    isExpanded = ValueNotifier(false);
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<BookingCubit>();
@@ -55,7 +51,6 @@ class _BookingViewScreenState extends State<BookingViewScreen>
   void dispose() {
     super.dispose();
     _tabController.dispose();
-    isExpanded.dispose();
   }
 
   Future<void> loadBooking() async {
@@ -1496,10 +1491,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       width: 1,
                     ),
                     children: [
-                      buildColumnTitleValue(
-                        title: "Remarks",
-                        value: bookingModel!.flatAlterationRemark,
-                        removeExpanded: true,
+                      Text(
+                        bookingModel!.flatAlterationRemark.isEmpty
+                            ? "-"
+                            : bookingModel!.flatAlterationRemark,
+                        style: AppTextStyle.ts14M(color: AppColor.black),
                       ),
                     ],
                   ),
@@ -1511,10 +1507,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       width: 1,
                     ),
                     children: [
-                      buildColumnTitleValue(
-                        title: "Remarks",
-                        value: bookingModel!.paymentRemark,
-                        removeExpanded: true,
+                      Text(
+                        bookingModel!.paymentRemark.isEmpty
+                            ? "-"
+                            : bookingModel!.paymentRemark,
+                        style: AppTextStyle.ts14M(color: AppColor.black),
                       ),
                     ],
                   ),
@@ -1526,10 +1523,11 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                       width: 1,
                     ),
                     children: [
-                      buildColumnTitleValue(
-                        title: "Remarks",
-                        value: bookingModel!.otherRemark,
-                        removeExpanded: true,
+                      Text(
+                        bookingModel!.otherRemark.isEmpty
+                            ? "-"
+                            : bookingModel!.otherRemark,
+                        style: AppTextStyle.ts14M(color: AppColor.black),
                       ),
                     ],
                   ),
@@ -1538,6 +1536,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     title: "Terms & Conditions",
                     headerBackgroundColor: AppColor.lightRed,
                     titleTextColor: AppColor.missingInformationRed,
+                    maxContentHeight: 450,
                     children: [
                       Container(
                         margin: EdgeInsets.only(bottom: 10),
@@ -1549,73 +1548,41 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                             color: AppColor.grey.withValues(alpha: 0.3),
                           ),
                         ),
-                        child: ValueListenableBuilder<bool>(
-                          valueListenable: isExpanded,
-                          builder: (context, value, child) {
-                            final hasData =
-                                bookingModel!.termsAndConditionsDescription
-                                    .trim()
-                                    .isNotEmpty;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // InkWell(
-                                //   onTap: () {
-                                //     isExpanded.value = !isExpanded.value;
-                                //   },
-                                //   child: SizedBox(
-                                //     width: double.infinity,
-                                //     child: Row(
-                                //       children: [
-                                //         Expanded(
-                                //           child: Text(
-                                //             "Terms & Conditions",
-                                //             style: AppTextStyle.ts16SB(),
-                                //           ),
-                                //         ),
-                                //         Icon(
-                                //           value
-                                //               ? Icons.keyboard_arrow_up
-                                //               : Icons.keyboard_arrow_down,
-                                //         ),
-                                //       ],
-                                //     ),
-                                //   ),
-                                // ),
-                                if (hasData) ...[
-                                  const SizedBox(height: 10),
-                                  isHtml
-                                      ? Html(
-                                        data:
-                                            bookingModel!
-                                                .termsAndConditionsDescription,
-                                        style: {
-                                          "body": Style(
-                                            fontSize: FontSize(14),
-                                            margin: Margins.zero,
-                                            padding: HtmlPaddings.zero,
-                                          ),
-                                        },
-                                      )
-                                      : Text(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (bookingModel!.termsAndConditionsDescription
+                                .trim()
+                                .isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              isHtml
+                                  ? Html(
+                                    data:
                                         bookingModel!
                                             .termsAndConditionsDescription,
-                                        style: AppTextStyle.ts14R(
-                                          color: AppColor.grey,
-                                        ),
+                                    style: {
+                                      "body": Style(
+                                        fontSize: FontSize(14),
+                                        margin: Margins.zero,
+                                        padding: HtmlPaddings.zero,
                                       ),
-                                ] else if (value && !hasData) ...[
-                                  Center(
-                                    child: noDataWidget(
-                                      message:
-                                          "No Terms & Conditions Available",
-                                      iconSize: 180,
+                                    },
+                                  )
+                                  : Text(
+                                    bookingModel!.termsAndConditionsDescription,
+                                    style: AppTextStyle.ts14R(
+                                      color: AppColor.grey,
                                     ),
                                   ),
-                                ],
-                              ],
-                            );
-                          },
+                            ] else ...[
+                              Center(
+                                child: noDataWidget(
+                                  message: "No Terms & Conditions Available",
+                                  iconSize: 180,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],
@@ -2309,27 +2276,45 @@ class _BookingViewScreenState extends State<BookingViewScreen>
         children: [
           SectionCard(
             title: "Unit / Modulation / Customization Remark",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
             children: [
               Text(
-                bookingModel!.flatAlterationRemark,
+                bookingModel!.flatAlterationRemark.isEmpty
+                    ? "-"
+                    : bookingModel!.flatAlterationRemark,
                 style: AppTextStyle.ts14M(color: AppColor.black),
               ),
             ],
           ),
           SectionCard(
             title: "Payment Related Remark",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
             children: [
               Text(
-                bookingModel!.paymentRemark,
+                bookingModel!.paymentRemark.isEmpty
+                    ? "-"
+                    : bookingModel!.paymentRemark,
                 style: AppTextStyle.ts14M(color: AppColor.black),
               ),
             ],
           ),
           SectionCard(
             title: "Other Remark",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
             children: [
               Text(
-                bookingModel!.otherRemark,
+                bookingModel!.otherRemark.isEmpty
+                    ? "-"
+                    : bookingModel!.otherRemark,
                 style: AppTextStyle.ts14M(color: AppColor.black),
               ),
             ],

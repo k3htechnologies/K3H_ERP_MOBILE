@@ -147,7 +147,7 @@ class NoticeSectionMasterDatasourceImpl
       };
     } catch (error) {
       if (error is TokenExpiredException) {
-        return apiCallPullNoticeSection(
+        return apiCallPullNoticeSectionForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
           queryParams: queryParams,

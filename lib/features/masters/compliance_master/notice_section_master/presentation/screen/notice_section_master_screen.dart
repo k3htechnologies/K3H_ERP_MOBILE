@@ -351,7 +351,7 @@ class _NoticeSectionMasterScreenState extends State<NoticeSectionMasterScreen> {
       'Deleting this Notice Section will permanently remove all associated data.',
     );
     if (result && context.mounted) {
-      await _noticeSectionMasterCubit.deleteNoticeSectiokn(
+      await _noticeSectionMasterCubit.deleteNoticeSection(
         context: context,
         noticeSectionMasterId: noticeSection.noticeSectionMasterId,
         uniqueKey: noticeSection.uniquekey,
@@ -403,12 +403,12 @@ class _NoticeSectionMasterScreenState extends State<NoticeSectionMasterScreen> {
                 separatorBuilder: (context, index) => verticalSpacing(),
                 itemBuilder: (context, index) {
                   if (index == state.noticeSectionList.length) {
-                    return state.noticeSectionList.length <
-                            state.totalNumberOfRecord
+                    return (_noticeSectionMasterCubit.state.currentPage * 10 <
+                            _noticeSectionMasterCubit.state.totalNumberOfRecord)
                         ? const Padding(
                           padding: EdgeInsets.all(16),
                           child: Center(child: CircularProgressIndicator()),
-                        )
+                        ) 
                         : const SizedBox.shrink();
                   }
                   final noticeSection = state.noticeSectionList[index];
@@ -464,7 +464,7 @@ class _NoticeSectionMasterScreenState extends State<NoticeSectionMasterScreen> {
                           fixesWidth: 110,
                         ),
                         buildRowTitleValue(
-                          title: "Modifed By",
+                          title: "Modified By",
                           value:
                               noticeSection.modifiedBy.isEmpty
                                   ? noticeSection.createdBy

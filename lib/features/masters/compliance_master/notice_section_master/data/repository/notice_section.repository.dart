@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/data/datasource/notice_section.datasourcee.dart';
+import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/data/datasource/notice_section.datasource.dart';
 
 abstract interface class NoticeSectionMasterRepository {
   Future<Either<Failure, Map<String, dynamic>>> pullNoticeSection({

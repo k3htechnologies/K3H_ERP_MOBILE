@@ -41,13 +41,9 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
   late TenantBookingCubit _bookingCubit;
   late BookingModel? bookingModel;
 
-  // FOR TERMS AND CONDITIONS EXPANSION TILE
-  late ValueNotifier<bool> isExpanded;
-
   @override
   void initState() {
     super.initState();
-    isExpanded = ValueNotifier(false);
     _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(_handleTabChange);
     _bookingCubit = context.read<TenantBookingCubit>();
@@ -58,7 +54,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
   void dispose() {
     super.dispose();
     _tabController.dispose();
-    isExpanded.dispose();
   }
 
   Future<void> loadBooking() async {
@@ -1532,75 +1527,41 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                             color: AppColor.grey.withValues(alpha: 0.3),
                           ),
                         ),
-                        child: ValueListenableBuilder<bool>(
-                          valueListenable: isExpanded,
-                          builder: (context, value, child) {
-                            final hasData =
-                                bookingModel!.termsAndConditionsDescription
-                                    .trim()
-                                    .isNotEmpty;
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                //TODO : ASK DESIGNER
-                                //
-                                // InkWell(
-                                //   onTap: () {
-                                //     isExpanded.value = !isExpanded.value;
-                                //   },
-                                //   child: SizedBox(
-                                //     width: double.infinity,
-                                //     child: Row(
-                                //       children: [
-                                //         Expanded(
-                                //           child: Text(
-                                //             "Terms & Conditions",
-                                //             style: AppTextStyle.ts16SB(),
-                                //           ),
-                                //         ),
-                                //         Icon(
-                                //           value
-                                //               ? Icons.keyboard_arrow_up
-                                //               : Icons.keyboard_arrow_down,
-                                //         ),
-                                //       ],
-                                //     ),
-                                //   ),
-                                // ),
-                                if (hasData) ...[
-                                  const SizedBox(height: 10),
-                                  isHtml
-                                      ? Html(
-                                        data:
-                                            bookingModel!
-                                                .termsAndConditionsDescription,
-                                        style: {
-                                          "body": Style(
-                                            fontSize: FontSize(14),
-                                            margin: Margins.zero,
-                                            padding: HtmlPaddings.zero,
-                                          ),
-                                        },
-                                      )
-                                      : Text(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (bookingModel!.termsAndConditionsDescription
+                                .trim()
+                                .isNotEmpty) ...[
+                              const SizedBox(height: 10),
+                              isHtml
+                                  ? Html(
+                                    data:
                                         bookingModel!
                                             .termsAndConditionsDescription,
-                                        style: AppTextStyle.ts14R(
-                                          color: AppColor.grey,
-                                        ),
+                                    style: {
+                                      "body": Style(
+                                        fontSize: FontSize(14),
+                                        margin: Margins.zero,
+                                        padding: HtmlPaddings.zero,
                                       ),
-                                ] else if (value && !hasData) ...[
-                                  Center(
-                                    child: noDataWidget(
-                                      message:
-                                          "No Terms & Conditions Available",
-                                      iconSize: 180,
+                                    },
+                                  )
+                                  : Text(
+                                    bookingModel!.termsAndConditionsDescription,
+                                    style: AppTextStyle.ts14R(
+                                      color: AppColor.grey,
                                     ),
                                   ),
-                                ],
-                              ],
-                            );
-                          },
+                            ] else ...[
+                              Center(
+                                child: noDataWidget(
+                                  message: "No Terms & Conditions Available",
+                                  iconSize: 180,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ],

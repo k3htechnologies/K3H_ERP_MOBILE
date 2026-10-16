@@ -127,7 +127,7 @@ class NoticeSectionMasterCubit extends Cubit<NoticeSectionMasterState> {
     );
   }
 
-  Future<void> deleteNoticeSectiokn({
+  Future<void> deleteNoticeSection({
     required BuildContext context,
     required int noticeSectionMasterId,
     required String uniqueKey,
@@ -151,7 +151,10 @@ class NoticeSectionMasterCubit extends Cubit<NoticeSectionMasterState> {
         emit(
           state.copyWith(
             noticeSectionList: updatedList,
-            totalNumberOfRecord: state.totalNumberOfRecord - 1,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
           ),
         );
         showSuccessMessage(context, subTitle: response["message"]);
@@ -218,6 +221,10 @@ class NoticeSectionMasterCubit extends Cubit<NoticeSectionMasterState> {
         state.currentSortColumn == "Notice Section" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
-    return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);
+    return getActiveFilterCount([
+      hasSort,
+      state.searchText.trim().isNotEmpty,
+      state.filterByGovernmentCompliance.isNotEmpty,
+    ]);
   }
 }
