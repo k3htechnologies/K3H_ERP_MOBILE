@@ -20,6 +20,17 @@ class TenantState extends BaseState {
   final String filterByParkingNumber;
   final String searchDocumentName;
 
+  // Groups all flat-assignment records by TenantId.
+  Map<int, List<TenantModel>> get groupedTenantList {
+    final Map<int, List<TenantModel>> grouped = {};
+
+    for (final tenant in tenantList) {
+      grouped.putIfAbsent(tenant.tenantId, () => []).add(tenant);
+    }
+
+    return grouped;
+  }
+
   const TenantState({
     super.isLoading,
     required this.tenantList,
@@ -63,6 +74,7 @@ class TenantState extends BaseState {
     filterByParkingNumber: "",
     searchDocumentName: "",
   );
+
   TenantState copyWith({
     bool? isLoading,
     List<TenantModel>? tenantList,

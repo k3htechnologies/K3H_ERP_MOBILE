@@ -321,25 +321,28 @@ Widget infoCard(
             final first = items[index * 2];
             final second =
                 (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
+
+            // NEW: spacer support, otherwise identical to the original code
+            Widget buildItem(Map<String, dynamic> item) {
+              if (item["spacer"] == true) {
+                return const Expanded(child: SizedBox.shrink());
+              }
+              return buildColumnTitleValue(
+                title: item["title"] ?? "",
+                value: item["widget"] != null ? "" : item["value"] ?? "",
+                customValueWidget: item["widget"],
+              );
+            }
+
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildColumnTitleValue(
-                    title: first["title"] ?? "",
-                    value: first["widget"] != null ? "" : first["value"] ?? "",
-                    customValueWidget: first["widget"],
-                  ),
-
+                  buildItem(first),
                   if (second != null) ...[
                     const SizedBox(width: 10),
-                    buildColumnTitleValue(
-                      title: second["title"] ?? "",
-                      value:
-                          second["widget"] != null ? "" : second["value"] ?? "",
-                      customValueWidget: second["widget"],
-                    ),
+                    buildItem(second),
                   ],
                 ],
               ),
@@ -490,20 +493,18 @@ class CustomIconContainer extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
       ),
       alignment: Alignment.center,
-      child: svgIcon != null
-          ? SvgPicture.asset(
-              svgIcon!,
-              height: iconSize,
-              width: iconSize,
-            )
-          : Icon(
-              icon,
-              size: iconSize,
-              color: iconColor ?? AppColor.darkBlue,
-            ),
+      child:
+          svgIcon != null
+              ? SvgPicture.asset(svgIcon!, height: iconSize, width: iconSize)
+              : Icon(
+                icon,
+                size: iconSize,
+                color: iconColor ?? AppColor.darkBlue,
+              ),
     );
   }
 }
+
 class DottedDivider extends StatelessWidget {
   final double height;
   final Color color;

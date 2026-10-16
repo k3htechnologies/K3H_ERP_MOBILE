@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -244,9 +246,12 @@ class TenantCubit extends Cubit<TenantState> {
     required double totalNewRERACarpetAreaWithDeckSqFt,
     required String remark,
     required List<TenantApplicantData> addUpdateTenantApplicant,
-    required int inventoryFlatId,
+    required List<TenantInventoryAndAdjustPurchaseAreaDetailsModel>
+    inventoryFlatData,
+    required String inventoryFlatIds,
   }) async {
     DialogHelper.showProcessingOverlay(context);
+
     Map<String, String> requestBody = {
       "TenantId": "0",
       "ProjectId": projectId.toString(),
@@ -273,7 +278,10 @@ class TenantCubit extends Cubit<TenantState> {
       "TotalNewRERACarpetAreaWithDeckSqFt":
           totalNewRERACarpetAreaWithDeckSqFt.toString(),
       "Remark": remark,
-      "InventoryFlatId": inventoryFlatId.toString(),
+      "InventoryFlatId": inventoryFlatIds,
+      "AddUpdateTenantInventoryAndAdjustPurchaseAreaDetailsJSON": jsonEncode(
+        inventoryFlatData,
+      ),
     };
     for (
       int applicantIndex = 0;
@@ -448,7 +456,9 @@ class TenantCubit extends Cubit<TenantState> {
     required double totalNewRERACarpetAreaWithDeckSqFt,
     required String remark,
     required List<TenantApplicantData> addUpdateTenantApplicant,
-    required int inventoryFlatId,
+    required String inventoryFlatIds,
+    required List<TenantInventoryAndAdjustPurchaseAreaDetailsModel>
+    inventoryFlatData,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
@@ -478,7 +488,10 @@ class TenantCubit extends Cubit<TenantState> {
       "TotalNewRERACarpetAreaWithDeckSqFt":
           totalNewRERACarpetAreaWithDeckSqFt.toString(),
       "Remark": remark,
-      "InventoryFlatId": inventoryFlatId.toString(),
+      "InventoryFlatId": inventoryFlatIds,
+      "AddUpdateTenantInventoryAndAdjustPurchaseAreaDetailsJSON": jsonEncode(
+        inventoryFlatData,
+      ),
     };
     for (
       int applicantIndex = 0;
@@ -887,5 +900,43 @@ class TenantCubit extends Cubit<TenantState> {
       state.filterByParkingNumber.trim().isNotEmpty,
       hasSort,
     ]);
+  }
+
+  Future<TenantModel?> getTenantById({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required int tenantId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    Map<String, dynamic> queryParams = {
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "TenantId": tenantId,
+    };
+
+    final result = await _tenantRepository.getTenantById(
+      queryParams: queryParams,
+    );
+
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return null;
+      },
+      (response) {
+        final List<TenantModel> list = List<TenantModel>.from(
+          response['data'] ?? [],
+        );
+
+        final tenant = list.isNotEmpty ? list.first : null;
+
+        emit(state.copyWith(isLoading: false));
+
+        return tenant;
+      },
+    );
   }
 }

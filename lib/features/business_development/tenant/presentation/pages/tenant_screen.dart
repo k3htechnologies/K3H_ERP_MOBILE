@@ -621,6 +621,8 @@ class _TenantScreenState extends State<TenantScreen> {
                           child: noDataWidget(message: 'No Tenants Found'),
                         );
                       }
+                      final groupedTenantEntries =
+                          state.groupedTenantList.entries.toList();
                       return RefreshIndicator(
                         onRefresh: () async {
                           _searchC.clear();
@@ -640,11 +642,11 @@ class _TenantScreenState extends State<TenantScreen> {
                             horizontal: 16,
                             vertical: 10,
                           ),
-                          itemCount: state.tenantList.length + 1,
+                          itemCount: groupedTenantEntries.length + 1,
                           separatorBuilder:
                               (context, index) => verticalSpacing(height: 12),
                           itemBuilder: (context, index) {
-                            if (index == state.tenantList.length) {
+                            if (index == groupedTenantEntries.length) {
                               return state.tenantList.length <
                                       state.totalNumberOfRecord
                                   ? const Padding(
@@ -655,15 +657,12 @@ class _TenantScreenState extends State<TenantScreen> {
                                   )
                                   : const SizedBox.shrink();
                             }
-                            var tenant = state.tenantList[index];
-                            final applicant = tenant.tenantApplicantData.where(
-                              (e) =>
-                                  e.applicantType.toLowerCase() == "applicant",
-                            );
-                            final applicantName =
-                                applicant.isNotEmpty
-                                    ? applicant.first.applicantName
-                                    : '';
+
+                            final assignedFlats =
+                                groupedTenantEntries[index].value;
+                            final tenant = assignedFlats.first;
+
+                            final applicantName = tenant.applicantName;
                             return Container(
                               padding: const EdgeInsets.all(16),
                               decoration: commonCardDecoration(),
@@ -843,14 +842,9 @@ class _TenantScreenState extends State<TenantScreen> {
                                               await goRouter.pushNamed(
                                                 AppRoutes.addTenant,
                                                 queryParameters: {
-                                                  "tenant":
-                                                      Uri.encodeQueryComponent(
-                                                        EncryptionManager.encryptData(
-                                                          jsonEncode(
-                                                            tenant.toJson(),
-                                                          ),
-                                                        ),
-                                                      ),
+                                                  "tenantId":
+                                                      tenant.tenantId
+                                                          .toString(),
                                                   'index': index.toString(),
                                                   'projectId':
                                                       _project.projectId

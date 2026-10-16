@@ -13,6 +13,10 @@ abstract interface class TenantDatasource {
     Map<String, dynamic>? queryParams,
   });
 
+  Future<Map<String, dynamic>> apicallPullTenantById({
+    required Map<String, dynamic> queryParams,
+  });
+
   Future<Map<String, dynamic>> apicallPullTenantDocument({
     required int pageNumber,
     required int pageSize,
@@ -104,6 +108,34 @@ class TenantDataSourceImpl implements TenantDatasource {
           buildingId: buildingId,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullTenantById({
+    required Map<String, dynamic> queryParams,
+  }) async {
+    String pullTenantUrl({required Map<String, dynamic> queryParams}) {
+      String url = "Tenant/PullTenantById?";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullTenantUrl(queryParams: queryParams),
+      );
+      return {
+        'data': List<TenantModel>.from(
+          networkResponse["data"].map((e) => TenantModel.fromJson(e)),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullTenantById(queryParams: queryParams);
       }
       rethrow;
     }

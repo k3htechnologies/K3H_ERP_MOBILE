@@ -8,7 +8,6 @@ class TenantModel {
   String systemGeneratedCode;
   int projectId;
   int buildingId;
-  String buildingName;
   String unitAnnexureSurveyNumber;
   String applicantName;
   String unitType;
@@ -38,8 +37,10 @@ class TenantModel {
   String inventoryFlatConfiguration;
   String parkingNumber;
   String flatFacing;
+  String buildingName;
   List<ParkingModel> parkingData;
   String parkingId;
+  List<InventoryFlatData> inventoryFlatData;
   List<TenantApplicantData> tenantApplicantData;
   int createdById;
   String createdBy;
@@ -86,6 +87,7 @@ class TenantModel {
     required this.flatFacing,
     required this.parkingData,
     required this.parkingId,
+    required this.inventoryFlatData,
     required this.tenantApplicantData,
     required this.createdById,
     required this.createdBy,
@@ -180,6 +182,15 @@ class TenantModel {
                   .toList()
               : [],
       parkingId: parseValue<String>(json, "ParkingId"),
+      inventoryFlatData: json["InventoryFlatData"] is List
+    ? (json["InventoryFlatData"] as List)
+        .map(
+          (e) => InventoryFlatData.fromJson(
+            Map<String, dynamic>.from(e),
+          ),
+        )
+        .toList()
+    : [],
       tenantApplicantData:
           json["TenantApplicantData"] != null &&
                   json["TenantApplicantData"] is List
@@ -244,6 +255,8 @@ class TenantModel {
       "ParkingId": parkingId,
       "TenantApplicantData":
           tenantApplicantData.map((e) => e.toJson()).toList(),
+          "InventoryFlatData":
+          inventoryFlatData.map((e) => e.toJson()).toList(),
       "CreatedById": createdById,
       "CreatedBy": createdBy,
       "CreatedDate": createdDate.toIso8601String(),
@@ -462,6 +475,215 @@ class TenantApplicantData {
       "ModifiedDate": modifiedDate?.toIso8601String(),
       "LastModifiedBy": lastModifiedBy,
       "LastModifiedDate": lastModifiedDate?.toIso8601String(),
+    };
+  }
+}
+
+class InventoryFlatData {
+  int inventoryFlatId;
+  String uniquekey;
+  int inventoryBuildingId;
+  String buildingNumber;
+  int inventoryFlatFloorBasementPodiumWingId;
+  String wing;
+  int inventoryFloorId;
+  String floor;
+  String flat;
+  double reraCarpetAreaSqFt;
+  String flatType;
+  String flatConfiguration;
+  String flatStatus;
+  String flatFacing;
+  String note;
+  int tenantId;
+  String tenantSystemGeneratedCode;
+  int tenantBuildingId;
+  String tenantBuildingName;
+  double adjustPurchaseAreaSqFt;
+  int tenantInventoryAndAdjustPurchaseAreaDetailsId;
+  String parkingId;
+  List<dynamic> parkingData;
+  int createdById;
+  String createdBy;
+  DateTime? createdDate;
+  int modifiedById;
+  String modifiedBy;
+  DateTime? modifiedDate;
+  List<dynamic> inventoryFlatSpecificationData;
+  String ownerName;
+  int bookingId;
+  int bookingCreatedById;
+  String bookingCreatedBy;
+  DateTime? bookingCreatedDate;
+
+  InventoryFlatData({
+    required this.inventoryFlatId,
+    required this.uniquekey,
+    required this.inventoryBuildingId,
+    required this.buildingNumber,
+    required this.inventoryFlatFloorBasementPodiumWingId,
+    required this.wing,
+    required this.inventoryFloorId,
+    required this.floor,
+    required this.flat,
+    required this.reraCarpetAreaSqFt,
+    required this.flatType,
+    required this.flatConfiguration,
+    required this.flatStatus,
+    required this.flatFacing,
+    required this.note,
+    required this.tenantId,
+    required this.tenantSystemGeneratedCode,
+    required this.tenantBuildingId,
+    required this.tenantBuildingName,
+    required this.adjustPurchaseAreaSqFt,
+    required this.tenantInventoryAndAdjustPurchaseAreaDetailsId,
+    required this.parkingId,
+    required this.parkingData,
+    required this.createdById,
+    required this.createdBy,
+    required this.createdDate,
+    required this.modifiedById,
+    required this.modifiedBy,
+    required this.modifiedDate,
+    required this.inventoryFlatSpecificationData,
+    required this.ownerName,
+    required this.bookingId,
+    required this.bookingCreatedById,
+    required this.bookingCreatedBy,
+    required this.bookingCreatedDate,
+  });
+
+  factory InventoryFlatData.fromJson(Map<String, dynamic> json) {
+    return InventoryFlatData(
+      inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
+      uniquekey: parseValue<String>(json, "Uniquekey"),
+      inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
+      buildingNumber: parseValue<String>(json, "BuildingNumber"),
+      inventoryFlatFloorBasementPodiumWingId:
+          parseValue<int>(json, "InventoryFlatFloorBasementPodiumWingId"),
+      wing: parseValue<String>(json, "Wing"),
+      inventoryFloorId: parseValue<int>(json, "InventoryFloorId"),
+      floor: parseValue<String>(json, "Floor"),
+      flat: parseValue<String>(json, "Flat"),
+      reraCarpetAreaSqFt: parseValue<double>(json, "RERACarpetAreaSqFt"),
+      flatType: parseValue<String>(json, "FlatType"),
+      flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
+      flatStatus: parseValue<String>(json, "FlatStatus"),
+      flatFacing: parseValue<String>(json, "FlatFacing"),
+      note: parseValue<String>(json, "Note"),
+      tenantId: parseValue<int>(json, "TenantId"),
+      tenantSystemGeneratedCode:
+          parseValue<String>(json, "TenantSystemGeneratedCode"),
+      tenantBuildingId: parseValue<int>(json, "TenantBuildingId"),
+      tenantBuildingName: parseValue<String>(json, "TenantBuildingName"),
+      adjustPurchaseAreaSqFt:
+          parseValue<double>(json, "AdjustPurchaseAreaSqFt"),
+      tenantInventoryAndAdjustPurchaseAreaDetailsId:
+          parseValue<int>(json, "TenantInventoryAndAdjustPurchaseAreaDetailsId"),
+      parkingId: parseValue<String>(json, "ParkingId"),
+      parkingData: json["ParkingData"] is List
+          ? List<dynamic>.from(json["ParkingData"])
+          : [],
+      createdById: parseValue<int>(json, "CreatedById"),
+      createdBy: parseValue<String>(json, "CreatedBy"),
+      createdDate: json["CreatedDate"] == null
+          ? null
+          : parseValue<DateTime>(json, "CreatedDate"),
+      modifiedById: parseValue<int>(json, "ModifiedById"),
+      modifiedBy: parseValue<String>(json, "ModifiedBy"),
+      modifiedDate: json["ModifiedDate"] == null
+          ? null
+          : parseValue<DateTime>(json, "ModifiedDate"),
+      inventoryFlatSpecificationData:
+          json["InventoryFlatSpecificationData"] is List
+              ? List<dynamic>.from(json["InventoryFlatSpecificationData"])
+              : [],
+      ownerName: parseValue<String>(json, "OwnerName"),
+      bookingId: parseValue<int>(json, "BookingId"),
+      bookingCreatedById: parseValue<int>(json, "BookingCreatedById"),
+      bookingCreatedBy: parseValue<String>(json, "BookingCreatedBy"),
+      bookingCreatedDate: json["BookingCreatedDate"] == null
+          ? null
+          : parseValue<DateTime>(json, "BookingCreatedDate"),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "InventoryFlatId": inventoryFlatId,
+      "Uniquekey": uniquekey,
+      "InventoryBuildingId": inventoryBuildingId,
+      "BuildingNumber": buildingNumber,
+      "InventoryFlatFloorBasementPodiumWingId":
+          inventoryFlatFloorBasementPodiumWingId,
+      "Wing": wing,
+      "InventoryFloorId": inventoryFloorId,
+      "Floor": floor,
+      "Flat": flat,
+      "RERACarpetAreaSqFt": reraCarpetAreaSqFt,
+      "FlatType": flatType,
+      "FlatConfiguration": flatConfiguration,
+      "FlatStatus": flatStatus,
+      "FlatFacing": flatFacing,
+      "Note": note,
+      "TenantId": tenantId,
+      "TenantSystemGeneratedCode": tenantSystemGeneratedCode,
+      "TenantBuildingId": tenantBuildingId,
+      "TenantBuildingName": tenantBuildingName,
+      "AdjustPurchaseAreaSqFt": adjustPurchaseAreaSqFt,
+      "TenantInventoryAndAdjustPurchaseAreaDetailsId":
+          tenantInventoryAndAdjustPurchaseAreaDetailsId,
+      "ParkingId": parkingId,
+      "ParkingData": parkingData,
+      "CreatedById": createdById,
+      "CreatedBy": createdBy,
+      "CreatedDate": createdDate?.toIso8601String(),
+      "ModifiedById": modifiedById,
+      "ModifiedBy": modifiedBy,
+      "ModifiedDate": modifiedDate?.toIso8601String(),
+      "InventoryFlatSpecificationData": inventoryFlatSpecificationData,
+      "OwnerName": ownerName,
+      "BookingId": bookingId,
+      "BookingCreatedById": bookingCreatedById,
+      "BookingCreatedBy": bookingCreatedBy,
+      "BookingCreatedDate": bookingCreatedDate?.toIso8601String(),
+    };
+  }
+}
+
+// FOR TENANT FORM 
+class TenantInventoryAndAdjustPurchaseAreaDetailsModel {
+  int tenantInventoryAndAdjustPurchaseAreaDetailsId;
+  int inventoryFlatId;
+  double adjustPurchaseAreaSqFt;
+
+  TenantInventoryAndAdjustPurchaseAreaDetailsModel({
+    required this.tenantInventoryAndAdjustPurchaseAreaDetailsId,
+    required this.inventoryFlatId,
+    required this.adjustPurchaseAreaSqFt,
+  });
+
+  factory TenantInventoryAndAdjustPurchaseAreaDetailsModel.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return TenantInventoryAndAdjustPurchaseAreaDetailsModel(
+      tenantInventoryAndAdjustPurchaseAreaDetailsId: parseValue<int>(
+        json,
+        "TenantInventoryAndAdjustPurchaseAreaDetailsId",
+      ),
+      inventoryFlatId: parseValue<int>(json, "InventoryFlatId"),
+      adjustPurchaseAreaSqFt:
+          (json["AdjustPurchaseAreaSqFt"] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "TenantInventoryAndAdjustPurchaseAreaDetailsId":
+          tenantInventoryAndAdjustPurchaseAreaDetailsId,
+      "InventoryFlatId": inventoryFlatId,
+      "AdjustPurchaseAreaSqFt": adjustPurchaseAreaSqFt,
     };
   }
 }

@@ -32,6 +32,7 @@ class CustomTextField extends StatelessWidget {
   final bool showCountryDropdown;
   final CountryCode? selectedCountry;
   final Function(CountryCode?)? onCountryChanged;
+  final Color? fillColor;
 
   const CustomTextField({
     super.key,
@@ -56,6 +57,7 @@ class CustomTextField extends StatelessWidget {
     this.showCountryDropdown = false,
     this.selectedCountry,
     this.onCountryChanged,
+    this.fillColor,
   });
 
   Widget? _buildPrefixWidget() {
@@ -178,6 +180,8 @@ class CustomTextField extends StatelessWidget {
                   isDense: true,
                   counterText: '',
                   hintText: hint ?? "",
+                  filled: fillColor != null,
+                  fillColor: fillColor,
                   hintStyle: AppTextStyle.ts14R().copyWith(
                     color: AppColor.grey,
                   ),

@@ -2860,19 +2860,10 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.addTenant,
               path: AppRoutes.addTenant,
               builder: (context, state) {
-                final queryParameterTenant =
-                    state.uri.queryParameters['tenant'];
+                final tenantId =
+                    int.tryParse(state.uri.queryParameters['tenantId'] ?? '') ??
+                    0;
 
-                final TenantModel? tenant =
-                    queryParameterTenant != null
-                        ? TenantModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(queryParameterTenant),
-                            ),
-                          ),
-                        )
-                        : null;
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
 
@@ -2880,18 +2871,16 @@ final GoRouter goRouter = GoRouter(
                     int.tryParse(
                       state.uri.queryParameters['projectId'] ?? '',
                     ) ??
-                    tenant?.projectId ??
                     0;
                 final buildingId =
                     int.tryParse(
                       state.uri.queryParameters['buildingId'] ?? '',
                     ) ??
-                    tenant?.buildingId ??
                     0;
                 final buildingName =
                     state.uri.queryParameters['buildingName'] ?? '';
                 return AddTenantScreen(
-                  tenant: tenant,
+                  tenantId: tenantId,
                   index: index,
                   projectId: projectId,
                   buildingId: buildingId,

@@ -11,6 +11,9 @@ abstract interface class TenantRepository {
     required int buildingId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getTenantById({
+    required Map<String, dynamic> queryParams,
+  });
 
   Future<Either<Failure, Map<String, dynamic>>> getTenantDocumentList({
     required int pageNumber,
@@ -71,6 +74,20 @@ class TenantRepositoryImpl implements TenantRepository {
         pageSize: pageSize,
         projectId: projectId,
         buildingId: buildingId,
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (e) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(e)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getTenantById({
+    required Map<String, dynamic> queryParams,
+  }) async {
+    try {
+      var result = await tenantDatasource.apicallPullTenantById(
         queryParams: queryParams,
       );
       return right(result);

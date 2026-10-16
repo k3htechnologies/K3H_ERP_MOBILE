@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/features/business_development/tenant/presentation/cu
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/add_tenant_applicant_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/data/repository/inventory.repository.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -29,14 +30,14 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class AddTenantScreen extends StatefulWidget {
-  final TenantModel? tenant;
+  final int? tenantId;
   final int index;
   final int projectId;
   final int buildingId;
   final String buildingName;
   const AddTenantScreen({
     super.key,
-    this.tenant,
+    this.tenantId,
     this.index = 0,
     required this.projectId,
     required this.buildingId,
@@ -50,6 +51,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   final _formKey = GlobalKey<FormState>();
   late TenantCubit _cubit;
   late AuthorizationModel _routeAuthorizationModel;
+  late TenantModel? tenantModel;
   final InventoryRepository _inventoryRepository =
       serviceLocator<InventoryRepository>();
 
@@ -71,7 +73,8 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       _totalNewMofaCarpetAreaC,
       _totalNewReraCarpetAreaC,
       _totalAreaAgainstTerraceDeckReraC,
-      _remarkControllerC;
+      _remarkC;
+  final Map<int, TextEditingController> _adjustAreaControllers = {};
 
   ValueNotifier<Map<String, dynamic>?> selectedFlatType = ValueNotifier(null);
   ValueNotifier<Map<String, dynamic>?> selectedUnitFacing = ValueNotifier(null);
@@ -81,15 +84,14 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       type.toLowerCase().trim() == 'applicant';
   bool _hasPrimaryApplicant(List<TenantApplicantData> applicants) =>
       applicants.any((e) => _isApplicantType(e.applicantType));
-  bool get _isEditMode => widget.tenant != null;
+  bool get _isEditMode => widget.tenantId != 0;
   @override
   void initState() {
     super.initState();
     _cubit = context.read<TenantCubit>();
     _routeAuthorizationModel = AuthorizationModel();
     _initialisedTextController();
-    _initApplicants();
-    _populateFormFields(widget.tenant);
+    loadTenantData();
     _areaAgainstTerraceC.addListener(_calculateTotalArea);
     _deckAreaC.addListener(_calculateTotalArea);
     _totalNewReraCarpetAreaC.addListener(_calculateTotalArea);
@@ -110,7 +112,53 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _totalNewMofaCarpetAreaC = TextEditingController();
     _totalNewReraCarpetAreaC = TextEditingController();
     _totalAreaAgainstTerraceDeckReraC = TextEditingController();
-    _remarkControllerC = TextEditingController();
+    _remarkC = TextEditingController();
+  }
+
+  void _syncAdjustControllers(List<Map<String, dynamic>> selected) {
+    final ids = selected.map((e) => e['zAttributesId'] as int).toSet();
+
+    _adjustAreaControllers.removeWhere((id, c) {
+      final remove = !ids.contains(id);
+      if (remove) c.dispose();
+      return remove;
+    });
+
+    for (final flat in selected) {
+      final id = flat['zAttributesId'] as int;
+      _adjustAreaControllers.putIfAbsent(id, () {
+        final m = flat['flatModel'];
+        final saved =
+            (m is InventoryFlatData && m.adjustPurchaseAreaSqFt != 0)
+                ? m.adjustPurchaseAreaSqFt.toString()
+                : '';
+        return TextEditingController(text: saved);
+      });
+    }
+  }
+
+  void loadTenantData() async {
+    if (!_isEditMode) return;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DialogHelper.showProcessingOverlay(context);
+    });
+    try {
+      tenantModel = await _cubit.getTenantById(
+        context: context,
+        projectId: widget.projectId,
+        buildingId: widget.buildingId,
+        tenantId: widget.tenantId!,
+      );
+      _initApplicants();
+      _populateFormFields(tenantModel);
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      if (mounted) {
+        goRouter.pop();
+      }
+    }
   }
 
   void _populateFormFields(TenantModel? tenant) async {
@@ -163,23 +211,24 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         tenant.totalNewMOFACarpetAreaSqFt.toString();
     _totalNewReraCarpetAreaC.text =
         tenant.totalNewRERACarpetAreaSqFt.toString();
-    _remarkControllerC.text = tenant.remark;
-    if (tenant.inventoryFlatId != 0) {
-      final result = await _fetchFlatsByProjectId(
-        1,
-        projectId: widget.projectId,
-        inventoryFlatId: tenant.inventoryFlatId,
-      );
-      final items = (result['itemList'] as List).cast<Map<String, dynamic>>();
-      if (items.isNotEmpty && mounted) {
-        _selectedFlatNotifier.value = [items.first];
-      }
-    }
+    _remarkC.text = tenant.remark;
+    final flats =
+        tenant.inventoryFlatData
+            .map(
+              (f) => {
+                "zAttributesId": f.inventoryFlatId,
+                "DisplayName": f.flat,
+                "flatModel": f,
+              },
+            )
+            .toList();
+    _syncAdjustControllers(flats);
+    _selectedFlatNotifier.value = flats;
     _calculateTotalArea();
   }
 
   void _initApplicants() {
-    final incomingApplicants = widget.tenant?.tenantApplicantData ?? [];
+    final incomingApplicants = tenantModel?.tenantApplicantData ?? [];
     _applicants.value =
         incomingApplicants
             .map((e) => TenantApplicantData.fromJson(e.toJson()))
@@ -298,9 +347,29 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     final flatConfiguration =
         selectedFlatConfiguration.value?['DisplayName']?.toString() ?? '';
     final facing = selectedUnitFacing.value?['DisplayName']?.toString() ?? '';
-
-    if (_isEditMode && widget.tenant != null) {
-      final tenant = widget.tenant!;
+    final List<TenantInventoryAndAdjustPurchaseAreaDetailsModel>
+    inventoryFlatData =
+        _selectedFlatNotifier.value.map((flat) {
+          final id = flat['zAttributesId'] as int;
+          final m = flat['flatModel'];
+          return TenantInventoryAndAdjustPurchaseAreaDetailsModel(
+            tenantInventoryAndAdjustPurchaseAreaDetailsId:
+                m is InventoryFlatData
+                    ? m.tenantInventoryAndAdjustPurchaseAreaDetailsId
+                    : 0,
+            inventoryFlatId: id,
+            adjustPurchaseAreaSqFt:
+                double.tryParse(
+                  _adjustAreaControllers[id]?.text.trim() ?? '',
+                ) ??
+                0,
+          );
+        }).toList();
+    final selectedFlatIds = _selectedFlatNotifier.value
+        .map((e) => e['zAttributesId'].toString())
+        .join(',');
+    if (_isEditMode && tenantModel != null) {
+      final tenant = tenantModel!;
       _cubit.updateTenant(
         context: context,
         projectId: tenant.projectId.toString(),
@@ -335,11 +404,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         areaAgainstTerraceSqFt: double.tryParse(_areaAgainstTerraceC.text) ?? 0,
         totalNewRERACarpetAreaWithDeckSqFt:
             double.tryParse(_areaAgainstTerraceC.text) ?? 0,
-        remark: _remarkControllerC.text.trim(),
-        inventoryFlatId:
-            _selectedFlatNotifier.value.isNotEmpty
-                ? _selectedFlatNotifier.value.first['zAttributesId']
-                : 0,
+        remark: _remarkC.text.trim(),
+        inventoryFlatIds: selectedFlatIds,
+        inventoryFlatData: inventoryFlatData,
       );
     } else {
       _cubit.addTenant(
@@ -373,11 +440,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         areaAgainstTerraceSqFt: double.tryParse(_areaAgainstTerraceC.text) ?? 0,
         totalNewRERACarpetAreaWithDeckSqFt:
             double.tryParse(_areaAgainstTerraceC.text) ?? 0,
-        remark: _remarkControllerC.text.trim(),
-        inventoryFlatId:
-            _selectedFlatNotifier.value.isNotEmpty
-                ? _selectedFlatNotifier.value.first['zAttributesId']
-                : 0,
+        remark: _remarkC.text.trim(),
+        inventoryFlatIds: selectedFlatIds,
+        inventoryFlatData: inventoryFlatData,
       );
     }
   }
@@ -386,10 +451,10 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     int pageNumber, {
     String? value,
     required int projectId,
-    int? inventoryFlatId,
   }) async {
-    final isSearchById = inventoryFlatId != null;
-    final selectedFlat = _selectedFlatNotifier.value.firstOrNull;
+    final selectedFlatIds = _selectedFlatNotifier.value
+        .map((e) => e['zAttributesId'].toString())
+        .join(',');
 
     final result = await _inventoryRepository.getPaginatedFlats(
       pageNumber: pageNumber,
@@ -397,15 +462,12 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       projectId: projectId,
       queryParams: {
         if (value?.isNotEmpty ?? false) "Flat": value,
-        if (isSearchById) "InventoryFlatId": inventoryFlatId,
         "IsAcessOnlyLienToSociety": false,
-        "IsAllotedBookingDone": !isSearchById,
-        if (!isSearchById) ...{
-          "FlatStatus": "Available,Alloted",
-          "ApprovalStatus": "Approved",
-        },
-        if (selectedFlat != null)
-          "DisplayInventoryFlatId": selectedFlat['zAttributesId'],
+        "IsAllotedBookingDone": true,
+        "FlatStatus": "Available,Alloted",
+        "ApprovalStatus": "Approved",
+        if (selectedFlatIds.isNotEmpty)
+          "DisplayInventoryFlatId": selectedFlatIds,
       },
     );
 
@@ -430,6 +492,33 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     );
   }
 
+  double _selectedFlatsReraTotal() {
+    double total = 0;
+    for (final flat in _selectedFlatNotifier.value) {
+      final id = flat['zAttributesId'] as int;
+      final m = flat['flatModel'];
+      final area =
+          m is InventoryFlatData
+              ? m.reraCarpetAreaSqFt
+              : (m?.reraCarpetAreaSqFt as num?)?.toDouble() ?? 0;
+      final adjust =
+          double.tryParse(_adjustAreaControllers[id]?.text.trim() ?? '') ?? 0;
+      total += area;
+    }
+    return total;
+  }
+
+  double _adjustPurchaseAreaTotal() {
+    double total = 0;
+    for (final flat in _selectedFlatNotifier.value) {
+      final id = flat['zAttributesId'] as int;
+      final adjust =
+          double.tryParse(_adjustAreaControllers[id]?.text.trim() ?? '') ?? 0;
+      total += adjust;
+    }
+    return total;
+  }
+
   @override
   void dispose() {
     _applicants.dispose();
@@ -450,7 +539,10 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _totalNewMofaCarpetAreaC.dispose();
     _totalNewReraCarpetAreaC.dispose();
     _totalAreaAgainstTerraceDeckReraC.dispose();
-    _remarkControllerC.dispose();
+    _remarkC.dispose();
+    for (final c in _adjustAreaControllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
@@ -814,14 +906,35 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             keyboardType: TextInputType.numberWithOptions(),
                             textController: _mofaCarpetAreaPurchasedC,
                           ),
-                          CustomTextField(
-                            title: 'RERA Carpet Area Purchased (SqFt)',
-                            hint: 'Enter RERA CA Purchased',
-                            inputFormatterList: InputValidator.digitWithDecimal(
-                              maxDigitsBeforeDecimal: 16,
-                            ),
-                            keyboardType: TextInputType.numberWithOptions(),
-                            textController: _reraCarpetAreaPurchasedC,
+                          ValueListenableBuilder(
+                            valueListenable: _selectedFlatNotifier,
+                            builder: (context, flatNotifier, child) {
+                              return CustomTextField(
+                                title: 'RERA Carpet Area Purchased (SqFt)',
+                                hint: 'Enter RERA CA Purchased',
+                                inputFormatterList:
+                                    InputValidator.digitWithDecimal(
+                                      maxDigitsBeforeDecimal: 16,
+                                    ),
+                                keyboardType: TextInputType.numberWithOptions(),
+                                textController: _reraCarpetAreaPurchasedC,
+                                validator: (value) {
+                                  if (flatNotifier.isNotEmpty) {
+                                    final totalNewRera =
+                                        double.tryParse(value ?? '') ?? 0;
+                                    final adjustPurchaseAreaT =
+                                        _adjustPurchaseAreaTotal();
+                                    if ((totalNewRera != adjustPurchaseAreaT)) {
+                                      return 'RERA Carpet Area Purchased '
+                                          '(${totalNewRera.toStringAsFixed(2)} SqFt) must match the sum of '
+                                          'selected units\' Adjust Purchase Area '
+                                          '(${adjustPurchaseAreaT.toStringAsFixed(2)} SqFt).';
+                                    }
+                                  }
+                                  return null;
+                                },
+                              );
+                            },
                           ),
                           CustomTextField(
                             title: '(B) Deck Area (SqFt)',
@@ -850,21 +963,43 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                             keyboardType: TextInputType.numberWithOptions(),
                             textController: _totalNewReraCarpetAreaC,
                           ),
-                          CustomTextField(
-                            title:
-                                'Area Against Terrace + Deck Area + Total New RERA Carpet Area (SqFt) (A + B + C)',
-                            hint: '0.00',
-                            inputFormatterList: InputValidator.digitWithDecimal(
-                              maxDigitsBeforeDecimal: 16,
-                            ),
-                            keyboardType: TextInputType.numberWithOptions(),
-                            textController: _totalAreaAgainstTerraceDeckReraC,
-                            readOnly: true,
+                          ValueListenableBuilder(
+                            valueListenable: _selectedFlatNotifier,
+                            builder: (context, flatNotifier, child) {
+                              return CustomTextField(
+                                title:
+                                    'Area Against Terrace + Deck Area + Total New RERA Carpet Area (SqFt) (A + B + C)',
+                                hint: '0.00',
+                                inputFormatterList:
+                                    InputValidator.digitWithDecimal(
+                                      maxDigitsBeforeDecimal: 16,
+                                    ),
+                                keyboardType: TextInputType.numberWithOptions(),
+                                textController:
+                                    _totalAreaAgainstTerraceDeckReraC,
+                                readOnly: true,
+                                validator: (value) {
+                                  if (flatNotifier.isNotEmpty) {
+                                    final totalNewRera =
+                                        double.tryParse(value ?? '') ?? 0;
+                                    final selectedTotal =
+                                        _selectedFlatsReraTotal();
+                                    if ((totalNewRera != selectedTotal)) {
+                                      return 'RERA Carpet Area Purchased '
+                                          '(${totalNewRera.toStringAsFixed(2)} SqFt) must match the sum of '
+                                          'selected units\' Adjust Purchase Area '
+                                          '(${selectedTotal.toStringAsFixed(2)} SqFt).';
+                                    }
+                                  }
+                                  return null;
+                                },
+                              );
+                            },
                           ),
                           CustomTextField(
                             title: 'Remark',
                             hint: 'Enter Remark',
-                            textController: _remarkControllerC,
+                            textController: _remarkC,
                             minLines: 3,
                             maxLines: 10,
                           ),
@@ -889,11 +1024,12 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                               return CustomMultipleSelectPopup(
                                 title: 'Unit Number',
                                 hintText: "Select Unit Number",
-                                isMultiSelect: false,
+                                isMultiSelect: true,
                                 initialValue: selectedFlat,
                                 dataList: const [],
                                 onSelected: (value) {
                                   _selectedFlatNotifier.value = value;
+                                  _syncAdjustControllers(value);
                                 },
                                 dataFetchCallBack: (page, {value}) {
                                   return _fetchFlatsByProjectId(
@@ -944,50 +1080,47 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   }
 
   Widget _flatDetails() {
-    if (_selectedFlatNotifier.value.first['flatModel'] == null) {
+    if (_selectedFlatNotifier.value.isEmpty) {
       return SizedBox.shrink();
     }
-    return infoCard([
-      {
-        "title": "Building",
-        "value": _selectedFlatNotifier.value.first['flatModel']?.buildingNumber,
+    return ListView.builder(
+      itemCount: _selectedFlatNotifier.value.length,
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index) {
+        final flat = _selectedFlatNotifier.value[index];
+        return infoCard([
+          {"title": "Building", "value": flat['flatModel']?.buildingNumber},
+          {"title": "Wing", "value": flat['flatModel']?.wing},
+          {"title": "Floor", "value": flat['flatModel']?.floor},
+          {"title": "Unit Number", "value": flat['flatModel']?.flat},
+          {
+            "title": "Carpet Area (SqFt)",
+            "value": flat['flatModel']?.reraCarpetAreaSqFt.toString(),
+          },
+          {"title": "Unit Type", "value": flat['flatModel']?.flatType},
+          {
+            "title": "Unit Configuration",
+            "value": flat['flatModel']?.flatConfiguration,
+          },
+          {"title": "Unit Facing", "value": flat['flatModel']?.flatFacing},
+          {"title": "Status", "value": flat['flatModel']?.flatStatus},
+          {"spacer": true},
+          {
+            "title": "",
+            "widget": CustomTextField(
+              title: "Adjust Purchase Area (SqFt)",
+              hint: "Enter Adjust Purchase Area (SqFt)",
+
+              textController:
+                  _adjustAreaControllers[flat['zAttributesId'] as int]!,
+              fillColor: AppColor.lightGreyBackground,
+              bottomMargin: 0,
+            ),
+          },
+        ]);
       },
-      {
-        "title": "Wing",
-        "value": _selectedFlatNotifier.value.first['flatModel']?.wing,
-      },
-      {
-        "title": "Floor",
-        "value": _selectedFlatNotifier.value.first['flatModel']?.floor,
-      },
-      {
-        "title": "Unit Number",
-        "value": _selectedFlatNotifier.value.first['flatModel']?.flat,
-      },
-      {
-        "title": "Carpet Area (SqFt)",
-        "value":
-            _selectedFlatNotifier.value.first['flatModel']?.reraCarpetAreaSqFt
-                .toString(),
-      },
-      {
-        "title": "Unit Type",
-        "value": _selectedFlatNotifier.value.first['flatModel']?.flatType,
-      },
-      {
-        "title": "Unit Configuration",
-        "value":
-            _selectedFlatNotifier.value.first['flatModel']?.flatConfiguration,
-      },
-      {
-        "title": "Unit Facing",
-        "value": _selectedFlatNotifier.value.first['flatModel']?.flatFacing,
-      },
-      {
-        "title": "Status",
-        "value": _selectedFlatNotifier.value.first['flatModel']?.flatStatus,
-      },
-    ]);
+    );
   }
 
   Widget _buildApplicantCard(TenantApplicantData applicant, int index) {
