@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/dashboard/data/model/module_approval.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/repository/dashboard.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
@@ -224,6 +225,25 @@ class DashboardCubit extends Cubit<DashboardState> {
                 .map((e) => UserModel.fromJson(e))
                 .toList();
         emit(state.copyWith(employeeByProject: employees, isLoading: false));
+      },
+    );
+  }
+
+  Future getModuleApprovalList(BuildContext context) async {
+    emit(state.copyWith(isLoading: true));
+
+    var result = await _dashboardRepository.getModuleApprovalList();
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        final List<ModuleApprovalModel> modelList =
+            List<ModuleApprovalModel>.from(response['data'] ?? []);
+
+        emit(state.copyWith(moduleApprovalList: modelList, isLoading: false));
       },
     );
   }

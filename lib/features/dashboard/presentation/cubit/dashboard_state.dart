@@ -10,6 +10,7 @@ final class DashboardState extends BaseState {
   final int currentTabIndex;
   final int currentUnitPage;
   final int unitTotalRecords;
+  final List<ModuleApprovalModel> moduleApprovalList;
   const DashboardState({
     super.isLoading,
     this.data,
@@ -21,6 +22,7 @@ final class DashboardState extends BaseState {
     this.currentTabIndex = 0,
     this.currentUnitPage = 0,
     this.unitTotalRecords = 0,
+    required this.moduleApprovalList,
   });
   factory DashboardState.initial() => DashboardState(
     dashboardModelList: [],
@@ -31,6 +33,7 @@ final class DashboardState extends BaseState {
     currentTabIndex: 0,
     currentUnitPage: 0,
     unitTotalRecords: 0,
+    moduleApprovalList: [],
   );
   DashboardState copyWith({
     bool? isLoading,
@@ -44,6 +47,7 @@ final class DashboardState extends BaseState {
     bool todayHasPunchIn = false,
     int? currentUnitPage,
     int? unitTotalRecords,
+    List<ModuleApprovalModel>? moduleApprovalList,
   }) {
     return DashboardState(
       isLoading: isLoading ?? this.isLoading,
@@ -57,6 +61,7 @@ final class DashboardState extends BaseState {
       currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       currentUnitPage: currentUnitPage ?? this.currentUnitPage,
       unitTotalRecords: unitTotalRecords ?? this.unitTotalRecords,
+      moduleApprovalList: moduleApprovalList ?? this.moduleApprovalList,
     );
   }
 
@@ -72,5 +77,6 @@ final class DashboardState extends BaseState {
     currentTabIndex,
     currentUnitPage,
     unitTotalRecords,
+    moduleApprovalList,
   ];
 }

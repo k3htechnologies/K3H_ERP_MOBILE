@@ -15,6 +15,9 @@ abstract interface class DashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getDashboardList({
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> getModuleApprovalList({
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class DashboardRepositoryImpl implements DashboardRepository {
@@ -59,6 +62,20 @@ class DashboardRepositoryImpl implements DashboardRepository {
   }) async {
     try {
       var result = await dashboardDatasource.apiCallPullDashboard(
+        queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getModuleApprovalList({
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await dashboardDatasource.apicallPullModuleApproval(
         queryParams: queryParams,
       );
       return right(result);

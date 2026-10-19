@@ -555,54 +555,10 @@ class Table12 {
 }
 
 class Table13 {
-  String moduleName;
-  String projectName;
-  String buildingNumber;
-  String wing;
-  String floor;
-  String flat;
-  String applicantName;
-  String projectDocumentName;
-  String projectDocumentCategory;
-  String modulePath;
+  int myApprovalCount;
 
-  Table13({
-    required this.moduleName,
-    required this.projectName,
-    required this.buildingNumber,
-    required this.wing,
-    required this.floor,
-    required this.flat,
-    required this.applicantName,
-    required this.projectDocumentName,
-    required this.projectDocumentCategory,
-    required this.modulePath,
-  });
-  factory Table13.fromJson(Map<String, dynamic> json) => Table13(
-    moduleName: parseValue<String>(json, "ModuleName"),
-    projectName: parseValue<String>(json, "ProjectName"),
-    buildingNumber: parseValue<String>(json, "BuildingNumber"),
-    wing: parseValue<String>(json, "Wing"),
-    floor: parseValue<String>(json, "Floor"),
-    flat: parseValue<String>(json, "Flat"),
-    applicantName: parseValue<String>(json, "ApplicantName"),
-    projectDocumentName: parseValue<String>(json, "ProjectDocumentName"),
-    projectDocumentCategory: parseValue<String>(
-      json,
-      "ProjectDocumentCategory",
-    ),
-    modulePath: parseValue<String>(json, "ModulePath"),
-  );
-  Map<String, dynamic> toJson() => {
-    'ModuleName': moduleName,
-    'ProjectName': projectName,
-    'BuildingNumber': buildingNumber,
-    'Wing': wing,
-    'Floor': floor,
-    'Flat': flat,
-    'ApplicantName': applicantName,
-    'ProjectDocumentName': projectDocumentName,
-    'ProjectDocumentCategory': projectDocumentCategory,
-    'ModulePath': modulePath,
-  };
+  Table13({required this.myApprovalCount});
+  factory Table13.fromJson(Map<String, dynamic> json) =>
+      Table13(myApprovalCount: parseValue<int>(json, "MyApprovalCount"));
+  Map<String, dynamic> toJson() => {"MyApprovalCount": myApprovalCount};
 }
