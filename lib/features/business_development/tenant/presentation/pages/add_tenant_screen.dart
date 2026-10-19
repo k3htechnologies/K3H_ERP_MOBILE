@@ -926,9 +926,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                         _adjustPurchaseAreaTotal();
                                     if ((totalNewRera != adjustPurchaseAreaT)) {
                                       return 'RERA Carpet Area Purchased '
-                                          '(${totalNewRera.toStringAsFixed(2)} SqFt) must match the sum of '
-                                          'selected units\' Adjust Purchase Area '
-                                          '(${adjustPurchaseAreaT.toStringAsFixed(2)} SqFt).';
+                                          '(${totalNewRera.addCommas()} SqFt) must match the sum of '
+                                          'selected units Adjust Purchase Area '
+                                          '(${adjustPurchaseAreaT.addCommas()} SqFt).';
                                     }
                                   }
                                   return null;
@@ -985,10 +985,10 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                     final selectedTotal =
                                         _selectedFlatsReraTotal();
                                     if ((totalNewRera != selectedTotal)) {
-                                      return 'RERA Carpet Area Purchased '
-                                          '(${totalNewRera.toStringAsFixed(2)} SqFt) must match the sum of '
-                                          'selected units\' Adjust Purchase Area '
-                                          '(${selectedTotal.toStringAsFixed(2)} SqFt).';
+                                      return 'Total New RERA Carpet Area '
+                                          '(${totalNewRera.addCommas()} SqFt) must match the sum of '
+                                          ' selected new units Carpet Area '
+                                          '(${selectedTotal.addCommas()} SqFt).';
                                     }
                                   }
                                   return null;
@@ -1116,6 +1116,20 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                   _adjustAreaControllers[flat['zAttributesId'] as int]!,
               fillColor: AppColor.lightGreyBackground,
               bottomMargin: 0,
+              validator: (value) {
+                if (_selectedFlatNotifier.value.isNotEmpty) {
+                  final totalNewRera =
+                      double.tryParse(_reraCarpetAreaPurchasedC.text) ?? 0;
+                  final adjustPurchaseAreaT = _adjustPurchaseAreaTotal();
+                  if ((totalNewRera != adjustPurchaseAreaT)) {
+                    return 'RERA Carpet Area Purchased '
+                        '(${totalNewRera.addCommas()} SqFt) must match the sum of '
+                        'selected units Adjust Purchase Area '
+                        '(${adjustPurchaseAreaT.addCommas()} SqFt).';
+                  }
+                }
+                return null;
+              },
             ),
           },
         ]);

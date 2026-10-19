@@ -54,6 +54,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final ValueNotifier<Map<String, dynamic>?> _selectedDocumentName =
       ValueNotifier(null);
+  final ValueNotifier<TenantModel?> _tenantNotifier = ValueNotifier(null);
   @override
   void initState() {
     super.initState();
@@ -61,6 +62,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.tenant] ??
         AuthorizationModel();
+    loadTenant();
     _tabController = TabController(length: 2, vsync: this);
     _searchDocumentNameC = TextEditingController();
     _tabController.addListener(_handleTabChange);
@@ -71,7 +73,18 @@ class _TenantViewScreenState extends State<TenantViewScreen>
     _tabController.dispose();
     _searchDocumentNameC.dispose();
     _selectedDocumentName.dispose();
+    _tenantNotifier.dispose();
     super.dispose();
+  }
+
+  Future<void> loadTenant() async {
+    final result = await _tenantCubit.getTenantById(
+      context: context,
+      projectId: widget.tenant.projectId,
+      buildingId: widget.tenant.buildingId,
+      tenantId: widget.tenant.tenantId,
+    );
+    _tenantNotifier.value = result;
   }
 
   void _handleTabChange() {
@@ -281,345 +294,380 @@ class _TenantViewScreenState extends State<TenantViewScreen>
             headerBackgroundColor: AppColor.lightOrangeBg.withValues(
               alpha: 0.5,
             ),
+            maxContentHeight: 400,
             children: [
-              SizedBox(
-                height: 0.4.sh,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: widget.tenant.tenantApplicantData.length,
-                  itemBuilder: (_, index) {
-                    final applicant = widget.tenant.tenantApplicantData[index];
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: AppColor.primary, width: .3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        spacing: 10,
-                        children: [
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  applicant.applicantName,
-                                  style: AppTextStyle.ts14M(),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+              ValueListenableBuilder(
+                valueListenable: _tenantNotifier,
+                builder: (context, tenant, child) {
+                  if (tenant == null) {
+                    return Center(child: CircularProgressIndicator());
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: tenant.tenantApplicantData.length,
+                    itemBuilder: (_, index) {
+                      final applicant = tenant.tenantApplicantData[index];
+                      return Container(
+                        margin: EdgeInsets.only(bottom: 10),
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppColor.primary,
+                            width: .3,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(
+                          spacing: 10,
+                          children: [
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    applicant.applicantName,
+                                    style: AppTextStyle.ts14M(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
-                              ),
-                              _buildApplicantTypeWidget(
-                                applicant.applicantType,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Mobile Number",
-                                value:
-                                    applicant.applicantMobileNumber.isEmpty
-                                        ? "-"
-                                        : applicant.applicantMobileNumber,
-                                customValueWidget: CustomClickToContactText(
-                                  countryCode:
-                                      applicant
-                                          .applicantMobileNumberCountryCode,
-                                  value: applicant.applicantMobileNumber,
+                                _buildApplicantTypeWidget(
+                                  applicant.applicantType,
                                 ),
-                              ),
-                              buildColumnTitleValue(
-                                title: "E-Mail ID",
-                                value:
-                                    applicant.applicantEmailId.isEmpty
-                                        ? "-"
-                                        : applicant.applicantEmailId,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Aadhaar Card No.",
-                                value:
-                                    applicant.aadharCardNumber.isEmpty
-                                        ? "-"
-                                        : applicant.aadharCardNumber,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Aadhaar Card",
-                                value:
-                                    applicant.aadharCardURL.isEmpty
-                                        ? "-"
-                                        : applicant.aadharCardURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant.aadharCardURL.isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "Aadhaar Card",
-                                        context,
-                                        applicant.aadharCardURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable: applicant.aadharCardURL.isEmpty,
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Mobile Number",
+                                  value:
+                                      applicant.applicantMobileNumber.isEmpty
+                                          ? "-"
+                                          : applicant.applicantMobileNumber,
+                                  customValueWidget: CustomClickToContactText(
+                                    countryCode:
+                                        applicant
+                                            .applicantMobileNumberCountryCode,
+                                    value: applicant.applicantMobileNumber,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "PAN Card No.",
-                                value:
-                                    applicant.panNumber.isEmpty
-                                        ? "-"
-                                        : applicant.panNumber,
-                              ),
-                              buildColumnTitleValue(
-                                title: "PAN Card.",
-                                value:
-                                    applicant.panCardURL.isEmpty
-                                        ? "-"
-                                        : applicant.panCardURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant.panCardURL.isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "PAN Card.",
-                                        context,
-                                        applicant.panCardURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable: applicant.panCardURL.isEmpty,
+                                buildColumnTitleValue(
+                                  title: "E-Mail ID",
+                                  value:
+                                      applicant.applicantEmailId.isEmpty
+                                          ? "-"
+                                          : applicant.applicantEmailId,
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Driving License",
-                                value:
-                                    applicant.drivingLicenseNumber.isEmpty
-                                        ? "-"
-                                        : applicant.drivingLicenseNumber,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Driving License",
-                                value:
-                                    applicant.drivingLicenseURL.isEmpty
-                                        ? "-"
-                                        : applicant.drivingLicenseURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant
-                                        .drivingLicenseURL
-                                        .isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "Driving License",
-                                        context,
-                                        applicant.drivingLicenseURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable:
-                                      applicant.drivingLicenseURL.isEmpty,
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Aadhaar Card No.",
+                                  value:
+                                      applicant.aadharCardNumber.isEmpty
+                                          ? "-"
+                                          : applicant.aadharCardNumber,
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Voting ID No.",
-                                value:
-                                    applicant.votingIdNumber.isEmpty
-                                        ? "-"
-                                        : applicant.votingIdNumber,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Voting ID",
-                                value:
-                                    applicant.votingIdURL.isEmpty
-                                        ? "-"
-                                        : applicant.votingIdURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant.votingIdURL.isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "Voting ID",
-                                        context,
-                                        applicant.votingIdURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable: applicant.votingIdURL.isEmpty,
+                                buildColumnTitleValue(
+                                  title: "Aadhaar Card",
+                                  value:
+                                      applicant.aadharCardURL.isEmpty
+                                          ? "-"
+                                          : applicant.aadharCardURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .aadharCardURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title: "Aadhaar Card",
+                                              context,
+                                              applicant.aadharCardURL.split(
+                                                ",",
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.aadharCardURL.isEmpty,
+                                      ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Passport No.",
-                                value:
-                                    applicant.passportNumber.isEmpty
-                                        ? "-"
-                                        : applicant.passportNumber,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Passport",
-                                value:
-                                    applicant.passportURL.isEmpty
-                                        ? "-"
-                                        : applicant.passportURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant.passportURL.isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "Passport",
-                                        context,
-                                        applicant.passportURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable: applicant.passportURL.isEmpty,
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "PAN Card No.",
+                                  value:
+                                      applicant.panNumber.isEmpty
+                                          ? "-"
+                                          : applicant.panNumber,
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "GST No.",
-                                value:
-                                    applicant.gstNumber.isEmpty
-                                        ? "-"
-                                        : applicant.gstNumber,
-                              ),
-                              buildColumnTitleValue(
-                                title: "GST Certificate",
-                                value:
-                                    applicant.gstNumberURL.isEmpty
-                                        ? "-"
-                                        : applicant.gstNumberURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant.gstNumberURL.isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "GST Certificate",
-                                        context,
-                                        applicant.gstNumberURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable: applicant.gstNumberURL.isEmpty,
+                                buildColumnTitleValue(
+                                  title: "PAN Card.",
+                                  value:
+                                      applicant.panCardURL.isEmpty
+                                          ? "-"
+                                          : applicant.panCardURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.panCardURL.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title: "PAN Card.",
+                                              context,
+                                              applicant.panCardURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.panCardURL.isEmpty,
+                                      ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Profile Photo",
-                                value:
-                                    applicant.photoURL.isEmpty
-                                        ? "-"
-                                        : applicant.photoURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant.photoURL.isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "Profile Photo",
-                                        context,
-                                        applicant.photoURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable: applicant.photoURL.isEmpty,
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Driving License",
+                                  value:
+                                      applicant.drivingLicenseNumber.isEmpty
+                                          ? "-"
+                                          : applicant.drivingLicenseNumber,
                                 ),
-                              ),
-                              buildColumnTitleValue(
-                                title: "Cheque / Cancelled Cheque",
-                                value:
-                                    applicant.chequeURL.isEmpty
-                                        ? "-"
-                                        : applicant.chequeURL,
-                                customValueWidget: CustomButton.documentOutline(
-                                  onPressed: () {
-                                    if (applicant.chequeURL.isNotEmpty) {
-                                      showFilePreviewDialog(
-                                        title: "Cheque / Cancelled Cheque",
-                                        context,
-                                        applicant.chequeURL.split(","),
-                                      );
-                                    }
-                                  },
-                                  isDisable: applicant.chequeURL.isEmpty,
+                                buildColumnTitleValue(
+                                  title: "Driving License",
+                                  value:
+                                      applicant.drivingLicenseURL.isEmpty
+                                          ? "-"
+                                          : applicant.drivingLicenseURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .drivingLicenseURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title: "Driving License",
+                                              context,
+                                              applicant.drivingLicenseURL.split(
+                                                ",",
+                                              ),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.drivingLicenseURL.isEmpty,
+                                      ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "Bank Name",
-                                value:
-                                    applicant.bankName.isEmpty
-                                        ? "-"
-                                        : applicant.bankName,
-                              ),
-                              buildColumnTitleValue(
-                                title: "Account No.",
-                                value:
-                                    applicant.accountNumber.isEmpty
-                                        ? "-"
-                                        : applicant.accountNumber,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            spacing: 10,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              buildColumnTitleValue(
-                                title: "IFSC Code",
-                                value:
-                                    applicant.ifscCode.isEmpty
-                                        ? "-"
-                                        : applicant.ifscCode,
-                              ),
-                              Expanded(child: SizedBox()),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Voting ID No.",
+                                  value:
+                                      applicant.votingIdNumber.isEmpty
+                                          ? "-"
+                                          : applicant.votingIdNumber,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Voting ID",
+                                  value:
+                                      applicant.votingIdURL.isEmpty
+                                          ? "-"
+                                          : applicant.votingIdURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .votingIdURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title: "Voting ID",
+                                              context,
+                                              applicant.votingIdURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.votingIdURL.isEmpty,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Passport No.",
+                                  value:
+                                      applicant.passportNumber.isEmpty
+                                          ? "-"
+                                          : applicant.passportNumber,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Passport",
+                                  value:
+                                      applicant.passportURL.isEmpty
+                                          ? "-"
+                                          : applicant.passportURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .passportURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title: "Passport",
+                                              context,
+                                              applicant.passportURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.passportURL.isEmpty,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "GST No.",
+                                  value:
+                                      applicant.gstNumber.isEmpty
+                                          ? "-"
+                                          : applicant.gstNumber,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "GST Certificate",
+                                  value:
+                                      applicant.gstNumberURL.isEmpty
+                                          ? "-"
+                                          : applicant.gstNumberURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant
+                                              .gstNumberURL
+                                              .isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title: "GST Certificate",
+                                              context,
+                                              applicant.gstNumberURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable:
+                                            applicant.gstNumberURL.isEmpty,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Profile Photo",
+                                  value:
+                                      applicant.photoURL.isEmpty
+                                          ? "-"
+                                          : applicant.photoURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.photoURL.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title: "Profile Photo",
+                                              context,
+                                              applicant.photoURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.photoURL.isEmpty,
+                                      ),
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Cheque / Cancelled Cheque",
+                                  value:
+                                      applicant.chequeURL.isEmpty
+                                          ? "-"
+                                          : applicant.chequeURL,
+                                  customValueWidget:
+                                      CustomButton.documentOutline(
+                                        onPressed: () {
+                                          if (applicant.chequeURL.isNotEmpty) {
+                                            showFilePreviewDialog(
+                                              title:
+                                                  "Cheque / Cancelled Cheque",
+                                              context,
+                                              applicant.chequeURL.split(","),
+                                            );
+                                          }
+                                        },
+                                        isDisable: applicant.chequeURL.isEmpty,
+                                      ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "Bank Name",
+                                  value:
+                                      applicant.bankName.isEmpty
+                                          ? "-"
+                                          : applicant.bankName,
+                                ),
+                                buildColumnTitleValue(
+                                  title: "Account No.",
+                                  value:
+                                      applicant.accountNumber.isEmpty
+                                          ? "-"
+                                          : applicant.accountNumber,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              spacing: 10,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                buildColumnTitleValue(
+                                  title: "IFSC Code",
+                                  value:
+                                      applicant.ifscCode.isEmpty
+                                          ? "-"
+                                          : applicant.ifscCode,
+                                ),
+                                Expanded(child: SizedBox()),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
