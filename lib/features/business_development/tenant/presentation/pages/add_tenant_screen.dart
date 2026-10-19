@@ -492,7 +492,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     );
   }
 
-  double _selectedFlatsReraTotal() {
+  double _selectedNewFlatsReraTotal() {
     double total = 0;
     for (final flat in _selectedFlatNotifier.value) {
       final m = flat['flatModel'];
@@ -980,7 +980,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                                     final totalNewRera =
                                         double.tryParse(value ?? '') ?? 0;
                                     final selectedTotal =
-                                        _selectedFlatsReraTotal();
+                                        _selectedNewFlatsReraTotal();
                                     if ((totalNewRera != selectedTotal)) {
                                       return 'Total New RERA Carpet Area '
                                           '(${totalNewRera.addCommas()} SqFt) must match the sum of '

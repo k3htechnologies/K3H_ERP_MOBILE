@@ -826,64 +826,103 @@ class _TenantViewScreenState extends State<TenantViewScreen>
               ),
             ],
           ),
-          SectionCard(
-            title: "New Unit Details",
-            titleTextColor: AppColor.darkBlue29,
-            headerBackgroundColor: AppColor.darkBlue29.withValues(alpha: 0.1),
-            children: [
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ValueListenableBuilder(
+            valueListenable: _tenantNotifier,
+            builder: (context, tenant, child) {
+              if (tenant == null) {
+                return SizedBox.shrink();
+              }
+              return Column(
                 children: [
-                  buildColumnTitleValue(
-                    title: "Building Number",
-                    value: widget.tenant.buildingNumber,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Wing",
-                    value: widget.tenant.wing,
-                  ),
+                  ...tenant.inventoryFlatData.map((flat) {
+                    return SectionCard(
+                      title: "New Unit Details: ${flat.flat}",
+                      titleTextColor: AppColor.darkBlue29,
+                      headerBackgroundColor: AppColor.darkBlue29.withValues(
+                        alpha: 0.1,
+                      ),
+                      children: [
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Building Number",
+                              value: flat.buildingNumber,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Wing",
+                              value: flat.wing,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Floor",
+                              value: flat.floor,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Unit Number",
+                              value: flat.flat,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "RERA Carpet Area (SqFt)",
+                              value: flat.reraCarpetAreaSqFt.addCommas(),
+                            ),
+                            buildColumnTitleValue(
+                              title: "Unit Type",
+                              value: flat.flatType,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Unit Configuration",
+                              value: flat.flatConfiguration,
+                            ),
+                            buildColumnTitleValue(
+                              title: "Unit Facing",
+                              value: flat.flatFacing,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Adjust Purchase Area (SqFt)",
+                              value: flat.adjustPurchaseAreaSqFt.addCommas(),
+                            ),
+                            buildColumnTitleValue(
+                              title: "Booking Created By",
+                              value: flat.bookingCreatedBy,
+                            ),
+                          ],
+                        ),
+                        buildColumnTitleValue(
+                          title: "Booking Created Date",
+                          value: formatDate(flat.bookingCreatedDate),
+                          removeExpanded: true,
+                        ),
+                      ],
+                    );
+                  }),
                 ],
-              ),
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Floor",
-                    value: widget.tenant.floor,
-                  ),
-                  buildColumnTitleValue(
-                    title: "Unit Number",
-                    value: widget.tenant.flat,
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "RERA Carpet Area(Sq.ft)",
-                    value: widget.tenant.reraCarpetAreaSqFt.addCommas(),
-                  ),
-                  buildColumnTitleValue(
-                    title: "Unit Type",
-                    value: widget.tenant.inventoryFlatType,
-                  ),
-                ],
-              ),
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Unit Configuration",
-                    value: widget.tenant.inventoryFlatConfiguration,
-                  ),
-                ],
-              ),
-            ],
+              );
+            },
           ),
           SectionCard(
             title: 'Action Details',
