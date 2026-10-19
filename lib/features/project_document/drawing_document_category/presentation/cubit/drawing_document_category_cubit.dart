@@ -63,7 +63,9 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
     Map<String, dynamic> queryParams = {
       "DrawingDocumentCategory": state.searchText,
       "IsCheckPermission": true,
-      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      if (state.currentSortColumn.isNotEmpty &&
+          state.currentSortDirection.isNotEmpty)
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _drawingDocumentCategoryRepository
         .getDrawingDocumentCategory(

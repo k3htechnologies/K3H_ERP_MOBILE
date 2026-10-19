@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -375,7 +376,30 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
           ),
           buildRowTitleValue(
             title: "Remark",
-            value: document.drawingDocumentRemark,
+            value:
+                document.drawingDocumentRemark.trim().isEmpty
+                    ? "-"
+                    : document.drawingDocumentRemark.trim(),
+            customValueWidget:
+                document.drawingDocumentRemark.trim().isNotEmpty
+                    ? GestureDetector(
+                      onTap: () {
+                        DialogHelper.showNoteDialog(
+                          context,
+                          note: document.drawingDocumentRemark,
+                          title: "Remark",
+                        );
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10.sp),
+                        child: Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: AppColor.primary,
+                        ),
+                      ),
+                    )
+                    : null,
             singleLine: false,
           ),
           ApproveRejectWidget(
