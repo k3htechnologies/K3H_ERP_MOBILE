@@ -99,14 +99,23 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
 
       _selectedStatus.value = matchedStatus;
     }
-    if (document.inventoryFloorId > 0) {
-      _selectedFloorNotifier.value = [
-        {
-          "zAttributesId": document.inventoryFloorId,
-          "DisplayName": document.floor,
-        },
-      ];
-    }
+    final floorIds =
+        document.inventoryFloorId
+            .split(',')
+            .map((id) => int.tryParse(id.trim()))
+            .toList();
+    final floorNames = document.floor.split(',');
+    _selectedFloorNotifier.value = [
+      for (int i = 0; i < floorIds.length; i++)
+        if (floorIds[i] != null)
+          {
+            "zAttributesId": floorIds[i]!,
+            "DisplayName":
+                i < floorNames.length
+                    ? floorNames[i].trim()
+                    : floorIds[i].toString(),
+          },
+    ];
 
     selectedDocumentFile.fileNameList =
         document.drawingDocumentUrl.isEmpty
@@ -129,6 +138,11 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
+
+    final floorList =
+        _selectedFloorNotifier.value
+            .map((floor) => floor["zAttributesId"].toString())
+            .toList();
     if (!widget.isEdit) {
       _drawingDocumentCubit.addSubDrawingDocument(
         context: context,
@@ -142,6 +156,8 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
         drawingDocumentName: widget.drawingDocumentModel!.drawingDocumentName,
         documents: selectedDocumentFile,
         documentDWG: selectedDocumentDWGFile,
+        drawingDocumentStatus: _selectedStatus.value?["DisplayName"],
+        floorList: floorList,
       );
     } else {
       _drawingDocumentCubit.updateSubDrawingDocument(
@@ -155,7 +171,7 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
         documents: selectedDocumentFile,
         documentDWG: selectedDocumentDWGFile,
         drawingDocumentStatus: _selectedStatus.value?["DisplayName"],
-        inventoryFloorId: _selectedFloorNotifier.value.first["DisplayName"],
+        floorList: floorList,
         drawingDocumentRevisionDate: revisionDate,
         drawingDocumentRemark: _remarkC.text.trim(),
       );
@@ -256,7 +272,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                           isRequired: true,
                           title: "Floor",
                           hintText: "Select Floor",
-
                           dataFetchCallBack: (pageNumber, {String? value}) {
                             return _fetchFloors(
                               pageNumber,
@@ -265,8 +280,7 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                               inventoryFlatId: null,
                             );
                           },
-
-                          isMultiSelect: false,
+                          isMultiSelect: true,
                           dataList: [],
 
                           onSelected: (value) {
@@ -306,7 +320,7 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                     CustomMultiFilePicker(
                       maxFiles: 5,
                       title: "Files (.PDF)",
-                      filePickType: FilePickType.document,
+                      filePickType: FilePickType.drawingOnlyPDFDocument,
                       isRequired: true,
                       initialFileList: selectedDocumentFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {

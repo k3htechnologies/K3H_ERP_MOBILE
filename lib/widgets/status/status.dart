@@ -185,8 +185,12 @@ Widget testDocumentStatusWidget(String status, {TextStyle? textStyle}) {
 
 Widget drawingDocumentStatusWidget(String status, {TextStyle? textStyle}) {
   final formatted = formattedStatus(status.trim());
+  final displayStatus = formatted.replaceAll(
+    RegExp(r'\(gfc\)', caseSensitive: false),
+    '(GFC)',
+  );
   return commonStatusWidget(
-    status: formatted,
+    status: displayStatus,
     config: drawingDocumentStatusConfig,
     textStyle: textStyle ?? AppTextStyle.ts10M(),
   );

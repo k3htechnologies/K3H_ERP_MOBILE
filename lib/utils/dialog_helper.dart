@@ -242,13 +242,16 @@ class DialogHelper {
   static Future<bool> showNoteDialog(
     BuildContext context, {
     required String note,
+    String? title,
   }) async {
     final ScrollController controller = ScrollController();
+
+    final displayNote = note.trim().isEmpty ? "-" : note.trim();
 
     try {
       final result = await DialogHelper.showCustomDialogue(
         context,
-        title: "Note",
+        title: title ?? "Note",
         childContent: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.5,
@@ -262,7 +265,7 @@ class DialogHelper {
               controller: controller,
               child: Padding(
                 padding: const EdgeInsets.only(right: 8),
-                child: Text(note, style: AppTextStyle.ts14R()),
+                child: Text(displayNote, style: AppTextStyle.ts14R()),
               ),
             ),
           ),

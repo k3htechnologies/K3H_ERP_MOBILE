@@ -127,9 +127,22 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               spacing: 10,
               children: [
                 Expanded(
-                  child: Text(
-                    widget.documentModel.projectDocumentName,
-                    style: AppTextStyle.ts16SB(),
+                  child: RichText(
+                    text: TextSpan(
+                      style: AppTextStyle.ts16SB(),
+                      children: [
+                        TextSpan(
+                          text: widget.documentModel.projectDocumentCategory,
+                        ),
+                        TextSpan(
+                          text: " > ",
+                          style: AppTextStyle.ts16M(color: AppColor.grey),
+                        ),
+                        TextSpan(
+                          text: widget.documentModel.projectDocumentName,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 _routeAuthorizationModel.isAction

@@ -37,6 +37,26 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
     getDrawingDocumentList(context: context, pageNumber: 1);
   }
 
+  void clearFiltersOnProjectChange() {
+    emit(
+      state.copyWith(
+        searchText: '',
+        buildingNumberText: '',
+        wingText: '',
+        floorText: '',
+        currentSortColumn: '',
+        currentSortDirection: '',
+        categoryIndex: 0,
+        drawingDocumentCategoryId: 0,
+        currentPage: 1,
+        drawingDocumentList: [],
+        subDrawingDocumentList: [],
+        totalNumberOfRecord: 0,
+        totalNumberOfRecordOfSubDoc: 0,
+      ),
+    );
+  }
+
   // GET CATEGORY LIST
   Future getDrawingDocumentCategoryList(
     BuildContext context,
@@ -220,8 +240,8 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
     required int drawingDocumentCategoryId,
     DateTime? drawingDocumentRevisionDate,
     String? drawingDocumentRemark,
+    List<String>? floorList,
     String? drawingDocumentStatus,
-    String? inventoryFloorId,
     MultiFilePickerModel? documents,
     MultiFilePickerModel? documentDWG,
   }) async {
@@ -241,8 +261,8 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       "RemoveDrawingDocumentURL": documents?.deletedFileList ?? '',
       "RemoveDrawingDocumentDWGURL": documentDWG?.deletedFileList ?? '',
       "DrawingDocumentRemark": drawingDocumentRemark ?? '',
-      "DrawingDocumentStatus": drawingDocumentStatus.toString(),
-      "InventoryFloorId": inventoryFloorId.toString(),
+      "DrawingDocumentStatus": drawingDocumentStatus ?? "",
+      "InventoryFloorId": floorList?.join(",") ?? "",
     };
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {
@@ -315,6 +335,8 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
     String? drawingDocumentRemark,
     MultiFilePickerModel? documents,
     MultiFilePickerModel? documentDWG,
+    List<String>? floorList,
+    String? drawingDocumentStatus,
   }) async {
     List<Map<String, dynamic>> fileList = [];
     DialogHelper.showProcessingOverlay(context);
@@ -326,11 +348,12 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       "DrawingDocumentName": drawingDocumentName,
       //isMaster is 0 means add subdoc in document group
       "IsMaster": 0.toString(),
-
+      "InventoryFloorId": floorList?.join(",") ?? "",
       "DrawingDocumentRevisionDate":
           drawingDocumentRevisionDate != null
               ? drawingDocumentRevisionDate.toIso8601String()
               : '',
+      "DrawingDocumentStatus": drawingDocumentStatus ?? "",
       "DrawingDocumentRemark": drawingDocumentRemark ?? '',
     };
 
@@ -607,7 +630,7 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
 
   int updateFilterCount(DrawingDocumentState state) {
     final hasSort =
-        state.currentSortColumn == "Drawing Document" &&
+        state.currentSortColumn == "Drawing Document Name" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
     return getActiveFilterCount([

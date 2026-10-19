@@ -226,7 +226,7 @@ class _DrawingDocumentCategoryScreenState
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Drawing Document Category",
-                title: "Approval Drawing Document Category",
+                title: "Drawing Document Category",
                 onChangeFunction: (_) => updateApplyState(innerState),
               ),
             ],
@@ -279,179 +279,155 @@ class _DrawingDocumentCategoryScreenState
           state,
         );
       },
-      child: Scaffold(
-        appBar: CustomAppBar(
-          screenTitle: "Drawing Document Category",
-          authorization: _routeAuthorizationModel,
-          searchHintText: "Search By Drawing Document Category",
-          onSearchSubmit: (value) {
-            if (_selectedProjectNotifier.value.projectId != 0) {
-              _drawingDocumentCategoryCubit.searchCategory(
-                context,
-                _selectedProjectNotifier.value.projectId,
-                value,
-              );
-            }
-          },
-          isFilterOn: true,
-          onFilterTap: () {
-            if (_selectedProjectNotifier.value.projectId == 0) {
-              showErrorMessage(context, "Error", "Please select a project");
-              return;
-            }
-            _showBottomSheetToFilterDrawingDocument(context);
-          },
-          filterCountNotifier: _filterCount,
-          textController: _searchC,
-          onAddCallback: () async {
-            if (_selectedProjectNotifier.value.projectId == 0) {
-              showErrorMessage(context, 'Error', 'Please select a project');
-              return;
-            }
-            _searchC.clear();
-            await _drawingDocumentCategoryCubit.resetSearch();
-            goRouter.pushNamed(AppRoutes.addDrawingDocumentCategory).then((_) {
-              if (context.mounted) {
-                _drawingDocumentCategoryCubit.getDrawingDocumentCategoryList(
+      child: RefreshIndicator(
+        onRefresh: () async {
+          _searchC.clear();
+          if (context.mounted) {
+            _drawingDocumentCategoryCubit.searchCategory(
+              context,
+              _selectedProjectNotifier.value.projectId,
+              "",
+            );
+          }
+        },
+        child: Scaffold(
+          appBar: CustomAppBar(
+            screenTitle: "Drawing Document Category",
+            authorization: _routeAuthorizationModel,
+            searchHintText: "Search By Drawing Document Category",
+            onSearchSubmit: (value) {
+              if (_selectedProjectNotifier.value.projectId != 0) {
+                _drawingDocumentCategoryCubit.searchCategory(
                   context,
-                  1,
                   _selectedProjectNotifier.value.projectId,
+                  value,
                 );
               }
-            });
-          },
-          onExportCallback: (value) {
-            if (_drawingDocumentCategoryCubit.state.totalNumberOfRecord == 0) {
-              showErrorMessage(context, "Error", "No Data Found");
-              return;
-            }
-            _drawingDocumentCategoryCubit.exportExcelPdf(
-              context,
-              value,
-              _selectedProjectNotifier.value.projectId,
-            );
-          },
-          onProjectChangeCallback: (value) {
-            _selectedProjectNotifier.value = value;
-            _searchC.clear();
-            _drawingDocumentCategoryCubit.resetSearch();
-            _drawingDocumentCategoryCubit.getDrawingDocumentCategoryList(
-              context,
-              1,
-              _selectedProjectNotifier.value.projectId,
-            );
-          },
-        ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ValueListenableBuilder(
-              valueListenable: _selectedProjectNotifier,
-              builder: (context, value, child) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: showSiteSelectedWidget(),
-                );
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<
-                DrawingDocumentCategoryCubit,
-                DrawingDocumentCategoryState
-              >(
-                builder: (context, state) {
-                  if ((state.isLoading ?? true) &&
-                      state.drawingDocumentCategoryModelList.isEmpty) {
-                    return Center(child: loader());
-                  }
-                  if (state.drawingDocumentCategoryModelList.isEmpty) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: noDataWidget(
-                          message: "No Test Document Category Data Found",
+            },
+            isFilterOn: true,
+            onFilterTap: () {
+              if (_selectedProjectNotifier.value.projectId == 0) {
+                showErrorMessage(context, "Error", "Please select a project");
+                return;
+              }
+              _showBottomSheetToFilterDrawingDocument(context);
+            },
+            filterCountNotifier: _filterCount,
+            textController: _searchC,
+            onAddCallback: () async {
+              if (_selectedProjectNotifier.value.projectId == 0) {
+                showErrorMessage(context, 'Error', 'Please select a project');
+                return;
+              }
+              _searchC.clear();
+              await _drawingDocumentCategoryCubit.resetSearch();
+              goRouter.pushNamed(AppRoutes.addDrawingDocumentCategory).then((
+                _,
+              ) {
+                if (context.mounted) {
+                  _drawingDocumentCategoryCubit.getDrawingDocumentCategoryList(
+                    context,
+                    1,
+                    _selectedProjectNotifier.value.projectId,
+                  );
+                }
+              });
+            },
+            onExportCallback: (value) {
+              if (_drawingDocumentCategoryCubit.state.totalNumberOfRecord ==
+                  0) {
+                showErrorMessage(context, "Error", "No Data Found");
+                return;
+              }
+              _drawingDocumentCategoryCubit.exportExcelPdf(
+                context,
+                value,
+                _selectedProjectNotifier.value.projectId,
+              );
+            },
+            onProjectChangeCallback: (value) {
+              _selectedProjectNotifier.value = value;
+              _searchC.clear();
+              _drawingDocumentCategoryCubit.resetSearch();
+              _drawingDocumentCategoryCubit.getDrawingDocumentCategoryList(
+                context,
+                1,
+                _selectedProjectNotifier.value.projectId,
+              );
+            },
+          ),
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ValueListenableBuilder(
+                valueListenable: _selectedProjectNotifier,
+                builder: (context, value, child) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: showSiteSelectedWidget(),
+                  );
+                },
+              ),
+              Expanded(
+                child: BlocBuilder<
+                  DrawingDocumentCategoryCubit,
+                  DrawingDocumentCategoryState
+                >(
+                  builder: (context, state) {
+                    if ((state.isLoading ?? true) &&
+                        state.drawingDocumentCategoryModelList.isEmpty) {
+                      return Center(child: loader());
+                    }
+                    if (state.drawingDocumentCategoryModelList.isEmpty) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: noDataWidget(
+                            message: "No Drawing Document Category Data Found",
+                          ),
                         ),
+                      );
+                    }
+                    return ListView.builder(
+                      controller: scrollController,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 10,
                       ),
-                    );
-                  }
-                  return ListView.builder(
-                    controller: scrollController,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 10,
-                    ),
-                    itemCount:
-                        state.drawingDocumentCategoryModelList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index ==
-                          state.drawingDocumentCategoryModelList.length) {
-                        return state.drawingDocumentCategoryModelList.length <
-                                state.totalNumberOfRecord
-                            ? const Padding(
-                              padding: EdgeInsets.all(16),
-                              child: Center(child: CircularProgressIndicator()),
-                            )
-                            : const SizedBox.shrink();
-                      }
-                      var testDocumentCategory =
-                          state.drawingDocumentCategoryModelList[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(12),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 10,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Flexible(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      goRouter.pushNamed(
-                                        AppRoutes.viewDrawingDocumentCategory,
-                                        queryParameters: {
-                                          "drawingDocumentCategory":
-                                              Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(
-                                                    testDocumentCategory
-                                                        .toJson(),
-                                                  ),
-                                                ),
-                                              ),
-                                        },
-                                      );
-                                    },
-                                    child: Text(
-                                      testDocumentCategory
-                                          .drawingDocumentCategoryName,
-                                      style: AppTextStyle.ts14M(
-                                        color: AppColor.primary,
-                                      ),
-                                    ),
-                                  ),
+                      itemCount:
+                          state.drawingDocumentCategoryModelList.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index ==
+                            state.drawingDocumentCategoryModelList.length) {
+                          return state.drawingDocumentCategoryModelList.length <
+                                  state.totalNumberOfRecord
+                              ? const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
                                 ),
-                                Row(
-                                  children: [
-                                    CustomIconButton.edit(
-                                      isDisabled:
-                                          !_routeAuthorizationModel.isAction,
-                                      onPressed: () async {
-                                        if (_selectedProjectNotifier
-                                                .value
-                                                .projectId ==
-                                            0) {
-                                          showErrorMessage(
-                                            context,
-                                            'Error',
-                                            'Please select a project',
-                                          );
-                                          return;
-                                        }
-                                        await goRouter.pushNamed(
-                                          AppRoutes.addDrawingDocumentCategory,
+                              )
+                              : const SizedBox.shrink();
+                        }
+                        var testDocumentCategory =
+                            state.drawingDocumentCategoryModelList[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(12),
+                          decoration: commonCardDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                spacing: 10,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Flexible(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        goRouter.pushNamed(
+                                          AppRoutes.viewDrawingDocumentCategory,
                                           queryParameters: {
                                             "drawingDocumentCategory":
                                                 Uri.encodeQueryComponent(
@@ -462,50 +438,95 @@ class _DrawingDocumentCategoryScreenState
                                                     ),
                                                   ),
                                                 ),
-                                            'index': index.toString(),
                                           },
                                         );
                                       },
+                                      child: Text(
+                                        testDocumentCategory
+                                            .drawingDocumentCategoryName,
+                                        style: AppTextStyle.ts14M(
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    CustomIconButton.delete(
-                                      isDisabled:
-                                          (!_routeAuthorizationModel.isAction ||
-                                              testDocumentCategory
-                                                      .documentCount >
-                                                  0),
-                                      onPressed: () {
-                                        _showPopupToDeleteTestDocumentCategory(
-                                          context,
-                                          testDocumentCategory,
-                                          state.currentPage,
-                                          index,
-                                        );
-                                      },
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            verticalSpacing(height: 8),
-                            buildRowTitleValue(
-                              title: "Sequence",
-                              value: testDocumentCategory.orderBy.toString(),
-                            ),
-                            buildRowTitleValue(
-                              title: "Document Count",
-                              value:
-                                  testDocumentCategory.documentCount.toString(),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
-                },
+                                  ),
+                                  Row(
+                                    children: [
+                                      CustomIconButton.edit(
+                                        isDisabled:
+                                            !_routeAuthorizationModel.isAction,
+                                        onPressed: () async {
+                                          if (_selectedProjectNotifier
+                                                  .value
+                                                  .projectId ==
+                                              0) {
+                                            showErrorMessage(
+                                              context,
+                                              'Error',
+                                              'Please select a project',
+                                            );
+                                            return;
+                                          }
+                                          await goRouter.pushNamed(
+                                            AppRoutes
+                                                .addDrawingDocumentCategory,
+                                            queryParameters: {
+                                              "drawingDocumentCategory":
+                                                  Uri.encodeQueryComponent(
+                                                    EncryptionManager.encryptData(
+                                                      jsonEncode(
+                                                        testDocumentCategory
+                                                            .toJson(),
+                                                      ),
+                                                    ),
+                                                  ),
+                                              'index': index.toString(),
+                                            },
+                                          );
+                                        },
+                                      ),
+                                      const SizedBox(width: 8),
+                                      CustomIconButton.delete(
+                                        isDisabled:
+                                            (!_routeAuthorizationModel
+                                                    .isAction ||
+                                                testDocumentCategory
+                                                        .documentCount >
+                                                    0),
+                                        onPressed: () {
+                                          _showPopupToDeleteTestDocumentCategory(
+                                            context,
+                                            testDocumentCategory,
+                                            state.currentPage,
+                                            index,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              verticalSpacing(height: 8),
+                              buildRowTitleValue(
+                                title: "Sequence",
+                                value: testDocumentCategory.orderBy.toString(),
+                              ),
+                              buildRowTitleValue(
+                                title: "Document Count",
+                                value:
+                                    testDocumentCategory.documentCount
+                                        .toString(),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

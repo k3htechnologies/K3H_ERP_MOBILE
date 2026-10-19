@@ -134,9 +134,22 @@ class _ViewApprovalDocumentScreenState
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    widget.documentModel.approvalDocumentName,
-                    style: AppTextStyle.ts16SB(),
+                  child: RichText(
+                    text: TextSpan(
+                      style: AppTextStyle.ts16SB(),
+                      children: [
+                        TextSpan(
+                          text: widget.documentModel.approvalDocumentCategory,
+                        ),
+                        TextSpan(
+                          text: " > ",
+                          style: AppTextStyle.ts16M(color: AppColor.grey),
+                        ),
+                        TextSpan(
+                          text: widget.documentModel.approvalDocumentName,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 _routeAuthorizationModel.isAction

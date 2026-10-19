@@ -47,26 +47,23 @@ class ViewDrawingDocumentCategoryScreen extends StatelessWidget {
                             "Drawing Document Category Details",
                             style: AppTextStyle.ts16SB(),
                           ),
+                          buildColumnTitleValue(
+                            title: "Document Category",
+                            value:
+                                drawingDocumentCategoryModel
+                                    .drawingDocumentCategoryName,
+                            removeExpanded: true,
+                          ),
+
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              buildColumnTitleValue(
-                                title: "Document Category",
-                                value:
-                                    drawingDocumentCategoryModel
-                                        .drawingDocumentCategoryName,
-                              ),
                               buildColumnTitleValue(
                                 title: "Sequence",
                                 value:
                                     drawingDocumentCategoryModel.orderBy
                                         .toString(),
                               ),
-                            ],
-                          ),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
                               buildColumnTitleValue(
                                 title: "Document Count",
                                 value:
