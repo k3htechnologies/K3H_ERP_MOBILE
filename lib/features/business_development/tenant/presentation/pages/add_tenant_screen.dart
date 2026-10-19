@@ -495,14 +495,11 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   double _selectedFlatsReraTotal() {
     double total = 0;
     for (final flat in _selectedFlatNotifier.value) {
-      final id = flat['zAttributesId'] as int;
       final m = flat['flatModel'];
       final area =
           m is InventoryFlatData
               ? m.reraCarpetAreaSqFt
               : (m?.reraCarpetAreaSqFt as num?)?.toDouble() ?? 0;
-      final adjust =
-          double.tryParse(_adjustAreaControllers[id]?.text.trim() ?? '') ?? 0;
       total += area;
     }
     return total;
