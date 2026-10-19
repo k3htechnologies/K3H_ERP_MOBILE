@@ -12,7 +12,6 @@ import 'package:k3h_erp_app/features/business_development/building/data/reposito
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/cubit/tenant_cubit.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_import_button.dart';
-import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -22,9 +21,9 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
-import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -721,86 +720,33 @@ class _TenantScreenState extends State<TenantScreen> {
                                               ),
                                             ),
                                             verticalSpacing(),
-                                            Row(
-                                              spacing: 10,
-                                              children: [
-                                                if (tenant.bookingId != 0)
-                                                  Stack(
-                                                    children: [
-                                                      CustomIconContainer(
-                                                        containerSize: 32,
-                                                        iconSize: 20,
-                                                        backgroundColor: Color(
-                                                          0xffDCFCE7,
-                                                        ).withValues(
-                                                          alpha: 0.85,
+                                            GestureDetector(
+                                              onTap: () async {
+                                                await _tenantCubit
+                                                    .clearTenantDocument();
+                                                goRouter.pushNamed(
+                                                  AppRoutes.viewTenant,
+                                                  queryParameters: {
+                                                    "tenant":
+                                                        EncryptionManager.encryptData(
+                                                          jsonEncode(
+                                                            tenant.toJson(),
+                                                          ),
                                                         ),
-                                                        iconColor:
-                                                            AppColor.green20,
-                                                        icon:
-                                                            LucideIcons
-                                                                .userRound,
-                                                      ),
-
-                                                      Positioned(
-                                                        right: 1,
-                                                        bottom: 4,
-                                                        child: Icon(
-                                                          Icons.home_filled,
-                                                          size: 14,
-                                                          color: AppColor
-                                                              .rustOrange
-                                                              .withValues(
-                                                                alpha: 0.8,
-                                                              ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                if (tenant.inventoryFlatId !=
-                                                        0 &&
-                                                    tenant.bookingId == 0)
-                                                  CustomIconContainer(
-                                                    containerSize: 32,
-                                                    iconSize: 20,
-                                                    iconColor:
-                                                        AppColor.purple700,
-                                                    backgroundColor:
-                                                        AppColor.lightPurpleBg2,
-                                                    icon:
-                                                        LucideIcons.circleCheck,
-                                                  ),
-
-                                                GestureDetector(
-                                                  onTap: () async {
-                                                    await _tenantCubit
-                                                        .clearTenantDocument();
-                                                    goRouter.pushNamed(
-                                                      AppRoutes.viewTenant,
-                                                      queryParameters: {
-                                                        "tenant":
-                                                            EncryptionManager.encryptData(
-                                                              jsonEncode(
-                                                                tenant.toJson(),
-                                                              ),
-                                                            ),
-                                                        'buildingName':
-                                                            _selectedBuildingNotifier
-                                                                .value
-                                                                .first["DisplayName"]
-                                                                .toString(),
-                                                      },
-                                                    );
+                                                    'buildingName':
+                                                        _selectedBuildingNotifier
+                                                            .value
+                                                            .first["DisplayName"]
+                                                            .toString(),
                                                   },
-                                                  child: Text(
-                                                    tenant
-                                                        .unitAnnexureSurveyNumber,
-                                                    style: AppTextStyle.ts14M(
-                                                      color: AppColor.primary,
-                                                    ),
-                                                  ),
+                                                );
+                                              },
+                                              child: Text(
+                                                tenant.unitAnnexureSurveyNumber,
+                                                style: AppTextStyle.ts14M(
+                                                  color: AppColor.primary,
                                                 ),
-                                              ],
+                                              ),
                                             ),
                                             verticalSpacing(),
                                             Text(
@@ -878,6 +824,55 @@ class _TenantScreenState extends State<TenantScreen> {
                                       ),
                                     ],
                                   ),
+                                  verticalSpacing(),
+                                  // IF NO UNIT ASSIGNED : HIDE EXPANSION TILE
+                                  assignedFlats.first.flat.isEmpty
+                                      ? SizedBox.shrink()
+                                      : Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius: BorderRadius.circular(
+                                            10,
+                                          ),
+                                          border: Border(
+                                            left: BorderSide(
+                                              color: AppColor.primary,
+                                              width: 4,
+                                            ),
+                                          ),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                              color: Color(0x11000000),
+                                              blurRadius: 6,
+                                              offset: Offset(0, 2),
+                                            ),
+                                          ],
+                                        ),
+                                        child: CustomExpandableCard(
+                                          padding: const EdgeInsets.fromLTRB(
+                                            16,
+                                            12,
+                                            16,
+                                            0,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColor.white,
+                                          ),
+                                          header: Text(
+                                            "New Unit Details (${assignedFlats.length})",
+                                            style: AppTextStyle.ts14M(),
+                                          ),
+                                          body: Column(
+                                            spacing: 8,
+                                            children:
+                                                assignedFlats
+                                                    .map(
+                                                      (f) => FlatTile(flat: f),
+                                                    )
+                                                    .toList(),
+                                          ),
+                                        ),
+                                      ),
                                 ],
                               ),
                             );
@@ -891,6 +886,66 @@ class _TenantScreenState extends State<TenantScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class FlatTile extends StatelessWidget {
+  final dynamic flat;
+  const FlatTile({super.key, required this.flat});
+
+  @override
+  Widget build(BuildContext context) {
+    final isBooked = flat.bookingId != 0;
+    final isAllotted = flat.inventoryFlatId != 0 && !isBooked;
+
+    final label =
+        isBooked
+            ? 'Booked'
+            : isAllotted
+            ? 'Allotted'
+            : '';
+    final fg =
+        isBooked
+            ? AppColor.green20
+            : isAllotted
+            ? AppColor.purple700
+            : AppColor.grey;
+    final bg =
+        isBooked
+            ? const Color(0xffDCFCE7)
+            : isAllotted
+            ? AppColor.lightPurpleBg2
+            : Colors.grey.shade100;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: Row(
+        children: [
+          CustomIconContainer(
+            containerSize: 32,
+            iconSize: 18,
+            backgroundColor: bg,
+            iconColor: fg,
+            icon: isBooked ? LucideIcons.userRound : LucideIcons.circleCheck,
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(flat.flat, style: AppTextStyle.ts14M())),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(label, style: AppTextStyle.ts12M(color: fg)),
+          ),
+        ],
       ),
     );
   }

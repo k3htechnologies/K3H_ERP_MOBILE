@@ -686,6 +686,7 @@ class BookingCubit extends Cubit<BookingState> {
         goRouter.pop({
           "ownerName": newBooking.applicantName,
           "status": "Booked",
+          "bookingId": newBooking.bookingId,
         });
       },
     );

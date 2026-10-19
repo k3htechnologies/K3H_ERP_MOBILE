@@ -1108,10 +1108,13 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             "widget": CustomTextField(
               title: "Adjust Purchase Area (SqFt)",
               hint: "Enter Adjust Purchase Area (SqFt)",
-
               textController:
                   _adjustAreaControllers[flat['zAttributesId'] as int]!,
               fillColor: AppColor.lightGreyBackground,
+              inputFormatterList: InputValidator.digitWithDecimal(
+                maxDigitsBeforeDecimal: 16,
+              ),
+              keyboardType: TextInputType.numberWithOptions(),
               bottomMargin: 0,
               validator: (value) {
                 if (_selectedFlatNotifier.value.isNotEmpty) {

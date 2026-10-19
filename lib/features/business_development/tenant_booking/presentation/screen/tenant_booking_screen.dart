@@ -75,7 +75,7 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
     _bookingCubit = context.read<TenantBookingCubit>();
     _project = getProject();
     _routhAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.booking]!;
+        Authorization.routeAuthorizationMap[AppRoutes.tenantBooking]!;
     _initializeTextEditingController();
     _onScroll();
     _bookingCubit.getBookingList(context, 1, _project.projectId);

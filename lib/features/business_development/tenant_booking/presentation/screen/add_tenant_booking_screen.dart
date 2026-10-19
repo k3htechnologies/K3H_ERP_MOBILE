@@ -250,7 +250,6 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
               : (bm?.systemGeneratedCode ?? '');
       await _bookingCubit.getTenantList(
         context: context,
-        pageNumber: 1,
         projectId: _project.projectId,
         systemGeneratedCode:
             widget.inventoryObject?[0]["tenantSystemGeneratedCode"] ??
@@ -726,7 +725,10 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
       return false;
     }
 
-    return true;
+    return await _bookingCubit.validateTenant(
+      context: context,
+      tenantList: _bookingCubit.state.tenantList,
+    );
   }
 
   // LOAD PAYMENT SCHEDULE SCHEMES
@@ -800,7 +802,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     final bankId =
         _selectedBankNotifier.value.isNotEmpty
             ? _selectedBankNotifier.value.first['zAttributesId']
-            : null;
+            : 0;
 
     if (_isEditMode) {
       await _bookingCubit.updateBooking(
@@ -859,6 +861,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
         context: context,
         projectId: _project.projectId,
         tenantId: _bookingCubit.state.tenantList.first.tenantId,
+        tenantBuildingId: _bookingCubit.state.tenantList.first.buildingId,
         permanentAddress: _permanentAddressC.text.trim(),
         communicationAddress: _communicationAddressC.text.trim(),
         inventoryFlatId: inventoryFlatId,
@@ -897,7 +900,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
         chequeRTGSNumber: _chequeNoC.text.trim(),
         chequeRTGSDate: chequeDate,
         bankListMasterId: bankId,
-        transferBookingId: null,
+        transferBookingId: 0,
         otp: _otpController.text.trim(),
         addUpdateBookingApplicant: _applicants.value,
         buildingIndex: widget.inventoryObject?[0]["buildingIndex"],

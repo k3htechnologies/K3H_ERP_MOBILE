@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gallery_saver_plus/files.dart';
 import 'package:intl/intl.dart';
-import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/repository/tenant.repository.dart';
@@ -196,7 +194,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
   //  GET TENANT LIST
   Future getTenantList({
     required BuildContext context,
-    required int pageNumber,
     required int projectId,
     required int buildingId,
     int? tenantId,
@@ -207,12 +204,10 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       if (tenantId != null) "TenantId": tenantId,
       "SystemGeneratedCode": systemGeneratedCode,
       "IsCheckPermission": false,
+      "ProjectId": projectId,
+      "BuildingId": buildingId,
     };
-    var result = await _tenantRepository.getTenantList(
-      pageNumber: pageNumber,
-      pageSize: 1,
-      projectId: projectId,
-      buildingId: buildingId,
+    var result = await _tenantRepository.getTenantById(
       queryParams: queryParams,
     );
 
@@ -226,23 +221,40 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
           response['data'] ?? [],
         );
 
-        final List<TenantModel> updatedList =
-            pageNumber == 1 ? newData : [...state.tenantList, ...newData];
-        emit(state.copyWith(tenantList: updatedList, isLoading: false));
-        if (newData.isNotEmpty) {
-          for (final tenant in newData.first.tenantApplicantData) {
-            if (tenant.photoURL.trim().isEmpty) {
-              showErrorMessage(
-                context,
-                "Error",
-                "${tenant.applicantName}: Photo is required.",
-              );
-              return;
-            }
-          }
-        }
+        emit(state.copyWith(tenantList: newData, isLoading: false));
+        validateTenant(context: context, tenantList: newData);
       },
     );
+  }
+
+  Future<bool> validateTenant({
+    required BuildContext context,
+    required List<TenantModel> tenantList,
+  }) async {
+    if (tenantList.isNotEmpty) {
+      for (final tenant in tenantList.first.tenantApplicantData) {
+        final missingField =
+            tenant.photoURL.trim().isEmpty
+                ? "Photo"
+                : tenant.applicantEmailId.trim().isEmpty
+                ? "E-Mail ID"
+                : tenant.aadharCardNumber.trim().isEmpty
+                ? "Aadhaar Card Number"
+                : tenant.panNumber.trim().isEmpty
+                ? "PAN Card Number"
+                : null;
+
+        if (missingField != null) {
+          showErrorMessage(
+            context,
+            "Error",
+            "${tenant.applicantName}: $missingField is required.",
+          );
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   //  GET OTHER CHARGES LIST
@@ -304,12 +316,13 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
-      queryParams:
-          searchQuery != null && searchQuery.isNotEmpty
-              ? {"ParkingNumber": searchQuery}
-              : displayParkingId != null
-              ? {"DisplayParkingId": displayParkingId}
-              : null,
+      queryParams: {
+        "ParkingNumber": searchQuery,
+        "ParkingStatus": "Member",
+        "ApprovalStatus": "Approved",
+        "IsAcessOnlyApprovedParking": false,
+        if (displayParkingId != null) "DisplayParkingId": displayParkingId,
+      },
     );
 
     result.fold(
@@ -381,32 +394,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     );
   }
 
-  Future<void> _addFiles({
-    required List<Map<String, dynamic>> fileList,
-    required int applicantIndex,
-    required String fieldName,
-    required MultiFilePickerModel fileModel,
-  }) async {
-    for (int i = 0; i < fileModel.fileNameList.length; i++) {
-      final fileName = fileModel.fileNameList[i];
-
-      // skip already uploaded files
-      if (fileName.contains("http")) continue;
-
-      if (i >= fileModel.fileBytesList.length) continue;
-
-      final bytes = fileModel.fileBytesList[i];
-
-      final finalBytes = isImage(fileName) ? await compress(bytes) : bytes;
-
-      fileList.add({
-        "key": "AddUpdateBookingApplicant[$applicantIndex].$fieldName",
-        "value": finalBytes,
-        "fileName": fileName,
-      });
-    }
-  }
-
   //  ADD BOOKING
   Future addTenantBooking({
     required int buildingIndex,
@@ -427,8 +414,8 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required double stampDutyAmount,
     required double registrationFees,
     required String sourceOfFunding,
-    String? parkingId,
-    int? numberOfParking,
+    required String parkingId,
+    required int numberOfParking,
     required String handoverType,
     required DateTime registrationDate,
     required int paymentScheduleSchemeMasterId,
@@ -443,22 +430,30 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required List<BookingPaymentScheduleData> paymentScheduleDetailJSON,
     required double bookingAmount,
     required String chequeRTGSNumber,
-    DateTime? chequeRTGSDate,
-    int? bankListMasterId,
-    int? transferBookingId,
+    required DateTime? chequeRTGSDate,
+    required int bankListMasterId,
+    required int transferBookingId,
     required String otp,
     required List<TenantApplicantData> addUpdateBookingApplicant,
     required bool isApplicableOtherCharge,
     required String carpetAreaPurchaseSqFt,
+    required int tenantBuildingId,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> requestBody = {
       "BookingId": 0.toString(),
       "ProjectId": projectId.toString(),
       "EnquiryId": 0.toString(),
-      "TenantId": tenantId.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
+      "BrokeragePercentage": "0",
+      "BrokerageAmount": "0",
+      "ReferralPercentage": "0",
+      "ReferralAmount": "0",
+      "LoyaltyPercentage": "0",
+      "LoyaltyAmount": "0",
+      "EmployeeReferencePercentage": "0",
+      "EmployeeReferenceAmount": "0",
       "InventoryFlatId": inventoryFlatId.toString(),
       "AgreementValue": agreementValue.toString(),
       "AgreementValueTDS": agreementValueTds.toString(),
@@ -467,14 +462,11 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       "StampDutyPercentage": stampDutyPercentage.toString(),
       "StampDutyAmount": stampDutyAmount.toString(),
       "RegistrationFees": registrationFees.toString(),
-      "SourceOfFunding": sourceOfFunding,
-      if (parkingId != null) "ParkingId": parkingId.toString(),
-      if (numberOfParking != null)
-        "NumberOfParking": numberOfParking.toString(),
+      "ParkingId": parkingId.toString(),
+      "NumberOfParking": numberOfParking.toString(),
       "HandoverType": handoverType,
-      "RegistrationDate": registrationDate.toIso8601String(),
-
-      /// CHANGE LATER IN API
+      "RegistrationDate": registrationDate.apiDate.toString(),
+      "SourceOfFunding": sourceOfFunding,
       "FlatAlterationRemark": flatAlterationRemark,
       "PaymentRemark": paymentRemark,
       "OtherRemark": otherRemark,
@@ -517,95 +509,16 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       ),
       'BookingAmount': bookingAmount.toString(),
       "ChequeRTGSNumber": chequeRTGSNumber,
-      if (chequeRTGSDate != null)
-        "ChequeRTGSDate": chequeRTGSDate.toIso8601String(),
-      if (bankListMasterId != null)
-        "BankListMasterId": bankListMasterId.toString(),
-      if (transferBookingId != null)
-        "TransferBookingId": transferBookingId.toString(),
-      "CarpetAreaPurchaseSqFt": carpetAreaPurchaseSqFt,
+      "ChequeRTGSDate": chequeRTGSDate.apiDate.toString(),
+      "BankListMasterId": bankListMasterId.toString(),
+      "TransferBookingId": transferBookingId.toString(),
+      "TenantId": tenantId.toString(),
+      "TenantBuildingId": tenantBuildingId.toString(),
+      "CarpetAreaPurchasedSqFt": carpetAreaPurchaseSqFt,
       "OTP": otp,
     };
-    for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
-      var e = addUpdateBookingApplicant[i];
-      requestBody.addAll({
-        "AddUpdateBookingApplicant[$i].ApplicantType": e.applicantType,
-        "AddUpdateBookingApplicant[$i].BookingApplicantId":
-            e.tenantApplicantId.toString(),
-        "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
-        "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
-            e.applicantMobileNumber,
-        "AddUpdateBookingApplicant[$i].ApplicantMobileNumberCountryCode":
-            e.applicantMobileNumberCountryCode,
-        "AddUpdateBookingApplicant[$i].ApplicantEmailId": e.applicantEmailId,
-        "AddUpdateBookingApplicant[$i].AadharCardNumber": e.aadharCardNumber,
-        "AddUpdateBookingApplicant[$i].PanNumber": e.panNumber,
-        "AddUpdateBookingApplicant[$i].PassportNumber": e.passportNumber,
-        "AddUpdateBookingApplicant[$i].DrivingLicenseNumber":
-            e.drivingLicenseNumber,
-        "AddUpdateBookingApplicant[$i].VotingIdNumber": e.votingIdNumber,
-        "AddUpdateBookingApplicant[$i].GstNumber": e.gstNumber,
-      });
-    }
 
     List<Map<String, dynamic>> fileList = [];
-
-    for (
-      int applicantIndex = 0;
-      applicantIndex < addUpdateBookingApplicant.length;
-      applicantIndex++
-    ) {
-      final applicant = addUpdateBookingApplicant[applicantIndex];
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PhotoURL",
-        fileModel: applicant.profilePhotoImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "AadharCardURL",
-        fileModel: applicant.aadhaarImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PanCardURL",
-        fileModel: applicant.panImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PassportURL",
-        fileModel: applicant.passportImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "DrivingLicenseURL",
-        fileModel: applicant.drivingLicenseImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "VotingIdURL",
-        fileModel: applicant.votingIdImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "GstNumberURL",
-        fileModel: applicant.gstImage,
-      );
-    }
 
     var addResult = await _bookingRepository.addUpdateBooking(
       body: requestBody,
@@ -620,15 +533,14 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         return;
       },
       (response) async {
-        //CLOSE VERIFICATION DIALOG
-        goRouter.pop();
         goRouter.pop();
         showSuccessMessage(context, subTitle: 'Booking Added Successfully');
         final newBooking = (response['data'] as List<BookingModel>).first;
 
         goRouter.pop({
           "ownerName": newBooking.applicantName,
-          "status": "Booked",
+          "status": "Alloted",
+          "bookingId": newBooking.bookingId,
         });
       },
     );
@@ -685,17 +597,17 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       "BookingId": bookingId.toString(),
       "Uniquekey": uniqueKey,
       "ProjectId": projectId.toString(),
-      "TenantId": tenantId.toString(),
       "EnquiryId": 0.toString(),
       "PermanentAddress": permanentAddress,
       "CommunicationAddress": communicationAddress,
+      "BrokeragePercentage": "0",
       "BrokerageAmount": "0",
-      "ReferelPercentage": "0",
-      "ReferelAmount": "0",
-      "EmployeeReferencePercentage": "0",
-      "EmployeeReferenceAmount": "0",
+      "ReferralPercentage": "0",
+      "ReferralAmount": "0",
       "LoyaltyPercentage": "0",
       "LoyaltyAmount": "0",
+      "EmployeeReferencePercentage": "0",
+      "EmployeeReferenceAmount": "0",
       "InventoryFlatId": inventoryFlatId.toString(),
       "AgreementValue": agreementValue.toString(),
       "AgreementValueTDS": agreementValueTds.toString(),
@@ -704,11 +616,10 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       "StampDutyPercentage": stampDutyPercentage.toString(),
       "StampDutyAmount": stampDutyAmount.toString(),
       "RegistrationFees": registrationFees.toString(),
-      if (parkingId != null && parkingId.isNotEmpty) "ParkingId": parkingId,
-      if (numberOfParking != null)
-        "NumberOfParking": numberOfParking.toString(),
+      "ParkingId": parkingId.toString(),
+      "NumberOfParking": numberOfParking.toString(),
       "HandoverType": handoverType,
-      "RegistrationDate": registrationDate.toIso8601String(),
+      "RegistrationDate": registrationDate.apiDate.toString(),
       "SourceOfFunding": sourceOfFunding,
       "FlatAlterationRemark": flatAlterationRemark,
       "PaymentRemark": paymentRemark,
@@ -721,7 +632,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
             .map(
               (e) => {
                 'BookingOtherChargesId': e.bookingOtherChargesId,
-                'Uniquekey': e.uniquekey,
                 'ChargeName': e.chargeName,
                 'CalculatedOn': e.calculatedOn,
                 'Value': e.value,
@@ -751,113 +661,18 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
             )
             .toList(),
       ),
-      "BookingAmount": bookingAmount.toString(),
+      'BookingAmount': bookingAmount.toString(),
       "ChequeRTGSNumber": chequeRTGSNumber,
-      if (chequeRTGSDate != null)
-        "ChequeRTGSDate": chequeRTGSDate.toIso8601String(),
-      if (bankListMasterId != null)
-        "BankListMasterId": bankListMasterId.toString(),
-      if (transferBookingId != null)
-        "TransferBookingId": transferBookingId.toString(),
+      "ChequeRTGSDate": chequeRTGSDate.apiDate.toString(),
+      "BankListMasterId": bankListMasterId.toString(),
+      "TransferBookingId": transferBookingId.toString(),
+      "TenantId": tenantId.toString(),
       "TenantBuildingId": tenantBuildingId.toString(),
-      "CarpetAreaPurchaseSqFt": carpetAreaPurchaseSqFt,
+      "CarpetAreaPurchasedSqFt": carpetAreaPurchaseSqFt,
       "OTP": otp,
     };
 
-    for (int i = 0; i < addUpdateBookingApplicant.length; i++) {
-      var e = addUpdateBookingApplicant[i];
-      requestBody.addAll({
-        "AddUpdateBookingApplicant[$i].ApplicantType": e.applicantType,
-        "AddUpdateBookingApplicant[$i].BookingApplicantId":
-            e.tenantApplicantId.toString(),
-        "AddUpdateBookingApplicant[$i].ApplicantName": e.applicantName,
-        "AddUpdateBookingApplicant[$i].ApplicantMobileNumber":
-            e.applicantMobileNumber,
-        "AddUpdateBookingApplicant[$i].ApplicantMobileNumberCountryCode":
-            e.applicantMobileNumberCountryCode,
-        "AddUpdateBookingApplicant[$i].ApplicantEmailId": e.applicantEmailId,
-        "AddUpdateBookingApplicant[$i].RemovePhotoURL":
-            e.profilePhotoImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].AadharCardNumber": e.aadharCardNumber,
-        "AddUpdateBookingApplicant[$i].RemoveAadharCardURL":
-            e.aadhaarImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].PanNumber": e.panNumber,
-        "AddUpdateBookingApplicant[$i].RemovePanCardURL":
-            e.panImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].PassportNumber": e.passportNumber,
-        "AddUpdateBookingApplicant[$i].RemovePassportURL":
-            e.passportImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].DrivingLicenseNumber":
-            e.drivingLicenseNumber,
-        "AddUpdateBookingApplicant[$i].RemoveDrivingLicenseURL":
-            e.drivingLicenseImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].VotingIdNumber": e.votingIdNumber,
-        "AddUpdateBookingApplicant[$i].RemoveVotingIdURL":
-            e.votingIdImage.deletedFileList,
-        "AddUpdateBookingApplicant[$i].GstNumber": e.gstNumber,
-        "AddUpdateBookingApplicant[$i].RemoveGSTNumberURL":
-            e.gstImage.deletedFileList,
-      });
-    }
-
     List<Map<String, dynamic>> fileList = [];
-    for (
-      int applicantIndex = 0;
-      applicantIndex < addUpdateBookingApplicant.length;
-      applicantIndex++
-    ) {
-      final applicant = addUpdateBookingApplicant[applicantIndex];
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PhotoURL",
-        fileModel: applicant.profilePhotoImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "AadharCardURL",
-        fileModel: applicant.aadhaarImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PanCardURL",
-        fileModel: applicant.panImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "PassportURL",
-        fileModel: applicant.passportImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "DrivingLicenseURL",
-        fileModel: applicant.drivingLicenseImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "VotingIdURL",
-        fileModel: applicant.votingIdImage,
-      );
-
-      await _addFiles(
-        fileList: fileList,
-        applicantIndex: applicantIndex,
-        fieldName: "GstNumberURL",
-        fileModel: applicant.gstImage,
-      );
-    }
-
     var updateResult = await _bookingRepository.addUpdateBooking(
       body: requestBody,
       fileList: fileList,

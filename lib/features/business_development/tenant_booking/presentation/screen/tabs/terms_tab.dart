@@ -18,6 +18,7 @@ extension _TermsTab on _AddTenantBookingScreenState {
                   builder: (context, selectedTerms, child) {
                     return CustomMultipleSelectPopup(
                       title: "Terms & Conditions",
+                      hintText: "Select Terms & Conditions",
                       isRequired: true,
                       isMultiSelect: false,
                       initialValue: selectedTerms,

@@ -1353,6 +1353,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                     context.mounted) {
                   _inventoryCubit.updateFlatStatus(
                     inventoryFlatId: flat.inventoryFlatId,
+                    bookingId: result["bookingId"],
                     flatStatus: result["status"],
                     ownerName: result["ownerName"],
                   );

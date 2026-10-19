@@ -66,7 +66,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
     if (mounted && bookingModel != null) {
       _bookingCubit.getTenantList(
         context: context,
-        pageNumber: 1,
         projectId: widget.projectId,
         tenantId: bookingModel!.tenantId,
         buildingId: bookingModel!.tenantBuildingId,

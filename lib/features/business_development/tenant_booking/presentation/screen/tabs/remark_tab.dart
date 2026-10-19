@@ -31,6 +31,9 @@ extension _RemarkTab on _AddTenantBookingScreenState {
                         if (value == null || value.isEmpty) {
                           return "Unit / Modulation / Customization Remark is required.";
                         }
+                        if (value.trim().length < 25) {
+                          return "Unit / Modulation / Customization Remark must be at least 25 characters";
+                        }
                         return null;
                       },
                     ),
@@ -44,6 +47,9 @@ extension _RemarkTab on _AddTenantBookingScreenState {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Payment Related Remark is required.";
+                        }
+                        if (value.trim().length < 25) {
+                          return "Payment Related Remark must be at least 25 characters";
                         }
                         return null;
                       },

@@ -49,7 +49,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                                         _tenantFetchTried.value = true;
                                         await _bookingCubit.getTenantList(
                                           context: context,
-                                          pageNumber: 1,
                                           projectId: _project.projectId,
                                           systemGeneratedCode:
                                               _tenantUniqueCodeC.text,
@@ -100,7 +99,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                                         _tenantFetchTried.value = true;
                                         await _bookingCubit.getTenantList(
                                           context: context,
-                                          pageNumber: 1,
                                           projectId: _project.projectId,
                                           systemGeneratedCode: value,
                                           buildingId:
@@ -196,7 +194,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                             title: 'Eligibility Details in Carpet Area (SqFt)',
                             titleTextColor: AppColor.brown,
                             headerBackgroundColor: AppColor.lightYellow,
-                            margin: 0,
                             children: [
                               Row(
                                 spacing: 10,
@@ -433,7 +430,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                 );
               },
             ),
-            verticalSpacing(height: 16),
             ValueListenableBuilder(
               valueListenable: _isRERA,
               builder: (_, value, __) {
