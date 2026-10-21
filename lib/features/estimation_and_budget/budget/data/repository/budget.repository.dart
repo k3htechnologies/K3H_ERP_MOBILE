@@ -9,16 +9,24 @@ abstract interface class BudgetRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
   Future<Either<Failure, Map<String, dynamic>>> pullBudgetForExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullInventoryProjectBasementPodiumWingBudget({
+    required Map<String, dynamic> queryParams,
+  });
 }
 
 class BudgetRepositoryImpl extends BudgetRepository {
   final BudgetDatasource budgetDatasource;
+
   BudgetRepositoryImpl({required this.budgetDatasource});
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullBudget({
     required int pageNumber,
@@ -49,6 +57,23 @@ class BudgetRepositoryImpl extends BudgetRepository {
         pageSize: pageSize,
         queryParams: queryParams,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  pullInventoryProjectBasementPodiumWingBudget({
+    required Map<String, dynamic> queryParams,
+  }) async {
+    try {
+      final result = await budgetDatasource
+          .apiCallPullInventoryProjectBasementPodiumWingBudget(
+            queryParams: queryParams,
+          );
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

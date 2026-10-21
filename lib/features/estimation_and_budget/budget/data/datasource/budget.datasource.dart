@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/estimation_and_budget/budget/data/model/budget.model.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/budget/data/model/inventory_project_basement_podium_wing_budget.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -13,6 +14,11 @@ abstract interface class BudgetDatasource {
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>>
+  apiCallPullInventoryProjectBasementPodiumWingBudget({
+    required Map<String, dynamic> queryParams,
   });
 }
 
@@ -79,6 +85,40 @@ class BudgetDatasourceImpl implements BudgetDatasource {
         return apiCallPullBudgetForExport(
           pageNumber: pageNumber,
           pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>>
+  apiCallPullInventoryProjectBasementPodiumWingBudget({
+    required Map<String, dynamic> queryParams,
+  }) async {
+    String pullInventoryProjectBasementPodiumWingBudgetUrl() {
+      String url = "Budget/PullInventoryProjectBasementPodiumWingBudget?";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      final networkResponse = await baseClient.getRequestWithAuthentication(
+        pullInventoryProjectBasementPodiumWingBudgetUrl(),
+      );
+
+      return {
+        'data': List<InventoryProjectBasementPodiumWingBudgetModel>.from(
+          networkResponse["data"].map(
+            (e) => InventoryProjectBasementPodiumWingBudgetModel.fromJson(e),
+          ),
+        ),
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallPullInventoryProjectBasementPodiumWingBudget(
           queryParams: queryParams,
         );
       }

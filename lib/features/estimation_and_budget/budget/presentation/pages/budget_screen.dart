@@ -22,6 +22,7 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/status/budget_level_status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -44,6 +45,9 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedLevelTypeNotifier =
       ValueNotifier(null);
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
+  final ValueNotifier<List<Map<String, dynamic>>> _selectedWingNotifier =
+      ValueNotifier([]);
   @override
   void initState() {
     super.initState();
@@ -57,6 +61,7 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
       context,
       1,
       projectId: _selectedProject.projectId,
+      inventoryFlatFloorBasementPodiumWingId: 0,
     );
   }
 
@@ -175,6 +180,10 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
           context: context,
           isClear: true,
           projectId: _selectedProject.projectId,
+          inventoryFlatFloorBasementPodiumWingId:
+              _selectedWingNotifier.value.isEmpty
+                  ? 0
+                  : _selectedWingNotifier.value.first["zAttributesId"],
         );
       },
       onApply: () {
@@ -189,6 +198,10 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                   : '',
           flatType: _filterFlatC.text.trim(),
           projectId: _selectedProject.projectId,
+          inventoryFlatFloorBasementPodiumWingId:
+              _selectedWingNotifier.value.isEmpty
+                  ? 0
+                  : _selectedWingNotifier.value.first["zAttributesId"],
         );
       },
       isApplyEnabled: applyEnabled.value,
@@ -229,11 +242,21 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
               context,
               value,
               _selectedProject.projectId,
+              _selectedWingNotifier.value.isEmpty
+                  ? 0
+                  : _selectedWingNotifier.value.first["zAttributesId"],
             );
           },
           onProjectChangeCallback: (project) {
             _selectedProject = project;
-            _budgetCubit.searchBudget(context, "", _selectedProject.projectId);
+            _budgetCubit.searchBudget(
+              context,
+              "",
+              _selectedProject.projectId,
+              _selectedWingNotifier.value.isEmpty
+                  ? 0
+                  : _selectedWingNotifier.value.first["zAttributesId"],
+            );
             _searchC.clear();
           },
           textController: _searchC,
@@ -249,6 +272,50 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             spacing: 8,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ValueListenableBuilder(
+                valueListenable: _selectedWingNotifier,
+                builder: (context, selectedBuilding, child) {
+                  return CustomMultipleSelectPopup(
+                    isRequired: true,
+                    isMultiSelect: false,
+                    initialValue: selectedBuilding,
+                    hintText: "Select Wing",
+                    dataList: const [],
+                    onClear: () {
+                      _selectedWingNotifier.value = [];
+                    },
+                    onSelected: (value) async {
+                      _selectedWingNotifier.value = value;
+                      _budgetCubit.getBudgetList(
+                        context,
+                        1,
+                        projectId: _selectedProject.projectId,
+                        inventoryFlatFloorBasementPodiumWingId:
+                            _selectedWingNotifier.value.isEmpty
+                                ? 0
+                                : _selectedWingNotifier
+                                    .value
+                                    .first["zAttributesId"],
+                      );
+                    },
+                    dataFetchCallBack: (page, {value}) {
+                      return _budgetCubit
+                          .fetchInventoryProjectBasementPodiumWingBudget(
+                            1,
+                            projectId: _selectedProject.projectId,
+                            inventoryFlatFloorBasementPodiumWingId: 0,
+                            isDisplayProjectBudget: false,
+                          );
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Building is required.";
+                      }
+                      return null;
+                    },
+                  );
+                },
+              ),
               BlocBuilder<BudgetCubit, BudgetState>(
                 builder: (context, state) {
                   return showSiteSelectedWidget();
@@ -285,6 +352,12 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                             context,
                             1,
                             projectId: _selectedProject.projectId,
+                            inventoryFlatFloorBasementPodiumWingId:
+                                _selectedWingNotifier.value.isEmpty
+                                    ? 0
+                                    : _selectedWingNotifier
+                                        .value
+                                        .first["zAttributesId"],
                           );
                         }
                       },
@@ -303,6 +376,12 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                             context,
                             1,
                             projectId: _selectedProject.projectId,
+                            inventoryFlatFloorBasementPodiumWingId:
+                                _selectedWingNotifier.value.isEmpty
+                                    ? 0
+                                    : _selectedWingNotifier
+                                        .value
+                                        .first["zAttributesId"],
                           );
                         }
                       },
@@ -358,6 +437,11 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                             context,
                             "",
                             _selectedProject.projectId,
+                            _selectedWingNotifier.value.isEmpty
+                                ? 0
+                                : _selectedWingNotifier
+                                    .value
+                                    .first["zAttributesId"],
                           );
                         },
                         child: ListView.builder(

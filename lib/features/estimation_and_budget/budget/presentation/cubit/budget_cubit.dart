@@ -2,6 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/budget/data/model/budget.model.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/budget/data/model/inventory_project_basement_podium_wing_budget.model.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/budget/data/repository/budget.repository.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/cubit/budget_state.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -13,9 +14,20 @@ class BudgetCubit extends Cubit<BudgetState> {
   // REPOSITORIES
   final BudgetRepository _budgetRepository = serviceLocator<BudgetRepository>();
   // SEARCH BUDGET
-  Future searchBudget(BuildContext context, String value, int projectId) async {
+  Future searchBudget(
+    BuildContext context,
+    String value,
+    int projectId,
+    int inventoryFlatFloorBasementPodiumWingId,
+  ) async {
     emit(state.copyWith(searchText: value, budgetList: []));
-    await getBudgetList(context, 1, projectId: projectId);
+    await getBudgetList(
+      context,
+      1,
+      projectId: projectId,
+      inventoryFlatFloorBasementPodiumWingId:
+          inventoryFlatFloorBasementPodiumWingId,
+    );
   }
 
   // GET BUDGET LIST
@@ -23,6 +35,7 @@ class BudgetCubit extends Cubit<BudgetState> {
     BuildContext context,
     int pageNumber, {
     required int projectId,
+    required int inventoryFlatFloorBasementPodiumWingId,
   }) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
@@ -31,6 +44,8 @@ class BudgetCubit extends Cubit<BudgetState> {
       "LevelType": state.filterByLevelType,
       "Uom": state.filterByUom,
       "Flat": state.filterByFlatType,
+      "InventoryFlatFloorBasementPodiumWingId":
+          inventoryFlatFloorBasementPodiumWingId,
     };
     var result = await _budgetRepository.pullBudget(
       pageNumber: pageNumber,
@@ -73,6 +88,7 @@ class BudgetCubit extends Cubit<BudgetState> {
   Future<void> applyBudgetFilter({
     required BuildContext context,
     required int projectId,
+    required int inventoryFlatFloorBasementPodiumWingId,
     String? categoryName,
     String? uom,
     String? levelType,
@@ -101,7 +117,13 @@ class BudgetCubit extends Cubit<BudgetState> {
         ),
       );
     }
-    await getBudgetList(context, 1, projectId: projectId);
+    await getBudgetList(
+      context,
+      1,
+      projectId: projectId,
+      inventoryFlatFloorBasementPodiumWingId:
+          inventoryFlatFloorBasementPodiumWingId,
+    );
   }
 
   Future exportExcelPdf(
@@ -154,5 +176,44 @@ class BudgetCubit extends Cubit<BudgetState> {
       state.filterByLevelType.trim().isNotEmpty,
       state.filterByUom.trim().isNotEmpty,
     ]);
+  }
+
+  Future<Map<String, dynamic>> fetchInventoryProjectBasementPodiumWingBudget(
+    int pageNumber, {
+    String? value,
+    required int projectId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+    required bool isDisplayProjectBudget,
+  }) async {
+    final result = await _budgetRepository
+        .pullInventoryProjectBasementPodiumWingBudget(
+          queryParams: {
+            "ProjectId": projectId,
+            "InventoryFlatFloorBasementPodiumWingId":
+                inventoryFlatFloorBasementPodiumWingId,
+            "IsDisplayProjectBudget": isDisplayProjectBudget,
+          },
+        );
+    return result.fold(
+      (failure) => {
+        "itemList": <Map<String, dynamic>>[],
+        "totalNumberOfRecord": 0,
+      },
+      (response) {
+        final project =
+            response['data']
+                as List<InventoryProjectBasementPodiumWingBudgetModel>;
+        return {
+          "itemList":
+              project.map((b) {
+                return {
+                  "zAttributesId": b.inventoryFlatFloorBasementPodiumWingId,
+                  "DisplayName": b.projectBuildingNumberWing,
+                };
+              }).toList(),
+          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
+        };
+      },
+    );
   }
 }
