@@ -1109,7 +1109,6 @@ class _BrokerageViewScreenState extends State<BrokerageViewScreen>
                 title: "Transaction/Cheque/Demand Draft No.",
                 value: payment.transactionReceiptURL,
                 customValueWidget: buildDocumentRow(
-                  iconWithoutBg: true,
                   context: context,
                   docNumber: payment.transactionNumber,
                   url: payment.transactionReceiptURL,

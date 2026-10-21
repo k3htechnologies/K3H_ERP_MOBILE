@@ -189,7 +189,6 @@ Widget buildDocumentRow({
   required String docNumber,
   required String url,
   required String title,
-  bool? iconWithoutBg,
   List<Uint8List>? fileBytes,
 }) {
   return Row(
@@ -203,50 +202,29 @@ Widget buildDocumentRow({
       ),
       if ((url.isNotEmpty && url != "-") ||
           (fileBytes != null && fileBytes.isNotEmpty))
-        (iconWithoutBg != null && iconWithoutBg == true)
-            ? GestureDetector(
-              onTap: () {
-                if ((url.isNotEmpty && url != "-") ||
-                    (fileBytes != null && fileBytes.isNotEmpty)) {
-                  showFilePreviewDialog(
-                    context,
-                    url.isNotEmpty && url != "-"
-                        ? url.split(",")
-                        : List.generate(fileBytes?.length ?? 0, (_) => ""),
-                    title: title,
-                    fileBytes: fileBytes,
-                  );
-                }
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 10, top: 2),
-                child: Icon(
-                  Icons.remove_red_eye_outlined,
-                  size: 18,
-                  color: AppColor.primary,
-                ),
-              ),
-            )
-            : CustomIconButton(
-              onPressed: () {
-                if ((url.isNotEmpty && url != "-") ||
-                    (fileBytes != null && fileBytes.isNotEmpty)) {
-                  showFilePreviewDialog(
-                    context,
-                    url.isNotEmpty && url != "-"
-                        ? url.split(",")
-                        : List.generate(fileBytes?.length ?? 0, (_) => ""),
-                    title: title,
-                    fileBytes: fileBytes,
-                  );
-                }
-              },
-              icon: Icon(
-                Icons.remove_red_eye_outlined,
-                size: 16,
-                color: AppColor.primary,
-              ),
+        GestureDetector(
+          onTap: () {
+            if ((url.isNotEmpty && url != "-") ||
+                (fileBytes != null && fileBytes.isNotEmpty)) {
+              showFilePreviewDialog(
+                context,
+                url.isNotEmpty && url != "-"
+                    ? url.split(",")
+                    : List.generate(fileBytes?.length ?? 0, (_) => ""),
+                title: title,
+                fileBytes: fileBytes,
+              );
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10, top: 2),
+            child: Icon(
+              Icons.remove_red_eye_outlined,
+              size: 18,
+              color: AppColor.primary,
             ),
+          ),
+        ),
     ],
   );
 }
@@ -322,7 +300,6 @@ Widget infoCard(
             final second =
                 (index * 2 + 1 < items.length) ? items[index * 2 + 1] : null;
 
-            // NEW: spacer support, otherwise identical to the original code
             Widget buildItem(Map<String, dynamic> item) {
               if (item["spacer"] == true) {
                 return const Expanded(child: SizedBox.shrink());

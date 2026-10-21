@@ -741,7 +741,8 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                           await _utilsCubit
                                               .updateModulesWorkflowApproval(
                                                 context: context,
-                                                moduleName: 'BOOKING APPROVAL',
+                                                moduleName:
+                                                    'TENANT BOOKING APPROVAL',
                                                 id: booking.bookingId,
                                                 projectId: _project.projectId,
                                                 isApproved: true,
@@ -759,7 +760,8 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                           await _utilsCubit
                                               .updateModulesWorkflowApproval(
                                                 context: context,
-                                                moduleName: 'BOOKING APPROVAL',
+                                                moduleName:
+                                                    'TENANT BOOKING APPROVAL',
                                                 id: booking.bookingId,
                                                 projectId: _project.projectId,
                                                 isApproved: false,
@@ -782,7 +784,7 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                                         _project.projectId,
                                                     id: booking.bookingId,
                                                     moduleName:
-                                                        "BOOKING APPROVAL",
+                                                        "TENANT BOOKING APPROVAL",
                                                   );
 
                                           if (context.mounted) {

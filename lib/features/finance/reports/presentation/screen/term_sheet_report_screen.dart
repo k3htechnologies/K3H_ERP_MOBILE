@@ -388,7 +388,6 @@ class _TermSheetReportScreenState extends State<TermSheetReportScreen>
                               title:
                                   "Termsheet - ${termSheetReport.nameOfInstitutionBankNBFC}",
                               url: termSheetReport.termSheetURL,
-                              iconWithoutBg: true,
                             ),
                           ),
                         ],

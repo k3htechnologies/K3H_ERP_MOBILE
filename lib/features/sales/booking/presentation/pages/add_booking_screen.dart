@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
@@ -13,6 +12,7 @@ import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_applicant_screen.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/pages/add_booking_payment_schedule_screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/widgets/applicant_card.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';

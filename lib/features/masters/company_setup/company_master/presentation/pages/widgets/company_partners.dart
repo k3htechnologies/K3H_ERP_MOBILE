@@ -128,7 +128,6 @@ class _CompanyPartnersState extends State<CompanyPartners> {
                         title: "PAN Card Number",
                         value: p.panNumber.isEmpty ? "-" : p.panNumber,
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "PAN Card",
                           context: context,
                           docNumber: p.panNumber.isEmpty ? "-" : p.panNumber,
@@ -142,7 +141,6 @@ class _CompanyPartnersState extends State<CompanyPartners> {
                                 ? "-"
                                 : p.aadharCardNumber,
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "Aadhaar Number",
                           context: context,
                           docNumber:

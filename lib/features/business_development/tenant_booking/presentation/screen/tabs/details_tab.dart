@@ -24,6 +24,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                         Container(
                           decoration: commonCardDecoration(),
                           padding: EdgeInsets.all(16),
+                          margin: EdgeInsets.only(bottom: 16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -71,7 +72,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                               CustomTextField(
                                 title: "Tenant Code",
                                 isRequired: true,
-                                readOnly: _isEditMode,
+                                readOnly: isTenantEditMode,
                                 bottomMargin: 0,
                                 inputFormatterList: [
                                   UpperCaseTextFormatter(),
@@ -138,7 +139,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                         // _isEditMode
                         // )
                         ) ...[
-                          verticalSpacing(height: 16),
                           SectionCard(
                             title: "Existing Unit Details",
                             titleTextColor: AppColor.darkBlue29,
@@ -311,6 +311,28 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                               ),
                             ],
                           ),
+                          ValueListenableBuilder<List<TenantApplicantData>>(
+                            valueListenable: _applicants,
+                            builder: (context, applicants, child) {
+                              if (applicants.isEmpty) {
+                                return SizedBox.shrink();
+                              }
+                              return SectionCard(
+                                title: "Applicant Details",
+                                maxContentHeight: 350,
+                                headerBackgroundColor: AppColor.lightYellowBg2,
+                                titleTextColor: AppColor.brownYellowText,
+                                border: Border.all(
+                                  color: AppColor.grey.withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
+                                children:
+                                    applicants
+                                        .map(_buildApplicantCard)
+                                        .toList(),
+                              );
+                            },
+                          ),
                         ] else if (_tenantUniqueCodeC.text.trim().length ==
                                 18 &&
                             (_isFetchingTenant.value ||
@@ -411,25 +433,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                 ),
               ],
             ),
-            ValueListenableBuilder<List<TenantApplicantData>>(
-              valueListenable: _applicants,
-              builder: (context, applicants, child) {
-                if (applicants.isEmpty) {
-                  return SizedBox.shrink();
-                }
-                return SectionCard(
-                  title: "Applicant Details",
-                  maxContentHeight: 350,
-                  headerBackgroundColor: AppColor.lightYellowBg2,
-                  titleTextColor: AppColor.brownYellowText,
-                  border: Border.all(
-                    color: AppColor.grey.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                  children: applicants.map(_buildApplicantCard).toList(),
-                );
-              },
-            ),
+
             ValueListenableBuilder(
               valueListenable: _isRERA,
               builder: (_, value, __) {
@@ -602,6 +606,18 @@ extension _DetailsTab on _AddTenantBookingScreenState {
                     widget.inventoryObject?[0]["reraCarpetAreaSqFt"]
                         .toString() ??
                     widget.tenantBookingModel?.reraCarpetAreaSqFt.toString(),
+              },
+              {
+                "title": "Adjust Purchase Area (SqFt)",
+                "value":
+                    _bookingCubit.state.tenantList.isNotEmpty
+                        ? _bookingCubit.state.tenantList.first.inventoryFlatData
+                            .fold(
+                              (0.0),
+                              (a, b) => (a + b.adjustPurchaseAreaSqFt),
+                            )
+                            .toString()
+                        : "-",
               },
             ]),
             verticalSpacing(height: 12),

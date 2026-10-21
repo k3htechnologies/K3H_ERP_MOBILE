@@ -111,6 +111,7 @@ class BookingModel {
   int tenantBuildingId;
   String tenantBuildingName;
   String carpetAreaPurchasedSqFt;
+  double adjustPurchaseAreaSqFt;
 
   BookingModel({
     required this.bookingId,
@@ -220,6 +221,7 @@ class BookingModel {
     required this.tenantBuildingId,
     required this.tenantBuildingName,
     required this.carpetAreaPurchasedSqFt,
+    required this.adjustPurchaseAreaSqFt,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -443,6 +445,7 @@ class BookingModel {
       json,
       "CarpetAreaPurchasedSqFt",
     ),
+    adjustPurchaseAreaSqFt: parseValue<double>(json, "AdjustPurchaseAreaSqFt"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -556,6 +559,7 @@ class BookingModel {
     "TenantBuildingId": tenantBuildingId,
     "TenantBuildingName": tenantBuildingName,
     "CarpetAreaPurchasedSqFt": carpetAreaPurchasedSqFt,
+    "AdjustPurchaseAreaSqFt": adjustPurchaseAreaSqFt,
   };
 }
 

@@ -148,7 +148,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         value:
                             company.panNumber.isEmpty ? "-" : company.panNumber,
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "PAN Card",
                           context: context,
                           docNumber:
@@ -163,7 +162,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         value:
                             company.gstNumber.isEmpty ? "-" : company.gstNumber,
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "GST Document",
                           context: context,
                           docNumber:
@@ -184,7 +182,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         value:
                             company.cinNumber.isEmpty ? "-" : company.cinNumber,
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "CIN Document",
                           context: context,
                           docNumber:
@@ -199,7 +196,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         value:
                             company.tanNumber.isEmpty ? "-" : company.tanNumber,
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "TAN Document",
                           context: context,
                           docNumber:
@@ -219,7 +215,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         title: "Company Letter Head",
                         value: "",
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "Company Letter Head",
                           context: context,
                           docNumber: "View Letter Head",
@@ -230,7 +225,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                         title: "Company Letter Footer",
                         value: "",
                         customValueWidget: buildDocumentRow(
-                          iconWithoutBg: true,
                           title: "Company Letter Footer",
                           context: context,
                           docNumber: "View Letter Footer",
@@ -422,7 +416,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                                         : p.panNumber,
                                                 customValueWidget:
                                                     buildDocumentRow(
-                                                      iconWithoutBg: true,
                                                       title: "PAN Card",
                                                       context: context,
                                                       docNumber:
@@ -439,7 +432,6 @@ class _CompanyOverviewState extends State<CompanyOverview> {
                                                         ? "-"
                                                         : p.aadharCardNumber,
                                                 customValueWidget: buildDocumentRow(
-                                                  iconWithoutBg: true,
                                                   title: "Aadhaar Number",
                                                   context: context,
                                                   docNumber:

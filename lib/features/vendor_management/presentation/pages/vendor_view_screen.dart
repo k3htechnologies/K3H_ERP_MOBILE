@@ -303,7 +303,6 @@ class _VendorViewScreenState extends State<VendorViewScreen>
                           : "-",
                   fixesWidth: 120.w,
                   customValueWidget: buildDocumentRow(
-                    iconWithoutBg: true,
                     context: context,
                     docNumber:
                         (doc['number'] != null && doc['number']!.isNotEmpty)

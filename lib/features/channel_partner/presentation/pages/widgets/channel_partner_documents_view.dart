@@ -117,7 +117,6 @@ Widget channelPartnerDocumentView({
                                     : "-",
                             url: doc['url'] ?? "-",
                             title: doc['title']!,
-                            iconWithoutBg: true,
                           ),
                         ],
                       ),

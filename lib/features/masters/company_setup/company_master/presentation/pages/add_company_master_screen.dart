@@ -1037,7 +1037,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                         ? "-"
                         : companyPartnerModel.panNumber,
                 customValueWidget: buildDocumentRow(
-                  iconWithoutBg: true,
                   title: "PAN Card",
                   context: context,
                   docNumber:
@@ -1054,7 +1053,6 @@ class _AddCompanyMasterMobileScreenState extends State<AddCompanyMasterScreen> {
                         ? "-"
                         : companyPartnerModel.aadharCardNumber,
                 customValueWidget: buildDocumentRow(
-                  iconWithoutBg: true,
                   title: "Aadhaar Number",
                   context: context,
                   docNumber:

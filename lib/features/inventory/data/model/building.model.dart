@@ -395,6 +395,7 @@ class FlatModel {
   String tenantSystemGeneratedCode;
   int tenantBuildingId;
   String tenantBuildingName;
+  double adjustPurchaseAreaSqFt;
   List<FlatSpecificationModel> specificationList;
 
   FlatModel({
@@ -432,6 +433,7 @@ class FlatModel {
     required this.tenantSystemGeneratedCode,
     required this.tenantBuildingId,
     required this.tenantBuildingName,
+    required this.adjustPurchaseAreaSqFt,
   });
 
   factory FlatModel.fromJson(Map<String, dynamic> json) => FlatModel(
@@ -485,6 +487,7 @@ class FlatModel {
                 (x) => FlatSpecificationModel.fromJson(x),
               ),
             ),
+    adjustPurchaseAreaSqFt: parseValue<double>(json, "AdjustPurchaseAreaSqFt"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -522,6 +525,7 @@ class FlatModel {
     "BookingCreatedById": bookingCreatedById,
     "BookingCreatedBy": bookingCreatedBy,
     "BookingCreatedDate": bookingCreatedDate?.toIso8601String(),
+    "AdjustPurchaseAreaSqFt": adjustPurchaseAreaSqFt,
     "InventoryFlatSpecificationData": List<dynamic>.from(
       specificationList.map((x) => x.toJson()),
     ),
@@ -562,6 +566,7 @@ class FlatModel {
     int? tenantBuildingId,
     String? tenantBuildingName,
     List<FlatSpecificationModel>? specificationList,
+    double? adjustPurchaseAreaSqFt,
   }) {
     return FlatModel(
       inventoryFlatId: inventoryFlatId ?? this.inventoryFlatId,
@@ -601,6 +606,8 @@ class FlatModel {
           tenantSystemGeneratedCode ?? this.tenantSystemGeneratedCode,
       tenantBuildingName: tenantBuildingName ?? this.tenantBuildingName,
       tenantBuildingId: tenantBuildingId ?? this.tenantBuildingId,
+      adjustPurchaseAreaSqFt:
+          adjustPurchaseAreaSqFt ?? this.adjustPurchaseAreaSqFt,
     );
   }
 }

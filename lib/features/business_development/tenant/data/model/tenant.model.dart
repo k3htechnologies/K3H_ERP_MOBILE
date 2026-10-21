@@ -33,6 +33,7 @@ class TenantModel {
   String floor;
   String flat;
   double reraCarpetAreaSqFt;
+  double adjustPurchaseAreaSqFt;
   String inventoryFlatType;
   String inventoryFlatConfiguration;
   String parkingNumber;
@@ -81,6 +82,7 @@ class TenantModel {
     required this.floor,
     required this.flat,
     required this.reraCarpetAreaSqFt,
+    required this.adjustPurchaseAreaSqFt,
     required this.inventoryFlatType,
     required this.inventoryFlatConfiguration,
     required this.parkingNumber,
@@ -182,15 +184,16 @@ class TenantModel {
                   .toList()
               : [],
       parkingId: parseValue<String>(json, "ParkingId"),
-      inventoryFlatData: json["InventoryFlatData"] is List
-    ? (json["InventoryFlatData"] as List)
-        .map(
-          (e) => InventoryFlatData.fromJson(
-            Map<String, dynamic>.from(e),
-          ),
-        )
-        .toList()
-    : [],
+      inventoryFlatData:
+          json["InventoryFlatData"] is List
+              ? (json["InventoryFlatData"] as List)
+                  .map(
+                    (e) => InventoryFlatData.fromJson(
+                      Map<String, dynamic>.from(e),
+                    ),
+                  )
+                  .toList()
+              : [],
       tenantApplicantData:
           json["TenantApplicantData"] != null &&
                   json["TenantApplicantData"] is List
@@ -212,6 +215,10 @@ class TenantModel {
               ? null
               : parseValue<DateTime>(json, "ModifiedDate"),
       bookingId: parseValue<int>(json, "BookingId"),
+      adjustPurchaseAreaSqFt: parseValue<double>(
+        json,
+        "AdjustPurchaseAreaSqFt",
+      ),
     );
   }
   Map<String, dynamic> toJson() {
@@ -255,8 +262,7 @@ class TenantModel {
       "ParkingId": parkingId,
       "TenantApplicantData":
           tenantApplicantData.map((e) => e.toJson()).toList(),
-          "InventoryFlatData":
-          inventoryFlatData.map((e) => e.toJson()).toList(),
+      "InventoryFlatData": inventoryFlatData.map((e) => e.toJson()).toList(),
       "CreatedById": createdById,
       "CreatedBy": createdBy,
       "CreatedDate": createdDate.toIso8601String(),
@@ -264,6 +270,7 @@ class TenantModel {
       "ModifiedBy": modifiedBy,
       "ModifiedDate": modifiedDate?.toIso8601String(),
       "BookingId": bookingId,
+      "AdjustPurchaseAreaSqFt": adjustPurchaseAreaSqFt,
     };
   }
 }
@@ -560,8 +567,10 @@ class InventoryFlatData {
       uniquekey: parseValue<String>(json, "Uniquekey"),
       inventoryBuildingId: parseValue<int>(json, "InventoryBuildingId"),
       buildingNumber: parseValue<String>(json, "BuildingNumber"),
-      inventoryFlatFloorBasementPodiumWingId:
-          parseValue<int>(json, "InventoryFlatFloorBasementPodiumWingId"),
+      inventoryFlatFloorBasementPodiumWingId: parseValue<int>(
+        json,
+        "InventoryFlatFloorBasementPodiumWingId",
+      ),
       wing: parseValue<String>(json, "Wing"),
       inventoryFloorId: parseValue<int>(json, "InventoryFloorId"),
       floor: parseValue<String>(json, "Floor"),
@@ -573,28 +582,37 @@ class InventoryFlatData {
       flatFacing: parseValue<String>(json, "FlatFacing"),
       note: parseValue<String>(json, "Note"),
       tenantId: parseValue<int>(json, "TenantId"),
-      tenantSystemGeneratedCode:
-          parseValue<String>(json, "TenantSystemGeneratedCode"),
+      tenantSystemGeneratedCode: parseValue<String>(
+        json,
+        "TenantSystemGeneratedCode",
+      ),
       tenantBuildingId: parseValue<int>(json, "TenantBuildingId"),
       tenantBuildingName: parseValue<String>(json, "TenantBuildingName"),
-      adjustPurchaseAreaSqFt:
-          parseValue<double>(json, "AdjustPurchaseAreaSqFt"),
-      tenantInventoryAndAdjustPurchaseAreaDetailsId:
-          parseValue<int>(json, "TenantInventoryAndAdjustPurchaseAreaDetailsId"),
+      adjustPurchaseAreaSqFt: parseValue<double>(
+        json,
+        "AdjustPurchaseAreaSqFt",
+      ),
+      tenantInventoryAndAdjustPurchaseAreaDetailsId: parseValue<int>(
+        json,
+        "TenantInventoryAndAdjustPurchaseAreaDetailsId",
+      ),
       parkingId: parseValue<String>(json, "ParkingId"),
-      parkingData: json["ParkingData"] is List
-          ? List<dynamic>.from(json["ParkingData"])
-          : [],
+      parkingData:
+          json["ParkingData"] is List
+              ? List<dynamic>.from(json["ParkingData"])
+              : [],
       createdById: parseValue<int>(json, "CreatedById"),
       createdBy: parseValue<String>(json, "CreatedBy"),
-      createdDate: json["CreatedDate"] == null
-          ? null
-          : parseValue<DateTime>(json, "CreatedDate"),
+      createdDate:
+          json["CreatedDate"] == null
+              ? null
+              : parseValue<DateTime>(json, "CreatedDate"),
       modifiedById: parseValue<int>(json, "ModifiedById"),
       modifiedBy: parseValue<String>(json, "ModifiedBy"),
-      modifiedDate: json["ModifiedDate"] == null
-          ? null
-          : parseValue<DateTime>(json, "ModifiedDate"),
+      modifiedDate:
+          json["ModifiedDate"] == null
+              ? null
+              : parseValue<DateTime>(json, "ModifiedDate"),
       inventoryFlatSpecificationData:
           json["InventoryFlatSpecificationData"] is List
               ? List<dynamic>.from(json["InventoryFlatSpecificationData"])
@@ -603,9 +621,10 @@ class InventoryFlatData {
       bookingId: parseValue<int>(json, "BookingId"),
       bookingCreatedById: parseValue<int>(json, "BookingCreatedById"),
       bookingCreatedBy: parseValue<String>(json, "BookingCreatedBy"),
-      bookingCreatedDate: json["BookingCreatedDate"] == null
-          ? null
-          : parseValue<DateTime>(json, "BookingCreatedDate"),
+      bookingCreatedDate:
+          json["BookingCreatedDate"] == null
+              ? null
+              : parseValue<DateTime>(json, "BookingCreatedDate"),
     );
   }
 
@@ -652,7 +671,7 @@ class InventoryFlatData {
   }
 }
 
-// FOR TENANT FORM 
+// FOR TENANT FORM
 class TenantInventoryAndAdjustPurchaseAreaDetailsModel {
   int tenantInventoryAndAdjustPurchaseAreaDetailsId;
   int inventoryFlatId;

@@ -1291,8 +1291,9 @@ class BookingCubit extends Cubit<BookingState> {
       queryParams: {
         "BookingId": bookingModel.bookingId,
         "ExportType":
-            isSendEmail ? "BOOKING+FORM+PDF+MAIL" : "BOOKING+FORM+PDF",
+            isSendEmail ? "BOOKING FORM PDF MAIL" : "BOOKING FORM PDF",
         "BookingSearchKey": "SALE BOOKING",
+        "IsCheckPermission": true,
       },
     );
     goRouter.pop();

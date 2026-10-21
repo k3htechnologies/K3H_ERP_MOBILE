@@ -198,6 +198,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required int buildingId,
     int? tenantId,
     String? systemGeneratedCode,
+    bool validate = true,
   }) async {
     emit(state.copyWith(isLoading: true, tenantList: []));
     Map<String, dynamic> queryParams = {
@@ -222,7 +223,9 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         );
 
         emit(state.copyWith(tenantList: newData, isLoading: false));
-        validateTenant(context: context, tenantList: newData);
+        if (validate) {
+          validateTenant(context: context, tenantList: newData);
+        }
       },
     );
   }
@@ -958,8 +961,9 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       queryParams: {
         "BookingId": bookingModel.bookingId,
         "ExportType":
-            isSendEmail ? "BOOKING+FORM+PDF+MAIL" : "BOOKING+FORM+PDF",
+            isSendEmail ? "BOOKING FORM PDF MAIL" : "BOOKING FORM PDF",
         "BookingSearchKey": "TENANT BOOKING",
+        "IsCheckPermission": true,
       },
     );
     goRouter.pop();

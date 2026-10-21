@@ -766,6 +766,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                                 DateTime.now(),
                                                             specificationList:
                                                                 [],
+                                                            adjustPurchaseAreaSqFt:
+                                                                0,
                                                           ),
                                                         ),
                                                       ),
@@ -893,6 +895,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                           bookingCreatedDate:
                                                               DateTime.now(),
                                                           specificationList: [],
+                                                          adjustPurchaseAreaSqFt:
+                                                              0,
                                                         ),
                                                       ),
                                                     ),
