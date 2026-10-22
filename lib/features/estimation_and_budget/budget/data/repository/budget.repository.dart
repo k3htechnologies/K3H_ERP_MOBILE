@@ -20,6 +20,9 @@ abstract interface class BudgetRepository {
   pullInventoryProjectBasementPodiumWingBudget({
     required Map<String, dynamic> queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> submitBudgetForApproval({
+    required Map<String, dynamic> body,
+  });
 }
 
 class BudgetRepositoryImpl extends BudgetRepository {
@@ -73,6 +76,21 @@ class BudgetRepositoryImpl extends BudgetRepository {
           .apiCallPullInventoryProjectBasementPodiumWingBudget(
             queryParams: queryParams,
           );
+
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> submitBudgetForApproval({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final result = await budgetDatasource.apiCallSubmitBudgetForApproval(
+        body: body,
+      );
 
       return right(result);
     } catch (error) {

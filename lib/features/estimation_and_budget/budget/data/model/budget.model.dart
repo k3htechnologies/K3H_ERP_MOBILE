@@ -40,6 +40,7 @@ class BudgetModel {
   String modifiedBy;
   DateTime? modifiedDate;
   bool isApproval;
+  bool isSubmitBudgetForApproval;
   String approvalStatus;
   double l3Quantity;
   double orderQuantity;
@@ -83,6 +84,7 @@ class BudgetModel {
     required this.modifiedBy,
     required this.modifiedDate,
     required this.isApproval,
+    required this.isSubmitBudgetForApproval,
     required this.approvalStatus,
     required this.l3Quantity,
     required this.orderQuantity,
@@ -133,6 +135,10 @@ class BudgetModel {
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
     isApproval: parseValue<bool>(json, "IsApproval"),
+    isSubmitBudgetForApproval: parseValue<bool>(
+      json,
+      "IsSubmitBudgetForApproval",
+    ),
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     l3Quantity: parseValue<double>(json, "L3Quantity"),
     orderQuantity: parseValue<double>(json, "OrderQuantity"),
@@ -177,6 +183,7 @@ class BudgetModel {
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "IsApproval": isApproval,
+    "IsSubmitBudgetForApproval": isSubmitBudgetForApproval,
     "ApprovalStatus": approvalStatus,
     "L3Quantity": l3Quantity,
     "OrderQuantity": orderQuantity,

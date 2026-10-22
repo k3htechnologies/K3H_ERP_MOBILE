@@ -20,6 +20,8 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/checkbox/custom_checkbox.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -48,6 +50,8 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
 
   final ValueNotifier<List<Map<String, dynamic>>> _selectedWingNotifier =
       ValueNotifier([]);
+  final ValueNotifier<bool> _sendForApproval = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
@@ -216,6 +220,242 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
     }
   }
 
+  void _submitBudgetApprovalDialog(BuildContext context) {
+    final ScrollController controller = ScrollController();
+
+    DialogHelper.showCustomDialogue(
+      context,
+      title: "Submit Budget for Approval",
+      onDismiss: () {
+        _sendForApproval.value = false;
+      },
+      childContent: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.5,
+        ),
+        child: RawScrollbar(
+          controller: controller,
+          thumbVisibility: true,
+          thumbColor: AppColor.lightBlue,
+          radius: const Radius.circular(8),
+          child: SingleChildScrollView(
+            controller: controller,
+            physics: const ClampingScrollPhysics(),
+            padding: const EdgeInsets.only(right: 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Divider(
+                  color: AppColor.black.withValues(alpha: 0.50),
+                  thickness: 0.5,
+                ),
+                const SizedBox(height: 24),
+
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFDBEAFE),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.verified_user_outlined,
+                          color: Color(0xFF2563EB),
+                          size: 22,
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Ready to Submit Your Budget?",
+                              style: AppTextStyle.ts14SB().copyWith(
+                                color: const Color(0xFF1E40AF),
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              "You are about to submit the project budget "
+                              "for approval. Please ensure that all budget "
+                              "details and amounts are correct before continuing.",
+                              style: AppTextStyle.ts12M().copyWith(
+                                color: const Color(0xFF3B65D9),
+                                height: 1.7,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColor.white,
+                    border: Border.all(color: const Color(0xFFE0E4EB)),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "What happens next?",
+                        style: AppTextStyle.ts14SB().copyWith(
+                          color: const Color(0xFF263449),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      _approvalStep(
+                        number: "1",
+                        title: "Submit Budget",
+                        description:
+                            "Your budget will be submitted to the approval workflow.",
+                        circleColor: const Color(0xFFDBEAFE),
+                        numberColor: const Color(0xFF2563EB),
+                      ),
+                      const SizedBox(height: 16),
+                      _approvalStep(
+                        number: "2",
+                        title: "Approval Review",
+                        description:
+                            "The authorized approver can review the submitted budget.",
+                        circleColor: const Color(0xFFFEF3C7),
+                        numberColor: const Color(0xFFD97706),
+                      ),
+                      const SizedBox(height: 16),
+                      _approvalStep(
+                        number: "3",
+                        title: "Final Decision",
+                        description:
+                            "The budget status will reflect the approval decision.",
+                        circleColor: const Color(0xFFD1FAE5),
+                        numberColor: const Color(0xFF059669),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // Confirmation Note
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8F9FB),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: RichText(
+                    text: TextSpan(
+                      style: AppTextStyle.ts14M().copyWith(
+                        color: const Color(0xFF475569),
+                        height: 1.45,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: "Please note: ",
+                          style: AppTextStyle.ts12SB(),
+                        ),
+                        TextSpan(
+                          text:
+                              "Ensure the budget is accurate before "
+                              "submitting it for approval. Do you want to continue?",
+                          style: AppTextStyle.ts12M(),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      bottomSection: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          CustomButton(
+            onPressed: () {
+              _budgetCubit.submitBudgetForApproval(
+                context: context,
+                inventoryFlatFloorBasementPodiumWingId:
+                    _selectedWingNotifier.value.isEmpty
+                        ? 0
+                        : _selectedWingNotifier.value.first["zAttributesId"],
+                projectId: _selectedProject.projectId,
+              );
+            },
+            text: "Yes, Submit for Approval",
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _approvalStep({
+    required String number,
+    required String title,
+    required String description,
+    required Color circleColor,
+    required Color numberColor,
+  }) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 32,
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(color: circleColor, shape: BoxShape.circle),
+          child: Text(
+            number,
+            style: AppTextStyle.ts14SB().copyWith(color: numberColor),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTextStyle.ts14M().copyWith(
+                  color: const Color(0xFF263449),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                description,
+                style: AppTextStyle.ts14M().copyWith(
+                  color: const Color(0xFF8490A3),
+                  height: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<BudgetCubit, BudgetState>(
@@ -248,16 +488,18 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             );
           },
           onProjectChangeCallback: (project) {
+            _sendForApproval.value = false;
+            _selectedWingNotifier.value = [];
             _selectedProject = project;
-            _budgetCubit.searchBudget(
-              context,
-              "",
-              _selectedProject.projectId,
-              _selectedWingNotifier.value.isEmpty
-                  ? 0
-                  : _selectedWingNotifier.value.first["zAttributesId"],
+            _budgetCubit.applyBudgetFilter(
+              context: context,
+              projectId: _selectedProject.projectId,
+              inventoryFlatFloorBasementPodiumWingId:
+                  _selectedWingNotifier.value.isEmpty
+                      ? 0
+                      : _selectedWingNotifier.value.first["zAttributesId"],
+              isClear: true,
             );
-            _searchC.clear();
           },
           textController: _searchC,
           isFilterOn: true,
@@ -283,6 +525,7 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                     dataList: const [],
                     onClear: () {
                       _selectedWingNotifier.value = [];
+                      _sendForApproval.value = false;
                     },
                     onSelected: (value) async {
                       _selectedWingNotifier.value = value;
@@ -297,6 +540,7 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                                     .value
                                     .first["zAttributesId"],
                       );
+                      _sendForApproval.value = false;
                     },
                     dataFetchCallBack: (page, {value}) {
                       return _budgetCubit
@@ -327,95 +571,125 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                     return SizedBox.shrink();
                   }
                   final budget = state.budgetList.first;
+                  if (budget.levelType != "L1" &&
+                      _searchC.text.isEmpty &&
+                      _selectedLevelTypeNotifier.value == null &&
+                      _filterUomC.text.trim().isEmpty &&
+                      _filterFlatC.text.trim().isEmpty) {
+                    return SizedBox.shrink();
+                  }
                   return Container(
                     decoration: commonCardDecoration(),
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     margin: EdgeInsets.only(bottom: 8),
-                    child: ApproveRejectWidget(
-                      actionTitle: budget.approvalStatus,
-                      isActionAlreadyPerformed: !budget.isApproval,
-                      isMaster: true,
-                      popupTitle: "Approve Budget",
-                      showApproval: budget.isApproval,
-                      onApprove: (val) async {
-                        final success = await _utilsCubit
-                            .updateModulesWorkflowApproval(
-                              context: context,
-                              moduleName: 'BUDGET APPROVAL',
-                              id: _selectedProject.projectId,
-                              projectId: _selectedProject.projectId,
-                              isApproved: true,
-                              remark: val.trim(),
-                            );
-                        if (context.mounted && success) {
-                          _budgetCubit.getBudgetList(
-                            context,
-                            1,
-                            projectId: _selectedProject.projectId,
-                            inventoryFlatFloorBasementPodiumWingId:
-                                _selectedWingNotifier.value.isEmpty
-                                    ? 0
-                                    : _selectedWingNotifier
-                                        .value
-                                        .first["zAttributesId"],
-                          );
-                        }
-                      },
-                      onReject: (val) async {
-                        final success = await _utilsCubit
-                            .updateModulesWorkflowApproval(
-                              context: context,
-                              moduleName: 'BUDGET APPROVAL',
-                              id: _selectedProject.projectId,
-                              projectId: _selectedProject.projectId,
-                              isApproved: false,
-                              remark: val.trim(),
-                            );
-                        if (context.mounted && success) {
-                          _budgetCubit.getBudgetList(
-                            context,
-                            1,
-                            projectId: _selectedProject.projectId,
-                            inventoryFlatFloorBasementPodiumWingId:
-                                _selectedWingNotifier.value.isEmpty
-                                    ? 0
-                                    : _selectedWingNotifier
-                                        .value
-                                        .first["zAttributesId"],
-                          );
-                        }
-                      },
-                      onThirdTap: () async {
-                        final approvalLogHistoryList = await _utilsCubit
-                            .getApprovalLogHistory(
-                              context: context,
-                              projectId: _selectedProject.projectId,
-                              id: _selectedProject.projectId,
-                              moduleName: "BUDGET APPROVAL",
-                            );
-                        if (context.mounted) {
-                          goRouter.pushNamed(
-                            AppRoutes.approvalLogHistory,
-                            queryParameters: {
-                              "title": Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  "Budget Log History",
+                    child:
+                        (!budget.isSubmitBudgetForApproval)
+                            ? Row(
+                              children: [
+                                ValueListenableBuilder(
+                                  valueListenable: _sendForApproval,
+                                  builder: (context, sendForApproval, child) {
+                                    return CustomCheckBox(
+                                      isSelected: sendForApproval,
+                                      isDisabled:
+                                          !_routeAuthorizationModel.isAction,
+                                      title: "Send to Approval",
+                                      onChanged: (approval) {
+                                        _sendForApproval.value = approval;
+                                        if (approval) {
+                                          _submitBudgetApprovalDialog(context);
+                                        }
+                                      },
+                                    );
+                                  },
                                 ),
-                              ),
-                              "approvalList": Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(
-                                    approvalLogHistoryList
-                                        .map((e) => e.toJson())
-                                        .toList(),
-                                  ),
-                                ),
-                              ),
-                            },
-                          );
-                        }
-                      },
-                    ),
+                              ],
+                            )
+                            : ApproveRejectWidget(
+                              actionTitle: budget.approvalStatus,
+                              isActionAlreadyPerformed: !budget.isApproval,
+                              isMaster: true,
+                              popupTitle: "Approve Budget",
+                              showApproval: budget.isApproval,
+                              onApprove: (val) async {
+                                final success = await _utilsCubit
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      moduleName: 'BUDGET APPROVAL',
+                                      id: _selectedProject.projectId,
+                                      projectId: _selectedProject.projectId,
+                                      isApproved: true,
+                                      remark: val.trim(),
+                                    );
+                                if (context.mounted && success) {
+                                  _budgetCubit.getBudgetList(
+                                    context,
+                                    1,
+                                    projectId: _selectedProject.projectId,
+                                    inventoryFlatFloorBasementPodiumWingId:
+                                        _selectedWingNotifier.value.isEmpty
+                                            ? 0
+                                            : _selectedWingNotifier
+                                                .value
+                                                .first["zAttributesId"],
+                                  );
+                                }
+                              },
+                              onReject: (val) async {
+                                final success = await _utilsCubit
+                                    .updateModulesWorkflowApproval(
+                                      context: context,
+                                      moduleName: 'BUDGET APPROVAL',
+                                      id: _selectedProject.projectId,
+                                      projectId: _selectedProject.projectId,
+                                      isApproved: false,
+                                      remark: val.trim(),
+                                    );
+                                if (context.mounted && success) {
+                                  _budgetCubit.getBudgetList(
+                                    context,
+                                    1,
+                                    projectId: _selectedProject.projectId,
+                                    inventoryFlatFloorBasementPodiumWingId:
+                                        _selectedWingNotifier.value.isEmpty
+                                            ? 0
+                                            : _selectedWingNotifier
+                                                .value
+                                                .first["zAttributesId"],
+                                  );
+                                }
+                              },
+                              onThirdTap: () async {
+                                final approvalLogHistoryList = await _utilsCubit
+                                    .getApprovalLogHistory(
+                                      context: context,
+                                      projectId: _selectedProject.projectId,
+                                      id: _selectedProject.projectId,
+                                      moduleName: "BUDGET APPROVAL",
+                                    );
+                                if (context.mounted) {
+                                  goRouter.pushNamed(
+                                    AppRoutes.approvalLogHistory,
+                                    queryParameters: {
+                                      "title": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          "Budget Log History",
+                                        ),
+                                      ),
+                                      "approvalList": Uri.encodeComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            approvalLogHistoryList
+                                                .map((e) => e.toJson())
+                                                .toList(),
+                                          ),
+                                        ),
+                                      ),
+                                    },
+                                  );
+                                }
+                              },
+                            ),
                   );
                 },
               ),
@@ -467,6 +741,15 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             final grandTotal = state.originalBudgetList
                 .where((element) => element.levelType == 'L1')
                 .fold(0.0, (a, b) => a + b.budgetAmount);
+            final materialRateTotal = state.originalBudgetList
+                .where((element) => element.levelType == 'L1')
+                .fold(0.0, (a, b) => a + b.materialCost);
+            final labourRateTotal = state.originalBudgetList
+                .where((element) => element.levelType == 'L1')
+                .fold(0.0, (a, b) => a + b.labourCost);
+            final pmRateTotal = state.originalBudgetList
+                .where((element) => element.levelType == 'L1')
+                .fold(0.0, (a, b) => a + b.pMCost);
             return Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -482,6 +765,47 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                   spacing: 5,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColor.white.withValues(alpha: 0.95),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(6),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          buildRowTitleValue(
+                            title: "Material Rate",
+                            fixesWidth: 110,
+                            value: materialRateTotal.toIndianCurrency(),
+                            titleTextStyle: AppTextStyle.ts14M(
+                              color: AppColor.blue,
+                            ),
+                          ),
+                          buildRowTitleValue(
+                            title: "Labour Rate",
+                            fixesWidth: 110,
+                            value: labourRateTotal.toIndianCurrency(),
+                            titleTextStyle: AppTextStyle.ts14M(
+                              color: AppColor.blue,
+                            ),
+                          ),
+                          buildRowTitleValue(
+                            title: "P&M Rate",
+                            fixesWidth: 110,
+                            value: pmRateTotal.toIndianCurrency(),
+                            titleTextStyle: AppTextStyle.ts14M(
+                              color: AppColor.blue,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     Text(
                       "Grand Total Project Budget:",
                       style: AppTextStyle.ts14M(color: AppColor.lightBlue),

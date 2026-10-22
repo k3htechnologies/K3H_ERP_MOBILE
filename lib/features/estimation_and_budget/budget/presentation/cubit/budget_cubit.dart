@@ -216,4 +216,38 @@ class BudgetCubit extends Cubit<BudgetState> {
       },
     );
   }
+
+  Future submitBudgetForApproval({
+    required BuildContext context,
+    required int projectId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "ProjectId": projectId,
+      "InventoryFlatFloorBasementPodiumWingId":
+          inventoryFlatFloorBasementPodiumWingId,
+    };
+    var addResult = await _budgetRepository.submitBudgetForApproval(
+      body: requestBody,
+    );
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+        getBudgetList(
+          context,
+          1,
+          projectId: projectId,
+          inventoryFlatFloorBasementPodiumWingId:
+              inventoryFlatFloorBasementPodiumWingId,
+        );
+      },
+    );
+  }
 }

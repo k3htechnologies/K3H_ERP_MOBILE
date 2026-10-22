@@ -15,6 +15,7 @@ Widget buildRowTitleValue({
   required String value,
   double fixesWidth = 140,
   TextStyle? valueTextStyle,
+  TextStyle? titleTextStyle,
   Widget? customValueWidget,
   bool singleLine = true,
 }) {
@@ -26,7 +27,10 @@ Widget buildRowTitleValue({
         // TITLE
         SizedBox(
           width: fixesWidth,
-          child: Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          child: Text(
+            title,
+            style: titleTextStyle ?? AppTextStyle.ts14R(color: AppColor.grey),
+          ),
         ),
 
         // COLON

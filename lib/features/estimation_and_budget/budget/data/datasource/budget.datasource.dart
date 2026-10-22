@@ -20,6 +20,10 @@ abstract interface class BudgetDatasource {
   apiCallPullInventoryProjectBasementPodiumWingBudget({
     required Map<String, dynamic> queryParams,
   });
+
+  Future<Map<String, dynamic>> apiCallSubmitBudgetForApproval({
+    required Map<String, dynamic> body,
+  });
 }
 
 class BudgetDatasourceImpl implements BudgetDatasource {
@@ -121,6 +125,27 @@ class BudgetDatasourceImpl implements BudgetDatasource {
         return apiCallPullInventoryProjectBasementPodiumWingBudget(
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallSubmitBudgetForApproval({
+    required Map<String, dynamic> body,
+  }) async {
+    String url = "Budget/SubmitBudgetForApproval?";
+
+    try {
+      final networkResponse = await baseClient.postRequestWithAuthentication(
+        url,
+        body,
+      );
+
+      return {'message': networkResponse['message']};
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallSubmitBudgetForApproval(body: body);
       }
       rethrow;
     }
