@@ -12,7 +12,8 @@ class AppRoutes {
   // DASHBOARD
   static String dashboardScreen = "/dashboard";
   static String employeeAttendanceScreen = "/employeeAttendanceScreen";
-  static String pendingApprovalScreen = "/pendingApprovalScreen";
+  static String myApprovalScreen = "/myApprovalScreen";
+  static String myApprovalOverallScreen = "/myApprovalOverallScreen";
   static String projectOverview = "/projectOverview";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
@@ -583,6 +584,10 @@ class AppRoutes {
   //ESTIMATION AND BUDGET
   static String budget = "/budget";
   static String viewBudget = "/viewBudget";
+  // BASELINE COST PLAN
+  static String baselineCostPlan = "/baselineCostPlan";
+  static String addBaselineCostPlan = "/addBaselineCostPlan";
+  static String viewBaselineCostPlan = "/viewBaselineCostPlan";
 
   // otp LOGS
   static String otpLogs = "/otpLogs";

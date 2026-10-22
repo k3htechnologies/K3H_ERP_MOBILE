@@ -12,6 +12,13 @@ import 'package:k3h_erp_app/features/business_development/tenant_booking/present
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/add_tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/view_tenant_booking_screen.dart';
+import 'package:k3h_erp_app/features/dashboard/data/model/module_approval.model.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/pages/module_approval_overall.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/data/model/baseline_cost_plan.model.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/cubit/baseline_cost_plan_cubit.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/add_baseline_plan_cost.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/baseline_cost_plan.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/view_baseline_cost_plan.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
 import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/presentation/cubit/notice_section_cubit.dart';
@@ -196,7 +203,7 @@ import 'package:k3h_erp_app/features/crm/dashboard/presentation/cubit/crm_dashbo
 import 'package:k3h_erp_app/features/crm/dashboard/presentation/pages/crm_dashboard.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/employee_attendace.screen.dart';
-import 'package:k3h_erp_app/features/dashboard/presentation/pages/pending_approvals_screen.dart';
+import 'package:k3h_erp_app/features/dashboard/presentation/pages/module_approval.screen.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/project_overview_screen.dart';
 import 'package:k3h_erp_app/features/inventory/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/cubit/inventory_cubit.dart';
@@ -639,53 +646,51 @@ final GoRouter goRouter = GoRouter(
           },
           routes: [
             GoRoute(
-              path: AppRoutes.pendingApprovalScreen,
-              name: AppRoutes.pendingApprovalScreen,
+              path: AppRoutes.myApprovalScreen,
+              name: AppRoutes.myApprovalScreen,
 
               builder: (context, state) {
-                final queryParameterPendingApprovalData =
-                    state.uri.queryParameters['pendingApproval'];
+                return BlocProvider(
+                  create: (_) => DashboardCubit(),
 
-                final queryParameterTitle = state.uri.queryParameters['title'];
+                  child: MyApprovalScreen(),
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.myApprovalOverallScreen,
+              path: AppRoutes.myApprovalOverallScreen,
+              builder: (context, state) {
+                final documentParam =
+                    state.uri.queryParameters['moduleApprovalModel'];
 
-                final queryParameterOnView =
-                    state.uri.queryParameters['onViewRoute'];
+                List<ModuleApprovalModel> documents = [];
 
-                List<List<Map<String, String>>> data = [];
+                if (documentParam != null) {
+                  final decoded =
+                      jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(documentParam),
+                            ),
+                          )
+                          as List;
 
-                if (queryParameterPendingApprovalData != null) {
-                  final decryptedData = EncryptionManager.decryptData(
-                    Uri.decodeQueryComponent(queryParameterPendingApprovalData),
-                  );
-
-                  final decodedData = jsonDecode(decryptedData);
-
-                  data =
-                      (decodedData as List)
-                          .map<List<Map<String, String>>>(
-                            (card) =>
-                                (card as List)
-                                    .map<Map<String, String>>(
-                                      (item) => Map<String, String>.from(item),
-                                    )
-                                    .toList(),
+                  documents =
+                      decoded
+                          .map(
+                            (item) => ModuleApprovalModel.fromJson(
+                              Map<String, dynamic>.from(item),
+                            ),
                           )
                           .toList();
                 }
 
-                return BlocProvider(
-                  create: (_) => DashboardCubit(),
-
-                  child: PendingApprovalsScreen(
-                    pageTitle: queryParameterTitle ?? "Pending Approvals",
-
-                    onViewRoute: queryParameterOnView!,
-
-                    data: data,
-                  ),
+                return ModuleApprovalOverallScreen(
+                  moduleApprovalModel: documents,
                 );
               },
             ),
+
             GoRoute(
               name: AppRoutes.employeeAttendanceScreen,
               path: AppRoutes.employeeAttendanceScreen,
@@ -8253,7 +8258,13 @@ final GoRouter goRouter = GoRouter(
         // ESTIMATION AND BUDGET
         ShellRoute(
           builder: (context, state, child) {
-            return BlocProvider(create: (_) => BudgetCubit(), child: child);
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => BudgetCubit()),
+                BlocProvider(create: (_) => BaselineCostPlanCubit()),
+              ],
+              child: child,
+            );
           },
           routes: [
             GoRoute(
@@ -8279,6 +8290,80 @@ final GoRouter goRouter = GoRouter(
                         .toList();
 
                 return ViewBudgetMasterScreen(budgetList: budgetList);
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.baselineCostPlan,
+              path: AppRoutes.baselineCostPlan,
+              builder: (context, state) {
+                return const BaselineCostPlanScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addBaselineCostPlan,
+              path: AppRoutes.addBaselineCostPlan,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+
+                final BaselineCostPlanDocumentModel? document =
+                    queryParameterDocument != null
+                        ? BaselineCostPlanDocumentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['index'] ?? '0',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final isEdit = bool.parse(
+                  EncryptionManager.decryptData(
+                    Uri.decodeComponent(
+                      state.uri.queryParameters['isEdit'] ?? 'false',
+                    ),
+                  ),
+                );
+                return AddBaselinePlanCostDocumentScreen(
+                  baselineCostPlanDocumentModel: document,
+                  index: index,
+                  isEdit: isEdit,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBaselineCostPlan,
+              path: AppRoutes.viewBaselineCostPlan,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['document'];
+                final BaselineCostPlanDocumentModel? document =
+                    queryParameterDocument != null
+                        ? BaselineCostPlanDocumentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewBaselineCostPlanScreen(
+                  baselineCostPlanDocumentModel: document!,
+                  index: index,
+                );
               },
             ),
           ],

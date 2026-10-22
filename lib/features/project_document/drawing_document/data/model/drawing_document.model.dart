@@ -15,7 +15,7 @@ class DrawingDocumentModel {
   String approvalStatus;
   bool isApproval;
   int isMaster;
-  int inventoryFloorId;
+  String inventoryFloorId;
   String floor;
   int uploadedApprovalDocumentCount;
   int approvalPendingApprovalDocumentCount;
@@ -82,7 +82,7 @@ class DrawingDocumentModel {
     approvalStatus: parseValue<String>(json, "ApprovalStatus"),
     isApproval: parseValue<bool>(json, "IsApproval"),
     isMaster: parseValue<int>(json, "IsMaster"),
-    inventoryFloorId: parseValue<int>(json, "InventoryFloorId"),
+    inventoryFloorId: parseValue<String>(json, "InventoryFloorId"),
     floor: parseValue<String>(json, "Floor"),
     uploadedApprovalDocumentCount: parseValue<int>(
       json,
@@ -154,7 +154,7 @@ extension DrawingDocumentModelCopyWith on DrawingDocumentModel {
     String? approvalStatus,
     bool? isApproval,
     int? isMaster,
-    int? inventoryFloorId,
+    String? inventoryFloorId,
     String? floor,
     int? uploadedApprovalDocumentCount,
     int? approvalPendingApprovalDocumentCount,

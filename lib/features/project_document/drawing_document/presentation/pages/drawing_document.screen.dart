@@ -249,7 +249,7 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
     _buildingNumberC.text = state.buildingNumberText;
 
     String? selectedDirection =
-        state.currentSortColumn == "Drawing Document"
+        state.currentSortColumn == "Drawing Document Name"
             ? state.currentSortDirection
             : null;
 
@@ -277,7 +277,7 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter - Drawing Documentt",
+      title: "Filter - Drawing Document",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -291,7 +291,10 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Sort By Drawing Document", style: AppTextStyle.ts14M()),
+              Text(
+                "Sort By Drawing Document Name",
+                style: AppTextStyle.ts14M(),
+              ),
               verticalSpacing(),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -383,7 +386,7 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
 
         _drawingDocumentCubit.applyFilterAndSortDrawingDocument(
           context: context,
-          column: selectedDirection != null ? "Drawing Document" : "",
+          column: selectedDirection != null ? "Drawing Document Name" : "",
           direction: selectedDirection ?? "",
           buildingNumber: _buildingNumberC.text.trim(),
           wing: _wingC.text.trim(),
@@ -420,6 +423,15 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
           },
           onProjectChangeCallback: (value) {
             _selectedProjectNotifier.value = value;
+            _searchC.clear();
+            _buildingNumberC.clear();
+            _wingC.clear();
+            _floorC.clear();
+
+            _filterCount.value = 0;
+
+            _drawingDocumentCubit.clearFiltersOnProjectChange();
+
             if (context.mounted) {
               _drawingDocumentCubit.getDrawingDocumentCategoryList(
                 context,
@@ -496,7 +508,7 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                       if (state.drawingDocumentCategoryModelList.isEmpty) {
                         return Center(
                           child: noDataWidget(
-                            message: "No Test Document Data Found",
+                            message: "No Drawing Document Data Found",
                           ),
                         );
                       }
@@ -574,7 +586,7 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
   Widget _buildDocumentListForCategory(DrawingDocumentState state) {
     if (state.drawingDocumentList.isEmpty) {
       return Center(
-        child: noDataWidget(message: "No Test Document Data Found"),
+        child: noDataWidget(message: "No Drawing Document Data Found"),
       );
     }
 

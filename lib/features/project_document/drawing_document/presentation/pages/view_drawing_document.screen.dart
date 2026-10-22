@@ -3,11 +3,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/cubit/drawing_document_cubit.dart';
+import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/pages/widget/expandable_text.screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -132,39 +134,67 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
             showSiteSelectedWidget(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               spacing: 10,
               children: [
                 Expanded(
-                  child: Text(
-                    widget.drawingDocumentModel.drawingDocumentName,
-                    style: AppTextStyle.ts16SB(),
+                  child: RichText(
+                    text: TextSpan(
+                      style: AppTextStyle.ts16SB(),
+                      children: [
+                        TextSpan(
+                          text:
+                              widget
+                                  .drawingDocumentModel
+                                  .drawingDocumentCategory,
+                        ),
+                        TextSpan(
+                          text: " > ",
+                          style: AppTextStyle.ts16M(color: AppColor.grey),
+                        ),
+                        TextSpan(
+                          text: widget.drawingDocumentModel.drawingDocumentName,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                _routeAuthorizationModel.isAction
-                    ? CustomButton(
-                      leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                      text: "Add",
-                      onPressed: () {
-                        goRouter.pushNamed(
-                          AppRoutes.addDrawingDocument,
-                          queryParameters: {
-                            "document": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(
-                                  widget.drawingDocumentModel.toJson(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    _routeAuthorizationModel.isAction
+                        ? CustomButton(
+                          leading: Icon(
+                            Icons.add,
+                            color: AppColor.white,
+                            size: 16,
+                          ),
+                          text: "Add",
+                          onPressed: () {
+                            goRouter.pushNamed(
+                              AppRoutes.addDrawingDocument,
+                              queryParameters: {
+                                "document": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    jsonEncode(
+                                      widget.drawingDocumentModel.toJson(),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                            "index": widget.index.toString(),
+                                "index": widget.index.toString(),
 
-                            "isEdit": Uri.encodeQueryComponent(
-                              EncryptionManager.encryptData(false.toString()),
-                            ),
+                                "isEdit": Uri.encodeQueryComponent(
+                                  EncryptionManager.encryptData(
+                                    false.toString(),
+                                  ),
+                                ),
+                              },
+                            );
                           },
-                        );
-                      },
-                    )
-                    : SizedBox.shrink(),
+                        )
+                        : SizedBox.shrink(),
+                  ],
+                ),
               ],
             ),
 
@@ -278,93 +308,99 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
               ),
             ],
           ),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Revision Date",
-                value:
-                    document.drawingDocumentRevisionDate != null
-                        ? formatDateTimeAsDDMMMYYYY(
-                          document.drawingDocumentRevisionDate!,
-                        )
-                        : '-',
-              ),
-              buildColumnTitleValue(
-                title: "Status",
-                value: document.drawingDocumentStatus,
-                customValueWidget: drawingDocumentStatusWidget(
-                  document.drawingDocumentStatus,
-                ),
-              ),
-            ],
+          buildRowTitleValue(
+            title: "Revision Date",
+            value:
+                document.drawingDocumentRevisionDate != null
+                    ? formatDateTimeAsDDMMMYYYY(
+                      document.drawingDocumentRevisionDate!,
+                    )
+                    : '-',
           ),
-          buildColumnTitleValue(
-            title: "Floor",
-            value: document.floor,
-            removeExpanded: true,
+          buildRowTitleValue(
+            title: "Status",
+            value: document.drawingDocumentStatus,
+            customValueWidget: drawingDocumentStatusWidget(
+              document.drawingDocumentStatus,
+            ),
           ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildColumnTitleValue(
-                title: "Last Modified By",
-                value:
-                    document.modifiedBy.isEmpty
-                        ? document.createdBy
-                        : document.modifiedBy,
-              ),
-              buildColumnTitleValue(
-                title: "Last Modified Date",
-                value: formatDateTimeAsDDMMMYYYY(
-                  document.modifiedDate ?? document.createdDate,
-                ),
-              ),
-            ],
+          ExpandableFloorRow(title: "Floor", floor: document.floor),
+          buildRowTitleValue(
+            title: "Last Modified By",
+            value:
+                document.modifiedBy.isEmpty
+                    ? document.createdBy
+                    : document.modifiedBy,
           ),
-          Row(
-            children: [
-              buildColumnTitleValue(
-                title: "Document (.PDF)",
-                value: document.drawingDocumentUrl,
-                customValueWidget: Row(
-                  children: [
-                    CustomButton.documentOutline(
-                      isDisable: document.drawingDocumentUrl.isEmpty,
-                      onPressed: () {
-                        showFilePreviewDialog(
-                          context,
-                          title: document.drawingDocumentName,
-                          document.drawingDocumentUrl.split(","),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              buildColumnTitleValue(
-                title: "Document (.DWG)",
-                value: document.drawingDocumentDwgurl,
-                customValueWidget: Row(
-                  children: [
-                    CustomButton.documentOutline(
-                      isDisable: document.drawingDocumentDwgurl.isEmpty,
-                      onPressed: () {
-                        showFilePreviewDialog(
-                          context,
-                          title: document.drawingDocumentName,
-                          document.drawingDocumentDwgurl.split(","),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          buildRowTitleValue(
+            title: "Last Modified Date",
+            value: formatDateTimeAsDDMMMYYYY(
+              document.modifiedDate ?? document.createdDate,
+            ),
           ),
-          buildColumnTitleValue(
+          buildRowTitleValue(
+            title: "PDF",
+            value: document.drawingDocumentUrl,
+            customValueWidget: Row(
+              children: [
+                CustomButton.documentOutline(
+                  isDisable: document.drawingDocumentUrl.isEmpty,
+                  onPressed: () {
+                    showFilePreviewDialog(
+                      context,
+                      title: document.drawingDocumentName,
+                      document.drawingDocumentUrl.split(","),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          buildRowTitleValue(
+            title: "DWG",
+            value: document.drawingDocumentDwgurl,
+            customValueWidget: Row(
+              children: [
+                CustomButton.documentOutline(
+                  isDisable: document.drawingDocumentDwgurl.isEmpty,
+                  onPressed: () {
+                    showFilePreviewDialog(
+                      context,
+                      title: document.drawingDocumentName,
+                      document.drawingDocumentDwgurl.split(","),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          buildRowTitleValue(
             title: "Remark",
-            value: document.drawingDocumentRemark,
-            removeExpanded: true,
+            value:
+                document.drawingDocumentRemark.trim().isEmpty
+                    ? "-"
+                    : document.drawingDocumentRemark.trim(),
+            customValueWidget:
+                document.drawingDocumentRemark.trim().isNotEmpty
+                    ? GestureDetector(
+                      onTap: () {
+                        DialogHelper.showNoteDialog(
+                          context,
+                          note: document.drawingDocumentRemark,
+                          title: "Remark",
+                        );
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10.sp),
+                        child: Icon(
+                          Icons.info_outline,
+                          size: 18,
+                          color: AppColor.primary,
+                        ),
+                      ),
+                    )
+                    : null,
+            singleLine: false,
           ),
           ApproveRejectWidget(
             showApproval: document.isApproval,

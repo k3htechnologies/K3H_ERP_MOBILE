@@ -24,8 +24,8 @@ class DrawingDocumentCategoryState extends BaseState {
         totalNumberOfRecord: 0,
         currentPage: 1,
         searchText: "",
-        currentSortColumn: "Created Date",
-        currentSortDirection: "DESC",
+        currentSortColumn: "",
+        currentSortDirection: "",
       );
   DrawingDocumentCategoryState copyWith({
     bool? isLoading,

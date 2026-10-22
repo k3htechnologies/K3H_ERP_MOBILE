@@ -50,6 +50,7 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
         DrawingDocumentCategoryCubit();
+
         emit(
           state.copyWith(
             isLoading: false,
@@ -61,7 +62,10 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
     }
     Map<String, dynamic> queryParams = {
       "DrawingDocumentCategory": state.searchText,
-      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "IsCheckPermission": true,
+      if (state.currentSortColumn.isNotEmpty &&
+          state.currentSortDirection.isNotEmpty)
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await _drawingDocumentCategoryRepository
         .getDrawingDocumentCategory(
@@ -84,6 +88,18 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
             pageNumber == 1
                 ? newData
                 : [...state.drawingDocumentCategoryModelList, ...newData];
+        // final bool isDescending =
+        //     state.currentSortDirection.toUpperCase() == "DESC";
+
+        // updatedList.sort((a, b) {
+        //   final comparison = a.drawingDocumentCategoryName
+        //       .trim()
+        //       .toLowerCase()
+        //       .compareTo(b.drawingDocumentCategoryName.trim().toLowerCase());
+
+        //   return isDescending ? -comparison : comparison;
+        // });
+
         emit(
           state.copyWith(
             drawingDocumentCategoryModelList: updatedList,

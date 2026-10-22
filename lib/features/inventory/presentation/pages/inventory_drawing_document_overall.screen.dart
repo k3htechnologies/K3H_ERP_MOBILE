@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/features/project_document/drawing_document/data/mode
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
@@ -38,7 +38,7 @@ class _InventoryDrawingDocumentOverallScreenState
     final flat = widget.flatModel;
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory Drawing Report",
+        screenTitle: "Inventory Drawing Document",
         authorization: AuthorizationModel(),
       ),
       body: SafeArea(
@@ -108,17 +108,9 @@ class _InventoryDrawingDocumentOverallScreenState
                                 document.drawingDocumentDwgurl
                                     .trim()
                                     .isNotEmpty;
+                            final hasPdf =
+                                document.drawingDocumentUrl.trim().isNotEmpty;
 
-                            final type = hasDwg ? 'DWG' : 'PDF';
-                            final backgroundColor =
-                                hasDwg
-                                    ? const Color(0xFFDCEBFF)
-                                    : AppColor.lightRed;
-
-                            final textColor =
-                                hasDwg
-                                    ? const Color(0xFF0057D9)
-                                    : AppColor.missingInformationRed;
                             return SectionCard(
                               title: documentTitle,
                               titleTextColor: AppColor.black,
@@ -138,51 +130,77 @@ class _InventoryDrawingDocumentOverallScreenState
                                               .trim()
                                           : '-',
                                 ),
+
                                 buildRowTitleValue(
                                   title: "Type",
-                                  value:
-                                      document.drawingDocumentUrl.contains('~')
-                                          ? document.drawingDocumentUrl
-                                              .split('~')
-                                              .last
-                                              .trim()
-                                          : '-',
-                                  customValueWidget: GestureDetector(
-                                    onTap: () {},
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: backgroundColor,
+                                  value: [
+                                    if (hasPdf) 'PDF',
+                                    if (hasDwg) 'DWG',
+                                  ].join(', '),
+                                  customValueWidget: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (hasPdf) ...[
+                                        buildDocumentTypeChip(
+                                          label: 'PDF',
+                                          backgroundColor: AppColor.lightRed,
+                                          textColor:
+                                              AppColor.missingInformationRed,
+                                          onTap: () {
+                                            final pdfUrls =
+                                                document.drawingDocumentUrl
+                                                    .split(',')
+                                                    .map((url) => url.trim())
+                                                    .where(
+                                                      (url) => url.isNotEmpty,
+                                                    )
+                                                    .toList();
 
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 4.0,
-                                          horizontal: 8.0,
+                                            if (pdfUrls.isNotEmpty) {
+                                              showFilePreviewDialog(
+                                                context,
+                                                pdfUrls,
+                                                title:
+                                                    document
+                                                        .drawingDocumentName,
+                                              );
+                                            }
+                                          },
                                         ),
-                                        child: Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              type,
-                                              style: AppTextStyle.ts12M(
-                                                color: textColor,
-                                              ),
-                                            ),
-                                            horizontalSpacing(width: 4),
-                                            Icon(
-                                              Icons.visibility_outlined,
-                                              color: AppColor.primary,
-                                              size: 16.sp,
-                                            ),
-                                          ],
+                                        if (hasDwg) const SizedBox(width: 8),
+                                      ],
+                                      if (hasDwg)
+                                        buildDocumentTypeChip(
+                                          label: 'DWG',
+                                          backgroundColor: const Color(
+                                            0xFFDCEBFF,
+                                          ),
+                                          textColor: const Color(0xFF0057D9),
+                                          onTap: () {
+                                            final dwgUrls =
+                                                document.drawingDocumentDwgurl
+                                                    .split(',')
+                                                    .map((url) => url.trim())
+                                                    .where(
+                                                      (url) => url.isNotEmpty,
+                                                    )
+                                                    .toList();
+
+                                            if (dwgUrls.isNotEmpty) {
+                                              showFilePreviewDialog(
+                                                context,
+                                                dwgUrls,
+                                                title:
+                                                    document
+                                                        .drawingDocumentName,
+                                              );
+                                            }
+                                          },
                                         ),
-                                      ),
-                                    ),
+                                    ],
                                   ),
                                 ),
+
                                 buildRowTitleValue(
                                   title: "Revision Date",
                                   value: formatDateTimeAsDDMMMYYYY(
@@ -199,23 +217,39 @@ class _InventoryDrawingDocumentOverallScreenState
                                 ),
                                 buildRowTitleValue(
                                   title: "Remark",
-                                  value: document.drawingDocumentRemark,
-                                  customValueWidget: GestureDetector(
-                                    onTap: () {
-                                      DialogHelper.showNoteDialog(
-                                        context,
-                                        note: document.drawingDocumentRemark,
-                                      );
-                                    },
-                                    child: Padding(
-                                      padding: EdgeInsets.only(left: 10.w),
-                                      child: Icon(
-                                        Icons.info_outline,
-                                        size: 18,
-                                        color: AppColor.primary,
-                                      ),
-                                    ),
-                                  ),
+                                  value:
+                                      document.drawingDocumentRemark
+                                              .trim()
+                                              .isEmpty
+                                          ? "-"
+                                          : document.drawingDocumentRemark
+                                              .trim(),
+                                  customValueWidget:
+                                      document.drawingDocumentRemark
+                                              .trim()
+                                              .isNotEmpty
+                                          ? GestureDetector(
+                                            onTap: () {
+                                              DialogHelper.showNoteDialog(
+                                                context,
+                                                note:
+                                                    document
+                                                        .drawingDocumentRemark,
+                                                title: "Remark",
+                                              );
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                left: 10.w,
+                                              ),
+                                              child: Icon(
+                                                Icons.info_outline,
+                                                size: 18,
+                                                color: AppColor.primary,
+                                              ),
+                                            ),
+                                          )
+                                          : null,
                                   singleLine: false,
                                 ),
                                 buildRowTitleValue(
@@ -247,6 +281,36 @@ class _InventoryDrawingDocumentOverallScreenState
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildDocumentTypeChip({
+    required String label,
+    required Color backgroundColor,
+    required Color textColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(10),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label, style: AppTextStyle.ts12M(color: textColor)),
+            const SizedBox(width: 4),
+            Icon(
+              Icons.visibility_outlined,
+              color: AppColor.primary,
+              size: 16.sp,
+            ),
+          ],
         ),
       ),
     );

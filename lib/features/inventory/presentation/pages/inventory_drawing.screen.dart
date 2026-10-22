@@ -44,139 +44,201 @@ class _InventoryDrawingScreenState extends State<InventoryDrawingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Inventory Drawing Report",
-        authorization: AuthorizationModel(),
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: showSiteSelectedWidget(),
-            ),
-            verticalSpacing(),
-            Expanded(
-              child: BlocBuilder<DrawingDocumentCubit, DrawingDocumentState>(
-                builder: (context, state) {
-                  if (state.isLoading == true &&
-                      state.inventoryDrawingDocumentList.isEmpty) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+    return RefreshIndicator(
+      onRefresh: () async {
+        _drawingDocumentCubit.getInventoryDrawingDocumentList(
+          context: context,
+          pageNumber: 1,
+          projectId: getProject().projectId,
+          inventoryFloorId: widget.flatModel?.inventoryFloorId,
+          floor: widget.flatModel?.floor,
+        );
+      },
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Inventory Drawing Document",
+          authorization: AuthorizationModel(),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                showSiteSelectedWidget(),
+                verticalSpacing(),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: widget.flatModel!.buildingNumber,
+                        style: AppTextStyle.ts12M(color: AppColor.grey),
+                      ),
+                      TextSpan(
+                        text: " : ",
+                        style: AppTextStyle.ts14M(color: AppColor.grey),
+                      ),
+                      TextSpan(
+                        text: widget.flatModel!.wing,
+                        style: AppTextStyle.ts12M(color: AppColor.black),
+                      ),
+                      TextSpan(
+                        text: " > ",
+                        style: AppTextStyle.ts12M(color: AppColor.grey),
+                      ),
+                      TextSpan(
+                        text: widget.flatModel!.floor,
+                        style: AppTextStyle.ts12M(color: AppColor.black),
+                      ),
+                    ],
+                  ),
+                ),
+                verticalSpacing(),
 
-                  final documents = state.inventoryDrawingDocumentList;
-                  final Map<String, int> categoryCounts = {};
-                  for (final document in documents) {
-                    final category = document.drawingDocumentCategory;
+                Expanded(
+                  child: BlocBuilder<
+                    DrawingDocumentCubit,
+                    DrawingDocumentState
+                  >(
+                    builder: (context, state) {
+                      if (state.isLoading == true &&
+                          state.inventoryDrawingDocumentList.isEmpty) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                    categoryCounts[category] =
-                        (categoryCounts[category] ?? 0) + 1;
-                  }
+                      final documents = state.inventoryDrawingDocumentList;
+                      final Map<String, int> categoryCounts = {};
+                      for (final document in documents) {
+                        final category = document.drawingDocumentCategory;
 
-                  final categories = categoryCounts.keys.toList();
-                  if (documents.isEmpty) {
-                    return const Center(
-                      child: Text('No drawing categories found'),
-                    );
-                  }
+                        categoryCounts[category] =
+                            (categoryCounts[category] ?? 0) + 1;
+                      }
 
-                  return ListView.builder(
-                    padding: EdgeInsets.all(20),
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      final category = categories[index];
-                      return _buildDrawingCategoryCard(
-                        title: category,
-                        totalCount: categoryCounts[category]!,
-                        advanceCount:
-                            documents
-                                .where(
-                                  (document) =>
-                                      document.drawingDocumentCategory ==
-                                          category &&
-                                      document.drawingDocumentStatus ==
-                                          'Advance',
-                                )
-                                .length,
-                        constructionCount:
-                            documents
-                                .where(
-                                  (document) =>
-                                      document.drawingDocumentCategory ==
-                                          category &&
-                                      document.drawingDocumentStatus
-                                          .toLowerCase()
-                                          .contains('good for construction'),
-                                )
-                                .length,
-                        onTap: () {
+                      final categories = categoryCounts.keys.toList();
+                      if (documents.isEmpty) {
+                        return const Center(
+                          child: Text('No drawing categories found'),
+                        );
+                      }
+
+                      return ListView.builder(
+                        itemCount: categories.length,
+                        itemBuilder: (context, index) {
+                          final category = categories[index];
                           final categoryDocuments =
                               documents
                                   .where(
                                     (document) =>
-                                        document.drawingDocumentCategory ==
-                                        category,
+                                        document.drawingDocumentCategory
+                                            .trim()
+                                            .toLowerCase() ==
+                                        category.trim().toLowerCase(),
                                   )
                                   .toList();
 
-                          goRouter.pushNamed(
-                            AppRoutes.inventoryDrawingOverall,
-                            queryParameters: {
-                              "inventoryDrawingDocumentModel":
-                                  Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      jsonEncode(
-                                        categoryDocuments.map((document) {
-                                          return {
-                                            "DrawingDocumentName":
-                                                document.drawingDocumentName,
-                                            "DrawingDocumentURL":
-                                                document.drawingDocumentUrl,
-                                            "DrawingDocumentDWGURL":
-                                                document.drawingDocumentDwgurl,
-                                            "DrawingDocumentCategory":
-                                                document
-                                                    .drawingDocumentCategory,
-                                            "DrawingDocumentRevisionDate":
-                                                document
-                                                    .drawingDocumentRevisionDate
-                                                    ?.toIso8601String(),
-                                            "DrawingDocumentRemark":
-                                                document.drawingDocumentRemark,
-                                            "DrawingDocumentStatus":
-                                                document.drawingDocumentStatus,
-                                            "ApprovalStatus":
-                                                document.approvalStatus,
-                                            "CreatedBy": document.createdBy,
-                                            "CreatedDate":
-                                                document.createdDate
-                                                    .toIso8601String(),
-                                            "ModifiedBy": document.modifiedBy,
-                                            "ModifiedDate":
-                                                document.modifiedDate
-                                                    ?.toIso8601String(),
-                                          };
-                                        }).toList(),
+                          String normalizeStatus(String status) => status
+                              .trim()
+                              .toLowerCase()
+                              .replaceAll(RegExp(r'\s+'), ' ');
+                          final advanceCount =
+                              categoryDocuments.where((document) {
+                                return normalizeStatus(
+                                      document.drawingDocumentStatus,
+                                    ) ==
+                                    'advance';
+                              }).length;
+
+                          final constructionCount =
+                              categoryDocuments.where((document) {
+                                final status = normalizeStatus(
+                                  document.drawingDocumentStatus,
+                                );
+
+                                return status.contains(
+                                      'good for construction',
+                                    ) ||
+                                    status == 'gfc' ||
+                                    status.contains('(gfc)');
+                              }).length;
+                          return _buildDrawingCategoryCard(
+                            title: category,
+                            totalCount: categoryCounts[category]!,
+                            advanceCount: advanceCount,
+                            constructionCount: constructionCount,
+                            onTap: () {
+                              final categoryDocuments =
+                                  documents
+                                      .where(
+                                        (document) =>
+                                            document.drawingDocumentCategory ==
+                                            category,
+                                      )
+                                      .toList();
+
+                              goRouter.pushNamed(
+                                AppRoutes.inventoryDrawingOverall,
+                                queryParameters: {
+                                  "inventoryDrawingDocumentModel":
+                                      Uri.encodeQueryComponent(
+                                        EncryptionManager.encryptData(
+                                          jsonEncode(
+                                            categoryDocuments.map((document) {
+                                              return {
+                                                "DrawingDocumentName":
+                                                    document
+                                                        .drawingDocumentName,
+                                                "DrawingDocumentURL":
+                                                    document.drawingDocumentUrl,
+                                                "DrawingDocumentDWGURL":
+                                                    document
+                                                        .drawingDocumentDwgurl,
+                                                "DrawingDocumentCategory":
+                                                    document
+                                                        .drawingDocumentCategory,
+                                                "DrawingDocumentRevisionDate":
+                                                    document
+                                                        .drawingDocumentRevisionDate
+                                                        ?.toIso8601String(),
+                                                "DrawingDocumentRemark":
+                                                    document
+                                                        .drawingDocumentRemark,
+                                                "DrawingDocumentStatus":
+                                                    document
+                                                        .drawingDocumentStatus,
+                                                "ApprovalStatus":
+                                                    document.approvalStatus,
+                                                "CreatedBy": document.createdBy,
+                                                "CreatedDate":
+                                                    document.createdDate
+                                                        .toIso8601String(),
+                                                "ModifiedBy":
+                                                    document.modifiedBy,
+                                                "ModifiedDate":
+                                                    document.modifiedDate
+                                                        ?.toIso8601String(),
+                                              };
+                                            }).toList(),
+                                          ),
+                                        ),
                                       ),
+                                  "flatModel": Uri.encodeQueryComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(widget.flatModel!.toJson()),
                                     ),
                                   ),
-                              "flatModel": Uri.encodeQueryComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(widget.flatModel!.toJson()),
-                                ),
-                              ),
+                                },
+                              );
                             },
                           );
                         },
                       );
                     },
-                  );
-                },
-              ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -261,7 +323,7 @@ class _InventoryDrawingScreenState extends State<InventoryDrawingScreen> {
                 ),
                 buildColumnTitleValue(
                   title: "Good For Construction",
-                  value: advanceCount.toString(),
+                  value: constructionCount.toString(),
                   removeExpanded: true,
                 ),
               ],

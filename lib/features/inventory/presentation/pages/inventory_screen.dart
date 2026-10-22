@@ -912,13 +912,26 @@ class _InventoryScreenState extends State<InventoryScreen>
                                               Icon(
                                                 LucideIcons.draftingCompass,
                                                 size: 20.0,
-                                                color: AppColor.black
-                                                    .withValues(alpha: 0.4),
+                                                color:
+                                                    floor.drawingCount > 0
+                                                        ? AppColor.primary
+                                                        : AppColor.black
+                                                            .withValues(
+                                                              alpha: 0.4,
+                                                            ),
                                               ),
                                               horizontalSpacing(width: 3.0),
                                               Text(
                                                 "${floor.drawingCount}",
-                                                style: AppTextStyle.ts12R(),
+                                                style: AppTextStyle.ts12R(
+                                                  color:
+                                                      floor.drawingCount > 0
+                                                          ? AppColor.primary
+                                                          : AppColor.black
+                                                              .withValues(
+                                                                alpha: 0.4,
+                                                              ),
+                                                ),
                                               ),
                                             ],
                                           ),

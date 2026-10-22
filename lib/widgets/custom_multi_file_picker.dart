@@ -12,7 +12,15 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:file_picker/file_picker.dart';
 
-enum FilePickType { image, document, both, kycDocument, excel, drawingDocument }
+enum FilePickType {
+  image,
+  document,
+  both,
+  kycDocument,
+  excel,
+  drawingDocument,
+  drawingOnlyPDFDocument,
+}
 
 class CustomMultiFilePicker extends StatefulWidget {
   // DEFINING REQUIRED AND OPTIONAL PARAMETERS
@@ -469,6 +477,8 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
 
       case FilePickType.drawingDocument:
         finalExtensions = ['dwg'];
+      case FilePickType.drawingOnlyPDFDocument:
+        finalExtensions = ['pdf'];
     }
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
@@ -736,6 +746,8 @@ class _CustomMultiFilePickerState extends State<CustomMultiFilePicker> {
                                                     case FilePickType.document:
                                                     case FilePickType
                                                         .drawingDocument:
+                                                    case FilePickType
+                                                        .drawingOnlyPDFDocument:
                                                       showUploadDocumentDialog(
                                                         context,
                                                         formFieldState,

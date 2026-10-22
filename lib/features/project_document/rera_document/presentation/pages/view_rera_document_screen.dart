@@ -129,9 +129,23 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    widget.documentModel.projectRERADocumentName,
-                    style: AppTextStyle.ts16SB(),
+                  child: RichText(
+                    text: TextSpan(
+                      style: AppTextStyle.ts16SB(),
+                      children: [
+                        TextSpan(
+                          text:
+                              widget.documentModel.projectRERADocumentCategory,
+                        ),
+                        TextSpan(
+                          text: " > ",
+                          style: AppTextStyle.ts16M(color: AppColor.grey),
+                        ),
+                        TextSpan(
+                          text: widget.documentModel.projectRERADocumentName,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 if (_routeAuthorizationModel.isAction)

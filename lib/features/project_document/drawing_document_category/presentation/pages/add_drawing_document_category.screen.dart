@@ -155,6 +155,13 @@ class _AddDrawingDocumentCategoryScreenState
                         if (value == null || value.trim().isEmpty) {
                           return "Sequence is required.";
                         }
+                        final sequence = int.tryParse(value.trim());
+                        if (sequence == null) {
+                          return "Sequence is required.";
+                        }
+                        if (sequence <= 0) {
+                          return "Sequence is required.";
+                        }
                         return null;
                       },
                     ),
