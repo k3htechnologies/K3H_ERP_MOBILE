@@ -303,7 +303,8 @@ void initDependencies() {
   registerTermSheetReportDependencies(serviceLocator);
   // ESTIMATION AND BUDGET MASTER DEPENDENCIES
   registerBudgetDependencies(serviceLocator);
-  registerBaselineCostPlanDocumentDependencies(serviceLocator);  //COMPLIANCE MASTERS
+  registerBaselineCostPlanDocumentDependencies(serviceLocator);
+  // COMPLIANCE MASTERS
   registerNoticeSectionMasterDependencies(serviceLocator);
   // VISITOR MANAGEMENT
   // GATE PASS
