@@ -393,6 +393,7 @@ class InventoryCubit extends Cubit<InventoryState> {
     required String flatStatus,
     required int bookingId,
     required String ownerName,
+    required int tenantId,
   }) {
     final updatedBuildingList =
         state.buildingList.map((building) {
@@ -407,6 +408,7 @@ class InventoryCubit extends Cubit<InventoryState> {
                                 bookingId: bookingId,
                                 flatStatus: flatStatus,
                                 ownerName: ownerName,
+                                tenantId: tenantId,
                               );
                             }
                             return flat;

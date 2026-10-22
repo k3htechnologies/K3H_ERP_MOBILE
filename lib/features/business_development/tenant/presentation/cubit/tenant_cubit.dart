@@ -419,7 +419,7 @@ class TenantCubit extends Cubit<TenantState> {
       },
       (response) async {
         goRouter.pop();
-        showSuccessMessage(context, subTitle: 'Tenant Updated Successfully');
+        showSuccessMessage(context, subTitle: response['message']);
         getTenantList(
           context: context,
           projectId: projectId,
@@ -627,13 +627,13 @@ class TenantCubit extends Cubit<TenantState> {
       },
       (response) async {
         goRouter.pop();
-        final updatedTenant = response['data'][0] as TenantModel;
-        if (state.tenantList.isNotEmpty && index < state.tenantList.length) {
-          final updatedList = List<TenantModel>.from(state.tenantList);
-          updatedList[index] = updatedTenant;
-          emit(state.copyWith(tenantList: updatedList, isLoading: false));
-        }
-        showSuccessMessage(context, subTitle: 'Tenant Updated Successfully');
+        showSuccessMessage(context, subTitle: response['message']);
+        getTenantList(
+          context: context,
+          projectId: int.parse(projectId),
+          buildingId: int.parse(buildingId),
+          pageNumber: 1,
+        );
       },
     );
   }
@@ -678,7 +678,7 @@ class TenantCubit extends Cubit<TenantState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (success) {
-        showSuccessMessage(context, subTitle: "Tenant Deleted Successfully");
+        showSuccessMessage(context, subTitle: success['message']);
         if (index != null) {
           final updatedList = List<TenantModel>.from(state.tenantList);
           updatedList.removeAt(index);

@@ -210,6 +210,7 @@ class TenantDataSourceImpl implements TenantDatasource {
         'data': List<TenantModel>.from(
           networkResponse["data"].map((e) => TenantModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -276,6 +277,7 @@ class TenantDataSourceImpl implements TenantDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

@@ -1,5 +1,9 @@
-import 'dart:async';
+// ignore_for_file: use_build_context_synchronously
 
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +17,7 @@ import 'package:k3h_erp_app/features/business_development/tenant_booking/present
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_state.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/add_tenant_booking_payment_schedule_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/bank_list_master/data/model/bank_list_master.model.dart';
+import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
@@ -258,6 +263,9 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
             widget.inventoryObject?[0]["tenantBuildingId"] ??
             (bm?.tenantBuildingId ?? 0),
         tenantId: widget.inventoryObject?[0]["tenantId"] ?? (bm?.tenantId ?? 0),
+        projectReraCarpetArea:
+            widget.inventoryObject?[0]["reraCarpetAreaSqFt"] ??
+            (bm?.reraCarpetAreaSqFt ?? 0),
       );
       _applicants.value = List<TenantApplicantData>.from(
         _bookingCubit.state.tenantList.first.tenantApplicantData,
@@ -725,10 +733,16 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
       return false;
     }
 
-    return await _bookingCubit.validateTenant(
+    final errors = await _bookingCubit.validateTenant(
       context: context,
       tenantList: _bookingCubit.state.tenantList,
     );
+    if (errors.isNotEmpty) {
+      _bookingCubit.onTabChangedAddForm(0, context);
+      _tabController.animateTo(0);
+      _showTenantErrorDialog(errors: errors);
+    }
+    return errors.isEmpty;
   }
 
   // LOAD PAYMENT SCHEDULE SCHEMES
@@ -961,6 +975,38 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
+    );
+  }
+
+  Future<void> _showTenantErrorDialog({required List<String> errors}) async {
+    DialogHelper.showCustomDialogue(
+      context,
+      title: "Please fix the following errors:",
+      isError: true,
+      icon: Icon(Icons.not_interested_outlined, color: AppColor.red, size: 18),
+      childContent: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            Divider(
+              color: AppColor.black.withValues(alpha: 0.50),
+              thickness: 0.5,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(
+                errors.length,
+                (index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Text("${index + 1}. ${errors[index]}"),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

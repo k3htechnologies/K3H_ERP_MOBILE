@@ -897,6 +897,7 @@ class DialogHelper {
     Widget? bottomSection, // optional
     bool barrierDismissible = true,
     double? spacingBetweenContentAndBottomSection,
+    bool? isError,
     void Function()? onDismiss,
   }) {
     return showDialog(
@@ -919,7 +920,12 @@ class DialogHelper {
                     if (icon != null) ...[icon, horizontalSpacing()],
                     if (title != null)
                       Expanded(
-                        child: Text(title, style: AppTextStyle.ts16SB()),
+                        child: Text(
+                          title,
+                          style: AppTextStyle.ts16SB(
+                            color: (isError ?? false) ? AppColor.red : null,
+                          ),
+                        ),
                       ),
                     GestureDetector(
                       onTap: () {

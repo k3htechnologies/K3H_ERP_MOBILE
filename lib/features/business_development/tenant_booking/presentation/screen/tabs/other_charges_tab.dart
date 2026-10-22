@@ -160,4 +160,31 @@ extension _OtherChargesTab on _AddTenantBookingScreenState {
       ),
     );
   }
+
+  Widget _buildAgreementCard() {
+    double agreementValueWithTds =
+        double.tryParse(
+          _agreementValueWithTdsC.text.trim().replaceAll(',', ''),
+        ) ??
+        0.0;
+
+    double agreementGstAmount =
+        double.tryParse(_agreementGstAmountC.text.trim().replaceAll(',', '')) ??
+        0.0;
+
+    double tdsAmount =
+        double.tryParse(_tdsC.text.trim().replaceAll(',', '')) ?? 0.0;
+
+    return infoCard(title: "Agreement Details", [
+      {
+        "title": "Agreement Value (With TDS) (₹)",
+        "value": agreementValueWithTds.toIndianCurrency(),
+      },
+      {
+        "title": "Agreement GST Amount (₹)",
+        "value": agreementGstAmount.toIndianCurrency(),
+      },
+      {"title": "TDS Amount(₹)", "value": tdsAmount.toIndianCurrency()},
+    ]);
+  }
 }

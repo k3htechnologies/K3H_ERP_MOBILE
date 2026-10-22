@@ -192,10 +192,11 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
   }
 
   //  GET TENANT LIST
-  Future getTenantList({
+  Future<bool> getTenantList({
     required BuildContext context,
     required int projectId,
     required int buildingId,
+    double? projectReraCarpetArea,
     int? tenantId,
     String? systemGeneratedCode,
     bool validate = true,
@@ -212,52 +213,88 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       queryParams: queryParams,
     );
 
-    result.fold(
+    return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
+        return false;
       },
-      (response) {
+      (response) async {
         final List<TenantModel> newData = List<TenantModel>.from(
           response['data'] ?? [],
         );
 
         emit(state.copyWith(tenantList: newData, isLoading: false));
+        final tenant = newData.first;
+        final total =
+            (tenant.totalNewRERACarpetAreaSqFt +
+                tenant.deckAreaSqFt +
+                tenant.areaAgainstTerraceSqFt);
+        List<String> errors = [];
         if (validate) {
-          validateTenant(context: context, tenantList: newData);
+          errors = await validateTenant(
+            context: context,
+            tenantList: newData,
+            projectReraCarpetArea: projectReraCarpetArea,
+          );
+          if (projectReraCarpetArea != null) {
+            if (total != projectReraCarpetArea) {
+              showErrorMessage(
+                // ignore: use_build_context_synchronously
+                context,
+                "Error",
+                "Carpet area mismatch: Tenant area is $total SqFt, but selected unit area is $projectReraCarpetArea SqFt.",
+              );
+            }
+          }
         }
+        return errors.isNotEmpty || total != projectReraCarpetArea;
       },
     );
   }
 
-  Future<bool> validateTenant({
+  Future<List<String>> validateTenant({
     required BuildContext context,
     required List<TenantModel> tenantList,
+    double? projectReraCarpetArea,
   }) async {
+    final List<String> errors = [];
+
     if (tenantList.isNotEmpty) {
       for (final tenant in tenantList.first.tenantApplicantData) {
-        final missingField =
-            tenant.photoURL.trim().isEmpty
-                ? "Photo"
-                : tenant.applicantEmailId.trim().isEmpty
-                ? "E-Mail ID"
-                : tenant.aadharCardNumber.trim().isEmpty
-                ? "Aadhaar Card Number"
-                : tenant.panNumber.trim().isEmpty
-                ? "PAN Card Number"
-                : null;
+        final applicantName = tenant.applicantName;
 
-        if (missingField != null) {
-          showErrorMessage(
-            context,
-            "Error",
-            "${tenant.applicantName}: $missingField is required.",
-          );
-          return false;
+        if (tenant.photoURL.trim().isEmpty) {
+          errors.add("$applicantName: Photo is required.");
+        }
+
+        if (tenant.applicantEmailId.trim().isEmpty) {
+          errors.add("$applicantName: E-Mail ID is required.");
+        }
+
+        if (tenant.aadharCardNumber.trim().isEmpty) {
+          errors.add("$applicantName: Aadhaar Card Number is required.");
+        }
+
+        if (tenant.aadharCardURL.trim().isEmpty) {
+          errors.add("$applicantName: Aadhaar Card Document is required.");
+        }
+
+        if (tenant.panNumber.trim().isEmpty) {
+          errors.add("$applicantName: PAN Card Number is required.");
+        }
+
+        if (tenant.panCardURL.trim().isEmpty) {
+          errors.add("$applicantName: PAN Card Document is required.");
         }
       }
     }
-    return true;
+
+    if (errors.isNotEmpty) {
+      return errors;
+    }
+
+    return errors;
   }
 
   //  GET OTHER CHARGES LIST
@@ -544,6 +581,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
           "ownerName": newBooking.applicantName,
           "status": "Alloted",
           "bookingId": newBooking.bookingId,
+          "tenantId": newBooking.tenantId,
         });
       },
     );
@@ -572,8 +610,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     int? numberOfParking,
     required String handoverType,
     required DateTime registrationDate,
-
-    /// CHANGE LATER IN API
     required String paymentRemark,
     required String otherRemark,
     required String flatAlterationRemark,

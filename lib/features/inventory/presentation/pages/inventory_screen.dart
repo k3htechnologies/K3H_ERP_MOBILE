@@ -1373,6 +1373,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                     bookingId: result["bookingId"],
                     flatStatus: result["status"],
                     ownerName: result["ownerName"],
+                    tenantId: result["tenantId"],
                   );
                 }
               },
