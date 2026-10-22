@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/pr
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/add_baseline_plan_cost.screen.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/baseline_cost_plan.screen.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/view_baseline_cost_plan.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/budget/presentation/pages/view_budget_summary_screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
 import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/presentation/cubit/notice_section_cubit.dart';
@@ -8288,8 +8289,39 @@ final GoRouter goRouter = GoRouter(
                     (jsonDecode(decryptedData) as List)
                         .map((json) => BudgetModel.fromJson(json))
                         .toList();
+                final buildingWingName = EncryptionManager.decryptData(
+                  state.uri.queryParameters['buildingWingName'] ?? '',
+                );
+                return ViewBudgetMasterScreen(
+                  budgetList: budgetList,
+                  buildingWingName: buildingWingName,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewBudgetSummary,
+              path: AppRoutes.viewBudgetSummary,
+              builder: (context, state) {
+                final inventoryFlatFloorBasementPodiumWingId =
+                    int.tryParse(
+                      state
+                              .uri
+                              .queryParameters['InventoryFlatFloorBasementPodiumWingId'] ??
+                          '',
+                    ) ??
+                    0;
 
-                return ViewBudgetMasterScreen(budgetList: budgetList);
+                final projectId =
+                    int.tryParse(
+                      state.uri.queryParameters['projectId'] ?? '',
+                    ) ??
+                    0;
+
+                return ViewBudgetSummaryScreen(
+                  projectId: projectId,
+                  inventoryFlatFloorBasementPodiumWingId:
+                      inventoryFlatFloorBasementPodiumWingId,
+                );
               },
             ),
             GoRoute(

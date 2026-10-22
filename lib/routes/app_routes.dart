@@ -584,6 +584,7 @@ class AppRoutes {
   //ESTIMATION AND BUDGET
   static String budget = "/budget";
   static String viewBudget = "/viewBudget";
+  static String viewBudgetSummary = "/viewBudgetSummary";
   // BASELINE COST PLAN
   static String baselineCostPlan = "/baselineCostPlan";
   static String addBaselineCostPlan = "/addBaselineCostPlan";

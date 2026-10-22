@@ -12,10 +12,16 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
 import 'package:k3h_erp_app/widgets/status/budget_level_status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ViewBudgetMasterScreen extends StatefulWidget {
   final List<BudgetModel> budgetList;
-  const ViewBudgetMasterScreen({super.key, required this.budgetList});
+  final String buildingWingName;
+  const ViewBudgetMasterScreen({
+    super.key,
+    required this.budgetList,
+    required this.buildingWingName,
+  });
   @override
   State<ViewBudgetMasterScreen> createState() => _ViewBudgetMasterScreenState();
 }
@@ -64,7 +70,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
       _matches(l2, query) ||
       _matches(l3, query) ||
       _anyL4Matches(l3, all, query);
-  
+
   void showDialog(
     BuildContext context, {
     required String title,
@@ -140,34 +146,45 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
         child: Column(
+          spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             showSiteSelectedWidget(),
-            SizedBox(height: 8.h),
+            if (widget.buildingWingName.trim().isNotEmpty)
+              Row(
+                spacing: 8,
+                children: [
+                  Icon(
+                    LucideIcons.building2,
+                    color: AppColor.darkBlue,
+                    size: 18,
+                  ),
+                  Text(
+                    widget.buildingWingName,
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                ],
+              ),
             SearchWidget(
               textController: _searchC,
               onSubmit: (_) {},
               hintText: 'Search By Category Name',
             ),
-            SizedBox(height: 8.h),
             if (l1List.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.only(top: 8.h),
-                child: Row(
-                  children: [
-                    Text(
-                      'L1 Category :',
-                      style: AppTextStyle.ts12M(
-                        color: AppColor.black.withValues(alpha: 0.5),
-                      ),
+              Row(
+                children: [
+                  Text(
+                    'L1 Category :',
+                    style: AppTextStyle.ts12M(
+                      color: AppColor.black.withValues(alpha: 0.5),
                     ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      l1List.first.level1Name,
-                      style: AppTextStyle.ts14SB(color: AppColor.darkBlue900),
-                    ),
-                  ],
-                ),
+                  ),
+                  SizedBox(width: 8.w),
+                  Text(
+                    l1List.first.level1Name,
+                    style: AppTextStyle.ts14SB(color: AppColor.darkBlue900),
+                  ),
+                ],
               ),
             Expanded(
               child:

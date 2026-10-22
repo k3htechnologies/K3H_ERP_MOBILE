@@ -64,11 +64,7 @@ class BudgetCubit extends Cubit<BudgetState> {
         final List<BudgetModel> updatedList =
             pageNumber == 1 ? newData : [...state.budgetList, ...newData];
 
-        final keepExistingOriginalBudgetList =
-            (state.searchText.isNotEmpty ||
-                state.filterByUom.isNotEmpty ||
-                state.filterByLevelType.isNotEmpty ||
-                state.filterByFlatType.isNotEmpty);
+        final keepExistingOriginalBudgetList = updateFilterCount(state) > 0;
         emit(
           state.copyWith(
             isLoading: false,
@@ -183,7 +179,6 @@ class BudgetCubit extends Cubit<BudgetState> {
     String? value,
     required int projectId,
     required int inventoryFlatFloorBasementPodiumWingId,
-    required bool isDisplayProjectBudget,
   }) async {
     final result = await _budgetRepository
         .pullInventoryProjectBasementPodiumWingBudget(
@@ -191,7 +186,7 @@ class BudgetCubit extends Cubit<BudgetState> {
             "ProjectId": projectId,
             "InventoryFlatFloorBasementPodiumWingId":
                 inventoryFlatFloorBasementPodiumWingId,
-            "IsDisplayProjectBudget": isDisplayProjectBudget,
+            "IsDisplayProjectBudget": false,
           },
         );
     return result.fold(
@@ -200,12 +195,12 @@ class BudgetCubit extends Cubit<BudgetState> {
         "totalNumberOfRecord": 0,
       },
       (response) {
-        final project =
+        final inventory =
             response['data']
                 as List<InventoryProjectBasementPodiumWingBudgetModel>;
         return {
           "itemList":
-              project.map((b) {
+              inventory.map((b) {
                 return {
                   "zAttributesId": b.inventoryFlatFloorBasementPodiumWingId,
                   "DisplayName": b.projectBuildingNumberWing,
@@ -247,6 +242,35 @@ class BudgetCubit extends Cubit<BudgetState> {
           inventoryFlatFloorBasementPodiumWingId:
               inventoryFlatFloorBasementPodiumWingId,
         );
+      },
+    );
+  }
+
+  Future<List<InventoryProjectBasementPodiumWingBudgetModel>> getBudgetSummary({
+    required int projectId,
+    required int inventoryFlatFloorBasementPodiumWingId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+    final result = await _budgetRepository
+        .pullInventoryProjectBasementPodiumWingBudget(
+          queryParams: {
+            "ProjectId": projectId,
+            "InventoryFlatFloorBasementPodiumWingId":
+                inventoryFlatFloorBasementPodiumWingId,
+            "IsDisplayProjectBudget": true,
+          },
+        );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        return [];
+      },
+      (response) {
+        final summary =
+            response['data']
+                as List<InventoryProjectBasementPodiumWingBudgetModel>;
+        emit(state.copyWith(isLoading: false));
+        return summary;
       },
     );
   }
