@@ -192,7 +192,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
   }
 
   //  GET TENANT LIST
-  Future<bool> getTenantList({
+  Future<void> getTenantList({
     required BuildContext context,
     required int projectId,
     required int buildingId,
@@ -213,88 +213,19 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       queryParams: queryParams,
     );
 
-    return result.fold(
+    result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        return false;
       },
-      (response) async {
+      (response) {
         final List<TenantModel> newData = List<TenantModel>.from(
           response['data'] ?? [],
         );
 
         emit(state.copyWith(tenantList: newData, isLoading: false));
-        final tenant = newData.first;
-        final total =
-            (tenant.totalNewRERACarpetAreaSqFt +
-                tenant.deckAreaSqFt +
-                tenant.areaAgainstTerraceSqFt);
-        List<String> errors = [];
-        if (validate) {
-          errors = await validateTenant(
-            context: context,
-            tenantList: newData,
-            projectReraCarpetArea: projectReraCarpetArea,
-          );
-          if (projectReraCarpetArea != null) {
-            if (total != projectReraCarpetArea) {
-              showErrorMessage(
-                // ignore: use_build_context_synchronously
-                context,
-                "Error",
-                "Carpet area mismatch: Tenant area is $total SqFt, but selected unit area is $projectReraCarpetArea SqFt.",
-              );
-            }
-          }
-        }
-        return errors.isNotEmpty || total != projectReraCarpetArea;
       },
     );
-  }
-
-  Future<List<String>> validateTenant({
-    required BuildContext context,
-    required List<TenantModel> tenantList,
-    double? projectReraCarpetArea,
-  }) async {
-    final List<String> errors = [];
-
-    if (tenantList.isNotEmpty) {
-      for (final tenant in tenantList.first.tenantApplicantData) {
-        final applicantName = tenant.applicantName;
-
-        if (tenant.photoURL.trim().isEmpty) {
-          errors.add("$applicantName: Photo is required.");
-        }
-
-        if (tenant.applicantEmailId.trim().isEmpty) {
-          errors.add("$applicantName: E-Mail ID is required.");
-        }
-
-        if (tenant.aadharCardNumber.trim().isEmpty) {
-          errors.add("$applicantName: Aadhaar Card Number is required.");
-        }
-
-        if (tenant.aadharCardURL.trim().isEmpty) {
-          errors.add("$applicantName: Aadhaar Card Document is required.");
-        }
-
-        if (tenant.panNumber.trim().isEmpty) {
-          errors.add("$applicantName: PAN Card Number is required.");
-        }
-
-        if (tenant.panCardURL.trim().isEmpty) {
-          errors.add("$applicantName: PAN Card Document is required.");
-        }
-      }
-    }
-
-    if (errors.isNotEmpty) {
-      return errors;
-    }
-
-    return errors;
   }
 
   //  GET OTHER CHARGES LIST

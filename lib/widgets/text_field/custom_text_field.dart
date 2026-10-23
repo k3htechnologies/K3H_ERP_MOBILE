@@ -180,8 +180,8 @@ class CustomTextField extends StatelessWidget {
                   isDense: true,
                   counterText: '',
                   hintText: hint ?? "",
-                  filled: fillColor != null,
-                  fillColor: fillColor,
+                  filled: fillColor != null || readOnly,
+                  fillColor: readOnly ? AppColor.grey10 : fillColor,
                   hintStyle: AppTextStyle.ts14R().copyWith(
                     color: AppColor.grey,
                   ),
@@ -266,7 +266,12 @@ class CustomTextField extends StatelessWidget {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.0),
                     borderSide: BorderSide(
-                      color: hasError ? AppColor.error : AppColor.primary,
+                      color:
+                          hasError
+                              ? AppColor.error
+                              : readOnly
+                              ? AppColor.grey30
+                              : AppColor.primary,
                       width: 1.0,
                     ),
                   ),

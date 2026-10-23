@@ -93,7 +93,10 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   late ValueNotifier<MultiFilePickerModel> selectedGSTCertificateForPopUpFile;
 
   ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
-  bool get isNewCompany => selectedCompanyType.value?['zAttributesId'] == 1;
+  bool get isNewCompany =>
+      (selectedCompanyType.value != null)
+          ? (selectedCompanyType.value?['zAttributesId'] == 1)
+          : true;
   Map<String, dynamic>? selectedSpeciality;
   late Map<String, dynamic> selectedSpecialityFilter;
   late ValueNotifier<Map<String, dynamic>?> selectedCompanyType;

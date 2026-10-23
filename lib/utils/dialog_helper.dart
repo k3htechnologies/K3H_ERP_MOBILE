@@ -17,6 +17,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/custom_snack_bar.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -927,12 +928,13 @@ class DialogHelper {
                           ),
                         ),
                       ),
-                    GestureDetector(
-                      onTap: () {
+                    CustomIconButton(
+                      icon: Icon(Icons.close, size: 18),
+                      backgroundColor: AppColor.white,
+                      onPressed: () {
                         goRouter.pop();
                         onDismiss?.call();
                       },
-                      child: Icon(Icons.close, size: 18),
                     ),
                   ],
                 ),

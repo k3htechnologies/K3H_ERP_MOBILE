@@ -1125,8 +1125,10 @@ class _InventoryScreenState extends State<InventoryScreen>
         approvalStatus.toLowerCase() == "approved" &&
         flat.flatType != "" &&
         flat.reraCarpetAreaSqFt > 0 &&
+        flat.tenantId != 0 &&
         flat.bookingId == 0 &&
         _routeAuthorizationModelTenantBooking.isAction;
+
     final showBookBtn = showBookBtnForAvailable || showBookBtnForAlloted;
 
     return Container(

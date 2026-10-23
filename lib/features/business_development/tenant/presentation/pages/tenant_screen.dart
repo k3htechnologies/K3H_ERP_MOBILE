@@ -662,6 +662,9 @@ class _TenantScreenState extends State<TenantScreen> {
                             final tenant = assignedFlats.first;
 
                             final applicantName = tenant.applicantName;
+                            final disableAction =
+                                !(_routeAuthorizationModel.isAction &&
+                                    tenant.flatIsEditDelete);
                             return Container(
                               padding: const EdgeInsets.all(16),
                               decoration: commonCardDecoration(),
@@ -766,9 +769,7 @@ class _TenantScreenState extends State<TenantScreen> {
                                       Row(
                                         children: [
                                           CustomIconButton.edit(
-                                            isDisabled:
-                                                !_routeAuthorizationModel
-                                                    .isAction,
+                                            isDisabled: disableAction,
                                             onPressed: () async {
                                               if (_selectedBuildingNotifier
                                                   .value
@@ -808,9 +809,7 @@ class _TenantScreenState extends State<TenantScreen> {
                                           ),
                                           const SizedBox(width: 8),
                                           CustomIconButton.delete(
-                                            isDisabled:
-                                                !_routeAuthorizationModel
-                                                    .isAction,
+                                            isDisabled: disableAction,
                                             onPressed: () {
                                               _showPopupToDeleteTenant(
                                                 context,

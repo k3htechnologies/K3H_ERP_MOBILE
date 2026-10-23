@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -327,8 +329,18 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     _totalAreaAgainstTerraceDeckReraC.text = (a + b + c).toStringAsFixed(2);
   }
 
-  void _handleSubmit() {
+  void _handleSubmit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (tenantModel != null) {
+      final errors = await _cubit.validateTenant(
+        context: context,
+        applicants: _applicants.value,
+      );
+      if (errors.isNotEmpty) {
+        _showTenantErrorDialog(errors: errors);
+        return;
+      }
+    }
     final currentApplicants = _applicants.value;
     if (currentApplicants.isEmpty) {
       showErrorMessage(context, 'Error', 'Atleast one applicant is required');
@@ -540,6 +552,163 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
       c.dispose();
     }
     super.dispose();
+  }
+
+  Future<void> _showTenantErrorDialog({required List<String> errors}) async {
+    final Map<String, List<String>> grouped = {};
+    for (final e in errors) {
+      final i = e.indexOf(': ');
+      final name = i == -1 ? 'Other' : e.substring(0, i);
+      final msg = i == -1 ? e : e.substring(i + 2);
+      grouped.putIfAbsent(name, () => []).add(msg);
+    }
+
+    DialogHelper.showCustomDialogue(
+      context,
+      title: "Missing information",
+      isError: true,
+      barrierDismissible: false,
+      icon: Icon(Icons.error_outline_rounded, color: AppColor.red, size: 20),
+      childContent: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.5,
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppColor.red.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                "${errors.length} ${errors.length == 1 ? 'issue' : 'issues'} found. "
+                "Please complete them to continue.",
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: AppColor.red,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...grouped.entries.map(
+                      (entry) => Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColor.black.withValues(alpha: 0.12),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                CircleAvatar(
+                                  radius: 13,
+                                  backgroundColor: AppColor.red.withValues(
+                                    alpha: 0.12,
+                                  ),
+                                  child: Text(
+                                    getInitials(entry.key),
+                                    style: TextStyle(
+                                      color: AppColor.red,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    entry.key,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.red,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: Text(
+                                    "${entry.value.length}",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 8),
+                            Divider(
+                              height: 1,
+                              thickness: 0.5,
+                              color: AppColor.black.withValues(alpha: 0.15),
+                            ),
+                            const SizedBox(height: 6),
+                            ...entry.value.map(
+                              (msg) => Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 3,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Icon(
+                                        Icons.cancel_rounded,
+                                        size: 14,
+                                        color: AppColor.red,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        msg,
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          height: 1.3,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override

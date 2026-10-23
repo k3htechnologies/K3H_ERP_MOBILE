@@ -39,6 +39,7 @@ class TenantModel {
   String parkingNumber;
   String flatFacing;
   String buildingName;
+  bool flatIsEditDelete;
   List<ParkingModel> parkingData;
   String parkingId;
   List<InventoryFlatData> inventoryFlatData;
@@ -87,6 +88,7 @@ class TenantModel {
     required this.inventoryFlatConfiguration,
     required this.parkingNumber,
     required this.flatFacing,
+    required this.flatIsEditDelete,
     required this.parkingData,
     required this.parkingId,
     required this.inventoryFlatData,
@@ -175,6 +177,7 @@ class TenantModel {
       ),
       parkingNumber: parseValue<String>(json, "ParkingNumber"),
       flatFacing: parseValue<String>(json, "FlatFacing"),
+      flatIsEditDelete: parseValue<bool>(json, "FlatIsEditDelete"),
       parkingData:
           json["ParkingData"] != null && json["ParkingData"] is List
               ? (json["ParkingData"] as List)
@@ -258,6 +261,7 @@ class TenantModel {
       "InventoryFlatConfiguration": inventoryFlatConfiguration,
       "ParkingNumber": parkingNumber,
       "FlatFacing": flatFacing,
+      "FlatIsEditDelete": flatIsEditDelete,
       "ParkingData": parkingData.map((e) => e.toJson()).toList(),
       "ParkingId": parkingId,
       "TenantApplicantData":

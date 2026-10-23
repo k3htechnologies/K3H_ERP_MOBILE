@@ -81,23 +81,14 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     _isFetchingTenant.value = true;
     _tenantFetchTried.value = true;
     try {
-      final error = await _bookingCubit.getTenantList(
+      await _bookingCubit.getTenantList(
         context: context,
         projectId: _project.projectId,
         systemGeneratedCode: code,
         buildingId: building.first['zAttributesId'],
         projectReraCarpetArea: _projectReraCarpetArea.toDouble(),
       );
-      if (error) {
-        final errors = await _bookingCubit.validateTenant(
-          // ignore: use_build_context_synchronously
-          context: context,
-          tenantList: _bookingCubit.state.tenantList,
-        );
-        if (errors.isNotEmpty) {
-          _showTenantErrorDialog(errors: errors);
-        }
-      }
+
       if (!mounted) return;
 
       final list = _bookingCubit.state.tenantList;
@@ -588,9 +579,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
             if (value == null || value.trim().isEmpty) {
               return "Agreement Value (with TDS) is required.";
             }
-            final parsed = double.tryParse(value.trim());
-            if (parsed == null) return "Invalid amount";
-            if (parsed <= 0) return "Amount must be greater than 0";
             return null;
           },
         ),

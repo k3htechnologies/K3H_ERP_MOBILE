@@ -702,14 +702,16 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     }
 
     // STEP 2: PAYMENT SCHEDULE
-    if (_bookingCubit.state.bookingPaymentScheduleList.isEmpty) {
+    if (_bookingCubit.state.bookingPaymentScheduleList.isEmpty &&
+        _agreementValueNotifier.value > 0) {
       _bookingCubit.onTabChangedAddForm(1, context);
       _tabController.animateTo(1);
       showErrorMessage(context, "", "Add Payment Schedule Details");
       return false;
     }
     // PAYMENT SCHEDULE SHOULD BE 100 PERCENTAGE COMPLETED
-    if (_bookingCubit.totalCumulativePercentage != 100) {
+    if (_bookingCubit.totalCumulativePercentage != 100 &&
+        _agreementValueNotifier.value > 0) {
       _bookingCubit.onTabChangedAddForm(1, context);
       _tabController.animateTo(1);
       showErrorMessage(
@@ -726,23 +728,8 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
       _tabController.animateTo(4);
       return false;
     }
-    // STEP 4: REMARK
-    if (!(_remarkFormKey.currentState?.validate() ?? false)) {
-      _bookingCubit.onTabChangedAddForm(5, context);
-      _tabController.animateTo(5);
-      return false;
-    }
 
-    final errors = await _bookingCubit.validateTenant(
-      context: context,
-      tenantList: _bookingCubit.state.tenantList,
-    );
-    if (errors.isNotEmpty) {
-      _bookingCubit.onTabChangedAddForm(0, context);
-      _tabController.animateTo(0);
-      _showTenantErrorDialog(errors: errors);
-    }
-    return errors.isEmpty;
+    return true;
   }
 
   // LOAD PAYMENT SCHEDULE SCHEMES
@@ -837,7 +824,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
         agreementValueGSTAmount: _agreementGstAmountNotifier.value,
         stampDutyPercentage: double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
         stampDutyAmount: _stampDutyAmountNotifier.value,
-        registrationFees: double.parse(_registrationFeesC.text.trim()),
+        registrationFees: double.tryParse(_registrationFeesC.text.trim()) ?? 0,
         parkingId: parkingId,
         handoverType: handoverType,
         registrationDate: registrationDate,
@@ -848,9 +835,12 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
             _termsAndConditionDescriptionC.text.trim(),
         bookingType: 'FLAT',
         otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
-        paymentScheduleScheme: selectedScheme.value["DisplayName"],
+        paymentScheduleScheme:
+            selectedScheme.value.isNotEmpty
+                ? selectedScheme.value["DisplayName"]
+                : 'Other',
         paymentScheduleSchemeMasterId:
-            selectedScheme.value["zAttributesId"] == -1
+            selectedScheme.value.isEmpty
                 ? 0
                 : selectedScheme.value["zAttributesId"],
         paymentScheduleDetailJSON:
@@ -886,7 +876,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
         agreementValueGSTAmount: _agreementGstAmountNotifier.value,
         stampDutyPercentage: double.tryParse(_stampDutyPercentageC.text) ?? 0.0,
         stampDutyAmount: _stampDutyAmountNotifier.value,
-        registrationFees: double.parse(_registrationFeesC.text.trim()),
+        registrationFees: double.tryParse(_registrationFeesC.text.trim()) ?? 0,
         sourceOfFunding: _selectedFundingSource.value!['DisplayName'] ?? "",
         parkingId: parkingId,
         numberOfParking:
@@ -903,9 +893,12 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
             _termsAndConditionDescriptionC.text.trim(),
         bookingType: 'FLAT',
         otherChargesDetailJSON: _bookingCubit.state.otherChargesList,
-        paymentScheduleScheme: selectedScheme.value["DisplayName"],
+        paymentScheduleScheme:
+            selectedScheme.value.isNotEmpty
+                ? selectedScheme.value["DisplayName"]
+                : 'Other',
         paymentScheduleSchemeMasterId:
-            selectedScheme.value["zAttributesId"] == -1
+            selectedScheme.value.isEmpty
                 ? 0
                 : selectedScheme.value["zAttributesId"],
         paymentScheduleDetailJSON:
@@ -975,38 +968,6 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
-    );
-  }
-
-  Future<void> _showTenantErrorDialog({required List<String> errors}) async {
-    DialogHelper.showCustomDialogue(
-      context,
-      title: "Please fix the following errors:",
-      isError: true,
-      icon: Icon(Icons.not_interested_outlined, color: AppColor.red, size: 18),
-      childContent: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 10,
-          children: [
-            Divider(
-              color: AppColor.black.withValues(alpha: 0.50),
-              thickness: 0.5,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(
-                errors.length,
-                (index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Text("${index + 1}. ${errors[index]}"),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

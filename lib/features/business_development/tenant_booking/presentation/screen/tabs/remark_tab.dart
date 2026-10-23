@@ -23,36 +23,16 @@ extension _RemarkTab on _AddTenantBookingScreenState {
                     CustomTextField(
                       title: "Unit / Modulation / Customization Remark",
                       hint: "Enter Unit / Modulation / Customization Remark",
-                      isRequired: true,
                       minLines: 3,
                       maxLines: 3,
                       textController: _unitModCustomizationRemarkC,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Unit / Modulation / Customization Remark is required.";
-                        }
-                        if (value.trim().length < 25) {
-                          return "Unit / Modulation / Customization Remark must be at least 25 characters";
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: "Payment Related Remark",
                       hint: "Enter Payment Related Remark",
-                      isRequired: true,
                       minLines: 3,
                       maxLines: 3,
                       textController: _paymentRemarkC,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Payment Related Remark is required.";
-                        }
-                        if (value.trim().length < 25) {
-                          return "Payment Related Remark must be at least 25 characters";
-                        }
-                        return null;
-                      },
                     ),
                     CustomTextField(
                       title: "Other Remark",
