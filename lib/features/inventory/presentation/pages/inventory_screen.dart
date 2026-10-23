@@ -1352,6 +1352,7 @@ class _InventoryScreenState extends State<InventoryScreen>
                     "tenantId": flat.tenantId,
                     "tenantBuildingId": flat.tenantBuildingId,
                     "tenantSystemGeneratedCode": flat.tenantSystemGeneratedCode,
+                    "adjustPurchaseArea": flat.adjustPurchaseAreaSqFt,
                   },
                 ];
 

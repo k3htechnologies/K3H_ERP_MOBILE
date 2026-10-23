@@ -676,14 +676,14 @@ class _ParkingScreenState extends State<ParkingScreen>
       case 'Hold':
         statusColor = AppColor.yellow;
         break;
-      case 'Alloted':
+      case 'Member':
         statusColor = AppColor.purple;
         break;
       default:
         statusColor = AppColor.grey;
     }
     final status = parking.parkingStatus.toLowerCase();
-    final showView = (status == "booked" || status == "alloted");
+    final showView = (status == "booked" || status == "member");
     final canAction = _routeAuthorizationModel.isAction;
 
     final showEdit =

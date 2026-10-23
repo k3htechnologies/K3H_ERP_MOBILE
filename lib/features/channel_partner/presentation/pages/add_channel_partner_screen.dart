@@ -95,7 +95,7 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
   ValueNotifier<bool> isCompanyPrefilled = ValueNotifier(false);
   bool get isNewCompany =>
       (selectedCompanyType.value != null)
-          ? (selectedCompanyType.value?['zAttributesId'] == 1)
+          ? (selectedCompanyType.value?['DisplayName'] == 'New Company')
           : true;
   Map<String, dynamic>? selectedSpeciality;
   late Map<String, dynamic> selectedSpecialityFilter;

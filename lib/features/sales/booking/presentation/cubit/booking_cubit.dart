@@ -687,6 +687,7 @@ class BookingCubit extends Cubit<BookingState> {
           "ownerName": newBooking.applicantName,
           "status": "Booked",
           "bookingId": newBooking.bookingId,
+          "tenantId": newBooking.tenantId,
         });
       },
     );

@@ -181,7 +181,10 @@ class CustomTextField extends StatelessWidget {
                   counterText: '',
                   hintText: hint ?? "",
                   filled: fillColor != null || readOnly,
-                  fillColor: readOnly ? AppColor.grey10 : fillColor,
+                  fillColor:
+                      readOnly
+                          ? AppColor.lightGrey.withValues(alpha: 0.3)
+                          : fillColor,
                   hintStyle: AppTextStyle.ts14R().copyWith(
                     color: AppColor.grey,
                   ),
@@ -259,7 +262,12 @@ class CustomTextField extends StatelessWidget {
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(6.0),
                     borderSide: BorderSide(
-                      color: hasError ? AppColor.error : AppColor.grey30,
+                      color:
+                          hasError
+                              ? AppColor.error
+                              : readOnly
+                              ? AppColor.lightGrey.withValues(alpha: 0.4)
+                              : AppColor.grey30,
                       width: 1.0,
                     ),
                   ),
@@ -270,7 +278,7 @@ class CustomTextField extends StatelessWidget {
                           hasError
                               ? AppColor.error
                               : readOnly
-                              ? AppColor.grey30
+                              ? AppColor.lightGrey.withValues(alpha: 0.3)
                               : AppColor.primary,
                       width: 1.0,
                     ),

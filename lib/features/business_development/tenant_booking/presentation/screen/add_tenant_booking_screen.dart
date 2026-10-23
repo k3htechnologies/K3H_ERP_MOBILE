@@ -840,7 +840,8 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
                 ? selectedScheme.value["DisplayName"]
                 : 'Other',
         paymentScheduleSchemeMasterId:
-            selectedScheme.value.isEmpty
+            (selectedScheme.value.isEmpty ||
+                    selectedScheme.value["zAttributesId"] == -1)
                 ? 0
                 : selectedScheme.value["zAttributesId"],
         paymentScheduleDetailJSON:
@@ -898,7 +899,8 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
                 ? selectedScheme.value["DisplayName"]
                 : 'Other',
         paymentScheduleSchemeMasterId:
-            selectedScheme.value.isEmpty
+            (selectedScheme.value.isEmpty ||
+                    selectedScheme.value["zAttributesId"] == -1)
                 ? 0
                 : selectedScheme.value["zAttributesId"],
         paymentScheduleDetailJSON:

@@ -549,7 +549,15 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                     ),
                     children: [
                       bookingModel!.parkingData.isEmpty
-                          ? Center(child: noDataWidget(message: 'No Parking'))
+                          ? SizedBox(
+                            height: 250.0,
+                            child: Center(
+                              child: noDataWidget(
+                                message: 'No Parking Data Found',
+                                iconSize: 160,
+                              ),
+                            ),
+                          )
                           : ListView.builder(
                             padding: EdgeInsets.symmetric(
                               horizontal: 2,
@@ -1026,7 +1034,7 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                                 : Center(
                                   child: noDataWidget(
                                     message: "No Charges Available",
-                                    iconSize: 180,
+                                    iconSize: 160,
                                   ),
                                 ),
                       ),
@@ -1044,126 +1052,143 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                     children: [
                       SizedBox(
                         height: 250.0,
-                        child: ListView.builder(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 2,
-                            vertical: 10,
-                          ),
-                          shrinkWrap: true,
-                          itemCount:
-                              bookingModel!.bookingPaymentScheduleData.length,
-                          itemBuilder: (context, index) {
-                            final payment =
-                                bookingModel!.bookingPaymentScheduleData[index];
-                            final bool isLast =
-                                index ==
-                                bookingModel!
-                                        .bookingPaymentScheduleData
-                                        .length -
-                                    1;
-                            return Container(
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: AppColor.primary,
-                                  width: .3,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              margin: EdgeInsets.only(
-                                bottom: isLast ? 0.0 : 10,
-                              ),
-                              padding: EdgeInsets.all(10.0),
-                              child: Column(
-                                spacing: 10,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "Type",
-                                        value: payment.type,
+                        child:
+                            bookingModel!.bookingPaymentScheduleData.isEmpty
+                                ? Center(
+                                  child: noDataWidget(
+                                    iconSize: 160,
+                                    message: "No Payment Schedule Found",
+                                  ),
+                                )
+                                : ListView.builder(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 2,
+                                    vertical: 10,
+                                  ),
+                                  shrinkWrap: true,
+                                  itemCount:
+                                      bookingModel!
+                                          .bookingPaymentScheduleData
+                                          .length,
+                                  itemBuilder: (context, index) {
+                                    final payment =
+                                        bookingModel!
+                                            .bookingPaymentScheduleData[index];
+                                    final bool isLast =
+                                        index ==
+                                        bookingModel!
+                                                .bookingPaymentScheduleData
+                                                .length -
+                                            1;
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: AppColor.primary,
+                                          width: .3,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
-                                      payment.type.contains("Date")
-                                          ? buildColumnTitleValue(
-                                            title: "Date",
-                                            value:
-                                                payment.date != null
-                                                    ? formatDateTimeAsDDMMMYYYY(
-                                                      payment.date!,
-                                                    )
-                                                    : "-",
-                                          )
-                                          : buildColumnTitleValue(
-                                            title: "Stage",
-                                            value: payment.name,
+                                      margin: EdgeInsets.only(
+                                        bottom: isLast ? 0.0 : 10,
+                                      ),
+                                      padding: EdgeInsets.all(10.0),
+                                      child: Column(
+                                        spacing: 10,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            spacing: 10,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Type",
+                                                value: payment.type,
+                                              ),
+                                              payment.type.contains("Date")
+                                                  ? buildColumnTitleValue(
+                                                    title: "Date",
+                                                    value:
+                                                        payment.date != null
+                                                            ? formatDateTimeAsDDMMMYYYY(
+                                                              payment.date!,
+                                                            )
+                                                            : "-",
+                                                  )
+                                                  : buildColumnTitleValue(
+                                                    title: "Stage",
+                                                    value: payment.name,
+                                                  ),
+                                            ],
                                           ),
-                                    ],
-                                  ),
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "Percentage (%)",
-                                        value:
-                                            "${payment.paymentSchedulePercentage} %",
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: "Amount Without TDS (₹)",
-                                        value:
-                                            payment.paymentScheduleAmount
-                                                .toIndianCurrency(),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    spacing: 10,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "GST Amount (₹)",
-                                        value:
-                                            payment.paymentScheduleGSTAmount
-                                                .toIndianCurrency(),
-                                      ),
-                                      buildColumnTitleValue(
-                                        title: "TDS Amount (₹)",
-                                        value:
-                                            payment.paymentScheduleTDSAmount
-                                                .toIndianCurrency(),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      buildColumnTitleValue(
-                                        title: "Total Amount With TDS (₹)",
-                                        value:
-                                            (payment.paymentScheduleAmount +
+                                          Row(
+                                            spacing: 10,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Percentage (%)",
+                                                value:
+                                                    "${payment.paymentSchedulePercentage} %",
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "Amount Without TDS (₹)",
+                                                value:
                                                     payment
-                                                        .paymentScheduleTDSAmount)
-                                                .toIndianCurrency(),
+                                                        .paymentScheduleAmount
+                                                        .toIndianCurrency(),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            spacing: 10,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "GST Amount (₹)",
+                                                value:
+                                                    payment
+                                                        .paymentScheduleGSTAmount
+                                                        .toIndianCurrency(),
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "TDS Amount (₹)",
+                                                value:
+                                                    payment
+                                                        .paymentScheduleTDSAmount
+                                                        .toIndianCurrency(),
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title:
+                                                    "Total Amount With TDS (₹)",
+                                                value:
+                                                    (payment.paymentScheduleAmount +
+                                                            payment
+                                                                .paymentScheduleTDSAmount)
+                                                        .toIndianCurrency(),
+                                              ),
+                                              Spacer(),
+                                            ],
+                                          ),
+                                        ],
                                       ),
-                                      Spacer(),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                                    );
+                                  },
+                                ),
                       ),
                     ],
                   ),
@@ -1258,7 +1283,7 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                               Center(
                                 child: noDataWidget(
                                   message: "No Terms & Conditions Available",
-                                  iconSize: 180,
+                                  iconSize: 160,
                                 ),
                               ),
                             ],
@@ -1463,7 +1488,14 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
 
   Widget _buildPaymentSchedule() {
     if (bookingModel!.bookingPaymentScheduleData.isEmpty) {
-      return noDataWidget();
+      return Expanded(
+        child: Center(
+          child: noDataWidget(
+            iconSize: 180,
+            message: "No Payment Schedule Found",
+          ),
+        ),
+      );
     }
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),

@@ -1,13 +1,9 @@
 part of '../add_tenant_booking_screen.dart';
 
 extension _DetailsTab on _AddTenantBookingScreenState {
-  // ---------------------------------------------------------------------------
-  // Small helpers
-  // ---------------------------------------------------------------------------
-
   static const int _tenantCodeLength = 18;
 
-  /// First inventory object (if any).
+  // INVENTORY OBJ
   dynamic _inv(String key) => widget.inventoryObject?.firstOrNull?[key];
 
   num get _projectReraCarpetArea =>
@@ -20,7 +16,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     children: children,
   );
 
-  /// Builds rows of two "title / value" cells from a flat list.
   List<Widget> _pairRows(List<(String, String)> items) => [
     for (var i = 0; i < items.length; i += 2)
       _infoRow([
@@ -29,7 +24,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
       ]),
   ];
 
-  /// Common titled white card used by most form sections.
   Widget _sectionContainer({
     required String title,
     required List<Widget> children,
@@ -69,10 +63,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
       agreementValueTds: _tdsNotifier.value,
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Tenant fetching (single source of truth, always resets loading flag)
-  // ---------------------------------------------------------------------------
 
   Future<void> _fetchTenant(String code) async {
     final building = _selectedBuildingNotifier.value;
@@ -118,10 +108,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Root
-  // ---------------------------------------------------------------------------
-
+  // DETAILS COMPONENT
   Widget _buildDetails() {
     return Form(
       key: _detailsFormKey,
@@ -156,10 +143,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
       ),
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Tenant lookup
-  // ---------------------------------------------------------------------------
 
   Widget _buildTenantLookupCard() {
     return Container(
@@ -218,8 +201,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     );
   }
 
-  /// Decides between: nothing / loading / tenant details / not found.
-  /// Listens to every notifier it reads so the UI can never get stuck.
+  /// DECIDE BETWEEN : NOTHING / LOADING / TENANT DETAILS / NOT FOUND.
   Widget _buildTenantResult(TenantBookingState state) {
     return ListenableBuilder(
       listenable: Listenable.merge([
@@ -414,10 +396,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // RERA / MOFA toggle
-  // ---------------------------------------------------------------------------
-
   Widget _buildReraMofaToggle() {
     return ValueListenableBuilder<bool>(
       valueListenable: _isRERA,
@@ -479,10 +457,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Address
-  // ---------------------------------------------------------------------------
-
   Widget _buildAddressCard() {
     return _sectionContainer(
       title: "Address Details",
@@ -511,10 +485,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Project details
-  // ---------------------------------------------------------------------------
-
   Widget _buildProjectDetails() {
     final model = widget.tenantBookingModel;
 
@@ -522,13 +492,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
       bloc: _bookingCubit,
       buildWhen: (p, c) => p.tenantList != c.tenantList,
       builder: (context, state) {
-        final adjustArea =
-            state.tenantList.isNotEmpty
-                ? state.tenantList.first.inventoryFlatData
-                    .fold<double>(0.0, (a, b) => a + b.adjustPurchaseAreaSqFt)
-                    .toString()
-                : "-";
-
         return infoCard(title: "Project Details", [
           {
             "title": "Building Number",
@@ -545,18 +508,21 @@ extension _DetailsTab on _AddTenantBookingScreenState {
           {
             "title": "RERA Carpet Area (SqFt)",
             "value":
-                (_inv("reraCarpetAreaSqFt") ?? model?.reraCarpetAreaSqFt)
-                    .toString(),
+                ((_inv("reraCarpetAreaSqFt") ?? model?.reraCarpetAreaSqFt)
+                        as num)
+                    .addCommas(),
           },
-          {"title": "Adjust Purchase Area (SqFt)", "value": adjustArea},
+          {
+            "title": "Adjust Purchase Area (SqFt)",
+            "value":
+                ((_inv("adjustPurchaseArea") ?? model?.adjustPurchaseAreaSqFt)
+                        as num)
+                    .addCommas(),
+          },
         ]);
       },
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Agreement
-  // ---------------------------------------------------------------------------
 
   Widget _buildAgreementCard() {
     return _sectionContainer(
@@ -608,10 +574,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
       ],
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Tax
-  // ---------------------------------------------------------------------------
 
   Widget _buildTaxCard() {
     return _sectionContainer(
@@ -688,10 +650,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
     );
   }
 
-  // ---------------------------------------------------------------------------
-  // Parking (edit mode only)
-  // ---------------------------------------------------------------------------
-
   Widget _buildParkingCard() {
     final parkingData = widget.tenantBookingModel?.parkingData;
     if (!_isEditMode || parkingData == null || parkingData.isEmpty) {
@@ -745,10 +703,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
       ),
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Other details
-  // ---------------------------------------------------------------------------
 
   Widget _buildOtherDetailsCard() {
     return _sectionContainer(
@@ -856,10 +810,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
       );
     }
   }
-
-  // ---------------------------------------------------------------------------
-  // Applicant card
-  // ---------------------------------------------------------------------------
 
   Widget _buildApplicantCard(TenantApplicantData applicant) {
     return infoCard(

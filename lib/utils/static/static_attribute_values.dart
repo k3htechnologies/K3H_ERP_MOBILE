@@ -264,6 +264,14 @@ const flatStatusWithOtherOptionsValues = [
   'Booked',
 ];
 
+const parkingStatusWithOtherOptionsValues = [
+  'Available',
+  'Blocked',
+  'Hold',
+  'Member',
+  'Booked',
+];
+
 const flatFacingValues = [
   'City View',
   'Forest / Mangrove View',

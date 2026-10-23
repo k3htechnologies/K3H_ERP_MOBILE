@@ -132,6 +132,8 @@ final List<Map<String, dynamic>> flatStatusList = createAttributeList(
 final List<Map<String, dynamic>> flatStatusListWithOtherOptions =
     createAttributeList(flatStatusWithOtherOptionsValues);
 
+final List<Map<String, dynamic>> parkingStatusListWithOtherOptions =
+    createAttributeList(parkingStatusWithOtherOptionsValues);
 final List<Map<String, dynamic>> flatFacingList = createAttributeList(
   flatFacingValues,
 );
