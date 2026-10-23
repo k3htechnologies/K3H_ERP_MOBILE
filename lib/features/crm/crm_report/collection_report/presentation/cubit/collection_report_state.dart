@@ -7,6 +7,8 @@ class CollectionReportState extends BaseState {
   final int currentPage;
   final String searchText;
   final List<CollectionReportProjectWiseModel> collectionProjectReportList;
+  final Map<int, List<CollectionReportProjectWiseModel>> projectWiseReportMap;
+  final Set<int> loadingProjectIds;
   const CollectionReportState({
     super.isLoading,
     required this.collectionReportList,
@@ -15,6 +17,8 @@ class CollectionReportState extends BaseState {
     required this.currentPage,
     required this.searchText,
     required this.collectionProjectReportList,
+    required this.projectWiseReportMap,
+    required this.loadingProjectIds,
   });
   factory CollectionReportState.initial() => CollectionReportState(
     isLoading: true,
@@ -23,6 +27,8 @@ class CollectionReportState extends BaseState {
     currentPage: 0,
     searchText: "",
     collectionProjectReportList: [],
+    projectWiseReportMap: {},
+    loadingProjectIds: {0},
   );
 
   CollectionReportState copyWith({
@@ -33,6 +39,8 @@ class CollectionReportState extends BaseState {
     int? currentPage,
     String? searchText,
     List<CollectionReportProjectWiseModel>? collectionProjectReportList,
+    Map<int, List<CollectionReportProjectWiseModel>>? projectWiseReportMap,
+    Set<int>? loadingProjectIds,
   }) {
     return CollectionReportState(
       isLoading: isLoading ?? this.isLoading,
@@ -43,6 +51,8 @@ class CollectionReportState extends BaseState {
       searchText: searchText ?? this.searchText,
       collectionProjectReportList:
           collectionProjectReportList ?? this.collectionProjectReportList,
+      projectWiseReportMap: projectWiseReportMap ?? this.projectWiseReportMap,
+      loadingProjectIds: loadingProjectIds ?? this.loadingProjectIds,
     );
   }
 
@@ -55,5 +65,7 @@ class CollectionReportState extends BaseState {
     currentPage,
     searchText,
     collectionProjectReportList,
+    projectWiseReportMap,
+    loadingProjectIds,
   ];
 }

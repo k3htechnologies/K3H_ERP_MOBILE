@@ -586,7 +586,10 @@ class AppRoutes {
   static String baselineCostPlan = "/baselineCostPlan";
   static String addBaselineCostPlan = "/addBaselineCostPlan";
   static String viewBaselineCostPlan = "/viewBaselineCostPlan";
-
+  // CONSTRUCTION AREA
+  static String constructionArea = "/constructionArea";
+  static String addConstructionAreaComparative =
+      "/addConstructionAreaComparative";
   // otp LOGS
   static String otpLogs = "/otpLogs";
 

@@ -11,6 +11,7 @@ import 'package:k3h_erp_app/features/business_development/tenant/presentation/pa
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/view_tenant_booking_screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/collection_report/data/model/collection_report_project_wise.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/module_approval.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/module_approval_overall.screen.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/data/model/baseline_cost_plan.model.dart';
@@ -18,6 +19,10 @@ import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/pr
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/add_baseline_plan_cost.screen.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/baseline_cost_plan.screen.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/presentation/pages/view_baseline_cost_plan.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/data/model/construction_area_comparative.model.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/presentation/cubit/construction_area_cubit.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/presentation/pages/add_construction_area_comparative.screen.dart';
+import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/presentation/pages/construction_area.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing.screen.dart';
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
@@ -7955,19 +7960,53 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.collectionReportOverview,
               path: AppRoutes.collectionReportOverview,
               builder: (context, state) {
-                final projectName = EncryptionManager.decryptData(
-                  state.uri.queryParameters['projectName'] ?? '',
-                );
-
-                final projectId =
+                final documentParam =
+                    state
+                        .uri
+                        .queryParameters['collectionReportProjectWiseModel'];
+                final totalUnits =
                     int.tryParse(
-                      state.uri.queryParameters['projectId'] ?? '0',
+                      state.uri.queryParameters['totalUnits'] ?? '',
                     ) ??
                     0;
+                final residentialUnits =
+                    int.tryParse(
+                      state.uri.queryParameters['residentialUnits'] ?? '',
+                    ) ??
+                    0;
+                final commercialUnits =
+                    int.tryParse(
+                      state.uri.queryParameters['commercialUnits'] ?? '',
+                    ) ??
+                    0;
+                List<CollectionReportProjectWiseModel>
+                collectionReportProjectWiseModel = [];
+
+                if (documentParam != null) {
+                  final decoded =
+                      jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeQueryComponent(documentParam),
+                            ),
+                          )
+                          as List;
+
+                  collectionReportProjectWiseModel =
+                      decoded
+                          .map(
+                            (item) => CollectionReportProjectWiseModel.fromJson(
+                              Map<String, dynamic>.from(item),
+                            ),
+                          )
+                          .toList();
+                }
 
                 return CollectionReportOverallScreen(
-                  projectId: projectId,
-                  projectName: projectName,
+                  collectionReportProjectWiseModel:
+                      collectionReportProjectWiseModel,
+                  totalUnits: totalUnits,
+                  residentialUnits: residentialUnits,
+                  commercialUnits: commercialUnits,
                 );
               },
             ),
@@ -8223,6 +8262,7 @@ final GoRouter goRouter = GoRouter(
               providers: [
                 BlocProvider(create: (_) => BudgetCubit()),
                 BlocProvider(create: (_) => BaselineCostPlanCubit()),
+                BlocProvider(create: (_) => ConstructionAreaCubit()),
               ],
               child: child,
             );
@@ -8324,6 +8364,56 @@ final GoRouter goRouter = GoRouter(
                 return ViewBaselineCostPlanScreen(
                   baselineCostPlanDocumentModel: document!,
                   index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.constructionArea,
+              path: AppRoutes.constructionArea,
+              builder: (context, state) {
+                return const ConstructionAreaScreen();
+              },
+            ),
+
+            GoRoute(
+              name: AppRoutes.addConstructionAreaComparative,
+              path: AppRoutes.addConstructionAreaComparative,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['constructionAreaComparative'];
+
+                final ConstructionAreaComparativeModel? document =
+                    queryParameterDocument != null
+                        ? ConstructionAreaComparativeModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(
+                      EncryptionManager.decryptData(
+                        Uri.decodeComponent(
+                          state.uri.queryParameters['index'] ?? '0',
+                        ),
+                      ),
+                    ) ??
+                    0;
+
+                final isEdit = bool.parse(
+                  EncryptionManager.decryptData(
+                    Uri.decodeComponent(
+                      state.uri.queryParameters['isEdit'] ?? 'false',
+                    ),
+                  ),
+                );
+                return AddConstructionAreaComparativeScreen(
+                  constructionAreaComparativeModel: document,
+                  index: index,
+                  isEdit: isEdit,
                 );
               },
             ),
