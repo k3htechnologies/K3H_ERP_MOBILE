@@ -19,6 +19,7 @@ import 'package:k3h_erp_app/features/business_development/tenant_booking/present
 import 'package:k3h_erp_app/features/masters/company_setup/bank_list_master/data/model/bank_list_master.model.dart';
 import 'package:k3h_erp_app/features/parking/data/model/parking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/widgets/applicant_card.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/model/payment_schedule_scheme.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule_scheme/data/repository/payment_schedule_scheme.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -32,7 +33,6 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
-import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -551,7 +551,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
-      _bookingCubit.clearParkingList();
+      await _bookingCubit.clearParkingList();
     }
 
     await _bookingCubit.getParkingList(
@@ -566,19 +566,18 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     final updatedList = _bookingCubit.state.parkingList;
     final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
 
-    final Map<int, Map<String, dynamic>> uniqueParking = {};
-    for (final p in updatedList) {
-      uniqueParking[p.parkingId] = {
-        "zAttributesId": p.parkingId,
-        "DisplayName": p.parkingNumber,
-      };
-    }
+    final itemList =
+        updatedList
+            .map(
+              (p) => {
+                "zAttributesId": p.parkingId,
+                "DisplayName": p.parkingNumber,
+              },
+            )
+            .toList();
 
-    return {
-      "itemList": uniqueParking.values.toList(),
-      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueParking.length,
-    };
-  }
+    return {"itemList": itemList, "totalNumberOfRecord": totalCount};
+   }
 
   // FETCHING TERMS AND CONDITIONS METHODS
   Future<Map<String, dynamic>> _fetchTerms(
@@ -588,7 +587,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
-      _bookingCubit.clearTermsList();
+      await _bookingCubit.clearTermsList();
     }
 
     await _bookingCubit.getTermsAndConditionsList(
@@ -600,20 +599,18 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
 
     final updatedList = _bookingCubit.state.termsList;
     final totalCount = _bookingCubit.state.totalNumberOfRecordTerms;
+    final itemList =
+        updatedList
+            .map(
+              (t) => {
+                "zAttributesId": t.termsAndConditionsMasterId,
+                "DisplayName": t.title,
+                "Description": t.description,
+              },
+            )
+            .toList();
 
-    final Map<int, Map<String, dynamic>> uniqueTerms = {};
-    for (final t in updatedList) {
-      uniqueTerms[t.termsAndConditionsMasterId] = {
-        "zAttributesId": t.termsAndConditionsMasterId,
-        "DisplayName": t.title,
-        "Description": t.description,
-      };
-    }
-
-    return {
-      "itemList": uniqueTerms.values.toList(),
-      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueTerms.length,
-    };
+    return {"itemList": itemList, "totalNumberOfRecord": totalCount};
   }
 
   // FETCHING BANK METHODS

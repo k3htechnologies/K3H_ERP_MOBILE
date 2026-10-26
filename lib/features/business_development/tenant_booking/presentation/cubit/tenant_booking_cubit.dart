@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/repository/tenant.repository.dart';
@@ -67,11 +66,11 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     emit(state.copyWith(currentTabIndexAddForm: index));
   }
 
-  void clearParkingList() {
+  Future clearParkingList() async {
     emit(state.copyWith(parkingList: [], totalNumberOfRecordParking: 0));
   }
 
-  void clearTermsList() {
+  Future clearTermsList() async {
     emit(state.copyWith(termsList: [], totalNumberOfRecordTerms: 0));
   }
 
@@ -91,33 +90,19 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       return;
     }
     Map<String, dynamic> queryParams = {
-      if (state.searchText.isNotEmpty) "ApplicantName": state.searchText.trim(),
-      if (state.filterMobileNumber.isNotEmpty)
-        "ApplicantMobileNumber": state.filterMobileNumber,
-      if (state.filterWing.isNotEmpty) "Wing": state.filterWing,
-      if (state.filterFlat.isNotEmpty) "Flat": state.filterFlat,
-      if (state.filterFloor.isNotEmpty) "Floor": state.filterFloor,
-      if (state.filterSource.isNotEmpty) "Source": state.filterSource,
-      if (state.filterSubSource.isNotEmpty) "SubSource": state.filterSubSource,
+      "ApplicantName": state.searchText.trim(),
+      "ApplicantMobileNumber": state.filterMobileNumber,
+      "Wing": state.filterWing,
+      "Flat": state.filterFlat,
+      "Floor": state.filterFloor,
       if (state.filterAgreementValue != 0)
         "AgreementValue": state.filterAgreementValue,
-      if (state.filterBookingType.isNotEmpty)
-        "BookingType": state.filterBookingType,
+      "BookingType": state.filterBookingType,
       "BookingSearchKey": "TENANT BOOKING",
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "FromDate": state.filterStartDate.apiDate,
+      "ToDate": state.filterEndDate.apiDate,
     };
-
-    // Date filters
-    if (state.filterStartDate != null) {
-      queryParams["FromDate"] = DateFormat(
-        'yyyy-MM-dd',
-      ).format(state.filterStartDate!);
-    }
-    if (state.filterEndDate != null) {
-      queryParams["ToDate"] = DateFormat(
-        'yyyy-MM-dd',
-      ).format(state.filterEndDate!);
-    }
 
     var result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
@@ -890,9 +875,19 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       pageSize: state.totalNumberOfRecord,
       projectId: projectId,
       queryParams: {
-        "ApplicantName": state.searchText,
-        "ExportType": exportType,
+        "ApplicantName": state.searchText.trim(),
+        "ApplicantMobileNumber": state.filterMobileNumber,
+        "Wing": state.filterWing,
+        "Flat": state.filterFlat,
+        "Floor": state.filterFloor,
+        if (state.filterAgreementValue != 0)
+          "AgreementValue": state.filterAgreementValue,
+        "BookingType": state.filterBookingType,
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+        "FromDate": state.filterStartDate.apiDate,
+        "ToDate": state.filterEndDate.apiDate,
         "BookingSearchKey": "TENANT BOOKING",
+        "ExportType": exportType,
       },
     );
     goRouter.pop();
@@ -928,7 +923,7 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       queryParams: {
         "BookingId": bookingModel.bookingId,
         "ExportType":
-            isSendEmail ? "BOOKING FORM PDF MAIL" : "BOOKING FORM PDF",
+            isSendEmail ? "BOOKING FORM PDF ON MAIL" : "BOOKING FORM PDF",
         "BookingSearchKey": "TENANT BOOKING",
         "IsCheckPermission": true,
       },
@@ -946,17 +941,17 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         if (isSendEmail) {
           showSuccessMessage(context, subTitle: "E-Mail sent successfully");
         } else {
+          exportExcelOrPdfMobile(
+            response["data"],
+            "Booking Form - ${bookingModel.projectName} - ${bookingModel.applicantName} - ${bookingModel.flat} ${DateTime.now()}.pdf",
+          );
           showSuccessMessage(context, subTitle: "Successfully Exported as PDF");
         }
-        exportExcelOrPdfMobile(
-          response["data"],
-          "Booking Form - ${bookingModel.projectName} - ${bookingModel.applicantName} - ${bookingModel.flat} ${DateTime.now()}.pdf",
-        );
       },
     );
   }
 
-  Future<void> applyEnquiryFilterAndSort({
+  Future<void> applyBookingFilterAndSort({
     required BuildContext context,
     required DateTime? filterStartDate,
     required DateTime? filterEndDate,
@@ -964,8 +959,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required String filterMobileNumber,
     required String filterFlat,
     required String filterFloor,
-    required String filterSource,
-    required String filterSubSource,
     required String filterApplicantName,
     required int filterAgreementValue,
     required String filterBookingType,
@@ -981,8 +974,6 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
         filterMobileNumber: filterMobileNumber,
         filterFlat: filterFlat,
         filterFloor: filterFloor,
-        filterSource: filterSource,
-        filterSubSource: filterSubSource,
         currentSortColumn: sortColumn ?? state.currentSortColumn,
         currentSortDirection: sortDirection ?? state.currentSortDirection,
         filterAgreementValue: filterAgreementValue,
@@ -1008,11 +999,48 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
       state.filterMobileNumber.trim().isNotEmpty,
       state.filterFlat.trim().isNotEmpty,
       state.filterFloor.trim().isNotEmpty,
-      state.filterSource.trim().isNotEmpty,
-      state.filterSubSource.trim().isNotEmpty,
       state.filterAgreementValue > 0,
       state.filterBookingType.trim().isNotEmpty,
       hasSort,
     ]);
+  }
+
+  Future deleteBooking({
+    required BuildContext context,
+    required int bookingId,
+    required String uniqueKey,
+    required int projectId,
+    required int inventoryFlatId,
+    required String parkingId,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    final result = await _bookingRepository.deleteBooking(
+      bookingId: bookingId,
+      uniqueKey: uniqueKey,
+      projectId: projectId,
+      inventoryFlatId: inventoryFlatId,
+      parkingId: parkingId,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final updatedList = List<BookingModel>.from(state.bookingList);
+        updatedList.removeAt(index);
+        emit(
+          state.copyWith(
+            bookingList: updatedList,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
+      },
+    );
   }
 }

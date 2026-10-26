@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_state.dart';
+import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -16,14 +17,12 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
@@ -62,10 +61,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
   // DATE VARIABLES
   final ValueNotifier<DateTime?> _startDateNotifier = ValueNotifier(null);
   final ValueNotifier<DateTime?> _endDateNotifier = ValueNotifier(null);
-  final ValueNotifier<Map<String, dynamic>?> _selectedSourceNotifier =
-      ValueNotifier(null);
-  final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
-      ValueNotifier(null);
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
 
   @override
@@ -93,8 +88,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
     _flatC.dispose();
     _floorC.dispose();
     scrollController.dispose();
-    _selectedSourceNotifier.dispose();
-    _selectedSubSourceNotifier.dispose();
     _debounce?.cancel();
     _filterCount.dispose();
     super.dispose();
@@ -152,8 +145,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
     final initialFloor = state.filterFloor;
     final initialAgreement = state.filterAgreementValue;
     final initialBookingType = state.filterBookingType;
-    final initialSource = state.filterSource;
-    final initialSubSource = state.filterSubSource;
 
     _searchC.text = initialApplicantName;
     _wingC.text = initialWing;
@@ -166,26 +157,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
 
     _startDateNotifier.value = initialStartDate;
     _endDateNotifier.value = initialEndDate;
-
-    if (initialSource.isNotEmpty) {
-      _selectedSourceNotifier.value = sourceTypeList.firstWhere(
-        (e) => e['DisplayName'] == initialSource,
-        orElse: () => sourceTypeList.first,
-      );
-    }
-
-    _selectedSubSourceNotifier.value =
-        (initialSubSource.isNotEmpty)
-            ? (channelPartnerActivityList + directWalkingSubSourceList)
-                .firstWhere(
-                  (e) => e['DisplayName'] == initialSubSource,
-                  orElse:
-                      () =>
-                          (_selectedSourceNotifier.value?['zAttributesId'] == 1
-                              ? channelPartnerActivityList.first
-                              : directWalkingSubSourceList.first),
-                )
-            : null;
 
     String? selectedDirection = initialDirection;
 
@@ -200,16 +171,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
               ? 0
               : int.tryParse(_agreementValueC.text.trim()) ?? 0;
 
-      final currentSource =
-          (_selectedSourceNotifier.value?['zAttributesId'] == -1)
-              ? ''
-              : _selectedSourceNotifier.value?['DisplayName'] ?? '';
-
-      final currentSubSource =
-          (_selectedSubSourceNotifier.value?['zAttributesId'] == -1)
-              ? ''
-              : _selectedSubSourceNotifier.value?['DisplayName'] ?? '';
-
       manualClose =
           (_searchC.text.trim() != initialApplicantName) ||
           (_startDateNotifier.value != initialStartDate) ||
@@ -218,8 +179,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
           (_mobileNumberC.text.trim() != initialMobile) ||
           (_flatC.text.trim() != initialFlat) ||
           (_floorC.text.trim() != initialFloor) ||
-          (currentSource != initialSource) ||
-          (currentSubSource != initialSubSource) ||
           (agreementValue != initialAgreement) ||
           (_bookingTypeC.text.trim() != initialBookingType) ||
           (selectedDirection != initialDirection);
@@ -239,7 +198,7 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter - Booking",
+      title: "Filter - Tenant Booking",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           void selectDirection(String direction) {
@@ -347,56 +306,6 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                   onChangeFunction: (_) => updateApplyState(),
                 ),
 
-                ValueListenableBuilder(
-                  valueListenable: _selectedSourceNotifier,
-                  builder: (context, selectedSource, _) {
-                    final bool isChannelPartner =
-                        selectedSource?['zAttributesId'] == 1;
-
-                    return Column(
-                      children: [
-                        CustomDropDownWidget(
-                          title: 'Source',
-                          hintText: 'Select Source',
-                          initialValue: selectedSource,
-                          dataList: sourceTypeList,
-                          onSelected: (v) {
-                            _selectedSourceNotifier.value = v;
-                            updateApplyState();
-                          },
-                          onValueClear: () {
-                            _selectedSourceNotifier.value = null;
-                            updateApplyState();
-                          },
-                        ),
-
-                        if ((selectedSource != null))
-                          ValueListenableBuilder(
-                            valueListenable: _selectedSubSourceNotifier,
-                            builder: (context, selectedSubSource, _) {
-                              return CustomDropDownWidget(
-                                title: "Sub Source",
-                                initialValue: selectedSubSource,
-                                dataList:
-                                    isChannelPartner
-                                        ? channelPartnerActivityList
-                                        : directWalkingSubSourceList,
-                                onSelected: (v) {
-                                  _selectedSubSourceNotifier.value = v;
-                                  updateApplyState();
-                                },
-                                onValueClear: () {
-                                  _selectedSubSourceNotifier.value = null;
-                                  updateApplyState();
-                                },
-                              );
-                            },
-                          ),
-                      ],
-                    );
-                  },
-                ),
-
                 CustomTextField(
                   textController: _agreementValueC,
                   title: "Agreement Value",
@@ -426,10 +335,8 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
         _bookingTypeC.clear();
         selectedDirection = null;
         _searchC.clear();
-        _selectedSourceNotifier.value = null;
-        _selectedSubSourceNotifier.value = null;
 
-        _bookingCubit.applyEnquiryFilterAndSort(
+        _bookingCubit.applyBookingFilterAndSort(
           context: context,
           filterStartDate: null,
           filterEndDate: null,
@@ -437,13 +344,11 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
           filterMobileNumber: '',
           filterFlat: '',
           filterFloor: '',
-          filterSource: '',
-          filterSubSource: '',
           filterAgreementValue: 0,
           filterBookingType: '',
           filterApplicantName: '',
-          sortColumn: "Created Date",
-          sortDirection: "DESC",
+          sortColumn: "",
+          sortDirection: "",
         );
       },
       onApply: () {
@@ -454,7 +359,7 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                 ? 0
                 : int.tryParse(_agreementValueC.text.trim()) ?? 0;
 
-        _bookingCubit.applyEnquiryFilterAndSort(
+        _bookingCubit.applyBookingFilterAndSort(
           context: context,
           filterStartDate: _startDateNotifier.value,
           filterEndDate: _endDateNotifier.value,
@@ -463,19 +368,8 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
           filterFlat: _flatC.text.trim(),
           filterFloor: _floorC.text.trim(),
           filterApplicantName: _searchC.text.trim(),
-          filterSource:
-              (_selectedSourceNotifier.value != null &&
-                      _selectedSourceNotifier.value!['zAttributesId'] != -1)
-                  ? _selectedSourceNotifier.value!['DisplayName']
-                  : '',
-          filterSubSource:
-              (_selectedSubSourceNotifier.value != null &&
-                      _selectedSubSourceNotifier.value!['zAttributesId'] != -1)
-                  ? _selectedSubSourceNotifier.value!['DisplayName']
-                  : '',
-          sortColumn:
-              selectedDirection != null ? "ApplicantName" : "Created Date",
-          sortDirection: selectedDirection ?? "DESC",
+          sortColumn: selectedDirection != null ? "ApplicantName" : "",
+          sortDirection: selectedDirection ?? "",
           filterAgreementValue: agreementValue,
           filterBookingType: _bookingTypeC.text.trim(),
         );
@@ -494,11 +388,30 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
       _floorC.clear();
       _agreementValueC.clear();
       _bookingTypeC.clear();
-
-      _selectedSourceNotifier.value = null;
-      _selectedSubSourceNotifier.value = null;
-
       selectedDirection = null;
+    }
+  }
+
+  Future _showPopupToDeleteBooking({
+    required BookingModel booking,
+    required BuildContext context,
+    required int index,
+  }) async {
+    var result = await DialogHelper.deleteDialog(
+      context,
+      'You are about to delete a booking ?',
+      'Deleting this booking will permanently remove all associated data.',
+    );
+    if (result && context.mounted) {
+      await _bookingCubit.deleteBooking(
+        context: context,
+        index: index,
+        bookingId: booking.bookingId,
+        uniqueKey: booking.uniquekey,
+        projectId: booking.projectId,
+        inventoryFlatId: booking.inventoryFlatId,
+        parkingId: booking.parkingId,
+      );
     }
   }
 
@@ -591,7 +504,10 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                 }
                                 var booking = state.bookingList[index];
                                 final bool isActionAllowed = booking.isApproval;
-
+                                final canEditOrDelete =
+                                    !(_routhAuthorizationModel.isAction &&
+                                        (booking.approvalStatus.toLowerCase() ==
+                                            'pending'));
                                 return Container(
                                   margin: EdgeInsets.only(bottom: 10),
                                   padding: EdgeInsets.all(12),
@@ -633,34 +549,45 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                               ),
                                             ),
                                           ),
-
-                                          CustomIconButton.edit(
-                                            isDisabled:
-                                                !(_routhAuthorizationModel
-                                                        .isAction &&
-                                                    (booking.approvalStatus
-                                                            .toLowerCase() ==
-                                                        'pending')),
-                                            onPressed: () {
-                                              goRouter.pushNamed(
-                                                AppRoutes.addTenantBooking,
-                                                queryParameters: {
-                                                  "tenantBooking":
-                                                      Uri.encodeComponent(
-                                                        EncryptionManager.encryptData(
-                                                          jsonEncode(booking),
-                                                        ),
-                                                      ),
-                                                  "index": index.toString(),
+                                          Row(
+                                            spacing: 10,
+                                            children: [
+                                              CustomIconButton.edit(
+                                                isDisabled: canEditOrDelete,
+                                                onPressed: () {
+                                                  goRouter.pushNamed(
+                                                    AppRoutes.addTenantBooking,
+                                                    queryParameters: {
+                                                      "tenantBooking":
+                                                          Uri.encodeComponent(
+                                                            EncryptionManager.encryptData(
+                                                              jsonEncode(
+                                                                booking,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      "index": index.toString(),
+                                                    },
+                                                  );
                                                 },
-                                              );
-                                            },
+                                              ),
+                                              CustomIconButton.delete(
+                                                isDisabled: canEditOrDelete,
+                                                onPressed: () {
+                                                  _showPopupToDeleteBooking(
+                                                    booking: booking,
+                                                    context: context,
+                                                    index: index,
+                                                  );
+                                                },
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
                                       verticalSpacing(height: 5),
                                       buildRowTitleValue(
-                                        title: "Enquiry Code",
+                                        title: "Tenant Code",
                                         value: booking.systemGeneratedCode,
                                         singleLine: false,
                                         customValueWidget: Row(

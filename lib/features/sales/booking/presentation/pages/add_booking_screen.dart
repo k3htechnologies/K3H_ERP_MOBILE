@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -676,7 +678,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
-      _bookingCubit.clearParkingList();
+      await _bookingCubit.clearParkingList();
     }
 
     await _bookingCubit.getParkingList(
@@ -690,18 +692,17 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     final updatedList = _bookingCubit.state.parkingList;
     final totalCount = _bookingCubit.state.totalNumberOfRecordParking;
 
-    final Map<int, Map<String, dynamic>> uniqueParking = {};
-    for (final p in updatedList) {
-      uniqueParking[p.parkingId] = {
-        "zAttributesId": p.parkingId,
-        "DisplayName": p.parkingNumber,
-      };
-    }
+    final itemList =
+        updatedList
+            .map(
+              (p) => {
+                "zAttributesId": p.parkingId,
+                "DisplayName": p.parkingNumber,
+              },
+            )
+            .toList();
 
-    return {
-      "itemList": uniqueParking.values.toList(),
-      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueParking.length,
-    };
+    return {"itemList": itemList, "totalNumberOfRecord": totalCount};
   }
 
   // FETCHING TERMS AND CONDITIONS METHODS
@@ -712,7 +713,7 @@ class _AddBookingScreenState extends State<AddBookingScreen>
     final isSearch = value != null && value.isNotEmpty;
 
     if (pageNumber == 1) {
-      _bookingCubit.clearTermsList();
+      await _bookingCubit.clearTermsList();
     }
 
     await _bookingCubit.getTermsAndConditionsList(
@@ -724,20 +725,18 @@ class _AddBookingScreenState extends State<AddBookingScreen>
 
     final updatedList = _bookingCubit.state.termsList;
     final totalCount = _bookingCubit.state.totalNumberOfRecordTerms;
+    final itemList =
+        updatedList
+            .map(
+              (t) => {
+                "zAttributesId": t.termsAndConditionsMasterId,
+                "DisplayName": t.title,
+                "Description": t.description,
+              },
+            )
+            .toList();
 
-    final Map<int, Map<String, dynamic>> uniqueTerms = {};
-    for (final t in updatedList) {
-      uniqueTerms[t.termsAndConditionsMasterId] = {
-        "zAttributesId": t.termsAndConditionsMasterId,
-        "DisplayName": t.title,
-        "Description": t.description,
-      };
-    }
-
-    return {
-      "itemList": uniqueTerms.values.toList(),
-      "totalNumberOfRecord": totalCount > 0 ? totalCount : uniqueTerms.length,
-    };
+    return {"itemList": itemList, "totalNumberOfRecord": totalCount};
   }
 
   // FETCHING BANK METHODS

@@ -33,6 +33,14 @@ abstract interface class BookingDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apiCallDeleteBooking({
+    required int bookingId,
+    required String uniqueKey,
+    required int projectId,
+    required int inventoryFlatId,
+    required String parkingId,
+  });
 }
 
 class BookingDatasourceImpl extends BookingDatasource {
@@ -242,6 +250,54 @@ class BookingDatasourceImpl extends BookingDatasource {
           pageSize: pageSize,
           projectId: projectId,
           queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  // DELETE BOOKING FOR - TENANT BOOKING
+  @override
+  Future<Map<String, dynamic>> apiCallDeleteBooking({
+    required int bookingId,
+    required String uniqueKey,
+    required int projectId,
+    required int inventoryFlatId,
+    required String parkingId,
+  }) async {
+    String deleteBookingUrl({
+      required int bookingId,
+      required String uniqueKey,
+      required int projectId,
+      required int inventoryFlatId,
+      required String parkingId,
+    }) {
+      return "Booking/DeleteBooking?BookingId=$bookingId&Uniquekey=$uniqueKey&ProjectId=$projectId&InventoryFlatId=$inventoryFlatId&ParkingId=$parkingId";
+    }
+
+    try {
+      var networkResponse = await baseClient.deleteRequestWithAuthentication(
+        deleteBookingUrl(
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          inventoryFlatId: inventoryFlatId,
+          parkingId: parkingId,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse["message"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallDeleteBooking(
+          bookingId: bookingId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+          inventoryFlatId: inventoryFlatId,
+          parkingId: parkingId,
         );
       }
       rethrow;

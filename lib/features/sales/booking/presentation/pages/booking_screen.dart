@@ -430,7 +430,7 @@ class _BookingScreenState extends State<BookingScreen> {
         _selectedSourceNotifier.value = null;
         _selectedSubSourceNotifier.value = null;
 
-        _bookingCubit.applyEnquiryFilterAndSort(
+        _bookingCubit.applyBookingFilterAndSort(
           context: context,
           filterStartDate: null,
           filterEndDate: null,
@@ -443,8 +443,8 @@ class _BookingScreenState extends State<BookingScreen> {
           filterAgreementValue: 0,
           filterBookingType: '',
           filterApplicantName: '',
-          sortColumn: "Created Date",
-          sortDirection: "DESC",
+          sortColumn: "",
+          sortDirection: "",
         );
       },
 
@@ -457,7 +457,7 @@ class _BookingScreenState extends State<BookingScreen> {
                 ? 0
                 : int.tryParse(_agreementValueC.text.trim()) ?? 0;
 
-        _bookingCubit.applyEnquiryFilterAndSort(
+        _bookingCubit.applyBookingFilterAndSort(
           context: context,
           filterStartDate: _startDateNotifier.value,
           filterEndDate: _endDateNotifier.value,
@@ -476,9 +476,8 @@ class _BookingScreenState extends State<BookingScreen> {
                       _selectedSubSourceNotifier.value!['zAttributesId'] != -1)
                   ? _selectedSubSourceNotifier.value!['DisplayName']
                   : '',
-          sortColumn:
-              selectedDirection != null ? "ApplicantName" : "Created Date",
-          sortDirection: selectedDirection ?? "DESC",
+          sortColumn: selectedDirection != null ? "ApplicantName" : "",
+          sortDirection: selectedDirection ?? "",
           filterAgreementValue: agreementValue,
           filterBookingType: _bookingTypeC.text.trim(),
         );

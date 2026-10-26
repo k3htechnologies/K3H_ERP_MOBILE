@@ -390,7 +390,10 @@ extension _DetailsTab on _AddTenantBookingScreenState {
             color: AppColor.grey.withValues(alpha: 0.3),
             width: 1,
           ),
-          children: applicants.map(_buildApplicantCard).toList(),
+          children:
+              applicants
+                  .map((applicant) => ApplicantCard(tenantApplicant: applicant))
+                  .toList(),
         );
       },
     );
@@ -809,99 +812,5 @@ extension _DetailsTab on _AddTenantBookingScreenState {
             _isEditMode ? widget.tenantBookingModel!.parkingId : null,
       );
     }
-  }
-
-  Widget _buildApplicantCard(TenantApplicantData applicant) {
-    return infoCard(
-      bgColor: AppColor.white,
-      borderColor: AppColor.primary,
-      titleWidget: Row(
-        spacing: 5,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Text(
-              applicant.applicantName,
-              style: AppTextStyle.ts14M(),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-          horizontalSpacing(),
-          _buildApplicantTypeWidget(applicant.applicantType),
-        ],
-      ),
-      [
-        {
-          "title": "Mobile Number",
-          "value": applicant.applicantMobileNumber,
-          "widget": CustomClickToContactText(
-            countryCode: applicant.applicantMobileNumberCountryCode,
-            value: applicant.applicantMobileNumber,
-            type: ContactType.phone,
-          ),
-        },
-        {
-          "title": "E-Mail ID",
-          "value": applicant.applicantEmailId,
-          "widget": CustomClickToContactText(
-            value: applicant.applicantEmailId,
-            type: ContactType.email,
-          ),
-        },
-        {"title": "Aadhaar Card No.", "value": applicant.aadharCardNumber},
-        _docEntry("Aadhaar Card", applicant.aadharCardURL),
-        {"title": "PAN Card No.", "value": applicant.panNumber},
-        _docEntry("PAN Card", applicant.panCardURL),
-        {
-          "title": "Driving License No.",
-          "value": applicant.drivingLicenseNumber,
-        },
-        _docEntry("Driving License", applicant.drivingLicenseURL),
-        {"title": "Voting ID No.", "value": applicant.votingIdNumber},
-        _docEntry("Voting ID", applicant.votingIdURL),
-        {"title": "Passport No.", "value": applicant.passportNumber},
-        _docEntry("Passport", applicant.passportURL),
-        {"title": "GST No.", "value": applicant.gstNumber},
-        _docEntry("GST Certificate", applicant.gstNumberURL),
-        _docEntry("Profile Photo", applicant.photoURL),
-        {"title": "Bank Name", "value": applicant.bankName},
-        {"title": "Account No.", "value": applicant.accountNumber},
-        {"title": "IFSC", "value": applicant.ifscCode},
-      ],
-    );
-  }
-
-  Map<String, dynamic> _docEntry(String title, String url) {
-    return {
-      "title": title,
-      "value": url,
-      "widget": CustomButton.documentOutline(
-        onPressed: () {
-          if (url.isNotEmpty) {
-            showFilePreviewDialog(context, title: title, url.split(","));
-          }
-        },
-        isDisable: url.isEmpty,
-      ),
-    };
-  }
-
-  Widget _buildApplicantTypeWidget(String type) {
-    final isApplicant = type.toLowerCase() == "applicant";
-    final textColor = isApplicant ? AppColor.primary : AppColor.purple;
-
-    return Container(
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color:
-            isApplicant
-                ? AppColor.lightBlue
-                : AppColor.purple.withValues(alpha: .2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(type, style: AppTextStyle.ts12M(color: textColor)),
-    );
   }
 }

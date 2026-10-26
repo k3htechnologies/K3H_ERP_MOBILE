@@ -10,7 +10,6 @@ class BookingState extends BaseState {
   final int currentPageTerms;
   final List<OtherChargeModel> otherChargesList;
   final List<EnquiryModel> enquiryList;
-  final List<BookingModel> bookingListById;
   final List<BookingModel> bookingList;
   final int totalNumberOfRecord;
   final int currentPage;
@@ -41,7 +40,6 @@ class BookingState extends BaseState {
     required this.currentPageTerms,
     required this.otherChargesList,
     required this.enquiryList,
-    required this.bookingListById,
     required this.bookingList,
     required this.totalNumberOfRecord,
     required this.currentPage,
@@ -73,7 +71,6 @@ class BookingState extends BaseState {
     currentPageTerms: 1,
     otherChargesList: [],
     enquiryList: [],
-    bookingListById: [],
     bookingList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
@@ -90,8 +87,8 @@ class BookingState extends BaseState {
     filterSubSource: "",
     filterAgreementValue: 0,
     filterBookingType: "",
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
   static const _noChange = Object();
 
@@ -106,7 +103,6 @@ class BookingState extends BaseState {
     int? currentPageTerms,
     List<OtherChargeModel>? otherChargesList,
     List<EnquiryModel>? enquiryList,
-    List<BookingModel>? bookingListById,
     List<BookingModel>? bookingList,
     int? totalNumberOfRecord,
     int? currentPage,
@@ -140,7 +136,6 @@ class BookingState extends BaseState {
       currentPageTerms: currentPageTerms ?? this.currentPageTerms,
       otherChargesList: otherChargesList ?? this.otherChargesList,
       enquiryList: enquiryList ?? this.enquiryList,
-      bookingListById: bookingListById ?? this.bookingListById,
       bookingList: bookingList ?? this.bookingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
@@ -184,7 +179,6 @@ class BookingState extends BaseState {
     currentPageTerms,
     otherChargesList,
     enquiryList,
-    bookingListById,
     bookingList,
     totalNumberOfRecord,
     currentPage,

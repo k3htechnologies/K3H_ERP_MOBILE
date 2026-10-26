@@ -3,7 +3,6 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gallery_saver_plus/files.dart';
-import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
@@ -72,11 +71,11 @@ class BookingCubit extends Cubit<BookingState> {
     emit(state.copyWith(currentTabIndexAddForm: index));
   }
 
-  void clearParkingList() {
+  Future clearParkingList() async {
     emit(state.copyWith(parkingList: [], totalNumberOfRecordParking: 0));
   }
 
-  void clearTermsList() {
+  Future clearTermsList() async {
     emit(state.copyWith(termsList: [], totalNumberOfRecordTerms: 0));
   }
 
@@ -96,7 +95,7 @@ class BookingCubit extends Cubit<BookingState> {
       return;
     }
     Map<String, dynamic> queryParams = {
-      if (state.searchText.isNotEmpty) "ApplicantName": state.searchText.trim(),
+      "ApplicantName": state.searchText.trim(),
       "BookingSearchKey": "SALE BOOKING",
       "ApplicantMobileNumber": state.filterMobileNumber,
       "Wing": state.filterWing,
@@ -108,19 +107,9 @@ class BookingCubit extends Cubit<BookingState> {
         "AgreementValue": state.filterAgreementValue,
       "BookingType": state.filterBookingType,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      "FromDate": state.filterStartDate.apiDate,
+      "ToDate": state.filterEndDate.apiDate,
     };
-
-    // Date filters
-    if (state.filterStartDate != null) {
-      queryParams["FromDate"] = DateFormat(
-        'yyyy-MM-dd',
-      ).format(state.filterStartDate!);
-    }
-    if (state.filterEndDate != null) {
-      queryParams["ToDate"] = DateFormat(
-        'yyyy-MM-dd',
-      ).format(state.filterEndDate!);
-    }
 
     var result = await _bookingRepository.getBookingList(
       pageNumber: pageNumber,
@@ -1257,6 +1246,8 @@ class BookingCubit extends Cubit<BookingState> {
         if (state.filterAgreementValue != 0)
           "AgreementValue": state.filterAgreementValue,
         "BookingType": state.filterBookingType,
+        "FromDate": state.filterStartDate.apiDate,
+        "ToDate": state.filterEndDate.apiDate,
       },
     );
     goRouter.pop();
@@ -1292,7 +1283,7 @@ class BookingCubit extends Cubit<BookingState> {
       queryParams: {
         "BookingId": bookingModel.bookingId,
         "ExportType":
-            isSendEmail ? "BOOKING FORM PDF MAIL" : "BOOKING FORM PDF",
+            isSendEmail ? "BOOKING FORM PDF ON MAIL" : "BOOKING FORM PDF",
         "BookingSearchKey": "SALE BOOKING",
         "IsCheckPermission": true,
       },
@@ -1320,7 +1311,7 @@ class BookingCubit extends Cubit<BookingState> {
     );
   }
 
-  Future<void> applyEnquiryFilterAndSort({
+  Future<void> applyBookingFilterAndSort({
     required BuildContext context,
     required DateTime? filterStartDate,
     required DateTime? filterEndDate,

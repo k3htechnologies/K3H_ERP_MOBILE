@@ -33,6 +33,13 @@ abstract interface class BookingRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> deleteBooking({
+    required int bookingId,
+    required String uniqueKey,
+    required int projectId,
+    required int inventoryFlatId,
+    required String parkingId,
+  });
 }
 
 class BookingRepositoryImpl extends BookingRepository {
@@ -136,6 +143,28 @@ class BookingRepositoryImpl extends BookingRepository {
         pageSize: pageSize,
         projectId: projectId,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteBooking({
+    required int bookingId,
+    required String uniqueKey,
+    required int projectId,
+    required int inventoryFlatId,
+    required String parkingId,
+  }) async {
+    try {
+      var result = await bookingDatasource.apiCallDeleteBooking(
+        bookingId: bookingId,
+        uniqueKey: uniqueKey,
+        projectId: projectId,
+        inventoryFlatId: inventoryFlatId,
+        parkingId: parkingId,
       );
       return right(result);
     } catch (error) {

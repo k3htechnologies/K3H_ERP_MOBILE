@@ -338,7 +338,7 @@ extension _DetailsTab on _AddBookingScreenState {
                 ],
               ),
             ),
-
+            verticalSpacing(height: 5),
             Container(
               decoration: commonCardDecoration(),
               margin: EdgeInsets.only(bottom: 10),
@@ -420,6 +420,7 @@ extension _DetailsTab on _AddBookingScreenState {
                 ],
               ),
             ),
+            verticalSpacing(height: 5),
             Container(
               decoration: commonCardDecoration(),
               padding: EdgeInsets.all(16),
@@ -516,6 +517,7 @@ extension _DetailsTab on _AddBookingScreenState {
                     widget.bookingModel!.reraCarpetAreaSqFt.toString(),
               },
             ]),
+            verticalSpacing(height: 8),
             Container(
               decoration: commonCardDecoration(),
               margin: EdgeInsets.only(bottom: 10),
@@ -603,6 +605,7 @@ extension _DetailsTab on _AddBookingScreenState {
                 ],
               ),
             ),
+            verticalSpacing(height: 5),
             Container(
               decoration: commonCardDecoration(),
               padding: EdgeInsets.all(16),
@@ -769,12 +772,11 @@ extension _DetailsTab on _AddBookingScreenState {
                 );
               },
             ),
-
             (!_isEditMode || widget.bookingModel!.parkingData.isEmpty)
                 ? SizedBox.shrink()
                 : Container(
                   height: 350,
-                  margin: EdgeInsets.only(bottom: 10),
+                  margin: EdgeInsets.only(top: 10, bottom: 10),
                   decoration: commonCardDecoration(),
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   child: Column(
@@ -874,6 +876,7 @@ extension _DetailsTab on _AddBookingScreenState {
                     ],
                   ),
                 ),
+            verticalSpacing(height: 5),
             Container(
               decoration: commonCardDecoration(),
               padding: EdgeInsets.all(16),

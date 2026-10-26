@@ -16,7 +16,6 @@ class TenantBookingState extends BaseState {
   final int currentPageTerms;
   final List<OtherChargeModel> otherChargesList;
   final List<TenantModel> tenantList;
-  final List<BookingModel> bookingListById;
   final List<BookingModel> bookingList;
   final int totalNumberOfRecord;
   final int currentPage;
@@ -31,8 +30,6 @@ class TenantBookingState extends BaseState {
   final String filterMobileNumber;
   final String filterFlat;
   final String filterFloor;
-  final String filterSource;
-  final String filterSubSource;
   final int filterAgreementValue;
   final String filterBookingType;
 
@@ -47,23 +44,20 @@ class TenantBookingState extends BaseState {
     required this.currentPageTerms,
     required this.otherChargesList,
     required this.tenantList,
-    required this.bookingListById,
     required this.bookingList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
     required this.currentTabIndex,
     required this.currentTabIndexAddForm,
-    this.currentSortColumn = "Created Date",
-    this.currentSortDirection = "DESC",
+    this.currentSortColumn = "",
+    this.currentSortDirection = "",
     this.filterStartDate,
     this.filterEndDate,
     this.filterWing = "",
     this.filterMobileNumber = "",
     this.filterFlat = "",
     this.filterFloor = "",
-    this.filterSource = "",
-    this.filterSubSource = "",
     this.filterAgreementValue = 0,
     this.filterBookingType = "",
   });
@@ -79,7 +73,6 @@ class TenantBookingState extends BaseState {
     currentPageTerms: 1,
     otherChargesList: [],
     tenantList: [],
-    bookingListById: [],
     bookingList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
@@ -92,8 +85,6 @@ class TenantBookingState extends BaseState {
     filterMobileNumber: "",
     filterFlat: "",
     filterFloor: "",
-    filterSource: "",
-    filterSubSource: "",
     filterAgreementValue: 0,
     filterBookingType: "",
     currentSortColumn: "Created Date",
@@ -112,7 +103,6 @@ class TenantBookingState extends BaseState {
     int? currentPageTerms,
     List<OtherChargeModel>? otherChargesList,
     List<TenantModel>? tenantList,
-    List<BookingModel>? bookingListById,
     List<BookingModel>? bookingList,
     int? totalNumberOfRecord,
     int? currentPage,
@@ -127,8 +117,6 @@ class TenantBookingState extends BaseState {
     String? filterMobileNumber,
     String? filterFlat,
     String? filterFloor,
-    String? filterSource,
-    String? filterSubSource,
     int? filterAgreementValue,
     String? filterBookingType,
   }) {
@@ -146,7 +134,6 @@ class TenantBookingState extends BaseState {
       currentPageTerms: currentPageTerms ?? this.currentPageTerms,
       otherChargesList: otherChargesList ?? this.otherChargesList,
       tenantList: tenantList ?? this.tenantList,
-      bookingListById: bookingListById ?? this.bookingListById,
       bookingList: bookingList ?? this.bookingList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
@@ -171,8 +158,6 @@ class TenantBookingState extends BaseState {
       filterMobileNumber: filterMobileNumber ?? this.filterMobileNumber,
       filterFlat: filterFlat ?? this.filterFlat,
       filterFloor: filterFloor ?? this.filterFloor,
-      filterSource: filterSource ?? this.filterSource,
-      filterSubSource: filterSubSource ?? this.filterSubSource,
       filterAgreementValue: filterAgreementValue ?? this.filterAgreementValue,
       filterBookingType: filterBookingType ?? this.filterBookingType,
     );
@@ -190,7 +175,6 @@ class TenantBookingState extends BaseState {
     currentPageTerms,
     otherChargesList,
     tenantList,
-    bookingListById,
     bookingList,
     totalNumberOfRecord,
     currentPage,
@@ -205,8 +189,6 @@ class TenantBookingState extends BaseState {
     filterMobileNumber,
     filterFlat,
     filterFloor,
-    filterSource,
-    filterSubSource,
     filterAgreementValue,
     filterBookingType,
   ];

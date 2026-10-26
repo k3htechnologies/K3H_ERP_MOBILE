@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/model/booking.model.dart';
 import 'package:k3h_erp_app/features/sales/booking/presentation/cubit/booking_cubit.dart';
@@ -425,7 +426,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     ),
                     children: [
                       SizedBox(
-                        height: 250.0,
+                        height: 0.5.sh,
                         child: ListView.builder(
                           padding: EdgeInsets.symmetric(
                             horizontal: 2,
@@ -1191,7 +1192,7 @@ class _BookingViewScreenState extends State<BookingViewScreen>
                     title: "Terms & Conditions",
                     headerBackgroundColor: AppColor.lightRed,
                     titleTextColor: AppColor.missingInformationRed,
-                    maxContentHeight: 450,
+                    maxContentHeight: 0.5.sh,
                     children: [
                       Container(
                         margin: EdgeInsets.only(bottom: 10),
@@ -1303,8 +1304,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
 
   // BUILD APPLICANT DETAILS
   Widget _buildApplicantDetailsTab() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: SectionCard(
         title: "Applicant Details",
         headerBackgroundColor: AppColor.lightYellowBg2,
@@ -1314,18 +1315,8 @@ class _BookingViewScreenState extends State<BookingViewScreen>
           width: 1,
         ),
         children: [
-          SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.55,
-            child: ListView.builder(
-              shrinkWrap: true,
-              physics: AlwaysScrollableScrollPhysics(),
-              itemCount: bookingModel!.bookingApplicantData.length,
-              itemBuilder: (_, index) {
-                final applicant = bookingModel!.bookingApplicantData[index];
-                return ApplicantCard(applicant: applicant);
-              },
-            ),
-          ),
+          for (final applicant in bookingModel!.bookingApplicantData)
+            ApplicantCard(applicant: applicant),
         ],
       ),
     );

@@ -830,16 +830,7 @@ class _DropdownListState extends State<DropdownList> {
             ),
           ),
         isLoading && tempDataListForSearch.isEmpty
-            ? Expanded(
-              child: Center(
-                child: Text(
-                  "No records found",
-                  style: AppTextStyle.ts14R(
-                    color: AppColor.black.withValues(alpha: 0.5),
-                  ),
-                ),
-              ),
-            )
+            ? const Expanded(child: Center(child: CircularProgressIndicator()))
             : tempDataListForSearch.isEmpty
             ? Expanded(
               child: Center(

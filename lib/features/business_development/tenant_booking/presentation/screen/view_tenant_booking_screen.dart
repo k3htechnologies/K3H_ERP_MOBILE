@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_cubit.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/cubit/tenant_booking_state.dart';
@@ -420,7 +421,7 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                     ),
                     children: [
                       SizedBox(
-                        height: 250.0,
+                        height: 0.5.sh,
                         child: ListView.builder(
                           padding: EdgeInsets.symmetric(
                             horizontal: 2,
@@ -1241,7 +1242,7 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                     title: "Terms & Conditions",
                     headerBackgroundColor: AppColor.lightRed,
                     titleTextColor: AppColor.missingInformationRed,
-                    maxContentHeight: 450,
+                    maxContentHeight: 0.5.sh,
                     children: [
                       Container(
                         margin: EdgeInsets.only(bottom: 10),
@@ -1488,12 +1489,10 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
 
   Widget _buildPaymentSchedule() {
     if (bookingModel!.bookingPaymentScheduleData.isEmpty) {
-      return Expanded(
-        child: Center(
-          child: noDataWidget(
-            iconSize: 180,
-            message: "No Payment Schedule Found",
-          ),
+      return Center(
+        child: noDataWidget(
+          iconSize: 180,
+          message: "No Payment Schedule Found",
         ),
       );
     }
