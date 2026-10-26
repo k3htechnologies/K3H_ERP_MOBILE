@@ -263,9 +263,6 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
             widget.inventoryObject?[0]["tenantBuildingId"] ??
             (bm?.tenantBuildingId ?? 0),
         tenantId: widget.inventoryObject?[0]["tenantId"] ?? (bm?.tenantId ?? 0),
-        projectReraCarpetArea:
-            widget.inventoryObject?[0]["reraCarpetAreaSqFt"] ??
-            (bm?.reraCarpetAreaSqFt ?? 0),
       );
       _applicants.value = List<TenantApplicantData>.from(
         _bookingCubit.state.tenantList.first.tenantApplicantData,
@@ -577,7 +574,7 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
             .toList();
 
     return {"itemList": itemList, "totalNumberOfRecord": totalCount};
-   }
+  }
 
   // FETCHING TERMS AND CONDITIONS METHODS
   Future<Map<String, dynamic>> _fetchTerms(

@@ -9,16 +9,25 @@ import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
+class AdditionalKey {
+  final String title;
+  final String value;
+
+  const AdditionalKey({required this.title, required this.value});
+}
+
 class ApplicantCard extends StatelessWidget {
   final BookingApplicantData? applicant;
   final Widget? suffixActionWidgets;
   final TenantApplicantData? tenantApplicant;
+  final List<AdditionalKey>? additionalKeys;
 
   const ApplicantCard({
     super.key,
     this.applicant,
     this.suffixActionWidgets,
     this.tenantApplicant,
+    this.additionalKeys,
   });
 
   @override
@@ -89,12 +98,7 @@ class ApplicantCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  applicantName,
-                  style: AppTextStyle.ts14M(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+                Text(applicantName, style: AppTextStyle.ts14M()),
                 if (suffixActionWidgets != null)
                   Text(
                     applicantType,
@@ -252,6 +256,10 @@ class ApplicantCard extends StatelessWidget {
           _docEntry(context, "Payment Proof", applicant?.paymentProofURL ?? ""),
           _docEntry(context, "Profile Photo", applicant?.photoURL ?? ""),
         ],
+        if (additionalKeys != null)
+          ...additionalKeys!.map(
+            (item) => {"title": item.title, "value": item.value},
+          ),
       ],
     );
   }

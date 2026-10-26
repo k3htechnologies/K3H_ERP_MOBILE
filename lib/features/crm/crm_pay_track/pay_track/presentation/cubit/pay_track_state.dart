@@ -108,7 +108,7 @@ class PayTrackState extends BaseState {
     String? currentSortDirection,
     PayTrackModel? payTrackOverview,
     BookingModel? bookingData,
-    EnquiryModel? currentEnquiryDetails,
+    Object? currentEnquiryDetails = _noChange,
     bool? isFetchingEnquiryDetails,
     String? filterByCallLogApplicantName,
     String? filterCallStatus,
@@ -157,8 +157,9 @@ class PayTrackState extends BaseState {
       payTrackOverview: payTrackOverview ?? this.payTrackOverview,
       bookingData: bookingData ?? this.bookingData,
       currentEnquiryDetails:
-          currentEnquiryDetails ?? this.currentEnquiryDetails,
-
+          currentEnquiryDetails == _noChange
+              ? this.currentEnquiryDetails
+              : currentEnquiryDetails as EnquiryModel?,
       isFetchingEnquiryDetails:
           isFetchingEnquiryDetails ?? this.isFetchingEnquiryDetails,
 

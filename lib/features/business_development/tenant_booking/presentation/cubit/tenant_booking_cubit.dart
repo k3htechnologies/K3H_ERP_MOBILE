@@ -181,10 +181,8 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     required BuildContext context,
     required int projectId,
     required int buildingId,
-    double? projectReraCarpetArea,
     int? tenantId,
     String? systemGeneratedCode,
-    bool validate = true,
   }) async {
     emit(state.copyWith(isLoading: true, tenantList: []));
     Map<String, dynamic> queryParams = {

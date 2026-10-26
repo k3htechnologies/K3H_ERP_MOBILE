@@ -70,7 +70,6 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
         projectId: widget.projectId,
         tenantId: bookingModel!.tenantId,
         buildingId: bookingModel!.tenantBuildingId,
-        validate: false,
       );
     }
   }

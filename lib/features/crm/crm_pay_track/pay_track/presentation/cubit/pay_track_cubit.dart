@@ -2,6 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/data/repository/tenant.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/model/pay_track.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/data/repository/pay_track.repository.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_state.dart';
@@ -20,6 +22,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
   // REPOSITORIES
   final BookingRepository _bookingRepository =
       serviceLocator<BookingRepository>();
+  final TenantRepository _tenantRepository = serviceLocator<TenantRepository>();
   final EnquiryRepository _enquiryRepository =
       serviceLocator<EnquiryRepository>();
 
@@ -27,7 +30,7 @@ class PayTrackCubit extends Cubit<PayTrackState> {
       serviceLocator<PayTrackRepository>();
 
   Future resetOverview() async {
-    emit(state.copyWith(payTrackOverview: null));
+    emit(state.copyWith(payTrackOverview: null, currentEnquiryDetails: null));
   }
 
   // TAB CHANGED
@@ -342,6 +345,39 @@ class PayTrackCubit extends Cubit<PayTrackState> {
             ),
           );
         }
+      },
+    );
+  }
+
+  Future<List<TenantModel>> getTenantById({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required int tenantId,
+  }) async {
+    emit(state.copyWith(isFetchingEnquiryDetails: true));
+    Map<String, dynamic> queryParams = {
+      "TenantId": tenantId,
+      "IsCheckPermission": false,
+      "ProjectId": projectId,
+      "BuildingId": buildingId,
+    };
+    var result = await _tenantRepository.getTenantById(
+      queryParams: queryParams,
+    );
+
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return [];
+      },
+      (response) {
+        final List<TenantModel> newData = List<TenantModel>.from(
+          response['data'] ?? [],
+        );
+        emit(state.copyWith(isFetchingEnquiryDetails: false));
+        return newData;
       },
     );
   }

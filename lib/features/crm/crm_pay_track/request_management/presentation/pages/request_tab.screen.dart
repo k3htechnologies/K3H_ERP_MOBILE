@@ -17,7 +17,6 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presen
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
-import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
@@ -25,6 +24,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class RequestTabScreen extends StatefulWidget {
@@ -219,6 +219,9 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<RequestManagementCubit, RequestManagementState>(
       builder: (context, state) {
+        final noAgreementValue =
+            state.bookingData?.agreementValue == 0 &&
+            state.bookingData?.tenantId != 0;
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
           child: Column(
@@ -226,7 +229,9 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildApplicantDetailsWidget(context, state),
-              if (state.bookingData!.parkingData.isNotEmpty)
+              // HIDE PARKING WHEN AGREEMENT VALUE IS 0.
+              if (state.bookingData!.parkingData.isNotEmpty &&
+                  !noAgreementValue)
                 _buildParkingDetailsWidget(context, state),
               _buildFlatSpecificationRemarkgDetailsWidget(context, state),
             ],
@@ -269,625 +274,604 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     final isApplicantApproved =
         applicantRequest != null &&
         applicantRequest.approvalStatus.trim().toLowerCase() == "approved";
-    return Column(
-      spacing: 10.0,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Applicant Details", style: AppTextStyle.ts16SB()),
-            horizontalSpacing(),
-            _modifiedRequestsAuthorization.isAction
-                ? Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (applicantList.isNotEmpty &&
-                        state.hasUnsavedApplicantChanges &&
-                        !state.isSavingApplicantRequest &&
-                        !isAnyApplicantPartiallyApproved)
-                      CustomButton(
-                        text: "Save",
-                        onPressed: () {
-                          final hasApplicant = applicantList.any(
-                            (e) =>
-                                e.applicantType.trim().toLowerCase() ==
-                                "applicant",
-                          );
+    return SectionCard(
+      title: "Applicant Details",
+      headerBackgroundColor: AppColor.lightYellowBg2,
+      titleTextColor: AppColor.brownYellowText,
+      border: Border.all(color: AppColor.grey.withValues(alpha: 0.3), width: 1),
+      suffix:
+          _modifiedRequestsAuthorization.isAction
+              ? Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (applicantList.isNotEmpty &&
+                      state.hasUnsavedApplicantChanges &&
+                      !state.isSavingApplicantRequest &&
+                      !isAnyApplicantPartiallyApproved)
+                    CustomButton(
+                      text: "Save",
+                      onPressed: () {
+                        final hasApplicant = applicantList.any(
+                          (e) =>
+                              e.applicantType.trim().toLowerCase() ==
+                              "applicant",
+                        );
 
-                          if (!hasApplicant) {
-                            showErrorMessage(
+                        if (!hasApplicant) {
+                          showErrorMessage(
+                            context,
+                            "Error",
+                            "At least one Applicant is required.",
+                          );
+                          return;
+                        }
+                        _requestManagementCubit
+                            .updateBookingApplicantModificationRequest(
                               context,
-                              "Error",
-                              "At least one Applicant is required.",
+                              bookingId: widget.bookingId,
+                              projectId: widget.projectId,
                             );
-                            return;
+                      },
+                    ),
+
+                  horizontalSpacing(),
+                  if (_modifiedRequestsAuthorization.isAction &&
+                      widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+                      !isAnyApplicantPartiallyApproved &&
+                      (state.hasUnsavedApplicantChanges ||
+                          applicantRequest == null ||
+                          isApplicantApproved))
+                    CustomButton(
+                      leading: Icon(Icons.add, size: 18, color: AppColor.white),
+                      text: "Add",
+                      onPressed: () async {
+                        final result = await goRouter.pushNamed(
+                          AppRoutes.addApplicantDetailsRequests,
+                          extra: {
+                            "bookingId": widget.bookingId,
+                            "projectId": widget.projectId,
+                            "aadharFile": selectedAadhaarForPopUpFile,
+                            "panFile": selectedPANForPopUpFile,
+                            "passportFile": selectedPassportPhotoForPopUpFile,
+                            "photoFile": selectedPhotoPhotoForPopUpFile,
+                            "gstFile": selectedGstNumberPhotForPopUpFile,
+                            "votingFile": selectedVotingForPopUpFile,
+                            "drivingFile": selectedDrivingLicenseForPopUpFile,
+                            "poaFile": selectedPOAForPopUpFile,
+                            "paymentProofFile":
+                                selectedPaymentProofForPopUpFile,
+                            "proofDocumentFile":
+                                selectedProofOfDocumentForPopUpFile,
+                            "statementFile":
+                                selectedStatementOfSourceOfFundsForPopUpFile,
+                            "incomeFile": selectedIncomeForm16ITRForPopUpFile,
+                            "nomineeFile": selectedNomineeFormPhotoForPopUpFile,
+                            "cancelledChequeFile":
+                                selectedCancelledChequePhotoForPopUpFile,
+                            "nreFile": selectedNreNroBankDetailsForPopUpFile,
+                          },
+                        );
+
+                        if (result is Map &&
+                            result["isSuccess"] == true &&
+                            result["applicant"] != null) {
+                          selectedAadhaarForPopUpFile = result["aadhaarFile"];
+
+                          selectedPANForPopUpFile = result["panFile"];
+
+                          selectedPassportPhotoForPopUpFile =
+                              result["passportFile"];
+
+                          selectedPhotoPhotoForPopUpFile = result["photoFile"];
+
+                          selectedGstNumberPhotForPopUpFile = result["gstFile"];
+
+                          selectedVotingForPopUpFile = result["votingFile"];
+
+                          selectedDrivingLicenseForPopUpFile =
+                              result["drivingFile"];
+
+                          selectedPOAForPopUpFile = result["poaFile"];
+
+                          selectedPaymentProofForPopUpFile =
+                              result["paymentProofFile"];
+
+                          selectedProofOfDocumentForPopUpFile =
+                              result["proofDocumentFile"];
+
+                          selectedStatementOfSourceOfFundsForPopUpFile =
+                              result["statementFile"];
+
+                          selectedIncomeForm16ITRForPopUpFile =
+                              result["incomeFile"];
+
+                          selectedNomineeFormPhotoForPopUpFile =
+                              result["nomineeFile"];
+
+                          selectedCancelledChequePhotoForPopUpFile =
+                              result["cancelledChequeFile"];
+
+                          selectedNreNroBankDetailsForPopUpFile =
+                              result["nreFile"];
+
+                          if (result["isEdit"] == true) {
+                            _requestManagementCubit.updateApplicantLocally(
+                              result["index"],
+                              result["applicant"],
+                            );
+                          } else {
+                            _requestManagementCubit.addApplicantLocally(
+                              result["applicant"],
+                            );
                           }
-                          _requestManagementCubit
-                              .updateBookingApplicantModificationRequest(
-                                context,
-                                bookingId: widget.bookingId,
-                                projectId: widget.projectId,
-                              );
-                        },
-                      ),
+                        }
+                      },
+                    ),
+                ],
+              )
+              : SizedBox.shrink(),
 
-                    horizontalSpacing(),
-                    if (_modifiedRequestsAuthorization.isAction &&
-                        widget.approvalStatus?.toUpperCase() == "APPROVED" &&
-                        !isAnyApplicantPartiallyApproved &&
-                        (state.hasUnsavedApplicantChanges ||
-                            applicantRequest == null ||
-                            isApplicantApproved))
-                      CustomButton(
-                        leading: Icon(
-                          Icons.add,
-                          size: 18,
-                          color: AppColor.white,
-                        ),
-                        text: "Add",
-                        onPressed: () async {
-                          final result = await goRouter.pushNamed(
-                            AppRoutes.addApplicantDetailsRequests,
-                            extra: {
-                              "bookingId": widget.bookingId,
-                              "projectId": widget.projectId,
-                              "aadharFile": selectedAadhaarForPopUpFile,
-                              "panFile": selectedPANForPopUpFile,
-                              "passportFile": selectedPassportPhotoForPopUpFile,
-                              "photoFile": selectedPhotoPhotoForPopUpFile,
-                              "gstFile": selectedGstNumberPhotForPopUpFile,
-                              "votingFile": selectedVotingForPopUpFile,
-                              "drivingFile": selectedDrivingLicenseForPopUpFile,
-                              "poaFile": selectedPOAForPopUpFile,
-                              "paymentProofFile":
-                                  selectedPaymentProofForPopUpFile,
-                              "proofDocumentFile":
-                                  selectedProofOfDocumentForPopUpFile,
-                              "statementFile":
-                                  selectedStatementOfSourceOfFundsForPopUpFile,
-                              "incomeFile": selectedIncomeForm16ITRForPopUpFile,
-                              "nomineeFile":
-                                  selectedNomineeFormPhotoForPopUpFile,
-                              "cancelledChequeFile":
-                                  selectedCancelledChequePhotoForPopUpFile,
-                              "nreFile": selectedNreNroBankDetailsForPopUpFile,
-                            },
-                          );
-
-                          if (result is Map &&
-                              result["isSuccess"] == true &&
-                              result["applicant"] != null) {
-                            selectedAadhaarForPopUpFile = result["aadhaarFile"];
-
-                            selectedPANForPopUpFile = result["panFile"];
-
-                            selectedPassportPhotoForPopUpFile =
-                                result["passportFile"];
-
-                            selectedPhotoPhotoForPopUpFile =
-                                result["photoFile"];
-
-                            selectedGstNumberPhotForPopUpFile =
-                                result["gstFile"];
-
-                            selectedVotingForPopUpFile = result["votingFile"];
-
-                            selectedDrivingLicenseForPopUpFile =
-                                result["drivingFile"];
-
-                            selectedPOAForPopUpFile = result["poaFile"];
-
-                            selectedPaymentProofForPopUpFile =
-                                result["paymentProofFile"];
-
-                            selectedProofOfDocumentForPopUpFile =
-                                result["proofDocumentFile"];
-
-                            selectedStatementOfSourceOfFundsForPopUpFile =
-                                result["statementFile"];
-
-                            selectedIncomeForm16ITRForPopUpFile =
-                                result["incomeFile"];
-
-                            selectedNomineeFormPhotoForPopUpFile =
-                                result["nomineeFile"];
-
-                            selectedCancelledChequePhotoForPopUpFile =
-                                result["cancelledChequeFile"];
-
-                            selectedNreNroBankDetailsForPopUpFile =
-                                result["nreFile"];
-
-                            if (result["isEdit"] == true) {
-                              _requestManagementCubit.updateApplicantLocally(
-                                result["index"],
-                                result["applicant"],
-                              );
-                            } else {
-                              _requestManagementCubit.addApplicantLocally(
-                                result["applicant"],
-                              );
-                            }
-                          }
-                        },
-                      ),
-                  ],
-                )
-                : SizedBox.shrink(),
-          ],
-        ),
+      children: [
         if (hasApplicantData) ...{
           SizedBox(
             height: 500.h,
-            child: Container(
-              padding: EdgeInsets.all(16),
-              decoration: commonCardDecoration(),
-              child: ListView.builder(
-                itemCount: applicantList.length,
-                shrinkWrap: true,
-                itemBuilder: (context, index) {
-                  final applicantData = applicantList[index];
+            child: ListView.builder(
+              itemCount: applicantList.length,
+              shrinkWrap: true,
+              itemBuilder: (context, index) {
+                final applicantData = applicantList[index];
 
-                  final applicant = applicantData;
+                final applicant = applicantData;
 
-                  final isApplicant =
-                      applicant.applicantType.trim().toLowerCase() ==
-                      "applicant";
+                final isApplicant =
+                    applicant.applicantType.trim().toLowerCase() == "applicant";
 
-                  final isDraftRequest = state.hasUnsavedApplicantChanges;
-                  final canDelete = isDraftRequest || isApplicant;
-                  return Container(
-                    margin: EdgeInsets.only(
-                      bottom: index == applicantList.length - 1 ? 0 : 10,
+                final isDraftRequest = state.hasUnsavedApplicantChanges;
+                final canDelete = isDraftRequest || isApplicant;
+                return Container(
+                  margin: EdgeInsets.only(
+                    bottom: index == applicantList.length - 1 ? 0 : 10,
+                  ),
+                  padding: EdgeInsets.all(12.0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: AppColor.primary.withValues(alpha: 0.3),
+                      width: 0.8,
                     ),
-                    padding: EdgeInsets.all(12.0),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: AppColor.primary.withValues(alpha: 0.3),
-                        width: 0.8,
-                      ),
-                    ),
-                    child: Column(
-                      spacing: 6.0,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Type",
-                              value: applicant.applicantType,
-                            ),
-                            horizontalSpacing(),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  if (isDraftRequest)
-                                    CustomIconButton.edit(
-                                      isDisabled:
-                                          applicant.approvalStatus
-                                                  .toLowerCase() ==
-                                              "partial approved" ||
-                                          applicant.approvalStatus
-                                                  .toLowerCase() ==
-                                              "approved",
-                                      onPressed: () async {
-                                        final result = await goRouter.pushNamed(
-                                          AppRoutes.addApplicantDetailsRequests,
-                                          extra: {
-                                            "bookingId": widget.bookingId,
-                                            "projectId": widget.projectId,
-                                            "index": index,
-                                            "isEdit": true,
-                                          },
-                                        );
-                                        if (result is Map &&
-                                            result["isSuccess"] == true &&
-                                            result["applicant"] != null) {
-                                          selectedProofOfDocumentForPopUpFile =
-                                              result["proofDocumentFile"];
-                                          selectedAadhaarForPopUpFile =
-                                              result["aadhaarFile"];
-                                          selectedPANForPopUpFile =
-                                              result["panFile"];
-                                          selectedPassportPhotoForPopUpFile =
-                                              result["passportFile"];
-                                          selectedPhotoPhotoForPopUpFile =
-                                              result["photoFile"];
-                                          selectedGstNumberPhotForPopUpFile =
-                                              result["gstFile"];
-                                          selectedVotingForPopUpFile =
-                                              result["votingFile"];
-                                          selectedDrivingLicenseForPopUpFile =
-                                              result["drivingFile"];
-                                          selectedPOAForPopUpFile =
-                                              result["poaFile"];
-                                          selectedPaymentProofForPopUpFile =
-                                              result["paymentProofFile"];
-                                          selectedStatementOfSourceOfFundsForPopUpFile =
-                                              result["statementFile"];
-                                          selectedIncomeForm16ITRForPopUpFile =
-                                              result["incomeFile"];
-                                          selectedNomineeFormPhotoForPopUpFile =
-                                              result["nomineeFile"];
-                                          selectedCancelledChequePhotoForPopUpFile =
-                                              result["cancelledChequeFile"];
-                                          selectedNreNroBankDetailsForPopUpFile =
-                                              result["nreFile"];
+                  ),
+                  child: Column(
+                    spacing: 6.0,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          buildColumnTitleValue(
+                            title: "Type",
+                            value: applicant.applicantType,
+                          ),
+                          horizontalSpacing(),
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (isDraftRequest)
+                                  CustomIconButton.edit(
+                                    isDisabled:
+                                        applicant.approvalStatus
+                                                .toLowerCase() ==
+                                            "partial approved" ||
+                                        applicant.approvalStatus
+                                                .toLowerCase() ==
+                                            "approved",
+                                    onPressed: () async {
+                                      final result = await goRouter.pushNamed(
+                                        AppRoutes.addApplicantDetailsRequests,
+                                        extra: {
+                                          "bookingId": widget.bookingId,
+                                          "projectId": widget.projectId,
+                                          "index": index,
+                                          "isEdit": true,
+                                        },
+                                      );
+                                      if (result is Map &&
+                                          result["isSuccess"] == true &&
+                                          result["applicant"] != null) {
+                                        selectedProofOfDocumentForPopUpFile =
+                                            result["proofDocumentFile"];
+                                        selectedAadhaarForPopUpFile =
+                                            result["aadhaarFile"];
+                                        selectedPANForPopUpFile =
+                                            result["panFile"];
+                                        selectedPassportPhotoForPopUpFile =
+                                            result["passportFile"];
+                                        selectedPhotoPhotoForPopUpFile =
+                                            result["photoFile"];
+                                        selectedGstNumberPhotForPopUpFile =
+                                            result["gstFile"];
+                                        selectedVotingForPopUpFile =
+                                            result["votingFile"];
+                                        selectedDrivingLicenseForPopUpFile =
+                                            result["drivingFile"];
+                                        selectedPOAForPopUpFile =
+                                            result["poaFile"];
+                                        selectedPaymentProofForPopUpFile =
+                                            result["paymentProofFile"];
+                                        selectedStatementOfSourceOfFundsForPopUpFile =
+                                            result["statementFile"];
+                                        selectedIncomeForm16ITRForPopUpFile =
+                                            result["incomeFile"];
+                                        selectedNomineeFormPhotoForPopUpFile =
+                                            result["nomineeFile"];
+                                        selectedCancelledChequePhotoForPopUpFile =
+                                            result["cancelledChequeFile"];
+                                        selectedNreNroBankDetailsForPopUpFile =
+                                            result["nreFile"];
 
+                                        _requestManagementCubit
+                                            .updateApplicantLocally(
+                                              result["index"],
+                                              result["applicant"],
+                                            );
+                                      }
+                                    },
+                                  ),
+                                if (isDraftRequest) horizontalSpacing(),
+                                if (canDelete)
+                                  CustomIconButton.delete(
+                                    isDisabled:
+                                        isAnyApplicantPartiallyApproved ||
+                                        applicant.approvalStatus
+                                                .toLowerCase() ==
+                                            "partial approved" ||
+                                        applicant.approvalStatus
+                                                .toLowerCase() ==
+                                            "approved",
+                                    onPressed: () async {
+                                      final isDelete = await DialogHelper.deleteDialog(
+                                        context,
+                                        "You are about to delete a Booking Applicant ?",
+                                        "Deleting this Booking Applicant will permanently remove all associated data.",
+                                      );
+
+                                      if (!isDelete) return;
+
+                                      final isDraftRequest =
+                                          applicant
+                                              .bookingApplicantModificationRequestId ==
+                                          0;
+
+                                      if (isDraftRequest) {
+                                        _requestManagementCubit
+                                            .deleteApplicantLocally(index);
+                                      } else {
+                                        if (context.mounted) {
                                           _requestManagementCubit
-                                              .updateApplicantLocally(
-                                                result["index"],
-                                                result["applicant"],
+                                              .deleteBookingApplicantModificationRequest(
+                                                context: context,
+                                                model: applicant,
+                                                bookingId: widget.bookingId,
+                                                projectId: widget.projectId,
+                                                index: index,
                                               );
                                         }
-                                      },
-                                    ),
-                                  if (isDraftRequest) horizontalSpacing(),
-                                  if (canDelete)
-                                    CustomIconButton.delete(
-                                      isDisabled:
-                                          isAnyApplicantPartiallyApproved ||
-                                          applicant.approvalStatus
-                                                  .toLowerCase() ==
-                                              "partial approved" ||
-                                          applicant.approvalStatus
-                                                  .toLowerCase() ==
-                                              "approved",
-                                      onPressed: () async {
-                                        final isDelete =
-                                            await DialogHelper.deleteDialog(
-                                              context,
-                                              "You are about to delete a Booking Applicant ?",
-                                              "Deleting this Booking Applicant will permanently remove all associated data.",
-                                            );
-
-                                        if (!isDelete) return;
-
-                                        final isDraftRequest =
-                                            applicant
-                                                .bookingApplicantModificationRequestId ==
-                                            0;
-
-                                        if (isDraftRequest) {
-                                          _requestManagementCubit
-                                              .deleteApplicantLocally(index);
-                                        } else {
-                                          if (context.mounted) {
-                                            _requestManagementCubit
-                                                .deleteBookingApplicantModificationRequest(
-                                                  context: context,
-                                                  model: applicant,
-                                                  bookingId: widget.bookingId,
-                                                  projectId: widget.projectId,
-                                                  index: index,
-                                                );
-                                          }
-                                        }
-                                      },
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                        buildRowTitleValue(
-                          title: "Applicant Name",
-                          value: applicant.applicantName,
-                          singleLine: false,
-                          fixesWidth: 80,
-                          customValueWidget: DocumentPreviewText(
-                            title: "Profile Photo",
-                            text: applicant.applicantName,
-                            fileUrl: applicant.photoUrl,
-                          ),
-                        ),
-                        buildRowTitleValue(
-                          title: "Mobile No. ",
-                          fixesWidth: 80,
-                          value: applicant.applicantMobileNumber,
-                          customValueWidget: CustomClickToContactText(
-                            countryCode:
-                                applicant.applicantMobileNumberCountryCode,
-                            value: applicant.applicantMobileNumber,
-                            type: ContactType.phone,
-                          ),
-                        ),
-                        buildRowTitleValue(
-                          fixesWidth: 80,
-                          title: "E-Mail ID",
-                          value: applicant.applicantEmailId,
-                          singleLine: false,
-                          customValueWidget: CustomClickToContactText(
-                            countryCode: applicant.applicantEmailId,
-                            value: applicant.applicantEmailId,
-                            type: ContactType.email,
-                          ),
-                        ),
-                        if (applicant.proofOfDocumentUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Proof Of Document",
-                            fixesWidth: 80,
-                            value: applicant.proofOfDocumentUrl,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Proof Of Document",
-                              text: "View",
-                              fileUrl: applicant.proofOfDocumentUrl,
-                            ),
-                          ),
-                        buildRowTitleValue(
-                          title: "Aadhaar Card No.",
-                          fixesWidth: 80,
-                          value: applicant.aadharCardNumber,
-                          customValueWidget: DocumentPreviewText(
-                            title: "Aadhaar Card",
-                            text: applicant.aadharCardNumber,
-                            fileUrl: applicant.aadharCardUrl,
-                          ),
-                        ),
-                        buildRowTitleValue(
-                          title: "PAN Card No.",
-                          fixesWidth: 80,
-                          value: applicant.panNumber,
-                          customValueWidget: DocumentPreviewText(
-                            title: "PAN Card",
-                            text: applicant.panNumber,
-                            fileUrl: applicant.panCardUrl,
-                          ),
-                        ),
-                        if (applicant.passportNumber.isNotEmpty &&
-                            applicant.passportUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Passport Number",
-                            value: applicant.passportNumber,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Passport Number",
-                              text: applicant.passportNumber,
-                              fileUrl: applicant.passportUrl,
-                            ),
-                          ),
-                        if (applicant.drivingLicenseNumber.isNotEmpty &&
-                            applicant.drivingLicenseUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Driving License Number",
-                            value: applicant.drivingLicenseNumber,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Driving License Number",
-                              text: applicant.drivingLicenseNumber,
-                              fileUrl: applicant.drivingLicenseUrl,
-                            ),
-                          ),
-                        if (applicant.votingIdNumber.isNotEmpty &&
-                            applicant.votingIdUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Voting ID Number",
-                            value: applicant.votingIdNumber,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Voting ID Number",
-                              text: applicant.votingIdNumber,
-                              fileUrl: applicant.votingIdUrl,
-                            ),
-                          ),
-                        if (applicant.gstNumber.isNotEmpty &&
-                            applicant.gstNumberUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "GST Number",
-                            value: applicant.gstNumber,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "GST Number",
-                              text: applicant.gstNumber,
-                              fileUrl: applicant.gstNumberUrl,
-                            ),
-                          ),
-                        if (applicant.cancelledChequeUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Cancelled Cheque",
-                            value: applicant.cancelledChequeUrl,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Cancelled Cheque",
-                              text: "View",
-                              fileUrl: applicant.cancelledChequeUrl,
-                            ),
-                          ),
-                        if (applicant.poaurl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "POA (if NRI Execution)",
-                            value: applicant.poaurl,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "POA (if NRI Execution)",
-                              text: "View",
-                              fileUrl: applicant.poaurl,
-                            ),
-                          ),
-                        if (applicant.incomeForm16Itrurl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Income Docs (Form 16 / ITR)",
-                            value: applicant.incomeForm16Itrurl,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Income Docs (Form 16 / ITR)",
-                              text: "View",
-                              fileUrl: applicant.incomeForm16Itrurl,
-                            ),
-                          ),
-                        if (applicant.nreNroBankDetailsUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "NRE / NRO Bank Details",
-                            value: applicant.nreNroBankDetailsUrl,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "NRE / NRO Bank Details",
-                              text: "View",
-                              fileUrl: applicant.nreNroBankDetailsUrl,
-                            ),
-                          ),
-                        if (applicant.nomineeFormUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Nominee Form",
-                            value: applicant.nomineeFormUrl,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Nominee Form",
-                              text: "View",
-                              fileUrl: applicant.nomineeFormUrl,
-                            ),
-                          ),
-                        if (applicant.statementOfSourceOfFundsUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Statement of Source of Funds",
-                            value: applicant.statementOfSourceOfFundsUrl,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Statement of Source of Funds",
-                              text: "View",
-                              fileUrl: applicant.statementOfSourceOfFundsUrl,
-                            ),
-                          ),
-                        if (applicant.paymentProofUrl.isNotEmpty)
-                          buildRowTitleValue(
-                            title: "Payment Proof",
-                            value: applicant.paymentProofUrl,
-                            fixesWidth: 80,
-                            customValueWidget: DocumentPreviewText(
-                              title: "Payment Proof",
-                              text: "View",
-                              fileUrl: applicant.paymentProofUrl,
-                            ),
-                          ),
-                        _modifiedRequestsAuthorization.isAction &&
-                                !isDraftRequest &&
-                                isApplicant
-                            ? ApproveRejectWidget(
-                              showApproval: applicant.isApproval,
-                              actionTitle:
-                                  applicant.approvalStatus.isEmpty
-                                      ? "Pending"
-                                      : applicant.approvalStatus,
-                              subTitle: applicant.applicantName,
-                              onApprove: (remark) async {
-                                final isSuccess = await _utilsCubit
-                                    .updateModulesWorkflowApproval(
-                                      context: context,
-                                      moduleName:
-                                          "BOOKING APPLICANT MODIFICATION APPROVAL",
-                                      id: widget.bookingId,
-                                      subId:
-                                          applicant
-                                              .bookingApplicantModificationRequestId,
-                                      projectId: widget.projectId,
-                                      isApproved: true,
-                                      remark: remark.trim(),
-                                    );
-
-                                if (context.mounted && isSuccess) {
-                                  _requestManagementCubit
-                                      .getBookingApplicantModificationRequestList(
-                                        context,
-                                        10,
-                                        1,
-                                        widget.bookingId,
-                                        widget.projectId,
-                                      );
-                                }
-                              },
-                              onReject: (remark) async {
-                                final isSuccess = await _utilsCubit
-                                    .updateModulesWorkflowApproval(
-                                      context: context,
-                                      moduleName:
-                                          "BOOKING APPLICANT MODIFICATION APPROVAL",
-                                      id: widget.bookingId,
-                                      subId:
-                                          applicant
-                                              .bookingApplicantModificationRequestId,
-                                      projectId: widget.projectId,
-                                      isApproved: false,
-                                      remark: remark.trim(),
-                                    );
-
-                                if (context.mounted && isSuccess) {
-                                  _requestManagementCubit
-                                      .getBookingApplicantModificationRequestList(
-                                        context,
-                                        10,
-                                        1,
-                                        widget.bookingId,
-                                        widget.projectId,
-                                      );
-                                }
-                              },
-                              onThirdTap: () async {
-                                final approvalLogHistoryList = await _utilsCubit
-                                    .getApprovalLogHistory(
-                                      context: context,
-                                      id: widget.bookingId,
-                                      subId:
-                                          applicant
-                                              .bookingApplicantModificationRequestId,
-                                      projectId: widget.projectId,
-                                      moduleName:
-                                          "BOOKING APPLICANT MODIFICATION APPROVAL",
-                                    );
-                                if (context.mounted) {
-                                  goRouter.pushNamed(
-                                    AppRoutes.approvalLogHistory,
-                                    queryParameters: {
-                                      "title": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          "Applicant Details Log History",
-                                        ),
-                                      ),
-                                      "approvalList": Uri.encodeComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(
-                                            approvalLogHistoryList
-                                                .map((e) => e.toJson())
-                                                .toList(),
-                                          ),
-                                        ),
-                                      ),
+                                      }
                                     },
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      buildRowTitleValue(
+                        title: "Applicant Name",
+                        value: applicant.applicantName,
+                        singleLine: false,
+                        fixesWidth: 80,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Profile Photo",
+                          text: applicant.applicantName,
+                          fileUrl: applicant.photoUrl,
+                        ),
+                      ),
+                      buildRowTitleValue(
+                        title: "Mobile No. ",
+                        fixesWidth: 80,
+                        value: applicant.applicantMobileNumber,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode:
+                              applicant.applicantMobileNumberCountryCode,
+                          value: applicant.applicantMobileNumber,
+                          type: ContactType.phone,
+                        ),
+                      ),
+                      buildRowTitleValue(
+                        fixesWidth: 80,
+                        title: "E-Mail ID",
+                        value: applicant.applicantEmailId,
+                        singleLine: false,
+                        customValueWidget: CustomClickToContactText(
+                          countryCode: applicant.applicantEmailId,
+                          value: applicant.applicantEmailId,
+                          type: ContactType.email,
+                        ),
+                      ),
+                      if (applicant.proofOfDocumentUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Proof Of Document",
+                          fixesWidth: 80,
+                          value: applicant.proofOfDocumentUrl,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Proof Of Document",
+                            text: "View",
+                            fileUrl: applicant.proofOfDocumentUrl,
+                          ),
+                        ),
+                      buildRowTitleValue(
+                        title: "Aadhaar Card No.",
+                        fixesWidth: 80,
+                        value: applicant.aadharCardNumber,
+                        customValueWidget: DocumentPreviewText(
+                          title: "Aadhaar Card",
+                          text: applicant.aadharCardNumber,
+                          fileUrl: applicant.aadharCardUrl,
+                        ),
+                      ),
+                      buildRowTitleValue(
+                        title: "PAN Card No.",
+                        fixesWidth: 80,
+                        value: applicant.panNumber,
+                        customValueWidget: DocumentPreviewText(
+                          title: "PAN Card",
+                          text: applicant.panNumber,
+                          fileUrl: applicant.panCardUrl,
+                        ),
+                      ),
+                      if (applicant.passportNumber.isNotEmpty &&
+                          applicant.passportUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Passport Number",
+                          value: applicant.passportNumber,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Passport Number",
+                            text: applicant.passportNumber,
+                            fileUrl: applicant.passportUrl,
+                          ),
+                        ),
+                      if (applicant.drivingLicenseNumber.isNotEmpty &&
+                          applicant.drivingLicenseUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Driving License Number",
+                          value: applicant.drivingLicenseNumber,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Driving License Number",
+                            text: applicant.drivingLicenseNumber,
+                            fileUrl: applicant.drivingLicenseUrl,
+                          ),
+                        ),
+                      if (applicant.votingIdNumber.isNotEmpty &&
+                          applicant.votingIdUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Voting ID Number",
+                          value: applicant.votingIdNumber,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Voting ID Number",
+                            text: applicant.votingIdNumber,
+                            fileUrl: applicant.votingIdUrl,
+                          ),
+                        ),
+                      if (applicant.gstNumber.isNotEmpty &&
+                          applicant.gstNumberUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "GST Number",
+                          value: applicant.gstNumber,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "GST Number",
+                            text: applicant.gstNumber,
+                            fileUrl: applicant.gstNumberUrl,
+                          ),
+                        ),
+                      if (applicant.cancelledChequeUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Cancelled Cheque",
+                          value: applicant.cancelledChequeUrl,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Cancelled Cheque",
+                            text: "View",
+                            fileUrl: applicant.cancelledChequeUrl,
+                          ),
+                        ),
+                      if (applicant.poaurl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "POA (if NRI Execution)",
+                          value: applicant.poaurl,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "POA (if NRI Execution)",
+                            text: "View",
+                            fileUrl: applicant.poaurl,
+                          ),
+                        ),
+                      if (applicant.incomeForm16Itrurl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Income Docs (Form 16 / ITR)",
+                          value: applicant.incomeForm16Itrurl,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Income Docs (Form 16 / ITR)",
+                            text: "View",
+                            fileUrl: applicant.incomeForm16Itrurl,
+                          ),
+                        ),
+                      if (applicant.nreNroBankDetailsUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "NRE / NRO Bank Details",
+                          value: applicant.nreNroBankDetailsUrl,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "NRE / NRO Bank Details",
+                            text: "View",
+                            fileUrl: applicant.nreNroBankDetailsUrl,
+                          ),
+                        ),
+                      if (applicant.nomineeFormUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Nominee Form",
+                          value: applicant.nomineeFormUrl,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Nominee Form",
+                            text: "View",
+                            fileUrl: applicant.nomineeFormUrl,
+                          ),
+                        ),
+                      if (applicant.statementOfSourceOfFundsUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Statement of Source of Funds",
+                          value: applicant.statementOfSourceOfFundsUrl,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Statement of Source of Funds",
+                            text: "View",
+                            fileUrl: applicant.statementOfSourceOfFundsUrl,
+                          ),
+                        ),
+                      if (applicant.paymentProofUrl.isNotEmpty)
+                        buildRowTitleValue(
+                          title: "Payment Proof",
+                          value: applicant.paymentProofUrl,
+                          fixesWidth: 80,
+                          customValueWidget: DocumentPreviewText(
+                            title: "Payment Proof",
+                            text: "View",
+                            fileUrl: applicant.paymentProofUrl,
+                          ),
+                        ),
+                      _modifiedRequestsAuthorization.isAction &&
+                              !isDraftRequest &&
+                              isApplicant
+                          ? ApproveRejectWidget(
+                            showApproval: applicant.isApproval,
+                            actionTitle:
+                                applicant.approvalStatus.isEmpty
+                                    ? "Pending"
+                                    : applicant.approvalStatus,
+                            subTitle: applicant.applicantName,
+                            onApprove: (remark) async {
+                              final isSuccess = await _utilsCubit
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    moduleName:
+                                        "BOOKING APPLICANT MODIFICATION APPROVAL",
+                                    id: widget.bookingId,
+                                    subId:
+                                        applicant
+                                            .bookingApplicantModificationRequestId,
+                                    projectId: widget.projectId,
+                                    isApproved: true,
+                                    remark: remark.trim(),
                                   );
-                                }
-                              },
-                              popupTitle:
-                                  "BOOKING APPLICANT MODIFICATION APPROVAL",
-                            )
-                            : SizedBox.shrink(),
-                      ],
-                    ),
-                  );
-                },
-              ),
+
+                              if (context.mounted && isSuccess) {
+                                _requestManagementCubit
+                                    .getBookingApplicantModificationRequestList(
+                                      context,
+                                      10,
+                                      1,
+                                      widget.bookingId,
+                                      widget.projectId,
+                                    );
+                              }
+                            },
+                            onReject: (remark) async {
+                              final isSuccess = await _utilsCubit
+                                  .updateModulesWorkflowApproval(
+                                    context: context,
+                                    moduleName:
+                                        "BOOKING APPLICANT MODIFICATION APPROVAL",
+                                    id: widget.bookingId,
+                                    subId:
+                                        applicant
+                                            .bookingApplicantModificationRequestId,
+                                    projectId: widget.projectId,
+                                    isApproved: false,
+                                    remark: remark.trim(),
+                                  );
+
+                              if (context.mounted && isSuccess) {
+                                _requestManagementCubit
+                                    .getBookingApplicantModificationRequestList(
+                                      context,
+                                      10,
+                                      1,
+                                      widget.bookingId,
+                                      widget.projectId,
+                                    );
+                              }
+                            },
+                            onThirdTap: () async {
+                              final approvalLogHistoryList = await _utilsCubit
+                                  .getApprovalLogHistory(
+                                    context: context,
+                                    id: widget.bookingId,
+                                    subId:
+                                        applicant
+                                            .bookingApplicantModificationRequestId,
+                                    projectId: widget.projectId,
+                                    moduleName:
+                                        "BOOKING APPLICANT MODIFICATION APPROVAL",
+                                  );
+                              if (context.mounted) {
+                                goRouter.pushNamed(
+                                  AppRoutes.approvalLogHistory,
+                                  queryParameters: {
+                                    "title": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        "Applicant Details Log History",
+                                      ),
+                                    ),
+                                    "approvalList": Uri.encodeComponent(
+                                      EncryptionManager.encryptData(
+                                        jsonEncode(
+                                          approvalLogHistoryList
+                                              .map((e) => e.toJson())
+                                              .toList(),
+                                        ),
+                                      ),
+                                    ),
+                                  },
+                                );
+                              }
+                            },
+                            popupTitle:
+                                "BOOKING APPLICANT MODIFICATION APPROVAL",
+                          )
+                          : SizedBox.shrink(),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         } else ...{
-          Container(
-            padding: EdgeInsets.all(12.0),
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: noDataWidget(
-                    message: "No Applicant Found",
-                    iconSize: 120.0,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: noDataWidget(
+                  message: "No Applicant Found",
+                  iconSize: 120.0,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         },
       ],
@@ -910,26 +894,24 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
           status == "pending" ||
           status == "partial approved";
     });
-    return Column(
-      spacing: 10.0,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Parking Details", style: AppTextStyle.ts16SB()),
-            if (_modifiedRequestsAuthorization.isAction &&
-                widget.approvalStatus?.toUpperCase() == "APPROVED" &&
-                !hasPendingParkingRequest)
-              CustomButton(
+    return SectionCard(
+      title: "Parking Details",
+      titleTextColor: AppColor.blueBgColor,
+      headerBackgroundColor: Color(0xffF6F9FF),
+      border: Border.all(color: AppColor.grey.withValues(alpha: 0.3), width: 1),
+      suffix:
+          (_modifiedRequestsAuthorization.isAction &&
+                  widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+                  !hasPendingParkingRequest)
+              ? CustomButton(
                 leading: Icon(Icons.add, size: 18, color: AppColor.white),
                 text: "Add",
                 onPressed: () {
                   goRouter.pushNamed(AppRoutes.swapBookedParking);
                 },
-              ),
-          ],
-        ),
+              )
+              : null,
+      children: [
         if (hasParkingData) ...{
           SizedBox(
             height:
@@ -1170,21 +1152,16 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             ),
           ),
         } else ...{
-          Container(
-            padding: EdgeInsets.all(12.0),
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: noDataWidget(
-                    message: "No Parking Data Found",
-                    iconSize: 120.0,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: noDataWidget(
+                  message: "No Parking Data Found",
+                  iconSize: 120.0,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         },
       ],
@@ -1205,23 +1182,16 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               status == "pending" ||
               status == "partial approved";
         });
-    return Column(
-      spacing: 10.0,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                "Unit / Modulation / Customization Details",
-                style: AppTextStyle.ts16SB(),
-              ),
-            ),
-            if (_modifiedRequestsAuthorization.isAction &&
-                widget.approvalStatus?.toUpperCase() == "APPROVED" &&
-                !hasPendingFlatAlterationRequest)
-              CustomButton(
+    return SectionCard(
+      title: "Unit / Modulation / Customization Details",
+      headerBackgroundColor: AppColor.grey10,
+      titleTextColor: AppColor.black,
+      border: Border.all(color: AppColor.grey.withValues(alpha: 0.3), width: 1),
+      suffix:
+          (_modifiedRequestsAuthorization.isAction &&
+                  widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+                  !hasPendingFlatAlterationRequest)
+              ? CustomButton(
                 leading: Icon(Icons.add, size: 18, color: AppColor.white),
                 text: "Add",
                 onPressed: () {
@@ -1229,9 +1199,9 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                     AppRoutes.addFlatSpecificationRemarkScreen,
                   );
                 },
-              ),
-          ],
-        ),
+              )
+              : null,
+      children: [
         if (hasFlatSpecificationRemark) ...{
           ListView.builder(
             shrinkWrap: true,
@@ -1400,21 +1370,16 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             },
           ),
         } else ...{
-          Container(
-            padding: EdgeInsets.all(12.0),
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: noDataWidget(
-                    message: "No data available",
-                    iconSize: 120.0,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Center(
+                child: noDataWidget(
+                  message: "No data available",
+                  iconSize: 120.0,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         },
       ],

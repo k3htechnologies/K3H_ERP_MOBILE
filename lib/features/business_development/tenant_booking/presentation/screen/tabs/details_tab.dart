@@ -6,10 +6,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
   // INVENTORY OBJ
   dynamic _inv(String key) => widget.inventoryObject?.firstOrNull?[key];
 
-  num get _projectReraCarpetArea =>
-      _inv("reraCarpetAreaSqFt") ??
-      (widget.tenantBookingModel?.reraCarpetAreaSqFt ?? 0);
-
   Widget _infoRow(List<Widget> children) => Row(
     spacing: 10,
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,7 +72,6 @@ extension _DetailsTab on _AddTenantBookingScreenState {
         projectId: _project.projectId,
         systemGeneratedCode: code,
         buildingId: building.first['zAttributesId'],
-        projectReraCarpetArea: _projectReraCarpetArea.toDouble(),
       );
 
       if (!mounted) return;

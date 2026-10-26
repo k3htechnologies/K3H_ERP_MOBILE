@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/cubit/call_logs_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/pages/call_logs.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/files/presentation/pages/files.screen.dart';
@@ -15,6 +19,7 @@ import 'package:k3h_erp_app/features/crm/crm_pay_track/payment/presentation/page
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_management_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/snag_checklist/presentation/pages/snag_checklist.screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/widgets/applicant_card.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -23,11 +28,13 @@ import 'package:k3h_erp_app/utils/common_enums.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+
+import 'widget/pay_track_tab_view.dart';
 
 class PayTrackViewScreen extends StatefulWidget {
   final String applicantName;
@@ -52,13 +59,13 @@ class PayTrackViewScreen extends StatefulWidget {
   State<PayTrackViewScreen> createState() => _PayTrackViewScreenState();
 }
 
-class _PayTrackViewScreenState extends State<PayTrackViewScreen>
-    with SingleTickerProviderStateMixin {
-  // TAB CONTROLLER
-  late TabController _tabController;
+class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
   late PayTrackCubit _payTrackCubit;
   late CallLogsCubit _callLogsCubit;
   late ValueNotifier<bool> isExpanded;
+  // TRUE ONLY AFTER THIS BOOKING'S getBookingById HAS FINISHED
+  final ValueNotifier<bool> _bookingLoaded = ValueNotifier(false);
+
   late AuthorizationModel _bookingPayTrackRouteAuthorizationModel,
       _bankLoansRouteAuthorizationModel,
       _paymentLedgerAuthorization,
@@ -70,32 +77,12 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
       _filesAuthorizationModel,
       _callLogsAuthorizationModel;
 
-  late List<PayTrackTab> _tabs;
+  final ValueNotifier<List<TenantModel>> _tenantModel = ValueNotifier([]);
 
   @override
   void initState() {
     super.initState();
     _initAuth();
-    _tabs = [
-      if (_bookingPayTrackRouteAuthorizationModel.isView)
-        PayTrackTab.bookingPayTrack,
-      if (_bankLoansRouteAuthorizationModel.isView) PayTrackTab.bankLoan,
-
-      if (_paymentLedgerAuthorization.isView ||
-          _paymentScheduleAuthorization.isView)
-        PayTrackTab.paymentLedger,
-      if (_modifiedRequestsAuthorizationModel.isView)
-        PayTrackTab.modificationRequest,
-      if (_snagChecklistAuthorizationModel.isView) PayTrackTab.snagChecklist,
-      if (_flatHandoverChecklistAuthorizationModel.isView)
-        PayTrackTab.flatHandoverChecklist,
-      if (_flatHandoverAuthoriationModel.isView) PayTrackTab.flatHandover,
-      if (_filesAuthorizationModel.isView) PayTrackTab.files,
-      if (_callLogsAuthorizationModel.isView) PayTrackTab.payTrackCallLog,
-    ];
-
-    _tabController = TabController(length: _tabs.length, vsync: this);
-    _tabController.addListener(_handleTabChange);
     _payTrackCubit = context.read<PayTrackCubit>();
     _callLogsCubit = context.read<CallLogsCubit>();
     isExpanded = ValueNotifier(false);
@@ -137,16 +124,31 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
   }
 
   void initOverview() async {
-    await _payTrackCubit.getBookingById(
-      context,
-      1,
-      widget.projectId,
-      widget.bookingId,
-    );
-    await _payTrackCubit.getEnquiryById(
-      enquiryId: widget.enquiryId,
-      projectId: widget.projectId,
-    );
+    try {
+      await _payTrackCubit.getBookingById(
+        context,
+        1,
+        widget.projectId,
+        widget.bookingId,
+      );
+      final booking = _payTrackCubit.state.bookingData;
+      if (booking?.tenantId == 0) {
+        await _payTrackCubit.getEnquiryById(
+          enquiryId: widget.enquiryId,
+          projectId: widget.projectId,
+        );
+      } else {
+        _tenantModel.value = await _payTrackCubit.getTenantById(
+          context: context,
+          projectId: widget.projectId,
+          buildingId: booking?.tenantBuildingId ?? 0,
+          tenantId: booking?.tenantId ?? 0,
+        );
+      }
+    } finally {
+      if (mounted) _bookingLoaded.value = true;
+    }
+
     if (mounted) {
       await _callLogsCubit.getCallLog(
         context,
@@ -160,13 +162,96 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     }
   }
 
-  // HANDLE TAB CHANGE
-  void _handleTabChange() async {
-    final index = _tabController.index;
-    final selectedTab = _tabs[index];
+  List<PayTrackTab> _buildTabs(PayTrackState state) {
+    //HIDE : BANK LOAN AND ACCOUNT TAB
+    final noAgreementValue =
+        state.bookingData?.agreementValue == 0 &&
+        state.bookingData?.tenantId != 0;
+
+    return [
+      if (_bookingPayTrackRouteAuthorizationModel.isView)
+        PayTrackTab.bookingPayTrack,
+      if (_bankLoansRouteAuthorizationModel.isView && !noAgreementValue)
+        PayTrackTab.bankLoan,
+      if ((_paymentLedgerAuthorization.isView ||
+              _paymentScheduleAuthorization.isView) &&
+          !noAgreementValue)
+        PayTrackTab.paymentLedger,
+      if (_modifiedRequestsAuthorizationModel.isView)
+        PayTrackTab.modificationRequest,
+      if (_snagChecklistAuthorizationModel.isView) PayTrackTab.snagChecklist,
+      if (_flatHandoverChecklistAuthorizationModel.isView)
+        PayTrackTab.flatHandoverChecklist,
+      if (_flatHandoverAuthoriationModel.isView) PayTrackTab.flatHandover,
+      if (_filesAuthorizationModel.isView) PayTrackTab.files,
+      if (_callLogsAuthorizationModel.isView) PayTrackTab.payTrackCallLog,
+    ];
+  }
+
+  Widget _tabContent(PayTrackTab tab, PayTrackState state) {
+    switch (tab) {
+      case PayTrackTab.bookingPayTrack:
+        return _buildOverviewTab(state, context);
+      case PayTrackTab.bankLoan:
+        return LoanDetailsScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          approvalStatus: "Approved",
+          bookingApprovalStatus: widget.bookingApprovalStatus,
+        );
+      case PayTrackTab.paymentLedger:
+        return PaymentScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          applicantName: widget.applicantName,
+          bookingApprovalStatus: widget.bookingApprovalStatus,
+          approvalStatus: widget.approvalStatus,
+          flat: widget.flat,
+          bookingOtherChargesList: state.bookingData!.bookingOtherChargesData,
+        );
+      case PayTrackTab.modificationRequest:
+        return RequestManagementScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          approvalStatus: widget.bookingApprovalStatus,
+        );
+      case PayTrackTab.snagChecklist:
+        return SnagCheckListScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          bookingApprovalStatus: widget.bookingApprovalStatus,
+        );
+      case PayTrackTab.flatHandoverChecklist:
+        return FlatHandoverChecklistScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          bookingApprovalStatus: widget.bookingApprovalStatus,
+        );
+      case PayTrackTab.flatHandover:
+        return FlatHandoverScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          bookingApprovalStatus: widget.bookingApprovalStatus,
+        );
+      case PayTrackTab.files:
+        return FilesScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          bookingApprovalStatus: widget.bookingApprovalStatus,
+        );
+      case PayTrackTab.payTrackCallLog:
+        return CallLogsScreen(
+          projectId: widget.projectId,
+          bookingId: widget.bookingId,
+          bookingApprovalStatus: widget.bookingApprovalStatus,
+        );
+    }
+  }
+
+  void _onTabSelected(PayTrackTab tab) {
     context.read<PayTrackCubit>().onTabChanged(
       context,
-      selectedTab,
+      tab,
       projectId: widget.projectId,
       employeeId: 0,
     );
@@ -174,9 +259,9 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
   @override
   void dispose() {
-    super.dispose();
-    _tabController.dispose();
     isExpanded.dispose();
+    _bookingLoaded.dispose();
+    super.dispose();
   }
 
   @override
@@ -192,84 +277,27 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: showSiteSelectedWidget(),
           ),
-          ChipStyleTabBar(
-            controller: _tabController,
-            style: ChipTabBarStyle.underline,
-            tabs: _tabs.map((m) => m.title).toList(),
-          ),
-          BlocBuilder<PayTrackCubit, PayTrackState>(
-            builder: (context, state) {
-              if (state.bookingData == null) {
-                return Expanded(child: Center(child: loader()));
-              }
-              return Expanded(
-                child: TabBarView(
-                  controller: _tabController,
-                  physics: NeverScrollableScrollPhysics(),
-                  children: [
-                    if (_bookingPayTrackRouteAuthorizationModel.isView)
-                      _buildOverviewTab(state, context),
-                    if (_bankLoansRouteAuthorizationModel.isView) ...{
-                      LoanDetailsScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        approvalStatus: "Approved",
-                        bookingApprovalStatus: widget.bookingApprovalStatus,
-                      ),
-                    },
-                    if (_paymentLedgerAuthorization.isView ||
-                        _paymentScheduleAuthorization.isView) ...{
-                      PaymentScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        applicantName: widget.applicantName,
-                        bookingApprovalStatus: widget.bookingApprovalStatus,
-                        approvalStatus: widget.approvalStatus,
-                        flat: widget.flat,
-                        bookingOtherChargesList:
-                            state.bookingData!.bookingOtherChargesData,
-                      ),
-                    },
-                    if (_modifiedRequestsAuthorizationModel.isView)
-                      RequestManagementScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        approvalStatus: widget.bookingApprovalStatus,
-                      ),
-                    if (_snagChecklistAuthorizationModel.isView)
-                      SnagCheckListScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        bookingApprovalStatus: widget.bookingApprovalStatus,
-                      ),
-                    if (_flatHandoverChecklistAuthorizationModel.isView)
-                      FlatHandoverChecklistScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        bookingApprovalStatus: widget.bookingApprovalStatus,
-                      ),
-                    if (_flatHandoverAuthoriationModel.isView)
-                      FlatHandoverScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        bookingApprovalStatus: widget.bookingApprovalStatus,
-                      ),
-                    if (_filesAuthorizationModel.isView)
-                      FilesScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        bookingApprovalStatus: widget.bookingApprovalStatus,
-                      ),
-                    if (_callLogsAuthorizationModel.isView)
-                      CallLogsScreen(
-                        projectId: widget.projectId,
-                        bookingId: widget.bookingId,
-                        bookingApprovalStatus: widget.bookingApprovalStatus,
-                      ),
-                  ],
-                ),
-              );
-            },
+          Expanded(
+            child: ValueListenableBuilder<bool>(
+              valueListenable: _bookingLoaded,
+              builder: (context, loaded, _) {
+                if (!loaded) return Center(child: loader());
+                return BlocBuilder<PayTrackCubit, PayTrackState>(
+                  builder: (context, state) {
+                    if (state.bookingData == null) {
+                      return Center(child: loader());
+                    }
+                    final tabs = _buildTabs(state);
+                    return PayTrackTabsView(
+                      key: ValueKey(tabs.map((t) => t.name).join(',')),
+                      tabs: tabs,
+                      onTabSelected: _onTabSelected,
+                      contentBuilder: _tabContent,
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -280,16 +308,16 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
     final booking = state.bookingData;
     final enquiry = state.currentEnquiryDetails;
 
-    if (booking == null || enquiry == null) {
+    if (booking == null || (enquiry == null && _tenantModel.value.isEmpty)) {
       return Center(child: loader());
     }
-    final bool isDirectWalking = enquiry.source == "Direct Walkin";
-    final source = enquiry.source.toLowerCase().replaceAll("-", "").trim();
+    final bool isDirectWalking = enquiry?.source == "Direct Walkin";
+    final source = enquiry?.source.toLowerCase().replaceAll("-", "").trim();
 
     final bool isDirectWalkingForCPDetails =
         source == "direct walkin" || source == "directwalkin";
 
-    final bool isAdvertisement = enquiry.subSource == "Advertisement";
+    final bool isAdvertisement = enquiry?.subSource == "Advertisement";
     final isHtml =
         booking.termsAndConditionsDescription.contains('<') &&
         booking.termsAndConditionsDescription.contains('>');
@@ -297,7 +325,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
         booking.totalAmountRefundedAgainstBooking -
         booking.refundedAmountOnTillDate;
     final bool isEmployeeReference =
-        enquiry.subSource.trim().toLowerCase() == "employee reference";
+        enquiry?.subSource.trim().toLowerCase() == "employee reference";
 
     final bool showUpdateRegistrationButton =
         _bookingPayTrackRouteAuthorizationModel.isAction &&
@@ -308,60 +336,105 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
 
     /// BASIC INFO
     items.addAll([
-      {"title": "Enquiry Code", "value": enquiry.systemGeneratedCode},
-      {"title": "Name", "value": enquiry.name},
+      {"title": "Enquiry Code", "value": enquiry?.systemGeneratedCode},
+      {"title": "Name", "value": enquiry?.name},
       {
         "title": "Mobile No.",
-        "value": enquiry.mobileNumber,
+        "value": enquiry?.mobileNumber,
         "widget": CustomClickToContactText(
-          countryCode: enquiry.mobileNumberCountryCode,
-          value: enquiry.mobileNumber,
+          countryCode: enquiry?.mobileNumberCountryCode ?? "+91",
+          value: enquiry?.mobileNumber ?? "",
         ),
       },
       {
         "title": "E-Mail ID",
-        "value": enquiry.emailId,
+        "value": enquiry?.emailId,
         "widget": CustomClickToContactText(
-          value: enquiry.emailId,
+          value: enquiry?.emailId ?? '',
           type: ContactType.email,
         ),
       },
-      {"title": "Current Location", "value": enquiry.currentLocation},
-      {"title": "Source", "value": enquiry.source},
+      {"title": "Current Location", "value": enquiry?.currentLocation},
+      {"title": "Source", "value": enquiry?.source},
     ]);
-    items.add({"title": "Sub Source", "value": enquiry.subSource});
+    items.add({"title": "Sub Source", "value": enquiry?.subSource});
     if (isDirectWalking && isAdvertisement) {
-      items.add({"title": "Sub Sub Source", "value": enquiry.subSubSource});
+      items.add({"title": "Sub Sub Source", "value": enquiry?.subSubSource});
     }
 
     items.addAll([
-      {"title": "Sales Advisor", "value": enquiry.salesAdvisor},
-      {"title": "Sourcing Manager", "value": enquiry.sourcingManager},
+      {"title": "Sales Advisor", "value": enquiry?.salesAdvisor},
+      {"title": "Sourcing Manager", "value": enquiry?.sourcingManager},
     ]);
     if (isEmployeeReference) {
       items.addAll([
-        {"title": "Employee Name", "value": enquiry.employeeReferenceName},
+        {"title": "Employee Name", "value": enquiry?.employeeReferenceName},
         {
           "title": "Employee Mobile Number",
-          "value": enquiry.employeeReferenceMobileNumber,
+          "value": enquiry?.employeeReferenceMobileNumber,
           "widget": CustomClickToContactText(
             countryCode: "+91",
-            value: enquiry.employeeReferenceMobileNumber,
+            value: enquiry?.employeeReferenceMobileNumber ?? "",
           ),
         },
       ]);
     }
 
+    final noAgreementValue =
+        state.bookingData?.agreementValue == 0 &&
+        state.bookingData?.tenantId != 0;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            widget.applicantName,
-            style: AppTextStyle.ts14M(color: AppColor.primary),
+          Row(
+            spacing: 10,
+            children: [
+              Expanded(
+                child: Text(
+                  widget.applicantName,
+                  style: AppTextStyle.ts14M(color: AppColor.primary),
+                ),
+              ),
+              if (noAgreementValue)
+                CustomMessageButton(
+                  onWelcome: () async {
+                    final result = await _payTrackCubit.getBookingById(
+                      context,
+                      1,
+                      widget.projectId,
+                      widget.bookingId,
+                      exportType: "WELCOME MESSAGE",
+                    );
+
+                    if (result != null && context.mounted) {
+                      showSuccessMessage(
+                        context,
+                        subTitle: "Message sent successfully.",
+                      );
+                    }
+                  },
+                  onEmail: () async {
+                    final result = await _payTrackCubit.getBookingById(
+                      context,
+                      1,
+                      widget.projectId,
+                      widget.bookingId,
+                      exportType: "WELCOME MESSAGE ON MAIL",
+                    );
+
+                    if (result != null && context.mounted) {
+                      showSuccessMessage(
+                        context,
+                        subTitle: "Email sent successfully.",
+                      );
+                    }
+                  },
+                ),
+            ],
           ),
-          if (showUpdateRegistrationButton)
+          if (showUpdateRegistrationButton && !noAgreementValue)
             Row(
               children: [
                 Expanded(
@@ -415,648 +488,416 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                 ),
               ],
             ),
-          infoCard(items, title: "Enquiry Details"),
-          if (!isDirectWalkingForCPDetails)
-            infoCard([
-              {"title": "CP Code", "value": enquiry.channelPartnerCode},
-              {"title": "CP E-Mail ID", "value": enquiry.channelPartnerEmailId},
-            ]),
-          verticalSpacing(),
-          Container(
-            height: 450,
-            decoration: commonCardDecoration(),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Applicant Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
-                    shrinkWrap: true,
-                    itemCount: booking.bookingApplicantData.length,
-                    itemBuilder: (_, index) {
-                      final applicant = booking.bookingApplicantData[index];
-                      return infoCard(
-                        bgColor: AppColor.white,
-                        borderColor: AppColor.primary,
-
-                        titleWidget: Row(
-                          spacing: 5,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                applicant.applicantName,
-                                style: AppTextStyle.ts14M(),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            horizontalSpacing(),
-                            _buildApplicantTypeWidget(applicant.applicantType),
-                          ],
+          if (enquiry != null) ...[
+            infoCard(items, title: "Enquiry Details"),
+            if (!isDirectWalkingForCPDetails)
+              infoCard([
+                {"title": "CP Code", "value": enquiry.channelPartnerCode},
+                {
+                  "title": "CP E-Mail ID",
+                  "value": enquiry.channelPartnerEmailId,
+                },
+              ]),
+            verticalSpacing(),
+          ] else ...[
+            ValueListenableBuilder(
+              valueListenable: _tenantModel,
+              builder: (context, tenantM, child) {
+                final tenant = tenantM.first;
+                final total =
+                    tenant.totalNewRERACarpetAreaSqFt +
+                    tenant.deckAreaSqFt +
+                    tenant.areaAgainstTerraceSqFt;
+                return Column(
+                  children: [
+                    verticalSpacing(),
+                    SectionCard(
+                      title: "Existing Unit Details",
+                      titleTextColor: AppColor.darkBlue29,
+                      headerBackgroundColor: AppColor.darkBlue29.withValues(
+                        alpha: 0.1,
+                      ),
+                      children: _pairRows([
+                        ("Tenant Code", tenant.systemGeneratedCode),
+                        (
+                          "Unit / Annexure / Survey Number",
+                          tenant.unitAnnexureSurveyNumber,
                         ),
-
-                        [
-                          {
-                            "title": "Mobile Number",
-                            "value": applicant.applicantMobileNumber,
-                            "widget": CustomClickToContactText(
-                              countryCode:
-                                  applicant.applicantMobileNumberCountryCode,
-                              value: applicant.applicantMobileNumber,
-                              type: ContactType.phone,
-                            ),
-                          },
-                          {
-                            "title": "E-Mail ID",
-                            "value": applicant.applicantEmailId,
-                            "widget": CustomClickToContactText(
-                              value: applicant.applicantEmailId,
-                              type: ContactType.email,
-                            ),
-                          },
-                          {
-                            "title": "Aadhaar Card No.",
-                            "value": applicant.aadharCardNumber,
-                          },
-                          {
-                            "title": "Aadhaar Card",
-                            "value": applicant.aadharCardURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.aadharCardURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    title: "Aadhaar Card",
-                                    context,
-                                    applicant.aadharCardURL.split(","),
-                                  );
-                                }
-                              },
-
-                              isDisable: applicant.aadharCardURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "PAN Card No.",
-                            "value": applicant.panNumber,
-                          },
-                          {
-                            "title": "PAN Card",
-                            "value": applicant.panCardURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.panCardURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "PAN Card",
-                                    applicant.panCardURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.panCardURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Driving License",
-                            "value": applicant.drivingLicenseNumber,
-                          },
-                          {
-                            "title": "Driving License",
-                            "value": applicant.drivingLicenseURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.drivingLicenseURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Driving License",
-                                    applicant.drivingLicenseURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.drivingLicenseURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Voting ID No.",
-                            "value": applicant.votingIdNumber,
-                          },
-                          {
-                            "title": "Voting ID",
-                            "value": applicant.votingIdURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.votingIdURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Voting ID",
-                                    applicant.votingIdURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.votingIdURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Passport No.",
-                            "value": applicant.passportNumber,
-                          },
-                          {
-                            "title": "Passport",
-                            "value": applicant.passportURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.passportURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Passport",
-                                    applicant.passportURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.passportURL.isEmpty,
-                            ),
-                          },
-                          {"title": "GST No.", "value": applicant.gstNumber},
-                          {
-                            "title": "GST Certificate",
-                            "value": applicant.gstNumberURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.gstNumberURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "GST Certificate",
-                                    applicant.gstNumberURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.gstNumberURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Cancelled Cheque",
-                            "value": applicant.cancelledChequeUrl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.cancelledChequeUrl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Cancelled Cheque",
-                                    applicant.cancelledChequeUrl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.cancelledChequeUrl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "POA (if NRI Execution)",
-                            "value": applicant.poaurl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.poaurl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "POA (if NRI Execution)",
-                                    applicant.poaurl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.poaurl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Income Docs (Form 16 / ITR)",
-                            "value": applicant.incomeForm16Itrurl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.incomeForm16Itrurl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Income Docs (Form 16 / ITR)",
-                                    applicant.incomeForm16Itrurl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.incomeForm16Itrurl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "NRE / NRO Bank Details",
-                            "value": applicant.nreNroBankDetailsUrl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.nreNroBankDetailsUrl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "NRE / NRO Bank Details",
-                                    applicant.nreNroBankDetailsUrl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.nreNroBankDetailsUrl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Nominee Form",
-                            "value": applicant.nomineeFormUrl,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.nomineeFormUrl.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Nominee Form",
-                                    applicant.nomineeFormUrl.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.nomineeFormUrl.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Statement Of Source Of Funds",
-                            "value": applicant.statementOfSourceOfFundsURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant
-                                    .statementOfSourceOfFundsURL
-                                    .isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Statement Of Source Of Funds",
-                                    applicant.statementOfSourceOfFundsURL.split(
-                                      ",",
-                                    ),
-                                  );
-                                }
-                              },
-                              isDisable:
-                                  applicant.statementOfSourceOfFundsURL.isEmpty,
-                            ),
-                          },
-
-                          {
-                            "title": "Payment Proof",
-                            "value": applicant.paymentProofURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.paymentProofURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Payment Proof",
-                                    applicant.paymentProofURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.paymentProofURL.isEmpty,
-                            ),
-                          },
-                          {
-                            "title": "Profile Photo",
-                            "value": applicant.photoURL,
-                            "widget": CustomButton.documentOutline(
-                              onPressed: () {
-                                if (applicant.photoURL.isNotEmpty) {
-                                  showFilePreviewDialog(
-                                    context,
-                                    title: "Profile Photo",
-                                    applicant.photoURL.split(","),
-                                  );
-                                }
-                              },
-                              isDisable: applicant.photoURL.isEmpty,
-                            ),
-                          },
-                        ],
-                      );
-                    },
-                  ),
-                ),
-              ],
+                        ("Unit Type", tenant.unitType),
+                        ("Unit Configuration", tenant.unitConfiguration),
+                        (
+                          "Unit Carpet Area (SqFt)",
+                          tenant.unitCarpetAreaSqFt.addCommas(),
+                        ),
+                        ("Unit Facing", tenant.unitFacing),
+                      ]),
+                    ),
+                    SectionCard(
+                      title: 'Eligibility Details in Carpet Area (SqFt)',
+                      titleTextColor: AppColor.brown,
+                      headerBackgroundColor: AppColor.lightYellow,
+                      children: [
+                        ..._pairRows([
+                          (
+                            "Extra Free Carpet Area Offered (%)",
+                            tenant.extraFreeCarpetAreaOfferedPercent
+                                .addCommas(),
+                          ),
+                          (
+                            "Free MOFA Carpet Area (SqFt)",
+                            tenant.freeMOFACarpetAreaSqFt.addCommas(),
+                          ),
+                          (
+                            "Existing Terrace Area (SqFt)",
+                            tenant.existingTerraceAreaSqFt.addCommas(),
+                          ),
+                          (
+                            "New Eligibility MOFA Carpet Area (SqFt)",
+                            tenant.newEligibilityMOFACarpetAreaSqFt.addCommas(),
+                          ),
+                          (
+                            "New Eligibility RERA Carpet Area (SqFt)",
+                            tenant.newEligibilityRERACarpetAreaSqFt.addCommas(),
+                          ),
+                          (
+                            "(A) Area Against Terrace (SqFt)",
+                            tenant.areaAgainstTerraceSqFt.addCommas(),
+                          ),
+                          (
+                            "MOFA Carpet Area Purchased (SqFt)",
+                            tenant.mofaCarpetAreaPurchasedSqFt.addCommas(),
+                          ),
+                          (
+                            "RERA Carpet Area Purchased (SqFt)",
+                            tenant.reraCarpetAreaPurchasedSqFt.addCommas(),
+                          ),
+                          (
+                            "(B) Deck Area (SqFt)",
+                            tenant.deckAreaSqFt.addCommas(),
+                          ),
+                          (
+                            "Total New MOFA Carpet Area (SqFt)",
+                            tenant.totalNewMOFACarpetAreaSqFt.addCommas(),
+                          ),
+                          (
+                            "(C) Total New RERA Carpet Area (SqFt)",
+                            tenant.totalNewRERACarpetAreaSqFt.addCommas(),
+                          ),
+                        ]),
+                        buildRowWrapper(
+                          child: buildColumnTitleValue(
+                            title:
+                                "Area Against Terrace + Deck Area + Total New RERA Carpet Area (SqFt) (A + B + C)",
+                            value: total.addCommas(),
+                          ),
+                        ),
+                        buildRowWrapper(
+                          child: buildColumnTitleValue(
+                            title: "Remark",
+                            value: tenant.remark,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
+          ],
+          SectionCard(
+            title: "Applicant Details",
+            headerBackgroundColor: AppColor.lightYellowBg2,
+            titleTextColor: AppColor.brownYellowText,
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              SizedBox(
+                height: 0.5.sh,
+                child: ListView.builder(
+                  padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
+                  shrinkWrap: true,
+                  itemCount: booking.bookingApplicantData.length,
+                  itemBuilder: (_, index) {
+                    final applicant = booking.bookingApplicantData[index];
+                    return ApplicantCard(applicant: applicant);
+                  },
+                ),
+              ),
+            ],
           ),
           // ADDRESS DETAILS SECTION
-          verticalSpacing(),
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Addess Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Communication Address",
-                      value: booking.communicationAddress,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Permanent Address",
-                      value: booking.permanentAddress,
-                    ),
-                  ],
-                ),
-              ],
+          SectionCard(
+            title: "Address Details",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
             ),
+            children: [
+              buildRowWrapper(
+                child: buildColumnTitleValue(
+                  title: "Permanent Address",
+                  value: booking.permanentAddress,
+                ),
+              ),
+              buildRowWrapper(
+                child: buildColumnTitleValue(
+                  title: "Communication Address",
+                  value: booking.communicationAddress,
+                ),
+              ),
+            ],
           ),
-          verticalSpacing(),
           // PROJECT DETAILS SECTION
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Project Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Project Name",
-                      value: booking.projectName,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Booking Type",
-                      value: booking.bookingType,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Unit No.",
-                      value: booking.flat,
-                    ),
-                    buildColumnTitleValue(title: "Wing", value: booking.wing),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(title: "Floor", value: booking.floor),
-                    buildColumnTitleValue(
-                      title: "Building Number",
-                      value: booking.buildingNumber,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Flat Type",
-                      value: booking.flatType,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Flat Configuration",
-                      value: booking.flatConfiguration,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "RERA Carpet Area (SqFt)",
-                      value: booking.reraCarpetAreaSqFt.toString(),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Parking Number",
-                      value: booking.parkingNumber,
-                    ),
-                  ],
-                ),
-              ],
+          SectionCard(
+            title: "Project Details",
+            titleTextColor: AppColor.blueBgColor,
+            headerBackgroundColor: Color(0xffF6F9FF),
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
             ),
-          ),
-          // PARKING SECTION
-          if (booking.parkingData.isNotEmpty) ...{
-            verticalSpacing(),
-            Container(
-              height: 350,
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: commonCardDecoration(),
-              child: Column(
+            children: [
+              Row(
+                spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Parking Details", style: AppTextStyle.ts16SB()),
-                  verticalSpacing(),
-                  Expanded(
-                    child:
-                        booking.parkingData.isEmpty
-                            ? Center(
-                              child: noDataWidget(
-                                message: 'No Parking Data Found',
-                              ),
-                            )
-                            : ListView.builder(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 2,
-                                vertical: 10,
-                              ),
-                              shrinkWrap: true,
-                              itemCount: booking.parkingData.length,
-                              itemBuilder: (_, index) {
-                                final parking = booking.parkingData[index];
-                                return Container(
-                                  margin: EdgeInsets.only(bottom: 10),
-                                  padding: EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: AppColor.primary,
-                                      width: .3,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    spacing: 10,
-                                    children: [
-                                      Text(
-                                        "Parking ${index + 1}",
-                                        style: AppTextStyle.ts14SB(
-                                          color: AppColor.greyTitleAndValueColor
-                                              .withValues(alpha: 0.4),
-                                        ),
-                                      ),
-                                      Row(
-                                        spacing: 5,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          buildColumnTitleValue(
-                                            title: "Parking Number",
-                                            value: parking.parkingNumber,
-                                          ),
-                                          buildColumnTitleValue(
-                                            title: "Building",
-                                            value: parking.buildingNumber,
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        spacing: 5,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          buildColumnTitleValue(
-                                            title: "Wing",
-                                            value: parking.wing,
-                                          ),
-                                          buildColumnTitleValue(
-                                            title: "Floor",
-                                            value: parking.floor,
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        spacing: 5,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          buildColumnTitleValue(
-                                            title: "Category",
-                                            value: parking.parkingCategory,
-                                          ),
-                                          buildColumnTitleValue(
-                                            title: "Type",
-                                            value: parking.parkingType,
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        spacing: 5,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          buildColumnTitleValue(
-                                            title: "Size",
-                                            value: parking.parkingSubType,
-                                          ),
-                                          buildColumnTitleValue(
-                                            title: "Dimensions",
-                                            value: parking.parkingDimensions,
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        spacing: 5,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          buildColumnTitleValue(
-                                            title: "EV Charging",
-                                            value:
-                                                parking.isEVChargingAvailable
-                                                    ? "Yes"
-                                                    : "No",
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
+                  buildColumnTitleValue(
+                    title: "Project Name",
+                    value: booking.projectName,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Booking Type",
+                    value: booking.bookingType,
                   ),
                 ],
               ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(title: "Unit No.", value: booking.flat),
+                  buildColumnTitleValue(title: "Wing", value: booking.wing),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(title: "Floor", value: booking.floor),
+                  buildColumnTitleValue(
+                    title: "Building Number",
+                    value: booking.buildingNumber,
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Flat Type",
+                    value: booking.flatType,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Flat Configuration",
+                    value: booking.flatConfiguration,
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "RERA Carpet Area (SqFt)",
+                    value: booking.reraCarpetAreaSqFt.toString(),
+                  ),
+                  buildColumnTitleValue(
+                    title: "Parking Number",
+                    value: booking.parkingNumber,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // PARKING SECTION
+          if (booking.parkingData.isNotEmpty) ...{
+            SectionCard(
+              title: "Parking Details",
+              titleTextColor: AppColor.blueBgColor,
+              headerBackgroundColor: Color(0xffF6F9FF),
+              border: Border.all(
+                color: AppColor.grey.withValues(alpha: 0.3),
+                width: 1,
+              ),
+              children: [
+                booking.parkingData.isEmpty
+                    ? SizedBox(
+                      height: 250.0,
+                      child: Center(
+                        child: noDataWidget(
+                          message: 'No Parking Data Found',
+                          iconSize: 160,
+                        ),
+                      ),
+                    )
+                    : ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 2,
+                        vertical: 10,
+                      ),
+                      shrinkWrap: true,
+                      itemCount: booking.parkingData.length,
+                      itemBuilder: (_, index) {
+                        final parking = booking.parkingData[index];
+                        return Container(
+                          margin: EdgeInsets.only(bottom: 10),
+                          padding: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: AppColor.primary,
+                              width: .3,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            spacing: 10,
+                            children: [
+                              Row(
+                                spacing: 5,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildColumnTitleValue(
+                                    title: "Parking Number",
+                                    value: parking.parkingNumber,
+                                  ),
+                                  buildColumnTitleValue(
+                                    title: "Building",
+                                    value: parking.buildingNumber,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                spacing: 5,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildColumnTitleValue(
+                                    title: "Wing",
+                                    value: parking.wing,
+                                  ),
+                                  buildColumnTitleValue(
+                                    title: "Floor",
+                                    value: parking.floor,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                spacing: 5,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildColumnTitleValue(
+                                    title: "Category",
+                                    value: parking.parkingCategory,
+                                  ),
+                                  buildColumnTitleValue(
+                                    title: "Type",
+                                    value: parking.parkingType,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                spacing: 5,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildColumnTitleValue(
+                                    title: "EV Charging",
+                                    value:
+                                        parking.isEVChargingAvailable
+                                            ? "Yes"
+                                            : "No",
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+              ],
             ),
           },
           // BOOKING DETAILS SECTION
-          verticalSpacing(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Booking Details", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Expected Registration Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        booking.registrationDate,
-                      ),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Final Registration Date",
-                      value: formatDateTimeAsDDMMMYYYY(
-                        booking.finalRegistrationDate,
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Final Registration Completed",
-                      value:
-                          booking.isFinalRegistrationCompleted ? "Yes" : "No",
-                      customValueWidget: DocumentPreviewText(
-                        title: "Final Registration Completed",
-                        text:
-                            booking.isFinalRegistrationCompleted ? "Yes" : "No",
-                        fileUrl: booking.finalRegistrationUrl,
-                      ),
-                    ),
-                    buildColumnTitleValue(
-                      title: "Handover Type",
-                      value: booking.handoverType,
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Source Of Funding",
-                      value: booking.sourceOfFunding,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Number Of Parking",
-                      value: booking.numberOfParking.toString(),
-                    ),
-                  ],
-                ),
-              ],
+          SectionCard(
+            title: "Booking Details",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
             ),
+            children: [
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Expected Registration Date",
+                    value: formatDateTimeAsDDMMMYYYY(booking.registrationDate),
+                  ),
+                  buildColumnTitleValue(
+                    title: "Final Registration Date",
+                    value: formatDateTimeAsDDMMMYYYY(
+                      booking.finalRegistrationDate,
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Final Registration Completed",
+                    value: booking.isFinalRegistrationCompleted ? "Yes" : "No",
+                    customValueWidget: DocumentPreviewText(
+                      title: "Final Registration Completed",
+                      text: booking.isFinalRegistrationCompleted ? "Yes" : "No",
+                      fileUrl: booking.finalRegistrationUrl,
+                    ),
+                  ),
+                  buildColumnTitleValue(
+                    title: "Handover Type",
+                    value: booking.handoverType,
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Source Of Funding",
+                    value: booking.sourceOfFunding,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Number Of Parking",
+                    value: booking.numberOfParking.toString(),
+                  ),
+                ],
+              ),
+            ],
           ),
           // BOOKING SUMMARY
-          verticalSpacing(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (enquiry != null)
+            SectionCard(
+              title: "Booking Summary",
+              headerBackgroundColor: AppColor.lightPurpleBg2,
+              titleTextColor: AppColor.purpleColor,
+              border: Border.all(
+                color: AppColor.grey.withValues(alpha: 0.3),
+                width: 1,
+              ),
               children: [
-                Text("Booking Summary", style: AppTextStyle.ts16SB()),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1173,390 +1014,477 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                   ),
               ],
             ),
-          ),
-          // PAYMENT DETAILS
-          verticalSpacing(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          if (enquiry == null)
+            SectionCard(
+              title: "Booking Summary",
+              headerBackgroundColor: AppColor.lightPurpleBg2,
+              titleTextColor: AppColor.purpleColor,
+              border: Border.all(
+                color: AppColor.grey.withValues(alpha: 0.3),
+                width: 1,
+              ),
               children: [
-                Text("Payment Details", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Cheque / RTGS No.",
-                      value: booking.chequeRTGSNumber,
-                    ),
-                    buildColumnTitleValue(
-                      title: "Cheque / RTGS Date",
-                      value:
-                          booking.chequeRTGSDate != null
-                              ? formatDateTimeAsDDMMMYYYY(
-                                booking.chequeRTGSDate!,
-                              )
-                              : "-",
-                    ),
-                  ],
-                ),
-                verticalSpacing(),
-                Row(
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Bank Name",
-                      value: booking.bankName,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // OTHER CHARGES SECTION
-          verticalSpacing(),
-          Container(
-            height: 450,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Other Charges", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                Expanded(
-                  child:
-                      booking.bookingOtherChargesData.isNotEmpty
-                          ? ListView.builder(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 10,
-                            ),
-                            shrinkWrap: true,
-                            itemCount: booking.bookingOtherChargesData.length,
-                            itemBuilder: (_, index) {
-                              final extraCharge =
-                                  booking.bookingOtherChargesData[index];
-                              return Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: AppColor.primary,
-                                    width: .3,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                margin: EdgeInsets.only(bottom: 10),
-                                padding: EdgeInsets.all(16),
-                                child: Column(
-                                  spacing: 10,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Charges",
-                                          value: extraCharge.chargeName,
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "Calculated On",
-                                          value: extraCharge.calculatedOn,
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Value (In ₹)",
-                                          value:
-                                              extraCharge.value
-                                                  .toIndianCurrency(),
-                                        ),
-                                        buildColumnTitleValue(
-                                          title: "GST (%)",
-                                          value:
-                                              extraCharge.gstPercentage
-                                                  .toString(),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "GST Value (₹)",
-                                          value:
-                                              extraCharge.gstValue
-                                                  .toIndianCurrency(),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          )
-                          : Center(
-                            child: noDataWidget(
-                              message: "No Other Charges Available",
-                              iconSize: 180,
-                            ),
-                          ),
-                ),
-              ],
-            ),
-          ),
-          // PAYMENT SCHEDULE SECTION
-          verticalSpacing(),
-          Container(
-            height: 400,
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Payment Schedule", style: AppTextStyle.ts16SB()),
-                verticalSpacing(),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Scheme",
-                        style: AppTextStyle.ts14SB(
-                          color: AppColor.greyTitleAndValueColor.withValues(
-                            alpha: 0.4,
-                          ),
+                      title: "Booking Registered",
+                      customValueWidget: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ),
-                      TextSpan(
-                        text: " : ",
-                        style: AppTextStyle.ts14SB(
-                          color: AppColor.greyTitleAndValueColor.withValues(
-                            alpha: 0.4,
-                          ),
-                        ),
-                      ),
-                      TextSpan(
-                        text: booking.paymentScheduleScheme,
-                        style: AppTextStyle.ts14SB(),
-                      ),
-                    ],
-                  ),
-                ),
-                verticalSpacing(),
-                Expanded(
-                  child: ListView.builder(
-                    padding: EdgeInsets.symmetric(horizontal: 2, vertical: 10),
-                    shrinkWrap: true,
-                    itemCount: booking.bookingPaymentScheduleData.length,
-                    itemBuilder: (context, index) {
-                      final payment = booking.bookingPaymentScheduleData[index];
-                      final totalAmountWithTDS =
-                          payment.paymentScheduleAmount +
-                          payment.paymentScheduleTDSAmount;
-                      return Container(
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: AppColor.primary,
-                            width: .3,
-                          ),
+                          color: AppColor.lightBlue,
                           borderRadius: BorderRadius.circular(8),
                         ),
-                        margin: EdgeInsets.only(bottom: 10),
-                        padding: EdgeInsets.all(16),
-                        child: Column(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                payment.type.contains("Date")
-                                    ? buildColumnTitleValue(
-                                      title: "Date / Stage (Milestone)",
-                                      value:
-                                          payment.date != null
-                                              ? formatDateTimeAsDDMMMYYYY(
-                                                payment.date!,
-                                              )
-                                              : "-",
-                                    )
-                                    : buildColumnTitleValue(
-                                      title: "Date / Stage (Milestone)",
-                                      value: payment.name,
-                                    ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Percentage (%)",
-                                  value:
-                                      "${payment.paymentSchedulePercentage} %",
-                                ),
-                                buildColumnTitleValue(
-                                  title: "Amount Without TDS (₹)",
-                                  value:
-                                      payment.paymentScheduleAmount
-                                          .toIndianCurrency(),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "GST Amount (₹)",
-                                  value:
-                                      payment.paymentScheduleGSTAmount
-                                          .toIndianCurrency(),
-                                ),
-                                buildColumnTitleValue(
-                                  title: "TDS Amount (₹)",
-                                  value:
-                                      payment.paymentScheduleTDSAmount
-                                          .toIndianCurrency(),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              spacing: 10,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                buildColumnTitleValue(
-                                  title: "Total Amount With TDS (₹)",
-                                  value: totalAmountWithTDS.toIndianCurrency(),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // FLAT ALTERATION REMARKS SECTION
-          verticalSpacing(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Unit / Modulation / Customization Remark",
-                  style: AppTextStyle.ts16SB(),
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: booking.flatAlterationRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // PAYMENT REMARK
-          verticalSpacing(),
-          Container(
-            decoration: commonCardDecoration(),
-            margin: EdgeInsets.only(bottom: 10),
-            padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Payment Remarks", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: booking.paymentRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // OTHER REMARK
-          verticalSpacing(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Other Remarks", style: AppTextStyle.ts16SB()),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Remarks",
-                      value: booking.otherRemark,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          // TERMS AND CONDITIONS
-          verticalSpacing(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: ValueListenableBuilder<bool>(
-              valueListenable: isExpanded,
-              builder: (context, value, child) {
-                final hasData =
-                    booking.termsAndConditionsDescription.trim().isNotEmpty;
-
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        isExpanded.value = !isExpanded.value;
-                      },
-                      child: SizedBox(
-                        width: double.infinity,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                "Terms & Conditions",
-                                style: AppTextStyle.ts16SB(),
-                              ),
-                            ),
-                            Icon(
-                              value
-                                  ? Icons.keyboard_arrow_up
-                                  : Icons.keyboard_arrow_down,
-                            ),
-                          ],
+                        child: Text(
+                          booking.carpetAreaPurchasedSqFt,
+                          style: AppTextStyle.ts12SB(color: AppColor.primary),
                         ),
                       ),
+                      value: booking.carpetAreaPurchasedSqFt,
                     ),
-
-                    if (value && hasData) ...[
+                    buildColumnTitleValue(
+                      title: "Carpet Area Purchased (SqFt)",
+                      value:
+                          booking.carpetAreaPurchasedSqFt == 'MOFA'
+                              ? _tenantModel
+                                  .value
+                                  .first
+                                  .mofaCarpetAreaPurchasedSqFt
+                                  .addCommas()
+                              : _tenantModel
+                                  .value
+                                  .first
+                                  .reraCarpetAreaPurchasedSqFt
+                                  .addCommas(),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Adjust Purchase Area (SqFt)",
+                      value: booking.adjustPurchaseAreaSqFt.addCommas(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Agreement Value (₹) With TDS",
+                      value: booking.agreementValue.toIndianCurrency(),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Agreement Value (₹) Without TDS",
+                      value:
+                          (booking.agreementValue - booking.agreementValueTDS)
+                              .toIndianCurrency(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "TDS (₹)",
+                      value: booking.agreementValueTDS.toIndianCurrency(),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "GST (%)",
+                      value: "${booking.agreementValueGSTPercentage}%",
+                    ),
+                    buildColumnTitleValue(
+                      title: "GST (₹)",
+                      value: booking.agreementValueGSTAmount.toIndianCurrency(),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Stamp Duty (%)",
+                      value: "${booking.stampDutyPercentage}%",
+                    ),
+                    buildColumnTitleValue(
+                      title: "Stamp Duty (₹)",
+                      value: booking.stampDutyAmount.toIndianCurrency(),
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Registration Fees (₹)",
+                      value: booking.registrationFees.toIndianCurrency(),
+                    ),
+                    buildColumnTitleValue(
+                      title: "Booking Amount (₹)",
+                      value: booking.bookingAmount.toIndianCurrency(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          // PAYMENT DETAILS
+          SectionCard(
+            title: "Payment Details",
+            headerBackgroundColor: AppColor.lightYellow,
+            titleTextColor: AppColor.brown,
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Cheque / RTGS No.",
+                    value: booking.chequeRTGSNumber,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Cheque / RTGS Date",
+                    value:
+                        booking.chequeRTGSDate != null
+                            ? formatDateTimeAsDDMMMYYYY(booking.chequeRTGSDate!)
+                            : "-",
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  buildColumnTitleValue(
+                    title: "Bank Name",
+                    value: booking.bankName,
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // OTHER CHARGES SECTION
+          SectionCard(
+            title: "Other Charges",
+            headerBackgroundColor: AppColor.lightPurpleBg2,
+            titleTextColor: AppColor.purple,
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              SizedBox(
+                height: 250.0,
+                child:
+                    booking.bookingOtherChargesData.isNotEmpty
+                        ? ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: booking.bookingOtherChargesData.length,
+                          itemBuilder: (_, index) {
+                            final extraCharge =
+                                booking.bookingOtherChargesData[index];
+                            final bool isLast =
+                                index ==
+                                booking.bookingOtherChargesData.length - 1;
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColor.primary,
+                                  width: .3,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              margin: EdgeInsets.only(
+                                bottom: isLast ? 0.0 : 10.0,
+                              ),
+                              padding: EdgeInsets.all(10),
+                              child: Column(
+                                spacing: 10,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Name",
+                                        value: extraCharge.chargeName,
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Calculated On",
+                                        value: extraCharge.calculatedOn,
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Value (In ₹)",
+                                        value:
+                                            extraCharge.value
+                                                .toIndianCurrency(),
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "GST (%)",
+                                        value:
+                                            extraCharge.gstPercentage
+                                                .toString(),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "GST Value (₹)",
+                                        value:
+                                            extraCharge.gstValue
+                                                .toIndianCurrency(),
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Total Value (₹)",
+                                        value:
+                                            (extraCharge.value +
+                                                    extraCharge.gstValue)
+                                                .toIndianCurrency(),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        )
+                        : Center(
+                          child: noDataWidget(
+                            message: "No Charges Available",
+                            iconSize: 160,
+                          ),
+                        ),
+              ),
+            ],
+          ),
+          SectionCard(
+            headerBackgroundColor: AppColor.lightBlueBg2,
+            titleTextColor: AppColor.blue,
+            title: "Payment Schedule (${booking.paymentScheduleScheme})",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              SizedBox(
+                height: 250.0,
+                child:
+                    booking.bookingPaymentScheduleData.isEmpty
+                        ? Center(
+                          child: noDataWidget(
+                            iconSize: 160,
+                            message: "No Payment Schedule Found",
+                          ),
+                        )
+                        : ListView.builder(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 2,
+                            vertical: 10,
+                          ),
+                          shrinkWrap: true,
+                          itemCount: booking.bookingPaymentScheduleData.length,
+                          itemBuilder: (context, index) {
+                            final payment =
+                                booking.bookingPaymentScheduleData[index];
+                            final bool isLast =
+                                index ==
+                                booking.bookingPaymentScheduleData.length - 1;
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: AppColor.primary,
+                                  width: .3,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              margin: EdgeInsets.only(
+                                bottom: isLast ? 0.0 : 10,
+                              ),
+                              padding: EdgeInsets.all(10.0),
+                              child: Column(
+                                spacing: 10,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    spacing: 10,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Type",
+                                        value: payment.type,
+                                      ),
+                                      payment.type.contains("Date")
+                                          ? buildColumnTitleValue(
+                                            title: "Date",
+                                            value:
+                                                payment.date != null
+                                                    ? formatDateTimeAsDDMMMYYYY(
+                                                      payment.date!,
+                                                    )
+                                                    : "-",
+                                          )
+                                          : buildColumnTitleValue(
+                                            title: "Stage",
+                                            value: payment.name,
+                                          ),
+                                    ],
+                                  ),
+                                  Row(
+                                    spacing: 10,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Percentage (%)",
+                                        value:
+                                            "${payment.paymentSchedulePercentage} %",
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "Amount Without TDS (₹)",
+                                        value:
+                                            payment.paymentScheduleAmount
+                                                .toIndianCurrency(),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    spacing: 10,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "GST Amount (₹)",
+                                        value:
+                                            payment.paymentScheduleGSTAmount
+                                                .toIndianCurrency(),
+                                      ),
+                                      buildColumnTitleValue(
+                                        title: "TDS Amount (₹)",
+                                        value:
+                                            payment.paymentScheduleTDSAmount
+                                                .toIndianCurrency(),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Total Amount With TDS (₹)",
+                                        value:
+                                            (payment.paymentScheduleAmount +
+                                                    payment
+                                                        .paymentScheduleTDSAmount)
+                                                .toIndianCurrency(),
+                                      ),
+                                      Spacer(),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+              ),
+            ],
+          ),
+          SectionCard(
+            title: "Unit / Modulation / Customization Remark",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              Text(
+                booking.flatAlterationRemark.isEmpty
+                    ? "-"
+                    : booking.flatAlterationRemark,
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+            ],
+          ),
+          SectionCard(
+            title: "Payment Remarks",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              Text(
+                booking.paymentRemark.isEmpty ? "-" : booking.paymentRemark,
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+            ],
+          ),
+          SectionCard(
+            title: "Other Remarks",
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              Text(
+                booking.otherRemark.isEmpty ? "-" : booking.otherRemark,
+                style: AppTextStyle.ts14M(color: AppColor.black),
+              ),
+            ],
+          ),
+          SectionCard(
+            title: "Terms & Conditions",
+            headerBackgroundColor: AppColor.lightRed,
+            titleTextColor: AppColor.missingInformationRed,
+            maxContentHeight: 0.5.sh,
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: 10),
+                padding: EdgeInsets.all(10.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8.0),
+                  border: Border.all(
+                    width: 1,
+                    color: AppColor.grey.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (booking.termsAndConditionsDescription
+                        .trim()
+                        .isNotEmpty) ...[
                       const SizedBox(height: 10),
                       isHtml
                           ? Html(
@@ -1573,359 +1501,339 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen>
                             booking.termsAndConditionsDescription,
                             style: AppTextStyle.ts14R(color: AppColor.grey),
                           ),
-                    ] else if (value && !hasData) ...[
+                    ] else ...[
                       Center(
                         child: noDataWidget(
                           message: "No Terms & Conditions Available",
-                          iconSize: 180,
+                          iconSize: 160,
                         ),
                       ),
                     ],
                   ],
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
           // CANCELLATION SUMMARY
           if (approvalStatus == "CANCEL" ||
               booking.cancelRemark.trim().isNotEmpty) ...{
-            verticalSpacing(),
-            Container(
-              decoration: commonCardDecoration(),
-              margin: EdgeInsets.only(bottom: 10),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Cancellation Summary", style: AppTextStyle.ts16SB()),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Cancelled Date",
-                        value: formatDateTimeAsDDMMMYYYY(booking.cancelledDate),
-                      ),
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "Cancelled By",
-                        value: booking.cancelledBy,
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Remark",
-                        value: booking.cancelRemark,
-                      ),
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "Proof Of Document",
-                        value: booking.cancelledBy,
-                        customValueWidget: CustomButton.documentOutline(
-                          onPressed: () {
-                            if (booking.proofOfDocumentUrl.isNotEmpty) {
-                              showFilePreviewDialog(
-                                context,
-                                title: "Proof Of Document",
-                                booking.proofOfDocumentUrl.split(","),
-                              );
-                            }
-                          },
-                          isDisable: booking.proofOfDocumentUrl.isEmpty,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Status",
-                        value: booking.cancelBookingApprovalStatus,
-                      ),
-                    ],
-                  ),
-                ],
+            SectionCard(
+              title: "Cancellation Summary",
+              headerBackgroundColor: AppColor.grey10,
+              titleTextColor: AppColor.black,
+              border: Border.all(
+                color: AppColor.grey.withValues(alpha: 0.3),
+                width: 1,
               ),
+              children: [
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Cancelled Date",
+                      value: formatDateTimeAsDDMMMYYYY(booking.cancelledDate),
+                    ),
+                    horizontalSpacing(),
+                    buildColumnTitleValue(
+                      title: "Cancelled By",
+                      value: booking.cancelledBy,
+                    ),
+                  ],
+                ),
+                Row(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Remark",
+                      value: booking.cancelRemark,
+                    ),
+                    horizontalSpacing(),
+                    buildColumnTitleValue(
+                      title: "Proof Of Document",
+                      value: booking.cancelledBy,
+                      customValueWidget: CustomButton.documentOutline(
+                        onPressed: () {
+                          if (booking.proofOfDocumentUrl.isNotEmpty) {
+                            showFilePreviewDialog(
+                              context,
+                              title: "Proof Of Document",
+                              booking.proofOfDocumentUrl.split(","),
+                            );
+                          }
+                        },
+                        isDisable: booking.proofOfDocumentUrl.isEmpty,
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    buildColumnTitleValue(
+                      title: "Status",
+                      value: booking.cancelBookingApprovalStatus,
+                    ),
+                  ],
+                ),
+              ],
             ),
           },
           // REFUND AMOUNT DETAILS
           if (approvalStatus == "REFUND") ...{
-            verticalSpacing(),
-            Container(
-              decoration: commonCardDecoration(),
-              margin: EdgeInsets.only(bottom: 10),
-              padding: EdgeInsets.all(16),
-              child: Column(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Refund Amount Details", style: AppTextStyle.ts16SB()),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Total Refunded",
-                        value:
-                            booking.totalAmountRefundedAgainstBooking
-                                .toIndianCurrency(),
-                      ),
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "Paid",
-                        value:
-                            booking.refundedAmountOnTillDate.toIndianCurrency(),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    spacing: 10,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      buildColumnTitleValue(
-                        title: "Pending",
-                        value: pendingAmount.toIndianCurrency(),
-                      ),
-                      horizontalSpacing(),
-                      buildColumnTitleValue(
-                        title: "Refund Status",
-                        value: booking.approvalStatus,
-                      ),
-                    ],
-                  ),
-                ],
+            SectionCard(
+              title: "Refund Amount Details",
+              headerBackgroundColor: AppColor.grey10,
+              titleTextColor: AppColor.black,
+              border: Border.all(
+                color: AppColor.grey.withValues(alpha: 0.3),
+                width: 1,
               ),
-            ),
-          },
-          verticalSpacing(),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: commonCardDecoration(),
-            child: Column(
-              spacing: 10,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Action Details", style: AppTextStyle.ts16SB()),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     buildColumnTitleValue(
-                      title: "Created By",
-                      value: booking.createdBy,
+                      title: "Total Refunded",
+                      value:
+                          booking.totalAmountRefundedAgainstBooking
+                              .toIndianCurrency(),
                     ),
+                    horizontalSpacing(),
                     buildColumnTitleValue(
-                      title: "Created Date",
-                      value: formatDate(booking.createdDate),
+                      title: "Paid",
+                      value:
+                          booking.refundedAmountOnTillDate.toIndianCurrency(),
                     ),
                   ],
                 ),
                 Row(
                   spacing: 10,
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     buildColumnTitleValue(
-                      title: "Modified By",
-                      value: booking.modifiedBy,
+                      title: "Pending",
+                      value: pendingAmount.toIndianCurrency(),
                     ),
+                    horizontalSpacing(),
                     buildColumnTitleValue(
-                      title: "Modified Date",
-                      value: formatDate(booking.modifiedDate),
-                    ),
-                  ],
-                ),
-                Row(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    buildColumnTitleValue(
-                      title: "Approval Status",
+                      title: "Refund Status",
                       value: booking.approvalStatus,
                     ),
                   ],
                 ),
               ],
             ),
-          ),
-
-          verticalSpacing(),
+          },
           BlocBuilder<CallLogsCubit, CallLogsState>(
             builder: (context, state) {
-              return Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: commonCardDecoration(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Call Log History", style: AppTextStyle.ts16SB()),
+              return SectionCard(
+                title: "Call Log History",
+                titleTextColor: AppColor.darkGreen10,
+                headerBackgroundColor: AppColor.darkGreen10.withValues(
+                  alpha: 0.1,
+                ),
+                border: Border.all(
+                  color: AppColor.grey.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+                children: [
+                  state.payTrackCallLogList.isEmpty
+                      ? Center(
+                        child: noDataWidget(
+                          message: "No Call Logs Found",
+                          iconSize: 160,
+                        ),
+                      )
+                      : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: state.payTrackCallLogList.length,
+                        itemBuilder: (context, index) {
+                          final callLog = state.payTrackCallLogList[index];
 
-                    verticalSpacing(height: 20),
+                          final bool isLast =
+                              index == state.payTrackCallLogList.length - 1;
 
-                    state.payTrackCallLogList.isEmpty
-                        ? Center(
-                          child: noDataWidget(
-                            message: "No Call Logs Found",
-                            iconSize: 180,
-                          ),
-                        )
-                        : ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: state.payTrackCallLogList.length,
-                          itemBuilder: (context, index) {
-                            final callLog = state.payTrackCallLogList[index];
-
-                            final bool isLast =
-                                index == state.payTrackCallLogList.length - 1;
-
-                            return IntrinsicHeight(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    children: [
-                                      Container(
-                                        width: 18,
-                                        height: 18,
-                                        decoration: const BoxDecoration(
-                                          color: AppColor.primary,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-
-                                      if (!isLast)
-                                        Expanded(
-                                          child: Container(
-                                            width: 3,
-                                            margin: const EdgeInsets.symmetric(
-                                              vertical: 2,
-                                            ),
-                                            color: AppColor.primary,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 24,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Expanded(
-                                                child: Text(
-                                                  formatDateTimeAsDDMMMYYYY(
-                                                    callLog.createdDate,
-                                                  ),
-                                                  style: AppTextStyle.ts16SB(),
-                                                ),
-                                              ),
-                                              callLogStatusWidget(
-                                                callLog.callStatus,
-                                              ),
-                                            ],
-                                          ),
-                                          verticalSpacing(height: 8),
-                                          Text(
-                                            callLog.createdBy,
-                                            style: AppTextStyle.ts14R(
-                                              color: AppColor.grey,
-                                            ),
-                                          ),
-                                          if (callLog
-                                              .callPurpose
-                                              .isNotEmpty) ...[
-                                            verticalSpacing(),
-                                            RichText(
-                                              text: TextSpan(
-                                                text: "Purpose: ",
-                                                style: AppTextStyle.ts14SB(
-                                                  color: AppColor.black,
-                                                ),
-                                                children: [
-                                                  TextSpan(
-                                                    text: callLog.callPurpose,
-                                                    style: AppTextStyle.ts14SB(
-                                                      color: AppColor.grey,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                          if (callLog.promiseAmount > 0) ...[
-                                            verticalSpacing(),
-                                            Text(
-                                              "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
-                                              style: AppTextStyle.ts14SB(
-                                                color: Colors.green,
-                                              ),
-                                            ),
-                                            verticalSpacing(),
-                                            Text(
-                                              callLog.remark,
-                                              style: AppTextStyle.ts14R(
-                                                color: AppColor.black,
-                                              ),
-                                            ),
-                                          ],
-                                        ],
+                          return IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Column(
+                                  children: [
+                                    Container(
+                                      width: 18,
+                                      height: 18,
+                                      decoration: const BoxDecoration(
+                                        color: AppColor.primary,
+                                        shape: BoxShape.circle,
                                       ),
                                     ),
+
+                                    if (!isLast)
+                                      Expanded(
+                                        child: Container(
+                                          width: 3,
+                                          margin: const EdgeInsets.symmetric(
+                                            vertical: 2,
+                                          ),
+                                          color: AppColor.primary,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(bottom: 24),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                formatDateTimeAsDDMMMYYYY(
+                                                  callLog.createdDate,
+                                                ),
+                                                style: AppTextStyle.ts16SB(),
+                                              ),
+                                            ),
+                                            callLogStatusWidget(
+                                              callLog.callStatus,
+                                            ),
+                                          ],
+                                        ),
+                                        verticalSpacing(height: 8),
+                                        Text(
+                                          callLog.createdBy,
+                                          style: AppTextStyle.ts14R(
+                                            color: AppColor.grey,
+                                          ),
+                                        ),
+                                        if (callLog.callPurpose.isNotEmpty) ...[
+                                          verticalSpacing(),
+                                          RichText(
+                                            text: TextSpan(
+                                              text: "Purpose: ",
+                                              style: AppTextStyle.ts14SB(
+                                                color: AppColor.black,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                  text: callLog.callPurpose,
+                                                  style: AppTextStyle.ts14SB(
+                                                    color: AppColor.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                        if (callLog.promiseAmount > 0) ...[
+                                          verticalSpacing(),
+                                          Text(
+                                            "Promise Amount: ${callLog.promiseAmount.toIndianCurrency()}",
+                                            style: AppTextStyle.ts14SB(
+                                              color: Colors.green,
+                                            ),
+                                          ),
+                                          verticalSpacing(),
+                                          Text(
+                                            callLog.remark,
+                                            style: AppTextStyle.ts14R(
+                                              color: AppColor.black,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                   ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
-                  ],
-                ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                ],
               );
             },
+          ),
+          SectionCard(
+            title: "Action Details",
+            headerBackgroundColor: AppColor.grey.withValues(alpha: 0.2),
+            titleTextColor: AppColor.black,
+            border: Border.all(
+              color: AppColor.grey.withValues(alpha: 0.3),
+              width: 1,
+            ),
+            children: [
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Created By",
+                    value: booking.createdBy,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Created Date",
+                    value: formatDate(booking.createdDate),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Modified By",
+                    value: booking.modifiedBy,
+                  ),
+                  buildColumnTitleValue(
+                    title: "Modified Date",
+                    value: formatDate(booking.modifiedDate),
+                  ),
+                ],
+              ),
+              Row(
+                spacing: 10,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildColumnTitleValue(
+                    title: "Approval Status",
+                    value: booking.approvalStatus,
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  // BUILD APPLICANT TYPE WIDGET
-  Widget _buildApplicantTypeWidget(String type) {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-      decoration: BoxDecoration(
-        color:
-            type.toLowerCase() == "applicant"
-                ? AppColor.lightBlue
-                : AppColor.purple.withValues(alpha: .2),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        type,
-        style: AppTextStyle.ts12M(
-          color:
-              type.toLowerCase() == "applicant"
-                  ? AppColor.primary
-                  : AppColor.purple,
-        ),
-      ),
-    );
-  }
+
+  List<Widget> _pairRows(List<(String, String)> items) => [
+    for (var i = 0; i < items.length; i += 2)
+      _infoRow([
+        for (final e in items.skip(i).take(2))
+          buildColumnTitleValue(title: e.$1, value: e.$2),
+      ]),
+  ];
+
+  Widget _infoRow(List<Widget> children) => Row(
+    spacing: 10,
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: children,
+  );
 }

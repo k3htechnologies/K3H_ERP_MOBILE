@@ -2,13 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/pay_track/presentation/cubit/pay_track_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/cubit/request_management_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/activity_tab.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/refund_payment_ledger.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/request_tab.screen.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
+import 'package:k3h_erp_app/features/sales/booking/presentation/pages/widgets/applicant_card.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -16,8 +17,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
-import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/section_card.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class RequestManagementScreen extends StatefulWidget {
@@ -182,7 +183,6 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
           return const Center(child: Text("No Applicant Data Found"));
         }
         final booking = bookingData;
-        final applicant = bookingData.bookingApplicantData.first;
         final isBookingCancelled = booking.cancelRemark.trim().isNotEmpty;
 
         final isRefundStatus =
@@ -195,6 +195,10 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
         final canMakePayment =
             booking.totalAmountRefundedAgainstBooking >
             booking.refundedAmountOnTillDate;
+
+        final noAgreementValue =
+            state.bookingData?.agreementValue == 0 &&
+            state.bookingData?.tenantId != 0;
         Widget? actionButton;
         if (!isBookingCancelled &&
             !isRefundStatus &&
@@ -316,35 +320,68 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                           ),
                         )
                       else
-                        Container(
-                          height: 500.0,
-                          margin: EdgeInsets.only(bottom: 10.0),
-                          padding: EdgeInsets.all(16.0),
-                          decoration: commonCardDecoration(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Applicant Details",
-                                style: AppTextStyle.ts16SB(),
-                              ),
-                              verticalSpacing(),
-                              Expanded(
-                                child: ListView.builder(
-                                  itemCount:
-                                      bookingData.bookingApplicantData.length,
-                                  shrinkWrap: true,
-                                  physics: AlwaysScrollableScrollPhysics(),
-                                  itemBuilder: (context, index) {
-                                    final applicantDetails =
-                                        bookingData.bookingApplicantData[index];
-                                    return Container(
-                                      margin: EdgeInsets.only(bottom: 10.0),
-                                      padding: EdgeInsets.all(16.0),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(
-                                          8.0,
+                        SectionCard(
+                          title: "Applicant Details",
+                          headerBackgroundColor: AppColor.lightYellowBg2,
+                          titleTextColor: AppColor.brownYellowText,
+                          border: Border.all(
+                            color: AppColor.grey.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
+                          children: [
+                            SizedBox(
+                              height: 0.4.sh,
+                              child: ListView.builder(
+                                itemCount:
+                                    bookingData.bookingApplicantData.length,
+                                shrinkWrap: true,
+                                physics: AlwaysScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  final applicantDetails =
+                                      bookingData.bookingApplicantData[index];
+                                  return ApplicantCard(
+                                    applicant: applicantDetails,
+                                    additionalKeys: [
+                                      AdditionalKey(
+                                        title: 'Created By',
+                                        value: applicantDetails.createdBy,
+                                      ),
+                                      AdditionalKey(
+                                        title: 'Created Date',
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          applicantDetails.createdDate,
                                         ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+
+                      SectionCard(
+                        title: "Parking Details",
+                        titleTextColor: AppColor.blueBgColor,
+                        headerBackgroundColor: Color(0xffF6F9FF),
+                        border: Border.all(
+                          color: AppColor.grey.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                        maxContentHeight: 0.3.sh,
+                        children: [
+                          bookingData.parkingData.isNotEmpty
+                              ? Column(
+                                children: List.generate(
+                                  booking.parkingData.length,
+                                  (index) {
+                                    final parking = booking.parkingData[index];
+
+                                    return Container(
+                                      margin: const EdgeInsets.only(bottom: 12),
+                                      padding: const EdgeInsets.all(16),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
                                         border: Border.all(
                                           color: AppColor.primary.withValues(
                                             alpha: 0.3,
@@ -353,544 +390,135 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                         ),
                                       ),
                                       child: Column(
-                                        spacing: 16.0,
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
+                                        spacing: 10.0,
                                         children: [
-                                          buildRowWrapper(
-                                            child: buildColumnTitleValue(
-                                              title: "Applicant Type",
-                                              value:
-                                                  applicantDetails
-                                                      .applicantType,
+                                          Text(
+                                            "Parking ${index + 1}",
+                                            style: AppTextStyle.ts14SB(
+                                              color: AppColor
+                                                  .greyTitleAndValueColor
+                                                  .withValues(alpha: 0.4),
                                             ),
                                           ),
+                                          verticalSpacing(),
+
                                           Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
                                             mainAxisAlignment:
                                                 MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               buildColumnTitleValue(
-                                                title: "Applicant Name",
-                                                value:
-                                                    applicantDetails
-                                                        .applicantName,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Profile Photo",
-                                                      text:
-                                                          applicantDetails
-                                                              .applicantName,
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .photoURL,
-                                                    ),
+                                                title: "Parking Number",
+                                                value: parking.parkingNumber,
                                               ),
                                               horizontalSpacing(),
                                               buildColumnTitleValue(
-                                                title: "Mobile Number",
-                                                value:
-                                                    applicantDetails
-                                                        .applicantMobileNumber,
-                                                customValueWidget:
-                                                    CustomClickToContactText(
-                                                      countryCode:
-                                                          applicantDetails
-                                                              .applicantMobileNumberCountryCode,
-                                                      value:
-                                                          applicantDetails
-                                                              .applicantMobileNumber,
-                                                      type: ContactType.phone,
-                                                    ),
+                                                title: "Building",
+                                                value: parking.buildingNumber,
+                                              ),
+                                            ],
+                                          ),
+
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Type",
+                                                value: parking.parkingType,
+                                              ),
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
+                                                title: "Size",
+                                                value: parking.parkingSubType,
+                                              ),
+                                            ],
+                                          ),
+
+                                          Row(
+                                            children: [
+                                              buildColumnTitleValue(
+                                                title: "Wing",
+                                                value: parking.wing,
+                                              ),
+                                              horizontalSpacing(),
+                                              buildColumnTitleValue(
+                                                title: "Floor",
+                                                value: parking.floor,
                                               ),
                                             ],
                                           ),
                                           Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
                                             children: [
                                               buildColumnTitleValue(
-                                                title: "E-Mail ID",
-                                                value:
-                                                    applicantDetails
-                                                        .applicantEmailId,
-                                                customValueWidget:
-                                                    CustomClickToContactText(
-                                                      value:
-                                                          applicantDetails
-                                                              .applicantEmailId,
-                                                      type: ContactType.email,
-                                                    ),
+                                                title: "Category",
+                                                value: parking.parkingCategory,
                                               ),
                                               horizontalSpacing(),
                                               buildColumnTitleValue(
-                                                title: "Aadhaar Card No.",
+                                                title: "Dimensions",
                                                 value:
-                                                    applicantDetails
-                                                        .aadharCardNumber,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Aadhaar Card",
-                                                      text:
-                                                          applicantDetails
-                                                              .aadharCardNumber,
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .aadharCardURL,
-                                                    ),
+                                                    parking.parkingDimensions,
                                               ),
                                             ],
                                           ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "PAN No.",
-                                                value:
-                                                    applicantDetails.panNumber,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "PAN Card",
-                                                      text:
-                                                          applicantDetails
-                                                              .panNumber,
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .panCardURL,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              buildColumnTitleValue(
-                                                title: "Driving License",
-                                                value:
-                                                    applicantDetails
-                                                        .drivingLicenseNumber,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Driving License",
-                                                      text:
-                                                          applicantDetails
-                                                              .drivingLicenseNumber,
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .drivingLicenseURL,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Voting ID No.",
-                                                value:
-                                                    applicantDetails
-                                                        .votingIdNumber,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Voting ID",
-                                                      text:
-                                                          applicantDetails
-                                                              .votingIdNumber,
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .votingIdURL,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              buildColumnTitleValue(
-                                                title: "Passport No.",
-                                                value: applicant.passportNumber,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Passport",
-                                                      text:
-                                                          applicant
-                                                              .passportNumber,
-                                                      fileUrl:
-                                                          applicant.passportURL,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "GST No.",
-                                                value:
-                                                    applicantDetails.gstNumber,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "GST No.",
-                                                      text:
-                                                          applicantDetails
-                                                              .gstNumber,
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .gstNumberURL,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              buildColumnTitleValue(
-                                                title: "Cancelled Cheque",
-                                                value:
-                                                    applicantDetails
-                                                        .cancelledChequeUrl,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Cancelled Cheque",
-                                                      text:
-                                                          applicantDetails
-                                                                  .cancelledChequeUrl
-                                                                  .isNotEmpty
-                                                              ? "View"
-                                                              : "-",
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .cancelledChequeUrl,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "POA (if NRI Execution)",
-                                                value: applicantDetails.poaurl,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title:
-                                                          "POA (if NRI Execution)",
-                                                      text:
-                                                          applicantDetails
-                                                                  .poaurl
-                                                                  .isNotEmpty
-                                                              ? "View"
-                                                              : "-",
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .poaurl,
-                                                    ),
-                                              ),
-                                              horizontalSpacing(),
-                                              buildColumnTitleValue(
-                                                title:
-                                                    "Income Docs (Form 16 / ITR)",
-                                                value:
-                                                    applicantDetails
-                                                        .incomeForm16Itrurl,
-                                                customValueWidget: DocumentPreviewText(
-                                                  title:
-                                                      "Income Docs (Form 16 / ITR)",
-                                                  text:
-                                                      applicantDetails
-                                                              .incomeForm16Itrurl
-                                                              .isNotEmpty
-                                                          ? "View"
-                                                          : "-",
-                                                  fileUrl:
-                                                      applicantDetails
-                                                          .incomeForm16Itrurl,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Nre/Nro/Bank Details",
-                                                value:
-                                                    applicantDetails
-                                                        .nreNroBankDetailsUrl,
-                                                customValueWidget: DocumentPreviewText(
-                                                  title: "Nre/Nro/Bank Details",
-                                                  text:
-                                                      applicantDetails
-                                                              .nreNroBankDetailsUrl
-                                                              .isNotEmpty
-                                                          ? "View"
-                                                          : "-",
-                                                  fileUrl:
-                                                      applicantDetails
-                                                          .nreNroBankDetailsUrl,
-                                                ),
-                                              ),
-                                              horizontalSpacing(),
-                                              buildColumnTitleValue(
-                                                title: "Nominee Form",
-                                                value: "View",
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Nominee Form",
-                                                      text:
-                                                          applicantDetails
-                                                                  .nomineeFormUrl
-                                                                  .isNotEmpty
-                                                              ? "View"
-                                                              : "-",
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .nomineeFormUrl,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title:
-                                                    "Statement Of Source Of Funds",
-                                                value:
-                                                    applicantDetails
-                                                        .statementOfSourceOfFundsURL,
-                                                customValueWidget: DocumentPreviewText(
-                                                  title:
-                                                      "Statement Of Source Of Funds",
-                                                  text:
-                                                      applicantDetails
-                                                              .statementOfSourceOfFundsURL
-                                                              .isNotEmpty
-                                                          ? "View"
-                                                          : "-",
-                                                  fileUrl:
-                                                      applicantDetails
-                                                          .statementOfSourceOfFundsURL,
-                                                ),
-                                              ),
-                                              horizontalSpacing(),
-                                              buildColumnTitleValue(
-                                                title: "Payment Proof",
-                                                value:
-                                                    applicantDetails
-                                                        .paymentProofURL,
-                                                customValueWidget:
-                                                    DocumentPreviewText(
-                                                      title: "Payment Proof",
-                                                      text:
-                                                          applicantDetails
-                                                                  .paymentProofURL
-                                                                  .isNotEmpty
-                                                              ? "View"
-                                                              : "-",
-                                                      fileUrl:
-                                                          applicantDetails
-                                                              .paymentProofURL,
-                                                    ),
-                                              ),
-                                            ],
-                                          ),
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              buildColumnTitleValue(
-                                                title: "Created By",
-                                                value:
-                                                    applicantDetails.createdBy,
-                                              ),
-                                              horizontalSpacing(),
-                                              buildColumnTitleValue(
-                                                title: "Created Date",
-                                                value:
-                                                    formatDateTimeAsDDMMMYYYY(
-                                                      applicantDetails
-                                                          .createdDate,
-                                                    ),
-                                              ),
-                                            ],
+
+                                          horizontalSpacing(),
+                                          buildRowWrapper(
+                                            child: buildColumnTitleValue(
+                                              title: "EV Charging",
+                                              value:
+                                                  parking.isEVChargingAvailable
+                                                      ? "Yes"
+                                                      : "No",
+                                            ),
                                           ),
                                         ],
                                       ),
                                     );
                                   },
                                 ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10.0),
-                        padding: EdgeInsets.all(16.0),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Parking Details",
-                              style: AppTextStyle.ts14SB(),
-                            ),
-                            verticalSpacing(),
-                            bookingData.parkingData.isNotEmpty
-                                ? Column(
-                                  children: List.generate(
-                                    booking.parkingData.length,
-                                    (index) {
-                                      final parking =
-                                          booking.parkingData[index];
-
-                                      return Container(
-                                        margin: const EdgeInsets.only(
-                                          bottom: 12,
-                                        ),
-                                        padding: const EdgeInsets.all(16),
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          border: Border.all(
-                                            color: AppColor.primary.withValues(
-                                              alpha: 0.3,
-                                            ),
-                                            width: 0.8,
-                                          ),
-                                        ),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          spacing: 10.0,
-                                          children: [
-                                            Text(
-                                              "Parking ${index + 1}",
-                                              style: AppTextStyle.ts14SB(
-                                                color: AppColor
-                                                    .greyTitleAndValueColor
-                                                    .withValues(alpha: 0.4),
-                                              ),
-                                            ),
-                                            verticalSpacing(),
-
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                buildColumnTitleValue(
-                                                  title: "Parking Number",
-                                                  value: parking.parkingNumber,
-                                                ),
-                                                horizontalSpacing(),
-                                                buildColumnTitleValue(
-                                                  title: "Building",
-                                                  value: parking.buildingNumber,
-                                                ),
-                                              ],
-                                            ),
-
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                buildColumnTitleValue(
-                                                  title: "Type",
-                                                  value: parking.parkingType,
-                                                ),
-                                                horizontalSpacing(),
-                                                buildColumnTitleValue(
-                                                  title: "Size",
-                                                  value: parking.parkingSubType,
-                                                ),
-                                              ],
-                                            ),
-
-                                            Row(
-                                              children: [
-                                                buildColumnTitleValue(
-                                                  title: "Wing",
-                                                  value: parking.wing,
-                                                ),
-                                                horizontalSpacing(),
-                                                buildColumnTitleValue(
-                                                  title: "Floor",
-                                                  value: parking.floor,
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                buildColumnTitleValue(
-                                                  title: "Category",
-                                                  value:
-                                                      parking.parkingCategory,
-                                                ),
-                                                horizontalSpacing(),
-                                                buildColumnTitleValue(
-                                                  title: "Dimensions",
-                                                  value:
-                                                      parking.parkingDimensions,
-                                                ),
-                                              ],
-                                            ),
-
-                                            horizontalSpacing(),
-                                            buildRowWrapper(
-                                              child: buildColumnTitleValue(
-                                                title: "EV Charging",
-                                                value:
-                                                    parking.isEVChargingAvailable
-                                                        ? "Yes"
-                                                        : "No",
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                )
-                                : Center(
-                                  child: noDataWidget(
-                                    message: "No Parking Data Found",
-                                    iconSize: 160.0,
-                                  ),
+                              )
+                              : Center(
+                                child: noDataWidget(
+                                  message: "No Parking Data Found",
+                                  iconSize: 160.0,
                                 ),
-                          ],
-                        ),
+                              ),
+                        ],
                       ),
-                      Container(
-                        margin: EdgeInsets.only(bottom: 10.0),
-                        padding: EdgeInsets.all(16.0),
-                        decoration: commonCardDecoration(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                      SectionCard(
+                        title: "Unit / Modulation / Customization Remark",
+                        border: Border.all(
+                          color: AppColor.grey.withValues(alpha: 0.3),
+                          width: 1,
+                        ),
+                        children: [
+                          Text(
+                            bookingData.flatAlterationRemark.isEmpty
+                                ? "-"
+                                : bookingData.flatAlterationRemark,
+                            style: AppTextStyle.ts14M(color: AppColor.black),
+                          ),
+                        ],
+                      ),
+                      if (bookingData.approvalStatus.trim().toUpperCase() ==
+                              "CANCEL" ||
+                          bookingData.cancelRemark.trim().isNotEmpty)
+                        SectionCard(
+                          title: "Cancellation Summary",
+                          headerBackgroundColor: AppColor.grey10,
+                          titleTextColor: AppColor.black,
+                          border: Border.all(
+                            color: AppColor.grey.withValues(alpha: 0.3),
+                            width: 1,
+                          ),
                           children: [
-                            Text(
-                              "Unit / Modulation / Customization Remark",
-                              style: AppTextStyle.ts14SB(),
-                            ),
-                            verticalSpacing(),
                             Container(
                               padding: EdgeInsets.all(16.0),
                               decoration: BoxDecoration(
@@ -906,12 +534,57 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Expanded(
-                                        child: Text(
-                                          bookingData.flatAlterationRemark,
-                                          style: AppTextStyle.ts14M(),
+                                      buildColumnTitleValue(
+                                        title: "Cancelled Date",
+                                        value: formatDateTimeAsDDMMMYYYY(
+                                          bookingData.cancelledDate,
                                         ),
+                                      ),
+                                      horizontalSpacing(),
+                                      buildColumnTitleValue(
+                                        title: "Cancelled By",
+                                        value: bookingData.cancelledBy,
+                                      ),
+                                    ],
+                                  ),
+                                  verticalSpacing(),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      buildColumnTitleValue(
+                                        title: "Remark",
+                                        value: bookingData.cancelRemark,
+                                      ),
+                                      horizontalSpacing(),
+                                      buildColumnTitleValue(
+                                        title: "Proof Of Document",
+                                        value: bookingData.cancelledBy,
+                                        customValueWidget:
+                                            CustomButton.documentOutline(
+                                              onPressed: () {
+                                                if (bookingData
+                                                    .proofOfDocumentUrl
+                                                    .isNotEmpty) {
+                                                  showFilePreviewDialog(
+                                                    context,
+                                                    title: "Proof Of Document",
+                                                    bookingData
+                                                        .proofOfDocumentUrl
+                                                        .split(","),
+                                                  );
+                                                }
+                                              },
+                                              isDisable:
+                                                  booking
+                                                      .proofOfDocumentUrl
+                                                      .isEmpty,
+                                            ),
                                       ),
                                     ],
                                   ),
@@ -919,100 +592,6 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                               ),
                             ),
                           ],
-                        ),
-                      ),
-                      if (bookingData.approvalStatus.trim().toUpperCase() ==
-                              "CANCEL" ||
-                          bookingData.cancelRemark.trim().isNotEmpty)
-                        Container(
-                          margin: EdgeInsets.only(bottom: 10.0),
-                          padding: EdgeInsets.all(16.0),
-                          decoration: commonCardDecoration(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Cancellation Summary",
-                                style: AppTextStyle.ts14SB(),
-                              ),
-                              verticalSpacing(),
-                              Container(
-                                padding: EdgeInsets.all(16.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  border: Border.all(
-                                    color: AppColor.primary.withValues(
-                                      alpha: 0.3,
-                                    ),
-                                    width: 0.8,
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Cancelled Date",
-                                          value: formatDateTimeAsDDMMMYYYY(
-                                            bookingData.cancelledDate,
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        buildColumnTitleValue(
-                                          title: "Cancelled By",
-                                          value: bookingData.cancelledBy,
-                                        ),
-                                      ],
-                                    ),
-                                    verticalSpacing(),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Remark",
-                                          value: bookingData.cancelRemark,
-                                        ),
-                                        horizontalSpacing(),
-                                        buildColumnTitleValue(
-                                          title: "Proof Of Document",
-                                          value: bookingData.cancelledBy,
-                                          customValueWidget:
-                                              CustomButton.documentOutline(
-                                                onPressed: () {
-                                                  if (bookingData
-                                                      .proofOfDocumentUrl
-                                                      .isNotEmpty) {
-                                                    showFilePreviewDialog(
-                                                      context,
-                                                      title:
-                                                          "Proof Of Document",
-                                                      bookingData
-                                                          .proofOfDocumentUrl
-                                                          .split(","),
-                                                    );
-                                                  }
-                                                },
-                                                isDisable:
-                                                    booking
-                                                        .proofOfDocumentUrl
-                                                        .isEmpty,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       if (bookingData.approvalStatus.trim().toUpperCase() ==
                           "REFUND")
@@ -1097,15 +676,17 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(20.0),
-                    child: actionButton,
-                  ),
-                ],
-              ),
+              // HIDE ON AGREEMENT VALUE ZERO
+              if (!noAgreementValue)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(20.0),
+                      child: actionButton,
+                    ),
+                  ],
+                ),
             ],
           ),
         );
