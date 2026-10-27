@@ -822,189 +822,213 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                       ),
                     ],
                   ),
-                  ExpansionTile(
-                    tilePadding: EdgeInsets.symmetric(horizontal: 6.0),
-                    childrenPadding: EdgeInsets.zero,
-                    backgroundColor: AppColor.white,
-                    collapsedBackgroundColor: AppColor.white,
-                    expandedCrossAxisAlignment: CrossAxisAlignment.start,
-                    iconColor: AppColor.black,
-                    collapsedIconColor: AppColor.black,
-                    shape: const Border(),
-                    collapsedShape: const Border(),
-                    onExpansionChanged: (expanded) async {
-                      if (expanded) {
-                        await _loanDetailsCubit.getBankDocumentList(
-                          context: context,
-                          pageNumber: 1,
-                          projectId: widget.projectId,
-                          bookingId: widget.bookingId,
-                          bookingLoanDetailsId: document.bookingLoanDetailsId,
-                        );
-                      }
-                    },
-                    title: Text("View Documents", style: AppTextStyle.ts14M()),
-                    children: [
-                      Builder(
-                        builder: (context) {
-                          final docs =
-                              state.bankDocumentMap[document
-                                  .bookingLoanDetailsId] ??
-                              [];
-                          if (docs.isEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 16.0,
-                              ),
-                              child: Center(
-                                child: noDataWidget(
-                                  message: "No Data Found",
-                                  iconSize: 180.0,
-                                ),
-                              ),
-                            );
-                          }
-                          return ListView.builder(
-                            itemCount:
-                                (state.bankDocumentMap[document
-                                            .bookingLoanDetailsId] ??
-                                        [])
-                                    .length,
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, docIndex) {
-                              final file =
-                                  state.bankDocumentMap[document
-                                      .bookingLoanDetailsId]![docIndex];
-
-                              return Container(
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 12.0,
+                  verticalSpacing(height: 5),
+                  Container(
+                    padding: EdgeInsets.only(left: 12),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border(
+                        left: BorderSide(color: AppColor.primary, width: 4),
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x11000000),
+                          blurRadius: 6,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: ExpansionTile(
+                      tilePadding: EdgeInsets.symmetric(horizontal: 6.0),
+                      childrenPadding: EdgeInsets.zero,
+                      backgroundColor: AppColor.white,
+                      collapsedBackgroundColor: AppColor.white,
+                      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                      iconColor: AppColor.black,
+                      collapsedIconColor: AppColor.black,
+                      shape: const Border(),
+                      collapsedShape: const Border(),
+                      onExpansionChanged: (expanded) async {
+                        if (expanded) {
+                          await _loanDetailsCubit.getBankDocumentList(
+                            context: context,
+                            pageNumber: 1,
+                            projectId: widget.projectId,
+                            bookingId: widget.bookingId,
+                            bookingLoanDetailsId: document.bookingLoanDetailsId,
+                          );
+                        }
+                      },
+                      title: Text(
+                        "View Documents",
+                        style: AppTextStyle.ts14M(),
+                      ),
+                      children: [
+                        Builder(
+                          builder: (context) {
+                            final docs =
+                                state.bankDocumentMap[document
+                                    .bookingLoanDetailsId] ??
+                                [];
+                            if (docs.isEmpty) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(
                                   vertical: 16.0,
                                 ),
-                                margin: EdgeInsets.symmetric(vertical: 5.h),
-                                decoration: BoxDecoration(
-                                  color: AppColor.white,
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: AppColor.primary.withValues(
-                                      alpha: 0.6,
-                                    ),
-                                    width: .5,
+                                child: Center(
+                                  child: noDataWidget(
+                                    message: "No Data Found",
+                                    iconSize: 180.0,
                                   ),
                                 ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: DocumentPreviewText(
-                                            title: file.fileName,
-                                            text: file.fileName,
-                                            fileUrl:
-                                                file.payTrackBookingFilesUrl,
-                                          ),
-                                        ),
-                                        horizontalSpacing(),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            CustomIconButton.edit(
-                                              isDisabled:
-                                                  document.bankStatusClosedActive
-                                                          .toLowerCase() ==
-                                                      "closed" ||
-                                                  !isApproved,
-                                              onPressed: () {
-                                                goRouter.pushNamed(
-                                                  AppRoutes.addBankLoanDocument,
-                                                  queryParameters: {
-                                                    'bookingId':
-                                                        Uri.encodeComponent(
-                                                          EncryptionManager.encryptData(
-                                                            widget.bookingId
-                                                                .toString(),
-                                                          ),
-                                                        ),
-                                                    'projectId':
-                                                        Uri.encodeComponent(
-                                                          EncryptionManager.encryptData(
-                                                            widget.projectId
-                                                                .toString(),
-                                                          ),
-                                                        ),
-                                                    'document': Uri.encodeComponent(
-                                                      EncryptionManager.encryptData(
-                                                        jsonEncode(
-                                                          file.toJson(),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    'index':
-                                                        docIndex.toString(),
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                            horizontalSpacing(width: 12),
-                                            CustomIconButton.delete(
-                                              isDisabled:
-                                                  document.bankStatusClosedActive
-                                                          .toLowerCase() ==
-                                                      "closed" ||
-                                                  !isApproved,
-                                              onPressed: () {
-                                                _showPopUpToDeletdBankDocument(
-                                                  context,
-                                                  document,
-                                                  docIndex,
-                                                  file,
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    verticalSpacing(),
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        buildColumnTitleValue(
-                                          title: "Last Modified By",
-                                          value:
-                                              file.modifiedBy.trim().isEmpty
-                                                  ? file.createdBy
-                                                  : file.modifiedBy,
-                                        ),
-                                        horizontalSpacing(),
-                                        buildColumnTitleValue(
-                                          title: "Last Modified Date",
-                                          value: formatDate(
-                                            file.modifiedDate ??
-                                                file.createdDate,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
                               );
-                            },
-                          );
-                        },
-                      ),
-                    ],
+                            }
+                            return ListView.builder(
+                              itemCount:
+                                  (state.bankDocumentMap[document
+                                              .bookingLoanDetailsId] ??
+                                          [])
+                                      .length,
+                              shrinkWrap: true,
+                              physics: NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, docIndex) {
+                                final file =
+                                    state.bankDocumentMap[document
+                                        .bookingLoanDetailsId]![docIndex];
+
+                                return Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                    vertical: 16.0,
+                                  ),
+                                  margin: EdgeInsets.symmetric(vertical: 5.h),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: AppColor.primary.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                      width: .5,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: DocumentPreviewText(
+                                              title: file.fileName,
+                                              text: file.fileName,
+                                              fileUrl:
+                                                  file.payTrackBookingFilesUrl,
+                                            ),
+                                          ),
+                                          horizontalSpacing(),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              CustomIconButton.edit(
+                                                isDisabled:
+                                                    document.bankStatusClosedActive
+                                                            .toLowerCase() ==
+                                                        "closed" ||
+                                                    !isApproved,
+                                                onPressed: () {
+                                                  goRouter.pushNamed(
+                                                    AppRoutes
+                                                        .addBankLoanDocument,
+                                                    queryParameters: {
+                                                      'bookingId':
+                                                          Uri.encodeComponent(
+                                                            EncryptionManager.encryptData(
+                                                              widget.bookingId
+                                                                  .toString(),
+                                                            ),
+                                                          ),
+                                                      'projectId':
+                                                          Uri.encodeComponent(
+                                                            EncryptionManager.encryptData(
+                                                              widget.projectId
+                                                                  .toString(),
+                                                            ),
+                                                          ),
+                                                      'document':
+                                                          Uri.encodeComponent(
+                                                            EncryptionManager.encryptData(
+                                                              jsonEncode(
+                                                                file.toJson(),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                      'index':
+                                                          docIndex.toString(),
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              horizontalSpacing(width: 12),
+                                              CustomIconButton.delete(
+                                                isDisabled:
+                                                    document.bankStatusClosedActive
+                                                            .toLowerCase() ==
+                                                        "closed" ||
+                                                    !isApproved,
+                                                onPressed: () {
+                                                  _showPopUpToDeletdBankDocument(
+                                                    context,
+                                                    document,
+                                                    docIndex,
+                                                    file,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      verticalSpacing(),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          buildColumnTitleValue(
+                                            title: "Last Modified By",
+                                            value:
+                                                file.modifiedBy.trim().isEmpty
+                                                    ? file.createdBy
+                                                    : file.modifiedBy,
+                                          ),
+                                          horizontalSpacing(),
+                                          buildColumnTitleValue(
+                                            title: "Last Modified Date",
+                                            value: formatDate(
+                                              file.modifiedDate ??
+                                                  file.createdDate,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

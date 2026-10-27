@@ -489,16 +489,27 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
               ],
             ),
           if (enquiry != null) ...[
-            infoCard(items, title: "Enquiry Details"),
-            if (!isDirectWalkingForCPDetails)
-              infoCard([
-                {"title": "CP Code", "value": enquiry.channelPartnerCode},
-                {
-                  "title": "CP E-Mail ID",
-                  "value": enquiry.channelPartnerEmailId,
-                },
-              ]),
             verticalSpacing(),
+            SectionCard(
+              title: "Enquiry Details",
+              titleTextColor: AppColor.blueBgColor,
+              headerBackgroundColor: Color(0xffF6F9FF),
+              border: Border.all(
+                color: AppColor.grey.withValues(alpha: 0.3),
+                width: 1,
+              ),
+              children: [
+                infoCard(items),
+                if (!isDirectWalkingForCPDetails)
+                  infoCard([
+                    {"title": "CP Code", "value": enquiry.channelPartnerCode},
+                    {
+                      "title": "CP E-Mail ID",
+                      "value": enquiry.channelPartnerEmailId,
+                    },
+                  ]),
+              ],
+            ),
           ] else ...[
             ValueListenableBuilder(
               valueListenable: _tenantModel,
@@ -1821,7 +1832,6 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
       ),
     );
   }
-
 
   List<Widget> _pairRows(List<(String, String)> items) => [
     for (var i = 0; i < items.length; i += 2)
