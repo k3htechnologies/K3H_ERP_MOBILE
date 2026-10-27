@@ -230,11 +230,14 @@ class _PaymentScreenState extends State<PaymentScreen>
                             final isDisabled = isLocked || !isApproved;
 
                             return CustomExpandableCard(
+                              padding: EdgeInsets.zero,
+                              headerPadding: const EdgeInsets.all(16),
                               header: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   buildRowTitleValue(
                                     title: "Stage / Milestone",
+                                    fixesWidth: 120,
                                     value:
                                         paymentSchedules.type.contains("Date")
                                             ? paymentSchedules.date != null
@@ -246,23 +249,29 @@ class _PaymentScreenState extends State<PaymentScreen>
                                     singleLine: false,
                                   ),
                                   verticalSpacing(),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      buildRowTitleValue(
-                                        title: "Percentage",
-                                        value:
-                                            paymentSchedules.name
-                                                        .trim()
-                                                        .toLowerCase() ==
-                                                    "registration fees"
-                                                ? "-"
-                                                : "${paymentSchedules.paymentSchedulePercentage} %",
-                                      ),
-                                    ],
+                                  buildRowTitleValue(
+                                    title: "Percentage",
+                                    fixesWidth: 120,
+                                    value:
+                                        paymentSchedules.name
+                                                    .trim()
+                                                    .toLowerCase() ==
+                                                "registration fees"
+                                            ? "-"
+                                            : "${paymentSchedules.paymentSchedulePercentage} %",
                                   ),
-
+                                  buildRowTitleValue(
+                                    title: "Total Amount",
+                                    fixesWidth: 120,
+                                    value:
+                                        (paymentSchedules
+                                                    .paymentScheduleAmount +
+                                                paymentSchedules
+                                                    .paymentScheduleGstAmount +
+                                                paymentSchedules
+                                                    .paymentScheduleTdsAmount)
+                                            .toIndianCurrency(),
+                                  ),
                                   (paymentSchedules.type.toLowerCase() ==
                                                   "stage" ||
                                               paymentSchedules.type
@@ -343,92 +352,59 @@ class _PaymentScreenState extends State<PaymentScreen>
                                     ),
                                 ],
                               ),
-                              body: Column(
-                                children: [
-                                  Divider(
-                                    thickness: 0.3,
-                                    color: AppColor.black.withValues(
-                                      alpha: 0.3,
+                              body: Container(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                    bottomLeft: Radius.circular(10),
+                                    bottomRight: Radius.circular(10),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    Column(
+                                      children: List.generate(
+                                        breakdownTitles.length,
+                                        (breakdownIndex) {
+                                          final title =
+                                              breakdownTitles[breakdownIndex];
+
+                                          double totalAmount = 0;
+                                          double receivedAmount = 0;
+
+                                          if (breakdownIndex == 0) {
+                                            totalAmount =
+                                                paymentSchedules
+                                                    .paymentScheduleAmount;
+                                            receivedAmount =
+                                                paymentSchedules
+                                                    .paymentScheduleReceivedAmount;
+                                          } else if (breakdownIndex == 1) {
+                                            totalAmount =
+                                                paymentSchedules
+                                                    .paymentScheduleGstAmount;
+                                            receivedAmount =
+                                                paymentSchedules
+                                                    .paymentScheduleReceivedGstAmount;
+                                          } else if (breakdownIndex == 2) {
+                                            totalAmount =
+                                                paymentSchedules
+                                                    .paymentScheduleTdsAmount;
+                                            receivedAmount =
+                                                paymentSchedules
+                                                    .paymentScheduleReceivedTdsAmount;
+                                          }
+
+                                          return agreementAmountCard(
+                                            title: title,
+                                            totalAmount: totalAmount,
+                                            receivedAmount: receivedAmount,
+                                          );
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                  Column(
-                                    children: List.generate(breakdownTitles.length, (
-                                      breakdownIndex,
-                                    ) {
-                                      final title =
-                                          breakdownTitles[breakdownIndex];
-
-                                      double totalAmount = 0;
-                                      double receivedAmount = 0;
-
-                                      if (breakdownIndex == 0) {
-                                        totalAmount =
-                                            paymentSchedules
-                                                .paymentScheduleAmount;
-                                        receivedAmount =
-                                            paymentSchedules
-                                                .paymentScheduleReceivedAmount;
-                                      } else if (breakdownIndex == 1) {
-                                        totalAmount =
-                                            paymentSchedules
-                                                .paymentScheduleGstAmount;
-                                        receivedAmount =
-                                            paymentSchedules
-                                                .paymentScheduleReceivedGstAmount;
-                                      } else if (breakdownIndex == 2) {
-                                        totalAmount =
-                                            paymentSchedules
-                                                .paymentScheduleTdsAmount;
-                                        receivedAmount =
-                                            paymentSchedules
-                                                .paymentScheduleReceivedTdsAmount;
-                                      }
-
-                                      final outstandingAmount =
-                                          totalAmount - receivedAmount;
-
-                                      return Column(
-                                        spacing: 6.0,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          if (breakdownIndex != 0)
-                                            Divider(
-                                              thickness: 0.3,
-                                              color: AppColor.black.withValues(
-                                                alpha: 0.3,
-                                              ),
-                                            ),
-
-                                          Text(
-                                            title,
-                                            style: AppTextStyle.ts14M(),
-                                          ),
-
-                                          buildRowTitleValue(
-                                            title: "Total Amount",
-                                            value:
-                                                totalAmount.toIndianCurrency(),
-                                          ),
-
-                                          buildRowTitleValue(
-                                            title: "Received Amount",
-                                            value:
-                                                receivedAmount
-                                                    .toIndianCurrency(),
-                                          ),
-
-                                          buildRowTitleValue(
-                                            title: "Outstanding Amount",
-                                            value:
-                                                outstandingAmount
-                                                    .toIndianCurrency(),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             );
                           },
@@ -836,6 +812,160 @@ class _PaymentScreenState extends State<PaymentScreen>
           ),
         );
       },
+    );
+  }
+
+  Widget agreementAmountCard({
+    required String title,
+    required double totalAmount,
+    required double receivedAmount,
+  }) {
+    final double pendingAmount = totalAmount - receivedAmount;
+
+    final double progress =
+        totalAmount > 0 ? (receivedAmount / totalAmount).clamp(0.0, 1.0) : 0.0;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      margin: EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: const Color(0x80F8FAFC),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5EDF5), width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.04),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            title,
+            style: AppTextStyle.ts14M().copyWith(
+              color: const Color(0xFF172033),
+            ),
+          ),
+          const SizedBox(height: 8),
+          buildRowTitleValue(
+            title: "Total Amount",
+            fixesWidth: 120,
+            value: totalAmount.toIndianCurrency(),
+          ),
+
+          const SizedBox(height: 12),
+
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: LinearProgressIndicator(
+              value: progress,
+              minHeight: 6,
+              backgroundColor: const Color(0xFFE2E8F0),
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Color(0xFF059669),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          Row(
+            spacing: 7,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 5,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Container(
+                        width: 9,
+                        height: 9,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFF059669),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Received: ",
+                              style: AppTextStyle.ts12M().copyWith(
+                                color: const Color(0xFF647895),
+                              ),
+                            ),
+                            TextSpan(
+                              text:
+                                  (900000 < receivedAmount ? "\n" : "") +
+                                  receivedAmount.toIndianCurrency(),
+                              style: AppTextStyle.ts12SB().copyWith(
+                                color: const Color(0xFF059669),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Row(
+                  spacing: 7,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4.0),
+                      child: Container(
+                        width: 9,
+                        height: 9,
+                        decoration: const BoxDecoration(
+                          color: Color(0xFFE2E8F0),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Pending: ",
+                              style: AppTextStyle.ts12M().copyWith(
+                                color: const Color(0xFF647895),
+                              ),
+                            ),
+                            TextSpan(
+                              text:
+                                  (900000 < pendingAmount ? "\n" : "") +
+                                  pendingAmount.toIndianCurrency(),
+                              style: AppTextStyle.ts12SB().copyWith(
+                                color: const Color(0xFF475569),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

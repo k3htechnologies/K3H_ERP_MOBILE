@@ -373,7 +373,7 @@ class _TermSheetReportScreenState extends State<TermSheetReportScreen>
                           SizedBox(
                             width: 120,
                             child: Text(
-                              'Bank Name',
+                              'Name Of Institution',
                               style: AppTextStyle.ts12R(
                                 color: AppColor.black.withValues(alpha: 0.5),
                               ),
@@ -412,176 +412,168 @@ class _TermSheetReportScreenState extends State<TermSheetReportScreen>
                   ),
                   body: Container(
                     color: AppColor.lightBluebg.withValues(alpha: 0.4),
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 12,
-                        children: [
-                          _sectionTitle(
-                            'LOAN DETAILS',
-                            const Color(0xFF1A73E8),
-                          ),
-                          IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              spacing: 10,
-                              children: [
-                                Expanded(
-                                  child: _infoTile(
-                                    label: 'LOAN TAKEN BY',
-                                    value: termSheetReport.loanTakenBy,
+                    padding: EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 12,
+                      children: [
+                        _sectionTitle('LOAN DETAILS', const Color(0xFF1A73E8)),
+                        IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            spacing: 10,
+                            children: [
+                              Expanded(
+                                child: _infoTile(
+                                  label: 'LOAN TAKEN BY',
+                                  value: termSheetReport.loanTakenBy,
+                                ),
+                              ),
+                              Expanded(
+                                child: _infoTile(
+                                  label: 'SANCTION DATE',
+                                  value: formatDateTimeAsDDMMMYYYY(
+                                    termSheetReport.sanctionDate,
                                   ),
                                 ),
-                                Expanded(
-                                  child: _infoTile(
-                                    label: 'SANCTION DATE',
-                                    value: formatDateTimeAsDDMMMYYYY(
-                                      termSheetReport.sanctionDate,
+                              ),
+                            ],
+                          ),
+                        ),
+                        _sectionTitle('AMOUNT', const Color(0xFF0D9488)),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: _tileDecoration(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 14,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: _amountItem(
+                                      label: 'SANCTION',
+                                      value:
+                                          termSheetReport.facilityAmount
+                                              .toIndianCurrency(),
+                                      valueColor: const Color(0xFF0D9488),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          _sectionTitle('AMOUNT', const Color(0xFF0D9488)),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(12),
-                            decoration: _tileDecoration(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: 14,
-                              children: [
-                                Row(
+                                  Expanded(
+                                    child: _amountItem(
+                                      label: 'DISBURSED',
+                                      value:
+                                          termSheetReport.totalDisbursedAmount
+                                              .toIndianCurrency(),
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: _amountItem(
+                                      label: 'BALANCE\nDISBURSEMENT',
+                                      value:
+                                          termSheetReport
+                                              .balanceDisbursementAmount
+                                              .toIndianCurrency(),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _amountItem(
+                                      label: 'REPAYMENT',
+                                      value:
+                                          termSheetReport.totalRepayLedgerAmount
+                                              .toIndianCurrency(),
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Divider(height: 1, color: AppColor.grey50),
+                              if (isLargeAmount)
+                                Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
+                                  spacing: 6,
                                   children: [
-                                    Expanded(
-                                      child: _amountItem(
-                                        label: 'SANCTION',
-                                        value:
-                                            termSheetReport.facilityAmount
-                                                .toIndianCurrency(),
-                                        valueColor: const Color(0xFF0D9488),
+                                    Text(
+                                      'BALANCE AS ON DATE',
+                                      style: AppTextStyle.ts12SB(
+                                        color: AppColor.black.withValues(
+                                          alpha: 0.5,
+                                        ),
                                       ),
                                     ),
-                                    Expanded(
-                                      child: _amountItem(
-                                        label: 'DISBURSED',
-                                        value:
-                                            termSheetReport.totalDisbursedAmount
-                                                .toIndianCurrency(),
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
+                                    Text(
+                                      amount,
+                                      style: AppTextStyle.ts16SB(
+                                        color: const Color(0xFFE8590C),
                                       ),
                                     ),
                                   ],
-                                ),
+                                )
+                              else
                                 Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  spacing: 10,
                                   children: [
                                     Expanded(
-                                      child: _amountItem(
-                                        label: 'BALANCE\nDISBURSEMENT',
-                                        value:
-                                            termSheetReport
-                                                .balanceDisbursementAmount
-                                                .toIndianCurrency(),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: _amountItem(
-                                        label: 'REPAYMENT',
-                                        value:
-                                            termSheetReport
-                                                .totalRepayLedgerAmount
-                                                .toIndianCurrency(),
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Divider(height: 1, color: AppColor.grey50),
-                                if (isLargeAmount)
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    spacing: 6,
-                                    children: [
-                                      Text(
-                                        'BALANCE AS ON DATE',
+                                      child: Text(
+                                        'BALANCE AS ON\nDATE',
                                         style: AppTextStyle.ts12SB(
                                           color: AppColor.black.withValues(
                                             alpha: 0.5,
                                           ),
                                         ),
                                       ),
-                                      Text(
-                                        amount,
-                                        style: AppTextStyle.ts16SB(
-                                          color: const Color(0xFFE8590C),
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                                else
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    spacing: 10,
-                                    children: [
-                                      Expanded(
+                                    ),
+                                    Flexible(
+                                      child: FittedBox(
+                                        fit: BoxFit.scaleDown,
+                                        alignment: Alignment.centerRight,
                                         child: Text(
-                                          'BALANCE AS ON\nDATE',
-                                          style: AppTextStyle.ts12SB(
-                                            color: AppColor.black.withValues(
-                                              alpha: 0.5,
-                                            ),
+                                          amount,
+                                          style: AppTextStyle.ts16SB(
+                                            color: const Color(0xFFE8590C),
                                           ),
                                         ),
                                       ),
-                                      Flexible(
-                                        child: FittedBox(
-                                          fit: BoxFit.scaleDown,
-                                          alignment: Alignment.centerRight,
-                                          child: Text(
-                                            amount,
-                                            style: AppTextStyle.ts16SB(
-                                              color: const Color(0xFFE8590C),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                              ],
-                            ),
-                          ),
-                          _sectionTitle('LOAN STATUS', const Color(0xFF6366F1)),
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 10,
-                            children: [
-                              Expanded(
-                                child: _infoTile(
-                                  label: 'RATE OF INTEREST',
-                                  value:
-                                      '${termSheetReport.rateOfInterestInPercentage}%',
+                                    ),
+                                  ],
                                 ),
-                              ),
-                              Expanded(
-                                child: _infoTile(
-                                  label: 'CLOSING DATE',
-                                  value: formatDateTimeAsDDMMMYYYY(
-                                    termSheetReport.closingDate,
-                                  ),
-                                ),
-                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        _sectionTitle('LOAN STATUS', const Color(0xFF6366F1)),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 10,
+                          children: [
+                            Expanded(
+                              child: _infoTile(
+                                label: 'RATE OF INTEREST',
+                                value:
+                                    '${termSheetReport.rateOfInterestInPercentage}%',
+                              ),
+                            ),
+                            Expanded(
+                              child: _infoTile(
+                                label: 'CLOSING DATE',
+                                value: formatDateTimeAsDDMMMYYYY(
+                                  termSheetReport.closingDate,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 );
