@@ -19,6 +19,19 @@ abstract interface class ConstructionAreaDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateConstructionArea({
+    required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apiCallPullConstructionAreaForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apiCallPullConstructionAreaComparativeForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ConstructionAreaDatasourceImpl extends ConstructionAreaDatasource {
@@ -140,6 +153,110 @@ class ConstructionAreaDatasourceImpl extends ConstructionAreaDatasource {
         apiCallAddUpdateConstructionAreaComparative(
           body: body,
           fileList: fileList,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateConstructionArea({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      String addUpdateConstructionAreaUrl =
+          "ConstructionArea/AddUpdateConstructionArea";
+
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateConstructionAreaUrl,
+        body,
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse["message"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullConstructionAreaForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullConstructionAreaExportUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ConstructionArea/PullConstructionArea?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullConstructionAreaExportUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallPullConstructionAreaForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullConstructionAreaComparativeForExport({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullConstructionAreaComparativeExportUrl({
+      required int pageSize,
+      required int pageNumber,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "ConstructionAreaComparative/PullConstructionAreaComparative?PageSize=$pageSize&PageNumber=$pageNumber";
+      queryParams?.forEach((key, value) => url += "&$key=$value");
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullConstructionAreaComparativeExportUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse['data'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallPullConstructionAreaComparativeForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
         );
       }
       rethrow;

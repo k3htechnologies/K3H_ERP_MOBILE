@@ -87,7 +87,7 @@ class _AddConstructionAreaComparativeScreenState
       return;
     }
     if (_isEditMode && widget.constructionAreaComparativeModel != null) {
-      _constructionAreaCubit.updateConstructionAreaComparativer(
+      _constructionAreaCubit.updateConstructionAreaComparative(
         context: context,
         index: widget.index,
         constructionAreaComparativeId:

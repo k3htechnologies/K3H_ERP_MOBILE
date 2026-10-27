@@ -25,6 +25,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -43,11 +44,20 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
   late AuthorizationModel _routeAuthorizationModel;
 
   // TEXT EDIT CONTROLLER
-  late TextEditingController _searchConstructionAreaC, _searchComparativeC;
+  late TextEditingController _searchConstructionAreaC,
+      _searchComparativeC,
+      _filterConstructionAreaByFloorTextC,
+      _filterBuildingNumberC,
+      _filterWingC,
+      _filterConstructionAreaByUnitC,
+      _filterConstructionAreaByUnitTypeC,
+      _filterConstructionAreaByUnitConfigurationC;
 
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
+
+  final ValueNotifier<String> _comparativeSearch = ValueNotifier("");
 
   // TAB CONTROLLERS
   late TabController _tabController;
@@ -78,6 +88,13 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
     _filterConstructionAreaCount.dispose();
     _filterComparativeCount.dispose();
     _selectedProjectNotifier.dispose();
+    _filterConstructionAreaByFloorTextC.dispose();
+    _filterBuildingNumberC.dispose();
+    _filterWingC.dispose();
+    _filterConstructionAreaByUnitC.dispose();
+    _filterConstructionAreaByUnitTypeC.dispose();
+    _filterConstructionAreaByUnitConfigurationC.dispose();
+    _comparativeSearch.dispose();
     super.dispose();
   }
 
@@ -92,6 +109,12 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
   void _initControllers() {
     _searchConstructionAreaC = TextEditingController();
     _searchComparativeC = TextEditingController();
+    _filterConstructionAreaByFloorTextC = TextEditingController();
+    _filterBuildingNumberC = TextEditingController();
+    _filterWingC = TextEditingController();
+    _filterConstructionAreaByUnitC = TextEditingController();
+    _filterConstructionAreaByUnitTypeC = TextEditingController();
+    _filterConstructionAreaByUnitConfigurationC = TextEditingController();
   }
 
   // TAB CHANGE METHOD
@@ -99,6 +122,11 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
     if (_tabController.indexIsChanging) return;
     final selectedTab = _tabs[_tabController.index];
     _searchConstructionAreaC.clear();
+    _searchComparativeC.clear();
+    _comparativeSearch.value = '';
+    _constructionAreaCubit.clearConstructionAreSearch();
+    _constructionAreaCubit.clearConstructionAreaComparativeSearch();
+
     _searchComparativeC.clear();
     if (selectedTab == "Construction Area") {
       _constructionAreaCubit.getConstructionAreaList(
@@ -136,51 +164,57 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: "Construction Area",
-        authorization: _routeAuthorizationModel,
-        onProjectChangeCallback: (value) {
-          final selectedTab = _tabs[_tabController.index];
-          _searchConstructionAreaC.clear();
-          _searchComparativeC.clear();
-          if (selectedTab == "Construction Area") {
-            _constructionAreaCubit.getConstructionAreaList(
-              context,
-              1,
-              projectId: _selectedProjectNotifier.value.projectId,
-            );
-          } else if (selectedTab == "Comparative") {
-            _constructionAreaCubit.getConstructionAreaComparativeList(
-              context,
-              projectId: _selectedProjectNotifier.value.projectId,
-            );
-          }
-        },
-      ),
-      body: BlocBuilder<ConstructionAreaCubit, ConstructionAreaState>(
-        builder: (context, state) {
-          final pages = [
-            _buildConstructionAreaWidget(context),
-            _buildComparativeWidget(context),
-          ];
-          return SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ChipStyleTabBar(controller: _tabController, tabs: _tabs),
-                _buildSearchBar(),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: pages,
+    return BlocListener<ConstructionAreaCubit, ConstructionAreaState>(
+      listener: (context, state) {
+        _filterConstructionAreaCount.value = _constructionAreaCubit
+            .updateConstructionAreaFilterCount(state);
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: "Construction Area",
+          authorization: _routeAuthorizationModel,
+          onProjectChangeCallback: (value) {
+            final selectedTab = _tabs[_tabController.index];
+            _searchConstructionAreaC.clear();
+            _searchComparativeC.clear();
+            if (selectedTab == "Construction Area") {
+              _constructionAreaCubit.getConstructionAreaList(
+                context,
+                1,
+                projectId: _selectedProjectNotifier.value.projectId,
+              );
+            } else if (selectedTab == "Comparative") {
+              _constructionAreaCubit.getConstructionAreaComparativeList(
+                context,
+                projectId: _selectedProjectNotifier.value.projectId,
+              );
+            }
+          },
+        ),
+        body: BlocBuilder<ConstructionAreaCubit, ConstructionAreaState>(
+          builder: (context, state) {
+            final pages = [
+              _buildConstructionAreaWidget(context),
+              _buildComparativeWidget(context),
+            ];
+            return SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ChipStyleTabBar(controller: _tabController, tabs: _tabs),
+                  _buildSearchBar(),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: pages,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        },
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -432,7 +466,10 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Last Modified Date",
-                        value: formatDateTimeAsDDMMMYYYY(item.modifiedDate),
+                        value:
+                            item.modifiedDate != null
+                                ? formatDateTimeAsDDMMMYYYY(item.modifiedDate)
+                                : "-",
                       ),
                     ],
                   ),
@@ -448,9 +485,47 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
   Future<void> _showBottomSheetToFilterConstructionArea(
     BuildContext context,
   ) async {
+    final state = _constructionAreaCubit.state;
+    _searchConstructionAreaC.text = state.searchConstructionAreaText;
+    _filterConstructionAreaByFloorTextC.text = state.searchConstructionAreaText;
+    _filterBuildingNumberC.text = state.searchConstructionAreaByBuildingNumber;
+    _filterWingC.text = state.searchConstructionAreaByWing;
+    _filterConstructionAreaByUnitC.text = state.searchConstructionAreaByUnit;
+    _filterConstructionAreaByUnitTypeC.text =
+        state.searchConstructionAreaByUnitType;
+    _filterConstructionAreaByUnitConfigurationC.text =
+        state.searchConstructionAreaByUnitConfiguration;
+    final String initialSearch = _searchConstructionAreaC.text;
+    final String initialSearchByFloor =
+        _filterConstructionAreaByFloorTextC.text;
+    final String initialSearchByBuildingNumber = _filterBuildingNumberC.text;
+    final String initialSearchByWing = _filterWingC.text;
+    final String initialSearchByUnit = _filterConstructionAreaByUnitC.text;
+    final String initialSearchByUnitType =
+        _filterConstructionAreaByUnitTypeC.text;
+    final String initialSearchByUnitConfiguration =
+        _filterConstructionAreaByUnitConfigurationC.text;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
     bool applied = false;
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_searchConstructionAreaC.text.trim() != initialSearch) ||
+            (_filterConstructionAreaByFloorTextC.text.trim() !=
+                initialSearchByFloor) ||
+            (_filterBuildingNumberC.text.trim() !=
+                initialSearchByBuildingNumber) ||
+            (_filterWingC.text.trim() != initialSearchByWing) ||
+            (_filterConstructionAreaByUnitC.text.trim() !=
+                initialSearchByUnit) ||
+            (_filterConstructionAreaByUnitTypeC.text.trim() !=
+                initialSearchByUnitType) ||
+            (_filterConstructionAreaByUnitConfigurationC.text.trim() !=
+                initialSearchByUnitConfiguration);
+        applyEnabled.value = manualClose;
+      });
+    }
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
@@ -461,19 +536,85 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
             padding: EdgeInsets.only(right: 16.w),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [],
+              children: [
+                CustomTextField(
+                  title: "Building Number",
+                  hint: "Enter Building Number",
+                  textController: _filterBuildingNumberC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Wing",
+                  hint: "Enter Wing",
+                  textController: _filterWingC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Floor",
+                  hint: "Enter Floor",
+                  textController: _searchConstructionAreaC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Unit",
+                  hint: "Enter Unit",
+                  textController: _filterConstructionAreaByUnitC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Unit Type",
+                  hint: "Enter Unit Type",
+                  textController: _filterConstructionAreaByUnitTypeC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+                CustomTextField(
+                  title: "Unit Configuration",
+                  hint: "Enter Unit Configuration",
+                  textController: _filterConstructionAreaByUnitConfigurationC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+              ],
             ),
           );
         },
       ),
-      onClear: () {},
+      onClear: () {
+        _searchConstructionAreaC.clear();
+        _filterConstructionAreaByFloorTextC.clear();
+        _filterBuildingNumberC.clear();
+        _filterWingC.clear();
+        _filterConstructionAreaByUnitC.clear();
+        _filterConstructionAreaByUnitTypeC.clear();
+        _filterConstructionAreaByUnitConfigurationC.clear();
+        _constructionAreaCubit.applyConstructionAreaFilterAndSort(
+          context: context,
+          isClear: true,
+        );
+      },
       onApply: () {
         applied = true;
+        _constructionAreaCubit.applyConstructionAreaFilterAndSort(
+          context: context,
+          floor: _searchConstructionAreaC.text.trim(),
+          buildingNumber: _filterBuildingNumberC.text.trim(),
+          wing: _filterWingC.text.trim(),
+          unit: _filterConstructionAreaByUnitC.text.trim(),
+          unitType: _filterConstructionAreaByUnitTypeC.text.trim(),
+          unitConfiguration:
+              _filterConstructionAreaByUnitConfigurationC.text.trim(),
+        );
       },
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-    if (!applied && manualClose) {}
+    if (!applied && manualClose) {
+      _filterConstructionAreaByFloorTextC.clear();
+      _filterBuildingNumberC.clear();
+      _filterWingC.clear();
+      _filterConstructionAreaByUnitC.clear();
+      _filterConstructionAreaByUnitTypeC.clear();
+      _filterConstructionAreaByUnitConfigurationC.clear();
+    }
   }
 
   Widget _buildSearchBar() {
@@ -486,7 +627,6 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
 
             final isConstructionArea = selectedTab == "Construction Area";
 
-            final isComparative = selectedTab == "Comparative";
             return Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: 16.0,
@@ -508,7 +648,22 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                               ? _searchConstructionAreaC
                               : _searchComparativeC,
 
-                      onSubmit: (value) {},
+                      onSubmit: (value) {
+                        if (isConstructionArea) {
+                          _constructionAreaCubit.searchConstructionArea(
+                            context,
+                            _selectedProjectNotifier.value.projectId,
+                            value,
+                          );
+                        } else {
+                          _constructionAreaCubit
+                              .searchConstructionAreaComparative(
+                                context,
+                                _selectedProjectNotifier.value.projectId,
+                                value,
+                              );
+                        }
+                      },
                       isFilterOn: isConstructionArea ? true : false,
                       filterCountNotifier: _filterConstructionAreaCount,
                       onFilterTap: () {
@@ -522,7 +677,18 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                   CustomExportButton(
                     onExport: (type) {
                       if (isConstructionArea) {
-                      } else if (isConstructionArea) {}
+                        _constructionAreaCubit.exportConstructionAreaExcelPdf(
+                          context,
+                          type,
+                          projectId: _selectedProjectNotifier.value.projectId,
+                        );
+                      } else {
+                        _constructionAreaCubit
+                            .exportConstructionAreaComparativeExcelPdf(
+                              context,
+                              type,
+                            );
+                      }
                     },
                   ),
                 ],

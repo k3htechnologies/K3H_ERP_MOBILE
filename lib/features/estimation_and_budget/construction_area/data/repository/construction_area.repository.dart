@@ -19,6 +19,20 @@ abstract interface class ConstructionAreaRepository {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateConstructionArea({
+    required Map<String, dynamic> requestBody,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> exportConstructionArea({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>>
+  exportConstructionAreaComparative({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ConstructionAreaRepositoryImpl extends ConstructionAreaRepository {
@@ -72,6 +86,58 @@ class ConstructionAreaRepositoryImpl extends ConstructionAreaRepository {
           .apiCallAddUpdateConstructionAreaComparative(
             body: body,
             fileList: fileList,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateConstructionArea({
+    required Map<String, dynamic> requestBody,
+  }) async {
+    try {
+      var result = await constructionAreaDatasource
+          .apicallAddUpdateConstructionArea(body: requestBody);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> exportConstructionArea({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await constructionAreaDatasource
+          .apiCallPullConstructionAreaForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  exportConstructionAreaComparative({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await constructionAreaDatasource
+          .apiCallPullConstructionAreaComparativeForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
           );
       return right(result);
     } catch (error) {
