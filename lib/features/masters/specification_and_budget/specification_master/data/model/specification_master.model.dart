@@ -16,7 +16,7 @@ class SpecificationMasterModel {
   String materialName;
   String subMaterialUomCode;
   String subMaterialUom;
-  int quantity;
+  double quantity;
   int uomMasterId;
   String uomCode;
   int leadTimeInDays;
@@ -72,7 +72,7 @@ class SpecificationMasterModel {
         materialName: parseValue<String>(json, "MaterialName"),
         subMaterialUomCode: parseValue<String>(json, "SubMaterialUomCode"),
         subMaterialUom: parseValue<String>(json, "SubMaterialUom"),
-        quantity: parseValue<int>(json, "Quantity"),
+        quantity: parseValue<double>(json, "Quantity"),
         uomMasterId: parseValue<int>(json, "UomMasterId"),
         uomCode: parseValue<String>(json, "UomCode"),
         leadTimeInDays: parseValue<int>(json, "LeadTimeInDays"),

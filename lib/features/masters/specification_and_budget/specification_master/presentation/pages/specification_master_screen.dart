@@ -256,7 +256,8 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
                       ),
                       buildRowTitleValue(
                         title: 'Quantity',
-                        value: "${child.quantity} ${child.subMaterialUomCode}",
+                        value:
+                            "${child.quantity.addCommas()} ${child.subMaterialUomCode}",
                         singleLine: false,
                       ),
                       buildRowTitleValue(
