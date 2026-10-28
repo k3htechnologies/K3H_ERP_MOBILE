@@ -8,6 +8,104 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 
+
+/// To make content dynamic switch case is used
+class ApprovalField {
+  final String title;
+  final String value;
+  const ApprovalField(this.title, this.value);
+}
+
+List<ApprovalField> approvalFieldsFor(ModuleApprovalModel d) {
+  final moduleName = d.moduleName.split('~').first.trim();
+
+  switch (moduleName) {
+    // INVENTORY
+    case "Inventory":
+      return [
+        ApprovalField("Building", d.buildingNumber),
+        ApprovalField("Wing", d.wing),
+      ];
+
+    // PARKING
+    case "Parking":
+      return [
+        ApprovalField("Building", d.buildingNumber),
+        ApprovalField("Wing", d.wing),
+        ApprovalField("Floor", d.floor),
+      ];
+
+    // BOOKING & CRM
+    case "Booking":
+    case "Booking Applicant Modification":
+    case "Parking Modification":
+    case "Refund Payment Ledger":
+    case "Cancel Booking":
+      return [
+        ApprovalField("Flat", d.flat),
+        ApprovalField("Applicant", d.applicantName),
+      ];
+
+    case "Flat Alteration":
+      return [
+        ApprovalField("Flat", d.flat),
+        ApprovalField("Applicant", d.applicantName),
+        ApprovalField("Flat Alteration Remark", d.flatAlterationRemark),
+      ];
+
+    case "Flat Handover":
+      return [
+        ApprovalField("Flat", d.flat),
+        ApprovalField("Applicant", d.applicantName),
+        ApprovalField("File Name", d.fileName),
+      ];
+
+    case "CRM Payment Ledger":
+      return [
+        ApprovalField("Flat", d.flat),
+        ApprovalField("Applicant", d.applicantName),
+        ApprovalField("Payment For", d.paymentFor),
+      ];
+
+    case "Tenant Booking":
+      return [
+        ApprovalField("Flat", d.flat),
+        ApprovalField("Applicant", d.applicantName),
+        ApprovalField("Tenant Code", d.systemGeneratedCode),
+      ];
+
+    // DOCUMENT / RERA / APPROVAL DOCUMENT
+    case "Document":
+    case "RERA Document":
+    case "Approval Document":
+      return [
+        ApprovalField("Document", d.projectDocumentName),
+        ApprovalField("Category", d.projectDocumentCategory),
+      ];
+
+    // BUDGET
+    case "Budget":
+      return [ApprovalField("Wing", d.wing)];
+
+    // TERM SHEET
+    case "Term Sheet":
+      return [
+        ApprovalField(
+          "Name Of Institution / Bank / NBFC",
+          d.nameOfInstitutionBankNbfc,
+        ),
+      ];
+
+    // FINALIZED VENDOR / INVOICE APPROVAL
+    case "Finalized Vendor":
+    case "Invoice Approval":
+      return [ApprovalField("MR Code", d.systemGeneratedCode)];
+
+    default:
+      return [];
+  }
+}
+
 class ModuleApprovalOverallScreen extends StatefulWidget {
   final List<ModuleApprovalModel>? moduleApprovalModel;
   const ModuleApprovalOverallScreen({super.key, this.moduleApprovalModel});
@@ -45,7 +143,7 @@ class _ModuleApprovalOverallScreenState
 
                             final documentTitle =
                                 document.moduleName.split('~').first.trim();
-
+                            final fields = approvalFieldsFor(document);
                             return SectionCard(
                               title: documentTitle,
                               titleTextColor: AppColor.black,
@@ -80,14 +178,12 @@ class _ModuleApprovalOverallScreenState
                                     ),
                                   ),
                                 ),
-
-                                buildRowTitleValue(
-                                  title: "Building",
-                                  value: document.buildingNumber,
-                                ),
-                                buildRowTitleValue(
-                                  title: "Wing",
-                                  value: document.wing,
+                                ...fields.map(
+                                  (f) => buildRowTitleValue(
+                                    title: f.title,
+                                    value:
+                                        f.value.trim().isEmpty ? "-" : f.value,
+                                  ),
                                 ),
                               ],
                             );

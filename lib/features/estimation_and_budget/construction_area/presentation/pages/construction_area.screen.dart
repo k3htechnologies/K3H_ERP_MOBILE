@@ -18,7 +18,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -54,7 +54,8 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
       _filterConstructionAreaByUnitConfigurationC;
 
   //PAGINATION
-  late ScrollController scrollController;
+  late ScrollController constructionAreaScrollController;
+
   Timer? _debounce;
 
   final ValueNotifier<String> _comparativeSearch = ValueNotifier("");
@@ -65,6 +66,7 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
   final ValueNotifier<int> _filterConstructionAreaCount = ValueNotifier(0);
   final ValueNotifier<int> _filterComparativeCount = ValueNotifier(0);
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
+
   @override
   void initState() {
     super.initState();
@@ -76,7 +78,7 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
     _tabController = TabController(length: _tabs.length, vsync: this);
     _tabController.addListener(_onTabChanged);
     _initControllers();
-    _onScroll();
+    _onConstructionAreaScroll();
     _loadData();
   }
 
@@ -84,7 +86,7 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
   void dispose() {
     _searchConstructionAreaC.dispose();
     _searchComparativeC.dispose();
-    scrollController.dispose();
+    constructionAreaScrollController.dispose();
     _filterConstructionAreaCount.dispose();
     _filterComparativeCount.dispose();
     _selectedProjectNotifier.dispose();
@@ -142,22 +144,52 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
     }
   }
 
-  void _onScroll() {
-    scrollController = ScrollController();
-    scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-              scrollController.position.maxScrollExtent - 100 &&
-          !_constructionAreaCubit.state.isLoading! &&
+  void _onConstructionAreaScroll() {
+    constructionAreaScrollController = ScrollController();
+
+    constructionAreaScrollController.addListener(() {
+      if (!constructionAreaScrollController.hasClients) return;
+
+      if (constructionAreaScrollController.position.pixels >=
+              constructionAreaScrollController.position.maxScrollExtent - 100 &&
+          _constructionAreaCubit.state.isLoading != true &&
           _constructionAreaCubit.state.constructionAreaList.length <
               _constructionAreaCubit.state.totalNumberOfRecord) {
         if (_debounce?.isActive ?? false) _debounce?.cancel();
+
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _constructionAreaCubit.getConstructionAreaList(
-            context,
-            _constructionAreaCubit.state.currentPage + 1,
-            projectId: _selectedProjectNotifier.value.projectId,
-          );
+          if (!mounted) return;
+
+          final state = _constructionAreaCubit.state;
+
+          if (state.isLoading != true &&
+              state.constructionAreaList.length < state.totalNumberOfRecord) {
+            _constructionAreaCubit.getConstructionAreaList(
+              context,
+              state.currentPage + 1,
+              projectId: _selectedProjectNotifier.value.projectId,
+            );
+          }
         });
+      }
+    });
+  }
+
+  void _loadMoreIfNotScrollable() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || !constructionAreaScrollController.hasClients) return;
+      final s = _constructionAreaCubit.state;
+      final noScroll =
+          constructionAreaScrollController.position.maxScrollExtent <= 0;
+      if (noScroll &&
+          s.isLoading != true &&
+          s.constructionAreaList.isNotEmpty &&
+          s.constructionAreaList.length < s.totalNumberOfRecord) {
+        _constructionAreaCubit.getConstructionAreaList(
+          context,
+          s.currentPage + 1,
+          projectId: _selectedProjectNotifier.value.projectId,
+        );
       }
     });
   }
@@ -170,10 +202,13 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
             .updateConstructionAreaFilterCount(state);
       },
       child: Scaffold(
-        appBar: CustomAppBar(
+        appBar: CustomAppBarWithBackButton(
+          isMenuButton: true,
           screenTitle: "Construction Area",
           authorization: _routeAuthorizationModel,
           onProjectChangeCallback: (value) {
+            _selectedProjectNotifier.value = value;
+
             final selectedTab = _tabs[_tabController.index];
             _searchConstructionAreaC.clear();
             _searchComparativeC.clear();
@@ -201,6 +236,19 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  ValueListenableBuilder(
+                    valueListenable: _selectedProjectNotifier,
+                    builder: (context, value, child) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        child: showSiteSelectedWidget(
+                          projectName:
+                              _selectedProjectNotifier.value.projectName,
+                        ),
+                      );
+                    },
+                  ),
+                  verticalSpacing(),
                   ChipStyleTabBar(controller: _tabController, tabs: _tabs),
                   _buildSearchBar(),
                   Expanded(
@@ -234,11 +282,12 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
         final groups = _constructionAreaCubit.groupByBuildingFloor(
           state.constructionAreaList,
         );
+        _loadMoreIfNotScrollable();
 
         return ListView.separated(
-          controller: scrollController,
+          controller: constructionAreaScrollController,
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.symmetric(horizontal: 20.0),
           itemCount: groups.length + 1,
           separatorBuilder: (_, __) => verticalSpacing(height: 12.sp),
           itemBuilder: (context, index) {
@@ -267,6 +316,7 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
     return CustomExpandableCard(
       key: PageStorageKey('${group.buildingNumber}||${group.floor}'),
       padding: EdgeInsets.all(12.sp),
+      margin: EdgeInsets.only(bottom: 0),
       header: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -337,7 +387,6 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
           return Center(child: noDataWidget(message: "No Data Found"));
         }
         return ListView.builder(
-          controller: scrollController,
           padding: EdgeInsets.all(20.0),
           itemCount: state.constructionAreaComparativeList.length,
           itemBuilder: (context, index) {

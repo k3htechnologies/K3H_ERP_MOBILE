@@ -153,8 +153,8 @@ class UnitCardState extends State<UnitCard> {
     final formKey = GlobalKey<FormState>();
     String text(double v) =>
         v == v.truncateToDouble() ? v.toInt().toString() : v.toString();
-    _areaC.text = text(f.areaByPlLineSqMt); // 900
-    _multiplierC.text = text(f.multiplierForAreaPercentage); // 12
+    _areaC.text = text(f.areaByPlLineSqMt);
+    _multiplierC.text = text(f.multiplierForAreaPercentage);
     _heightC.text =
         f.floorToFloorHeightMt == 0 ? "" : text(f.floorToFloorHeightMt);
     _remarkC.text = f.remark;

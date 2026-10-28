@@ -53,23 +53,11 @@ Widget pendingApprovalWidget() {
                               style: AppTextStyle.ts12SB(color: AppColor.white),
                             ),
                             if (count > 0) ...[
-                              horizontalSpacing(width: 4.sp),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                  vertical: 4.0,
-                                  horizontal: 16.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+                              horizontalSpacing(width: 6.sp),
+                              Text(
+                                "(${count.toString()})",
+                                style: AppTextStyle.ts14B(
                                   color: AppColor.white,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    count.toString(),
-                                    style: AppTextStyle.ts12M(
-                                      color: AppColor.primary,
-                                    ),
-                                  ),
                                 ),
                               ),
                             ],

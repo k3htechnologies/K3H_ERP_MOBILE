@@ -14,6 +14,7 @@ class ConstructionAreaState extends BaseState {
   final String searchConstructionAreaByUnitType;
   final String searchConstructionAreaByUnitConfiguration;
   final String searchConstructionAreaComparativeText;
+
   const ConstructionAreaState({
     super.isLoading,
     required this.constructionAreaList,
@@ -52,6 +53,8 @@ class ConstructionAreaState extends BaseState {
     List<ConstructionAreaModel>? constructionAreaList,
     int? totalNumberOfRecord,
     int? currentPage,
+    int? constructionAreaComparativeTotalNumberOfRecord,
+    int? constructionAreaComparativeCurrentPage,
     List<ConstructionAreaComparativeModel>? constructionAreaComparativeList,
     bool? isComparativeLoading,
     int? constructionAreaId,
