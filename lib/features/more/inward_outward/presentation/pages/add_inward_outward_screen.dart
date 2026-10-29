@@ -617,244 +617,286 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                   },
                 ),
               ]),
-              _card("Sender Details", [
-                ValueListenableBuilder(
-                  valueListenable: _selectedSenderCountry,
-                  builder: (context, value, child) {
-                    return CustomTextField(
-                      textController: _senderMobileNumberC,
-                      title: "Mobile No.",
+              ValueListenableBuilder(
+                valueListenable: _selectedDeliveryMode,
+                builder: (context, deliveryMode, child) {
+                  final isRequired =
+                      deliveryMode == null ||
+                      (deliveryMode.isNotEmpty &&
+                          deliveryMode['DisplayName'] == 'Hand-To-Hand');
+                  return _card("Sender Details", [
+                    ValueListenableBuilder(
+                      valueListenable: _selectedSenderCountry,
+                      builder: (context, value, child) {
+                        return CustomTextField(
+                          textController: _senderMobileNumberC,
+                          title: "Mobile No.",
+                          isRequired: isRequired,
+                          hint: "Enter Sender Mobile No.",
+                          showCountryDropdown: true,
+                          keyboardType: TextInputType.number,
+                          selectedCountry: value,
+                          onChangeFunction: (v) async {
+                            final country = _selectedSenderCountry.value;
+                            if (country.mobileLength == v.length) {
+                              final senderDetails = await _inwardOutwardCubit
+                                  .fetchSenderReceiverByMobile(v);
+                              if (senderDetails.isNotEmpty) {
+                                _senderNameC.text = senderDetails.first.name;
+                                _senderEmailIdC.text =
+                                    senderDetails.first.emailId;
+                                _senderAddressC.text =
+                                    senderDetails.first.address;
+                              } else {
+                                _senderNameC.clear();
+                                _senderEmailIdC.clear();
+                                _senderAddressC.clear();
+                              }
+                            }
+                          },
+                          onCountryChanged: (country) {
+                            if (country == null) return;
+                            _selectedSenderCountry.value = country;
+                          },
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(
+                              value.mobileLength,
+                            ),
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          validator: (value) {
+                            final mobile = value?.trim() ?? "";
+                            final country = _selectedSenderCountry.value;
+                            if (isRequired) {
+                              if (value == null || value.isEmpty) {
+                                return "Sender Mobile Number is required.";
+                              }
+                              if (mobile.isNotEmpty) {
+                                if ((mobile.length != country.mobileLength) ||
+                                    country.regex != null &&
+                                        !country.regex!.hasMatch(mobile)) {
+                                  return "Invalid Sender Mobile Number";
+                                }
+                                if (_receiverMobileNumberC.text.trim() ==
+                                    mobile) {
+                                  return "Sender and Receiver mobile numbers should not be the same.";
+                                }
+                              }
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _senderNameC,
+                      title: "Name",
                       isRequired: true,
-                      readOnly: disableInwardOutward || _isEditMode,
-                      hint: "Enter Sender Mobile No.",
-                      showCountryDropdown: true,
-                      keyboardType: TextInputType.number,
-                      selectedCountry: value,
-                      onChangeFunction: (v) async {
-                        final country = _selectedSenderCountry.value;
-                        if (country.mobileLength == v.length) {
-                          final senderDetails = await _inwardOutwardCubit
-                              .fetchSenderReceiverByMobile(v);
-                          if (senderDetails.isNotEmpty) {
-                            _senderNameC.text = senderDetails.first.name;
-                            _senderEmailIdC.text = senderDetails.first.emailId;
-                            _senderAddressC.text = senderDetails.first.address;
-                          } else {
-                            _senderNameC.clear();
-                            _senderEmailIdC.clear();
-                            _senderAddressC.clear();
-                          }
-                        }
-                      },
-                      onCountryChanged: (country) {
-                        if (country == null) return;
-                        _selectedSenderCountry.value = country;
-                      },
+                      readOnly: disableInwardOutward,
+                      hint: "Enter Sender Name",
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(value.mobileLength),
-                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(50),
                       ],
                       validator: (value) {
-                        final mobile = value?.trim() ?? "";
-                        final country = _selectedSenderCountry.value;
-                        if (value == null || value.isEmpty) {
-                          return "Sender Mobile Number is required.";
+                        if (value == null || value.trim().isEmpty) {
+                          return "Sender Name is required.";
                         }
-                        if (mobile.isNotEmpty) {
-                          if ((mobile.length != country.mobileLength) ||
-                              country.regex != null &&
-                                  !country.regex!.hasMatch(mobile)) {
-                            return "Invalid Sender Mobile Number";
+                        if (_receiverNameC.text.trim().toLowerCase() ==
+                            value.trim().toLowerCase()) {
+                          return "Sender and Receiver names should not be the same.";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _senderEmailIdC,
+                      title: "E-Mail ID",
+                      isRequired: isRequired,
+                      readOnly: disableInwardOutward,
+                      keyboardType: TextInputType.emailAddress,
+                      hint: "Enter Sender E-Mail ID",
+                      validator: (value) {
+                        if (isRequired) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Sender E-Mail ID is required.";
                           }
-                          if (_receiverMobileNumberC.text.trim() == mobile) {
-                            return "Sender and Receiver mobile numbers should not be the same.";
+                          if (!InputValidator.isValidEmail(value)) {
+                            return "Enter a Valid E-Mail ID";
+                          }
+                          if (_receiverEmailIdC.text.trim().toLowerCase() ==
+                              value.trim().toLowerCase()) {
+                            return "Sender and Receiver E-Mail IDs should not be the same.";
                           }
                         }
                         return null;
                       },
-                    );
-                  },
-                ),
-                CustomTextField(
-                  textController: _senderNameC,
-                  title: "Name",
-                  isRequired: true,
-                  readOnly: disableInwardOutward,
-                  hint: "Enter Sender Name",
-                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Sender Name is required.";
-                    }
-                    if (_receiverNameC.text.trim().toLowerCase() ==
-                        value.trim().toLowerCase()) {
-                      return "Sender and Receiver names should not be the same.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _senderEmailIdC,
-                  title: "E-Mail ID",
-                  isRequired: true,
-                  readOnly: disableInwardOutward,
-                  keyboardType: TextInputType.emailAddress,
-                  hint: "Enter Sender E-Mail ID",
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Sender E-Mail ID is required.";
-                    }
-                    if (!InputValidator.isValidEmail(value)) {
-                      return "Enter a Valid E-Mail ID";
-                    }
-                    if (_receiverEmailIdC.text.trim().toLowerCase() ==
-                        value.trim().toLowerCase()) {
-                      return "Sender and Receiver E-Mail IDs should not be the same.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _senderAddressC,
-                  title: "Address",
-                  isRequired: true,
-                  readOnly: disableInwardOutward,
-                  hint: "Enter Sender Address",
-                  minLines: 3,
-                  maxLines: 3,
-                  inputFormatterList: [LengthLimitingTextInputFormatter(100)],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Sender Address is required.";
-                    }
-                    if (_receiverAddressC.text.trim().toLowerCase() ==
-                        value.trim().toLowerCase()) {
-                      return "Sender and Receiver addresses should not be the same.";
-                    }
-                    return null;
-                  },
-                ),
-              ]),
-              _card("Receiver Details", [
-                ValueListenableBuilder(
-                  valueListenable: _selectedReceiverCountry,
-                  builder: (context, value, child) {
-                    return CustomTextField(
-                      textController: _receiverMobileNumberC,
-                      title: "Mobile No.",
+                    ),
+                    CustomTextField(
+                      textController: _senderAddressC,
+                      title: "Address",
                       isRequired: true,
-                      readOnly: disableInwardOutward || _isEditMode,
-                      hint: "Enter Receiver Mobile No.",
-                      keyboardType: TextInputType.number,
-                      showCountryDropdown: true,
-                      selectedCountry: value,
-                      onCountryChanged: (country) {
-                        if (country == null) return;
-                        _selectedReceiverCountry.value = country;
-                      },
-                      onChangeFunction: (v) async {
-                        final country = _selectedSenderCountry.value;
-                        if (country.mobileLength == v.length) {
-                          final receiverDetails = await _inwardOutwardCubit
-                              .fetchSenderReceiverByMobile(v);
-                          if (receiverDetails.isNotEmpty) {
-                            _receiverNameC.text = receiverDetails.first.name;
-                            _receiverEmailIdC.text =
-                                receiverDetails.first.emailId;
-                            _receiverAddressC.text =
-                                receiverDetails.first.address;
-                          } else {
-                            _receiverNameC.clear();
-                            _receiverEmailIdC.clear();
-                            _receiverAddressC.clear();
-                          }
-                        }
-                      },
+                      readOnly: disableInwardOutward,
+                      hint: "Enter Sender Address",
+                      minLines: 3,
+                      maxLines: 3,
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(value.mobileLength),
-                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(100),
                       ],
                       validator: (value) {
-                        final mobile = value?.trim() ?? "";
-                        final country = _selectedReceiverCountry.value;
-                        if (value == null || value.isEmpty) {
-                          return "Receiver Mobile Number is required.";
+                        if (value == null || value.trim().isEmpty) {
+                          return "Sender Address is required.";
                         }
-                        if (mobile.isNotEmpty) {
-                          if ((mobile.length != country.mobileLength) ||
-                              country.regex != null &&
-                                  !country.regex!.hasMatch(mobile)) {
-                            return "Invalid Receiver Mobile Number";
+                        if (_receiverAddressC.text.trim().toLowerCase() ==
+                            value.trim().toLowerCase()) {
+                          return "Sender and Receiver addresses should not be the same.";
+                        }
+                        return null;
+                      },
+                    ),
+                  ]);
+                },
+              ),
+              ValueListenableBuilder(
+                valueListenable: _selectedDeliveryMode,
+                builder: (context, deliveryMode, child) {
+                  final isRequired =
+                      deliveryMode == null ||
+                      (deliveryMode.isNotEmpty &&
+                          deliveryMode['DisplayName'] == 'Hand-To-Hand');
+                  return _card("Receiver Details", [
+                    ValueListenableBuilder(
+                      valueListenable: _selectedReceiverCountry,
+                      builder: (context, value, child) {
+                        return CustomTextField(
+                          textController: _receiverMobileNumberC,
+                          title: "Mobile No.",
+                          isRequired: isRequired,
+                          readOnly: disableInwardOutward || _isEditMode,
+                          hint: "Enter Receiver Mobile No.",
+                          keyboardType: TextInputType.number,
+                          showCountryDropdown: true,
+                          selectedCountry: value,
+                          onCountryChanged: (country) {
+                            if (country == null) return;
+                            _selectedReceiverCountry.value = country;
+                          },
+                          onChangeFunction: (v) async {
+                            final country = _selectedSenderCountry.value;
+                            if (country.mobileLength == v.length) {
+                              final receiverDetails = await _inwardOutwardCubit
+                                  .fetchSenderReceiverByMobile(v);
+                              if (receiverDetails.isNotEmpty) {
+                                _receiverNameC.text =
+                                    receiverDetails.first.name;
+                                _receiverEmailIdC.text =
+                                    receiverDetails.first.emailId;
+                                _receiverAddressC.text =
+                                    receiverDetails.first.address;
+                              } else {
+                                _receiverNameC.clear();
+                                _receiverEmailIdC.clear();
+                                _receiverAddressC.clear();
+                              }
+                            }
+                          },
+                          inputFormatterList: [
+                            LengthLimitingTextInputFormatter(
+                              value.mobileLength,
+                            ),
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          validator: (value) {
+                            final mobile = value?.trim() ?? "";
+                            final country = _selectedReceiverCountry.value;
+                            if (isRequired) {
+                              if (value == null || value.isEmpty) {
+                                return "Receiver Mobile Number is required.";
+                              }
+                              if (mobile.isNotEmpty) {
+                                if ((mobile.length != country.mobileLength) ||
+                                    country.regex != null &&
+                                        !country.regex!.hasMatch(mobile)) {
+                                  return "Invalid Receiver Mobile Number";
+                                }
+                                if (_senderMobileNumberC.text.trim() ==
+                                    mobile) {
+                                  return "Sender and Receiver mobile numbers should not be the same.";
+                                }
+                              }
+                            }
+                            return null;
+                          },
+                        );
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _receiverNameC,
+                      title: "Name",
+                      readOnly: disableInwardOutward,
+                      isRequired: true,
+                      hint: "Enter Receiver Name",
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(50),
+                      ],
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Receiver Name is required.";
+                        }
+                        if (_senderNameC.text.trim().toLowerCase() ==
+                            value.trim().toLowerCase()) {
+                          return "Sender and Receiver names should not be the same.";
+                        }
+                        return null;
+                      },
+                    ),
+                    CustomTextField(
+                      textController: _receiverEmailIdC,
+                      title: "E-Mail ID",
+                      readOnly: disableInwardOutward,
+                      isRequired: isRequired,
+                      keyboardType: TextInputType.emailAddress,
+                      hint: "Enter Receiver E-Mail ID",
+                      validator: (value) {
+                        if (isRequired) {
+                          if (value == null || value.trim().isEmpty) {
+                            return "Receiver E-Mail ID is required.";
                           }
-                          if (_senderMobileNumberC.text.trim() == mobile) {
-                            return "Sender and Receiver mobile numbers should not be the same.";
+                          if (!InputValidator.isValidEmail(value)) {
+                            return "Enter a Valid E-Mail ID";
+                          }
+                          if (_senderEmailIdC.text.trim().toLowerCase() ==
+                              value.trim().toLowerCase()) {
+                            return "Sender and Receiver E-Mail IDs should not be the same.";
                           }
                         }
                         return null;
                       },
-                    );
-                  },
-                ),
-                CustomTextField(
-                  textController: _receiverNameC,
-                  title: "Name",
-                  readOnly: disableInwardOutward,
-                  isRequired: true,
-                  hint: "Enter Receiver Name",
-                  inputFormatterList: [LengthLimitingTextInputFormatter(50)],
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Receiver Name is required.";
-                    }
-                    if (_senderNameC.text.trim().toLowerCase() ==
-                        value.trim().toLowerCase()) {
-                      return "Sender and Receiver names should not be the same.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _receiverEmailIdC,
-                  title: "E-Mail ID",
-                  readOnly: disableInwardOutward,
-                  isRequired: true,
-                  keyboardType: TextInputType.emailAddress,
-                  hint: "Enter Receiver E-Mail ID",
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Receiver E-Mail ID is required.";
-                    }
-                    if (!InputValidator.isValidEmail(value)) {
-                      return "Enter a Valid E-Mail ID";
-                    }
-                    if (_senderEmailIdC.text.trim().toLowerCase() ==
-                        value.trim().toLowerCase()) {
-                      return "Sender and Receiver E-Mail IDs should not be the same.";
-                    }
-                    return null;
-                  },
-                ),
-                CustomTextField(
-                  textController: _receiverAddressC,
-                  title: "Address",
-                  readOnly: disableInwardOutward,
-                  isRequired: true,
-                  hint: "Enter Receiver Address",
-                  inputFormatterList: [LengthLimitingTextInputFormatter(100)],
-                  minLines: 3,
-                  maxLines: 3,
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return "Receiver Address is required.";
-                    }
-                    if (_senderAddressC.text.trim().toLowerCase() ==
-                        value.trim().toLowerCase()) {
-                      return "Sender and Receiver addresses should not be the same.";
-                    }
-                    return null;
-                  },
-                ),
-              ]),
+                    ),
+                    CustomTextField(
+                      textController: _receiverAddressC,
+                      title: "Address",
+                      readOnly: disableInwardOutward,
+                      isRequired: true,
+                      hint: "Enter Receiver Address",
+                      inputFormatterList: [
+                        LengthLimitingTextInputFormatter(100),
+                      ],
+                      minLines: 3,
+                      maxLines: 3,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Receiver Address is required.";
+                        }
+                        if (_senderAddressC.text.trim().toLowerCase() ==
+                            value.trim().toLowerCase()) {
+                          return "Sender and Receiver addresses should not be the same.";
+                        }
+                        return null;
+                      },
+                    ),
+                  ]);
+                },
+              ),
               _card("Document Details", [
                 CustomMultiFilePicker(
                   title: "Document",

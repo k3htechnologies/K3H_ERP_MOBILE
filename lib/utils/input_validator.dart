@@ -212,7 +212,7 @@ class InputValidator {
 
   static List<TextInputFormatter> reraInputFormatters() {
     return [
-      LengthLimitingTextInputFormatter(12), // adjust if needed
+      LengthLimitingTextInputFormatter(15), // adjust if needed
       FilteringTextInputFormatter.allow(
         RegExp(r'[a-zA-Z0-9]'), // allows letters and numbers
       ),
