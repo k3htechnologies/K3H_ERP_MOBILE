@@ -77,7 +77,6 @@ class _AddBaselinePlanCostDocumentScreenState
 
     final value = document.baselineCostPlanValue;
     _baselineCostPlanC.text = value == 0 ? '' : value.toString();
-    print("the value is :${value}");
     selectedDocumentFile.fileNameList =
         document.baselineCostPlanDocumentUrl.isEmpty
             ? []
