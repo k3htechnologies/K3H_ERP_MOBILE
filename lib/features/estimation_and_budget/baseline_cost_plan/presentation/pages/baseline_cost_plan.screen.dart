@@ -275,7 +275,7 @@ class _BaselineCostPlanScreenState extends State<BaselineCostPlanScreen>
     _searchC.text = state.searchText;
 
     String? selectedDirection =
-        state.currentSortColumn == "Baseline Cost Plan"
+        state.currentSortColumn == "Document Name"
             ? state.currentSortDirection
             : null;
 
@@ -363,7 +363,7 @@ class _BaselineCostPlanScreenState extends State<BaselineCostPlanScreen>
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Document Name",
-                title: "Project Document Name",
+                title: "Document Name",
                 onChangeFunction: (_) => updateApplyState(innerState),
               ),
             ],
@@ -390,7 +390,7 @@ class _BaselineCostPlanScreenState extends State<BaselineCostPlanScreen>
 
         _baselineCostPlanCubit.applyFilterAndSortBaselineCostPlan(
           context: context,
-          column: selectedDirection != null ? "Baseline Cost Plan" : "",
+          column: selectedDirection != null ? "Document Name" : "",
           direction: selectedDirection ?? "",
           categoryName: _searchC.text.trim(),
           projectId: _selectedProjectNotifier.value.projectId,
@@ -684,7 +684,9 @@ class _BaselineCostPlanScreenState extends State<BaselineCostPlanScreen>
                           ),
                           horizontalSpacing(),
                           CustomIconButton.delete(
-                            isDisabled: (!_routeAuthorizationModel.isAction),
+                            isDisabled:
+                                (!_routeAuthorizationModel.isAction ||
+                                    document.uploadedDocumentCount > 0),
                             onPressed: () {
                               _showPopupToDeleteBaselineCostPlanDocument(
                                 context,

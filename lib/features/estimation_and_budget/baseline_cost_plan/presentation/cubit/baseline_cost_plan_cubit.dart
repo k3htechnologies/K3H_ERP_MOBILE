@@ -306,7 +306,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     required String uniqueKey,
     required String baselineCostPlanDocumentName,
     required int baselineCostPlanDocumentCategoryId,
-    double? baselineCostPlanValue,
+    String? baselineCostPlanValue,
     String? baselineCostPlanDocumentRemark,
     MultiFilePickerModel? documents,
   }) async {
@@ -320,7 +320,9 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
       "BaselineCostPlanDocumentCategoryId":
           baselineCostPlanDocumentCategoryId.toString(),
       "IsMaster": 0.toString(),
-      "BaselineCostPlanValue": baselineCostPlanValue.toString(),
+      if (baselineCostPlanValue != null &&
+          baselineCostPlanValue.trim().isNotEmpty)
+        "BaselineCostPlanValue": baselineCostPlanValue.trim(),
       "RemoveBaselineCostPlanDocumentURL": documents?.deletedFileList ?? '',
       "BaselineCostPlanDocumentRemark": baselineCostPlanDocumentRemark ?? '',
     };
@@ -378,7 +380,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     required String uniqueKey,
     required int baselineCostPlanDocumentCategoryId,
     required String baselineCostPlanDocumentName,
-    double? baselineCostPlanValue,
+    String? baselineCostPlanValue,
     String? baselineCostPlanDocumentRemark,
     MultiFilePickerModel? documents,
   }) async {
@@ -536,7 +538,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
 
   int updateFilterCount(BaselineCostPlanState state) {
     final hasSort =
-        state.currentSortColumn == "Baseline Cost Plan" &&
+        state.currentSortColumn == "Document Name" &&
         (state.currentSortDirection == "ASC" ||
             state.currentSortDirection == "DESC");
     return getActiveFilterCount([hasSort, state.searchText.trim().isNotEmpty]);

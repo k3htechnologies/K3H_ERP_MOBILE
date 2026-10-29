@@ -18,6 +18,7 @@ class BaselineCostPlanDocumentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
+  String approvalStatus;
 
   BaselineCostPlanDocumentModel({
     required this.baselineCostPlanDocumentId,
@@ -37,6 +38,7 @@ class BaselineCostPlanDocumentModel {
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
+    required this.approvalStatus,
   });
 
   factory BaselineCostPlanDocumentModel.fromJson(Map<String, dynamic> json) =>
@@ -79,6 +81,7 @@ class BaselineCostPlanDocumentModel {
             json["ModifiedDate"] == null
                 ? null
                 : DateTime.parse(json["ModifiedDate"]),
+        approvalStatus: parseValue<String>(json, "ApprovalStatus"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -99,6 +102,7 @@ class BaselineCostPlanDocumentModel {
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
+    "ApprovalStatus": approvalStatus,
   };
 }
 
@@ -122,6 +126,7 @@ extension BaselineCostPlanDocumentModelCopyWith
     int? modifiedById,
     String? modifiedBy,
     DateTime? modifiedDate,
+    String? approvalStatus,
   }) {
     return BaselineCostPlanDocumentModel(
       baselineCostPlanDocumentId:
@@ -151,6 +156,7 @@ extension BaselineCostPlanDocumentModelCopyWith
       modifiedById: modifiedById ?? this.modifiedById,
       modifiedBy: modifiedBy ?? this.modifiedBy,
       modifiedDate: modifiedDate ?? this.modifiedDate,
+      approvalStatus: approvalStatus ?? this.approvalStatus,
     );
   }
 }
