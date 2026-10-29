@@ -42,19 +42,19 @@ class TermSheetCubit extends Cubit<TermSheetState> {
     emit(state.copyWith(companyByProject: [], isFetchingCompany: false));
   }
 
-  int updateTermSheetFilterCount(TermSheetState state) {
-    final hasSort =
-        state.currentSortColumn == "Name of Institution / Bank / NBFC" &&
-        (state.currentSortDirection == "ASC" ||
-            state.currentSortDirection == "DESC");
-    return getActiveFilterCount([
-      state.searchText.trim().isNotEmpty,
-      state.filterByCompanyName.trim().isNotEmpty,
-      state.filterByStatus.trim().isNotEmpty,
-      state.filterByInstitutionName.trim().isNotEmpty,
-      hasSort,
-    ]);
-  }
+    int updateTermSheetFilterCount(TermSheetState state) {
+      final hasSort =
+          state.currentSortColumn == "Name of Institution / Bank / NBFC" &&
+          (state.currentSortDirection == "ASC" ||
+              state.currentSortDirection == "DESC");
+      return getActiveFilterCount([
+        state.searchText.trim().isNotEmpty,
+        state.filterByCompanyName.trim().isNotEmpty,
+        state.filterByStatus.trim().isNotEmpty,
+        state.filterByInstitutionName.trim().isNotEmpty,
+        hasSort,
+      ]);
+    }
 
   void clearSearch() {
     emit(state.copyWith(searchText: "", termSheetList: [], currentPage: 1));

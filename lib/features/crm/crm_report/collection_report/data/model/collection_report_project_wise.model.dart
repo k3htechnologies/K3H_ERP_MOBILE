@@ -15,6 +15,18 @@ class CollectionReportProjectWiseModel {
   double receivedAmount;
   double outstandingAmount;
   double balanceAmount;
+  String buildingNumber;
+  String wing;
+  String unitType;
+  double totalGstValue;
+  double gstReceivedAmount;
+  double gstBalanceAmount;
+  double totalTdsValue;
+  double tdsReceivedAmount;
+  double tdsBalanceAmount;
+  double totalStampDutyValue;
+  double stampDutyReceivedAmount;
+  double stampDutyBalanceAmount;
 
   CollectionReportProjectWiseModel({
     required this.projectId,
@@ -31,6 +43,18 @@ class CollectionReportProjectWiseModel {
     required this.receivedAmount,
     required this.outstandingAmount,
     required this.balanceAmount,
+    required this.buildingNumber,
+    required this.wing,
+    required this.unitType,
+    required this.totalGstValue,
+    required this.gstReceivedAmount,
+    required this.gstBalanceAmount,
+    required this.totalTdsValue,
+    required this.tdsReceivedAmount,
+    required this.tdsBalanceAmount,
+    required this.totalStampDutyValue,
+    required this.stampDutyReceivedAmount,
+    required this.stampDutyBalanceAmount,
   });
 
   factory CollectionReportProjectWiseModel.fromJson(
@@ -56,6 +80,21 @@ class CollectionReportProjectWiseModel {
     receivedAmount: parseValue<double>(json, "ReceivedAmount"),
     outstandingAmount: parseValue<double>(json, "OutstandingAmount"),
     balanceAmount: parseValue<double>(json, "BalanceAmount"),
+    buildingNumber: parseValue<String>(json, "BuildingNumber"),
+    wing: parseValue<String>(json, "Wing"),
+    unitType: parseValue<String>(json, "UnitType"),
+    totalGstValue: parseValue<double>(json, "TotalGSTValue"),
+    gstReceivedAmount: parseValue<double>(json, "GSTReceivedAmount"),
+    gstBalanceAmount: parseValue<double>(json, "GSTBalanceAmount"),
+    totalTdsValue: parseValue<double>(json, "TotalTDSValue"),
+    tdsReceivedAmount: parseValue<double>(json, "TDSReceivedAmount"),
+    tdsBalanceAmount: parseValue<double>(json, "TDSBalanceAmount"),
+    totalStampDutyValue: parseValue<double>(json, "TotalStampDutyValue"),
+    stampDutyReceivedAmount: parseValue<double>(
+      json,
+      "StampDutyReceivedAmount",
+    ),
+    stampDutyBalanceAmount: parseValue<double>(json, "StampDutyBalanceAmount"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -73,5 +112,18 @@ class CollectionReportProjectWiseModel {
     "ReceivedAmount": receivedAmount,
     "OutstandingAmount": outstandingAmount,
     "BalanceAmount": balanceAmount,
+    "BuildingNumber": buildingNumber,
+    "Wing": wing,
+    "UnitType": unitType,
+    "TotalGSTValue": totalGstValue,
+    "GSTReceivedAmount": gstReceivedAmount,
+    "GSTBalanceAmount": gstBalanceAmount,
+    "TotalTDSValue": totalTdsValue,
+    "TDSReceivedAmount": tdsReceivedAmount,
+    "TDSBalanceAmount": tdsBalanceAmount,
+    "TotalStampDutyValue": totalStampDutyValue,
+    "StampDutyReceivedAmount": stampDutyReceivedAmount,
+    "StampDutyBalanceAmount": stampDutyBalanceAmount,
   };
 }
+

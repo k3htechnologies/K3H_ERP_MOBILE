@@ -13,7 +13,9 @@ class ModuleApprovalModel {
   String nameOfInstitutionBankNbfc;
   String modulePath;
   String systemGeneratedCode;
-
+  String paymentFor;
+  String fileName;
+  String flatAlterationRemark;
   ModuleApprovalModel({
     required this.moduleName,
     required this.projectName,
@@ -27,6 +29,9 @@ class ModuleApprovalModel {
     required this.nameOfInstitutionBankNbfc,
     required this.modulePath,
     required this.systemGeneratedCode,
+    required this.paymentFor,
+    required this.fileName,
+    required this.flatAlterationRemark,
   });
 
   factory ModuleApprovalModel.fromJson(Map<String, dynamic> json) =>
@@ -49,6 +54,9 @@ class ModuleApprovalModel {
         ),
         modulePath: parseValue<String>(json, "ModulePath"),
         systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
+        paymentFor: parseValue<String>(json, "PaymentFor"),
+        fileName: parseValue<String>(json, "FileName"),
+        flatAlterationRemark: parseValue<String>(json, "FlatAlterationRemark"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -64,5 +72,8 @@ class ModuleApprovalModel {
     "NameOfInstitutionBankNBFC": nameOfInstitutionBankNbfc,
     "ModulePath": modulePath,
     "SystemGeneratedCode": systemGeneratedCode,
+    "PaymentFor": paymentFor,
+    "FileName": fileName,
+    "FlatAlterationRemark": flatAlterationRemark,
   };
 }

@@ -32,7 +32,7 @@ class AppColor {
   static const Color blockedColor = Color(0xCC00FF4A);
   static const Color blockedColorText = Color(0xFF48C848);
   static const Color blueBgColor = Color(0xFF13367A);
-
+  static const Color dividerColor = Color(0xffE1E7EF);
   // BASIC
   static const Color black = Color(0xFF111111); // BLACK
   static const Color black10 = Color(0x1A111111); // BLACK
@@ -55,9 +55,11 @@ class AppColor {
   static const Color green20 = Color(0xff00A800);
 
   static const Color darkGreen = Color(0xff1B5E20);
+  static const Color darkGreen50 = Color(0xff008669);
   static const Color darkGreen10 = Color(0xFF008F00);
   static const Color lightGreen = Color(0xFFCFFFCF);
   static const Color lightGreen50 = Color(0x7FCFFFCF);
+  static const Color lightGreen100 = Color(0xffEDF9F4);
   static const Color red = Color(0xffD60000);
   static const Color darkRed = Color(0xFFD32F2F);
   static const Color lightRed = Color(0xffFEE2E2);
@@ -78,6 +80,7 @@ class AppColor {
   static const Color yellow = Color(0xFFF59E0B);
   static const Color yellow10 = Color(0x1AF59E0B);
   static const Color rustOrange = Color(0xFFD97706);
+  static const Color orangeColor = Color(0xffAF591E);
   static const Color lightYellow = Color(0xFFFEF3C7);
   static const Color lightBlue2 = Color(0xFFE7EEFF);
   static const Color lightGreenBg = Color(0xFFBBF7D0);

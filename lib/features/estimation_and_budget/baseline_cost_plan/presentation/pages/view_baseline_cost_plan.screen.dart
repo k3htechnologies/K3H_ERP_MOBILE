@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/data/model/baseline_cost_plan.model.dart';
@@ -118,7 +119,7 @@ class _ViewBaselineCostPlanScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Drawing Document",
+        screenTitle: "Baseline Cost Plan",
         authorization: _routeAuthorizationModel,
       ),
       body: Padding(
@@ -240,7 +241,9 @@ class _ViewBaselineCostPlanScreenState
                 ),
               ),
               CustomIconButton.edit(
-                isDisabled: (!_routeAuthorizationModel.isAction),
+                isDisabled:
+                    (!_routeAuthorizationModel.isAction ||
+                        document.approvalStatus.toLowerCase() == "approved"),
                 onPressed: () {
                   goRouter.pushNamed(
                     AppRoutes.addBaselineCostPlan,
@@ -260,7 +263,9 @@ class _ViewBaselineCostPlanScreenState
                 },
               ),
               CustomIconButton.delete(
-                isDisabled: (!_routeAuthorizationModel.isAction),
+                isDisabled:
+                    (!_routeAuthorizationModel.isAction ||
+                        document.approvalStatus.toLowerCase() == "approved"),
                 onPressed: () {
                   _showPopupToDeleteSubDocument(context, document, index);
                 },
@@ -268,20 +273,45 @@ class _ViewBaselineCostPlanScreenState
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
                 title: "Baseline Cost Plan Value",
                 value: document.baselineCostPlanValue.toIndianCurrency(),
               ),
+              horizontalSpacing(),
               buildColumnTitleValue(
                 title: "Remark",
-                value: document.baselineCostPlanDocumentRemark,
+                value:
+                    document.baselineCostPlanDocumentRemark.trim().isEmpty
+                        ? "-"
+                        : document.baselineCostPlanDocumentRemark.trim(),
+                customValueWidget:
+                    document.baselineCostPlanDocumentRemark.isNotEmpty
+                        ? GestureDetector(
+                          onTap: () {
+                            DialogHelper.showNoteDialog(
+                              context,
+                              title: "Remark",
+                              note: document.baselineCostPlanDocumentRemark,
+                            );
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 10.w),
+                            child: Icon(
+                              Icons.info_outline,
+                              size: 18,
+                              color: AppColor.primary,
+                            ),
+                          ),
+                        )
+                        : null,
               ),
             ],
           ),
-
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
@@ -291,6 +321,7 @@ class _ViewBaselineCostPlanScreenState
                         ? document.createdBy
                         : document.modifiedBy,
               ),
+              horizontalSpacing(),
               buildColumnTitleValue(
                 title: "Last Modified Date",
                 value: formatDateTimeAsDDMMMYYYY(
@@ -300,9 +331,11 @@ class _ViewBaselineCostPlanScreenState
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               buildColumnTitleValue(
-                title: "Document (.PDF)",
+                title: "Document",
                 value: document.baselineCostPlanDocumentUrl,
                 customValueWidget: Row(
                   children: [
@@ -311,7 +344,7 @@ class _ViewBaselineCostPlanScreenState
                       onPressed: () {
                         showFilePreviewDialog(
                           context,
-                          title: document.baselineCostPlanDocumentName,
+                          title: "Document",
                           document.baselineCostPlanDocumentUrl.split(","),
                         );
                       },
@@ -320,11 +353,6 @@ class _ViewBaselineCostPlanScreenState
                 ),
               ),
             ],
-          ),
-          buildColumnTitleValue(
-            title: "Remark",
-            value: document.baselineCostPlanDocumentRemark,
-            removeExpanded: true,
           ),
         ],
       ),

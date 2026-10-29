@@ -39,7 +39,7 @@ class _AddBaselinePlanCostDocumentScreenState
   late AuthorizationModel _routeAuthorizationModel;
 
   //TEXT EDITING CONTROLLER
-  late TextEditingController _baselineCostPlanC, _remarkC;
+  late TextEditingController _documentNameC, _baselineCostPlanC, _remarkC;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
@@ -66,23 +66,23 @@ class _AddBaselinePlanCostDocumentScreenState
 
   // INITIALIZE TEXT EDITING CONTROLLER
   void _initializeTextEditingController() {
+    _documentNameC = TextEditingController();
     _baselineCostPlanC = TextEditingController();
     _remarkC = TextEditingController();
   }
 
   // PREFILL FORM
   void _prefillForm(BaselineCostPlanDocumentModel document) {
-    _baselineCostPlanC.text = document.baselineCostPlanValue.toString();
+    _documentNameC.text = document.baselineCostPlanDocumentName;
 
+    final value = document.baselineCostPlanValue;
+    _baselineCostPlanC.text = value == 0 ? '' : value.toString();
     selectedDocumentFile.fileNameList =
         document.baselineCostPlanDocumentUrl.isEmpty
             ? []
-            : document.baselineCostPlanDocumentUrl.split(",");
+            : document.baselineCostPlanDocumentUrl.split(',');
 
-    _remarkC.text =
-        document.baselineCostPlanDocumentRemark.isNotEmpty
-            ? document.baselineCostPlanDocumentRemark
-            : "";
+    _remarkC.text = document.baselineCostPlanDocumentRemark;
   }
 
   // SUBMIT FORM
@@ -90,6 +90,8 @@ class _AddBaselinePlanCostDocumentScreenState
     if (!_formKey.currentState!.validate()) {
       return;
     }
+    final amount = _baselineCostPlanC.text.trim();
+
     if (!widget.isEdit) {
       _baselineCostPlanCubit.addSubDrawingDocument(
         context: context,
@@ -103,7 +105,7 @@ class _AddBaselinePlanCostDocumentScreenState
                 .baselineCostPlanDocumentCategoryId,
         baselineCostPlanDocumentName:
             widget.baselineCostPlanDocumentModel!.baselineCostPlanDocumentName,
-        baselineCostPlanValue: double.tryParse(_baselineCostPlanC.text),
+        baselineCostPlanValue: amount.isEmpty ? null : amount,
         documents: selectedDocumentFile,
         baselineCostPlanDocumentRemark: _remarkC.text,
       );
@@ -120,7 +122,7 @@ class _AddBaselinePlanCostDocumentScreenState
             widget
                 .baselineCostPlanDocumentModel!
                 .baselineCostPlanDocumentCategoryId,
-        baselineCostPlanValue: double.tryParse(_baselineCostPlanC.text),
+        baselineCostPlanValue: amount.isEmpty ? null : amount,
         baselineCostPlanDocumentRemark: _remarkC.text,
         documents: selectedDocumentFile,
       );
@@ -130,6 +132,7 @@ class _AddBaselinePlanCostDocumentScreenState
   @override
   void dispose() {
     super.dispose();
+    _documentNameC.dispose();
     _baselineCostPlanC.dispose();
     _remarkC.dispose();
   }
@@ -147,7 +150,9 @@ class _AddBaselinePlanCostDocumentScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _isEditMode ? "Update Drawing Document" : "Add Drawing Document",
+              _isEditMode
+                  ? "Update Baseline Plan Document"
+                  : "Add Baseline Plan Document",
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
             verticalSpacing(),
@@ -159,6 +164,15 @@ class _AddBaselinePlanCostDocumentScreenState
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (_isEditMode) ...[
+                      CustomTextField(
+                        title: "Document Name",
+                        hint: "Enter Document Name",
+                        isRequired: true,
+                        readOnly: true,
+                        textController: _documentNameC,
+                      ),
+                    ],
                     CustomTextField(
                       title: "Baseline Cost Plan Value (₹)",
                       hint: "Enter Baseline Cost Plan Value",

@@ -101,18 +101,24 @@ class CollectionReportCubit extends Cubit<CollectionReportState> {
     );
   }
 
-  Future getDailyCollectionReportProjectWiseList(
+  Future<void> getDailyCollectionReportProjectWiseList(
     BuildContext context, {
     required int projectId,
     required String projectName,
   }) async {
-    emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {};
+    if (state.loadingProjectIds.contains(projectId)) return;
+
+    final loadingIds = Set<int>.from(state.loadingProjectIds)..add(projectId);
+
+    emit(state.copyWith(loadingProjectIds: loadingIds));
+
+    final queryParams = <String, dynamic>{};
 
     if (state.searchText.trim().isNotEmpty) {
       queryParams["ProjectName"] = state.searchText.trim();
     }
-    var result = await _collectionReportRepository
+
+    final result = await _collectionReportRepository
         .getProjectCollectionReportList(
           projectId: projectId,
           projectName: projectName,
@@ -121,22 +127,48 @@ class CollectionReportCubit extends Cubit<CollectionReportState> {
 
     result.fold(
       (failure) {
-        emit(state.copyWith(isLoading: false));
+        final updatedLoadingIds = Set<int>.from(state.loadingProjectIds)
+          ..remove(projectId);
+
+        emit(state.copyWith(loadingProjectIds: updatedLoadingIds));
 
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<CollectionReportProjectWiseModel> newList =
+        final reports =
             response['data'] as List<CollectionReportProjectWiseModel>;
+
+        final updatedReports =
+            Map<int, List<CollectionReportProjectWiseModel>>.from(
+              state.projectWiseReportMap,
+            );
+
+        updatedReports[projectId] = reports;
+
+        final updatedLoadingIds = Set<int>.from(state.loadingProjectIds)
+          ..remove(projectId);
 
         emit(
           state.copyWith(
-            collectionProjectReportList: newList,
-            totalNumberOfRecord: response['totalNumberOfRecord'],
-            isLoading: false,
+            projectWiseReportMap: updatedReports,
+            loadingProjectIds: updatedLoadingIds,
           ),
         );
       },
     );
+  }
+
+  Map<String, List<CollectionReportProjectWiseModel>> groupUnitsByWing(
+    List<CollectionReportProjectWiseModel> units,
+  ) {
+    final Map<String, List<CollectionReportProjectWiseModel>> wingMap = {};
+
+    for (final item in units) {
+      final wing = item.wing;
+      if (wing.isEmpty) continue;
+      wingMap.putIfAbsent(wing, () => []).add(item);
+    }
+
+    return wingMap;
   }
 }

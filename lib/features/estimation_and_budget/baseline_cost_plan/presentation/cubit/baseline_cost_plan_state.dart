@@ -41,8 +41,8 @@ class BaselineCostPlanState extends BaseState {
     currentPage: 1,
     currentPageOfSubDoc: 1,
     searchText: '',
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
   );
 
   BaselineCostPlanState copywith({
