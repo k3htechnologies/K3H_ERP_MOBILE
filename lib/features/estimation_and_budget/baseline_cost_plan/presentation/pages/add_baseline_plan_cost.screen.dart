@@ -184,12 +184,6 @@ class _AddBaselinePlanCostDocumentScreenState
                       inputFormatterList: InputValidator.digitWithDecimal(
                         maxDigitsBeforeDecimal: 16,
                       ),
-                      onChangeFunction: (value) {
-                        debugPrint('Typed value: "$value"');
-                        debugPrint(
-                          'Controller value: "${_baselineCostPlanC.text}"',
-                        );
-                      },
                     ),
                     CustomMultiFilePicker(
                       maxFiles: 5,
