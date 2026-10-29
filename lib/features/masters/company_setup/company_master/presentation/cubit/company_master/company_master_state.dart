@@ -6,6 +6,7 @@ class CompanyMasterState extends BaseState {
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
+  final bool isDisplayBankDetails;
   final String currentSortColumn;
   final String currentSortDirection;
   final String filterByFirmType;
@@ -18,6 +19,13 @@ class CompanyMasterState extends BaseState {
   final String filterByTanNumber;
   final CompanyModel? companyOverview;
   final List<CompanyBankModel>? bankDetailList;
+  final String searchDocumentText;
+  final String filterByFinancialYear;
+  final List<CompanyDocumentModel>? companyDocumentList;
+  final int currentPageDocument;
+  final int totalNumberOfRecordDocument;
+  final String currentSortColumnDocument;
+  final String currentSortDirectionDocument;
   const CompanyMasterState({
     super.isLoading,
     super.stateType,
@@ -38,6 +46,14 @@ class CompanyMasterState extends BaseState {
     required this.filterByCinNumber,
     required this.filterByPanNumber,
     required this.filterByTanNumber,
+    required this.isDisplayBankDetails,
+    required this.companyDocumentList,
+    required this.searchDocumentText,
+    required this.filterByFinancialYear,
+    required this.currentPageDocument,
+    required this.totalNumberOfRecordDocument,
+    required this.currentSortColumnDocument,
+    required this.currentSortDirectionDocument,
   });
   factory CompanyMasterState.initial() => CompanyMasterState(
     companyList: [],
@@ -45,8 +61,8 @@ class CompanyMasterState extends BaseState {
     totalNumberOfRecord: 0,
     currentPage: 1,
     searchText: "",
-    currentSortColumn: "Created Date",
-    currentSortDirection: "DESC",
+    currentSortColumn: "",
+    currentSortDirection: "",
     filterByFirmType: "",
     filterByContactPerson: "",
     filterByMobileNumber: "",
@@ -54,10 +70,18 @@ class CompanyMasterState extends BaseState {
     isLoading: true,
     companyOverview: null,
     bankDetailList: null,
+    companyDocumentList: null,
     filterByGstNumber: '',
     filterByCinNumber: '',
     filterByPanNumber: '',
     filterByTanNumber: '',
+    isDisplayBankDetails: false,
+    searchDocumentText: '',
+    filterByFinancialYear: '',
+    currentPageDocument: 1,
+    totalNumberOfRecordDocument: 0,
+    currentSortColumnDocument: '',
+    currentSortDirectionDocument: '',
   );
   CompanyMasterState copyWith({
     bool? isLoading,
@@ -82,6 +106,15 @@ class CompanyMasterState extends BaseState {
     CompanyModel? companyOverview,
     bool? clearBankDetails,
     List<CompanyBankModel>? bankDetailList,
+    bool? clearCompanyDocuments,
+    List<CompanyDocumentModel>? companyDocumentList,
+    int? currentPageDocument,
+    int? totalNumberOfRecordDocument,
+    String? currentSortColumnDocument,
+    String? currentSortDirectionDocument,
+    String? searchDocumentText,
+    String? filterByFinancialYear,
+    bool? isDisplayBankDetails,
   }) {
     return CompanyMasterState(
       isLoading: isLoading ?? this.isLoading,
@@ -106,10 +139,25 @@ class CompanyMasterState extends BaseState {
           clearBankDetails == true
               ? null
               : bankDetailList ?? this.bankDetailList,
+      companyDocumentList:
+          clearCompanyDocuments == true
+              ? null
+              : companyDocumentList ?? this.companyDocumentList,
+      searchDocumentText: searchDocumentText ?? this.searchDocumentText,
+      filterByFinancialYear:
+          filterByFinancialYear ?? this.filterByFinancialYear,
+      currentPageDocument: currentPageDocument ?? this.currentPageDocument,
+      totalNumberOfRecordDocument:
+          totalNumberOfRecordDocument ?? this.totalNumberOfRecordDocument,
+      currentSortColumnDocument:
+          currentSortColumnDocument ?? this.currentSortColumnDocument,
+      currentSortDirectionDocument:
+          currentSortDirectionDocument ?? this.currentSortDirectionDocument,
       filterByGstNumber: filterByGstNumber ?? this.filterByGstNumber,
       filterByCinNumber: filterByCinNumber ?? this.filterByCinNumber,
       filterByPanNumber: filterByPanNumber ?? this.filterByPanNumber,
       filterByTanNumber: filterByTanNumber ?? this.filterByTanNumber,
+      isDisplayBankDetails: isDisplayBankDetails ?? this.isDisplayBankDetails,
     );
   }
 
@@ -133,5 +181,13 @@ class CompanyMasterState extends BaseState {
     filterByTanNumber,
     companyOverview,
     bankDetailList,
+    searchDocumentText,
+    filterByFinancialYear,
+    companyDocumentList,
+    isDisplayBankDetails,
+    currentPageDocument,
+    totalNumberOfRecordDocument,
+    currentSortColumnDocument,
+    currentSortDirectionDocument,
   ];
 }

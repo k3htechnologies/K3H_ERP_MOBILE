@@ -10,6 +10,10 @@ final Map<String, StatusConfig> activeInactiveStatusConfig = {
   ),
 
   'inactive': StatusConfig(
+    backgroundColor: const Color(0xFFF3F4F6), // gray-100
+    textColor: const Color(0xFF374151), // gray-700
+  ),
+  'closed': StatusConfig(
     backgroundColor: AppColor.red.withValues(alpha: 0.2),
     textColor: AppColor.red, // red-600
   ),

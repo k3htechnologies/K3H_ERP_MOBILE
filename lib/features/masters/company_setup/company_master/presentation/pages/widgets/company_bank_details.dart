@@ -139,7 +139,8 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                                   children: [
                                     CustomIconButton.edit(
                                       isDisabled:
-                                          !_routeAuthorizationModel.isAction,
+                                          !_routeAuthorizationModel.isAction ||
+                                          bank.status == 'Closed',
                                       onPressed: () {
                                         goRouter.pushNamed(
                                           AppRoutes.addCompanyBankDetails,
@@ -158,7 +159,8 @@ class _CompanyBankDetailsState extends State<CompanyBankDetails> {
                                     horizontalSpacing(),
                                     CustomIconButton.delete(
                                       isDisabled:
-                                          !_routeAuthorizationModel.isAction,
+                                          !_routeAuthorizationModel.isAction ||
+                                          bank.status == 'Closed',
                                       onPressed: () {
                                         _showDeleteCompanyBankDetailsDialog(
                                           context,

@@ -42,6 +42,23 @@ abstract interface class CompanyMasterRepository {
     required int companyWithBankDetailsId,
     required String uniqueKey,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> pullCompanyDocumentList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateCompanyDocumentList({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+
+  Future<Either<Failure, Map<String, dynamic>>> deleteCompanyDocument({
+    required int companyId,
+    required int companyDocumentId,
+    required String uniqueKey,
+  });
 }
 
 class CompanyMasterRepositoryImp implements CompanyMasterRepository {
@@ -166,6 +183,56 @@ class CompanyMasterRepositoryImp implements CompanyMasterRepository {
             uniqueKey: uniqueKey,
             companyWithBankDetailsId: companyWithBankDetailsId,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> pullCompanyDocumentList({
+    required int pageNumber,
+    required int pageSize,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await companyMasterDatasource.apicallPullCompanyDocument(
+        pageNumber: pageNumber,
+        pageSize: pageSize,
+        query: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateCompanyDocumentList({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      var result = await companyMasterDatasource
+          .apicallAddUpdateCompanyDocument(body: body, fileList: fileList);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> deleteCompanyDocument({
+    required int companyId,
+    required int companyDocumentId,
+    required String uniqueKey,
+  }) async {
+    try {
+      var result = await companyMasterDatasource.apicallDeleteCompanyDocument(
+        companyId: companyId,
+        companyDocumentId: companyDocumentId,
+        uniqueKey: uniqueKey,
+      );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

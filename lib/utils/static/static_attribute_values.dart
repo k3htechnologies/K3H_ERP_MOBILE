@@ -534,7 +534,7 @@ const extraCarpetAreaValues = ['MOFA', 'RERA'];
 
 const projectCategoryValues = ['Direct', 'Tender'];
 
-const statusValues = ['Active', 'Inactive'];
+const statusValues = ['Active', 'Closed', 'Inactive'];
 
 const vendorTypeValues = ['Material', 'Contractor', 'Both'];
 
@@ -625,17 +625,29 @@ const selectedLandOwnershipValues = [
   'Society',
 ];
 const constructionTypeValues = ['RCC', 'Load - Bearing'];
-const drawingStatusTypeValues = ['Advance', "Good For Construction (GFC)"];
+const drawingStatusTypeValues = ['Advance', 'Good For Construction (GFC)'];
 
 const budgetLevelTypeValues = ['L1', 'L2', 'L3', 'L4'];
 
 const otherChargesApplicableForValues = ['Sales', 'Tenant'];
 
 const noticeSectionTypeValues = [
-  "GST (Government Service Tax)",
-  "Income Tax",
-  "PF (Provident Fund)",
-  "ESIC (Employee State Insurance)",
-  "PT (Profession Tax)",
-  "Other",
+  'GST (Government Service Tax)',
+  'Income Tax',
+  'PF (Provident Fund)',
+  'ESIC (Employee State Insurance)',
+  'PT (Profession Tax)',
+  'Other',
+];
+
+const companyDocumentValues = [
+  'AOA',
+  'Certificate of Incorporation',
+  'MOA',
+  'Balance Sheet',
+  'Tax Return',
+  'Net Worth Certificate',
+  'Provisional Balance Sheet',
+  'Solvency Certificate',
+  'Tax Audit Report',
 ];

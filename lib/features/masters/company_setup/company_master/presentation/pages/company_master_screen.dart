@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -13,12 +15,18 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_export_button.dart';
+import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
+import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+part 'widgets/company_tabs.dart';
 
 class CompanyMasterScreen extends StatefulWidget {
   const CompanyMasterScreen({super.key});
@@ -26,7 +34,8 @@ class CompanyMasterScreen extends StatefulWidget {
   State<CompanyMasterScreen> createState() => _CompanyMasterMobileScreenState();
 }
 
-class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
+class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen>
+    with TickerProviderStateMixin {
   late CompanyMasterCubit _companyMasterCubit;
   late AuthorizationModel _routeAuthorizationModel;
   // PAGINATION
@@ -42,6 +51,8 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
       _filterPanCardNumberC,
       _filterTanNumberC;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
+  late TabController _tabController;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +61,8 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.companyMaster] ??
         AuthorizationModel();
+    _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabChange);
     _companyMasterCubit.getCompanyMaster(context, 1);
     scrollController = ScrollController();
     scrollController.addListener(_onScroll);
@@ -83,6 +96,16 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
     _filterCinNumberC = TextEditingController();
     _filterPanCardNumberC = TextEditingController();
     _filterTanNumberC = TextEditingController();
+  }
+
+  void _handleTabChange() async {
+    if (!_tabController.indexIsChanging) {
+      await _companyMasterCubit.updateIsDisplayBankDetails(
+        isDisplayBankDetails: _tabController.index == 0 ? false : true,
+      );
+      _searchC.clear();
+      _companyMasterCubit.getCompanyMaster(context, 1);
+    }
   }
 
   // PAGINATION
@@ -356,179 +379,79 @@ class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen> {
         _filterCount.value = _companyMasterCubit.updateFilterCount(state);
       },
       child: Scaffold(
-        appBar: CustomAppBar(
+        appBar: CustomAppBarWithBackButton(
           screenTitle: 'Company Master',
           authorization: _routeAuthorizationModel,
-          filterCountNotifier: _filterCount,
-          onExportCallback: (value) {
-            if (_companyMasterCubit.state.totalNumberOfRecord == 0) {
-              showErrorMessage(context, "Error", "No data found");
-              return;
-            }
-            _companyMasterCubit.exportExcelPdf(context, value);
-          },
-          searchHintText: "Search by Company Name",
-          onSearchSubmit: (value) {
-            _companyMasterCubit.searchCompany(context, value);
-          },
-          onAddCallback: () async {
-            await goRouter.pushNamed(AppRoutes.addCompany);
-            if (context.mounted) {
-              _companyMasterCubit.searchCompany(context, "");
-            }
-          },
-          textController: _searchC,
-          isFilterOn: true,
-          onFilterTap: () {
-            _showBottomSheetToFilterCompanyMaster(context);
-          },
+          isMenuButton: true,
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            _searchC.clear();
-            await _companyMasterCubit.searchCompany(context, "");
-          },
-          child: BlocBuilder<CompanyMasterCubit, CompanyMasterState>(
-            builder: (context, state) {
-              if ((state.isLoading ?? false) && state.companyList.isEmpty) {
-                return Center(child: loader());
-              }
-              if (state.companyList.isEmpty) {
-                return ListView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.7,
-                      child: Center(
-                        child: noDataWidget(message: "No companies Data found"),
-                      ),
-                    ),
-                  ],
-                );
-              }
-              return ListView.builder(
-                controller: scrollController,
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                itemCount: _companyMasterCubit.state.companyList.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == state.companyList.length) {
-                    return state.companyList.length < state.totalNumberOfRecord
-                        ? Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Center(child: CircularProgressIndicator()),
-                        )
-                        : const SizedBox.shrink();
-                  }
-                  var company = state.companyList[index];
-                  return Container(
-                    padding: EdgeInsets.all(16),
-                    margin: EdgeInsets.only(bottom: 10),
-                    decoration: commonCardDecoration(),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          spacing: 10,
-                          children: [
-                            Flexible(
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await goRouter.pushNamed(
-                                    AppRoutes.viewCompanyDetails,
-                                    queryParameters: {
-                                      "company": Uri.encodeQueryComponent(
-                                        EncryptionManager.encryptData(
-                                          jsonEncode(company),
-                                        ),
-                                      ),
-                                    },
-                                  );
-                                },
-                                child: Text(
-                                  company.companyName,
-                                  style: AppTextStyle.ts14M(
-                                    color: AppColor.primary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Row(
-                              spacing: 10,
-                              children: [
-                                CustomIconButton.edit(
-                                  isDisabled:
-                                      !_routeAuthorizationModel.isAction,
-                                  onPressed: () async {
-                                    final result = await goRouter.pushNamed(
-                                      AppRoutes.addCompany,
-                                      queryParameters: {
-                                        "company": Uri.encodeQueryComponent(
-                                          EncryptionManager.encryptData(
-                                            jsonEncode(company),
-                                          ),
-                                        ),
-                                      },
-                                    );
-                                    if (result != null &&
-                                        result is CompanyModel) {
-                                      _companyMasterCubit.updateCompany(
-                                        result,
-                                        index,
-                                      );
-                                    }
-                                  },
-                                ),
-                                CustomIconButton.delete(
-                                  isDisabled:
-                                      !_routeAuthorizationModel.isAction,
-                                  onPressed: () {
-                                    _showPopUpToDeleteVendor(
-                                      context,
-                                      company,
-                                      index,
-                                    );
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                        verticalSpacing(height: 5),
-                        buildRowTitleValue(
-                          title: "Contact Person",
-                          value: company.contactPerson,
-                          singleLine: false,
-                        ),
-                        buildRowTitleValue(
-                          title: "Firms Type",
-                          value: company.firmsType,
-                          singleLine: false,
-                        ),
-                        buildRowTitleValue(
-                          title: "Mobile Number",
-                          value: company.mobileNumber,
-                          customValueWidget: CustomClickToContactText(
-                            countryCode: "+91",
-                            value: company.mobileNumber,
-                          ),
-                        ),
-                        buildRowTitleValue(
-                          title: "E-Mail ID",
-                          value: company.emailId,
-                          customValueWidget: CustomClickToContactText(
-                            value: company.emailId,
-                            type: ContactType.email,
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              );
-            },
+        body: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            spacing: 10,
+            children: [
+              ChipStyleTabBar(
+                margin: EdgeInsets.zero,
+                controller: _tabController,
+                tabs: ['Overview', 'Bank Details'],
+              ),
+              Expanded(
+                child: TabBarView(
+                  physics: NeverScrollableScrollPhysics(),
+                  controller: _tabController,
+                  children: [overview(), bankDetails()],
+                ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget searchWidget({bool showActions = true}) {
+    return Row(
+      spacing: 10,
+      children: [
+        Expanded(
+          child: SearchWidget(
+            textController: _searchC,
+            isFilterOn: showActions,
+            filterCountNotifier: _filterCount,
+            onFilterTap: () {
+              _showBottomSheetToFilterCompanyMaster(context);
+            },
+            hintText: "Search by Company Name",
+            onSubmit: (value) {
+              _companyMasterCubit.searchCompany(context, value);
+            },
+          ),
+        ),
+        if (showActions)
+          Row(
+            spacing: 10,
+            children: [
+              if (_routeAuthorizationModel.isExport)
+                CustomExportButton(
+                  onExport: (value) {
+                    if (_companyMasterCubit.state.totalNumberOfRecord == 0) {
+                      showErrorMessage(context, "Error", "No data found");
+                      return;
+                    }
+                    _companyMasterCubit.exportExcelPdf(context, value);
+                  },
+                ),
+              if (_routeAuthorizationModel.isAction)
+                CustomIconButton.add(
+                  onPressed: () async {
+                    await goRouter.pushNamed(AppRoutes.addCompany);
+                    if (context.mounted) {
+                      _companyMasterCubit.searchCompany(context, "");
+                    }
+                  },
+                ),
+            ],
+          ),
+      ],
     );
   }
 }

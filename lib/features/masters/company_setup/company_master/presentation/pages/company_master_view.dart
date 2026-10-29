@@ -4,6 +4,7 @@ import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/cubit/company_master/company_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_bank_details.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_document.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_overview.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_partners.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -28,7 +29,7 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
   void initState() {
     _cubit = context.read<CompanyMasterCubit>();
     _cubit.getCompanyById(context, widget.company!.companyId);
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(_handleTabChange);
     super.initState();
   }
@@ -44,6 +45,9 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
         break;
       case 2:
         _cubit.getCompanyById(context, widget.company!.companyId);
+        break;
+      case 3:
+        _cubit.getCompanyDocumentsById(context, widget.company!.companyId);
         break;
     }
   }
@@ -68,7 +72,7 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
           verticalSpacing(),
           ChipStyleTabBar(
             controller: _tabController,
-            tabs: ["Overview", "Bank Details", "Partners"],
+            tabs: ["Overview", "Bank Details", "Partners", "Documents"],
           ),
           Expanded(
             child: TabBarView(
@@ -78,6 +82,10 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
                 CompanyOverview(),
                 CompanyBankDetails(companyName: widget.company!.companyName),
                 CompanyPartners(),
+                CompanyDocumentScreen(
+                  companyId: widget.company!.companyId,
+                  companyName: widget.company!.companyName,
+                ),
               ],
             ),
           ),

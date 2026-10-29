@@ -348,3 +348,6 @@ final List<Map<String, dynamic>> otherChargesApplicableForList =
 final List<Map<String, dynamic>> noticeSectionTypeList = createAttributeList(
   noticeSectionTypeValues,
 );
+final List<Map<String, dynamic>> companyDocumentList = createAttributeList(
+  companyDocumentValues,
+);

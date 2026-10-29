@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/data/model/company_bank.model.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/data/model/company_document.model.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/data/repository/company_master_repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -50,8 +51,8 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
           filterByCinNumber: "",
           filterByPanNumber: "",
           filterByTanNumber: "",
-          currentSortColumn: "Created Date",
-          currentSortDirection: "DESC",
+          currentSortColumn: "",
+          currentSortDirection: "",
           currentPage: 1,
         ),
       );
@@ -96,6 +97,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       "CINNumber": state.filterByCinNumber,
       "PANNumber": state.filterByPanNumber,
       "TANNumber": state.filterByTanNumber,
+      "IsDisplayBankDetails": state.isDisplayBankDetails,
     };
     final result = await _companyMasterRepository.pullCompanyList(
       pageNumber: pageNumber,
@@ -603,6 +605,207 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
+  Future<void> getCompanyDocumentsById(
+    BuildContext context,
+    int companyId, {
+    int pageNumber = 1,
+    bool clearFilters = false,
+  }) async {
+    if (clearFilters) {
+      emit(
+        state.copyWith(
+          searchDocumentText: "",
+          filterByFinancialYear: "",
+          currentSortColumnDocument: "",
+          currentSortDirectionDocument: "",
+        ),
+      );
+    }
+    emit(
+      state.copyWith(isLoading: true, clearCompanyDocuments: pageNumber == 1),
+    );
+    final result = await _companyMasterRepository.pullCompanyDocumentList(
+      pageNumber: pageNumber,
+      pageSize: 10,
+      queryParams: {
+        "CompanyId": companyId,
+        "DocumentName": state.searchDocumentText,
+        "FinancialYear": state.filterByFinancialYear,
+        "SortBy":
+            "${state.currentSortColumnDocument} ${state.currentSortDirectionDocument}"
+                .trim(),
+      },
+    );
+    result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false, clearCompanyDocuments: true));
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (response) {
+        final newData = response['data'] as List<CompanyDocumentModel>;
+        final List<CompanyDocumentModel> updated =
+            pageNumber == 1
+                ? newData
+                : <CompanyDocumentModel>[
+                  ...(state.companyDocumentList ?? <CompanyDocumentModel>[]),
+                  ...newData,
+                ];
+        emit(
+          state.copyWith(
+            isLoading: false,
+            companyDocumentList: updated,
+            clearCompanyDocuments: false,
+            currentPageDocument: pageNumber,
+            totalNumberOfRecordDocument: response['totalNumberOfRecord'],
+          ),
+        );
+      },
+    );
+  }
+
+  // SEARCH DOCUMENT (app bar)
+  Future<void> searchDocument(
+    BuildContext context,
+    String value,
+    int companyId,
+  ) async {
+    emit(state.copyWith(searchDocumentText: value, currentPageDocument: 1));
+    await getCompanyDocumentsById(context, companyId);
+  }
+
+  // FILTER + SORT DOCUMENT
+  Future<void> applyDocumentFilterAndSort({
+    required BuildContext context,
+    required int companyId,
+    required String documentName,
+    required String financialYear,
+    required String column,
+    required String direction,
+  }) async {
+    emit(
+      state.copyWith(
+        searchDocumentText: documentName,
+        filterByFinancialYear: financialYear,
+        currentSortColumnDocument: column,
+        currentSortDirectionDocument: direction,
+        currentPageDocument: 1,
+      ),
+    );
+    await getCompanyDocumentsById(context, companyId);
+  }
+
+  // ADD / UPDATE DOCUMENT
+  // NOTE: assumes repository has addUpdateCompanyDocument(body:, fileList:)
+  // returning response['data'] as List<CompanyDocumentModel> and ['message'].
+  Future<void> addUpdateCompanyDocument({
+    required BuildContext context,
+    required int companyId,
+    required int companyDocumentId,
+    String? uniqueKey,
+    int? index,
+    required String documentName,
+    required String financialYear,
+    required MultiFilePickerModel documentFile,
+  }) async {
+    final Map<String, String> body = {
+      "CompanyDocumentId": companyDocumentId.toString(),
+      "CompanyId": companyId.toString(),
+      if (uniqueKey != null) "Uniquekey": uniqueKey,
+      "DocumentName": documentName.trim(),
+      "FinancialYear": financialYear.trim(),
+      "RemoveDocumentURL": documentFile.deletedFileList,
+    };
+    final List<Map<String, dynamic>> fileList = [];
+    for (int i = 0; i < documentFile.fileNameList.length; i++) {
+      if (documentFile.fileNameList[i].contains("http")) continue;
+      fileList.add({
+        "key": "DocumentURL",
+        "value": documentFile.fileBytesList[i],
+        "fileName": documentFile.fileNameList[i],
+      });
+    }
+    DialogHelper.showProcessingOverlay(context);
+    final result = await _companyMasterRepository.addUpdateCompanyDocumentList(
+      body: body,
+      fileList: fileList,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) => showErrorMessage(context, "Error", failure.message),
+      (response) {
+        final saved = (response['data'] as List<CompanyDocumentModel>).first;
+        final list = List<CompanyDocumentModel>.from(
+          state.companyDocumentList ?? [],
+        );
+        if (uniqueKey != null && uniqueKey.isNotEmpty) {
+          if (index != null && index < list.length) list[index] = saved;
+          emit(state.copyWith(isLoading: false, companyDocumentList: list));
+        } else {
+          list.insert(0, saved);
+          emit(
+            state.copyWith(
+              isLoading: false,
+              companyDocumentList: list,
+              totalNumberOfRecordDocument:
+                  state.totalNumberOfRecordDocument + 1,
+            ),
+          );
+        }
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response["message"]);
+      },
+    );
+  }
+
+  // DELETE DOCUMENT
+  // NOTE: assumes repository has deleteCompanyDocument(...)
+  Future<void> deleteCompanyDocument({
+    required BuildContext context,
+    required int companyId,
+    required int companyDocumentId,
+    required String uniqueKey,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    final result = await _companyMasterRepository.deleteCompanyDocument(
+      companyId: companyId,
+      companyDocumentId: companyDocumentId,
+      uniqueKey: uniqueKey,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) => showErrorMessage(context, "Error", failure.message),
+      (response) {
+        final list = List<CompanyDocumentModel>.from(
+          state.companyDocumentList ?? [],
+        )..removeAt(index);
+        emit(
+          state.copyWith(
+            companyDocumentList: list,
+            totalNumberOfRecordDocument:
+                state.totalNumberOfRecordDocument > 0
+                    ? state.totalNumberOfRecordDocument - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response["message"]);
+      },
+    );
+  }
+
+  // FILTER COUNT (document screen)
+  int updateDocumentFilterCount(CompanyMasterState state) {
+    final hasSort =
+        state.currentSortColumnDocument == "Document Name" &&
+        (state.currentSortDirectionDocument == "ASC" ||
+            state.currentSortDirectionDocument == "DESC");
+    return getActiveFilterCount([
+      state.searchDocumentText.trim().isNotEmpty,
+      state.filterByFinancialYear.trim().isNotEmpty,
+      hasSort,
+    ]);
+  }
+
   int updateFilterCount(CompanyMasterState state) {
     final hasSort =
         state.currentSortColumn == "Company Name" &&
@@ -620,5 +823,27 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
       state.filterByTanNumber.trim().isNotEmpty,
       hasSort,
     ]);
+  }
+
+  Future<void> updateIsDisplayBankDetails({
+    required bool isDisplayBankDetails,
+  }) async {
+    emit(
+      state.copyWith(
+        isDisplayBankDetails: isDisplayBankDetails,
+        searchText: "",
+        filterByFirmType: "",
+        filterByContactPerson: "",
+        filterByMobileNumber: "",
+        filterByCityName: "",
+        filterByGstNumber: "",
+        filterByCinNumber: "",
+        filterByPanNumber: "",
+        filterByTanNumber: "",
+        currentSortColumn: "",
+        currentSortDirection: "",
+        currentPage: 1,
+      ),
+    );
   }
 }

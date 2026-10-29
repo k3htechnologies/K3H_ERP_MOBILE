@@ -135,14 +135,16 @@ Widget activeInactiveStatusWidget(
     status: status,
     config: activeInactiveStatusConfig,
     textStyle: textStyle,
-    leading: Container(
-      width: 8,
-      height: 8,
-      decoration: BoxDecoration(
-        color: config?.textColor ?? const Color(0xFF000000),
-        shape: BoxShape.circle,
-      ),
-    ),
+    leading:
+        leading ??
+        Container(
+          width: 8,
+          height: 8,
+          decoration: BoxDecoration(
+            color: config?.textColor ?? const Color(0xFF000000),
+            shape: BoxShape.circle,
+          ),
+        ),
     trailing: trailing,
   );
 }

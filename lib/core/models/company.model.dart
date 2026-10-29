@@ -35,6 +35,7 @@ class CompanyModel {
   String modifiedBy;
   DateTime? modifiedDate;
   List<CompanyPartnerModel> companyPartnerData;
+  List<CompanyWithBankDetailsModel> companyWithBankDetailsData;
   bool isSelected;
   // VARIABLE USED IN PROJECT MASTER FOR HANDLING THE STATE OF SELECTED EMPLOYEE
   CompanyModel({
@@ -71,6 +72,7 @@ class CompanyModel {
     required this.modifiedBy,
     required this.modifiedDate,
     required this.companyPartnerData,
+    required this.companyWithBankDetailsData,
     this.isSelected = false,
   });
   factory CompanyModel.fromJson(Map<String, dynamic> json) => CompanyModel(
@@ -106,6 +108,15 @@ class CompanyModel {
       json,
       "CompanyLetterheadFooterURL",
     ),
+    companyWithBankDetailsData:
+        (json["CompanyWithBankDetailsData"] as List<dynamic>?)
+            ?.map(
+              (e) => CompanyWithBankDetailsModel.fromJson(
+                e as Map<String, dynamic>,
+              ),
+            )
+            .toList() ??
+        [],
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
     createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -158,6 +169,8 @@ class CompanyModel {
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "CompanyPartnerData": companyPartnerData.map((e) => e.toJson()).toList(),
+    "CompanyWithBankDetailsData":
+        companyWithBankDetailsData.map((e) => e.toJson()).toList(),
   };
 }
 
@@ -264,6 +277,112 @@ class CompanyPartnerModel {
     "AadharCardNumber": aadharCardNumber,
     "AadharCardURL": aadharCardURL,
     "PhotoURL": photoURL,
+    "CreatedById": createdById,
+    "CreatedBy": createdBy,
+    "CreatedDate": createdDate.toIso8601String(),
+    "ModifiedById": modifiedById,
+    "ModifiedBy": modifiedBy,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
+  };
+}
+
+class CompanyWithBankDetailsModel {
+  int companyWithBankDetailsId;
+  String uniquekey;
+  int companyId;
+  String companyName;
+  String beneficiaryAccountHolderName;
+  int bankListMasterId;
+  String bankName;
+  String accountNumber;
+  String branch;
+  String ifscCode;
+  String acType;
+  String natureOfAccount;
+  String status;
+  String micrCode;
+  String cancelChequeURL;
+  int createdById;
+  String createdBy;
+  DateTime createdDate;
+  int modifiedById;
+  String modifiedBy;
+  DateTime? modifiedDate;
+
+  CompanyWithBankDetailsModel({
+    required this.companyWithBankDetailsId,
+    required this.uniquekey,
+    required this.companyId,
+    required this.companyName,
+    required this.beneficiaryAccountHolderName,
+    required this.bankListMasterId,
+    required this.bankName,
+    required this.accountNumber,
+    required this.branch,
+    required this.ifscCode,
+    required this.acType,
+    required this.natureOfAccount,
+    required this.status,
+    required this.micrCode,
+    required this.cancelChequeURL,
+    required this.createdById,
+    required this.createdBy,
+    required this.createdDate,
+    required this.modifiedById,
+    required this.modifiedBy,
+    required this.modifiedDate,
+  });
+
+  factory CompanyWithBankDetailsModel.fromJson(Map<String, dynamic> json) =>
+      CompanyWithBankDetailsModel(
+        companyWithBankDetailsId: parseValue<int>(
+          json,
+          "CompanyWithBankDetailsId",
+        ),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
+        companyId: parseValue<int>(json, "CompanyId"),
+        companyName: parseValue<String>(json, "CompanyName"),
+        beneficiaryAccountHolderName: parseValue<String>(
+          json,
+          "BeneficiaryAccountHolderName",
+        ),
+        bankListMasterId: parseValue<int>(json, "BankListMasterId"),
+        bankName: parseValue<String>(json, "BankName"),
+        accountNumber: parseValue<String>(json, "AccountNumber"),
+        branch: parseValue<String>(json, "Branch"),
+        ifscCode: parseValue<String>(json, "IFSCCode"),
+        acType: parseValue<String>(json, "AcType"),
+        natureOfAccount: parseValue<String>(json, "NatureOfAccount"),
+        status: parseValue<String>(json, "Status"),
+        micrCode: parseValue<String>(json, "MICRCode"),
+        cancelChequeURL: parseValue<String>(json, "CancelChequeURL"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate: parseValue<DateTime>(json, "CreatedDate"),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
+      );
+
+  Map<String, dynamic> toJson() => {
+    "CompanyWithBankDetailsId": companyWithBankDetailsId,
+    "Uniquekey": uniquekey,
+    "CompanyId": companyId,
+    "CompanyName": companyName,
+    "BeneficiaryAccountHolderName": beneficiaryAccountHolderName,
+    "BankListMasterId": bankListMasterId,
+    "BankName": bankName,
+    "AccountNumber": accountNumber,
+    "Branch": branch,
+    "IFSCCode": ifscCode,
+    "AcType": acType,
+    "NatureOfAccount": natureOfAccount,
+    "Status": status,
+    "MICRCode": micrCode,
+    "CancelChequeURL": cancelChequeURL,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
