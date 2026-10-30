@@ -150,6 +150,12 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
             isLoading: false,
             companyOverview: newData.isNotEmpty ? newData.first : null,
             clearOverview: false,
+            clearCompanyDocuments: true,
+            companyDocumentList: [],
+            searchDocumentText: '',
+            filterByFinancialYear: '',
+            currentSortDirectionDocument: '',
+            currentSortColumnDocument: '',
           ),
         );
       },
@@ -489,6 +495,12 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
             isLoading: false,
             bankDetailList: newData,
             clearBankDetails: false,
+            clearCompanyDocuments: true,
+            companyDocumentList: [],
+            searchDocumentText: '',
+            filterByFinancialYear: '',
+            currentSortDirectionDocument: '',
+            currentSortColumnDocument: '',
           ),
         );
       },
@@ -663,7 +675,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // SEARCH DOCUMENT (app bar)
+  // SEARCH DOCUMENT
   Future<void> searchDocument(
     BuildContext context,
     String value,
@@ -673,7 +685,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     await getCompanyDocumentsById(context, companyId);
   }
 
-  // FILTER + SORT DOCUMENT
+  //  FILTER DOCUMENT
   Future<void> applyDocumentFilterAndSort({
     required BuildContext context,
     required int companyId,
@@ -694,9 +706,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     await getCompanyDocumentsById(context, companyId);
   }
 
-  // ADD / UPDATE DOCUMENT
-  // NOTE: assumes repository has addUpdateCompanyDocument(body:, fileList:)
-  // returning response['data'] as List<CompanyDocumentModel> and ['message'].
+  // ADD UPDATE DOCUMENT
   Future<void> addUpdateCompanyDocument({
     required BuildContext context,
     required int companyId,
@@ -757,8 +767,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // DELETE DOCUMENT
-  // NOTE: assumes repository has deleteCompanyDocument(...)
+  // DELETE COMPANY DOCUMENT
   Future<void> deleteCompanyDocument({
     required BuildContext context,
     required int companyId,
@@ -793,7 +802,7 @@ class CompanyMasterCubit extends Cubit<CompanyMasterState> {
     );
   }
 
-  // FILTER COUNT (document screen)
+  // FILTER COUNT (DOCUMENT)
   int updateDocumentFilterCount(CompanyMasterState state) {
     final hasSort =
         state.currentSortColumnDocument == "Document Name" &&

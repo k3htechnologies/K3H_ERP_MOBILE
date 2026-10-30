@@ -23,27 +23,26 @@ import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class CompanyDocumentScreen extends StatefulWidget {
+class CompanyDocuments extends StatefulWidget {
   final int companyId;
   final String companyName;
-  const CompanyDocumentScreen({
+  const CompanyDocuments({
     super.key,
     required this.companyId,
     required this.companyName,
   });
 
   @override
-  State<CompanyDocumentScreen> createState() => _CompanyDocumentScreenState();
+  State<CompanyDocuments> createState() => _CompanyDocumentsState();
 }
 
-class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
+class _CompanyDocumentsState extends State<CompanyDocuments> {
   // CUBIT
   late CompanyMasterCubit _companyCubit;
   late AuthorizationModel _routeAuthorizationModel;
 
   // CONTROLLERS
-  late TextEditingController _searchC; // app bar search + filter doc name
-  late TextEditingController _filterFinancialYearC; // filter financial year
+  late TextEditingController _searchC, _filterFinancialYearC;
   final ValueNotifier<Map<String, dynamic>?> _selectedDocumentName =
       ValueNotifier(null);
   final ValueNotifier<Map<String, dynamic>?> _selectedFinancialYear =
@@ -68,7 +67,6 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
     _searchC = TextEditingController();
     _filterFinancialYearC = TextEditingController();
     _companyCubit = context.read<CompanyMasterCubit>();
-    // NOTE: change to the correct route key of the company master screen
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.companyMaster] ??
         AuthorizationModel();
@@ -109,7 +107,6 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
     });
   }
 
-  // CLEAR DIALOGUE
   void _clearDialogue() {
     _selectedDocumentName.value = null;
     _selectedFinancialYear.value = null;
@@ -137,7 +134,6 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
             .toList();
   }
 
-  // API CALL TO ADD / UPDATE
   void _addUpdateDocument(CompanyDocumentModel? model, int index) {
     if (_formKey.currentState!.validate()) {
       _companyCubit.addUpdateCompanyDocument(
@@ -153,7 +149,6 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
     }
   }
 
-  // DIALOGUE TO ADD / UPDATE
   Future<void> _showDialogToAddUpdateDocument({
     CompanyDocumentModel? doc,
     int? index,
@@ -244,7 +239,6 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
     );
   }
 
-  // DIALOGUE TO DELETE
   Future<void> _showPopupToDeleteDocument(
     BuildContext context,
     CompanyDocumentModel obj,
@@ -266,7 +260,6 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
     }
   }
 
-  // FILTER BOTTOM SHEET
   Future<void> _showBottomSheetToFilterDocument(BuildContext context) async {
     final state = _companyCubit.state;
 
@@ -385,7 +378,6 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
       applyEnabledNotifier: applyEnabled,
     );
 
-    // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialName;
       _filterFinancialYearC.text = initialFinancialYear;
@@ -437,16 +429,15 @@ class _CompanyDocumentScreenState extends State<CompanyDocumentScreen> {
                 child: BlocBuilder<CompanyMasterCubit, CompanyMasterState>(
                   builder: (context, state) {
                     final list = state.companyDocumentList ?? [];
-                    if ((state.isLoading ?? true) && list.isEmpty) {
-                      return Center(child: loader());
+                    if (state.companyDocumentList == null) {
+                      return loader();
                     }
-                    if (list.isEmpty) {
+                    if (state.companyDocumentList!.isEmpty) {
                       return Center(
-                        child: noDataWidget(
-                          message: "No Company Document Found",
-                        ),
+                        child: noDataWidget(message: "No Documents Found"),
                       );
                     }
+
                     return ListView.separated(
                       controller: scrollController,
                       separatorBuilder:

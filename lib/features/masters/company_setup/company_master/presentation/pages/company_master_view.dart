@@ -4,7 +4,7 @@ import 'package:k3h_erp_app/core/models/company.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/cubit/company_master/company_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_bank_details.dart';
-import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_document.dart';
+import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_documents.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_overview.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/widgets/company_partners.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -72,7 +72,7 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
           verticalSpacing(),
           ChipStyleTabBar(
             controller: _tabController,
-            tabs: ["Overview", "Bank Details", "Partners", "Documents"],
+            tabs: ["Overview", "Bank Details", "Partners", "Document"],
           ),
           Expanded(
             child: TabBarView(
@@ -82,7 +82,7 @@ class _CompanyMasterViewMobileScreenState extends State<CompanyMasterViewScreen>
                 CompanyOverview(),
                 CompanyBankDetails(companyName: widget.company!.companyName),
                 CompanyPartners(),
-                CompanyDocumentScreen(
+                CompanyDocuments(
                   companyId: widget.company!.companyId,
                   companyName: widget.company!.companyName,
                 ),

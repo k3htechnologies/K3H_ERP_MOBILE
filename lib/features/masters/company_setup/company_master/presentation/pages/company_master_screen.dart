@@ -31,10 +31,10 @@ part 'widgets/company_tabs.dart';
 class CompanyMasterScreen extends StatefulWidget {
   const CompanyMasterScreen({super.key});
   @override
-  State<CompanyMasterScreen> createState() => _CompanyMasterMobileScreenState();
+  State<CompanyMasterScreen> createState() => _CompanyMasterScreenState();
 }
 
-class _CompanyMasterMobileScreenState extends State<CompanyMasterScreen>
+class _CompanyMasterScreenState extends State<CompanyMasterScreen>
     with TickerProviderStateMixin {
   late CompanyMasterCubit _companyMasterCubit;
   late AuthorizationModel _routeAuthorizationModel;

@@ -372,7 +372,7 @@ class CompanyMasterDataSourceImp implements CompanyMasterDatasource {
         required int companyDocumentId,
         required String uniqueKey,
       }) {
-        return "CompanyDocument/DeleteCompanyDocument?CompanyDocumentId=$companyId&CompanyDocumentId=$companyDocumentId&Uniquekey=$uniqueKey";
+        return "CompanyDocument/DeleteCompanyDocument?CompanyId=$companyId&CompanyDocumentId=$companyDocumentId&Uniquekey=$uniqueKey";
       }
 
       var networkResponse = await baseClient.deleteRequestWithAuthentication(

@@ -1,6 +1,6 @@
 part of '../company_master_screen.dart';
 
-extension _CompanyTabs on _CompanyMasterMobileScreenState {
+extension _CompanyTabs on _CompanyMasterScreenState {
   Widget overview() {
     return Column(
       spacing: 10,
