@@ -144,14 +144,16 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
 
                   if (state.crmDashboardList.isNotEmpty &&
                       state.crmDashboardList.first.table0.isNotEmpty) ...{
-                    GridView.count(
+                    GridView(
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      childAspectRatio: 1.4,
-                      mainAxisExtent: 130,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 10,
+                            mainAxisSpacing: 10,
+                            mainAxisExtent: 130,
+                          ),
                       children: [
                         _totalValue(
                           context,

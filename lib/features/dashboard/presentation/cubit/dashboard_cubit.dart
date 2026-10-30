@@ -90,7 +90,7 @@ class DashboardCubit extends Cubit<DashboardState> {
   }
 
   // ADD ATTENDANCE
-  Future addAttendance(
+  Future<AttendanceModel?> addAttendance(
     BuildContext context, {
     required int attendanceId,
     required String punchAddress,
@@ -120,15 +120,17 @@ class DashboardCubit extends Cubit<DashboardState> {
 
     goRouter.pop();
 
-    addResult.fold(
+    return addResult.fold(
       (failure) {
         showErrorMessage(context, 'Error', failure.message);
+        return null;
       },
       (response) {
         final newItem = response['data'][0] as AttendanceModel;
 
         emit(state.copyWith(data: newItem));
         showSuccessMessage(context, subTitle: response['message']);
+        return newItem;
       },
     );
   }
