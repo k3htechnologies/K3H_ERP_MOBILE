@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 Widget buildWorkingHourSummaryWidget(BuildContext context) {
   return BlocBuilder<DashboardCubit, DashboardState>(
@@ -15,6 +16,14 @@ Widget buildWorkingHourSummaryWidget(BuildContext context) {
 
       final userData = state.userData;
       final table2 = userData?.table2;
+      final lateIn =
+          userData?.table12
+              .where((m) => m.attendanceStatus == "Late In")
+              .length;
+      final earlyLogOutEmployee =
+          userData?.table12
+              .where((m) => m.attendanceStatus == "Early Logout")
+              .length;
 
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -52,6 +61,57 @@ Widget buildWorkingHourSummaryWidget(BuildContext context) {
               ),
               verticalSpacing(height: 12.0),
               _buildDayWiseProgress(),
+              Divider(height: 1, color: AppColor.grey2),
+              verticalSpacing(height: 10.0),
+              Row(
+                spacing: 10,
+                children: [
+                  Row(
+                    spacing: 5,
+                    children: [
+                      Icon(
+                        LucideIcons.triangleAlert,
+                        size: 18,
+                        color: AppColor.red,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          text: "Late Login: ",
+                          style: AppTextStyle.ts12M(color: AppColor.grey),
+                          children: [
+                            TextSpan(
+                              text: "$lateIn days",
+                              style: AppTextStyle.ts12M(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    spacing: 5,
+                    children: [
+                      Icon(
+                        LucideIcons.clockAlert,
+                        size: 18,
+                        color: AppColor.rustOrange,
+                      ),
+                      RichText(
+                        text: TextSpan(
+                          text: "Early Logout: ",
+                          style: AppTextStyle.ts12M(color: AppColor.grey),
+                          children: [
+                            TextSpan(
+                              text: "$earlyLogOutEmployee days",
+                              style: AppTextStyle.ts12M(),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ] else ...[
               Center(
                 child: Text(

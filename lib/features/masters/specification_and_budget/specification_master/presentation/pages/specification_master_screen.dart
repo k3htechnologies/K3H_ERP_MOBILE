@@ -223,6 +223,8 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
                 margin: EdgeInsets.symmetric(vertical: 6.h),
                 child: Column(
+                  spacing: 10,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _levelHeader(child, isChild: true),
                     if (child.levelType == 'L2')
@@ -232,13 +234,14 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
                         singleLine: false,
                       ),
                     if (child.levelType == 'L3') ...[
-                      buildRowTitleValue(
+                      buildColumnTitleValue(
                         title: 'Description',
                         value: child.categoryName,
-                        singleLine: false,
+                        removeExpanded: true,
                       ),
                       buildRowTitleValue(
                         title: 'UOM',
+                        fixesWidth: 120,
                         value: child.uomCode,
                         singleLine: false,
                       ),
@@ -298,6 +301,7 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
   Widget _levelHeader(SpecificationMasterModel spec, {bool isChild = false}) {
     final config = budgetLevelConfig[spec.levelType];
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
@@ -329,6 +333,7 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
           title: 'Modified By',
           value: spec.modifiedBy.isEmpty ? spec.createdBy : spec.modifiedBy,
           singleLine: false,
+          fixesWidth: 120,
         ),
         buildRowTitleValue(
           title: 'Modified Date',
@@ -336,6 +341,7 @@ class _SpecificationMasterScreenState extends State<SpecificationMasterScreen>
             spec.modifiedDate ?? spec.createdDate,
           ),
           singleLine: false,
+          fixesWidth: 120,
         ),
       ],
     );
