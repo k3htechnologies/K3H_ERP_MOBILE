@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/widgets/status/payment_mode_status.dart';
 import 'package:k3h_erp_app/widgets/status/project_status.dart';
 import 'package:k3h_erp_app/widgets/status/term_sheet_report_status.dart';
 import 'package:k3h_erp_app/widgets/status/test_document_status.dart';
+import 'package:k3h_erp_app/widgets/status/visitor_management_dashboard_status.dart';
 
 Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
@@ -233,5 +234,13 @@ Widget termSheetReportStatusWidget(String status, {TextStyle? textStyle}) {
     status: localStatus,
     config: termSheetReportStatusConfig,
     textStyle: textStyle,
+  );
+}
+
+Widget visitorManagementStatusWidget(String status, {TextStyle? textStyle}) {
+  return commonStatusWidget(
+    status: status,
+    config: visitorManagementDashboardStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }

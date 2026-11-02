@@ -21,7 +21,10 @@ String formatDate(DateTime? date) {
 
 // TIME FORMATTERS
 String formatTime(DateTime? date) {
-  if (date == null) return "";
+  if (date == null || (date.hour == 0 && date.minute == 0)) {
+    return "-";
+  }
+
   return DateFormat("hh:mma").format(date);
 }
 

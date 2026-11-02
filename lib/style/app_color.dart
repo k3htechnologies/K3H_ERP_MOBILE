@@ -88,6 +88,8 @@ class AppColor {
   static const Color lightOrangeBg = Color(0xFFFED7AA);
   static const Color lightPurple = Color(0xFFFAF5FF);
   static const Color holdYellowColor = Color(0xffFFBF00);
+  static const Color checkedOutBgColor = Color(0xffD8E2FF);
+  static const Color checkedOut = Color(0xff2563EB);
 
   // TEXT
   static const Color textPrimary = Color(0xFF212121); // BLACK
