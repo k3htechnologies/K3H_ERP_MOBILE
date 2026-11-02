@@ -46,7 +46,7 @@ extension _DetailsTab on _AddTenantBookingScreenState {
   String? _addressValidator(String? value, String label) {
     if (value == null || value.trim().isEmpty) return "$label is required.";
     if (value.trim().length < 25) {
-      return "$label must be at least 25 characters";
+      return "$label must be at least 25 characters.";
     }
     return null;
   }

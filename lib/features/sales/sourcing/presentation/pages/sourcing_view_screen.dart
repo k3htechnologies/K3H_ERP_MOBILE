@@ -190,10 +190,10 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     final text = value?.trim() ?? "";
 
                     if (text.isEmpty) {
-                      return "Please enter remark";
+                      return "Please enter remark.";
                     }
                     if (text.length < 25) {
-                      return "Remark must be at least 25 characters";
+                      return "Remark must be at least 25 characters.";
                     }
 
                     return null;
@@ -300,11 +300,11 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                     final text = value?.trim() ?? "";
 
                     if (text.isEmpty) {
-                      return "Please enter remark";
+                      return "Please enter remark.";
                     }
 
                     if (text.length < 25) {
-                      return "Remark must be at least 25 characters";
+                      return "Remark must be at least 25 characters.";
                     }
                     return null;
                   },

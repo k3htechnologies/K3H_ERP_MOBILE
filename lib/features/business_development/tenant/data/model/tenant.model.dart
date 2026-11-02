@@ -51,6 +51,7 @@ class TenantModel {
   String modifiedBy;
   DateTime? modifiedDate;
   int bookingId;
+  String bookingApprovalStatus;
   TenantModel({
     required this.tenantId,
     required this.uniquekey,
@@ -100,6 +101,7 @@ class TenantModel {
     required this.modifiedBy,
     required this.modifiedDate,
     required this.bookingId,
+    required this.bookingApprovalStatus,
   });
   factory TenantModel.fromJson(Map<String, dynamic> json) {
     return TenantModel(
@@ -222,6 +224,7 @@ class TenantModel {
         json,
         "AdjustPurchaseAreaSqFt",
       ),
+      bookingApprovalStatus: parseValue<String>(json, "BookingApprovalStatus"),
     );
   }
   Map<String, dynamic> toJson() {
@@ -275,6 +278,7 @@ class TenantModel {
       "ModifiedDate": modifiedDate?.toIso8601String(),
       "BookingId": bookingId,
       "AdjustPurchaseAreaSqFt": adjustPurchaseAreaSqFt,
+      "BookingApprovalStatus": bookingApprovalStatus,
     };
   }
 }
@@ -526,6 +530,7 @@ class InventoryFlatData {
   int bookingCreatedById;
   String bookingCreatedBy;
   DateTime? bookingCreatedDate;
+  String bookingApprovalStatus;
 
   InventoryFlatData({
     required this.inventoryFlatId,
@@ -563,6 +568,7 @@ class InventoryFlatData {
     required this.bookingCreatedById,
     required this.bookingCreatedBy,
     required this.bookingCreatedDate,
+    required this.bookingApprovalStatus,
   });
 
   factory InventoryFlatData.fromJson(Map<String, dynamic> json) {
@@ -629,6 +635,7 @@ class InventoryFlatData {
           json["BookingCreatedDate"] == null
               ? null
               : parseValue<DateTime>(json, "BookingCreatedDate"),
+      bookingApprovalStatus: parseValue<String>(json, "BookingApprovalStatus"),
     );
   }
 
@@ -671,6 +678,7 @@ class InventoryFlatData {
       "BookingCreatedById": bookingCreatedById,
       "BookingCreatedBy": bookingCreatedBy,
       "BookingCreatedDate": bookingCreatedDate?.toIso8601String(),
+      "BookingApprovalStatus": bookingApprovalStatus,
     };
   }
 }

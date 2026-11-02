@@ -8,9 +8,7 @@ import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.d
 import 'package:k3h_erp_app/features/dashboard/data/repository/dashboard.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
-import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
-import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 part 'dashboard_state.dart';
 
@@ -101,8 +99,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     required String polyline,
     required double distance,
   }) async {
-    DialogHelper.showProcessingOverlay(context);
-
     final Map<String, dynamic> requestBody = {
       "AttendanceId": attendanceId,
       "PunchAddress": punchAddress,
@@ -117,8 +113,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     var addResult = await _dashboardRepository.addAttendace(
       requestBody: requestBody,
     );
-
-    goRouter.pop();
 
     return addResult.fold(
       (failure) {
@@ -148,7 +142,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     required String polyline,
     required double distance,
   }) async {
-    DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
       "AttendanceId": attendanceId,
       "Uniquekey": uniquekey,
@@ -163,9 +156,6 @@ class DashboardCubit extends Cubit<DashboardState> {
     var addResult = await _dashboardRepository.addAttendace(
       requestBody: requestBody,
     );
-
-    // close loader
-    goRouter.pop();
 
     addResult.fold(
       (failure) {

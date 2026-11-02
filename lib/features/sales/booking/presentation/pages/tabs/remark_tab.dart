@@ -32,7 +32,7 @@ extension _RemarkTab on _AddBookingScreenState {
                           return "Unit / Modulation / Customization Remark is required.";
                         }
                         if (value.trim().length < 25) {
-                          return "Unit / Modulation / Customization Remark must be at least 25 characters";
+                          return "Unit / Modulation / Customization Remark must be at least 25 characters.";
                         }
                         return null;
                       },
@@ -49,7 +49,7 @@ extension _RemarkTab on _AddBookingScreenState {
                           return "Payment Related Remark is required.";
                         }
                         if (value.trim().length < 25) {
-                          return "Payment Related Remark must be at least 25 characters";
+                          return "Payment Related Remark must be at least 25 characters.";
                         }
                         return null;
                       },

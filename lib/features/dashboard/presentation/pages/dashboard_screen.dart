@@ -25,8 +25,10 @@ import 'package:k3h_erp_app/features/dashboard/presentation/widget/pending_appro
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/features/payroll/payroll_report/presentation/pages/route_map_screen.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -227,6 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   Future<bool> punchIn(BuildContext context) async {
     try {
+      DialogHelper.showProcessingOverlay(context);
       Position pos = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.bestForNavigation,
       );
@@ -275,7 +278,7 @@ class _DashboardScreenState extends State<DashboardScreen>
         polyline: "",
         distance: 0,
       );
-
+      goRouter.pop();
       if (result == null) {
         if (context.mounted) {
           showErrorMessage(context, "ERROR", "NO INTERNET CONNECTION");
@@ -307,6 +310,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> punchOut(BuildContext context) async {
+    DialogHelper.showProcessingOverlay(context);
     final address = await _getAddressFromGPS();
 
     await positionStream?.cancel();
@@ -365,6 +369,7 @@ class _DashboardScreenState extends State<DashboardScreen>
     workedDuration.value = DateTime.now().difference(punchInTime);
     await loadSavedRoute();
     _timer?.cancel();
+    goRouter.pop();
   }
 
   bool canPunchOut() {

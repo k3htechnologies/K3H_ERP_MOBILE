@@ -272,6 +272,11 @@ class BuildingOverview extends StatelessWidget {
                   ),
                 ],
               ),
+              buildColumnTitleValue(
+                title: "Address",
+                value: building.address,
+                removeExpanded: true,
+              ),
             ],
           ),
           SectionCard(

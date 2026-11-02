@@ -446,7 +446,7 @@ extension _DetailsTab on _AddBookingScreenState {
                         return "Permanent Address is required.";
                       }
                       if (value.trim().length < 25) {
-                        return "Permanent Address must be at least 25 characters";
+                        return "Permanent Address must be at least 25 characters.";
                       }
                       return null;
                     },
@@ -464,7 +464,7 @@ extension _DetailsTab on _AddBookingScreenState {
                         return "Communication Address is required.";
                       }
                       if (value.trim().length < 25) {
-                        return "Communication Address must be at least 25 characters";
+                        return "Communication Address must be at least 25 characters.";
                       }
                       return null;
                     },

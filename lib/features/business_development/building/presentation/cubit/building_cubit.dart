@@ -462,6 +462,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     required int? cityMasterId,
     required int? villageMasterId,
     required int? wardMasterId,
+    required String address,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> buildingData = {
@@ -491,6 +492,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       'CityMasterId': cityMasterId.toString(),
       'VillageMasterId': villageMasterId.toString(),
       'WardMasterId': wardMasterId.toString(),
+      'Address': address,
       'TotalNumberOfUnits': totalNumberOfUnits.toString(),
       'NumberOfWings': numberOfWings.toString(),
       'TotalUnitsAreaUtilizedSqFt': totalUnitsAreaUtilizedSqFt.toString(),
@@ -590,6 +592,7 @@ class BuildingCubit extends Cubit<BuildingState> {
     required int? cityMasterId,
     required int? villageMasterId,
     required int? wardMasterId,
+    required String address,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, String> buildingData = {
@@ -620,6 +623,7 @@ class BuildingCubit extends Cubit<BuildingState> {
       'CityMasterId': cityMasterId.toString(),
       'VillageMasterId': villageMasterId.toString(),
       'WardMasterId': wardMasterId.toString(),
+      'Address': address,
       'TotalNumberOfUnits': totalNumberOfUnits.toString(),
       'NumberOfWings': numberOfWings.toString(),
       'TotalUnitsAreaUtilizedSqFt': totalUnitsAreaUtilizedSqFt.toString(),

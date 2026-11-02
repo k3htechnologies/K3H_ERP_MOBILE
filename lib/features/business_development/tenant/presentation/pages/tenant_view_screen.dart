@@ -25,6 +25,7 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_multi_file_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -556,10 +557,24 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                             ),
                           ],
                         ),
-                        buildColumnTitleValue(
-                          title: "Booking Created Date",
-                          value: formatDate(flat.bookingCreatedDate),
-                          removeExpanded: true,
+                        Row(
+                          spacing: 10,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            buildColumnTitleValue(
+                              title: "Booking Created Date",
+                              value: formatDate(flat.bookingCreatedDate),
+                            ),
+                            buildColumnTitleValue(
+                              title: "Approval Status",
+
+                              customValueWidget: approvalStatusWidget(
+                                flat.bookingApprovalStatus,
+                                textStyle: AppTextStyle.ts12M(),
+                              ),
+                              value: flat.bookingApprovalStatus,
+                            ),
+                          ],
                         ),
                       ],
                     );

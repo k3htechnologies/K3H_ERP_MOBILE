@@ -61,6 +61,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
       _fsiTdrUtilizationC,
       _litigationRemarksC,
       _googleLocationC,
+      _addressC,
       _searchC;
   int? _countryMasterId;
   int? _stateMasterId;
@@ -129,6 +130,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _buildingNameC.dispose();
     _ctsNumberC.dispose();
     _googleLocationC.dispose();
+    _addressC.dispose();
     _totalPlotAreaSqFtC.dispose();
     _totalNumberOfUnitsC.dispose();
     _numberOfWingsC.dispose();
@@ -156,6 +158,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _googleLocationC = TextEditingController();
     _totalPlotAreaSqFtC = TextEditingController();
     _totalNumberOfUnitsC = TextEditingController();
+    _addressC = TextEditingController();
     _numberOfWingsC = TextEditingController();
     _totalUnitsAreaUtilizedC = TextEditingController();
     _totalGardenAreaC = TextEditingController();
@@ -262,6 +265,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
     _cityMasterId = buildingModel.cityMasterId;
     _villageMasterId = buildingModel.villageMasterId;
     _wardMasterId = buildingModel.wardMasterId;
+    _addressC.text = buildingModel.address;
     _isGarden.value = buildingModel.isGarden;
     _isReligiousStructure.value = buildingModel.isReligiousStructure;
     _isLitigation.value = buildingModel.isLitigation;
@@ -307,6 +311,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
             cityMasterId: _cityMasterId,
             villageMasterId: _villageMasterId,
             wardMasterId: _wardMasterId,
+            address: _addressC.text.trim(),
             totalNumberOfUnits: int.tryParse(_totalNumberOfUnitsC.text) ?? 0,
             totalUnitsAreaUtilizedSqFt:
                 double.tryParse(_totalUnitsAreaUtilizedC.text) ?? 0.0,
@@ -402,6 +407,7 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
             cityMasterId: _cityMasterId,
             villageMasterId: _villageMasterId,
             wardMasterId: _wardMasterId,
+            address: _addressC.text.trim(),
             totalNumberOfUnits: int.tryParse(_totalNumberOfUnitsC.text) ?? 0,
             totalUnitsAreaUtilizedSqFt:
                 double.tryParse(_totalUnitsAreaUtilizedC.text) ?? 0.0,
@@ -1262,6 +1268,23 @@ class _AddBuildingScreenState extends State<AddBuildingScreen> {
                               },
                               wardChange: (selectedWard) {
                                 _wardMasterId = selectedWard['zAttributesId'];
+                              },
+                            ),
+                            CustomTextField(
+                              textController: _addressC,
+                              title: 'Address',
+                              hint: 'Enter Address',
+                              isRequired: true,
+                              minLines: 3,
+                              maxLines: 3,
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Address is required.';
+                                }
+                                if (value.length < 25) {
+                                  return 'Address must be at least 25 characters long.';
+                                }
+                                return null;
                               },
                             ),
                           ],

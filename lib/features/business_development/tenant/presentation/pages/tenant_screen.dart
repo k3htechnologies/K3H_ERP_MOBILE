@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -20,6 +21,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
@@ -35,6 +37,7 @@ class TenantScreen extends StatefulWidget {
 }
 
 class _TenantScreenState extends State<TenantScreen> {
+  late UtilsCubit _utilsCubit;
   late TenantCubit _tenantCubit;
   late AuthorizationModel _routeAuthorizationModel;
   late ProjectModel _project;
@@ -59,6 +62,7 @@ class _TenantScreenState extends State<TenantScreen> {
   void initState() {
     super.initState();
     _project = getProject();
+    _utilsCubit = context.read<UtilsCubit>();
     _tenantCubit = context.read<TenantCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.tenant] ??
@@ -866,7 +870,10 @@ class _TenantScreenState extends State<TenantScreen> {
                                             children:
                                                 assignedFlats
                                                     .map(
-                                                      (f) => FlatTile(flat: f),
+                                                      (f) => FlatTile(
+                                                        flat: f,
+                                                        utilsCubit: _utilsCubit,
+                                                      ),
                                                     )
                                                     .toList(),
                                           ),
@@ -891,8 +898,9 @@ class _TenantScreenState extends State<TenantScreen> {
 }
 
 class FlatTile extends StatelessWidget {
-  final dynamic flat;
-  const FlatTile({super.key, required this.flat});
+  final TenantModel flat;
+  final UtilsCubit utilsCubit;
+  const FlatTile({super.key, required this.flat, required this.utilsCubit});
 
   @override
   Widget build(BuildContext context) {
@@ -911,6 +919,18 @@ class FlatTile extends StatelessWidget {
             : isAllotted
             ? AppColor.purple700
             : AppColor.grey;
+    final fgIcon =
+        isBooked
+            ? AppColor.primary
+            : isAllotted
+            ? AppColor.purple700
+            : AppColor.grey;
+    final bgIcon =
+        isBooked
+            ? AppColor.lightBlue
+            : isAllotted
+            ? AppColor.lightPurpleBg2
+            : Colors.grey.shade100;
     final bg =
         isBooked
             ? const Color(0xffDCFCE7)
@@ -925,24 +945,114 @@ class FlatTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.grey.shade200),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 12,
         children: [
-          CustomIconContainer(
-            containerSize: 32,
-            iconSize: 18,
-            backgroundColor: bg,
-            iconColor: fg,
-            icon: isBooked ? LucideIcons.userRound : LucideIcons.circleCheck,
+          Row(
+            children: [
+              CustomIconContainer(
+                containerSize: 32,
+                iconSize: 18,
+                backgroundColor: bgIcon,
+                iconColor: fgIcon,
+                icon:
+                    isBooked ? LucideIcons.userRound : LucideIcons.circleCheck,
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: Text(flat.flat, style: AppTextStyle.ts14M())),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(label, style: AppTextStyle.ts12M(color: fg)),
+              ),
+            ],
           ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(flat.flat, style: AppTextStyle.ts14M())),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-            decoration: BoxDecoration(
-              color: bg,
-              borderRadius: BorderRadius.circular(6),
+          ApproveRejectWidget(
+            isMaster: true,
+            actionTitle: flat.bookingApprovalStatus,
+            showApproval: false,
+            onApprove: (value) {},
+            onReject: (value) {},
+            onThirdTap:
+                flat.bookingApprovalStatus.trim().isEmpty
+                    ? null
+                    : () async {
+                      final approvalLogHistoryList = await utilsCubit
+                          .getApprovalLogHistory(
+                            context: context,
+                            projectId: flat.projectId,
+                            id: flat.bookingId,
+                            moduleName: "TENANT BOOKING APPROVAL",
+                          );
+
+                      if (context.mounted) {
+                        goRouter.pushNamed(
+                          AppRoutes.approvalLogHistory,
+                          queryParameters: {
+                            "subTitle": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                "${flat.applicantName} ${flat.flat.isNotEmpty ? " > ${flat.flat}" : ""}",
+                              ),
+                            ),
+                            "title": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                "Booking Log History",
+                              ),
+                            ),
+                            "approvalList": Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(
+                                  approvalLogHistoryList
+                                      .map((e) => e.toJson())
+                                      .toList(),
+                                ),
+                              ),
+                            ),
+                          },
+                        );
+                      }
+                    },
+            popupTitle: '',
+          ),
+
+          buildRowTitleValue(
+            title: "Status",
+            value: flat.bookingId != 0 ? "Booking Done" : "-",
+            fixesWidth: 108,
+            titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
+
+            customValueWidget: GestureDetector(
+              onTap: () {
+                goRouter.pushNamed(
+                  AppRoutes.viewTenantBooking,
+                  queryParameters: {
+                    "bookingId": Uri.encodeQueryComponent(
+                      EncryptionManager.encryptData(flat.bookingId.toString()),
+                    ),
+                    "projectId": Uri.encodeQueryComponent(
+                      EncryptionManager.encryptData(flat.projectId.toString()),
+                    ),
+                  },
+                );
+              },
+              child: Text(
+                flat.bookingId != 0 ? "Booking Done" : "-",
+                style: AppTextStyle.ts12M(
+                  color: flat.bookingId != 0 ? AppColor.primary : null,
+                ).copyWith(
+                  decorationColor:
+                      flat.bookingId != 0 ? AppColor.primary : null,
+                  decoration:
+                      flat.bookingId != 0
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
+                ),
+              ),
             ),
-            child: Text(label, style: AppTextStyle.ts12M(color: fg)),
           ),
         ],
       ),

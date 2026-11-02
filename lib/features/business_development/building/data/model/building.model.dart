@@ -22,6 +22,7 @@ class BusinessDevelopmentBuildingModel {
   String villageName;
   int wardMasterId;
   String wardName;
+  String address;
   int totalNumberOfUnits;
   double totalUnitsAreaUtilizedSqFt;
   bool isGarden;
@@ -78,6 +79,7 @@ class BusinessDevelopmentBuildingModel {
     required this.villageName,
     required this.wardMasterId,
     required this.wardName,
+    required this.address,
     required this.totalNumberOfUnits,
     required this.totalUnitsAreaUtilizedSqFt,
     required this.isGarden,
@@ -137,6 +139,7 @@ class BusinessDevelopmentBuildingModel {
     villageName: parseValue<String>(json, "VillageName"),
     wardMasterId: parseValue<int>(json, "WardMasterId"),
     wardName: parseValue<String>(json, "WardName"),
+    address: parseValue<String>(json, "Address"),
     totalNumberOfUnits: parseValue<int>(json, "TotalNumberOfUnits"),
     totalUnitsAreaUtilizedSqFt: parseValue<double>(
       json,
@@ -230,6 +233,7 @@ class BusinessDevelopmentBuildingModel {
     "VillageName": villageName,
     "WardMasterId": wardMasterId,
     "WardName": wardName,
+    "Address": address,
     "TotalNumberOfUnits": totalNumberOfUnits,
     "TotalUnitsAreaUtilizedSqFt": totalUnitsAreaUtilizedSqFt,
     "IsGarden": isGarden,

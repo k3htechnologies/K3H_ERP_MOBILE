@@ -30,9 +30,19 @@ extension _RemarkTab on _AddTenantBookingScreenState {
                     CustomTextField(
                       title: "Payment Related Remark",
                       hint: "Enter Payment Related Remark",
+                      isRequired: true,
                       minLines: 3,
                       maxLines: 3,
                       textController: _paymentRemarkC,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Payment Related Remark is required.";
+                        }
+                        if (value.trim().length < 25) {
+                          return "Payment Related Remark must be at least 25 characters.";
+                        }
+                        return null;
+                      },
                     ),
                     CustomTextField(
                       title: "Other Remark",

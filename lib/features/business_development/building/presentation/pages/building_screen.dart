@@ -376,68 +376,49 @@ class _BuildingScreenState extends State<BuildingScreen> {
                         child: noDataWidget(message: "No Buildings Data Found"),
                       );
                     }
-                    return ListView.separated(
-                      controller: scrollController,
-                      itemCount: state.buildingList.length + 1,
-                      separatorBuilder:
-                          (context, index) => verticalSpacing(height: 12),
-                      itemBuilder: (context, index) {
-                        if (index == state.buildingList.length) {
-                          return state.buildingList.length <
-                                  state.totalNumberOfRecord
-                              ? const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                              : const SizedBox.shrink();
-                        }
-                        var building = state.buildingList[index];
-                        return Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: commonCardDecoration(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                spacing: 10,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Flexible(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        goRouter.pushNamed(
-                                          AppRoutes.viewBuilding,
-                                          queryParameters: {
-                                            "building":
-                                                Uri.encodeQueryComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(
-                                                      building.toJson(),
-                                                    ),
-                                                  ),
-                                                ),
-                                          },
-                                        );
-                                      },
-                                      child: Text(
-                                        building.buildingName,
-                                        style: AppTextStyle.ts14M(
-                                          color: AppColor.primary,
-                                        ),
-                                      ),
-                                    ),
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        _searchC.clear();
+                        _buildingCubit.searchBuilding(
+                          context,
+                          _project.projectId,
+                          "",
+                        );
+                      },
+                      child: ListView.separated(
+                        controller: scrollController,
+                        itemCount: state.buildingList.length + 1,
+                        separatorBuilder:
+                            (context, index) => verticalSpacing(height: 12),
+                        itemBuilder: (context, index) {
+                          if (index == state.buildingList.length) {
+                            return state.buildingList.length <
+                                    state.totalNumberOfRecord
+                                ? const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
                                   ),
-                                  Row(
-                                    children: [
-                                      CustomIconButton.edit(
-                                        isDisabled:
-                                            !_routeAuthorizationModel.isAction,
-                                        onPressed: () async {
-                                          await goRouter.pushNamed(
-                                            AppRoutes.addBuilding,
+                                )
+                                : const SizedBox.shrink();
+                          }
+                          var building = state.buildingList[index];
+                          return Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  spacing: 10,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Flexible(
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          goRouter.pushNamed(
+                                            AppRoutes.viewBuilding,
                                             queryParameters: {
                                               "building":
                                                   Uri.encodeQueryComponent(
@@ -447,63 +428,95 @@ class _BuildingScreenState extends State<BuildingScreen> {
                                                       ),
                                                     ),
                                                   ),
-                                              'index': index.toString(),
-                                              'projectId':
-                                                  _project.projectId.toString(),
                                             },
                                           );
                                         },
+                                        child: Text(
+                                          building.buildingName,
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.primary,
+                                          ),
+                                        ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      CustomIconButton.delete(
-                                        isDisabled:
-                                            !_routeAuthorizationModel.isAction,
-                                        onPressed: () {
-                                          _showPopupToDeleteBuilding(
-                                            context,
-                                            building,
-                                            state.currentPage,
-                                            index,
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              verticalSpacing(height: 8),
-                              buildRowTitleValue(
-                                title: "CTS Number",
-                                value: building.cTSNumber,
-                              ),
-                              buildRowTitleValue(
-                                title: "Category",
-                                value: building.category,
-                              ),
-                              buildRowTitleValue(
-                                title: "Total Plot Area (SqMt)",
-                                value: building.totalPlotAreaSqMt.toString(),
-                              ),
-                              buildRowTitleValue(
-                                title: "Total Plot Area (SqFt)",
-                                value: building.totalPlotAreaSqFt.toString(),
-                              ),
-                              buildRowTitleValue(
-                                title: "Road Width",
-                                value: building.roadWidth,
-                              ),
-                              buildRowTitleValue(
-                                title: "No. Of Floors",
-                                value: building.numberOfFloors.toString(),
-                              ),
-                              buildRowTitleValue(
-                                title: "Total Units",
-                                value: building.totalNumberOfUnits.toString(),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                    ),
+                                    Row(
+                                      children: [
+                                        CustomIconButton.edit(
+                                          isDisabled:
+                                              !_routeAuthorizationModel
+                                                  .isAction,
+                                          onPressed: () async {
+                                            await goRouter.pushNamed(
+                                              AppRoutes.addBuilding,
+                                              queryParameters: {
+                                                "building":
+                                                    Uri.encodeQueryComponent(
+                                                      EncryptionManager.encryptData(
+                                                        jsonEncode(
+                                                          building.toJson(),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                'index': index.toString(),
+                                                'projectId':
+                                                    _project.projectId
+                                                        .toString(),
+                                              },
+                                            );
+                                          },
+                                        ),
+                                        const SizedBox(width: 8),
+                                        CustomIconButton.delete(
+                                          isDisabled:
+                                              !_routeAuthorizationModel
+                                                  .isAction,
+                                          onPressed: () {
+                                            _showPopupToDeleteBuilding(
+                                              context,
+                                              building,
+                                              state.currentPage,
+                                              index,
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                                verticalSpacing(height: 8),
+                                buildRowTitleValue(
+                                  title: "CTS Number",
+                                  value: building.cTSNumber,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Category",
+                                  value: building.category,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Total Plot Area (SqMt)",
+                                  value: building.totalPlotAreaSqMt.toString(),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Total Plot Area (SqFt)",
+                                  value: building.totalPlotAreaSqFt.toString(),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Road Width",
+                                  value: building.roadWidth,
+                                ),
+                                buildRowTitleValue(
+                                  title: "No. Of Floors",
+                                  value: building.numberOfFloors.toString(),
+                                ),
+                                buildRowTitleValue(
+                                  title: "Total Units",
+                                  value: building.totalNumberOfUnits.toString(),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     );
                   },
                 ),

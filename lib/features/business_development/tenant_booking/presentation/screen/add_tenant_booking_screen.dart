@@ -722,7 +722,12 @@ class _AddTenantBookingScreenState extends State<AddTenantBookingScreen>
       _tabController.animateTo(4);
       return false;
     }
-
+    // STEP 4 : REMARKS
+    if (!(_remarkFormKey.currentState?.validate() ?? false)) {
+      _bookingCubit.onTabChangedAddForm(5, context);
+      _tabController.animateTo(5);
+      return false;
+    }
     return true;
   }
 
