@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
@@ -109,22 +110,67 @@ class NotificationService {
     });
   }
 
-  void firebaseNotificationInit() {
-    FirebaseMessaging.onMessage.listen((message) {
+  Future<void> firebaseNotificationInit() async {
+    // Request notification permission
+    final settings = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+      provisional: false,
+    );
+
+    debugPrint('Notification Permission: ${settings.authorizationStatus}');
+
+    // iOS foreground notification configuration
+    if (Platform.isIOS) {
+      await FirebaseMessaging.instance
+          .setForegroundNotificationPresentationOptions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+
+      // Check APNs token
+      final apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+
+      debugPrint('APNS TOKEN: $apnsToken');
+    }
+
+    // Get FCM token
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+
+    debugPrint('FCM TOKEN: $fcmToken');
+
+    // Listen for foreground notifications
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      debugPrint('Foreground Notification: ${message.notification?.title}');
+
       if (Platform.isAndroid) {
-        initializeLocalNotification(message);
-        showNotification(message);
+        await initializeLocalNotification(message);
+        await showNotification(message);
       }
 
       if (Platform.isIOS) {
-        foregroundMessage();
-        showNotification(message);
+        // iOS displays notification using native
+        // foreground presentation options configured above.
+        debugPrint('iOS foreground notification received');
       }
     });
 
-    FirebaseMessaging.onMessageOpenedApp.listen((message) {
+    // Listen when user taps notification in background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      debugPrint('Notification opened from background');
       handleNotificationTap(message);
     });
+
+    // Handle notification tap when app was terminated
+    final RemoteMessage? initialMessage =
+        await FirebaseMessaging.instance.getInitialMessage();
+
+    if (initialMessage != null) {
+      debugPrint('Notification opened from terminated state');
+      handleNotificationTap(initialMessage);
+    }
   }
 
   Future initializeLocalNotification(RemoteMessage message) async {
