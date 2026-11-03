@@ -218,7 +218,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
             .map(
               (f) => {
                 "zAttributesId": f.inventoryFlatId,
-                "DisplayName": f.flat,
+                "DisplayName": '${f.buildingNumber} - ${f.flat}',
                 "flatModel": f,
               },
             )
@@ -492,7 +492,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
                   .map(
                     (flat) => {
                       "zAttributesId": flat.inventoryFlatId,
-                      "DisplayName": flat.flat,
+                      "DisplayName": '${flat.buildingNumber} - ${flat.flat}',
                       "flatModel": flat,
                     },
                   )

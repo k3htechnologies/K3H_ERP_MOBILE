@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/features/business_development/building/data/model/bu
 import 'package:k3h_erp_app/features/business_development/building/data/repository/building.repository.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/data/model/tenant.model.dart';
 import 'package:k3h_erp_app/features/business_development/tenant/presentation/cubit/tenant_cubit.dart';
+import 'package:k3h_erp_app/features/business_development/tenant/presentation/pages/widgets/tenant_screen_widgets.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_import_button.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -21,14 +22,11 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
-import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class TenantScreen extends StatefulWidget {
   const TenantScreen({super.key});
@@ -58,6 +56,7 @@ class _TenantScreenState extends State<TenantScreen> {
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
   final BuildingRepository _buildingRepository =
       serviceLocator<BuildingRepository>();
+
   @override
   void initState() {
     super.initState();
@@ -830,54 +829,13 @@ class _TenantScreenState extends State<TenantScreen> {
                                   verticalSpacing(),
                                   // IF NO UNIT ASSIGNED : HIDE EXPANSION TILE
                                   assignedFlats.first.flat.isEmpty
-                                      ? SizedBox.shrink()
-                                      : Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          border: Border(
-                                            left: BorderSide(
-                                              color: AppColor.primary,
-                                              width: 4,
-                                            ),
-                                          ),
-                                          boxShadow: const [
-                                            BoxShadow(
-                                              color: Color(0x11000000),
-                                              blurRadius: 6,
-                                              offset: Offset(0, 2),
-                                            ),
-                                          ],
+                                      ? const SizedBox.shrink()
+                                      : UnitDetailsCard(
+                                        key: ValueKey(
+                                          'units_${tenant.tenantId}',
                                         ),
-                                        child: CustomExpandableCard(
-                                          padding: const EdgeInsets.fromLTRB(
-                                            16,
-                                            12,
-                                            16,
-                                            0,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppColor.white,
-                                          ),
-                                          header: Text(
-                                            "New Unit Details (${assignedFlats.length})",
-                                            style: AppTextStyle.ts14M(),
-                                          ),
-                                          body: Column(
-                                            spacing: 8,
-                                            children:
-                                                assignedFlats
-                                                    .map(
-                                                      (f) => FlatTile(
-                                                        flat: f,
-                                                        utilsCubit: _utilsCubit,
-                                                      ),
-                                                    )
-                                                    .toList(),
-                                          ),
-                                        ),
+                                        flats: assignedFlats,
+                                        utilsCubit: _utilsCubit,
                                       ),
                                 ],
                               ),
@@ -892,169 +850,6 @@ class _TenantScreenState extends State<TenantScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class FlatTile extends StatelessWidget {
-  final TenantModel flat;
-  final UtilsCubit utilsCubit;
-  const FlatTile({super.key, required this.flat, required this.utilsCubit});
-
-  @override
-  Widget build(BuildContext context) {
-    final isBooked = flat.bookingId != 0;
-    final isAllotted = flat.inventoryFlatId != 0 && !isBooked;
-
-    final label =
-        isBooked
-            ? 'Booked'
-            : isAllotted
-            ? 'Allotted'
-            : '';
-    final fg =
-        isBooked
-            ? AppColor.green20
-            : isAllotted
-            ? AppColor.purple700
-            : AppColor.grey;
-    final fgIcon =
-        isBooked
-            ? AppColor.primary
-            : isAllotted
-            ? AppColor.purple700
-            : AppColor.grey;
-    final bgIcon =
-        isBooked
-            ? AppColor.lightBlue
-            : isAllotted
-            ? AppColor.lightPurpleBg2
-            : Colors.grey.shade100;
-    final bg =
-        isBooked
-            ? const Color(0xffDCFCE7)
-            : isAllotted
-            ? AppColor.lightPurpleBg2
-            : Colors.grey.shade100;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.grey.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 12,
-        children: [
-          Row(
-            children: [
-              CustomIconContainer(
-                containerSize: 32,
-                iconSize: 18,
-                backgroundColor: bgIcon,
-                iconColor: fgIcon,
-                icon:
-                    isBooked ? LucideIcons.userRound : LucideIcons.circleCheck,
-              ),
-              const SizedBox(width: 12),
-              Expanded(child: Text(flat.flat, style: AppTextStyle.ts14M())),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: bg,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(label, style: AppTextStyle.ts12M(color: fg)),
-              ),
-            ],
-          ),
-          ApproveRejectWidget(
-            isMaster: true,
-            actionTitle: flat.bookingApprovalStatus,
-            showApproval: false,
-            onApprove: (value) {},
-            onReject: (value) {},
-            onThirdTap:
-                flat.bookingApprovalStatus.trim().isEmpty
-                    ? null
-                    : () async {
-                      final approvalLogHistoryList = await utilsCubit
-                          .getApprovalLogHistory(
-                            context: context,
-                            projectId: flat.projectId,
-                            id: flat.bookingId,
-                            moduleName: "TENANT BOOKING APPROVAL",
-                          );
-
-                      if (context.mounted) {
-                        goRouter.pushNamed(
-                          AppRoutes.approvalLogHistory,
-                          queryParameters: {
-                            "subTitle": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                "${flat.applicantName} ${flat.flat.isNotEmpty ? " > ${flat.flat}" : ""}",
-                              ),
-                            ),
-                            "title": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                "Booking Log History",
-                              ),
-                            ),
-                            "approvalList": Uri.encodeComponent(
-                              EncryptionManager.encryptData(
-                                jsonEncode(
-                                  approvalLogHistoryList
-                                      .map((e) => e.toJson())
-                                      .toList(),
-                                ),
-                              ),
-                            ),
-                          },
-                        );
-                      }
-                    },
-            popupTitle: '',
-          ),
-
-          buildRowTitleValue(
-            title: "Status",
-            value: flat.bookingId != 0 ? "Booking Done" : "-",
-            fixesWidth: 108,
-            titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
-
-            customValueWidget: GestureDetector(
-              onTap: () {
-                goRouter.pushNamed(
-                  AppRoutes.viewTenantBooking,
-                  queryParameters: {
-                    "bookingId": Uri.encodeQueryComponent(
-                      EncryptionManager.encryptData(flat.bookingId.toString()),
-                    ),
-                    "projectId": Uri.encodeQueryComponent(
-                      EncryptionManager.encryptData(flat.projectId.toString()),
-                    ),
-                  },
-                );
-              },
-              child: Text(
-                flat.bookingId != 0 ? "Booking Done" : "-",
-                style: AppTextStyle.ts12M(
-                  color: flat.bookingId != 0 ? AppColor.primary : null,
-                ).copyWith(
-                  decorationColor:
-                      flat.bookingId != 0 ? AppColor.primary : null,
-                  decoration:
-                      flat.bookingId != 0
-                          ? TextDecoration.underline
-                          : TextDecoration.none,
-                ),
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
