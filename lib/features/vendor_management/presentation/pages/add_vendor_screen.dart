@@ -1,5 +1,4 @@
 // ignore_for_file: deprecated_member_use
-import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
@@ -79,11 +79,22 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     null,
   );
   late final TabController _tabController;
+
+  // Source + filtered lists
   List<SubMaterialModel> allSubMaterialList = [];
   final ValueNotifier<List<SubMaterialModel>> filteredMaterialList =
       ValueNotifier([]);
-  final ValueNotifier<Set<int>> selectedMaterialIds = ValueNotifier({});
-  List<SubMaterialModel> subMaterialListForSelection = [];
+  final ValueNotifier<List<SpecificationMasterModel>> contractList =
+      ValueNotifier([]);
+  final ValueNotifier<List<SpecificationMasterModel>> filteredContractList =
+      ValueNotifier([]);
+
+  final ValueNotifier<List<SubMaterialModel>> selectedMaterials = ValueNotifier(
+    [],
+  );
+  final ValueNotifier<List<SpecificationMasterModel>> selectedContracts =
+      ValueNotifier([]);
+
   ValueNotifier<CountryCode> selectedMobileNoCountry = ValueNotifier(
     countryList.firstWhere((e) => e.code == "+91"),
   );
@@ -94,6 +105,8 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     super.initState();
     _vendorCubit = context.read<VendorCubit>();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(_handleTabChange);
+
     initializeTextEditingControllers();
     getMaterialList();
     if (_isEditMode) {
@@ -106,7 +119,10 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     super.dispose();
     disposeControllers();
     filteredMaterialList.dispose();
-    selectedMaterialIds.dispose();
+    filteredContractList.dispose();
+    contractList.dispose();
+    selectedMaterials.dispose();
+    selectedContracts.dispose();
     _tabController.dispose();
   }
 
@@ -136,22 +152,28 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     contractSearchC = TextEditingController();
   }
 
+  void _handleTabChange() {
+    if (!_tabController.indexIsChanging) {
+      if (_tabController.index == 0) {
+        searchC.clear();
+      } else {
+        contractSearchC.clear();
+        getContractList();
+      }
+    }
+  }
+
   Future<void> getMaterialList() async {
-    final response = await _vendorCubit.getMaterialSubMaterialUOMMaster(
+    allSubMaterialList = await _vendorCubit.getMaterialSubMaterialUOMMaster(
       context,
     );
-    if (!mounted) return;
-    final subMaterials =
-        (response["MaterialMasterSubMaterialMasterData"]
-            as List<SubMaterialModel>?) ??
-        [];
-    await compute(
-      (s) => groupBy(s, (obj) => obj.materialMasterId),
-      subMaterials,
-    );
-    if (!mounted) return;
-    allSubMaterialList = subMaterials;
     filteredMaterialList.value = List.from(allSubMaterialList);
+    _vendorCubit.closeLoader();
+  }
+
+  Future<void> getContractList() async {
+    contractList.value = await _vendorCubit.getSpecificationMasterList(context);
+    filteredContractList.value = List.from(contractList.value);
     _vendorCubit.closeLoader();
   }
 
@@ -210,9 +232,8 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       gstCertificate.fileNameList.length,
       (_) => Uint8List(0),
     );
-    subMaterialListForSelection = List.from(vendor.submaterialList);
-    selectedMaterialIds.value =
-        subMaterialListForSelection.map((e) => e.subMaterialMasterId).toSet();
+    selectedMaterials.value = List.from(vendor.submaterialList);
+    selectedContracts.value = List.from(vendor.specificationMasterData);
     selectedOwnershipType.value = ownershipTypeList.firstWhere(
       (element) => element['DisplayName'] == vendor.ownershipType,
       orElse: () => ownershipTypeList.first,
@@ -223,36 +244,99 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     );
   }
 
-  void _searchMaterialList() {
-    final query = searchC.text.trim().toLowerCase();
-    if (query.isEmpty) {
-      filteredMaterialList.value = List.from(allSubMaterialList);
-    } else {
-      filteredMaterialList.value =
-          allSubMaterialList.where((item) {
-            return item.subMaterialName.toLowerCase().contains(query) ||
-                item.materialName.toLowerCase().contains(query);
-          }).toList();
-    }
+  /// GENERIC SEARCH: FILTER [source] INTO [target] USING [match].
+  void _search<T>(
+    TextEditingController controller,
+    List<T> source,
+    ValueNotifier<List<T>> target,
+    bool Function(T item, String query) match,
+  ) {
+    final query = controller.text.trim().toLowerCase();
+    target.value =
+        query.isEmpty
+            ? List.from(source)
+            : source.where((item) => match(item, query)).toList();
   }
 
-  void _toggleMaterialSelection(SubMaterialModel item) {
-    final ids = Set<int>.from(selectedMaterialIds.value);
-    if (ids.contains(item.subMaterialMasterId)) {
-      ids.remove(item.subMaterialMasterId);
-      subMaterialListForSelection.removeWhere(
-        (e) => e.subMaterialMasterId == item.subMaterialMasterId,
-      );
+  void _searchMaterialList() => _search<SubMaterialModel>(
+    searchC,
+    allSubMaterialList,
+    filteredMaterialList,
+    (item, q) =>
+        item.subMaterialName.toLowerCase().contains(q) ||
+        item.materialName.toLowerCase().contains(q),
+  );
+
+  void _searchContractList() => _search<SpecificationMasterModel>(
+    contractSearchC,
+    contractList.value,
+    filteredContractList,
+    (item, q) => item.categoryName.toLowerCase().contains(q),
+  );
+
+  /// GENERIC TOGGLE: ADDS [item] TO [selected] IF ABSENT, REMOVES IT IF PRESENT.
+  void _toggle<T>(ValueNotifier<List<T>> selected, T item, int Function(T) id) {
+    final list = [...selected.value];
+    final i = list.indexWhere((e) => id(e) == id(item));
+    if (i >= 0) {
+      list.removeAt(i);
     } else {
-      ids.add(item.subMaterialMasterId);
-      subMaterialListForSelection.add(item);
+      list.add(item);
     }
-    selectedMaterialIds.value = ids;
+    selected.value = list;
   }
 
+  void _toggleMaterialSelection(SubMaterialModel item) =>
+      _toggle(selectedMaterials, item, (e) => e.subMaterialMasterId);
+
+  void _toggleContractSelection(SpecificationMasterModel item) =>
+      _toggle(selectedContracts, item, (e) => e.specificationMasterId);
+
+  String get _subMaterialIds =>
+      selectedMaterials.value.map((e) => e.subMaterialMasterId).join(',');
+
+  String get _contractIds =>
+      selectedContracts.value.map((e) => e.specificationMasterId).join(',');
   void _saveForm() {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    if (subMaterialListForSelection.isEmpty) {
+    final selectedVendorTypeValue = selectedVendorType.value?['DisplayName'];
+    switch (selectedVendorTypeValue) {
+      case "Material":
+        if (selectedMaterials.value.isEmpty) {
+          showErrorMessage(
+            context,
+            'Error',
+            "Please select at least one material.",
+          );
+          return;
+        }
+      case "Contractor":
+        if (selectedContracts.value.isEmpty) {
+          showErrorMessage(
+            context,
+            'Error',
+            "Please select at least one contract.",
+          );
+          return;
+        }
+      case "Both":
+        if (selectedMaterials.value.isEmpty ||
+            selectedContracts.value.isEmpty) {
+          showErrorMessage(
+            context,
+            'Error',
+            "Please select at least one material and one contract.",
+          );
+          return;
+        }
+      default:
+        showErrorMessage(
+          context,
+          'Error',
+          "Please select a valid Vendor Type.",
+        );
+    }
+    if (selectedMaterials.value.isEmpty) {
       showErrorMessage(
         context,
         'Error',
@@ -260,13 +344,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       );
       return;
     }
-    String selectedSubMaterialCommaSeperatedIds = '';
-    for (var item in subMaterialListForSelection) {
-      selectedSubMaterialCommaSeperatedIds +=
-          "${item.subMaterialMasterId.toString()},";
-    }
-    selectedSubMaterialCommaSeperatedIds = selectedSubMaterialCommaSeperatedIds
-        .substring(0, selectedSubMaterialCommaSeperatedIds.length - 1);
+
     if (widget.vendor == null) {
       _vendorCubit.addVendor(
         context: context,
@@ -285,8 +363,8 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         stateMasterId: stateMasterId.toString(),
         districtMasterId: districtMasterId.toString(),
         cityMasterId: cityMasterId.toString(),
-        subMaterialIds: selectedSubMaterialCommaSeperatedIds,
-        contractIds: '',
+        subMaterialIds: _subMaterialIds,
+        contractIds: _contractIds,
         aadharCard: aadhaarCard,
         panCard: panCard,
         gstCertificate: gstCertificate,
@@ -316,8 +394,8 @@ class _AddVendorScreenState extends State<AddVendorScreen>
         stateMasterId: stateMasterId.toString(),
         districtMasterId: districtMasterId.toString(),
         cityMasterId: cityMasterId.toString(),
-        subMaterialIds: selectedSubMaterialCommaSeperatedIds,
-        contractIds: '',
+        subMaterialIds: _subMaterialIds,
+        contractIds: _contractIds,
         aadharCard: aadhaarCard,
         panCard: panCard,
         gstCertificate: gstCertificate,
@@ -592,50 +670,6 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                 ]),
                 _card("Government Identifiers", [
                   CustomTextField(
-                    inputFormatterList:
-                        InputValidator.aadhaarNumberInputFormatter(),
-                    textController: aadhaarC,
-                    title: "Aadhaar Card Number",
-                    hint: "Enter Aadhaar Card Number",
-                    isRequired: true,
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Aadhaar Card number is required.";
-                      }
-                      if (!InputValidator.isValidAadharNumber(value)) {
-                        return "Invalid Aadhaar Card Number";
-                      }
-                      return null;
-                    },
-                  ),
-                  CustomMultiFilePicker(
-                    maxFiles: 3,
-                    initialFileList: aadhaarCard.fileNameList,
-                    filePickType: FilePickType.kycDocument,
-                    title: "Aadhaar Card",
-                    isRequired: true,
-                    onFilePickedCallback: (bytesList, fileList) {
-                      aadhaarCard.fileBytesList = bytesList;
-                      aadhaarCard.fileNameList = fileList;
-                    },
-                    validator: (file) {
-                      if (file == null || file.isEmpty) {
-                        return "Aadhaar Card file required.";
-                      }
-                      return null;
-                    },
-                    onFileDeleteCallback: (
-                      fileBytesList,
-                      fileNamelist,
-                      deletedFiles,
-                    ) {
-                      aadhaarCard.fileBytesList = fileBytesList;
-                      aadhaarCard.fileNameList = fileNamelist;
-                      aadhaarCard.deletedFileList = deletedFiles;
-                    },
-                  ),
-                  CustomTextField(
                     inputFormatterList: InputValidator.panInputFormatters(),
                     textController: panC,
                     title: "PAN Card Number",
@@ -737,6 +771,40 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                       return null;
                     },
                   ),
+                  CustomTextField(
+                    inputFormatterList:
+                        InputValidator.aadhaarNumberInputFormatter(),
+                    textController: aadhaarC,
+                    title: "Aadhaar Card Number",
+                    hint: "Enter Aadhaar Card Number",
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if ((value ?? '').trim().isNotEmpty &&
+                          !InputValidator.isValidAadharNumber(value!)) {
+                        return "Invalid Aadhaar Card Number";
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    maxFiles: 3,
+                    initialFileList: aadhaarCard.fileNameList,
+                    filePickType: FilePickType.kycDocument,
+                    title: "Aadhaar Card",
+                    onFilePickedCallback: (bytesList, fileList) {
+                      aadhaarCard.fileBytesList = bytesList;
+                      aadhaarCard.fileNameList = fileList;
+                    },
+                    onFileDeleteCallback: (
+                      fileBytesList,
+                      fileNamelist,
+                      deletedFiles,
+                    ) {
+                      aadhaarCard.fileBytesList = fileBytesList;
+                      aadhaarCard.fileNameList = fileNamelist;
+                      aadhaarCard.deletedFileList = deletedFiles;
+                    },
+                  ),
                 ]),
                 _card('Material and Contract Management', [
                   ChipStyleTabBar(
@@ -817,9 +885,13 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         ),
                       );
                     }
-                    return ValueListenableBuilder<Set<int>>(
-                      valueListenable: selectedMaterialIds,
-                      builder: (context, selectedIds, _) {
+                    return ValueListenableBuilder<List<SubMaterialModel>>(
+                      valueListenable: selectedMaterials,
+                      builder: (context, selectedList, _) {
+                        final selectedIds =
+                            selectedList
+                                .map((e) => e.subMaterialMasterId)
+                                .toSet();
                         return ListView.separated(
                           padding: EdgeInsets.zero,
                           itemCount: list.length,
@@ -903,19 +975,99 @@ class _AddVendorScreenState extends State<AddVendorScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IgnorePointer(
-            child: SearchWidget(
-              hintText: "Search By Contract Name",
-              textController: contractSearchC,
-              onSubmit: (value) {},
-            ),
+          SearchWidget(
+            hintText: "Search By Category Name",
+            textController: contractSearchC,
+            onSubmit: (value) {
+              _searchContractList();
+            },
           ),
+          verticalSpacing(),
           Expanded(
-            child: Center(
-              child: Text(
-                'Contract management coming soon',
-                style: AppTextStyle.ts14R(color: AppColor.grey),
-              ),
+            child: BlocBuilder<VendorCubit, VendorState>(
+              builder: (context, state) {
+                return ValueListenableBuilder<List<SpecificationMasterModel>>(
+                  valueListenable: filteredContractList,
+                  builder: (context, list, child) {
+                    if (state.isLoading ?? false) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (list.isEmpty) {
+                      return Center(
+                        child: noDataWidget(
+                          message: 'No data found',
+                          iconSize: 120,
+                        ),
+                      );
+                    }
+                    return ValueListenableBuilder<
+                      List<SpecificationMasterModel>
+                    >(
+                      valueListenable: selectedContracts,
+                      builder: (context, selectedList, _) {
+                        final selectedIds =
+                            selectedList
+                                .map((e) => e.specificationMasterId)
+                                .toSet();
+                        return ListView.separated(
+                          padding: EdgeInsets.zero,
+                          itemCount: list.length,
+                          separatorBuilder:
+                              (_, __) => verticalSpacing(height: 8),
+                          itemBuilder: (context, index) {
+                            final item = list[index];
+                            final isSelected = selectedIds.contains(
+                              item.specificationMasterId,
+                            );
+                            return Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          item.categoryName,
+                                          style: AppTextStyle.ts14M(
+                                            color: AppColor.black,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed:
+                                        () => _toggleContractSelection(item),
+                                    icon: Icon(
+                                      isSelected
+                                          ? Icons.delete_outline
+                                          : Icons.add,
+                                      size: 18,
+                                      color:
+                                          isSelected
+                                              ? Colors.red
+                                              : AppColor.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              },
             ),
           ),
         ],

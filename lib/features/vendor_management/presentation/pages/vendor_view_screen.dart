@@ -371,14 +371,21 @@ class _VendorViewScreenState extends State<VendorViewScreen>
               controller: _tabController,
               tabs: [
                 'Material (${widget.vendor.submaterialList.length})',
-                'Contract',
+                'Contract (${widget.vendor.specificationMasterData.length})',
               ],
               margin: EdgeInsets.zero,
               style: ChipTabBarStyle.underline,
             ),
             verticalSpacing(),
             SizedBox(
-              height: widget.vendor.submaterialList.length > 1 ? 320.h : 200.h,
+              height:
+                  _tabController.index == 0
+                      ? (widget.vendor.submaterialList.length <= 2
+                          ? 150.h
+                          : 300.h)
+                      : (widget.vendor.specificationMasterData.length <= 2
+                          ? 150.h
+                          : 300.h),
               child: TabBarView(
                 controller: _tabController,
                 physics: const NeverScrollableScrollPhysics(),
@@ -406,18 +413,18 @@ class _VendorViewScreenState extends State<VendorViewScreen>
                 if (widget.vendor.submaterialList.isEmpty) {
                   return Center(
                     child: noDataWidget(
-                      message: 'No data found',
+                      message: 'No materials available',
                       iconSize: 120,
                     ),
                   );
                 }
-                final list = widget.vendor.submaterialList;
+                final materials = widget.vendor.submaterialList;
                 return ListView.separated(
                   padding: EdgeInsets.zero,
-                  itemCount: list.length,
+                  itemCount: materials.length,
                   separatorBuilder: (_, __) => verticalSpacing(height: 8),
                   itemBuilder: (context, index) {
-                    final item = list[index];
+                    final material = materials[index];
                     return Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -444,13 +451,13 @@ class _VendorViewScreenState extends State<VendorViewScreen>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  item.subMaterialName,
+                                  material.subMaterialName,
                                   style: AppTextStyle.ts14M(
                                     color: AppColor.black,
                                   ),
                                 ),
                                 Text(
-                                  item.materialName,
+                                  material.materialName,
                                   style: AppTextStyle.ts12R(
                                     color: AppColor.grey,
                                   ),
@@ -472,7 +479,67 @@ class _VendorViewScreenState extends State<VendorViewScreen>
   }
 
   Widget _buildContractTabContent() {
-    return Center(child: noDataWidget(iconSize: 140));
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Builder(
+              builder: (context) {
+                if (widget.vendor.specificationMasterData.isEmpty) {
+                  return Center(
+                    child: noDataWidget(
+                      message: 'No contracts available',
+                      iconSize: 120,
+                    ),
+                  );
+                }
+                final contracts = widget.vendor.specificationMasterData;
+                return ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemCount: contracts.length,
+                  separatorBuilder: (_, __) => verticalSpacing(height: 8),
+                  itemBuilder: (context, index) {
+                    final contract = contracts[index];
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColor.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: AppColor.lightGrey),
+                      ),
+                      child: Row(
+                        spacing: 10,
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: AppColor.lightBlue,
+                            child: Icon(
+                              LucideIcons.package,
+                              size: 18,
+                              color: AppColor.primary,
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              contract.categoryName,
+                              style: AppTextStyle.ts14M(color: AppColor.black),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildActionDetailsSection() {

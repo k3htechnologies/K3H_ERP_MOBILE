@@ -8490,149 +8490,150 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
-      ],
-    ),
-    // COMPLIANCE MASTER
-    // NOTICE SECTION
-    ShellRoute(
-      builder: (context, state, child) {
-        return BlocProvider(
-          create: (_) => NoticeSectionMasterCubit(),
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          name: AppRoutes.noticeSectionMaster,
-          path: AppRoutes.noticeSectionMaster,
-          builder: (context, state) {
-            return const NoticeSectionMasterScreen();
-          },
-        ),
-      ],
-    ),
-    //  GATE PASS
-    ShellRoute(
-      builder: (context, state, child) {
-        return MultiBlocProvider(
-          providers: [BlocProvider(create: (_) => GatePassCubit())],
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          name: AppRoutes.gatePass,
-          path: AppRoutes.gatePass,
-          builder: (context, state) {
-            return const GatePassScreen();
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.addGatePass,
-          path: AppRoutes.addGatePass,
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>? ?? {};
-            return AddGatePassScreen(
-              gatePass: extra['gatePass'] as GatePassModel?,
-              index: extra['index'] as int?,
+        // COMPLIANCE MASTER
+        // NOTICE SECTION
+        ShellRoute(
+          builder: (context, state, child) {
+            return BlocProvider(
+              create: (_) => NoticeSectionMasterCubit(),
+              child: child,
             );
           },
+          routes: [
+            GoRoute(
+              name: AppRoutes.noticeSectionMaster,
+              path: AppRoutes.noticeSectionMaster,
+              builder: (context, state) {
+                return const NoticeSectionMasterScreen();
+              },
+            ),
+          ],
         ),
-        GoRoute(
-          name: AppRoutes.viewGatePass,
-          path: AppRoutes.viewGatePass,
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>? ?? {};
-            return ViewGatePassScreen(
-              gatePassModel: extra["gatePass"] as GatePassModel?,
+        //  GATE PASS
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => GatePassCubit())],
+              child: child,
             );
           },
+          routes: [
+            GoRoute(
+              name: AppRoutes.gatePass,
+              path: AppRoutes.gatePass,
+              builder: (context, state) {
+                return const GatePassScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addGatePass,
+              path: AppRoutes.addGatePass,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddGatePassScreen(
+                  gatePass: extra['gatePass'] as GatePassModel?,
+                  index: extra['index'] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewGatePass,
+              path: AppRoutes.viewGatePass,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return ViewGatePassScreen(
+                  gatePassModel: extra["gatePass"] as GatePassModel?,
+                );
+              },
+            ),
+          ],
         ),
-      ],
-    ),
-    //  PROJECT LEAD
-    ShellRoute(
-      builder: (context, state, child) {
-        return MultiBlocProvider(
-          providers: [BlocProvider(create: (_) => ProjectLeadCubit())],
-          child: child,
-        );
-      },
-      routes: [
-        GoRoute(
-          name: AppRoutes.projectLead,
-          path: AppRoutes.projectLead,
-          builder: (context, state) {
-            return ProjectLeadScreen();
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.addRedevelopment,
-          path: AppRoutes.addRedevelopment,
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>? ?? {};
-            return AddRedevelopmentScreen(
-              redevelopment: extra["redevelopment"] as RedevelopmentModel?,
-              index: extra["index"] as int?,
+        //  PROJECT LEAD
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [BlocProvider(create: (_) => ProjectLeadCubit())],
+              child: child,
             );
           },
-        ),
-        GoRoute(
-          name: AppRoutes.viewRedevelopment,
-          path: AppRoutes.viewRedevelopment,
-          builder: (context, state) {
-            final queryParameterDocument =
-                state.uri.queryParameters['redevelopment'];
-            final RedevelopmentModel? document =
-                queryParameterDocument != null
-                    ? RedevelopmentModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterDocument),
-                        ),
-                      ),
-                    )
-                    : null;
+          routes: [
+            GoRoute(
+              name: AppRoutes.projectLead,
+              path: AppRoutes.projectLead,
+              builder: (context, state) {
+                return ProjectLeadScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addRedevelopment,
+              path: AppRoutes.addRedevelopment,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddRedevelopmentScreen(
+                  redevelopment: extra["redevelopment"] as RedevelopmentModel?,
+                  index: extra["index"] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewRedevelopment,
+              path: AppRoutes.viewRedevelopment,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['redevelopment'];
+                final RedevelopmentModel? document =
+                    queryParameterDocument != null
+                        ? RedevelopmentModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
 
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-            return ViewRedevelopmentScreen(
-              redevelopmentModel: document!,
-              index: index,
-            );
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.addLand,
-          path: AppRoutes.addLand,
-          builder: (context, state) {
-            final extra = state.extra as Map<String, dynamic>? ?? {};
-            return AddLandScreen(
-              land: extra["land"] as LandModel?,
-              index: extra["index"] as int?,
-            );
-          },
-        ),
-        GoRoute(
-          name: AppRoutes.viewLand,
-          path: AppRoutes.viewLand,
-          builder: (context, state) {
-            final queryParameterDocument = state.uri.queryParameters['land'];
-            final LandModel? landModel =
-                queryParameterDocument != null
-                    ? LandModel.fromJson(
-                      jsonDecode(
-                        EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterDocument),
-                        ),
-                      ),
-                    )
-                    : null;
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewRedevelopmentScreen(
+                  redevelopmentModel: document!,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addLand,
+              path: AppRoutes.addLand,
+              builder: (context, state) {
+                final extra = state.extra as Map<String, dynamic>? ?? {};
+                return AddLandScreen(
+                  land: extra["land"] as LandModel?,
+                  index: extra["index"] as int?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewLand,
+              path: AppRoutes.viewLand,
+              builder: (context, state) {
+                final queryParameterDocument =
+                    state.uri.queryParameters['land'];
+                final LandModel? landModel =
+                    queryParameterDocument != null
+                        ? LandModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDocument),
+                            ),
+                          ),
+                        )
+                        : null;
 
-            final index =
-                int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
-            return ViewLandScreen(landModel: landModel!, index: index);
-          },
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                return ViewLandScreen(landModel: landModel!, index: index);
+              },
+            ),
+          ],
         ),
       ],
     ),

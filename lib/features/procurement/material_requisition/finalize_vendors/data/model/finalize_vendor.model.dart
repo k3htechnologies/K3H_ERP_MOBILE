@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -35,7 +36,7 @@ class RequisitionVendorModel extends VendorModel {
     required super.cityMasterId,
     required super.cityName,
     required super.submaterialList,
-    required super.contractList,
+    required super.specificationMasterData,
     required super.createdById,
     required super.createdBy,
     required super.createdDate,
@@ -92,8 +93,10 @@ class RequisitionVendorModel extends VendorModel {
         //     return subMaterial;
         //   }),
         // ),
-        contractList: List<String>.from(
-          json["ContractTypeMasterData"].map((x) => x),
+        specificationMasterData: List<SpecificationMasterModel>.from(
+          json["SpecificationMasterData"].map(
+            (x) => SpecificationMasterModel.fromJson(x),
+          ),
         ),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
@@ -146,7 +149,9 @@ class RequisitionVendorModel extends VendorModel {
     "SubMaterialMasterData": List<SubMaterialModel>.from(
       submaterialList.map((x) => x),
     ),
-    "ContractTypeMasterData": List<dynamic>.from(contractList.map((x) => x)),
+    "SpecificationMasterData": List<SpecificationMasterModel>.from(
+      specificationMasterData.map((x) => x),
+    ),
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

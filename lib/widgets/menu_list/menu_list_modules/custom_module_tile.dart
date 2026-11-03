@@ -29,6 +29,8 @@ class CustomModuleTile extends StatefulWidget {
   State<CustomModuleTile> createState() => _CustomModuleTileState();
 }
 
+//SAVE ICON NAME IN ASSETS/ICONS/SIDE_DRAWER_ICONS
+// FOR EXAMPLE procurementModule.svg, procurementModuleFilledIcon.svg (In filled folder)
 class _CustomModuleTileState extends State<CustomModuleTile> {
   // Helper method to get the correct icon path
   String _getIconPath(String iconPath) {
@@ -56,7 +58,6 @@ class _CustomModuleTileState extends State<CustomModuleTile> {
 
     final finalPath =
         widget.isActive ? _getFilledIconPath(iconPath) : normalPath;
-
     if (finalPath.toLowerCase().endsWith('.svg')) {
       return SvgPicture.asset(
         finalPath,

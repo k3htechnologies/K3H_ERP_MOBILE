@@ -154,6 +154,8 @@ void initDependencies() {
   registerDependencies(serviceLocator);
   // PROFILE DEPENDENCIES
   registerProfileDependencies(serviceLocator);
+  // SPECIFICATION AND BUDGET MASTER DEPENDENCIES (must be before VENDOR MANAGEMENT as VendorCubit depends on it)
+  registerSpecificationMasterDependencies(serviceLocator);
   // VENDOR MANAGEMENT DEPENDENCIES
   registerVendorManagementDependencies(serviceLocator);
   // CONTENT DEPENDENCIES
@@ -260,8 +262,6 @@ void initDependencies() {
   registerPaymentScheduleSchemeDependencies(serviceLocator);
   // SETTING DASHBOARD
   registerSettingDashboardDependencies(serviceLocator);
-  // SPECIFICATION AND BUDGET MASTER DEPENDENCIES
-  registerSpecificationMasterDependencies(serviceLocator);
   // LITIGATION DASHBOARD
   registerLitigationDashboardDependencies(serviceLocator);
   // PAYROLL DASHBOARD

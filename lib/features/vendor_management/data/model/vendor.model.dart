@@ -1,3 +1,4 @@
+import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
@@ -33,7 +34,7 @@ class VendorModel {
   int villageMasterId;
   String villageName;
   List<SubMaterialModel> submaterialList;
-  List<String> contractList;
+  List<SpecificationMasterModel> specificationMasterData;
   String verifiedNonVerified;
   int createdById;
   String createdBy;
@@ -73,7 +74,7 @@ class VendorModel {
     required this.villageMasterId,
     required this.villageName,
     required this.submaterialList,
-    required this.contractList,
+    required this.specificationMasterData,
     required this.verifiedNonVerified,
     required this.createdById,
     required this.createdBy,
@@ -119,8 +120,10 @@ class VendorModel {
     submaterialList: List<SubMaterialModel>.from(
       json["SubMaterialMasterData"].map((x) => SubMaterialModel.fromJson(x)),
     ),
-    contractList: List<String>.from(
-      json["ContractTypeMasterData"].map((x) => x),
+    specificationMasterData: List<SpecificationMasterModel>.from(
+      json["SpecificationMasterData"].map(
+        (x) => SpecificationMasterModel.fromJson(x),
+      ),
     ),
     verifiedNonVerified: parseValue<String>(json, "VerifiedNonVerified"),
     createdById: parseValue<int>(json, "CreatedById"),
@@ -167,7 +170,9 @@ class VendorModel {
     "SubMaterialMasterData": List<SubMaterialModel>.from(
       submaterialList.map((x) => x),
     ),
-    "ContractTypeMasterData": List<dynamic>.from(contractList.map((x) => x)),
+    "SpecificationMasterData": List<SpecificationMasterModel>.from(
+      specificationMasterData.map((x) => x),
+    ),
     "VerifiedNonVerified": verifiedNonVerified,
     "CreatedById": createdById,
     "CreatedBy": createdBy,

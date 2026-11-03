@@ -496,7 +496,7 @@ const tenantDocumentTypeValues = [
   'Assessment Bill',
   'Consent For Cluster (If Applicable)',
   'Developer Format Consent',
-  'Electric NOC',
+  'Electricity NOC',
   'Electricity Bill',
   'Eligible / Non Eligible (Form 3 & 4)',
   'Extra Area Purchase Letter',
@@ -522,6 +522,9 @@ const tenantDocumentTypeValues = [
   'Vacant Possession Letter',
   'Vacating Consent Letter',
   'Yadi Slip',
+  "Slum Dweller's Consent",
+  'Slum Agreement',
+  'Taba Patra',
 ];
 
 const aopStatusValues = ['AOP', 'NON - AOP', 'EXPIRED', 'EXPIRE SOON'];

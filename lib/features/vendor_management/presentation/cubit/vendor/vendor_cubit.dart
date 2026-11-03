@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:bloc/bloc.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -9,6 +8,8 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/data/repository/company_master_repository.dart';
+import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
+import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/repository/specification_master.repository.dart';
 import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/repository/vendor.repository.dart';
@@ -22,6 +23,8 @@ class VendorCubit extends Cubit<VendorState> {
   VendorCubit() : super(VendorState.initial());
   VendorRepository vendorRepository = serviceLocator<VendorRepository>();
   UtilsRepository utilsRepository = serviceLocator<UtilsRepository>();
+  final SpecificationMasterRepository _specificationMasterRepository =
+      serviceLocator<SpecificationMasterRepository>();
   CompanyMasterRepository companyMasterRepository =
       serviceLocator<CompanyMasterRepository>();
   Future searchVendor(BuildContext context, String value) async {
@@ -128,7 +131,7 @@ class VendorCubit extends Cubit<VendorState> {
     emit(state.copyWith(isLoading: false));
   }
 
-  Future<Map<String, dynamic>> getMaterialSubMaterialUOMMaster(
+  Future<List<SubMaterialModel>> getMaterialSubMaterialUOMMaster(
     BuildContext context,
   ) async {
     emit(state.copyWith(isLoading: true));
@@ -145,39 +148,44 @@ class VendorCubit extends Cubit<VendorState> {
       projectId = 0;
     }
     var result = await utilsRepository
-        .getMaterialMasterSubMaterialMasterUOMMaster(projectId: projectId);
+        .getMaterialMasterSubMaterialMasterUOMMaster(
+          projectId: projectId,
+          queryParams: {"IsCheckPermission": false},
+        );
     return result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
-        return {
-          "MaterialMasterSubMaterialMasterData": <SubMaterialModel>[],
-          "totalNumberOfRecord": 0,
-          "isSuccess": false,
-        };
+        return [];
       },
       (response) async {
         final data = response["MaterialMasterSubMaterialMasterData"];
-        if (data == null) {
-          return {
-            "MaterialMasterSubMaterialMasterData": <SubMaterialModel>[],
-            "totalNumberOfRecord": 0,
-            "isSuccess": false,
-          };
-        }
-        return {
-          "MaterialMasterSubMaterialMasterData": List<SubMaterialModel>.from(
-            (await compute(
-              (m) =>
-                  (m as List<dynamic>)
-                      .map((e) => SubMaterialModel.fromJson(e))
-                      .toList(),
-              data,
-            )),
-          ),
-          "totalNumberOfRecord": response["totalNumberOfRecord"],
-          "isSuccess": true,
-        };
+        return data.map<SubMaterialModel>((item) {
+          return SubMaterialModel.fromJson(item);
+        }).toList();
+      },
+    );
+  }
+
+  Future<List<SpecificationMasterModel>> getSpecificationMasterList(
+    BuildContext context,
+  ) async {
+    emit(state.copyWith(isLoading: true));
+    var result = await _specificationMasterRepository.pullSpecificationMaster(
+      pageNumber: 1,
+      pageSize: 1000,
+      queryParams: {"LevelType": "L1", "IsCheckPermission": false},
+    );
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return [];
+      },
+      (response) async {
+        final List<SpecificationMasterModel> newData =
+            List<SpecificationMasterModel>.from(response['data'] ?? []);
+        return newData;
       },
     );
   }
@@ -230,7 +238,7 @@ class VendorCubit extends Cubit<VendorState> {
       "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
       "AvailableMaterialList": subMaterialIds,
-      "AvailableContractList": "",
+      "AvailableContractList": contractIds,
     };
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < aadharCard.fileBytesList.length; i++) {
@@ -324,7 +332,7 @@ class VendorCubit extends Cubit<VendorState> {
       "DistrictMasterId": districtMasterId,
       "CityMasterId": cityMasterId,
       "AvailableMaterialList": subMaterialIds,
-      "AvailableContractList": "",
+      "AvailableContractList": contractIds,
     };
     List<Map<String, dynamic>> fileList = [];
     for (int i = 0; i < aadharCard.fileBytesList.length; i++) {
@@ -465,10 +473,22 @@ class VendorCubit extends Cubit<VendorState> {
     var result = await vendorRepository.exportVendor(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
-      queryParams:
-          state.searchText != ""
-              ? {"VendorName": state.searchText, "ExportType": exportType}
-              : {"ExportType": exportType},
+      queryParams: {
+        "ExportType": exportType,
+        "VendorName": state.searchText,
+        "SystemGeneratedCode": state.filterByVendorCode,
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+        "CompanyName": state.filterByCompanyName,
+        "CompanyType": state.filterByCompanyType,
+        "MobileNumber": state.filterByMobileNumber,
+        "CityName": state.filterByCity,
+        "GSTNumber": state.filterByGstNumber,
+        "AadharCardNumber": state.filterByAadhaarCardNumber,
+        "PanCardNumber": state.filterByPanCardNumber,
+        "OwnershipType": state.filterByOwnershipType,
+        "VendorBusinessType": state.filterByVendorBusinessType,
+        "Specialist": state.filterBySpecialist,
+      },
     );
     goRouter.pop();
     result.fold(
