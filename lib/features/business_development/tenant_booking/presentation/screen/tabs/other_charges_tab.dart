@@ -6,11 +6,6 @@ extension _OtherChargesTab on _AddTenantBookingScreenState {
       key: _otherChargesFormKey,
       child: BlocBuilder<TenantBookingCubit, TenantBookingState>(
         builder: (context, state) {
-          if (_agreementValueNotifier.value == 0) {
-            return Center(
-              child: noDataWidget(message: "No Other Charges Found"),
-            );
-          }
           return Column(
             children: [
               verticalSpacing(),

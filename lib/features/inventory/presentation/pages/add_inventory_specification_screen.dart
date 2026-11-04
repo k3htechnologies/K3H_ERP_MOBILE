@@ -498,10 +498,10 @@ class _AddInventorySpecificationScreenState
         child: Form(
           key: _formKey,
           child: Column(
+            spacing: 12,
             children: [
               Container(
                 padding: EdgeInsets.all(10),
-                margin: EdgeInsets.only(bottom: 10),
                 decoration: commonCardDecoration(),
                 child: Column(
                   children: [
@@ -910,6 +910,39 @@ class _AddInventorySpecificationScreenState
                   ],
                 ),
               ),
+              if (widget.flatModel?.tenantId != 0 ||
+                  widget.flatModel?.bookingId != 0)
+                infoCard(
+                  title:
+                      widget.flatModel?.tenantId != 0
+                          ? 'Tenant Details'
+                          : 'Sales Booking Details',
+                  [
+                    {
+                      'title': 'Owner Name',
+                      'value': widget.flatModel?.ownerName ?? '-',
+                    },
+                    if (widget.flatModel?.tenantId != 0) ...[
+                      {
+                        'title': 'Tenant Code',
+                        'value':
+                            widget.flatModel?.tenantSystemGeneratedCode ?? '-',
+                      },
+                      {
+                        'title': 'Tenant Building Name',
+                        'value': widget.flatModel?.tenantBuildingName ?? '-',
+                      },
+                    ],
+                    {
+                      'title': 'Created By',
+                      'value': widget.flatModel?.bookingCreatedBy ?? '-',
+                    },
+                    {
+                      'title': 'Created Date',
+                      'value': formatDate(widget.flatModel?.bookingCreatedDate),
+                    },
+                  ],
+                ),
             ],
           ),
         ),

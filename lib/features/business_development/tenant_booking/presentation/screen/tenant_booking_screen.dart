@@ -625,6 +625,14 @@ class _TenantBookingScreenState extends State<TenantBookingScreen> {
                                         ),
                                       ),
                                       buildRowTitleValue(
+                                        title: "Building Name",
+                                        value: booking.tenantBuildingName,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Building",
+                                        value: booking.buildingNumber,
+                                      ),
+                                      buildRowTitleValue(
                                         title: "Flat",
                                         value: booking.flat,
                                       ),

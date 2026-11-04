@@ -434,7 +434,7 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
                 ),
             ],
           ),
-          if (showUpdateRegistrationButton && !noAgreementValue)
+          if (showUpdateRegistrationButton)
             Row(
               children: [
                 Expanded(
@@ -475,13 +475,15 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
                 ),
                 horizontalSpacing(),
                 CustomButton(
-                  text: "Update Registration Date & Parking",
+                  text:
+                      "Update Registration Date ${booking.tenantId == 0 ? '& Parking' : ''}",
                   onPressed: () {
                     goRouter.pushNamed(
                       AppRoutes.updateRegistrationDateAndParking,
                       extra: {
                         "projectId": widget.projectId,
                         "bookingId": widget.bookingId,
+                        "tenantId": booking.tenantId,
                       },
                     );
                   },

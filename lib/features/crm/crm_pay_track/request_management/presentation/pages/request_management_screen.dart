@@ -199,6 +199,8 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
         final noAgreementValue =
             state.bookingData?.agreementValue == 0 &&
             state.bookingData?.tenantId != 0;
+        //TODO:
+        // final fullyPaid = bookingData.agreementValue == bookingData.totalAmountReceivedAgainstBooking;
         Widget? actionButton;
         if (!isBookingCancelled &&
             !isRefundStatus &&

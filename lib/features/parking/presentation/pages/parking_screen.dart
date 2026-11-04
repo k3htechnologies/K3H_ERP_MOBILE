@@ -317,8 +317,12 @@ class _ParkingScreenState extends State<ParkingScreen>
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: showSiteSelectedWidget(
-                  projectName: _project.projectName,
+                child: BlocBuilder<ParkingCubit, ParkingState>(
+                  builder: (context, state) {
+                    return showSiteSelectedWidget(
+                      projectName: _project.projectName,
+                    );
+                  },
                 ),
               ),
               Expanded(
@@ -688,7 +692,8 @@ class _ParkingScreenState extends State<ParkingScreen>
 
     final showEdit =
         canAction &&
-        (status == "available" || status == "blocked" || status == "hold");
+        (status == "available" || status == "blocked" || status == "hold") &&
+        parking.approvalStatus != "Approved";
 
     return Container(
       padding: const EdgeInsets.all(12),
@@ -746,50 +751,49 @@ class _ParkingScreenState extends State<ParkingScreen>
                   ),
                 ),
               ),
-              if (parking.approvalStatus != "Approved")
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (showView)
-                      GestureDetector(
-                        onTap: () async {
-                          await goRouter.pushNamed(
-                            AppRoutes.editParking,
-                            queryParameters: {
-                              'parking': Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(parking.toJson()),
-                                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (showView)
+                    GestureDetector(
+                      onTap: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.editParking,
+                          queryParameters: {
+                            'parking': Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(parking.toJson()),
                               ),
-                              'index': index.toString(),
-                            },
-                          );
-                        },
-                        child: const Icon(
-                          Icons.remove_red_eye_outlined,
-                          size: 18,
-                        ),
+                            ),
+                            'index': index.toString(),
+                          },
+                        );
+                      },
+                      child: const Icon(
+                        Icons.remove_red_eye_outlined,
+                        size: 18,
                       ),
+                    ),
 
-                    if (showEdit)
-                      GestureDetector(
-                        onTap: () async {
-                          await goRouter.pushNamed(
-                            AppRoutes.editParking,
-                            queryParameters: {
-                              'parking': Uri.encodeComponent(
-                                EncryptionManager.encryptData(
-                                  jsonEncode(parking.toJson()),
-                                ),
+                  if (showEdit)
+                    GestureDetector(
+                      onTap: () async {
+                        await goRouter.pushNamed(
+                          AppRoutes.editParking,
+                          queryParameters: {
+                            'parking': Uri.encodeComponent(
+                              EncryptionManager.encryptData(
+                                jsonEncode(parking.toJson()),
                               ),
-                              'index': index.toString(),
-                            },
-                          );
-                        },
-                        child: const Icon(Icons.edit, size: 18),
-                      ),
-                  ],
-                ),
+                            ),
+                            'index': index.toString(),
+                          },
+                        );
+                      },
+                      child: const Icon(Icons.edit, size: 18),
+                    ),
+                ],
+              ),
             ],
           ),
           if (parking.ownerName.isNotEmpty) ...[
@@ -800,7 +804,9 @@ class _ParkingScreenState extends State<ParkingScreen>
                 InkWell(
                   onTap: () {
                     goRouter.pushNamed(
-                      AppRoutes.viewBooking,
+                      parking.parkingStatus == 'Member'
+                          ? AppRoutes.viewTenantBooking
+                          : AppRoutes.viewBooking,
                       queryParameters: {
                         "bookingId": Uri.encodeQueryComponent(
                           EncryptionManager.encryptData(

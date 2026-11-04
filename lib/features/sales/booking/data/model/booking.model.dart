@@ -95,11 +95,6 @@ class BookingModel {
   double referralPercentage;
   double referralAmount;
   String finalRegistrationUrl;
-  double agreementValueTds;
-  double agreementValueGstPercentage;
-  double agreementValueGstAmount;
-  String chequeRtgsNumber;
-  DateTime? chequeRtgsDate;
   int cancelledById;
   String cancelledBy;
   DateTime? cancelledDate;
@@ -112,6 +107,20 @@ class BookingModel {
   String tenantBuildingName;
   String carpetAreaPurchasedSqFt;
   double adjustPurchaseAreaSqFt;
+  double receivedAgreementValue;
+  double receivedAgreementValueGSTAmount;
+  double receivedStampDutyAmount;
+  double receivedRegistrationFees;
+  double receivedAgreementValueTDS;
+
+  double otherChargesAmount;
+  double receivedOtherChargesAmount;
+  double otherChargesGSTAmount;
+  double receivedOtherChargesGSTAmount;
+
+  String bookingApprovalStatus;
+  int pendingLedgerApprovalCount;
+  bool cancelBookingIsApproval;
 
   BookingModel({
     required this.bookingId,
@@ -206,11 +215,6 @@ class BookingModel {
     required this.referralPercentage,
     required this.referralAmount,
     required this.finalRegistrationUrl,
-    required this.agreementValueTds,
-    required this.agreementValueGstPercentage,
-    required this.agreementValueGstAmount,
-    required this.chequeRtgsNumber,
-    required this.chequeRtgsDate,
     required this.cancelledById,
     required this.cancelledBy,
     required this.cancelledDate,
@@ -222,6 +226,18 @@ class BookingModel {
     required this.tenantBuildingName,
     required this.carpetAreaPurchasedSqFt,
     required this.adjustPurchaseAreaSqFt,
+    required this.receivedAgreementValue,
+    required this.receivedAgreementValueGSTAmount,
+    required this.receivedStampDutyAmount,
+    required this.receivedRegistrationFees,
+    required this.receivedAgreementValueTDS,
+    required this.otherChargesAmount,
+    required this.receivedOtherChargesAmount,
+    required this.otherChargesGSTAmount,
+    required this.receivedOtherChargesGSTAmount,
+    required this.bookingApprovalStatus,
+    required this.pendingLedgerApprovalCount,
+    required this.cancelBookingIsApproval,
   });
   factory BookingModel.fromJson(
     Map<String, dynamic> json, {
@@ -409,20 +425,6 @@ class BookingModel {
     referralPercentage: parseValue<double>(json, "ReferralPercentage"),
     referralAmount: parseValue<double>(json, "ReferralAmount"),
     finalRegistrationUrl: parseValue<String>(json, "FinalRegistrationURL"),
-    agreementValueTds: parseValue<double>(json, "AgreementValueTDS"),
-    agreementValueGstPercentage: parseValue<double>(
-      json,
-      "AgreementValueGSTPercentage",
-    ),
-    agreementValueGstAmount: parseValue<double>(
-      json,
-      "AgreementValueGSTAmount",
-    ),
-    chequeRtgsNumber: parseValue<String>(json, "ChequeRTGSNumber"),
-    chequeRtgsDate:
-        json["ChequeRTGSDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ChequeRTGSDate"),
     cancelledById: parseValue<int>(json, "CancelledById"),
     cancelledBy: parseValue<String>(json, "CancelledBy"),
     cancelledDate:
@@ -446,6 +448,50 @@ class BookingModel {
       "CarpetAreaPurchasedSqFt",
     ),
     adjustPurchaseAreaSqFt: parseValue<double>(json, "AdjustPurchaseAreaSqFt"),
+    receivedAgreementValue: parseValue<double>(json, "ReceivedAgreementValue"),
+
+    receivedAgreementValueGSTAmount: parseValue<double>(
+      json,
+      "ReceivedAgreementValueGSTAmount",
+    ),
+
+    receivedStampDutyAmount: parseValue<double>(
+      json,
+      "ReceivedStampDutyAmount",
+    ),
+
+    receivedRegistrationFees: parseValue<double>(
+      json,
+      "ReceivedRegistrationFees",
+    ),
+
+    receivedAgreementValueTDS: parseValue<double>(
+      json,
+      "ReceivedAgreementValueTDS",
+    ),
+
+    otherChargesAmount: parseValue<double>(json, "OtherChargesAmount"),
+
+    receivedOtherChargesAmount: parseValue<double>(
+      json,
+      "ReceivedOtherChargesAmount",
+    ),
+
+    otherChargesGSTAmount: parseValue<double>(json, "OtherChargesGSTAmount"),
+
+    receivedOtherChargesGSTAmount: parseValue<double>(
+      json,
+      "ReceivedOtherChargesGSTAmount",
+    ),
+
+    bookingApprovalStatus: parseValue<String>(json, "BookingApprovalStatus"),
+
+    pendingLedgerApprovalCount: parseValue<int>(
+      json,
+      "PendingLedgerApprovalCount",
+    ),
+
+    cancelBookingIsApproval: parseValue<bool>(json, "CancelBookingIsApproval"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -560,6 +606,20 @@ class BookingModel {
     "TenantBuildingName": tenantBuildingName,
     "CarpetAreaPurchasedSqFt": carpetAreaPurchasedSqFt,
     "AdjustPurchaseAreaSqFt": adjustPurchaseAreaSqFt,
+    "ReceivedAgreementValue": receivedAgreementValue,
+    "ReceivedAgreementValueGSTAmount": receivedAgreementValueGSTAmount,
+    "ReceivedStampDutyAmount": receivedStampDutyAmount,
+    "ReceivedRegistrationFees": receivedRegistrationFees,
+    "ReceivedAgreementValueTDS": receivedAgreementValueTDS,
+
+    "OtherChargesAmount": otherChargesAmount,
+    "ReceivedOtherChargesAmount": receivedOtherChargesAmount,
+    "OtherChargesGSTAmount": otherChargesGSTAmount,
+    "ReceivedOtherChargesGSTAmount": receivedOtherChargesGSTAmount,
+
+    "BookingApprovalStatus": bookingApprovalStatus,
+    "PendingLedgerApprovalCount": pendingLedgerApprovalCount,
+    "CancelBookingIsApproval": cancelBookingIsApproval,
   };
 }
 

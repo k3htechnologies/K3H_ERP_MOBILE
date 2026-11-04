@@ -7423,6 +7423,7 @@ final GoRouter goRouter = GoRouter(
                 return UpdateRegistrationDateParkingScreen(
                   projectId: data["projectId"] as int,
                   bookingId: data["bookingId"] as int,
+                  tenantId: data["tenantId"] as int,
                 );
               },
             ),

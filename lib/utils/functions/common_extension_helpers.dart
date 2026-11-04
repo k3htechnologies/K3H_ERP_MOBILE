@@ -92,7 +92,7 @@ extension PayTrackExtension on PayTrackModel {
       PayTrackSummaryItem(
         type: "Agreement Value (Without TDS)",
         total: agreementValue - agreementValueTds,
-        paid: receivedAgreementValue - receivedAgreementValueTds,
+        paid: receivedAgreementValue,
       ),
       PayTrackSummaryItem(
         type: "Agreement Value GST",

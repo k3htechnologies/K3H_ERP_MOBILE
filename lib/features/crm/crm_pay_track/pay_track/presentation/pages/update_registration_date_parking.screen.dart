@@ -24,10 +24,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class UpdateRegistrationDateParkingScreen extends StatefulWidget {
   final int projectId;
   final int bookingId;
+  final int tenantId;
   const UpdateRegistrationDateParkingScreen({
     super.key,
     required this.projectId,
     required this.bookingId,
+    required this.tenantId,
   });
 
   @override
@@ -182,7 +184,7 @@ class _UpdateRegistrationDateParkingScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Update Registration Date & Parking",
+                  "Update Registration Date ${widget.tenantId == 0 ? '& Parking' : ''}",
                   style: AppTextStyle.ts14M(color: AppColor.black),
                 ),
                 verticalSpacing(),
@@ -219,29 +221,30 @@ class _UpdateRegistrationDateParkingScreenState
                             );
                           },
                         ),
-                        ValueListenableBuilder(
-                          valueListenable: _selectedBankNotifier,
-                          builder: (context, selectedParking, child) {
-                            return CustomMultipleSelectPopup(
-                              hintText: "Select Parking",
-                              title: "Parking",
-                              isMultiSelect: true,
-                              dataList: [],
-                              initialValue: selectedParking,
-                              onSelected: (value) {
-                                _selectedBankNotifier.value = value;
-                              },
-                              dataFetchCallBack: _fetchParking,
-                            );
-                          },
-                        ),
+                        if (widget.tenantId == 0)
+                          ValueListenableBuilder(
+                            valueListenable: _selectedBankNotifier,
+                            builder: (context, selectedParking, child) {
+                              return CustomMultipleSelectPopup(
+                                hintText: "Select Parking",
+                                title: "Parking",
+                                isMultiSelect: true,
+                                dataList: [],
+                                initialValue: selectedParking,
+                                onSelected: (value) {
+                                  _selectedBankNotifier.value = value;
+                                },
+                                dataFetchCallBack: _fetchParking,
+                              );
+                            },
+                          ),
                         ValueListenableBuilder<bool>(
                           valueListenable: markAsFinalRegiserationNotifier,
                           builder: (context, isChecked, child) {
                             return CustomCheckBox(
                               isSelected: isChecked,
                               title:
-                                  "Mark as Final Registeration (Cannot Be Changed)",
+                                  "Mark as Final Registration (Cannot Be Changed)",
                               onChanged: (_) {
                                 markAsFinalRegiserationNotifier.value =
                                     !markAsFinalRegiserationNotifier.value;
