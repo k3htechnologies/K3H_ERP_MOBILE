@@ -517,7 +517,7 @@ class InventoryFlatData {
   double adjustPurchaseAreaSqFt;
   int tenantInventoryAndAdjustPurchaseAreaDetailsId;
   String parkingId;
-  List<dynamic> parkingData;
+  List<ParkingModel> parkingData;
   int createdById;
   String createdBy;
   DateTime? createdDate;
@@ -608,8 +608,12 @@ class InventoryFlatData {
       ),
       parkingId: parseValue<String>(json, "ParkingId"),
       parkingData:
-          json["ParkingData"] is List
-              ? List<dynamic>.from(json["ParkingData"])
+          json["ParkingData"] != null && json["ParkingData"] is List
+              ? (json["ParkingData"] as List)
+                  .map(
+                    (e) => ParkingModel.fromJson(Map<String, dynamic>.from(e)),
+                  )
+                  .toList()
               : [],
       createdById: parseValue<int>(json, "CreatedById"),
       createdBy: parseValue<String>(json, "CreatedBy"),
@@ -665,7 +669,7 @@ class InventoryFlatData {
       "TenantInventoryAndAdjustPurchaseAreaDetailsId":
           tenantInventoryAndAdjustPurchaseAreaDetailsId,
       "ParkingId": parkingId,
-      "ParkingData": parkingData,
+      "ParkingData": parkingData.map((e) => e.toJson()).toList(),
       "CreatedById": createdById,
       "CreatedBy": createdBy,
       "CreatedDate": createdDate?.toIso8601String(),

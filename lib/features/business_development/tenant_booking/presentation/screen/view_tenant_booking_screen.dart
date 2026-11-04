@@ -579,6 +579,7 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                                 ),
                                 child: Column(
                                   spacing: 10,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Row(
                                       spacing: 5,
@@ -631,13 +632,22 @@ class _ViewTenantBookingScreenState extends State<ViewTenantBookingScreen>
                                           CrossAxisAlignment.start,
                                       children: [
                                         buildColumnTitleValue(
-                                          title: "EV Charging",
-                                          value:
-                                              parking.isEVChargingAvailable
-                                                  ? "Yes"
-                                                  : "No",
+                                          title: "Size",
+                                          value: parking.parkingSubType,
+                                        ),
+                                        buildColumnTitleValue(
+                                          title: "Dimensions",
+                                          value: parking.parkingDimensions,
                                         ),
                                       ],
+                                    ),
+                                    buildColumnTitleValue(
+                                      title: "EV Charging",
+                                      value:
+                                          parking.isEVChargingAvailable
+                                              ? "Yes"
+                                              : "No",
+                                      removeExpanded: true,
                                     ),
                                   ],
                                 ),

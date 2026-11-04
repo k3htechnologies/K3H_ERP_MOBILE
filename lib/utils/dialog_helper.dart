@@ -966,6 +966,7 @@ class DialogHelper {
     String uploadChoice = "yes";
 
     final ScrollController expansionScrollController = ScrollController();
+    final formKey = GlobalKey<FormState>();
 
     return await showDialog<Map<String, dynamic>>(
       barrierDismissible: false,
@@ -993,41 +994,66 @@ class DialogHelper {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Icon(
-                              Icons.file_upload_outlined,
-                              size: 24,
-                              color: AppColor.primary,
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.file_upload_outlined,
+                                  size: 24,
+                                  color: AppColor.primary,
+                                ),
+                                horizontalSpacing(),
+                                Text(
+                                  "Upload Excel",
+                                  style: AppTextStyle.ts20R(
+                                    color: AppColor.primary,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
-                            horizontalSpacing(),
-                            Text(
-                              "Upload Excel",
-                              style: AppTextStyle.ts20R(
-                                color: AppColor.primary,
-                              ),
-                              textAlign: TextAlign.center,
+                            CustomIconButton(
+                              icon: Icon(Icons.close, size: 18),
+                              backgroundColor: AppColor.white,
+                              onPressed: () => Navigator.pop(context, null),
                             ),
                           ],
                         ),
                         Divider(color: AppColor.grey2, height: 10),
                         verticalSpacing(),
                         // FILE PICKER
-                        CustomMultiFilePicker(
-                          title: "Excel File",
-                          maxFiles: 1,
-                          filePickType: FilePickType.excel,
-                          onFilePickedCallback: (bytes, names) {
-                            setState(() {
-                              fileBytes = bytes.isNotEmpty ? bytes.first : null;
-                              fileName = names.isNotEmpty ? names.first : null;
-                            });
-                          },
-                          onFileDeleteCallback: (bytes, names, deletedUrl) {
-                            setState(() {
-                              fileBytes = bytes.isNotEmpty ? bytes.first : null;
-                              fileName = names.isNotEmpty ? names.first : null;
-                            });
-                          },
+                        Form(
+                          key: formKey,
+                          child: CustomMultiFilePicker(
+                            title: "Excel File",
+                            maxFiles: 1,
+                            isRequired: true,
+                            filePickType: FilePickType.excel,
+                            onFilePickedCallback: (bytes, names) {
+                              setState(() {
+                                fileBytes =
+                                    bytes.isNotEmpty ? bytes.first : null;
+                                fileName =
+                                    names.isNotEmpty ? names.first : null;
+                              });
+                            },
+                            onFileDeleteCallback: (bytes, names, deletedUrl) {
+                              setState(() {
+                                fileBytes =
+                                    bytes.isNotEmpty ? bytes.first : null;
+                                fileName =
+                                    names.isNotEmpty ? names.first : null;
+                              });
+                            },
+                            validator: (v) {
+                              if (fileBytes == null) {
+                                return "Excel file is required.";
+                              }
+                              return null;
+                            },
+                          ),
                         ),
                         verticalSpacing(height: 5),
 
@@ -1085,6 +1111,7 @@ class DialogHelper {
                           ).copyWith(dividerColor: Colors.transparent),
                           child: ExpansionTile(
                             tilePadding: EdgeInsets.zero,
+                            initiallyExpanded: true,
                             iconColor: AppColor.primary,
                             collapsedIconColor: AppColor.grey,
                             backgroundColor: AppColor.lightBlue.withValues(
@@ -1237,34 +1264,24 @@ class DialogHelper {
 
                         /// MAIN BUTTONS
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Expanded(
-                              child: CustomButton.cancelOutline(
-                                onPressed: () {
-                                  Navigator.pop(context, null);
-                                },
-                              ),
-                            ),
-
-                            horizontalSpacing(),
-
+                            Spacer(),
                             Expanded(
                               child: CustomButton(
-                                backgroundColor:
-                                    fileBytes == null
-                                        ? AppColor.grey
-                                        : AppColor.green,
-                                text: "Import",
-                                onPressed:
-                                    fileBytes == null
-                                        ? null
-                                        : () {
-                                          Navigator.pop(context, {
-                                            "deleteAll": uploadChoice == "no",
-                                            "fileBytes": fileBytes,
-                                            "fileName": fileName,
-                                          });
-                                        },
+                                backgroundColor: AppColor.primary,
+                                text: "Upload",
+                                onPressed: () {
+                                  if (formKey.currentState?.validate() !=
+                                      true) {
+                                    return;
+                                  }
+                                  Navigator.pop(context, {
+                                    "deleteAll": uploadChoice == "no",
+                                    "fileBytes": fileBytes,
+                                    "fileName": fileName,
+                                  });
+                                },
                               ),
                             ),
                           ],

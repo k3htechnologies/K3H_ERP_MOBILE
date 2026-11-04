@@ -211,6 +211,50 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     );
   }
 
+  //  VALIDATE TENANT DATA
+  Future<List<String>> validateTenant({
+    required BuildContext context,
+    required List<TenantApplicantData> applicants,
+  }) async {
+    final List<String> errors = [];
+
+    if (applicants.isNotEmpty) {
+      for (final tenant in applicants) {
+        final applicantName = tenant.applicantName;
+
+        if (tenant.photoURL.trim().isEmpty) {
+          errors.add("$applicantName: Photo is required.");
+        }
+
+        if (tenant.applicantEmailId.trim().isEmpty) {
+          errors.add("$applicantName: E-Mail ID is required.");
+        }
+
+        if (tenant.aadharCardNumber.trim().isEmpty) {
+          errors.add("$applicantName: Aadhaar Card Number is required.");
+        }
+
+        if (tenant.aadharCardURL.trim().isEmpty) {
+          errors.add("$applicantName: Aadhaar Card Document is required.");
+        }
+
+        if (tenant.panNumber.trim().isEmpty) {
+          errors.add("$applicantName: PAN Card Number is required.");
+        }
+
+        if (tenant.panCardURL.trim().isEmpty) {
+          errors.add("$applicantName: PAN Card Document is required.");
+        }
+      }
+    }
+
+    if (errors.isNotEmpty) {
+      return errors;
+    }
+
+    return errors;
+  }
+
   //  GET OTHER CHARGES LIST
   Future getOtherChargesList(
     BuildContext context,
@@ -311,10 +355,10 @@ class TenantBookingCubit extends Cubit<TenantBookingState> {
     String? searchQuery,
   }) async {
     emit(state.copyWith(isLoading: true));
-    final Map<String, dynamic>? queryParams =
-        (searchQuery != null && searchQuery.isNotEmpty)
-            ? {"Title": searchQuery}
-            : null;
+    final Map<String, dynamic> queryParams = {
+      "Title": searchQuery,
+      "IsCheckPermission": false,
+    };
 
     var result = await _termsAndConditionsRepository.getTermsAndConditionsList(
       pageNumber: pageNumber,

@@ -176,6 +176,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
               title: "Files",
               isRequired: true,
               initialFileList: _documentFiles.fileNameList,
+              filePickType: FilePickType.kycDocument,
               onFilePickedCallback: (bytesList, fileNameList) {
                 _documentFiles.fileBytesList = bytesList;
                 _documentFiles.fileNameList = fileNameList;
@@ -551,31 +552,205 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                               title: "Adjust Purchase Area (SqFt)",
                               value: flat.adjustPurchaseAreaSqFt.addCommas(),
                             ),
-                            buildColumnTitleValue(
-                              title: "Booking Created By",
-                              value: flat.bookingCreatedBy,
-                            ),
-                          ],
-                        ),
-                        Row(
-                          spacing: 10,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            buildColumnTitleValue(
-                              title: "Booking Created Date",
-                              value: formatDate(flat.bookingCreatedDate),
-                            ),
-                            buildColumnTitleValue(
-                              title: "Approval Status",
+                            if (flat.bookingId != 0) ...[
+                              buildColumnTitleValue(
+                                title: "Booking Approval Status",
 
-                              customValueWidget: approvalStatusWidget(
-                                flat.bookingApprovalStatus,
-                                textStyle: AppTextStyle.ts12M(),
+                                customValueWidget: approvalStatusWidget(
+                                  flat.bookingApprovalStatus,
+                                  textStyle: AppTextStyle.ts12M(),
+                                ),
+                                value: flat.bookingApprovalStatus,
                               ),
-                              value: flat.bookingApprovalStatus,
-                            ),
+                            ],
                           ],
                         ),
+                        if (flat.bookingId != 0)
+                          Row(
+                            spacing: 10,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              buildColumnTitleValue(
+                                title: "Booking Created By",
+                                value: flat.bookingCreatedBy,
+                              ),
+                              buildColumnTitleValue(
+                                title: "Booking Created Date",
+                                value: formatDate(flat.bookingCreatedDate),
+                              ),
+                            ],
+                          ),
+
+                        if (tenant.inventoryFlatData.isNotEmpty &&
+                            flat.parkingData.isNotEmpty)
+                          Column(
+                            children: [
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Color(0xFFf6f9ff),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: AppColor.darkBlue29.withValues(
+                                      alpha: 0.3,
+                                    ),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      "Parking Details",
+                                      style: AppTextStyle.ts12SB(
+                                        color: AppColor.darkBlue29,
+                                      ),
+                                    ),
+                                    Text(
+                                      "${flat.parkingData.length} Parking",
+                                      style: AppTextStyle.ts12M(
+                                        color: AppColor.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              verticalSpacing(height: 10),
+                              SizedBox(
+                                height: 300,
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ...flat.parkingData.mapIndexed((
+                                        index,
+                                        parking,
+                                      ) {
+                                        return Container(
+                                          margin: EdgeInsets.only(bottom: 10),
+                                          padding: EdgeInsets.all(12),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: AppColor.primary,
+                                              width: .3,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            spacing: 10,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 8,
+                                                  vertical: 4,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppColor.primary
+                                                      .withValues(alpha: 0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  "Parking ${index + 1}",
+                                                  style: AppTextStyle.ts12M(
+                                                    color: AppColor.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                              Row(
+                                                spacing: 5,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  buildColumnTitleValue(
+                                                    title: "Parking Number",
+                                                    value:
+                                                        parking.parkingNumber,
+                                                  ),
+                                                  buildColumnTitleValue(
+                                                    title: "Building",
+                                                    value:
+                                                        parking.buildingNumber,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                spacing: 5,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  buildColumnTitleValue(
+                                                    title: "Wing",
+                                                    value: parking.wing,
+                                                  ),
+                                                  buildColumnTitleValue(
+                                                    title: "Floor",
+                                                    value: parking.floor,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                spacing: 5,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  buildColumnTitleValue(
+                                                    title: "Category",
+                                                    value:
+                                                        parking.parkingCategory,
+                                                  ),
+                                                  buildColumnTitleValue(
+                                                    title: "Type",
+                                                    value: parking.parkingType,
+                                                  ),
+                                                ],
+                                              ),
+                                              Row(
+                                                spacing: 5,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  buildColumnTitleValue(
+                                                    title: "Size",
+                                                    value:
+                                                        parking.parkingSubType,
+                                                  ),
+                                                  buildColumnTitleValue(
+                                                    title: "Dimensions",
+                                                    value:
+                                                        parking
+                                                            .parkingDimensions,
+                                                  ),
+                                                ],
+                                              ),
+                                              buildColumnTitleValue(
+                                                title: "EV Charging",
+                                                value:
+                                                    parking.isEVChargingAvailable
+                                                        ? "Yes"
+                                                        : "No",
+                                                removeExpanded: true,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                       ],
                     );
                   }),
@@ -624,6 +799,9 @@ class _TenantViewScreenState extends State<TenantViewScreen>
   }
 
   Widget _buildDocumentTab() {
+    final disableAction =
+        !(_routeAuthorizationModel.isAction && widget.tenant.flatIsEditDelete);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -651,7 +829,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                     ),
                   ),
                   CustomIconButton.add(
-                    isDisabled: !_routeAuthorizationModel.isAction,
+                    isDisabled: disableAction,
                     onPressed: () async {
                       _showAddDocumentBottomSheet();
                     },
@@ -736,8 +914,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                     ),
                                   ),
                                   CustomIconButton.edit(
-                                    isDisabled:
-                                        !_routeAuthorizationModel.isAction,
+                                    isDisabled: disableAction,
                                     onPressed: () {
                                       _showAddDocumentBottomSheet(
                                         doc: doc,
@@ -746,8 +923,7 @@ class _TenantViewScreenState extends State<TenantViewScreen>
                                     },
                                   ),
                                   CustomIconButton.delete(
-                                    isDisabled:
-                                        !_routeAuthorizationModel.isAction,
+                                    isDisabled: disableAction,
                                     onPressed: () {
                                       _showPopupToDeleteTenantDocument(
                                         context: context,

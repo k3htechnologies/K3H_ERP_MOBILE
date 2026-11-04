@@ -76,8 +76,8 @@ class TenantCubit extends Cubit<TenantState> {
     required BuildContext context,
     required int projectId,
     required int buildingId,
-    required String filterByFlatType,
-    required String filterByFlatConfiguration,
+    String? filterByFlatType,
+    String? filterByFlatConfiguration,
     String? filterByFlatNumber,
     String? filterByApplicantName,
     String? filterByFlatCarpetAreaSqFt,
@@ -88,25 +88,47 @@ class TenantCubit extends Cubit<TenantState> {
     String? filterByTenantCode,
     String? sortColumn,
     String? sortDirection,
+    bool clearFilter = false,
   }) async {
-    emit(
-      state.copyWith(
-        filterByFlatType: filterByFlatType,
-        filterByFlatConfiguration: filterByFlatConfiguration,
-        searchText: filterByFlatNumber,
-        filterByApplicantName: filterByApplicantName ?? "",
-        filterByFlatCarpetAreaSqFt: filterByFlatCarpetAreaSqFt ?? "",
-        filterByBuildingNumber: filterByBuildingNumber ?? "",
-        filterByWing: filterByWing ?? "",
-        filterByFlat: filterByFlat ?? "",
-        filterByParkingNumber: filterByParkingNumber ?? "",
-        filterByTenantCode: filterByTenantCode ?? "",
-        currentSortColumn: sortColumn ?? state.currentSortColumn,
-        currentSortDirection: sortDirection ?? state.currentSortDirection,
-        buildingList: [],
-        currentPage: 1,
-      ),
-    );
+    if (clearFilter) {
+      emit(
+        state.copyWith(
+          filterByFlatType: '',
+          filterByFlatConfiguration: '',
+          searchText: '',
+          filterByApplicantName: '',
+          filterByFlatCarpetAreaSqFt: '',
+          filterByBuildingNumber: '',
+          filterByWing: '',
+          filterByFlat: '',
+          filterByParkingNumber: '',
+          filterByTenantCode: '',
+          currentSortColumn: '',
+          currentSortDirection: '',
+          buildingList: [],
+          currentPage: 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          filterByFlatType: filterByFlatType,
+          filterByFlatConfiguration: filterByFlatConfiguration,
+          searchText: filterByFlatNumber,
+          filterByApplicantName: filterByApplicantName ?? "",
+          filterByFlatCarpetAreaSqFt: filterByFlatCarpetAreaSqFt ?? "",
+          filterByBuildingNumber: filterByBuildingNumber ?? "",
+          filterByWing: filterByWing ?? "",
+          filterByFlat: filterByFlat ?? "",
+          filterByParkingNumber: filterByParkingNumber ?? "",
+          filterByTenantCode: filterByTenantCode ?? "",
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+          buildingList: [],
+          currentPage: 1,
+        ),
+      );
+    }
     if (buildingId == 0) return;
     await getTenantList(
       context: context,
@@ -304,6 +326,8 @@ class TenantCubit extends Cubit<TenantState> {
             e.applicantName,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantMobileNumber":
             e.applicantMobileNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].ApplicantMobileNumberCountryCode":
+            e.applicantMobileNumberCountryCode,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantEmailId":
             e.applicantEmailId,
         "AddUpdateTenantApplicants[$applicantIndex].PhotoURL": e.photoURL,
@@ -512,6 +536,8 @@ class TenantCubit extends Cubit<TenantState> {
             e.applicantName,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantMobileNumber":
             e.applicantMobileNumber,
+        "AddUpdateTenantApplicants[$applicantIndex].ApplicantMobileNumberCountryCode":
+            e.applicantMobileNumberCountryCode,
         "AddUpdateTenantApplicants[$applicantIndex].ApplicantEmailId":
             e.applicantEmailId,
         "AddUpdateTenantApplicants[$applicantIndex].PhotoURL": e.photoURL,
@@ -663,7 +689,6 @@ class TenantCubit extends Cubit<TenantState> {
     int buildingId,
     TenantModel tenantModel,
     BuildContext context,
-    int? index,
   ) async {
     DialogHelper.showProcessingOverlay(context);
     final result = await _tenantRepository.deleteTenant(
@@ -679,26 +704,20 @@ class TenantCubit extends Cubit<TenantState> {
       },
       (success) {
         showSuccessMessage(context, subTitle: success['message']);
-        if (index != null) {
-          final updatedList = List<TenantModel>.from(state.tenantList);
-          updatedList.removeAt(index);
-          emit(
-            state.copyWith(
-              tenantList: updatedList,
-              totalNumberOfRecord:
-                  state.totalNumberOfRecord > 0
-                      ? state.totalNumberOfRecord - 1
-                      : 0,
-            ),
-          );
-        } else {
-          getTenantList(
-            context: context,
-            pageNumber: state.currentPage,
-            projectId: projectId,
-            buildingId: buildingId,
-          );
-        }
+
+        final updatedList = List<TenantModel>.from(state.tenantList);
+        updatedList.removeWhere(
+          (tenant) => tenant.tenantId == tenantModel.tenantId,
+        );
+        emit(
+          state.copyWith(
+            tenantList: updatedList,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
       },
     );
   }
@@ -709,6 +728,10 @@ class TenantCubit extends Cubit<TenantState> {
     int projectId,
     int buildingId,
   ) async {
+    if (state.totalNumberOfRecord == 0) {
+      showErrorMessage(context, "Error", "No Data Found");
+      return;
+    }
     DialogHelper.showProcessingOverlay(context);
     final result = await _tenantRepository.exportTenant(
       pageNumber: 1,

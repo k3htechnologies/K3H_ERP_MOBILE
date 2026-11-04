@@ -61,6 +61,11 @@ class _TenantScreenState extends State<TenantScreen> {
   void initState() {
     super.initState();
     _project = getProject();
+    if (_project.projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+    }
     _utilsCubit = context.read<UtilsCubit>();
     _tenantCubit = context.read<TenantCubit>();
     _routeAuthorizationModel =
@@ -92,8 +97,6 @@ class _TenantScreenState extends State<TenantScreen> {
   Future<void> _showPopupToDeleteTenant(
     BuildContext context,
     TenantModel obj,
-    int page,
-    int index,
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
       context,
@@ -108,7 +111,6 @@ class _TenantScreenState extends State<TenantScreen> {
         _selectedBuildingNotifier.value.first["zAttributesId"] as int,
         obj,
         context,
-        index,
       );
     }
   }
@@ -372,18 +374,7 @@ class _TenantScreenState extends State<TenantScreen> {
                   ? _selectedBuildingNotifier.value.first["zAttributesId"]
                       as int
                   : 0,
-          filterByTenantCode: "",
-          filterByFlatType: "",
-          filterByFlatConfiguration: "",
-          sortColumn: "Created Date",
-          sortDirection: "DESC",
-          filterByApplicantName: "",
-          filterByFlatNumber: "",
-          filterByFlatCarpetAreaSqFt: "",
-          filterByBuildingNumber: "",
-          filterByWing: "",
-          filterByFlat: "",
-          filterByParkingNumber: "",
+          clearFilter: true,
         );
         _searchC.clear();
       },
@@ -454,6 +445,10 @@ class _TenantScreenState extends State<TenantScreen> {
           searchHintText: "Search By Unit / Annx / Svy No",
           filterCountNotifier: _filterCount,
           onAddCallback: () async {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please Select a Project");
+              return;
+            }
             if (_selectedBuildingNotifier.value.isNotEmpty) {
               await goRouter.pushNamed(
                 AppRoutes.addTenant,
@@ -468,10 +463,14 @@ class _TenantScreenState extends State<TenantScreen> {
                 },
               );
             } else {
-              showErrorMessage(context, "Error", "Please select building");
+              showErrorMessage(context, "Error", "Please Select a Building");
             }
           },
           onExportCallback: (value) {
+            if (_project.projectId == 0) {
+              showErrorMessage(context, "Error", "Please Select a Project");
+              return;
+            }
             if (_selectedBuildingNotifier.value.isNotEmpty) {
               _tenantCubit.exportExcelPdf(
                 context,
@@ -480,7 +479,7 @@ class _TenantScreenState extends State<TenantScreen> {
                 _selectedBuildingNotifier.value.first["zAttributesId"] as int,
               );
             } else {
-              showErrorMessage(context, "Error", "Please select building");
+              showErrorMessage(context, "Error", "Please Select a Building");
             }
           },
           onProjectChangeCallback: (project) {
@@ -501,13 +500,13 @@ class _TenantScreenState extends State<TenantScreen> {
                   return "Please Select a Project";
                 }
                 if (_selectedBuildingNotifier.value.isEmpty) {
-                  return 'Please select building';
+                  return 'Please Select a Building';
                 }
               }
               return null;
             },
             onUpload: (fileBytes, fileName, deleteAll, option) async {
-              await importExcel(
+              final isSuccess = await importExcel(
                 context: context,
                 body: {
                   "TableName": "TENANT",
@@ -531,6 +530,21 @@ class _TenantScreenState extends State<TenantScreen> {
                   },
                 ],
               );
+              if (isSuccess) {
+                _tenantCubit.getTenantList(
+                  // ignore: use_build_context_synchronously
+                  context: context,
+                  projectId: _project.projectId,
+                  buildingId:
+                      _selectedBuildingNotifier.value.isNotEmpty
+                          ? _selectedBuildingNotifier
+                                  .value
+                                  .first['zAttributesId']
+                              as int
+                          : 0,
+                  pageNumber: 1,
+                );
+              }
             },
           ),
         ),
@@ -572,13 +586,13 @@ class _TenantScreenState extends State<TenantScreen> {
                               }
 
                               _selectedBuildingNotifier.value = value;
-
-                              await _tenantCubit.getTenantList(
+                              _tenantCubit.applyFilterAndSort(
                                 context: context,
                                 projectId: _project.projectId,
                                 buildingId: newBuildingId,
-                                pageNumber: 1,
+                                clearFilter: true,
                               );
+                              _searchC.clear();
                             },
                             dataFetchCallBack: _fetchBuildings,
                             validator: (value) {
@@ -606,7 +620,7 @@ class _TenantScreenState extends State<TenantScreen> {
                   if (selectedBuilding.isEmpty) {
                     return Center(
                       child: Text(
-                        'Please select a building',
+                        'Please Select a Building',
                         style: AppTextStyle.ts14R(color: AppColor.grey),
                       ),
                     );
@@ -780,7 +794,7 @@ class _TenantScreenState extends State<TenantScreen> {
                                                 showErrorMessage(
                                                   context,
                                                   'Error',
-                                                  'Please select a building',
+                                                  'Please Select a Building',
                                                 );
                                                 return;
                                               }
@@ -817,8 +831,6 @@ class _TenantScreenState extends State<TenantScreen> {
                                               _showPopupToDeleteTenant(
                                                 context,
                                                 tenant,
-                                                state.currentPage,
-                                                index,
                                               );
                                             },
                                           ),

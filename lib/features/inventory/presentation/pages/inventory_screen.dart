@@ -68,11 +68,14 @@ class _InventoryScreenState extends State<InventoryScreen>
     super.initState();
     _project = getProject();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.inventory]!;
+        Authorization.routeAuthorizationMap[AppRoutes.inventory] ??
+        AuthorizationModel();
     _routeAuthorizationModelBooking =
-        Authorization.routeAuthorizationMap[AppRoutes.booking]!;
+        Authorization.routeAuthorizationMap[AppRoutes.booking] ??
+        AuthorizationModel();
     _routeAuthorizationModelTenantBooking =
-        Authorization.routeAuthorizationMap[AppRoutes.tenantBooking]!;
+        Authorization.routeAuthorizationMap[AppRoutes.tenantBooking] ??
+        AuthorizationModel();
     user = getCurrentUser();
     _initControllers();
     _inventoryCubit = context.read<InventoryCubit>();

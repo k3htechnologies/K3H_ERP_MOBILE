@@ -261,7 +261,7 @@ class _ProposedOfferScreenState extends State<ProposedOfferScreen> {
                         showErrorMessage(
                           context,
                           "Error",
-                          "Please select building",
+                          "Please Select a Building",
                         );
                       }
                     },

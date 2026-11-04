@@ -139,8 +139,10 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   }
 
   void loadTenantData() async {
-    if (!_isEditMode) return;
-
+    if (!_isEditMode) {
+      tenantModel = null;
+      return;
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DialogHelper.showProcessingOverlay(context);
     });
@@ -178,8 +180,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     final flatTypeMatch = propertyTypeList.firstWhereOrNull(
       (e) => e['DisplayName'] == tenant.unitType,
     );
-    final isResidential =
-        tenant.inventoryFlatType.toLowerCase() == 'residential';
+    final isResidential = tenant.unitType.toLowerCase() == 'residential';
     final configList =
         isResidential ? residentialFlatConfigList : commercialFlatConfigList;
     final configMatch =
@@ -331,7 +332,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
 
   void _handleSubmit() async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
-    if (tenantModel != null) {
+    if (tenantModel != null && _selectedFlatNotifier.value.isNotEmpty) {
       final errors = await _cubit.validateTenant(
         context: context,
         applicants: _applicants.value,
