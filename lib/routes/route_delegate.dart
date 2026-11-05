@@ -74,7 +74,9 @@ import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/p
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/gate_pass.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/view_gate_pass.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/cubit/visitor_management_dashboard_cubit.dart';
+import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/gate_pass_wise_distribution.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/visitor_management_dashboard.screen.dart';
+import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/widgets/overview_widget.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/core/local_storage_manager.dart';
@@ -8556,6 +8558,27 @@ final GoRouter goRouter = GoRouter(
                 final extra = state.extra as Map<String, dynamic>? ?? {};
                 return ViewGatePassScreen(
                   gatePassModel: extra["gatePass"] as GatePassModel?,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.unitWiseDistributionGatePass,
+              path: AppRoutes.unitWiseDistributionGatePass,
+              builder: (context, state) {
+                final title =
+                    state.uri.queryParameters['title'] != null
+                        ? EncryptionManager.decryptData(
+                          Uri.decodeQueryComponent(
+                            state.uri.queryParameters['title']!,
+                          ),
+                        )
+                        : '';
+                final filter = GatePassFilter.fromName(
+                  state.uri.queryParameters['filter'],
+                );
+                return GatePassWiseDistributionScreen(
+                  title: title,
+                  filter: filter,
                 );
               },
             ),

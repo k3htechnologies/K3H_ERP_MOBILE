@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,8 +10,11 @@ import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashb
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/cubit/visitor_management_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/widgets/gate_pass_filter.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/widgets/overview_widget.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -17,6 +22,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
+import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -33,10 +39,16 @@ class _VisitorManagementDashboardScreenState
     with SingleTickerProviderStateMixin {
   // CUBIT
   late VisitorManagementDashboardCubit _visitorManagementDashboardCubit;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routhAuthorizationModel;
+
   final ValueNotifier<String> _selectedFilterType = ValueNotifier("Today");
   final ValueNotifier<DateTime?> _fromDateNotifier = ValueNotifier(null);
   final ValueNotifier<DateTime?> _toDateNotifier = ValueNotifier(null);
-
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _remarkC;
   @override
   void initState() {
     _visitorManagementDashboardCubit =
@@ -45,6 +57,9 @@ class _VisitorManagementDashboardScreenState
       context: context,
       filterType: _selectedFilterType.value,
     );
+    _routhAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.gatePass]!;
+    _remarkC = TextEditingController();
     super.initState();
   }
 
@@ -53,7 +68,124 @@ class _VisitorManagementDashboardScreenState
     _selectedFilterType.dispose();
     _fromDateNotifier.dispose();
     _toDateNotifier.dispose();
+    _remarkC.dispose();
     super.dispose();
+  }
+
+  Future<void> _showBottomSheetToAddApproval(
+    BuildContext context,
+    Table1 visitor,
+  ) async {
+    bool isAccepted = true;
+
+    await DialogHelper.showCustomBottomSheet(
+      context,
+      "Add Approval",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Radio<bool>(
+                      value: true,
+                      groupValue: isAccepted,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        innerState(() => isAccepted = value);
+                      },
+                    ),
+                    Text("Accept", style: AppTextStyle.ts14M()),
+                    horizontalSpacing(width: 16),
+                    Radio<bool>(
+                      value: false,
+                      groupValue: isAccepted,
+                      onChanged: (value) {
+                        if (value == null) return;
+                        innerState(() => isAccepted = value);
+                      },
+                    ),
+                    Text("Reject", style: AppTextStyle.ts14M()),
+                  ],
+                ),
+                verticalSpacing(height: 12),
+                CustomTextField(
+                  title: "Remark",
+                  hint: "Enter remark",
+                  isRequired: true,
+                  textController: _remarkC,
+                  minLines: 3,
+                  maxLines: 10,
+                  validator: (value) {
+                    final text = value?.trim() ?? "";
+
+                    if (text.isEmpty) {
+                      return "Remark is required";
+                    }
+
+                    if (text.length < 25) {
+                      return "Remark must be at least 25 characters";
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      bottomActions: CustomButton(
+        text: "Save",
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _saveForm(isAccepted, visitor);
+          }
+        },
+      ),
+    );
+    _clearBottomSheet();
+  }
+
+  void _clearBottomSheet() {
+    _remarkC.clear();
+  }
+
+  void _saveForm(bool isAccepted, Table1 visitor) {
+    _visitorManagementDashboardCubit.addApproval(
+      context: context,
+      externalId: visitor.externalId,
+      uniquekey: visitor.uniquekey,
+      type: _selectedFilterType.value,
+      approvalRemark: _remarkC.text.trim(),
+      approvalStatus: isAccepted ? "Approved" : "Rejected",
+    );
+  }
+
+  Future<void> _showPopupToFinaliseTermSheetApproval(
+    BuildContext context,
+    Table1 visitor,
+  ) async {
+    var result = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'You are about to mark this Gate Pass Out?',
+      message:
+          'Marking this Gate Pass Out will confirm that the visitor has exited. Do you want to continue?',
+      confirmText: "Out",
+      icon: LucideIcons.trash,
+      confirmColor: AppColor.missingInformationRed,
+    );
+    if (result && context.mounted) {
+      _visitorManagementDashboardCubit.updateGatePassOut(
+        context,
+        externalId: visitor.externalId,
+        type: _selectedFilterType.value,
+        uniquekey: visitor.uniquekey,
+      );
+    }
   }
 
   @override
@@ -61,7 +193,7 @@ class _VisitorManagementDashboardScreenState
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Visitor Management Dashboard",
-        authorization: AuthorizationModel(),
+        authorization: _routhAuthorizationModel,
         isMenuButton: true,
         showNotification: true,
       ),
@@ -149,17 +281,26 @@ class _VisitorManagementDashboardScreenState
                                       'datewise'
                                   ? "Select a date range to view visitors"
                                   : "No records Found",
-                          iconSize: 160.sp,
+                          iconSize: 120.sp,
                         ),
                       ),
                     } else ...{
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomButton(text: "+ Add Visitor", onPressed: () {}),
-                        ],
-                      ),
+                      if (_routhAuthorizationModel.isAction) ...{
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CustomButton(
+                              text: "+ Add Visitor",
+                              onPressed: () {
+                                goRouter.pushNamed(AppRoutes.gatePass);
+                              },
+                            ),
+                          ],
+                        ),
+                      } else ...{
+                        SizedBox.shrink(),
+                      },
                       verticalSpacing(),
                       GatePassOverviewWidget(
                         filterType: _selectedFilterType.value,
@@ -172,8 +313,12 @@ class _VisitorManagementDashboardScreenState
                         timelineGroups,
                       ),
                       verticalSpacing(height: 20.sp),
-                      _buildVisitorTimeline(timelineGroups),
-                      verticalSpacing(height: 20.sp),
+                      if (_selectedFilterType.value.toLowerCase() ==
+                          "today") ...{
+                        _buildVisitorTimeline(timelineGroups),
+                        verticalSpacing(height: 20.sp),
+                      },
+
                       _buildPurposeWiseVisitors(purposeWiseVisitors),
                       verticalSpacing(height: 20.sp),
                       _buildAlerts(alertsVisitors),
@@ -207,7 +352,10 @@ class _VisitorManagementDashboardScreenState
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: "Today's Visitors",
+                  text:
+                      _selectedFilterType.value.toLowerCase() == "today"
+                          ? "${_selectedFilterType.value}'s Visitors"
+                          : "${_selectedFilterType.value} Visitors",
                   style: AppTextStyle.ts14M(color: AppColor.grey),
                 ),
                 TextSpan(
@@ -222,7 +370,7 @@ class _VisitorManagementDashboardScreenState
             Center(
               child: noDataWidget(
                 message: "No records Found",
-                iconSize: 160.sp,
+                iconSize: 120.sp,
               ),
             ),
           } else ...{
@@ -235,9 +383,9 @@ class _VisitorManagementDashboardScreenState
                 itemBuilder: (context, index) {
                   final visitor = todayVisitors[index];
                   final statusColor = getVisitorPurposeColor(visitor.status);
-
+                  final bool isLast = index == todayVisitors.length - 1;
                   return Container(
-                    margin: EdgeInsets.only(bottom: 16.sp),
+                    margin: EdgeInsets.only(bottom: isLast ? 0.sp : 16.sp),
                     padding: EdgeInsets.all(12.sp),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8.sp),
@@ -251,15 +399,18 @@ class _VisitorManagementDashboardScreenState
                             CircleAvatar(
                               radius: 16.sp,
                               backgroundColor: AppColor.primary,
-                              child: ClipOval(
-                                child: NetworkImageWidget(
-                                  key: ValueKey(visitor.photoUrl),
-                                  imageUrl: visitor.photoUrl,
-                                  fit: BoxFit.fill,
-                                  width: 50.w,
-                                  height: 50.h,
-                                ),
-                              ),
+                              child:
+                                  visitor.photoUrl.isNotEmpty
+                                      ? ClipOval(
+                                        child: NetworkImageWidget(
+                                          key: ValueKey(visitor.photoUrl),
+                                          imageUrl: visitor.photoUrl,
+                                          fit: BoxFit.fill,
+                                          width: 50.w,
+                                          height: 50.h,
+                                        ),
+                                      )
+                                      : Text(getInitials(visitor.visitorName)),
                             ),
                             horizontalSpacing(width: 12.sp),
                             Expanded(
@@ -315,9 +466,13 @@ class _VisitorManagementDashboardScreenState
                           children: [
                             buildColumnTitleValue(
                               title: "Contact",
-                              value: visitor.contact,
+                              value:
+                                  visitor.contact.isEmpty
+                                      ? "-"
+                                      : "+91 ${visitor.contact}",
                               removeExpanded: true,
                             ),
+                            horizontalSpacing(),
                             buildColumnTitleValue(
                               title: "Appointment With",
                               value: visitor.appointmentWith,
@@ -335,6 +490,7 @@ class _VisitorManagementDashboardScreenState
                               value: formatTime(visitor.checkInTime),
                               removeExpanded: true,
                             ),
+                            horizontalSpacing(),
                             buildColumnTitleValue(
                               title: "Purpose",
                               value: "",
@@ -362,20 +518,59 @@ class _VisitorManagementDashboardScreenState
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   CustomIconButton(
-                                    onPressed: () {},
+                                    isDisable: !visitor.isApproval,
+                                    size: 18.sp,
+                                    backgroundColor: AppColor.green20
+                                        .withValues(alpha: 0.15),
+                                    onPressed: () {
+                                      _showBottomSheetToAddApproval(
+                                        context,
+                                        visitor,
+                                      );
+                                    },
                                     icon: Icon(
-                                      LucideIcons.logOut,
-                                      size: 16,
-                                      color: AppColor.primary,
+                                      LucideIcons.logIn,
+                                      size: 16.sp,
+                                      color:
+                                          !visitor.isApproval
+                                              ? AppColor.grey
+                                              : AppColor.green20,
                                     ),
                                   ),
                                   horizontalSpacing(),
                                   CustomIconButton(
+                                    isDisable: !visitor.isCheckOutEnabled,
+                                    size: 18.sp,
+                                    backgroundColor: AppColor.lightRed,
+                                    onPressed: () {
+                                      _showPopupToFinaliseTermSheetApproval(
+                                        context,
+                                        visitor,
+                                      );
+                                    },
+                                    icon: Icon(
+                                      LucideIcons.logOut,
+                                      size: 16,
+                                      color:
+                                          !visitor.isCheckOutEnabled
+                                              ? AppColor.grey
+                                              : AppColor.missingInformationRed,
+                                    ),
+                                  ),
+                                  horizontalSpacing(),
+                                  CustomIconButton(
+                                    isDisable: !visitor.isNoticationEnabled,
+                                    size: 18.sp,
+                                    backgroundColor: AppColor.primary
+                                        .withValues(alpha: 0.1),
                                     onPressed: () {},
                                     icon: Icon(
                                       LucideIcons.bell,
                                       size: 16,
-                                      color: AppColor.primary,
+                                      color:
+                                          !visitor.isNoticationEnabled
+                                              ? AppColor.grey
+                                              : AppColor.primary,
                                     ),
                                   ),
                                 ],
@@ -411,7 +606,7 @@ class _VisitorManagementDashboardScreenState
           ),
           verticalSpacing(height: 16.sp),
           if (timelineGroups.isEmpty) ...{
-            Center(child: noDataWidget(iconSize: 160.sp)),
+            Center(child: noDataWidget(iconSize: 120.sp)),
           } else ...{
             SizedBox(
               height: 250.sp,
@@ -522,12 +717,46 @@ class _VisitorManagementDashboardScreenState
             Center(child: noDataWidget(iconSize: 120.sp)),
           } else ...{
             SizedBox(
-              height: 250.sp,
+              height: 200.sp,
               child: ListView.builder(
                 itemCount: alertList.length,
                 padding: EdgeInsets.zero,
                 itemBuilder: (context, index) {
-                  return Container();
+                  final alerts = alertList[index];
+                  final alertColor = getAlertColor(alerts.status);
+                  final bool isLast = index == alertList.length - 1;
+                  return Container(
+                    margin: EdgeInsets.only(bottom: isLast ? 0.sp : 16.sp),
+                    padding: EdgeInsets.all(12.sp),
+                    decoration: BoxDecoration(
+                      color: alertColor.backgroundColor,
+                      borderRadius: BorderRadius.circular(6.sp),
+                      border: Border(
+                        left: BorderSide(
+                          width: 10.sp,
+                          color: alertColor.borderColor,
+                        ),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          alerts.alertType,
+                          style: AppTextStyle.ts14SB(
+                            color: alertColor.textColor,
+                          ),
+                        ),
+                        verticalSpacing(height: 6.sp),
+                        Text(
+                          alerts.alertMessage,
+                          style: AppTextStyle.ts12R(
+                            color: alertColor.textColor,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
                 },
               ),
             ),
@@ -544,6 +773,18 @@ class VisitorPurposeColor {
 
   const VisitorPurposeColor({
     required this.backgroundColor,
+    required this.textColor,
+  });
+}
+
+class AlertColor {
+  final Color backgroundColor;
+  final Color borderColor;
+  final Color textColor;
+
+  const AlertColor({
+    required this.backgroundColor,
+    required this.borderColor,
     required this.textColor,
   });
 }
@@ -593,6 +834,11 @@ VisitorPurposeColor getVisitorPurposeColor(String? purpose) {
         backgroundColor: AppColor.lightRed,
         textColor: Color(0xffDC2626),
       );
+    case "not arrived":
+      return const VisitorPurposeColor(
+        backgroundColor: AppColor.lightBlueBg2,
+        textColor: AppColor.slightDarkBlue,
+      );
     case "others":
     case "other":
       return const VisitorPurposeColor(
@@ -619,30 +865,79 @@ VisitorPurposeColor getPurposeWiseVisitorsColor(String? purpose) {
     case "guest":
       return const VisitorPurposeColor(
         backgroundColor: AppColor.lightPurple,
-        textColor: AppColor.purple,
+        textColor: AppColor.darkPurple,
       );
 
     case "interview":
       return const VisitorPurposeColor(
         backgroundColor: Color(0x1D1D1D26),
-        textColor: Color(0xff333333),
+        textColor: AppColor.black,
       );
 
     case "meeting":
       return const VisitorPurposeColor(
-        backgroundColor: Color(0xffFBFF00),
+        backgroundColor: AppColor.lightYellow,
         textColor: AppColor.brown,
-      );
-    case "others":
-    case "other":
-      return const VisitorPurposeColor(
-        backgroundColor: Color(0x26FF0037),
-        textColor: Color(0xFFFF0037),
       );
 
     default:
       return const VisitorPurposeColor(
+        backgroundColor: AppColor.greyTitleAndValueColor,
+        textColor: AppColor.missingInformationRed,
+      );
+  }
+}
+
+AlertColor getAlertColor(String? purpose) {
+  switch (purpose?.trim().toLowerCase()) {
+    case "visitor arrived":
+      return const AlertColor(
+        backgroundColor: AppColor.bgColor,
+        borderColor: AppColor.darkBlue,
+        textColor: AppColor.darkBlue,
+      );
+    case "rejected":
+      return AlertColor(
+        backgroundColor: AppColor.red.withValues(alpha: 0.1),
+        borderColor: AppColor.missingInformationRed,
+        textColor: AppColor.redishBrown,
+      );
+    case "appointment starting soon":
+      return AlertColor(
+        backgroundColor: AppColor.redishBrown.withValues(alpha: 0.1),
+        borderColor: AppColor.startingSoonColor,
+        textColor: AppColor.redishBrown,
+      );
+    case "overstaying":
+      return AlertColor(
+        backgroundColor: AppColor.grassGreenColor.withValues(alpha: 0.1),
+        borderColor: AppColor.grassGreenColor,
+        textColor: AppColor.grassGreenColor,
+      );
+
+    case "checked out":
+      return const AlertColor(
+        backgroundColor: AppColor.lightPurple,
+        borderColor: AppColor.darkPurple,
+        textColor: AppColor.darkPurple,
+      );
+    case "visitor not arrived":
+      return const AlertColor(
+        backgroundColor: AppColor.bgColor,
+        borderColor: AppColor.darkBlue900,
+        textColor: AppColor.darkBlue900,
+      );
+    case "arriving soon":
+      return AlertColor(
+        backgroundColor: AppColor.arrivingSoon.withValues(alpha: 0.1),
+        borderColor: AppColor.arrivingSoon,
+        textColor: AppColor.arrivingSoon,
+      );
+
+    default:
+      return const AlertColor(
         backgroundColor: Color(0x261D1D1D),
+        borderColor: Color(0x261D1D1D),
         textColor: Color(0xFF333333),
       );
   }

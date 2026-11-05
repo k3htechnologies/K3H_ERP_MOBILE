@@ -33,6 +33,7 @@ class AppColor {
   static const Color blockedColorText = Color(0xFF48C848);
   static const Color blueBgColor = Color(0xFF13367A);
   static const Color dividerColor = Color(0xffE1E7EF);
+  static const Color bgColor = Color(0xffFDFDFF);
   // BASIC
   static const Color black = Color(0xFF111111); // BLACK
   static const Color black10 = Color(0x1A111111); // BLACK
@@ -53,6 +54,8 @@ class AppColor {
   static const Color darkBlue900 = Color(0xff031635);
   static const Color green = Color(0xff00AC00);
   static const Color green20 = Color(0xff00A800);
+  static const Color grassGreenColor = Color(0xff487210);
+  static const Color arrivingSoon = Color(0xff16A34A);
 
   static const Color darkGreen = Color(0xff1B5E20);
   static const Color darkGreen50 = Color(0xff008669);
@@ -65,6 +68,8 @@ class AppColor {
   static const Color lightRed = Color(0xffFEE2E2);
   static const Color lightRed2 = Color(0xffFBF5FF);
   static const Color missingInformationRed = Color(0xffE92C2C);
+  static const Color redishBrown = Color(0xff7E4604);
+  static const Color startingSoonColor = Color(0xffFF9F2D);
 
   // COMMON
   static const Color cursorColor = Color(0xFF0B3251);

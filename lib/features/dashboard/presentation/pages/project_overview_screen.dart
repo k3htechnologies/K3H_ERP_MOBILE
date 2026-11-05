@@ -179,20 +179,7 @@ class _ProjectOverviewScreenState extends State<ProjectOverviewScreen>
                   ),
                 ],
               ),
-              Row(
-                spacing: 10,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  buildColumnTitleValue(
-                    title: "Federation",
-                    value: widget.project.isFederation ? "Yes" : "No",
-                  ),
-                  buildColumnTitleValue(
-                    title: "Federation Amount",
-                    value: widget.project.federationAmount.toIndianCurrency(),
-                  ),
-                ],
-              ),
+
               buildRowWrapper(
                 child: buildColumnTitleValue(
                   title: "Project Status",

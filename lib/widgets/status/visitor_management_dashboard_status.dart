@@ -17,11 +17,7 @@ final Map<String, StatusConfig> visitorManagementDashboardStatusConfig = {
     textColor: Color(0xff333333),
   ),
   "meeting": StatusConfig(
-    backgroundColor: Color(0xffFBFF00),
+    backgroundColor: AppColor.lightYellow,
     textColor: AppColor.brown,
-  ),
-  "others": StatusConfig(
-    backgroundColor: Color(0xFF003726),
-    textColor: Color(0xffFF0037),
   ),
 };

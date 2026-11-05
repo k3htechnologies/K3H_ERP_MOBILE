@@ -8,6 +8,12 @@ abstract interface class VisitorManagementDashboardDatasource {
     required String filterType,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateGatePassApproval({
+    required Map<String, dynamic> body,
+  });
+  Future<Map<String, dynamic>> apicallUpdateGatePassOut({
+    required Map<String, dynamic> body,
+  });
 }
 
 class VisitorManagementDashboardDatasourceImpl
@@ -47,6 +53,62 @@ class VisitorManagementDashboardDatasourceImpl
           queryParams: queryParams,
           filterType: filterType,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateGatePassApproval({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateSourcingUrl = "GatePass/AddUpdateGatePassApproval";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateSourcingUrl,
+        body,
+      );
+      return {
+        'data': List<GatePassDashboardModel>.from(
+          networkResponse["data"].map(
+            (e) => GatePassDashboardModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateGatePassApproval(body: body);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallUpdateGatePassOut({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateExtraCarpetAreaUrl = "GatePass/UpdateGatePassOut";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateExtraCarpetAreaUrl,
+        body,
+      );
+      return {
+        'data': List<GatePassDashboardModel>.from(
+          networkResponse['data'].map(
+            (x) => GatePassDashboardModel.fromJson(x),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallUpdateGatePassOut(body: body);
       }
       rethrow;
     }

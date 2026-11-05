@@ -604,6 +604,7 @@ class AppRoutes {
   static String gatePassAdministrativeAccess = "/gatePassAdministrativeAccess";
   static String addGatePass = "/addGatePass";
   static String viewGatePass = "/viewGatePass";
+  static String unitWiseDistributionGatePass = "/unitWiseDistributionGatePass";
 
   // REBUILD
   static String projectLead = "/projectLead";

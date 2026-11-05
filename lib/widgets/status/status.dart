@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/widgets/status/drawing_document_status.dart';
 import 'package:k3h_erp_app/widgets/status/enquiry_status.dart';
 import 'package:k3h_erp_app/widgets/status/flat_handover_checklist.dart';
 import 'package:k3h_erp_app/widgets/status/gate_pass_purpose_status.dart';
+import 'package:k3h_erp_app/widgets/status/gate_pass_unit_distribution.status.dart';
 import 'package:k3h_erp_app/widgets/status/inward_outward_status.dart';
 import 'package:k3h_erp_app/widgets/status/litigation_priority_status.dart';
 import 'package:k3h_erp_app/widgets/status/payment_mode_status.dart';
@@ -241,6 +242,14 @@ Widget visitorManagementStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
     status: status,
     config: visitorManagementDashboardStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
+  );
+}
+
+Widget gatePassStatusWidget(String status, {TextStyle? textStyle}) {
+  return commonStatusWidget(
+    status: status,
+    config: gatePassDashboardStatusConfig,
     textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }

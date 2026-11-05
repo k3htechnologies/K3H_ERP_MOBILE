@@ -8,6 +8,12 @@ abstract interface class VisitorManagementDashboardRepository {
     required String filterType,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> addApproval({
+    required Map<String, dynamic> body,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> updateGatePassOut({
+    required Map<String, dynamic> body,
+  });
 }
 
 class VisitorManagementDashboardRepositoryImpl
@@ -28,6 +34,32 @@ class VisitorManagementDashboardRepositoryImpl
             filterType: filterType,
             queryParams: queryParams,
           );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addApproval({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await visitorManagementDashboardDatasource
+          .apicallAddUpdateGatePassApproval(body: body);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> updateGatePassOut({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await visitorManagementDashboardDatasource
+          .apicallUpdateGatePassOut(body: body);
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

@@ -734,7 +734,9 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         hint: "Enter Project Name",
                         textController: _projectNameC,
                         isRequired: true,
-                        inputFormatterList: InputValidator.textDigit(50),
+                        inputFormatterList: [
+                          LengthLimitingTextInputFormatter(200),
+                        ],
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Project Name is required.';
@@ -1539,6 +1541,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         title: 'Project Estimate Cost',
                         prefixType: CustomTextFieldPrefix.rupees,
                         hint: "Enter Estimate Cost",
+                        readOnly: true,
                         textController: _projectEstimateCostC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),
@@ -1546,6 +1549,7 @@ class _AddProjectScreenState extends State<AddProjectScreen> {
                         title: 'On Going Budget Cost',
                         prefixType: CustomTextFieldPrefix.rupees,
                         hint: "Enter Budget Cost",
+                        readOnly: true,
                         textController: _onGoingBudgetCostC,
                         inputFormatterList: InputValidator.decimal(2),
                       ),

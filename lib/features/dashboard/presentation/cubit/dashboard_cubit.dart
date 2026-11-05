@@ -247,4 +247,29 @@ class DashboardCubit extends Cubit<DashboardState> {
       },
     );
   }
+
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _dashboardRepository.exportModuleApproval(
+      type: exportType,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "My Approvals_${DateTime.now()}.pdf"
+              : "My Approvals_${DateTime.now()}.xlsx",
+        );
+      },
+    );
+  }
 }

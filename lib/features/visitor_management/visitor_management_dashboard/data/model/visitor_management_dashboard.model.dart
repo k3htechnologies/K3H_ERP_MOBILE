@@ -15,15 +15,22 @@ class GatePassDashboardModel {
     required this.table4,
   });
 
-  factory GatePassDashboardModel.fromJson(
-    Map<String, dynamic> json,
-  ) => GatePassDashboardModel(
-    table0: List<Table0>.from(json["Table0"].map((x) => Table0.fromJson(x))),
-    table1: List<Table1>.from(json["Table1"].map((x) => Table1.fromJson(x))),
-    table2: List<Table2>.from(json["Table2"].map((x) => Table2.fromJson(x))),
-    table3: List<Table3>.from(json["Table3"].map((x) => Table3.fromJson(x))),
-    table4: List<Table4>.from(json["Table4"].map((x) => Table4.fromJson(x))),
-  );
+  factory GatePassDashboardModel.fromJson(Map<String, dynamic> json) {
+    List<T> parse<T>(String key, T Function(Map<String, dynamic>) f) {
+      final l = json[key];
+      return l is List
+          ? l.whereType<Map<String, dynamic>>().map(f).toList()
+          : <T>[];
+    }
+
+    return GatePassDashboardModel(
+      table0: parse("Table0", Table0.fromJson),
+      table1: parse("Table1", Table1.fromJson),
+      table2: parse("Table2", Table2.fromJson),
+      table3: parse("Table3", Table3.fromJson),
+      table4: parse("Table4", Table4.fromJson),
+    );
+  }
 
   Map<String, dynamic> toJson() => {
     "Table0": List<dynamic>.from(table0.map((x) => x.toJson())),
@@ -32,6 +39,22 @@ class GatePassDashboardModel {
     "Table3": List<dynamic>.from(table3.map((x) => x.toJson())),
     "Table4": List<dynamic>.from(table4.map((x) => x.toJson())),
   };
+
+  GatePassDashboardModel copyWith({
+    List<Table0>? table0,
+    List<Table1>? table1,
+    List<Table2>? table2,
+    List<Table3>? table3,
+    List<Table4>? table4,
+  }) {
+    return GatePassDashboardModel(
+      table0: table0 ?? this.table0,
+      table1: table1 ?? this.table1,
+      table2: table2 ?? this.table2,
+      table3: table3 ?? this.table3,
+      table4: table4 ?? this.table4,
+    );
+  }
 }
 
 class Table0 {
@@ -68,6 +91,24 @@ class Table0 {
     "Overstaying": overstaying,
     "PendingApprovals": pendingApprovals,
   };
+
+  Table0 copyWith({
+    int? totalVisitors,
+    int? currentlyInside,
+    int? expectedToday,
+    int? checkedOut,
+    int? overstaying,
+    int? pendingApprovals,
+  }) {
+    return Table0(
+      totalVisitors: totalVisitors ?? this.totalVisitors,
+      expectedToday: expectedToday ?? this.expectedToday,
+      checkedOut: checkedOut ?? this.checkedOut,
+      overstaying: overstaying ?? this.overstaying,
+      pendingApprovals: pendingApprovals ?? this.pendingApprovals,
+      currentlyInside: currentlyInside ?? this.currentlyInside,
+    );
+  }
 }
 
 class Table1 {
@@ -195,6 +236,65 @@ class Table1 {
     "Message": message,
     "TotalRecords": totalRecords,
   };
+  Table1 copyWith({
+    int? externalId,
+    String? uniquekey,
+    String? visitorName,
+    String? contact,
+    int? noOfParticipants,
+    String? address,
+    int? employeeId,
+    String? appointmentWith,
+    DateTime? checkInTime,
+    DateTime? checkOutTime,
+    String? purpose,
+    String? status,
+    String? remark,
+    String? approvalRemark,
+    bool? isApproval,
+    bool? isCheckOutEnabled,
+    bool? isNoticationEnabled,
+    String? photoUrl,
+    int? clientRegistrationId,
+    int? createdById,
+    String? createdBy,
+    DateTime? createdDate,
+    int? modifiedById,
+    String? modifiedBy,
+    DateTime? modifiedDate,
+    String? message,
+    int? totalRecords,
+  }) {
+    return Table1(
+      externalId: externalId ?? this.externalId,
+      uniquekey: uniquekey ?? this.uniquekey,
+      visitorName: visitorName ?? this.visitorName,
+      contact: contact ?? this.contact,
+      noOfParticipants: noOfParticipants ?? this.noOfParticipants,
+      address: address ?? this.address,
+      employeeId: employeeId ?? this.employeeId,
+      appointmentWith: appointmentWith ?? this.appointmentWith,
+      checkInTime: checkInTime ?? this.checkInTime,
+      checkOutTime: checkOutTime ?? this.checkOutTime,
+      purpose: purpose ?? this.purpose,
+      status: status ?? this.status,
+      remark: remark ?? this.remark,
+      approvalRemark: approvalRemark ?? this.approvalRemark,
+      isApproval: isApproval ?? this.isApproval,
+      isCheckOutEnabled: isCheckOutEnabled ?? this.isCheckOutEnabled,
+      isNoticationEnabled: isNoticationEnabled ?? this.isNoticationEnabled,
+      photoUrl: photoUrl ?? this.photoUrl,
+      clientRegistrationId: clientRegistrationId ?? this.clientRegistrationId,
+      createdById: createdById ?? this.createdById,
+      createdBy: createdBy ?? this.createdBy,
+      createdDate: createdDate ?? this.createdDate,
+      modifiedById: modifiedById ?? this.modifiedById,
+      modifiedBy: modifiedBy ?? this.modifiedBy,
+      modifiedDate: modifiedDate ?? this.modifiedDate,
+      message: message ?? this.message,
+      totalRecords: totalRecords ?? this.totalRecords,
+    );
+  }
 }
 
 class Table2 {
@@ -235,6 +335,26 @@ class Table2 {
     "Purpose": purpose,
     "Status": status,
   };
+
+  Table2 copyWith({
+    int? externalId,
+    String? visitorName,
+    int? noOfParticipants,
+    DateTime? visitTime,
+    DateTime? outDateTime,
+    String? purpose,
+    String? status,
+  }) {
+    return Table2(
+      externalId: externalId ?? this.externalId,
+      visitorName: visitorName ?? this.visitorName,
+      noOfParticipants: noOfParticipants ?? this.noOfParticipants,
+      visitTime: visitTime ?? this.visitTime,
+      outDateTime: outDateTime ?? this.outDateTime,
+      purpose: purpose ?? this.purpose,
+      status: status ?? this.status,
+    );
+  }
 }
 
 class Table3 {
@@ -259,6 +379,14 @@ class Table3 {
     "VisitorCount": visitorCount,
     "Percentage": percentage,
   };
+
+  Table3 copyWith({String? purpose, int? visitorCount, double? percentage}) {
+    return Table3(
+      purpose: purpose ?? this.purpose,
+      visitorCount: visitorCount ?? this.visitorCount,
+      percentage: percentage ?? this.percentage,
+    );
+  }
 }
 
 class Table4 {
@@ -311,4 +439,30 @@ class Table4 {
     "AlertMessage": alertMessage,
     "Status": status,
   };
+
+  Table4 copyWith({
+    String? alertType,
+    int? externalId,
+    String? visitorName,
+    String? contact,
+    String? appointmentWith,
+    String? visitTime,
+    String? outDateTime,
+    String? purpose,
+    String? alertMessage,
+    String? status,
+  }) {
+    return Table4(
+      alertType: alertType ?? this.alertType,
+      externalId: externalId ?? this.externalId,
+      visitorName: visitorName ?? this.visitorName,
+      contact: contact ?? this.contact,
+      appointmentWith: appointmentWith ?? this.appointmentWith,
+      visitTime: visitTime ?? this.visitTime,
+      outDateTime: outDateTime ?? this.outDateTime,
+      purpose: purpose ?? this.purpose,
+      alertMessage: alertMessage ?? this.alertMessage,
+      status: status ?? this.status,
+    );
+  }
 }
