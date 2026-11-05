@@ -63,6 +63,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/stock_management/stock_manag
 import 'package:k3h_erp_app/di/feature_dependencies/tax_tracker/tax_tracker.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/utils.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/visitor_management/gate_pass/gate_pass.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/visitor_management/visitor_management_dashboard/visitor_management_dashboard.dependencies.dart';
 import 'feature_dependencies/calendar/calendar.dependencies.dart';
 import 'feature_dependencies/channel_partner/channel_partner.dependencies.dart';
 import 'feature_dependencies/crm/brokerage/brokerage.dependencies.dart';
@@ -309,6 +310,7 @@ void initDependencies() {
   // COMPLIANCE MASTERS
   registerNoticeSectionMasterDependencies(serviceLocator);
   // VISITOR MANAGEMENT
+  registerVisitorManagementDashboardDependencies(serviceLocator);
   // GATE PASS
   registerGatePassDependencies(serviceLocator);
 

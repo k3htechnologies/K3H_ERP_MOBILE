@@ -8,6 +8,8 @@ import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.d
 import 'package:k3h_erp_app/features/dashboard/data/repository/dashboard.repository.dart';
 import 'package:k3h_erp_app/features/masters/project_master/data/repository/project_master.repository.dart';
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 part 'dashboard_state.dart';
@@ -236,6 +238,31 @@ class DashboardCubit extends Cubit<DashboardState> {
             List<ModuleApprovalModel>.from(response['data'] ?? []);
 
         emit(state.copyWith(moduleApprovalList: modelList, isLoading: false));
+      },
+    );
+  }
+
+  Future exportExcelPdf(BuildContext context, String exportType) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _dashboardRepository.exportModuleApproval(
+      type: exportType,
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+      },
+      (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
+        exportExcelOrPdfMobile(
+          response["data"],
+          exportType.toLowerCase() == "pdf"
+              ? "My Approvals_${DateTime.now()}.pdf"
+              : "My Approvals_${DateTime.now()}.xlsx",
+        );
       },
     );
   }

@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/expansion_tile/custom_expansion_tile.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -166,7 +167,7 @@ class FlatTile extends StatelessWidget {
           ),
           buildRowTitleValue(
             title: "Building",
-            fixesWidth: 108,
+            fixesWidth: 120,
             value: flat.buildingNumber,
             titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
             valueTextStyle: AppTextStyle.ts12M(color: AppColor.black),
@@ -174,7 +175,7 @@ class FlatTile extends StatelessWidget {
           buildRowTitleValue(
             title: "Status",
             value: flat.bookingId != 0 ? "Booking Done" : "-",
-            fixesWidth: 108,
+            fixesWidth: 120,
             titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
             customValueWidget: GestureDetector(
               onTap: () {
@@ -208,6 +209,18 @@ class FlatTile extends StatelessWidget {
           ApproveRejectWidget(
             isMaster: true,
             actionTitle: flat.bookingApprovalStatus,
+            customWidget: Expanded(
+              child: buildRowTitleValue(
+                title: "Booking Approval Status",
+                fixesWidth: 120,
+                value: flat.buildingNumber,
+                titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
+                valueTextStyle: AppTextStyle.ts12M(color: AppColor.black),
+                customValueWidget: approvalStatusWidget(
+                  flat.bookingApprovalStatus,
+                ),
+              ),
+            ),
             showApproval: false,
             onApprove: (value) {},
             onReject: (value) {},

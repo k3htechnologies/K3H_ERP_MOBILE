@@ -22,10 +22,15 @@ class MyApprovalScreen extends StatefulWidget {
 
 class _MyApprovalScreenState extends State<MyApprovalScreen> {
   late DashboardCubit _dashboardCubit;
+
+  // AUTHORIZATION
+  late AuthorizationModel _routhAuthorizationModel;
+
   @override
   void initState() {
     super.initState();
     _dashboardCubit = context.read<DashboardCubit>();
+    _routhAuthorizationModel = AuthorizationModel(isExport: true);
     _dashboardCubit.getModuleApprovalList(context);
   }
 
@@ -34,7 +39,10 @@ class _MyApprovalScreenState extends State<MyApprovalScreen> {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "My Approvals",
-        authorization: AuthorizationModel(),
+        authorization: _routhAuthorizationModel,
+        onExportCallback: (value) {
+          _dashboardCubit.exportExcelPdf(context, value);
+        },
       ),
       body: BlocBuilder<DashboardCubit, DashboardState>(
         builder: (context, state) {

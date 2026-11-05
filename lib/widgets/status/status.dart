@@ -10,12 +10,14 @@ import 'package:k3h_erp_app/widgets/status/drawing_document_status.dart';
 import 'package:k3h_erp_app/widgets/status/enquiry_status.dart';
 import 'package:k3h_erp_app/widgets/status/flat_handover_checklist.dart';
 import 'package:k3h_erp_app/widgets/status/gate_pass_purpose_status.dart';
+import 'package:k3h_erp_app/widgets/status/gate_pass_unit_distribution.status.dart';
 import 'package:k3h_erp_app/widgets/status/inward_outward_status.dart';
 import 'package:k3h_erp_app/widgets/status/litigation_priority_status.dart';
 import 'package:k3h_erp_app/widgets/status/payment_mode_status.dart';
 import 'package:k3h_erp_app/widgets/status/project_status.dart';
 import 'package:k3h_erp_app/widgets/status/term_sheet_report_status.dart';
 import 'package:k3h_erp_app/widgets/status/test_document_status.dart';
+import 'package:k3h_erp_app/widgets/status/visitor_management_dashboard_status.dart';
 
 Widget enquiryStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
@@ -235,5 +237,21 @@ Widget termSheetReportStatusWidget(String status, {TextStyle? textStyle}) {
     status: localStatus,
     config: termSheetReportStatusConfig,
     textStyle: textStyle,
+  );
+}
+
+Widget visitorManagementStatusWidget(String status, {TextStyle? textStyle}) {
+  return commonStatusWidget(
+    status: status,
+    config: visitorManagementDashboardStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
+  );
+}
+
+Widget gatePassStatusWidget(String status, {TextStyle? textStyle}) {
+  return commonStatusWidget(
+    status: status,
+    config: gatePassDashboardStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }

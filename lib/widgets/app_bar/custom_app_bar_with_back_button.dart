@@ -283,10 +283,7 @@ class _CustomAppBarWithBackButtonState
 
             // TITLE
             Expanded(
-              child: Text(
-                widget.screenTitle,
-                style: AppTextStyle.ts16SB(color: AppColor.black),
-              ),
+              child: Text(widget.screenTitle, style: AppTextStyle.ts16M()),
             ),
             if (widget.secondaryWidget != null) widget.secondaryWidget!,
             // ACTIONS

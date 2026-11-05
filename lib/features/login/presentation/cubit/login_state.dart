@@ -7,6 +7,7 @@ class LoginState extends BaseState {
   final int resendSeconds;
   final bool canResend;
   final bool isOtpFlow;
+  final bool obscureOtp;
 
   const LoginState({
     super.isLoading,
@@ -17,6 +18,7 @@ class LoginState extends BaseState {
     required this.resendSeconds,
     required this.canResend,
     required this.isOtpFlow,
+    required this.obscureOtp,
   });
 
   factory LoginState.initial() => LoginState(
@@ -25,6 +27,7 @@ class LoginState extends BaseState {
     resendSeconds: 0,
     canResend: false,
     isOtpFlow: false,
+    obscureOtp: false,
   );
 
   LoginState copyWith({
@@ -36,6 +39,7 @@ class LoginState extends BaseState {
     int? resendSeconds,
     bool? canResend,
     bool? isOtpFlow,
+    bool? obscureOtp,
   }) {
     return LoginState(
       isLoading: isLoading ?? this.isLoading,
@@ -46,6 +50,7 @@ class LoginState extends BaseState {
       resendSeconds: resendSeconds ?? this.resendSeconds,
       canResend: canResend ?? this.canResend,
       isOtpFlow: isOtpFlow ?? this.isOtpFlow,
+      obscureOtp: obscureOtp ?? this.obscureOtp,
     );
   }
 
@@ -58,5 +63,6 @@ class LoginState extends BaseState {
     resendSeconds,
     canResend,
     isOtpFlow,
+    obscureOtp,
   ];
 }

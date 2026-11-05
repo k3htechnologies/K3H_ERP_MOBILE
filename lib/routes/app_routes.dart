@@ -601,10 +601,12 @@ class AppRoutes {
   static String otpLogs = "/otpLogs";
 
   // VISITOR MANAGEMENT
+  static String visitorManagementDashboard = "/visitorManagementDashboard";
   static String gatePass = "/gatePass";
   static String gatePassAdministrativeAccess = "/gatePassAdministrativeAccess";
   static String addGatePass = "/addGatePass";
   static String viewGatePass = "/viewGatePass";
+  static String unitWiseDistributionGatePass = "/unitWiseDistributionGatePass";
 
   // REBUILD
   static String projectLead = "/projectLead";

@@ -70,6 +70,10 @@ class ApproveRejectWidget extends StatelessWidget {
 
     return isMaster
         ? Row(
+          crossAxisAlignment:
+              customWidget != null
+                  ? CrossAxisAlignment.start
+                  : CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             (customWidget != null)

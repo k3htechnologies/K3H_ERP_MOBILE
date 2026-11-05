@@ -420,37 +420,17 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
         final currentPath = goRouter.state.path;
         if (currentPath == AppRoutes.viewBaselineCostPlan) {
           goRouter.pop();
         }
 
-        if (state.subBaselineCostPlanDocumentList.isNotEmpty &&
-            index < state.subBaselineCostPlanDocumentList.length) {
-          final updatedListModel = List<BaselineCostPlanDocumentModel>.from(
-            state.subBaselineCostPlanDocumentList,
-          );
-
-          // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
-          updatedListModel[index] = updatedListModel[index].copyWith(
-            baselineCostPlanDocumentName:
-                updatedListModel[index].baselineCostPlanDocumentName,
-
-            uploadedDocumentCount:
-                updatedListModel[index].uploadedDocumentCount + 1,
-          );
-
-          emit(
-            state.copywith(
-              isLoading: false,
-              subBaselineCostPlanDocumentList: updatedListModel,
-            ),
-          );
+        await getBaselineCostPlanDocumentList(context: context, pageNumber: 1);
+        if (context.mounted) {
+          showSuccessMessage(context, subTitle: response['message']);
         }
-
-        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

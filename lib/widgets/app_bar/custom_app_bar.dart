@@ -254,16 +254,12 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
 
   @override
   Widget build(BuildContext context) {
-    isDarkMode = Theme.of(context).brightness == Brightness.dark;
-
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor:
-          isDarkMode ? AppColor.primary : AppColor.lightGreyBackground,
+      backgroundColor: AppColor.lightGreyBackground,
       surfaceTintColor: Colors.transparent,
 
       title: Row(
-        spacing: 10,
         children: [
           GestureDetector(
             onTap: () {
@@ -279,6 +275,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
             child:
                 widget.showMenuIcon
                     ? Container(
+                      alignment: Alignment.center,
                       padding: EdgeInsets.all(5),
                       decoration: BoxDecoration(
                         color: AppColor.lightBlue,
@@ -286,8 +283,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       ),
                       child: Icon(
                         Icons.menu,
-                        color: isDarkMode ? AppColor.white : AppColor.primary,
-                        size: widget.showMenuIcon ? 16 : 14,
+                        color: AppColor.primary,
+                        size: 14,
                       ),
                     )
                     : Container(
@@ -307,13 +304,9 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
                       ),
                     ),
           ),
+          horizontalSpacing(),
           Expanded(
-            child: Text(
-              widget.screenTitle,
-              style: AppTextStyle.ts16R().copyWith(
-                color: isDarkMode ? AppColor.white : AppColor.black,
-              ),
-            ),
+            child: Text(widget.screenTitle, style: AppTextStyle.ts16M()),
           ),
           if (widget.onProjectChangeCallback != null)
             GestureDetector(
@@ -322,7 +315,8 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
               },
               child: SvgPicture.asset(AppAssets.projectIcon, height: 28),
             ),
-          if (widget.showNotification!)
+          if (widget.showNotification!) ...{
+            horizontalSpacing(),
             CustomIconButton(
               onPressed: () {
                 goRouter.pushNamed(AppRoutes.notificationScreenMobile);
@@ -330,6 +324,7 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
               icon: SvgPicture.asset(AppAssets.notificationIcon, height: 16),
               backgroundColor: AppColor.lightBlue,
             ),
+          },
         ],
       ),
 

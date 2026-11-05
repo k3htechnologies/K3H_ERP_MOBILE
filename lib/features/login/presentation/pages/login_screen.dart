@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/features/login/presentation/cubit/login_cubit.dart';
@@ -11,6 +12,7 @@ import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -29,12 +31,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
   late UserModel userModel;
 
+  late final ValueNotifier<bool> _obscureOtpNotifier;
   @override
   void initState() {
     super.initState();
     _loginCubit = context.read<LoginCubit>();
     _loginFormKey = GlobalKey<FormState>();
     _mobileNumberC = TextEditingController();
+    _obscureOtpNotifier = ValueNotifier(true);
     _otpC = TextEditingController();
     _mobileFocus = FocusNode();
     _otpFocus = FocusNode();
@@ -47,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _otpC.dispose();
     _mobileFocus.dispose();
     _otpFocus.dispose();
+    _obscureOtpNotifier.dispose();
     super.dispose();
   }
 
@@ -161,50 +166,73 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                     // OTP FIELD
                                     if (state.message.isNotEmpty)
-                                      CustomTextField(
-                                        obscureText: true,
-                                        focusNode: _otpFocus,
-                                        readOnly: !state.isSendOtp,
-                                        inputFormatterList:
-                                            InputValidator.digit(4),
-                                        keyboardType: TextInputType.number,
-                                        title:
-                                            state.message
-                                                    .trim()
-                                                    .toLowerCase()
-                                                    .contains('mpin')
-                                                ? "MPIN"
-                                                : "OTP",
-                                        hint: "- - - -",
-                                        textController: _otpC,
-                                        onSubmitFunction: (value) {
-                                          FocusScope.of(context).unfocus();
-                                          _loginCubit.validateOtp(
-                                            context,
-                                            _mobileNumberC.text,
-                                            value,
-                                            state.message
-                                                    .trim()
-                                                    .toLowerCase()
-                                                    .contains('mpin')
-                                                ? "mpin"
-                                                : "otp",
+                                      ValueListenableBuilder(
+                                        valueListenable: _obscureOtpNotifier,
+                                        builder: (context, isObscure, child) {
+                                          return CustomTextField(
+                                            obscureText: isObscure,
+                                            focusNode: _otpFocus,
+                                            readOnly: !state.isSendOtp,
+                                            inputFormatterList:
+                                                InputValidator.digit(4),
+                                            keyboardType: TextInputType.number,
+                                            title:
+                                                state.message
+                                                        .trim()
+                                                        .toLowerCase()
+                                                        .contains('mpin')
+                                                    ? "MPIN"
+                                                    : "OTP",
+                                            hint: "- - - -",
+                                            textController: _otpC,
+                                            prefixWidget: Icon(
+                                              LucideIcons.key,
+                                              size: 20.sp,
+                                              color: AppColor.grey,
+                                            ),
+                                            suffixWidget: GestureDetector(
+                                              onTap: () {
+                                                _obscureOtpNotifier.value =
+                                                    !_obscureOtpNotifier.value;
+                                              },
+                                              child: Icon(
+                                                isObscure
+                                                    ? LucideIcons.eyeClosed
+                                                    : LucideIcons.eye,
+                                                size: 20.sp,
+                                                color: AppColor.grey,
+                                              ),
+                                            ),
+                                            onSubmitFunction: (value) {
+                                              FocusScope.of(context).unfocus();
+                                              _loginCubit.validateOtp(
+                                                context,
+                                                _mobileNumberC.text,
+                                                value,
+                                                state.message
+                                                        .trim()
+                                                        .toLowerCase()
+                                                        .contains('mpin')
+                                                    ? "mpin"
+                                                    : "otp",
+                                              );
+                                            },
+                                            validator: (value) {
+                                              final isMpin = state.message
+                                                  .trim()
+                                                  .toLowerCase()
+                                                  .contains('mpin');
+
+                                              if (value == null ||
+                                                  value.trim().isEmpty) {
+                                                return isMpin
+                                                    ? "MPIN is required"
+                                                    : "OTP is required.";
+                                              }
+
+                                              return null;
+                                            },
                                           );
-                                        },
-                                        validator: (value) {
-                                          final isMpin = state.message
-                                              .trim()
-                                              .toLowerCase()
-                                              .contains('mpin');
-
-                                          if (value == null ||
-                                              value.trim().isEmpty) {
-                                            return isMpin
-                                                ? "MPIN is required"
-                                                : "OTP is required.";
-                                          }
-
-                                          return null;
                                         },
                                       ),
                                   ],

@@ -40,23 +40,30 @@ Widget pendingApprovalWidget() {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       Container(
+                        height: 40.sp,
                         padding: EdgeInsets.all(8.sp),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(6.sp),
                           color: AppColor.primary,
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "View",
-                              style: AppTextStyle.ts12SB(color: AppColor.white),
-                            ),
-                            if (count > 0) ...[
-                              horizontalSpacing(width: 4.sp),
-                              CircleAvatar(
-                                radius: 16,
-                                backgroundColor: AppColor.white,
+                        child: Center(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "View",
+                                style: AppTextStyle.ts14SB(
+                                  color: AppColor.white,
+                                ),
+                              ),
+
+                              horizontalSpacing(width: 8.sp),
+                              Container(
+                                padding: EdgeInsets.all(4.sp),
+                                decoration: BoxDecoration(
+                                  color: AppColor.white,
+                                  borderRadius: BorderRadius.circular(28.sp),
+                                ),
                                 child: Text(
                                   count > 99 ? "99+" : count.toString(),
                                   style: AppTextStyle.ts12M(
@@ -65,7 +72,7 @@ Widget pendingApprovalWidget() {
                                 ),
                               ),
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ],

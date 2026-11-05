@@ -244,6 +244,8 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
         menu.moduleName.trim().toLowerCase() == "channel partner";
 
     final isCrmDashboard = menu.moduleName.trim().toLowerCase() == "crm";
+    final isVisitorManagementDashboard =
+        menu.moduleName.trim().toLowerCase() == "visitor management";
     bool isCurrentModuleActive = menu.subModuleData.any(
       (sub) => _isActiveModule(sub),
     );
@@ -293,6 +295,14 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           isCurrentModuleActive ||
           _isRouteActive(_currentPathForBuild, AppRoutes.crmDashbaord);
     }
+    if (isVisitorManagementDashboard) {
+      isCurrentModuleActive =
+          isCurrentModuleActive ||
+          _isRouteActive(
+            _currentPathForBuild,
+            AppRoutes.visitorManagementDashboard,
+          );
+    }
 
     final tile = CustomModuleTile(
       key: ValueKey('module-${menu.moduleName}-$isCurrentModuleActive'),
@@ -317,6 +327,10 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
           await _onItemTap(navigateToPath: AppRoutes.channelPartnerDashboard);
         } else if (isCrmDashboard) {
           await _onItemTap(navigateToPath: AppRoutes.crmDashbaord);
+        } else if (isVisitorManagementDashboard) {
+          await _onItemTap(
+            navigateToPath: AppRoutes.visitorManagementDashboard,
+          );
         }
       },
       items:

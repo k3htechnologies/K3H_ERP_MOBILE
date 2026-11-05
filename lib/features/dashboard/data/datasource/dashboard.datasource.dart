@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/features/dashboard/data/model/user_dashboard.model.d
 import 'package:k3h_erp_app/features/payroll/attendance/data/model/attendance.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 abstract interface class DashboardDatasource {
   Future<Map<String, dynamic>> apicallPullAttendance({
@@ -17,6 +18,10 @@ abstract interface class DashboardDatasource {
     Map<String, dynamic>? queryParams,
   });
   Future<Map<String, dynamic>> apicallPullModuleApproval({
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Map<String, dynamic>> apiCallPullModuleApprovalForExport({
+    required String type,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -147,6 +152,39 @@ class DashboardDatasourceImpl implements DashboardDatasource {
     } catch (error) {
       if (error is TokenExpiredException) {
         return apicallPullModuleApproval(queryParams: queryParams);
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallPullModuleApprovalForExport({
+    required String type,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullModuleApprovalUrl({
+      required String type,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url = "Dashboard/PullModuleApproval?ExportType=$type";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullModuleApprovalUrl(type: type, queryParams: queryParams),
+      );
+      return {
+        'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apiCallPullModuleApprovalForExport(
+          type: type,
+          queryParams: queryParams,
+        );
       }
       rethrow;
     }

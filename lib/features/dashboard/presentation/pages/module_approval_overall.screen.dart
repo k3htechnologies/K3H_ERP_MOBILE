@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/section_card.dart';
 
-
 /// To make content dynamic switch case is used
 class ApprovalField {
   final String title;
@@ -141,11 +140,9 @@ class _ModuleApprovalOverallScreenState
                           itemBuilder: (context, index) {
                             final document = approvals[index];
 
-                            final documentTitle =
-                                document.moduleName.split('~').first.trim();
                             final fields = approvalFieldsFor(document);
                             return SectionCard(
-                              title: documentTitle,
+                              title: document.projectName,
                               titleTextColor: AppColor.black,
                               headerBackgroundColor: Color(0xffF9F9FF),
                               border: Border.all(
@@ -153,36 +150,12 @@ class _ModuleApprovalOverallScreenState
                                 width: 1,
                               ),
                               children: [
-                                buildRowTitleValue(
-                                  title: "Project",
-                                  value: document.projectName,
-                                  customValueWidget: Container(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 8.0,
-                                      vertical: 2.0,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          document.projectName.isEmpty
-                                              ? AppColor.white
-                                              : AppColor.lightBlue2,
-                                      borderRadius: BorderRadius.circular(4.0),
-                                    ),
-                                    child: Text(
-                                      document.projectName.isEmpty
-                                          ? "-"
-                                          : document.projectName,
-                                      style: AppTextStyle.ts12SB(
-                                        color: AppColor.primary,
-                                      ),
-                                    ),
-                                  ),
-                                ),
                                 ...fields.map(
                                   (f) => buildRowTitleValue(
                                     title: f.title,
                                     value:
                                         f.value.trim().isEmpty ? "-" : f.value,
+                                    singleLine: false,
                                   ),
                                 ),
                               ],
