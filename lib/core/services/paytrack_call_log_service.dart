@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/core/local_storage_manager.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class PayTrackCallLogEntry {
   final String phoneNumber;
@@ -97,11 +98,11 @@ class PayTrackCallLogService {
   DateTime? _callStartTime;
 
   StreamSubscription<String>? _subscription;
-  void initialize() {
+  Future<void> initialize() async {
     if (!Platform.isAndroid) return;
 
     if (_subscription != null) return;
-
+    if (!await Permission.phone.isGranted) return;
     try {
       _subscription = CallStateListener.callStateStream
           .handleError((error, stackTrace) {
@@ -114,6 +115,17 @@ class PayTrackCallLogService {
       debugPrint('Failed to initialize PayTrack call listener: $e');
       debugPrintStack(stackTrace: st);
     }
+  }
+
+  Future<bool> ensurePhonePermission() async {
+    var status = await Permission.phone.status;
+    if (!status.isGranted) {
+      status = await Permission.phone.request();
+    }
+    if (status.isGranted) {
+      await initialize();
+    }
+    return status.isGranted;
   }
 
   void startCallTracking({

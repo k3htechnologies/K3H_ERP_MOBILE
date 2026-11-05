@@ -102,6 +102,8 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
     scrollController.dispose();
     _debounce?.cancel();
     _filterCount.dispose();
+    _startDateNotifier.dispose();
+    _endDateNotifier.dispose();
     super.dispose();
   }
 
@@ -725,6 +727,9 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
               countryCode: payTrack.applicantMobileNumberCountryCode,
               value: payTrack.applicantMobileNumber,
               onCall: (phoneNumber) async {
+                final granted =
+                    await _payTrackCallLogService.ensurePhonePermission();
+                if (!granted) return;
                 _payTrackCallLogService.startCallTracking(
                   phoneNumber: phoneNumber,
                   projectId: payTrack.projectId,
