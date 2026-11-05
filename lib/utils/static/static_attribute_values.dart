@@ -632,7 +632,7 @@ const drawingStatusTypeValues = ['Advance', 'Good For Construction (GFC)'];
 
 const budgetLevelTypeValues = ['L1', 'L2', 'L3', 'L4'];
 
-const otherChargesApplicableForValues = ['Sales', 'Tenant'];
+  const otherChargesApplicableForValues = ['Sale', 'Tenant'];
 
 const noticeSectionTypeValues = [
   'GST (Government Service Tax)',

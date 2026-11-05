@@ -48,8 +48,21 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
     _searchC = TextEditingController();
     _otherChargesCubit = context.read<OtherChargesCubit>();
     _project = getProject();
-    _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.otherCharges]!;
+    final saleAuth =
+        Authorization.routeAuthorizationMap[AppRoutes.saleOtherCharges] ??
+        AuthorizationModel();
+
+    final tenantAuth =
+        Authorization.routeAuthorizationMap[AppRoutes.tenantOtherCharges] ??
+        AuthorizationModel();
+
+    _routeAuthorizationModel = AuthorizationModel(
+      isView: true,
+      isAccess: saleAuth.isAccess || tenantAuth.isAccess,
+      isAction: saleAuth.isAction || tenantAuth.isAction,
+      isExport: saleAuth.isExport || tenantAuth.isExport,
+    );
+
     _onScroll();
     _otherChargesCubit.getOtherChargesList(context, 1, _project.projectId);
   }
@@ -175,145 +188,162 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                         ),
                       );
                     }
-                    return ListView.builder(
-                      controller: scrollController,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      itemCount:
-                          _otherChargesCubit.state.otherChargesList.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == state.otherChargesList.length) {
-                          return state.otherChargesList.length <
-                                  state.totalNumberOfRecord
-                              ? Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                              : const SizedBox.shrink();
-                        }
-                        var otherCharges = state.otherChargesList[index];
-                        return Container(
-                          margin: EdgeInsets.only(bottom: 10),
-                          padding: EdgeInsets.all(12),
-                          decoration: commonCardDecoration(),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      otherCharges.chargeName,
-                                      style: AppTextStyle.ts16M(),
-                                    ),
-                                  ),
-                                  horizontalSpacing(),
-                                  if (_routeAuthorizationModel.isAction)
-                                    Row(
-                                      children: [
-                                        CustomIconButton.edit(
-                                          onPressed: () async {
-                                            await goRouter.pushNamed(
-                                              AppRoutes.addOtherCharges,
-                                              queryParameters: {
-                                                'otherCharges': Uri.encodeComponent(
-                                                  EncryptionManager.encryptData(
-                                                    jsonEncode(
-                                                      otherCharges.toJson(),
-                                                    ),
-                                                  ),
-                                                ),
-                                                'index': index.toString(),
-                                                'projectId':
-                                                    _project.projectId
-                                                        .toString(),
-                                              },
-                                            );
-                                          },
-                                        ),
-                                        horizontalSpacing(),
-                                        CustomIconButton.delete(
-                                          onPressed: () {
-                                            _showPopupToDeleteOtherCharges(
-                                              context,
-                                              _project.projectId,
-                                              otherCharges.otherChargesId,
-                                              otherCharges.uniquekey,
-                                              index,
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                              buildRowTitleValue(
-                                title: "Value",
-                                value: otherCharges.value.toIndianCurrency(),
-                                fixesWidth: 180,
-                              ),
-                              buildRowTitleValue(
-                                title: "Calculated On",
-                                value: otherCharges.calculatedOn,
-                                fixesWidth: 180,
-                              ),
-                              buildRowTitleValue(
-                                title: "GST Percentage",
-                                value: "${otherCharges.gstPercentage} %",
-                                fixesWidth: 180,
-                              ),
-                              buildRowTitleValue(
-                                title: "GST Value",
-                                value: otherCharges.gstValue.toIndianCurrency(),
-                                fixesWidth: 180,
-                              ),
-                              buildRowTitleValue(
-                                title: "Value + GST Value (₹)",
-                                value:
-                                    (otherCharges.value + otherCharges.gstValue)
-                                        .toIndianCurrency(),
-                                fixesWidth: 180,
-                              ),
-                              buildRowTitleValue(
-                                title: "Created By",
-                                value: otherCharges.createdBy,
-                                fixesWidth: 180,
-                                singleLine: false,
-                              ),
-                              buildRowTitleValue(
-                                title: "Created Date",
-                                value: formatDate(otherCharges.createdDate),
-                                fixesWidth: 180,
-                                singleLine: false,
-                              ),
-                              buildRowTitleValue(
-                                title: "Modified By",
-                                value:
-                                    otherCharges.modifiedBy.isNotEmpty
-                                        ? otherCharges.modifiedBy
-                                        : "-",
-                                fixesWidth: 180,
-                                singleLine: false,
-                              ),
-                              buildRowTitleValue(
-                                title: "Modified Date",
-                                value:
-                                    otherCharges.modifiedDate != null
-                                        ? formatDate(otherCharges.modifiedDate)
-                                        : "-",
-                                fixesWidth: 180,
-                                singleLine: false,
-                              ),
-                            ],
-                          ),
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        _searchC.clear();
+                        _otherChargesCubit.searchOtherCharges(
+                          context,
+                          "",
+                          _project.projectId,
                         );
                       },
+                      child: ListView.builder(
+                        controller: scrollController,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
+                        itemCount:
+                            _otherChargesCubit.state.otherChargesList.length +
+                            1,
+                        itemBuilder: (context, index) {
+                          if (index == state.otherChargesList.length) {
+                            return state.otherChargesList.length <
+                                    state.totalNumberOfRecord
+                                ? Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                )
+                                : const SizedBox.shrink();
+                          }
+                          var otherCharges = state.otherChargesList[index];
+                          return Container(
+                            margin: EdgeInsets.only(bottom: 10),
+                            padding: EdgeInsets.all(12),
+                            decoration: commonCardDecoration(),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        otherCharges.chargeName,
+                                        style: AppTextStyle.ts16M(),
+                                      ),
+                                    ),
+                                    horizontalSpacing(),
+                                    if (_routeAuthorizationModel.isAction)
+                                      Row(
+                                        children: [
+                                          CustomIconButton.edit(
+                                            onPressed: () async {
+                                              await goRouter.pushNamed(
+                                                AppRoutes.addOtherCharges,
+                                                queryParameters: {
+                                                  'otherCharges':
+                                                      Uri.encodeComponent(
+                                                        EncryptionManager.encryptData(
+                                                          jsonEncode(
+                                                            otherCharges
+                                                                .toJson(),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                  'index': index.toString(),
+                                                  'projectId':
+                                                      _project.projectId
+                                                          .toString(),
+                                                },
+                                              );
+                                            },
+                                          ),
+                                          horizontalSpacing(),
+                                          CustomIconButton.delete(
+                                            onPressed: () {
+                                              _showPopupToDeleteOtherCharges(
+                                                context,
+                                                _project.projectId,
+                                                otherCharges.otherChargesId,
+                                                otherCharges.uniquekey,
+                                                index,
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                                buildRowTitleValue(
+                                  title: "Value",
+                                  value: otherCharges.value.toIndianCurrency(),
+                                  fixesWidth: 180,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Calculated On",
+                                  value: otherCharges.calculatedOn,
+                                  fixesWidth: 180,
+                                ),
+                                buildRowTitleValue(
+                                  title: "GST Percentage",
+                                  value: "${otherCharges.gstPercentage} %",
+                                  fixesWidth: 180,
+                                ),
+                                buildRowTitleValue(
+                                  title: "GST Value",
+                                  value:
+                                      otherCharges.gstValue.toIndianCurrency(),
+                                  fixesWidth: 180,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Value + GST Value (₹)",
+                                  value:
+                                      (otherCharges.value +
+                                              otherCharges.gstValue)
+                                          .toIndianCurrency(),
+                                  fixesWidth: 180,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Created By",
+                                  value: otherCharges.createdBy,
+                                  fixesWidth: 180,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Created Date",
+                                  value: formatDate(otherCharges.createdDate),
+                                  fixesWidth: 180,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Modified By",
+                                  value:
+                                      otherCharges.modifiedBy.isNotEmpty
+                                          ? otherCharges.modifiedBy
+                                          : "-",
+                                  fixesWidth: 180,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
+                                  title: "Modified Date",
+                                  value:
+                                      otherCharges.modifiedDate != null
+                                          ? formatDate(
+                                            otherCharges.modifiedDate,
+                                          )
+                                          : "-",
+                                  fixesWidth: 180,
+                                  singleLine: false,
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     );
                   },
                 ),

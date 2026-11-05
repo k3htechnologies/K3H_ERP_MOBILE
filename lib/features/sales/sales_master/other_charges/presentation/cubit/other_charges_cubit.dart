@@ -85,6 +85,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
     required double value,
     required double gstPercentage,
     required double gstValue,
+    required String applicableFor,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -94,6 +95,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
       "CalculatedOn": calculatedOn,
       "Value": value,
       "GSTPercentage": gstPercentage,
+      "ApplicableFor": applicableFor,
       "GSTValue": gstValue,
     };
     var addResult = await _otherChargesRepository.addUpdateOtherCharges(
@@ -124,6 +126,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
     required double gstPercentage,
     required double gstValue,
     required int index,
+    required String applicableFor,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     Map<String, dynamic> requestBody = {
@@ -135,6 +138,7 @@ class OtherChargesCubit extends Cubit<OtherChargesState> {
       "Value": value,
       "GSTPercentage": gstPercentage,
       "GSTValue": gstValue,
+      "ApplicableFor": applicableFor,
     };
     var addResult = await _otherChargesRepository.addUpdateOtherCharges(
       body: requestBody,

@@ -170,6 +170,8 @@ class AppRoutes {
 
   // SALES OTHER CHARGES
   static String otherCharges = "/otherCharges";
+  static String saleOtherCharges = "/saleOtherCharges";
+  static String tenantOtherCharges = "/tenantOtherCharges";
   static String addOtherCharges = "/addOtherCharges";
 
   // SALES BOOKING

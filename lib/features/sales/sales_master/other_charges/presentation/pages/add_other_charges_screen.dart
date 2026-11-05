@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/data/model/other_charges.model.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/other_charges/presentation/cubit/other_charges_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -37,6 +38,10 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
   // FORM Key
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  // AUTHORIZATION
+  late AuthorizationModel _saleOtherChargesRouteAuthorizationModel,
+      _tenantOtherChargesRouteAuthorizationModel;
+
   // TEXT EDITING CONTROLLER
   late TextEditingController _chargeNameC,
       _valueC,
@@ -59,6 +64,12 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
   void initState() {
     super.initState();
     _otherChargesCubit = context.read<OtherChargesCubit>();
+    _saleOtherChargesRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.saleOtherCharges] ??
+        AuthorizationModel();
+    _tenantOtherChargesRouteAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.tenantOtherCharges] ??
+        AuthorizationModel();
     _initializeTextController();
     _valueC.addListener(_calculateGST);
     _gstPercentageC.addListener(_calculateGST);
@@ -119,6 +130,22 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
         );
   }
 
+  List<Map<String, dynamic>> get filteredOtherChargesList {
+    return otherChargesApplicableForList.where((e) {
+      final displayName = e['DisplayName'];
+      // SHOW BASED ON AUTHORIZATION
+      if (displayName == 'Sale') {
+        return _saleOtherChargesRouteAuthorizationModel.isAction;
+      }
+
+      if (displayName == 'Tenant') {
+        return _tenantOtherChargesRouteAuthorizationModel.isAction;
+      }
+
+      return false;
+    }).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,7 +178,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                           isRequired: true,
                           hintText: "Select Applicable For",
                           initialValue: selectedValue,
-                          dataList: otherChargesApplicableForList,
+                          dataList: filteredOtherChargesList,
                           onSelected: (value) {
                             _selectedApplicableForNotifier.value = value;
                           },
@@ -287,6 +314,9 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                     uniqueKey: widget.otherChargeModel!.uniquekey,
                     projectId: widget.projectId,
                     chargeName: _chargeNameC.text,
+                    applicableFor:
+                        _selectedApplicableForNotifier.value?['DisplayName'] ??
+                        '',
                     calculatedOn:
                         _selectedCalculatedOnNotifier.value?['DisplayName'] ??
                         "",
@@ -306,6 +336,9 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                     value: double.parse(_valueC.text),
                     gstPercentage: double.parse(_gstPercentageC.text),
                     gstValue: double.parse(_gstValueC.text),
+                    applicableFor:
+                        _selectedApplicableForNotifier.value?['DisplayName'] ??
+                        '',
                   );
                 }
               }
