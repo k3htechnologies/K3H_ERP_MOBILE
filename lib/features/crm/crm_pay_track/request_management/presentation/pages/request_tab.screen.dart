@@ -274,6 +274,30 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     final isApplicantApproved =
         applicantRequest != null &&
         applicantRequest.approvalStatus.trim().toLowerCase() == "approved";
+
+    final isAuthorized = _modifiedRequestsAuthorization.isAction;
+
+    final isApprovalStatusApproved =
+        widget.approvalStatus?.toUpperCase() == "APPROVED";
+
+    final hasNoPartiallyApprovedApplicants = !isAnyApplicantPartiallyApproved;
+
+    final canAddApplicant =
+        state.hasUnsavedApplicantChanges ||
+        applicantRequest == null ||
+        isApplicantApproved;
+
+    final isRegistrationEligible =
+        state.bookingData?.isFinalRegistrationCompleted != true &&
+        state.bookingData?.agreementValue != 0 &&
+        state.bookingData?.tenantId == 0;
+
+    final showAddButton =
+        isAuthorized &&
+        isApprovalStatusApproved &&
+        hasNoPartiallyApprovedApplicants &&
+        canAddApplicant &&
+        isRegistrationEligible;
     return SectionCard(
       title: "Applicant Details",
       headerBackgroundColor: AppColor.lightYellowBg2,
@@ -316,12 +340,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
                     ),
 
                   horizontalSpacing(),
-                  if (_modifiedRequestsAuthorization.isAction &&
-                      widget.approvalStatus?.toUpperCase() == "APPROVED" &&
-                      !isAnyApplicantPartiallyApproved &&
-                      (state.hasUnsavedApplicantChanges ||
-                          applicantRequest == null ||
-                          isApplicantApproved))
+                  if (showAddButton)
                     CustomButton(
                       leading: Icon(Icons.add, size: 18, color: AppColor.white),
                       text: "Add",
@@ -885,6 +904,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
     final hasParkingData =
         state.parkingModificationRequestList.isNotEmpty &&
         state.parkingModificationRequestList.first.parkingData.isNotEmpty;
+
     final hasPendingParkingRequest = state.parkingModificationRequestList.any((
       e,
     ) {
@@ -894,15 +914,23 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
           status == "pending" ||
           status == "partial approved";
     });
+    final isRegistrationEligible =
+        state.bookingData?.isFinalRegistrationCompleted != true &&
+        state.bookingData?.agreementValue != 0 &&
+        state.bookingData?.tenantId == 0;
+    final showAddButton =
+        (_modifiedRequestsAuthorization.isAction &&
+            widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+            !hasPendingParkingRequest &&
+            isRegistrationEligible);
+
     return SectionCard(
       title: "Parking Details",
       titleTextColor: AppColor.blueBgColor,
       headerBackgroundColor: Color(0xffF6F9FF),
       border: Border.all(color: AppColor.grey.withValues(alpha: 0.3), width: 1),
       suffix:
-          (_modifiedRequestsAuthorization.isAction &&
-                  widget.approvalStatus?.toUpperCase() == "APPROVED" &&
-                  !hasPendingParkingRequest)
+          (showAddButton)
               ? CustomButton(
                 leading: Icon(Icons.add, size: 18, color: AppColor.white),
                 text: "Add",
@@ -1182,15 +1210,22 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               status == "pending" ||
               status == "partial approved";
         });
+    final isRegistrationEligible =
+        state.bookingData?.isFinalRegistrationCompleted != true &&
+        state.bookingData?.agreementValue != 0 &&
+        state.bookingData?.tenantId == 0;
+    final showAddButton =
+        (_modifiedRequestsAuthorization.isAction &&
+            widget.approvalStatus?.toUpperCase() == "APPROVED" &&
+            !hasPendingFlatAlterationRequest &&
+            isRegistrationEligible);
     return SectionCard(
       title: "Unit / Modulation / Customization Details",
       headerBackgroundColor: AppColor.grey10,
       titleTextColor: AppColor.black,
       border: Border.all(color: AppColor.grey.withValues(alpha: 0.3), width: 1),
       suffix:
-          (_modifiedRequestsAuthorization.isAction &&
-                  widget.approvalStatus?.toUpperCase() == "APPROVED" &&
-                  !hasPendingFlatAlterationRequest)
+          (showAddButton)
               ? CustomButton(
                 leading: Icon(Icons.add, size: 18, color: AppColor.white),
                 text: "Add",

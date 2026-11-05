@@ -196,11 +196,12 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
             booking.totalAmountRefundedAgainstBooking >
             booking.refundedAmountOnTillDate;
 
-        final noAgreementValue =
-            state.bookingData?.agreementValue == 0 &&
-            state.bookingData?.tenantId != 0;
-        //TODO:
-        // final fullyPaid = bookingData.agreementValue == bookingData.totalAmountReceivedAgainstBooking;
+        final isFinalRegistrationCompleted =
+            bookingData.isFinalRegistrationCompleted;
+        final showActionButton =
+            !(isFinalRegistrationCompleted ||
+                state.bookingData?.agreementValue == 0 ||
+                state.bookingData?.tenantId != 0);
         Widget? actionButton;
         if (!isBookingCancelled &&
             !isRefundStatus &&
@@ -679,7 +680,7 @@ class _RequestManagementScreenState extends State<RequestManagementScreen>
                 ),
               ),
               // HIDE ON AGREEMENT VALUE ZERO
-              if (!noAgreementValue)
+              if (showActionButton)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
