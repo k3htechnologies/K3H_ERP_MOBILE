@@ -154,6 +154,7 @@ class BookingCubit extends Cubit<BookingState> {
     Map<String, dynamic> queryParams = {
       "BookingId": bookingId,
       "IsCheckPermission": false,
+      "BookingSearchKey": "SALE BOOKING",
     };
 
     final result = await _bookingRepository.getBookingList(
@@ -195,6 +196,7 @@ class BookingCubit extends Cubit<BookingState> {
     Map<String, dynamic> queryParams = {
       if (systemGeneratedCode != null)
         "SystemGeneratedCode": systemGeneratedCode,
+      "IsCheckPermission": false,
       if (enquiryId != null) "EnquiryId": enquiryId,
     };
     var result = await _enquiryRepository.getEnquiryList(
@@ -280,12 +282,13 @@ class BookingCubit extends Cubit<BookingState> {
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: projectId,
-      queryParams:
-          searchQuery != null && searchQuery.isNotEmpty
-              ? {"ParkingNumber": searchQuery}
-              : displayParkingId != null
-              ? {"DisplayParkingId": displayParkingId}
-              : null,
+      queryParams: {
+        "ParkingNumber": searchQuery,
+        "IsAcessOnlyApprovedParking": true,
+        "IsAcessMemberApprovedParking": false,
+        "ParkingStatus": "Available",
+        if (displayParkingId != null) "DisplayParkingId": displayParkingId,
+      },
     );
 
     result.fold(

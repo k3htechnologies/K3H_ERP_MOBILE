@@ -1176,6 +1176,9 @@ class _AddChannelPartnerScreenState extends State<AddChannelPartnerScreen> {
                     if (value == null || value.trim().isEmpty) {
                       return "Office Address is required.";
                     }
+                    if (value.length < 25) {
+                      return "Office Address must be at least 25 characters long.";
+                    }
                     return null;
                   },
                 ),

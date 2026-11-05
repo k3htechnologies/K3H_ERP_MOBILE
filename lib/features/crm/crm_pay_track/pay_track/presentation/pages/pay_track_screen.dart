@@ -214,22 +214,44 @@ class _PayTrackScreenState extends State<PayTrackScreen> {
                   textController: _filterMobileNumberC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
+                Text(
+                  "Final Registration Completed",
+                  style: AppTextStyle.ts14R(),
+                ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Final Registration Completed"),
-                    Switch(
-                      value: registrationCompleted,
-                      onChanged: (value) {
+                    Radio<bool>(
+                      value: true,
+                      // ignore: deprecated_member_use
+                      groupValue: registrationCompleted,
+                      // ignore: deprecated_member_use
+                      onChanged: (val) {
                         innerState(() {
-                          registrationCompleted = value;
+                          registrationCompleted = val!;
                         });
-
                         updateApplyState(innerState);
                       },
                     ),
+                    Text("Yes", style: AppTextStyle.ts14R()),
+
+                    horizontalSpacing(),
+
+                    Radio<bool>(
+                      value: false,
+                      // ignore: deprecated_member_use
+                      groupValue: registrationCompleted,
+                      // ignore: deprecated_member_use
+                      onChanged: (val) {
+                        innerState(() {
+                          registrationCompleted = val!;
+                        });
+                        updateApplyState(innerState);
+                      },
+                    ),
+                    Text("No", style: AppTextStyle.ts14R()),
                   ],
                 ),
+                verticalSpacing(height: 8),
                 CustomTextField(
                   title: "Wing",
                   hint: "Enter Wing",

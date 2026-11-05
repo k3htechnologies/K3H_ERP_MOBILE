@@ -272,10 +272,19 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
         authorization: AuthorizationModel(),
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10,
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: showSiteSelectedWidget(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Text(
+              widget.applicantName,
+              style: AppTextStyle.ts14M(color: Color(0xFF475569)),
+            ),
           ),
           Expanded(
             child: ValueListenableBuilder<bool>(
@@ -380,60 +389,11 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
       ]);
     }
 
-    final noAgreementValue =
-        state.bookingData?.agreementValue == 0 &&
-        state.bookingData?.tenantId != 0;
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            spacing: 10,
-            children: [
-              Expanded(
-                child: Text(
-                  widget.applicantName,
-                  style: AppTextStyle.ts14M(color: AppColor.primary),
-                ),
-              ),
-              if (noAgreementValue)
-                CustomMessageButton(
-                  onWelcome: () async {
-                    final result = await _payTrackCubit.getBookingById(
-                      context,
-                      1,
-                      widget.projectId,
-                      widget.bookingId,
-                      exportType: "WELCOME MESSAGE",
-                    );
-
-                    if (result != null && context.mounted) {
-                      showSuccessMessage(
-                        context,
-                        subTitle: "Message sent successfully.",
-                      );
-                    }
-                  },
-                  onEmail: () async {
-                    final result = await _payTrackCubit.getBookingById(
-                      context,
-                      1,
-                      widget.projectId,
-                      widget.bookingId,
-                      exportType: "WELCOME MESSAGE ON MAIL",
-                    );
-
-                    if (result != null && context.mounted) {
-                      showSuccessMessage(
-                        context,
-                        subTitle: "Email sent successfully.",
-                      );
-                    }
-                  },
-                ),
-            ],
-          ),
           if (showUpdateRegistrationButton)
             Row(
               children: [

@@ -238,7 +238,6 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       title: "Account Number",
                       hint: "Enter Account Number",
                       isRequired: true,
-                      prefixType: CustomTextFieldPrefix.rupees,
                       keyboardType: TextInputType.number,
                       inputFormatterList: InputValidator.digit(18),
                       validator: (value) {
@@ -253,6 +252,7 @@ class _AddActiveBankScreenState extends State<AddActiveBankScreen> {
                       title: "Loan Sanction Amount",
                       hint: "Enter Loan Sanction Amount",
                       isRequired: true,
+                      prefixType: CustomTextFieldPrefix.rupees,
                       keyboardType: TextInputType.numberWithOptions(),
                       inputFormatterList: InputValidator.digitWithDecimal(
                         maxDigitsBeforeDecimal: 16,

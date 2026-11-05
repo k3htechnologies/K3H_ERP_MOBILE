@@ -112,7 +112,11 @@ class _UpdateRegistrationDateParkingScreenState
       pageNumber: pageNumber,
       pageSize: 10,
       projectId: _selectedProject.projectId,
-      queryParams: {"ParkingNumber": value},
+      queryParams: {
+        "ParkingNumber": value,
+        "IsAcessOnlyApprovedParking": true,
+        "IsAcessMemberApprovedParking": false,
+      },
     );
     return result.fold(
       (failure) => {

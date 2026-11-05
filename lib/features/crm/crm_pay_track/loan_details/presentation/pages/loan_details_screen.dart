@@ -80,6 +80,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
   // HANDLE TAB CHANGE
   void _handleTabChange() async {
     if (!_tabController.indexIsChanging) {
+      closeAccountNotifier.value = {};
       switch (_tabController.index) {
         case 0:
           await _loanDetailsCubit.getBankLoanDetailsList(
@@ -477,7 +478,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     Expanded(
                       child: CustomCheckBox(
                         isSelected: isChecked,
-                        title: "Do you want to close this account",
+                        title: "Do you want to close this account?",
                         onChanged: (value) {
                           final updatedMap = Map<int, bool>.from(selectedMap);
 
@@ -517,7 +518,7 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
       margin: const EdgeInsets.only(bottom: 10),
       decoration: commonCardDecoration(),
       child: ExpansionTile(
-        childrenPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+        childrenPadding: EdgeInsets.symmetric(horizontal: 12),
         tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         iconColor: AppColor.black,
         collapsedIconColor: AppColor.black,
@@ -544,16 +545,6 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
   Widget _buildClosedBankCard(BookingLoanDetailsModel bankDetail) {
     return BlocBuilder<LoanDetailsCubit, LoanDetailsState>(
       builder: (context, state) {
-        final status = bankDetail.bankStatusClosedActive.toLowerCase();
-
-        final bookingStatus = widget.bookingApprovalStatus?.toUpperCase() ?? "";
-
-        final canShowAccountOpenOrClose =
-            _bankLoanAuthorization.isAction &&
-            widget.approvalStatus?.toUpperCase() == "APPROVED" &&
-            !["CANCEL", "REFUND"].contains(bookingStatus) &&
-            bankDetail.noOfBankDocument > 0 &&
-            status != "closed";
         return Container(
           margin: const EdgeInsets.only(bottom: 10),
           padding: const EdgeInsets.all(16),
@@ -661,52 +652,6 @@ class _LoanDetailsScreenState extends State<LoanDetailsScreen>
                     ),
                   ],
                 ),
-                if (canShowAccountOpenOrClose)
-                  ValueListenableBuilder<Map<int, bool>>(
-                    valueListenable: closeAccountNotifier,
-                    builder: (context, selectedMap, child) {
-                      final isChecked =
-                          selectedMap[bankDetail.bookingLoanDetailsId] ?? false;
-
-                      return Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: CustomCheckBox(
-                              isSelected: isChecked,
-                              title: "Do you want to close this account",
-                              onChanged: (value) {
-                                final updatedMap = Map<int, bool>.from(
-                                  selectedMap,
-                                );
-
-                                updatedMap[bankDetail.bookingLoanDetailsId] =
-                                    !isChecked;
-
-                                closeAccountNotifier.value = updatedMap;
-                              },
-                            ),
-                          ),
-
-                          if (isChecked)
-                            CustomButton(
-                              text: "Close Account",
-                              onPressed: () {
-                                _loanDetailsCubit.closeAccount(
-                                  context: context,
-                                  bookingLoanDetailsId:
-                                      bankDetail.bookingLoanDetailsId,
-                                  uniqueKey: bankDetail.uniquekey,
-                                  projectId: widget.projectId,
-                                  bookingId: widget.bookingId,
-                                );
-                              },
-                            ),
-                        ],
-                      );
-                    },
-                  ),
               ],
             ),
           ),
