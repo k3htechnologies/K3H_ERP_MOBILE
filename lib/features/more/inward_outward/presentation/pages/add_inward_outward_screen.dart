@@ -632,6 +632,7 @@ class _AddInwardOutwardScreenState extends State<AddInwardOutwardScreen> {
                           textController: _senderMobileNumberC,
                           title: "Mobile No.",
                           isRequired: isRequired,
+                          readOnly: _isEditMode,
                           hint: "Enter Sender Mobile No.",
                           showCountryDropdown: true,
                           keyboardType: TextInputType.number,

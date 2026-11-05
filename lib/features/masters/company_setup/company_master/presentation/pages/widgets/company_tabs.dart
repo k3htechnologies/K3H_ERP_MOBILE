@@ -18,18 +18,8 @@ extension _CompanyTabs on _CompanyMasterScreenState {
                   return Center(child: loader());
                 }
                 if (state.companyList.isEmpty) {
-                  return ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        child: Center(
-                          child: noDataWidget(
-                            message: "No companies Data found",
-                          ),
-                        ),
-                      ),
-                    ],
+                  return Center(
+                    child: noDataWidget(message: "No companies Data found."),
                   );
                 }
                 return ListView.builder(
@@ -176,18 +166,8 @@ extension _CompanyTabs on _CompanyMasterScreenState {
                   return Center(child: loader());
                 }
                 if (state.companyList.isEmpty) {
-                  return ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        child: Center(
-                          child: noDataWidget(
-                            message: "No companies Data found",
-                          ),
-                        ),
-                      ),
-                    ],
+                  return Center(
+                    child: noDataWidget(message: "No company Bank Data Found."),
                   );
                 }
                 return ListView.builder(
