@@ -159,7 +159,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              !_isEditMode ? "Add Charges" : "Update Charges",
+              !_isEditMode ? "Add Other Charges" : "Update Other Charges",
               style: AppTextStyle.ts16SB(),
             ),
             verticalSpacing(),
@@ -195,30 +195,35 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                       },
                     ),
                     CustomTextField(
-                      title: "Charge Name",
+                      title: "Charges Name",
                       isRequired: true,
-                      hint: "Enter Charge Name",
+                      hint: "Enter Charges Name",
                       inputFormatterList: [
-                        LengthLimitingTextInputFormatter(200),
+                        LengthLimitingTextInputFormatter(50),
                       ],
                       textController: _chargeNameC,
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "Please Enter Charge Name";
+                          return "Please Enter Charges Name";
                         }
                         return null;
                       },
                     ),
                     CustomTextField(
-                      title: "Value (in ₹)",
+                      title: "Value (₹)",
                       isRequired: true,
                       hint: "Enter Value",
                       keyboardType: TextInputType.number,
-                      inputFormatterList: InputValidator.decimal(10),
+                      inputFormatterList: InputValidator.digitWithDecimal(
+                        maxDigitsBeforeDecimal: 10,
+                      ),
                       textController: _valueC,
                       validator: (value) {
                         if (value!.isEmpty) {
-                          return "Please Enter Value";
+                          return "Value is required.";
+                        }
+                        if ((double.tryParse(value) ?? 0) <= 0) {
+                          return "Value must be greater than 0.";
                         }
                         return null;
                       },
@@ -248,7 +253,7 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                       },
                     ),
                     CustomTextField(
-                      title: "GST (in %)",
+                      title: "GST (%)",
                       isRequired: true,
                       hint: "Enter GST %",
                       keyboardType: TextInputType.number,
@@ -267,15 +272,9 @@ class _AddOtherChargesScreenState extends State<AddOtherChargesScreen> {
                         return CustomTextField(
                           key: ValueKey(gst),
                           readOnly: true,
-                          title: "GST Value (in ₹)",
+                          title: "GST Value (₹)",
                           hint: "0",
                           textController: _gstValueC,
-                          validator: (value) {
-                            if ((double.tryParse(value ?? '') ?? 0) <= 0) {
-                              return "GST Value must be greater than 0";
-                            }
-                            return null;
-                          },
                         );
                       },
                     ),

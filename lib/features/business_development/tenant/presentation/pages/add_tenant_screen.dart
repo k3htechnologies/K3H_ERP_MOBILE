@@ -132,7 +132,7 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
         final saved =
             (m is InventoryFlatData && m.adjustPurchaseAreaSqFt != 0)
                 ? m.adjustPurchaseAreaSqFt.toString()
-                : '';
+                : '0';
         return TextEditingController(text: saved);
       });
     }
@@ -331,17 +331,18 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
   }
 
   void _handleSubmit() async {
-    if (!(_formKey.currentState?.validate() ?? false)) return;
     if (tenantModel != null && _selectedFlatNotifier.value.isNotEmpty) {
       final errors = await _cubit.validateTenant(
         context: context,
         applicants: _applicants.value,
       );
       if (errors.isNotEmpty) {
-        _showTenantErrorDialog(errors: errors);
+        _showTenantMissingInfoDialog(errors: errors);
         return;
       }
     }
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+
     final currentApplicants = _applicants.value;
     if (currentApplicants.isEmpty) {
       showErrorMessage(context, 'Error', 'Atleast one applicant is required');
@@ -555,7 +556,9 @@ class _AddTenantScreenState extends State<AddTenantScreen> {
     super.dispose();
   }
 
-  Future<void> _showTenantErrorDialog({required List<String> errors}) async {
+  Future<void> _showTenantMissingInfoDialog({
+    required List<String> errors,
+  }) async {
     final Map<String, List<String>> grouped = {};
     for (final e in errors) {
       final i = e.indexOf(': ');

@@ -279,25 +279,35 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                                   ],
                                 ),
                                 buildRowTitleValue(
+                                  title: "Applicable For",
+                                  value: otherCharges.applicableFor,
+                                  fixesWidth: 180,
+                                  singleLine: false,
+                                ),
+                                buildRowTitleValue(
                                   title: "Value",
                                   value: otherCharges.value.toIndianCurrency(),
                                   fixesWidth: 180,
+                                  singleLine: false,
                                 ),
                                 buildRowTitleValue(
                                   title: "Calculated On",
                                   value: otherCharges.calculatedOn,
+                                  singleLine: false,
                                   fixesWidth: 180,
                                 ),
                                 buildRowTitleValue(
                                   title: "GST Percentage",
                                   value: "${otherCharges.gstPercentage} %",
                                   fixesWidth: 180,
+                                  singleLine: false,
                                 ),
                                 buildRowTitleValue(
                                   title: "GST Value",
                                   value:
                                       otherCharges.gstValue.toIndianCurrency(),
                                   fixesWidth: 180,
+                                  singleLine: false,
                                 ),
                                 buildRowTitleValue(
                                   title: "Value + GST Value (₹)",
@@ -306,6 +316,7 @@ class _OtherChargesScreenState extends State<OtherChargesScreen> {
                                               otherCharges.gstValue)
                                           .toIndianCurrency(),
                                   fixesWidth: 180,
+                                  singleLine: false,
                                 ),
                                 buildRowTitleValue(
                                   title: "Created By",

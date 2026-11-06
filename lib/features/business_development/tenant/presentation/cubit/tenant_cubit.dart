@@ -454,6 +454,27 @@ class TenantCubit extends Cubit<TenantState> {
     );
   }
 
+  Future<void> refreshTenantById({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required int tenantId,
+  }) async {
+    final updatedTenantList = await getTenantByIdList(
+      context: context,
+      projectId: projectId,
+      buildingId: buildingId,
+      tenantId: tenantId,
+    );
+
+    final List<TenantModel> updatedList = [
+      ...state.tenantList.where((e) => e.tenantId != tenantId),
+      ...updatedTenantList,
+    ];
+
+    emit(state.copyWith(tenantList: updatedList));
+  }
+
   Future updateTenant({
     required BuildContext context,
     required String projectId,
@@ -654,12 +675,13 @@ class TenantCubit extends Cubit<TenantState> {
       (response) async {
         goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
-        getTenantList(
+        await refreshTenantById(
           context: context,
           projectId: int.parse(projectId),
           buildingId: int.parse(buildingId),
-          pageNumber: 1,
+          tenantId: int.parse(tenantId),
         );
+        emit(state.copyWith(isLoading: false));
       },
     );
   }
@@ -923,6 +945,46 @@ class TenantCubit extends Cubit<TenantState> {
       state.filterByParkingNumber.trim().isNotEmpty,
       hasSort,
     ]);
+  }
+
+  Future<List<TenantModel>> getTenantByIdList({
+    required BuildContext context,
+    required int projectId,
+    required int buildingId,
+    required int tenantId,
+  }) async {
+    emit(state.copyWith(isLoading: true));
+
+    Map<String, dynamic> queryParams = {
+      "BuildingId": buildingId,
+      "ProjectId": projectId,
+      "TenantId": tenantId,
+    };
+
+    final result = await _tenantRepository.getTenantList(
+      pageNumber: 1,
+      pageSize: 20,
+      projectId: projectId,
+      buildingId: buildingId,
+      queryParams: queryParams,
+    );
+
+    return result.fold(
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        showErrorMessage(context, 'Error', failure.message);
+        return [];
+      },
+      (response) {
+        final List<TenantModel> list = List<TenantModel>.from(
+          response['data'] ?? [],
+        );
+
+        emit(state.copyWith(isLoading: false));
+
+        return list;
+      },
+    );
   }
 
   Future<TenantModel?> getTenantById({
