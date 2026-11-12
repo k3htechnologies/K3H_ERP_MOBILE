@@ -200,34 +200,24 @@ class _PaymentScreenState extends State<PaymentScreen>
                               "GST Amount",
                               "TDS Amount",
                             ];
-                            final stageName =
-                                paymentSchedules.name.trim().toLowerCase();
-                            final hideDemand =
-                                stageName == "stamp duty" ||
-                                stageName == "registration fees";
-
-                            final isStageOrDate =
-                                paymentSchedules.type.toLowerCase() ==
-                                    "stage" ||
-                                paymentSchedules.type.toLowerCase() == "date";
-                            final showDemand = !hideDemand && isStageOrDate;
-                            final hasDemandType =
-                                paymentSchedules.demandType.trim().isNotEmpty;
 
                             final isLocked =
-                                paymentSchedules.bookingPaymentScheduleId <=
-                                    0 ||
-                                !hasDemandType;
+                                !(paymentSchedules.bookingPaymentScheduleId >
+                                    0) ||
+                                paymentSchedules.demandType.trim().isEmpty;
 
-                            final isApproved =
-                                widget.bookingApprovalStatus.toUpperCase() ==
-                                "APPROVED";
-
-                            final canShowDemandButton =
+                            final isDisabled =
+                                isLocked ||
+                                widget.bookingApprovalStatus.toUpperCase() !=
+                                    'APPROVED';
+                            final showDemand =
                                 _accountPaymentScheduleAuthorizationModel
                                     .isAction &&
                                 !isLocked;
-                            final isDisabled = isLocked || !isApproved;
+
+                            final showTrackLetter =
+                                paymentSchedules.bookingPaymentScheduleId > 0 &&
+                                paymentSchedules.demandType.trim() != 'Demand';
 
                             return CustomExpandableCard(
                               padding: EdgeInsets.zero,
@@ -284,12 +274,14 @@ class _PaymentScreenState extends State<PaymentScreen>
                                       : SizedBox.shrink(),
                                   if (showAddButton)
                                     Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                      spacing: 10,
+                                      mainAxisAlignment: MainAxisAlignment.end,
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        if (showDemand && canShowDemandButton)
+                                        if (!showTrackLetter || !showDemand)
+                                          Spacer(),
+                                        if (showDemand)
                                           Expanded(
                                             child: CustomButton(
                                               isDisable: isDisabled,
@@ -318,9 +310,7 @@ class _PaymentScreenState extends State<PaymentScreen>
                                               },
                                             ),
                                           ),
-                                        if (showDemand && canShowDemandButton)
-                                          horizontalSpacing(),
-                                        if (showDemand && canShowDemandButton)
+                                        if (showTrackLetter)
                                           Expanded(
                                             child: CustomButton(
                                               text: "Track Letter",

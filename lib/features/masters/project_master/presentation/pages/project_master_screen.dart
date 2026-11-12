@@ -88,7 +88,8 @@ class _ProjectMasterScreenState extends State<ProjectMasterScreen> {
     super.initState();
     _initialiseTextController();
     _routeAuthorizationModel =
-        Authorization.routeAuthorizationMap[AppRoutes.projectDetails]!;
+        Authorization.routeAuthorizationMap[AppRoutes.projectDetails] ??
+        AuthorizationModel();
 
     _projectMasterCubit = BlocProvider.of<ProjectMasterCubit>(context);
     _projectMasterCubit.getProjectList(context: context, pageNumber: 1);
