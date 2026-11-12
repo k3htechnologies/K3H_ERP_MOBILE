@@ -28,6 +28,8 @@ class CollectionReportScreen extends StatefulWidget {
 }
 
 class _CollectionReportScreenState extends State<CollectionReportScreen> {
+  // AUTHORIZATION
+  late AuthorizationModel _routeAuthorizationModel;
   late CollectionReportCubit _collectionReportCubit;
   late TextEditingController _searchC;
   final ValueNotifier<String?> _selectedWingKey = ValueNotifier<String?>(null);
@@ -37,10 +39,13 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
   @override
   void initState() {
     super.initState();
+    _routeAuthorizationModel =
+        Authorization.routeAuthorizationMap[AppRoutes.collectionReport] ??
+        AuthorizationModel();
     _searchC = TextEditingController();
     _onScroll();
     _collectionReportCubit = context.read<CollectionReportCubit>();
-    _collectionReportCubit.getDailyCollectionReportList(context, pageNumber: 1);
+    _collectionReportCubit.getCollectionReportList(context, pageNumber: 1);
   }
 
   void _onScroll() {
@@ -54,7 +59,7 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
         // TO HANDLE MULTIPLE TIME API CALLS
         if (_debounce?.isActive ?? false) _debounce?.cancel();
         _debounce = Timer(const Duration(milliseconds: 300), () {
-          _collectionReportCubit.getDailyCollectionReportList(
+          _collectionReportCubit.getCollectionReportList(
             context,
             pageNumber: _collectionReportCubit.state.currentPage + 1,
           );
@@ -77,7 +82,7 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "Collection Report",
-        authorization: AuthorizationModel(),
+        authorization: _routeAuthorizationModel,
         isMenuButton: true,
       ),
       body: Padding(
@@ -92,17 +97,18 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                 Expanded(
                   child: SearchWidget(
                     onSubmit: (val) {
-                      _collectionReportCubit.searchDCR(context, val);
+                      _collectionReportCubit.searchCollection(context, val);
                     },
                     textController: _searchC,
                     hintText: "Search By Project Name",
                   ),
                 ),
-                CustomExportButton(
-                  onExport: (value) {
-                    _collectionReportCubit.exportExcelPdf(context, value);
-                  },
-                ),
+                if (_routeAuthorizationModel.isExport)
+                  CustomExportButton(
+                    onExport: (value) {
+                      _collectionReportCubit.exportExcelPdf(context, value);
+                    },
+                  ),
               ],
             ),
             BlocBuilder<CollectionReportCubit, CollectionReportState>(
@@ -127,7 +133,7 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                 return Expanded(
                   child: RefreshIndicator(
                     onRefresh: () async {
-                      _collectionReportCubit.getDailyCollectionReportList(
+                      _collectionReportCubit.getCollectionReportList(
                         context,
                         pageNumber: 1,
                       );
@@ -156,10 +162,7 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
 
                         return CustomExpandableCard(
                           onExpansionChanged: (isExpanded) {
-                            if (isExpanded &&
-                                !state.projectWiseReportMap.containsKey(
-                                  report.projectId,
-                                )) {
+                            if (isExpanded) {
                               _collectionReportCubit
                                   .getDailyCollectionReportProjectWiseList(
                                     context,
@@ -176,24 +179,25 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                                 children: [
                                   Text(
                                     report.projectName,
-                                    style: AppTextStyle.ts14M(
-                                      color: AppColor.primary,
-                                    ),
+                                    style: AppTextStyle.ts14M(),
                                   ),
                                   verticalSpacing(height: 6.sp),
                                   Text(
-                                    "Total Unit : ${report.totalUnit.toString()} | Total Wing : ${report.wing}",
+                                    "Total Unit : ${report.totalUnit.toString()}",
                                     style: AppTextStyle.ts14M(
                                       color: AppColor.grey,
                                     ),
                                   ),
                                 ],
                               ),
-                              verticalSpacing(height: 12.sp),
-                              Divider(thickness: 1.sp, color: AppColor.grey10),
-                              verticalSpacing(height: 12.sp),
+                              Divider(
+                                height: 20,
+                                thickness: 1.sp,
+                                color: AppColor.grey10,
+                              ),
                               buildRowTitleValue(
                                 title: "Total Agreement Value",
+                                fixesWidth: 130.w,
                                 value:
                                     report.totalAgreementValue
                                         .toIndianCurrency(),
@@ -201,20 +205,22 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                               ),
                               buildRowTitleValue(
                                 title: "Total Received Amount",
+                                fixesWidth: 130.w,
                                 value: report.receivedAmount.toIndianCurrency(),
                                 singleLine: false,
                               ),
-                              verticalSpacing(height: 12.sp),
-                              Divider(thickness: 1.sp, color: AppColor.grey10),
-                              verticalSpacing(height: 12.sp),
+                              Divider(
+                                height: 20,
+                                thickness: 1.sp,
+                                color: AppColor.grey10,
+                              ),
                               buildRowTitleValue(
-                                title: "Total Balance Amount",
+                                fixesWidth: 130.w,
+                                title: "Total Outstanding Amount",
                                 valueTextStyle: AppTextStyle.ts14SB(
                                   color: AppColor.darkGreen10,
                                 ),
-                                value:
-                                    report.totalAgreementValue
-                                        .toIndianCurrency(),
+                                value: report.balanceAmount.toIndianCurrency(),
                                 singleLine: false,
                               ),
                             ],
@@ -380,7 +386,7 @@ class _CollectionReportScreenState extends State<CollectionReportScreen> {
                 horizontalSpacing(width: 8.sp),
                 Expanded(
                   child: Text(
-                    wingName,
+                    "Wing: $wingName",
                     style: AppTextStyle.ts14M(color: AppColor.primary),
                   ),
                 ),

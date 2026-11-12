@@ -19,12 +19,12 @@ class CollectionReportCubit extends Cubit<CollectionReportState> {
       serviceLocator<CollectionReportRepository>();
 
   // SEARCH
-  Future searchDCR(BuildContext context, String value) async {
+  Future searchCollection(BuildContext context, String value) async {
     emit(state.copyWith(searchText: value, collectionReportList: []));
-    await getDailyCollectionReportList(context, pageNumber: 1);
+    await getCollectionReportList(context, pageNumber: 1);
   }
 
-  Future getDailyCollectionReportList(
+  Future getCollectionReportList(
     BuildContext context, {
     required int pageNumber,
     int? pageSize,
@@ -70,6 +70,10 @@ class CollectionReportCubit extends Cubit<CollectionReportState> {
   }
 
   Future exportExcelPdf(BuildContext context, String exportType) async {
+    if (state.totalNumberOfRecord == 0) {
+      showErrorMessage(context, "Error", "No Data Found.");
+      return;
+    }
     DialogHelper.showProcessingOverlay(context);
     var result = await _collectionReportRepository
         .exportProjectWiseCollectionReportList(

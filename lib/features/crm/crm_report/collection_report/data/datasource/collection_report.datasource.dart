@@ -83,7 +83,7 @@ class CollectionReportDatasourceImpl extends CollectionReportDatasource {
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "CollectionReport/PullDailyCollectionReport?PageSize=$pageSize&PageNumber=$pageNumber";
+          "CollectionReport/PullCollectionReport?PageSize=$pageSize&PageNumber=$pageNumber";
       queryParams?.forEach((key, value) => url += "&$key=$value");
       return url;
     }

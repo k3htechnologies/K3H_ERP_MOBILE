@@ -44,6 +44,7 @@ class _CollectionReportOverallScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            verticalSpacing(),
             RichText(
               text: TextSpan(
                 children: [
@@ -55,7 +56,16 @@ class _CollectionReportOverallScreenState
                             .projectName,
                     style: AppTextStyle.ts14M(color: AppColor.grey),
                   ),
-                  TextSpan(text: " > "),
+                  TextSpan(text: "  >  "),
+                  TextSpan(
+                    text:
+                        widget
+                            .collectionReportProjectWiseModel!
+                            .first
+                            .buildingNumber,
+                    style: AppTextStyle.ts14M(color: AppColor.grey),
+                  ),
+                  TextSpan(text: "  >  "),
                   TextSpan(
                     text:
                         "Wing ${widget.collectionReportProjectWiseModel!.first.wing}",
@@ -65,7 +75,7 @@ class _CollectionReportOverallScreenState
                 style: AppTextStyle.ts14M(),
               ),
             ),
-            verticalSpacing(),
+            verticalSpacing(height: 15),
             Container(
               padding: EdgeInsets.all(12.sp),
               decoration: BoxDecoration(
@@ -104,6 +114,7 @@ class _CollectionReportOverallScreenState
                       unitType: "Commercial",
                       dotColor: Colors.amber,
                     ),
+                    verticalSpacing(height: 12.sp),
                   ],
                 ),
               ),
@@ -122,20 +133,12 @@ class _CollectionReportOverallScreenState
         (widget.collectionReportProjectWiseModel ?? [])
             .where((e) => e.unitType == unitType)
             .toList();
-
     if (rows.isEmpty) return const SizedBox.shrink();
-
-    final total = rows.where((e) => e.type == 'Total').firstOrNull;
-    final allotted =
-        rows.where((e) => e.type == 'Allotted / Member').firstOrNull;
-    final booked = rows.where((e) => e.type == 'Booked / Sale').firstOrNull;
 
     return CollectionReportCard(
       title: "$unitType Units",
       dotColor: dotColor,
       bodyColor: Color(0xffEEF5FB),
-      subTitle:
-          "${total?.totalUnit ?? 0} Units (Allotted: ${allotted?.totalUnit ?? 0} | Booked: ${booked?.totalUnit ?? 0})",
       body: Column(
         children: [
           _buildSectionTile(
@@ -397,14 +400,14 @@ class CollectionSectinCard extends StatelessWidget {
             title: 'Total Unit Details',
             color: AppColor.primary,
             left: buildColumnTitleValue(
-              title: "Units",
-              value: item.totalUnit.toString(),
+              title: "Unit Count",
+              value: item.bookingCount.addCommas(),
               removeExpanded: true,
             ),
 
             right: buildColumnTitleValue(
               title: "RERA Carpet Area (SqFt)",
-              value: item.totalUnit.toString(),
+              value: item.totalReraCarpetAreaSqFt.addCommas(),
               removeExpanded: true,
             ),
           ),
@@ -430,13 +433,13 @@ class CollectionSectinCard extends StatelessWidget {
             title: "Alloted / Booked Details",
             color: AppColor.purple,
             left: buildColumnTitleValue(
-              title: "Count",
-              value: item.totalUnit.toString(),
+              title: "Unit Count",
+              value: item.bookingCount.addCommas(),
               removeExpanded: true,
             ),
             right: buildColumnTitleValue(
               title: "RERA Carpet Area (SqFt)",
-              value: item.totalReraCarpetAreaSqFt.toString(),
+              value: item.totalReraCarpetAreaSqFt.addCommas(),
               removeExpanded: true,
             ),
           ),
@@ -451,7 +454,6 @@ class CollectionSectinCard extends StatelessWidget {
             format: formatCurrency,
             rows: [
               AmountRow("Agreement", item.totalAgreementValue, AppColor.black),
-              AmountRow("Due", item.dueAmount, AppColor.orangeColor),
               AmountRow('Received', item.receivedAmount, AppColor.darkGreen50),
               AmountRow(
                 'Outstanding',

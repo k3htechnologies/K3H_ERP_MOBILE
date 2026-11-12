@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class CollectionReportCard extends StatelessWidget {
   final String title;
   final Color dotColor;
-  final String subTitle;
   final Widget body;
 
   final List<Color> headerGradient;
@@ -17,7 +16,6 @@ class CollectionReportCard extends StatelessWidget {
     super.key,
     required this.title,
     required this.dotColor,
-    required this.subTitle,
     required this.body,
     this.headerGradient = const [
       Color(0xff1F518F),
@@ -70,8 +68,6 @@ class CollectionReportCard extends StatelessWidget {
                   ),
                 ],
               ),
-              verticalSpacing(height: 8.sp),
-              Text(subTitle, style: AppTextStyle.ts12M(color: Colors.white)),
             ],
           ),
         ),
