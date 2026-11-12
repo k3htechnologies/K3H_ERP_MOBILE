@@ -585,8 +585,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                     _buildWordayOverviewWidget(state, context),
                     verticalSpacing(height: 16),
                     // PENDING APPROVAL WIDGET
-                    pendingApprovalWidget(),
-                    verticalSpacing(height: 16),
+                    if ((state.userData?.table13.first.myApprovalCount ?? 0) >
+                        0) ...[
+                      pendingApprovalWidget(),
+                      verticalSpacing(height: 16),
+                    ],
                     //  QUICK ACTIONS WIDGET
                     buildQuickActionsWidget(context),
                     verticalSpacing(height: 16),

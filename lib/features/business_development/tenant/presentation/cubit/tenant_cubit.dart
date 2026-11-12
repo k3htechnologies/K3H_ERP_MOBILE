@@ -444,11 +444,23 @@ class TenantCubit extends Cubit<TenantState> {
       (response) async {
         goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
-        getTenantList(
+        final newData = response['data'] as List<TenantModel>;
+        final updatedTenantList = await getTenantByIdList(
           context: context,
           projectId: projectId,
           buildingId: buildingId,
-          pageNumber: 1,
+          tenantId: newData.first.tenantId,
+        );
+
+        final List<TenantModel> updatedList = [
+          ...updatedTenantList,
+          ...state.tenantList,
+        ];
+        emit(
+          state.copyWith(
+            tenantList: updatedList,
+            totalNumberOfRecord: state.totalNumberOfRecord + 1,
+          ),
         );
       },
     );
@@ -467,10 +479,15 @@ class TenantCubit extends Cubit<TenantState> {
       tenantId: tenantId,
     );
 
-    final List<TenantModel> updatedList = [
-      ...state.tenantList.where((e) => e.tenantId != tenantId),
-      ...updatedTenantList,
-    ];
+    final List<TenantModel> updatedList =
+        state.tenantList.map((tenant) {
+          if (tenant.tenantId == tenantId) {
+            return updatedTenantList.isNotEmpty
+                ? updatedTenantList.first
+                : tenant;
+          }
+          return tenant;
+        }).toList();
 
     emit(state.copyWith(tenantList: updatedList));
   }

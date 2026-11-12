@@ -29,7 +29,6 @@ class UnitDetailsCard extends StatefulWidget {
 }
 
 class _UnitDetailsCardState extends State<UnitDetailsCard> {
-  // Lives and dies with the card, so it always matches the card's real state
   final ValueNotifier<bool> _isExpanded = ValueNotifier<bool>(false);
 
   @override
@@ -145,13 +144,29 @@ class FlatTile extends StatelessWidget {
         children: [
           Row(
             children: [
-              CustomIconContainer(
-                containerSize: 32,
-                iconSize: 18,
-                backgroundColor: s.bgIcon,
-                iconColor: s.fgIcon,
-                icon:
-                    isBooked ? LucideIcons.userRound : LucideIcons.circleCheck,
+              Stack(
+                children: [
+                  CustomIconContainer(
+                    containerSize: 32,
+                    iconSize: 18,
+                    backgroundColor: s.bg,
+                    iconColor: s.fg,
+                    icon:
+                        isBooked
+                            ? LucideIcons.userRound
+                            : LucideIcons.circleCheck,
+                  ),
+                  if (isBooked)
+                    Positioned(
+                      bottom: 2,
+                      right: 3,
+                      child: Icon(
+                        Icons.home,
+                        size: 14,
+                        color: AppColor.rustOrange,
+                      ),
+                    ),
+                ],
               ),
               const SizedBox(width: 12),
               Expanded(child: Text(flat.flat, style: AppTextStyle.ts14M())),
@@ -272,8 +287,7 @@ class FlatTile extends StatelessWidget {
 }
 
 /// Shared status style for a unit (label + colors)
-({Color bg, Color bgIcon, Color fg, Color fgIcon, String label})
-flatStatusStyle(TenantModel flat) {
+({Color bg, Color fg, String label}) flatStatusStyle(TenantModel flat) {
   final isBooked = flat.bookingId != 0;
   final isAllotted = flat.inventoryFlatId != 0 && !isBooked;
   return (
@@ -292,18 +306,6 @@ flatStatusStyle(TenantModel flat) {
     bg:
         isBooked
             ? const Color(0xffDCFCE7)
-            : isAllotted
-            ? AppColor.lightPurpleBg2
-            : Colors.grey.shade100,
-    fgIcon:
-        isBooked
-            ? AppColor.primary
-            : isAllotted
-            ? AppColor.purple700
-            : AppColor.grey,
-    bgIcon:
-        isBooked
-            ? AppColor.lightBlue
             : isAllotted
             ? AppColor.lightPurpleBg2
             : Colors.grey.shade100,

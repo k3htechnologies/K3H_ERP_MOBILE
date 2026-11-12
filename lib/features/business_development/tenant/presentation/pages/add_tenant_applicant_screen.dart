@@ -168,6 +168,20 @@ class _AddTenantApplicantScreenState extends State<AddTenantApplicantScreen> {
           applicant.applicantType.toLowerCase(),
       orElse: () => applicantTypeList.first,
     );
+
+    if (applicant.applicantMobileNumberCountryCode.isNotEmpty) {
+      selectedMobileNoCountry.value = countryList.firstWhere(
+        (e) => e.code == applicant.applicantMobileNumberCountryCode,
+        orElse:
+            () => CountryCode(
+              name: "India",
+              code: "+91",
+              countryCode: "IN",
+              mobileLength: 10,
+              regex: RegExp(r'^[6-9]\d{9}$'),
+            ),
+      );
+    }
     void setFileLists(MultiFilePickerModel target, String url) {
       if (url.isEmpty) {
         target.fileNameList = [];
