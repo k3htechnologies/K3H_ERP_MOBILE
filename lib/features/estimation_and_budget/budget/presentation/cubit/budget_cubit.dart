@@ -13,6 +13,10 @@ class BudgetCubit extends Cubit<BudgetState> {
   BudgetCubit() : super(BudgetState.initial());
   // REPOSITORIES
   final BudgetRepository _budgetRepository = serviceLocator<BudgetRepository>();
+  Future resetState() async {
+    emit(BudgetState.initial());
+  }
+
   // SEARCH BUDGET
   Future searchBudget(
     BuildContext context,
@@ -41,8 +45,8 @@ class BudgetCubit extends Cubit<BudgetState> {
     Map<String, dynamic> queryParams = {
       "CategoryName": state.searchText,
       "ProjectId": projectId,
-      "LevelType": state.filterByLevelType,
-      "Uom": state.filterByUom,
+      "LevelType":
+          state.filterByLevelType,
       "Flat": state.filterByFlatType,
       "InventoryFlatFloorBasementPodiumWingId":
           inventoryFlatFloorBasementPodiumWingId,
@@ -86,7 +90,6 @@ class BudgetCubit extends Cubit<BudgetState> {
     required int projectId,
     required int inventoryFlatFloorBasementPodiumWingId,
     String? categoryName,
-    String? uom,
     String? levelType,
     String? flatType,
     bool? isClear,
@@ -95,8 +98,6 @@ class BudgetCubit extends Cubit<BudgetState> {
       emit(
         state.copyWith(
           searchText: "",
-          filterByCategoryName: "",
-          filterByUom: "",
           filterByLevelType: "",
           filterByFlatType: "",
           budgetList: [],
@@ -106,7 +107,6 @@ class BudgetCubit extends Cubit<BudgetState> {
       emit(
         state.copyWith(
           searchText: categoryName ?? state.searchText,
-          filterByUom: uom ?? state.filterByUom,
           filterByLevelType: levelType ?? state.filterByLevelType,
           filterByFlatType: flatType ?? state.filterByFlatType,
           budgetList: [],
@@ -170,7 +170,6 @@ class BudgetCubit extends Cubit<BudgetState> {
       state.searchText.trim().isNotEmpty,
       state.filterByFlatType.trim().isNotEmpty,
       state.filterByLevelType.trim().isNotEmpty,
-      state.filterByUom.trim().isNotEmpty,
     ]);
   }
 
@@ -183,6 +182,7 @@ class BudgetCubit extends Cubit<BudgetState> {
     final result = await _budgetRepository
         .pullInventoryProjectBasementPodiumWingBudget(
           queryParams: {
+            "SearchText": value,
             "ProjectId": projectId,
             "InventoryFlatFloorBasementPodiumWingId":
                 inventoryFlatFloorBasementPodiumWingId,

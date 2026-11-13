@@ -5,6 +5,7 @@ import 'package:k3h_erp_app/features/estimation_and_budget/budget/data/model/bud
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/functions/common_date_function.dart';
 import 'package:k3h_erp_app/utils/functions/common_extension_helpers.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
@@ -263,6 +264,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
               wbs: l2.wBSCode,
               title: l2.categoryName,
               amount: l2.budgetAmount,
+              budget: l2,
             ),
             body: Column(
               children: [
@@ -299,6 +301,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
             level: budget.levelType,
             title: budget.level1Name,
             wbs: budget.wBSCode,
+            budget: budget,
           ),
           SizedBox(height: 14.h),
           _costBreakdown(budget),
@@ -341,6 +344,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
         amount: l3.budgetAmount,
         remark: l3.remark,
         flat: l3.flat,
+        budget: l3,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -407,20 +411,27 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                     ),
                     SizedBox(height: 5.h),
                     Expanded(
-                      child: Text(
-                        '· Quantity: $totalQty ${l4.uom}\n'
-                        '· Order QTY: ${l4.orderQuantity.addCommas()} ${l4.uom}\n'
-                        '· Received QTY: ${l4.receivedQuantity.addCommas()} ${l4.uom}',
-                        style: _mutedStyle,
+                      child: Column(
+                        spacing: 10,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '· Quantity: $totalQty ${l4.uom}',
+                            style: _mutedStyle,
+                          ),
+                          Text(
+                            '· Order QTY: ${l4.orderQuantity.addCommas()} ${l4.uom}',
+                            style: _mutedStyle,
+                          ),
+                          Text(
+                            '· Received QTY: ${l4.receivedQuantity.addCommas()} ${l4.uom}',
+                            style: _mutedStyle,
+                          ),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 5.h),
-                    budgetAmountRemarkSection(
-                      amount: l4.budgetAmount,
-                      level: l4.levelType,
-                      remark: l4.remark,
-                      flat: l4.flat,
-                    ),
+                    SizedBox(height: 10.h),
+                    budgetAmountRemarkSection(budget: l4),
                   ],
                 ),
               ),
@@ -515,6 +526,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
     String remark = '',
     String flat = '',
     required double amount,
+    required BudgetModel budget,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -554,28 +566,18 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
           ],
         ),
         SizedBox(height: 8.h),
-        budgetAmountRemarkSection(
-          amount: amount,
-          level: level,
-          remark: remark,
-          flat: flat,
-        ),
+        budgetAmountRemarkSection(budget: budget),
       ],
     );
   }
 
-  Widget budgetAmountRemarkSection({
-    required double amount,
-    required String remark,
-    required String level,
-    String flat = '',
-  }) {
-    final formattedAmount = amount.toIndianCurrency();
+  Widget budgetAmountRemarkSection({required BudgetModel budget}) {
+    final formattedAmount = budget.budgetAmount.toIndianCurrency();
     // IF ABOVE 10 CRORE MOVE TO NEXT LINE
     return (formattedAmount.length < 22)
         ? Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: level == 'L4' ? 0 : 10,
+          spacing: 10,
           children: [
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -601,7 +603,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                 ),
               ],
             ),
-            if (level == 'L3' || level == 'L4') ...[
+            if (budget.levelType == 'L3' || budget.levelType == 'L4') ...[
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -614,11 +616,15 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                       style: TextStyle(color: AppColor.grey),
                     ),
                   ),
-                  flat.trim().isEmpty
-                      ? Text("--", style: _mutedStyle)
+                  budget.flat.trim().isEmpty
+                      ? Text("-", style: _mutedStyle)
                       : InkWell(
                         onTap: () {
-                          showDialog(context, title: "Flats", note: flat);
+                          showDialog(
+                            context,
+                            title: "Flats",
+                            note: budget.flat,
+                          );
                         },
                         child: Text(
                           "View Flats",
@@ -629,14 +635,6 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                             decorationColor: AppColor.primary,
                           ),
                         ),
-                        //  Padding(
-                        //   padding: EdgeInsets.only(right: 10.w),
-                        //   child: Icon(
-                        //     Icons.info_outline,
-                        //     size: 18,
-                        //     color: AppColor.primary,
-                        //   ),
-                        // ),
                       ),
                 ],
               ),
@@ -655,11 +653,15 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                       style: TextStyle(color: AppColor.grey),
                     ),
                   ),
-                  remark.trim().isEmpty
-                      ? Text("--", style: _mutedStyle)
+                  budget.remark.trim().isEmpty
+                      ? Text("-", style: _mutedStyle)
                       : InkWell(
                         onTap: () {
-                          showDialog(context, title: "Remark", note: remark);
+                          showDialog(
+                            context,
+                            title: "Remark",
+                            note: budget.remark,
+                          );
                         },
                         child: Padding(
                           padding: EdgeInsets.only(right: 10.w),
@@ -673,9 +675,60 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                 ],
               ),
             ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: Text("Modified By", style: _mutedStyle),
+                ),
+                SizedBox(
+                  width: 10,
+                  child: Text(
+                    ":",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColor.grey),
+                  ),
+                ),
+                Flexible(
+                  child: Text(
+                    budget.modifiedBy.trim().isEmpty
+                        ? budget.createdBy
+                        : budget.modifiedBy,
+                    maxLines: null,
+                    style: AppTextStyle.ts12M(),
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 120,
+                  child: Text("Modified Date", style: _mutedStyle),
+                ),
+                SizedBox(
+                  width: 10,
+                  child: Text(
+                    ":",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColor.grey),
+                  ),
+                ),
+                Flexible(
+                  child: Text(
+                    formatDate(budget.modifiedDate ?? budget.createdDate),
+                    maxLines: null,
+                    style: AppTextStyle.ts12M(),
+                  ),
+                ),
+              ],
+            ),
           ],
         )
         : Column(
+          spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Column(
@@ -690,17 +743,21 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                 ),
               ],
             ),
-            if (level == 'L3' || level == 'L4')
+            if (budget.levelType == 'L3' || budget.levelType == 'L4')
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (flat.trim().isNotEmpty) ...[
+                  if (budget.flat.trim().isNotEmpty) ...[
                     Text("Flat: ", style: _mutedStyle),
-                    remark.trim().isEmpty
-                        ? Text("--", style: _mutedStyle)
+                    budget.remark.trim().isEmpty
+                        ? Text("-", style: _mutedStyle)
                         : InkWell(
                           onTap: () {
-                            showDialog(context, title: "Flats", note: flat);
+                            showDialog(
+                              context,
+                              title: "Flats",
+                              note: budget.flat,
+                            );
                           },
                           child: Text(
                             "View Flats",
@@ -714,11 +771,15 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                         ),
                   ],
                   Text("Remark: ", style: _mutedStyle),
-                  remark.trim().isEmpty
-                      ? Text("--", style: _mutedStyle)
+                  budget.remark.trim().isEmpty
+                      ? Text("-", style: _mutedStyle)
                       : InkWell(
                         onTap: () {
-                          showDialog(context, title: "Remark", note: remark);
+                          showDialog(
+                            context,
+                            title: "Remark",
+                            note: budget.remark,
+                          );
                         },
                         child: Padding(
                           padding: EdgeInsets.only(right: 10.w),
@@ -731,6 +792,32 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                       ),
                 ],
               ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Modified By: ', style: _mutedStyle),
+                const SizedBox(height: 5),
+                Text(
+                  budget.modifiedBy.trim().isEmpty
+                      ? budget.createdBy
+                      : budget.modifiedBy,
+                  softWrap: true,
+                  style: AppTextStyle.ts12M(),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Modified Date: ', style: _mutedStyle),
+                const SizedBox(height: 5),
+                Text(
+                  formatDate(budget.modifiedDate ?? budget.createdDate),
+                  softWrap: true,
+                  style: AppTextStyle.ts12M(),
+                ),
+              ],
+            ),
           ],
         );
   }

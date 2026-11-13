@@ -180,60 +180,64 @@ class FlatTile extends StatelessWidget {
               ),
             ],
           ),
-          buildRowTitleValue(
-            title: "Building",
-            fixesWidth: 120,
-            value: flat.buildingNumber,
-            titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
-            valueTextStyle: AppTextStyle.ts12M(color: AppColor.black),
-          ),
-          buildRowTitleValue(
-            title: "Status",
-            value: flat.bookingId != 0 ? "Booking Done" : "-",
-            fixesWidth: 120,
-            titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
-            customValueWidget: GestureDetector(
-              onTap: () {
-                goRouter.pushNamed(
-                  AppRoutes.viewTenantBooking,
-                  queryParameters: {
-                    "bookingId": Uri.encodeQueryComponent(
-                      EncryptionManager.encryptData(flat.bookingId.toString()),
-                    ),
-                    "projectId": Uri.encodeQueryComponent(
-                      EncryptionManager.encryptData(flat.projectId.toString()),
-                    ),
+          Row(
+            children: [
+              buildColumnTitleValue(
+                title: "Building",
+                value: flat.buildingNumber,
+                titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
+                valueTextStyle: AppTextStyle.ts12M(color: AppColor.black),
+              ),
+              buildColumnTitleValue(
+                title: "Status",
+                value: flat.bookingId != 0 ? "Booking Done" : "-",
+                titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
+                customValueWidget: GestureDetector(
+                  onTap: () {
+                    goRouter.pushNamed(
+                      AppRoutes.viewTenantBooking,
+                      queryParameters: {
+                        "bookingId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            flat.bookingId.toString(),
+                          ),
+                        ),
+                        "projectId": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            flat.projectId.toString(),
+                          ),
+                        ),
+                      },
+                    );
                   },
-                );
-              },
-              child: Text(
-                flat.bookingId != 0 ? "Booking Done" : "-",
-                style: AppTextStyle.ts12M(
-                  color: flat.bookingId != 0 ? AppColor.primary : null,
-                ).copyWith(
-                  decorationColor:
-                      flat.bookingId != 0 ? AppColor.primary : null,
-                  decoration:
-                      flat.bookingId != 0
-                          ? TextDecoration.underline
-                          : TextDecoration.none,
+                  child: Text(
+                    flat.bookingId != 0 ? "Booking Done" : "-",
+                    style: AppTextStyle.ts12M(
+                      color: flat.bookingId != 0 ? AppColor.primary : null,
+                    ).copyWith(
+                      decorationColor:
+                          flat.bookingId != 0 ? AppColor.primary : null,
+                      decoration:
+                          flat.bookingId != 0
+                              ? TextDecoration.underline
+                              : TextDecoration.none,
+                    ),
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
           ApproveRejectWidget(
             isMaster: true,
             actionTitle: flat.bookingApprovalStatus,
-            customWidget: Expanded(
-              child: buildRowTitleValue(
-                title: "Booking Approval Status",
-                fixesWidth: 120,
-                value: flat.buildingNumber,
-                titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
-                valueTextStyle: AppTextStyle.ts12M(color: AppColor.black),
-                customValueWidget: approvalStatusWidget(
-                  flat.bookingApprovalStatus,
-                ),
+            customWidget: buildColumnTitleValue(
+              title: "Booking Approval Status",
+              value: flat.buildingNumber,
+              removeExpanded: true,
+              titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
+              valueTextStyle: AppTextStyle.ts12M(color: AppColor.black),
+              customValueWidget: approvalStatusWidget(
+                flat.bookingApprovalStatus,
               ),
             ),
             showApproval: false,

@@ -96,6 +96,7 @@ Widget buildRowTitleCount({
 Widget buildColumnTitleValue({
   required String title,
   required String? value,
+  TextStyle? titleTextStyle,
   TextStyle? valueTextStyle,
   Widget? customValueWidget,
   bool removeExpanded = false,
@@ -104,7 +105,10 @@ Widget buildColumnTitleValue({
       ? Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+          Text(
+            title,
+            style: titleTextStyle ?? AppTextStyle.ts14R(color: AppColor.grey),
+          ),
           verticalSpacing(height: 4),
           customValueWidget ??
               Text(
@@ -118,7 +122,10 @@ Widget buildColumnTitleValue({
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: AppTextStyle.ts14R(color: AppColor.grey)),
+            Text(
+              title,
+              style: titleTextStyle ?? AppTextStyle.ts14R(color: AppColor.grey),
+            ),
             verticalSpacing(height: 4),
             customValueWidget ??
                 Text(

@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -42,7 +44,7 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
   // AUTHORIZATION
   late AuthorizationModel _routeAuthorizationModel;
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _filterFlatC, _filterUomC;
+  late TextEditingController _searchC, _filterFlatC;
   late ProjectModel _selectedProject;
   final ValueNotifier<Map<String, dynamic>?> _selectedLevelTypeNotifier =
       ValueNotifier(null);
@@ -74,20 +76,17 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
     super.dispose();
     _searchC.dispose();
     _filterFlatC.dispose();
-    _filterUomC.dispose();
     _filterCount.dispose();
   }
 
   void _initializeTextEditingController() {
     _searchC = TextEditingController();
     _filterFlatC = TextEditingController();
-    _filterUomC = TextEditingController();
   }
 
   Future<void> _showBottomSheetToFilterBudget(BuildContext context) async {
     final state = _budgetCubit.state;
     _filterFlatC.text = state.filterByFlatType;
-    _filterUomC.text = state.filterByUom;
     _searchC.text = state.searchText;
     final initialLevelType = state.filterByLevelType;
     if (initialLevelType.isNotEmpty) {
@@ -97,7 +96,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
       );
     }
     final String initialCategoryName = _searchC.text;
-    final String initialUom = _filterUomC.text;
     final String initialFlatLevelType = _filterFlatC.text;
     bool manualClose = false;
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
@@ -110,7 +108,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
       innerState(() {
         manualClose =
             (_searchC.text.trim() != initialCategoryName) ||
-            (_filterUomC.text.trim() != initialUom) ||
             (currentLevelType != initialLevelType) ||
             (_filterFlatC.text.trim() != initialFlatLevelType);
         applyEnabled.value = manualClose;
@@ -151,16 +148,9 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                 ),
                 // CATEGORY NAME
                 CustomTextField(
-                  title: "Category Name",
-                  hint: "Enter Category Name",
+                  title: "Cost Head / Description",
+                  hint: "Enter Cost Head / Description",
                   textController: _searchC,
-                  onChangeFunction: (_) => updateApplyState(innerState),
-                ),
-                // UOM
-                CustomTextField(
-                  title: "UOM",
-                  hint: "Enter UOM",
-                  textController: _filterUomC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 // FLAT LEVEL TYPE
@@ -177,7 +167,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
       ),
       onClear: () {
         _filterFlatC.clear();
-        _filterUomC.clear();
         _filterFlatC.clear();
         _selectedLevelTypeNotifier.value = null;
         _budgetCubit.applyBudgetFilter(
@@ -195,7 +184,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
         _budgetCubit.applyBudgetFilter(
           context: context,
           categoryName: _searchC.text.trim(),
-          uom: _filterUomC.text.trim(),
           levelType:
               (_selectedLevelTypeNotifier.value != null)
                   ? _selectedLevelTypeNotifier.value!['DisplayName']
@@ -214,7 +202,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
     // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
     if (!applied && manualClose) {
       _filterFlatC.clear();
-      _filterUomC.clear();
       _selectedLevelTypeNotifier.value = null;
       _filterFlatC.clear();
     }
@@ -487,18 +474,19 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                   : _selectedWingNotifier.value.first["zAttributesId"],
             );
           },
-          onProjectChangeCallback: (project) {
+          onProjectChangeCallback: (project) async {
             _sendForApproval.value = false;
             _selectedWingNotifier.value = [];
             _selectedProject = project;
-            _budgetCubit.applyBudgetFilter(
-              context: context,
+            await _budgetCubit.resetState();
+            _budgetCubit.getBudgetList(
+              context,
+              1,
               projectId: _selectedProject.projectId,
               inventoryFlatFloorBasementPodiumWingId:
                   _selectedWingNotifier.value.isEmpty
                       ? 0
                       : _selectedWingNotifier.value.first["zAttributesId"],
-              isClear: true,
             );
           },
           textController: _searchC,
@@ -514,88 +502,98 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             spacing: 8,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                spacing: 10,
-                children: [
-                  Expanded(
-                    child: ValueListenableBuilder(
-                      valueListenable: _selectedWingNotifier,
-                      builder: (context, selectedBuilding, child) {
-                        return CustomMultipleSelectPopup(
-                          isRequired: true,
-                          isMultiSelect: false,
-                          initialValue: selectedBuilding,
-                          hintText: "Select Wing",
-                          dataList: const [],
-                          onClear: () {
-                            _selectedWingNotifier.value = [];
-                            _sendForApproval.value = false;
-                          },
-                          onSelected: (value) async {
-                            _selectedWingNotifier.value = value;
-                            _budgetCubit.getBudgetList(
-                              context,
-                              1,
-                              projectId: _selectedProject.projectId,
-                              inventoryFlatFloorBasementPodiumWingId:
-                                  _selectedWingNotifier.value.isEmpty
-                                      ? 0
-                                      : _selectedWingNotifier
-                                          .value
-                                          .first["zAttributesId"],
-                            );
-                            _sendForApproval.value = false;
-                          },
-                          dataFetchCallBack: (page, {value}) {
-                            return _budgetCubit
-                                .fetchInventoryProjectBasementPodiumWingBudget(
-                                  1,
-                                  projectId: _selectedProject.projectId,
-                                  inventoryFlatFloorBasementPodiumWingId: 0,
-                                );
-                          },
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Building is required.";
-                            }
-                            return null;
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 12.0),
-                    child: CustomButton(
-                      leading: Icon(Icons.share_outlined, size: 16),
-                      text: "Summary",
-                      onPressed: () async {
-                        await goRouter.pushNamed(
-                          AppRoutes.viewBudgetSummary,
-                          queryParameters: {
-                            'InventoryFlatFloorBasementPodiumWingId':
-                                (_selectedWingNotifier.value.isEmpty
-                                        ? 0
-                                        : _selectedWingNotifier
-                                            .value
-                                            .first["zAttributesId"])
-                                    .toString(),
-                            'projectId': _selectedProject.projectId.toString(),
-                          },
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
               BlocBuilder<BudgetCubit, BudgetState>(
                 builder: (context, state) {
                   return showSiteSelectedWidget();
                 },
               ),
+              if (_selectedProject.projectId > 0)
+                Row(
+                  spacing: 10,
+                  children: [
+                    Expanded(
+                      child: ValueListenableBuilder(
+                        valueListenable: _selectedWingNotifier,
+                        builder: (context, selectedBuilding, child) {
+                          return CustomMultipleSelectPopup(
+                            isRequired: true,
+                            isMultiSelect: false,
+                            initialValue: selectedBuilding,
+                            hintText: "Select Wing",
+                            dataList: const [],
+                            onClear: () {
+                              _selectedWingNotifier.value = [];
+                              _sendForApproval.value = false;
+                            },
+                            onSelected: (value) async {
+                              _selectedWingNotifier.value = value;
+                              _budgetCubit.getBudgetList(
+                                context,
+                                1,
+                                projectId: _selectedProject.projectId,
+                                inventoryFlatFloorBasementPodiumWingId:
+                                    _selectedWingNotifier.value.isEmpty
+                                        ? 0
+                                        : _selectedWingNotifier
+                                            .value
+                                            .first["zAttributesId"],
+                              );
+                              _sendForApproval.value = false;
+                            },
+                            dataFetchCallBack: (page, {value}) {
+                              return _budgetCubit
+                                  .fetchInventoryProjectBasementPodiumWingBudget(
+                                    1,
+                                    projectId: _selectedProject.projectId,
+                                    inventoryFlatFloorBasementPodiumWingId: 0,
+                                    value: value,
+                                  );
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Building is required.";
+                              }
+                              return null;
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12.0),
+                      child: CustomButton(
+                        leading: Icon(Icons.share_outlined, size: 16),
+                        text: "Summary",
+                        onPressed: () async {
+                          await goRouter.pushNamed(
+                            AppRoutes.viewBudgetSummary,
+                            queryParameters: {
+                              'InventoryFlatFloorBasementPodiumWingId':
+                                  (_selectedWingNotifier.value.isEmpty
+                                          ? 0
+                                          : _selectedWingNotifier
+                                              .value
+                                              .first["zAttributesId"])
+                                      .toString(),
+                              'projectId':
+                                  _selectedProject.projectId.toString(),
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
               BlocBuilder<BudgetCubit, BudgetState>(
                 builder: (context, state) {
                   if (state.budgetList.isEmpty) {
+                    return SizedBox.shrink();
+                  }
+                  final grandTotal = state.originalBudgetList
+                      .where((element) => element.levelType == 'L1')
+                      .fold(0.0, (a, b) => a + b.budgetAmount);
+                  if (_selectedProject.projectId == 0 || grandTotal == 0) {
                     return SizedBox.shrink();
                   }
                   final budget = state.budgetList.first;
@@ -773,16 +771,11 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             final pmRateTotal = state.originalBudgetList
                 .where((element) => element.levelType == 'L1')
                 .fold(0.0, (a, b) => a + b.pMCost);
-            return Container(
+            if (_selectedProject.projectId == 0) {
+              return SizedBox.shrink();
+            }
+            return SizedBox(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-              decoration: BoxDecoration(
-                color: AppColor.blue,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(8),
-                  topRight: Radius.circular(8),
-                ),
-              ),
               child: IntrinsicHeight(
                 child: Column(
                   spacing: 5,
@@ -795,9 +788,18 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: AppColor.white.withValues(alpha: 0.95),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(6),
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(8),
+                          topRight: Radius.circular(8),
                         ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColor.black.withValues(alpha: 0.08),
+                            blurRadius: 6,
+                            spreadRadius: 0,
+                            offset: const Offset(0, -3),
+                          ),
+                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -829,13 +831,29 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                         ],
                       ),
                     ),
-                    Text(
-                      "Grand Total Project Budget:",
-                      style: AppTextStyle.ts14M(color: AppColor.lightBlue),
-                    ),
-                    Text(
-                      grandTotal.toIndianCurrency(),
-                      style: AppTextStyle.ts14M(color: AppColor.lightBlue),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(color: AppColor.blue),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            "Grand Total Project Budget:",
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.lightBlue,
+                            ),
+                          ),
+                          Text(
+                            grandTotal.toIndianCurrency(),
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.lightBlue,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -871,7 +889,6 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
     if (budget.levelType != "L1" &&
         _searchC.text.isEmpty &&
         _selectedLevelTypeNotifier.value == null &&
-        _filterUomC.text.trim().isEmpty &&
         _filterFlatC.text.trim().isEmpty) {
       return SizedBox.shrink();
     }

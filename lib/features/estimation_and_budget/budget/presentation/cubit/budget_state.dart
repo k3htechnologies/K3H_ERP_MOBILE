@@ -8,7 +8,6 @@ class BudgetState extends BaseState {
   final int currentPage;
   final String searchText;
   final String filterByLevelType;
-  final String filterByUom;
   final String filterByFlatType;
   const BudgetState({
     super.isLoading,
@@ -18,7 +17,6 @@ class BudgetState extends BaseState {
     required this.currentPage,
     required this.searchText,
     required this.filterByLevelType,
-    required this.filterByUom,
     required this.filterByFlatType,
   });
   factory BudgetState.initial() => BudgetState(
@@ -28,7 +26,6 @@ class BudgetState extends BaseState {
     currentPage: 1,
     searchText: "",
     filterByLevelType: "",
-    filterByUom: "",
     filterByFlatType: "",
     isLoading: true,
   );
@@ -40,8 +37,6 @@ class BudgetState extends BaseState {
     int? currentPage,
     String? searchText,
     String? filterByLevelType,
-    String? filterByCategoryName,
-    String? filterByUom,
     String? filterByFlatType,
   }) {
     return BudgetState(
@@ -52,7 +47,6 @@ class BudgetState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
       filterByLevelType: filterByLevelType ?? this.filterByLevelType,
-      filterByUom: filterByUom ?? this.filterByUom,
       filterByFlatType: filterByFlatType ?? this.filterByFlatType,
     );
   }
@@ -66,7 +60,6 @@ class BudgetState extends BaseState {
     currentPage,
     searchText,
     filterByLevelType,
-    filterByUom,
     filterByFlatType,
   ];
 }
