@@ -19,7 +19,7 @@ import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/wi
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/overview_widget.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/project_achievement_widget.dart';
 import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/recent_booking_widget.dart';
-import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/sales_filter_widget.dart';
+import 'package:k3h_erp_app/widgets/date_range_filter_widget.dart';
 
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
@@ -170,7 +170,7 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                     ValueListenableBuilder<String>(
                       valueListenable: _selectedFilterType,
                       builder: (context, selectedTab, child) {
-                        return SalesFilterWidget(
+                        return DateRangeFilterWidget(
                           selectedTab: selectedTab,
                           initialFromDate: _fromDateNotifier.value,
                           initialToDate: _toDateNotifier.value,

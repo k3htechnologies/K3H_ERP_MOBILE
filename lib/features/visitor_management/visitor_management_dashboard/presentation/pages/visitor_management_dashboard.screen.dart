@@ -8,7 +8,6 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/model/visitor_management_dashboard.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/model/visitor_timeline.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/cubit/visitor_management_dashboard_cubit.dart';
-import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/widgets/gate_pass_filter.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/widgets/overview_widget.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -21,6 +20,7 @@ import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/network_image_widget.dart';
+import 'package:k3h_erp_app/widgets/date_range_filter_widget.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -127,9 +127,6 @@ class _VisitorManagementDashboardScreenState
                       return "Remark is required";
                     }
 
-                    if (text.length < 25) {
-                      return "Remark must be at least 25 characters";
-                    }
                     return null;
                   },
                 ),
@@ -234,7 +231,7 @@ class _VisitorManagementDashboardScreenState
                     ValueListenableBuilder<String>(
                       valueListenable: _selectedFilterType,
                       builder: (context, selectedTab, child) {
-                        return GatePassFilterWidget(
+                        return DateRangeFilterWidget(
                           selectedTab: selectedTab,
                           initialFromDate: _fromDateNotifier.value,
                           initialToDate: _toDateNotifier.value,
@@ -382,7 +379,6 @@ class _VisitorManagementDashboardScreenState
                 physics: AlwaysScrollableScrollPhysics(),
                 itemBuilder: (context, index) {
                   final visitor = todayVisitors[index];
-                  final statusColor = getVisitorPurposeColor(visitor.status);
                   final bool isLast = index == todayVisitors.length - 1;
                   return Container(
                     margin: EdgeInsets.only(bottom: isLast ? 0.sp : 16.sp),
@@ -395,6 +391,7 @@ class _VisitorManagementDashboardScreenState
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CircleAvatar(
                               radius: 16.sp,
@@ -421,40 +418,28 @@ class _VisitorManagementDashboardScreenState
                             ),
                             horizontalSpacing(),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: 4.sp,
-                                    horizontal: 8.sp,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(6.sp),
-                                    color: statusColor.backgroundColor,
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        height: 6.sp,
-                                        width: 6.sp,
-                                        decoration: BoxDecoration(
-                                          color: statusColor.textColor,
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                      horizontalSpacing(),
-                                      Text(
-                                        visitor.status,
-                                        style: AppTextStyle.ts12SB(
-                                          color: statusColor.textColor,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                                visitorManagementDashboardStatusWidget(
+                                  visitor.status,
                                 ),
+                                if (visitor.approvalRemark.trim().isNotEmpty)
+                                  GestureDetector(
+                                    onTap: () {
+                                      DialogHelper.showNoteDialog(
+                                        context,
+                                        note: visitor.approvalRemark,
+                                        title: "Approval Remark",
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: EdgeInsets.only(left: 5.sp),
+                                      child: Icon(
+                                        Icons.info_outline,
+                                        size: 18,
+                                        color: AppColor.primary,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             ),
                           ],
@@ -494,7 +479,7 @@ class _VisitorManagementDashboardScreenState
                             buildColumnTitleValue(
                               title: "Purpose",
                               value: "",
-                              customValueWidget: visitorManagementStatusWidget(
+                              customValueWidget: gatePassStatusWidget(
                                 visitor.purpose,
                                 textStyle: AppTextStyle.ts12M(),
                               ),

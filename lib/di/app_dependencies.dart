@@ -309,10 +309,10 @@ void initDependencies() {
   registerConstructionAreaDependencies(serviceLocator);
   // COMPLIANCE MASTERS
   registerNoticeSectionMasterDependencies(serviceLocator);
-  // VISITOR MANAGEMENT
-  registerVisitorManagementDashboardDependencies(serviceLocator);
-  // GATE PASS
+  // GATE PASS (must be before Visitor Management Dashboard as VisitorManagementDashboardCubit depends on it)
   registerGatePassDependencies(serviceLocator);
+  // VISITOR MANAGEMENT DASHBOARD
+  registerVisitorManagementDashboardDependencies(serviceLocator);
 
   // REBUILD
   // PROJECT LEAD

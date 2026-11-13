@@ -3,6 +3,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/repository/gate_pass.repository.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/model/visitor_management_dashboard.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/model/visitor_timeline.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/repository/visitor_management_dashboard.repository.dart';
@@ -21,6 +22,8 @@ class VisitorManagementDashboardCubit
   final VisitorManagementDashboardRepository
   _visitorManagementDashboardRepository =
       serviceLocator<VisitorManagementDashboardRepository>();
+  final GatePassRepository _gatePassRepository =
+      serviceLocator<GatePassRepository>();
 
   Future clearGatePassDashboarddData() async {
     emit(state.copyWith(gatePassDashboardList: []));
@@ -156,9 +159,7 @@ class VisitorManagementDashboardCubit
       "ApprovalRemark": approvalRemark,
       "ApprovalStatus": approvalStatus,
     };
-    var addResult = await _visitorManagementDashboardRepository.addApproval(
-      body: requestBody,
-    );
+    var addResult = await _gatePassRepository.addApproval(body: requestBody);
     goRouter.pop();
     addResult.fold(
       (failure) {
@@ -190,8 +191,7 @@ class VisitorManagementDashboardCubit
       "Uniquekey": uniquekey,
     };
 
-    final result = await _visitorManagementDashboardRepository
-        .updateGatePassOut(body: body);
+    final result = await _gatePassRepository.updateGatePassOut(body: body);
 
     if (context.mounted) {
       goRouter.pop();

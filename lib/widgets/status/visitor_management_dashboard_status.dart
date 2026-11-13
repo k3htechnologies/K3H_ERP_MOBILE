@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 
-final Map<String, StatusConfig> visitorManagementDashboardStatusConfig = {
+final Map<String, StatusConfig> gatePassStatusConfig = {
   "delivery": StatusConfig(
     backgroundColor: AppColor.lightGreen,
     textColor: AppColor.bookingDoneColorText,

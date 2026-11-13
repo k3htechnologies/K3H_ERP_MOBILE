@@ -18,13 +18,18 @@ Widget statusChip(
   Widget? leading,
   Widget? trailing,
   double spacing = 4,
+  bool withBorder = true,
+  double borderRadius = 20,
 }) {
   final chip = Container(
     padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
     decoration: BoxDecoration(
       color: bg,
-      border: Border.all(color: txtC.withValues(alpha: 0.5), width: 0.5),
-      borderRadius: BorderRadius.circular(20),
+      border:
+          withBorder
+              ? Border.all(color: txtC.withValues(alpha: 0.5), width: 0.5)
+              : null,
+      borderRadius: BorderRadius.circular(borderRadius),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -55,42 +60,55 @@ Widget commonStatusWidget({
   required Map<String, StatusConfig> config,
   TextStyle? textStyle,
   bool showDashWhenEmpty = true,
+  bool expand = false,
   Widget? leading,
   Widget? trailing,
+  double spacing = 4,
+  bool withBorder = true,
+  double borderRadius = 20,
 }) {
   final trimmed = status.trim();
-  final defaultStyle = AppTextStyle.ts12M();
+  final defaultStyle = textStyle ?? AppTextStyle.ts12M();
 
   if (trimmed.isEmpty) {
     if (!showDashWhenEmpty) {
       return const SizedBox.shrink();
     }
-
     return Text("-", style: defaultStyle);
   }
 
-  final key = trimmed.toLowerCase();
-  final statusConfig = config[key];
+  final statusConfig = config[trimmed.toLowerCase()];
 
-  if (statusConfig == null) {
-    return statusChip(
-      status,
-      const Color(0x261D1D1D),
-      const Color(0xFF333333),
-      textStyle: textStyle ?? defaultStyle,
-      leading: leading,
-      trailing: trailing,
-    );
-  }
+  final bgColor = statusConfig?.backgroundColor ?? const Color(0x261D1D1D);
 
-  return statusChip(
-    status,
-    statusConfig.backgroundColor,
-    statusConfig.textColor,
-    textStyle: (textStyle ?? defaultStyle).copyWith(
-      color: statusConfig.textColor,
+  final textColor = statusConfig?.textColor ?? const Color(0xFF333333);
+
+  final chip = Container(
+    padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+    decoration: BoxDecoration(
+      color: bgColor,
+      border:
+          withBorder
+              ? Border.all(color: textColor.withValues(alpha: 0.5), width: 0.5)
+              : null,
+      borderRadius: BorderRadius.circular(borderRadius),
     ),
-    leading: leading,
-    trailing: trailing,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        if (leading != null) ...[leading, SizedBox(width: spacing)],
+        Flexible(
+          child: Text(
+            status,
+            textAlign: TextAlign.center,
+            style: defaultStyle.copyWith(color: textColor),
+          ),
+        ),
+        if (trailing != null) ...[SizedBox(width: spacing), trailing],
+      ],
+    ),
   );
+
+  return expand ? Flexible(child: chip) : chip;
 }

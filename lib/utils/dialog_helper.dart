@@ -253,6 +253,7 @@ class DialogHelper {
       final result = await DialogHelper.showCustomDialogue(
         context,
         title: title ?? "Note",
+        showDivider: true,
         childContent: ConstrainedBox(
           constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.5,
@@ -900,6 +901,7 @@ class DialogHelper {
     double? spacingBetweenContentAndBottomSection,
     bool? isError,
     void Function()? onDismiss,
+    bool showDivider = false,
   }) {
     return showDialog(
       context: context,
@@ -938,8 +940,13 @@ class DialogHelper {
                     ),
                   ],
                 ),
-                verticalSpacing(),
-
+                if (showDivider)
+                  Divider(
+                    color: AppColor.black.withValues(alpha: 0.50),
+                    thickness: 0.5,
+                  )
+                else
+                  verticalSpacing(),
                 // CONTENT
                 childContent,
 

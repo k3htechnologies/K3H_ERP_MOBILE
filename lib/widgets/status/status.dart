@@ -240,18 +240,31 @@ Widget termSheetReportStatusWidget(String status, {TextStyle? textStyle}) {
   );
 }
 
-Widget visitorManagementStatusWidget(String status, {TextStyle? textStyle}) {
+Widget gatePassStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
     status: status,
-    config: visitorManagementDashboardStatusConfig,
+    config: gatePassStatusConfig,
     textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }
 
-Widget gatePassStatusWidget(String status, {TextStyle? textStyle}) {
+Widget visitorManagementDashboardStatusWidget(
+  String status, {
+  TextStyle? textStyle,
+}) {
+  final config = gatePassDashboardStatusConfig[status.toLowerCase()];
   return commonStatusWidget(
     status: status,
     config: gatePassDashboardStatusConfig,
-    textStyle: textStyle ?? AppTextStyle.ts10M(),
+    textStyle: textStyle ?? AppTextStyle.ts12M(),
+    withBorder: false,
+    leading: Container(
+      width: 6,
+      height: 6,
+      decoration: BoxDecoration(
+        color: config?.textColor ?? const Color(0xFF000000),
+        shape: BoxShape.circle,
+      ),
+    ),
   );
 }

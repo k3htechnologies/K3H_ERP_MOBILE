@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/crm/dashboard/data/model/crm_dashboard.model.dart';
 import 'package:k3h_erp_app/features/crm/dashboard/presentation/cubit/crm_dashboard_cubit.dart';
-import 'package:k3h_erp_app/features/sales/sales_dashboard/presentation/pages/widgets/sales_filter_widget.dart';
+import 'package:k3h_erp_app/widgets/date_range_filter_widget.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -110,7 +110,7 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                   ValueListenableBuilder<String>(
                     valueListenable: _selectedFilterType,
                     builder: (context, selectedTab, child) {
-                      return SalesFilterWidget(
+                      return DateRangeFilterWidget(
                         selectedTab: selectedTab,
                         initialFromDate: _fromDateNotifier.value,
                         initialToDate: _toDateNotifier.value,

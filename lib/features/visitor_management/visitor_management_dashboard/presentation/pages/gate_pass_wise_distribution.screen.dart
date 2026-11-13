@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/cubit/visitor_management_dashboard_cubit.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/pages/widgets/overview_widget.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -89,8 +93,9 @@ class _GatePassWiseDistributionScreenState
                   buildRowTitleValue(
                     title: "Purpose",
                     value: visitor.purpose,
-                    customValueWidget: visitorManagementStatusWidget(
+                    customValueWidget: gatePassStatusWidget(
                       visitor.purpose,
+                      textStyle: AppTextStyle.ts12M(),
                     ),
                   ),
                   buildRowTitleValue(
@@ -104,7 +109,29 @@ class _GatePassWiseDistributionScreenState
                   buildRowTitleValue(
                     title: "Status",
                     value: visitor.status,
-                    customValueWidget: gatePassStatusWidget(visitor.status),
+                    customValueWidget: Row(
+                      children: [
+                        visitorManagementDashboardStatusWidget(visitor.status),
+                        if (visitor.approvalRemark.trim().isNotEmpty)
+                          GestureDetector(
+                            onTap: () {
+                              DialogHelper.showNoteDialog(
+                                context,
+                                note: visitor.approvalRemark,
+                                title: "Approval Remark",
+                              );
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 5.sp),
+                              child: Icon(
+                                Icons.info_outline,
+                                size: 18,
+                                color: AppColor.primary,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                   buildRowTitleValue(
                     title: "Remark",

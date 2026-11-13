@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
@@ -46,8 +48,12 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                       value: widget.gatePassModel!.fullName,
                     ),
                     buildColumnTitleValue(
-                      title: "Address",
-                      value: widget.gatePassModel!.address,
+                      title: "Mobile Number",
+                      value: widget.gatePassModel!.mobileNumber,
+                      customValueWidget: CustomClickToContactText(
+                        countryCode: "+91",
+                        value: widget.gatePassModel!.mobileNumber,
+                      ),
                     ),
                   ],
                 ),
@@ -56,16 +62,39 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     buildColumnTitleValue(
-                      title: "Mobile Number",
-                      value: widget.gatePassModel!.mobileNumber,
-                      customValueWidget: CustomClickToContactText(
-                        countryCode: "+91",
-                        value: widget.gatePassModel!.mobileNumber,
-                      ),
-                    ),
-                    buildColumnTitleValue(
                       title: "Appointment With",
                       value: widget.gatePassModel!.employeeName,
+                    ),
+                    buildColumnTitleValue(
+                      title: "Status",
+                      value: widget.gatePassModel!.approvalStatus,
+                      customValueWidget: Row(
+                        children: [
+                          visitorManagementDashboardStatusWidget(
+                            widget.gatePassModel!.approvalStatus,
+                          ),
+                          if (widget.gatePassModel!.approvalRemark
+                              .trim()
+                              .isNotEmpty)
+                            GestureDetector(
+                              onTap: () {
+                                DialogHelper.showNoteDialog(
+                                  context,
+                                  note: widget.gatePassModel!.approvalRemark,
+                                  title: "Approval Remark",
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 5.sp),
+                                child: Icon(
+                                  Icons.info_outline,
+                                  size: 18,
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -82,6 +111,11 @@ class _ViewGatePassScreenState extends State<ViewGatePassScreen> {
                       value: formatDate(widget.gatePassModel!.outDateTime),
                     ),
                   ],
+                ),
+                buildColumnTitleValue(
+                  title: "Address",
+                  value: widget.gatePassModel!.address,
+                  removeExpanded: true,
                 ),
                 buildColumnTitleValue(
                   removeExpanded: true,

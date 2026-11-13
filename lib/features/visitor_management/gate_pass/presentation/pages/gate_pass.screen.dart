@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
@@ -12,6 +13,7 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
+import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -33,11 +35,14 @@ class _GatePassScreenState extends State<GatePassScreen> {
   late GatePassCubit _gatePassCubit;
   late AuthorizationModel _gatePassRouteAuthorizationModel,
       _gatePassAdministrativeRouteAuthorizationModel;
+  // FORM KEY
+  final _formKey = GlobalKey<FormState>();
   late TextEditingController _searchC,
       _mobileNumberC,
       _addressC,
       _purposeC,
-      _appointmentWithC;
+      _appointmentWithC,
+      _remarkC;
 
   // PAGINATION
   late ScrollController scrollController;
@@ -80,6 +85,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
     _debounce?.cancel();
     _startDateNotifier.dispose();
     _endDateNotifier.dispose();
+    _remarkC.dispose();
     super.dispose();
   }
 
@@ -89,6 +95,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
     _addressC = TextEditingController();
     _purposeC = TextEditingController();
     _appointmentWithC = TextEditingController();
+    _remarkC = TextEditingController();
   }
 
   // <---- PAGINATION ---->
@@ -316,24 +323,84 @@ class _GatePassScreenState extends State<GatePassScreen> {
     }
   }
 
-  // GETTERS
-  bool _canDeleteGatePass(GatePassModel gatePass) {
-    return (_gatePassRouteAuthorizationModel.isAction ||
-            _gatePassAdministrativeRouteAuthorizationModel.isAction) &&
-        gatePass.isDelete;
+  Future<void> _showBottomSheetToAddApproval(
+    BuildContext context,
+    GatePassModel visitor,
+    int index,
+  ) async {
+    bool isAccepted = true;
+
+    await DialogHelper.showCustomBottomSheet(
+      context,
+      "Add Approval",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          return Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RadioGroup<bool>(
+                  groupValue: isAccepted,
+                  onChanged: (value) {
+                    if (value == null) return;
+                    innerState(() => isAccepted = value);
+                  },
+                  child: Row(
+                    children: [
+                      Radio<bool>(value: true),
+                      Text("Accept", style: AppTextStyle.ts14M()),
+                      horizontalSpacing(width: 16),
+                      Radio<bool>(value: false),
+                      Text("Reject", style: AppTextStyle.ts14M()),
+                    ],
+                  ),
+                ),
+                verticalSpacing(height: 12),
+                CustomTextField(
+                  title: "Remark",
+                  hint: "Enter remark",
+                  isRequired: true,
+                  textController: _remarkC,
+                  minLines: 3,
+                  maxLines: 10,
+                  validator: (value) {
+                    final text = value?.trim() ?? "";
+
+                    if (text.isEmpty) {
+                      return "Remark is required";
+                    }
+
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      bottomActions: CustomButton(
+        text: "Save",
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            _saveForm(isAccepted, visitor, index);
+          }
+        },
+      ),
+    );
+    _remarkC.clear();
   }
 
-  bool _canGatePassOut(GatePassModel gatePass) {
-    return gatePass.outDateTime == null &&
-        !gatePass.isDelete &&
-        !gatePass.passDateTime.isAfter(DateTime.now());
-  }
-
-  bool _canNotifyGatePass(GatePassModel gatePass) {
-    return (_gatePassRouteAuthorizationModel.isAction ||
-            _gatePassAdministrativeRouteAuthorizationModel.isAction) &&
-        gatePass.outDateTime == null &&
-        !gatePass.passDateTime.isAfter(DateTime.now());
+  void _saveForm(bool isAccepted, GatePassModel visitor, int index) {
+    _gatePassCubit.addApproval(
+      context: context,
+      externalId: visitor.externalId,
+      uniquekey: visitor.uniquekey,
+      approvalRemark: _remarkC.text.trim(),
+      approvalStatus: isAccepted ? "Approved" : "Rejected",
+      index: index,
+    );
   }
 
   @override
@@ -406,14 +473,17 @@ class _GatePassScreenState extends State<GatePassScreen> {
   }
 
   Widget gatePassCard(BuildContext context, GatePassState state, int index) {
-    final gatePass = state.gatePassList[index];
-    final canDelete = _canDeleteGatePass(gatePass);
-    final disableEdit =
-        gatePass.passDateTime.isBefore(DateTime.now()) ||
-        !(_gatePassRouteAuthorizationModel.isAction ||
+    final visitor = state.gatePassList[index];
+    final canAction =
+        (_gatePassRouteAuthorizationModel.isAction ||
             _gatePassAdministrativeRouteAuthorizationModel.isAction);
-    final canGatePassOut = _canGatePassOut(gatePass);
-    final canNotify = _canNotifyGatePass(gatePass);
+
+    final disableEdit =
+        visitor.passDateTime.isBefore(DateTime.now()) || !canAction;
+    final canDelete = visitor.isDelete;
+    final canGatePassIn = visitor.isApproval;
+    final canGatePassOut = visitor.isCheckOutEnabled;
+    final canNotify = visitor.isNotificationEnabled;
     return Container(
       margin: EdgeInsets.only(bottom: 12.0),
       padding: const EdgeInsets.all(16),
@@ -430,13 +500,13 @@ class _GatePassScreenState extends State<GatePassScreen> {
                   onTap: () {
                     goRouter.pushNamed(
                       AppRoutes.viewGatePass,
-                      extra: {"gatePass": gatePass},
+                      extra: {"gatePass": visitor},
                     );
                   },
                   child: Text(
-                    gatePass.noOfParticipants == 0
-                        ? gatePass.fullName
-                        : "${gatePass.fullName} +${gatePass.noOfParticipants}",
+                    visitor.noOfParticipants == 0
+                        ? visitor.fullName
+                        : "${visitor.fullName} +${visitor.noOfParticipants}",
                     style: AppTextStyle.ts14M(color: AppColor.primary),
                   ),
                 ),
@@ -452,14 +522,14 @@ class _GatePassScreenState extends State<GatePassScreen> {
                       onPressed: () {
                         goRouter.pushNamed(
                           AppRoutes.addGatePass,
-                          extra: {"gatePass": gatePass, "index": index},
+                          extra: {"gatePass": visitor, "index": index},
                         );
                       },
                     ),
                     CustomIconButton.delete(
                       isDisabled: !canDelete,
                       onPressed: () {
-                        _showPopupToDeleteGatePass(context, gatePass, index);
+                        _showPopupToDeleteGatePass(context, visitor, index);
                       },
                     ),
                   ],
@@ -474,16 +544,19 @@ class _GatePassScreenState extends State<GatePassScreen> {
             children: [
               buildColumnTitleValue(
                 title: "Mobile Number",
-                value: gatePass.mobileNumber,
+                value: visitor.mobileNumber,
                 customValueWidget: CustomClickToContactText(
                   countryCode: "+91",
-                  value: gatePass.mobileNumber,
+                  value: visitor.mobileNumber,
                 ),
               ),
               buildColumnTitleValue(
                 title: "Purpose",
-                value: gatePass.purpose,
-                customValueWidget: gatePassPurposeWidget(gatePass.purpose),
+                value: visitor.purpose,
+                customValueWidget: gatePassPurposeWidget(
+                  visitor.purpose,
+                  textStyle: AppTextStyle.ts12M(),
+                ),
               ),
             ],
           ),
@@ -494,13 +567,41 @@ class _GatePassScreenState extends State<GatePassScreen> {
             children: [
               buildColumnTitleValue(
                 title: "Appointment With",
-                value: gatePass.employeeName,
+                value: visitor.employeeName,
               ),
               buildColumnTitleValue(
                 title: "Appointment Date / Time",
-                value: formatDate(gatePass.passDateTime),
+                value: formatDate(visitor.passDateTime),
               ),
             ],
+          ),
+          buildColumnTitleValue(
+            title: "Status",
+            value: visitor.approvalStatus,
+            removeExpanded: true,
+            customValueWidget: Row(
+              children: [
+                visitorManagementDashboardStatusWidget(visitor.approvalStatus),
+                if (visitor.approvalRemark.trim().isNotEmpty)
+                  GestureDetector(
+                    onTap: () {
+                      DialogHelper.showNoteDialog(
+                        context,
+                        note: visitor.approvalRemark,
+                        title: "Approval Remark",
+                      );
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 5.sp),
+                      child: Icon(
+                        Icons.info_outline,
+                        size: 18,
+                        color: AppColor.primary,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
           Divider(thickness: 1.0, color: AppColor.grey50),
           Row(
@@ -509,7 +610,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
             children: [
               buildColumnTitleValue(
                 title: "Out Date / Time",
-                value: formatDate(gatePass.outDateTime),
+                value: formatDate(visitor.outDateTime),
               ),
               horizontalSpacing(),
               Expanded(
@@ -518,13 +619,35 @@ class _GatePassScreenState extends State<GatePassScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     CustomIconButton(
+                      isDisable: !canGatePassIn,
+                      backgroundColor: AppColor.green20.withValues(alpha: 0.15),
+                      onPressed:
+                          canGatePassIn
+                              ? () {
+                                _showBottomSheetToAddApproval(
+                                  context,
+                                  visitor,
+                                  index,
+                                );
+                              }
+                              : () {},
+                      icon: Icon(
+                        LucideIcons.logIn,
+                        size: 16,
+                        color:
+                            canGatePassIn ? AppColor.green20 : AppColor.grey2,
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    CustomIconButton(
                       isDisable: !canGatePassOut,
+                      backgroundColor: AppColor.red.withValues(alpha: 0.15),
                       onPressed:
                           canGatePassOut
                               ? () {
                                 _showPopupToGatePassOut(
                                   context,
-                                  gatePass,
+                                  visitor,
                                   index,
                                 );
                               }
@@ -532,8 +655,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
                       icon: Icon(
                         LucideIcons.logOut,
                         size: 16,
-                        color:
-                            canGatePassOut ? AppColor.primary : AppColor.grey2,
+                        color: canGatePassOut ? AppColor.red : AppColor.grey2,
                       ),
                     ),
                     horizontalSpacing(),
@@ -544,7 +666,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
                               ? () {
                                 _showPopupToGatePassNotify(
                                   context,
-                                  gatePass,
+                                  visitor,
                                   index,
                                 );
                               }

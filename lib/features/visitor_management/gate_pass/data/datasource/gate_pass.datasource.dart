@@ -29,6 +29,10 @@ abstract interface class GatePassDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Map<String, dynamic>> apicallAddUpdateGatePassApproval({
+    required Map<String, dynamic> body,
+  });
 }
 
 class GatePassDatasourceImpl extends GatePassDatasource {
@@ -201,6 +205,32 @@ class GatePassDatasourceImpl extends GatePassDatasource {
           pageSize: pageSize,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateGatePassApproval({
+    required Map<String, dynamic> body,
+  }) async {
+    String addUpdateSourcingUrl = "GatePass/AddUpdateGatePassApproval";
+
+    try {
+      var networkResponse = await baseClient.postRequestWithAuthentication(
+        addUpdateSourcingUrl,
+        body,
+      );
+      return {
+        'data': List<GatePassModel>.from(
+          networkResponse["data"].map((e) => GatePassModel.fromJson(e)),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallAddUpdateGatePassApproval(body: body);
       }
       rethrow;
     }

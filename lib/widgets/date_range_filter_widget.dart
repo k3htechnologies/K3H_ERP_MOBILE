@@ -4,8 +4,8 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
-class GatePassFilterWidget extends StatelessWidget {
-  const GatePassFilterWidget({
+class DateRangeFilterWidget extends StatelessWidget {
+  const DateRangeFilterWidget({
     super.key,
     required this.selectedTab,
     required this.onTap,
@@ -22,7 +22,13 @@ class GatePassFilterWidget extends StatelessWidget {
 
   final void Function(DateTime? fromDate, DateTime? toDate) onDateChanged;
 
-  static const List<String> tabs = ["Today", "Weekly", "Monthly", "Datewise"];
+  static const List<String> tabs = [
+    "Today",
+    "Weekly",
+    "Monthly",
+    "Datewise",
+    "Overall",
+  ];
 
   @override
   Widget build(BuildContext context) {

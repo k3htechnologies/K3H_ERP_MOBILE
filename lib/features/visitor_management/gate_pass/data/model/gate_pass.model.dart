@@ -11,10 +11,21 @@ class GatePassModel {
   int employeeId;
   String employeeName;
   DateTime passDateTime;
+  DateTime? checkInDateTime;
   DateTime? outDateTime;
   int noOfParticipants;
+
+  bool isActive;
+  bool isCheckOutEnabled;
+  bool isNotificationEnabled;
   bool isDelete;
+
   String photoUrl;
+  String approvalRemark;
+  String approvalStatus;
+  String approvedBy;
+  bool isApproval;
+
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -33,10 +44,18 @@ class GatePassModel {
     required this.employeeId,
     required this.employeeName,
     required this.passDateTime,
+    required this.checkInDateTime,
     required this.outDateTime,
     required this.noOfParticipants,
+    required this.isActive,
+    required this.isCheckOutEnabled,
+    required this.isNotificationEnabled,
     required this.isDelete,
     required this.photoUrl,
+    required this.approvalRemark,
+    required this.approvalStatus,
+    required this.approvedBy,
+    required this.isApproval,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
@@ -55,23 +74,45 @@ class GatePassModel {
     remark: parseValue<String>(json, "Remark"),
     employeeId: parseValue<int>(json, "EmployeeId"),
     employeeName: parseValue<String>(json, "EmployeeName"),
+
     passDateTime: DateTime.parse(json["PassDateTime"]),
+
+    checkInDateTime:
+        json["CheckInDateTime"] == null ||
+                json["CheckInDateTime"].toString().isEmpty
+            ? null
+            : parseValue<DateTime>(json, "CheckInDateTime"),
+
     outDateTime:
         json["OutDateTime"] == null
             ? null
-            : DateTime.parse(json["OutDateTime"]),
+            : parseValue<DateTime>(json, "OutDateTime"),
+
     noOfParticipants: parseValue<int>(json, "NoOfParticipants"),
+
+    isActive: parseValue<bool>(json, "IsActive"),
+    isCheckOutEnabled: parseValue<bool>(json, "IsCheckOutEnabled"),
+    isNotificationEnabled: parseValue<bool>(json, "IsNotificationEnabled"),
     isDelete: parseValue<bool>(json, "IsDelete"),
+
     photoUrl: parseValue<String>(json, "PhotoURL"),
+
+    approvalRemark: parseValue<String>(json, "ApprovalRemark"),
+    approvalStatus: parseValue<String>(json, "ApprovalStatus"),
+    approvedBy: parseValue<String>(json, "ApprovedBy"),
+    isApproval: parseValue<bool>(json, "IsApproval"),
+
     createdById: parseValue<int>(json, "CreatedById"),
     createdBy: parseValue<String>(json, "CreatedBy"),
-    createdDate: DateTime.parse(json["CreatedDate"]),
+    createdDate: parseValue<DateTime>(json, "CreatedDate"),
+
     modifiedById: parseValue<int>(json, "ModifiedById"),
     modifiedBy: parseValue<String>(json, "ModifiedBy"),
+
     modifiedDate:
         json["ModifiedDate"] == null
             ? null
-            : DateTime.parse(json["ModifiedDate"]),
+            : parseValue<DateTime>(json, "ModifiedDate"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -85,10 +126,18 @@ class GatePassModel {
     "EmployeeId": employeeId,
     "EmployeeName": employeeName,
     "PassDateTime": passDateTime.toIso8601String(),
+    "CheckInDateTime": checkInDateTime?.toIso8601String() ?? "",
     "OutDateTime": outDateTime?.toIso8601String(),
     "NoOfParticipants": noOfParticipants,
+    "IsActive": isActive,
+    "IsCheckOutEnabled": isCheckOutEnabled,
+    "IsNotificationEnabled": isNotificationEnabled,
     "IsDelete": isDelete,
     "PhotoURL": photoUrl,
+    "ApprovalRemark": approvalRemark,
+    "ApprovalStatus": approvalStatus,
+    "ApprovedBy": approvedBy,
+    "IsApproval": isApproval,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

@@ -8520,8 +8520,8 @@ final GoRouter goRouter = GoRouter(
           builder: (context, state, child) {
             return MultiBlocProvider(
               providers: [
-                BlocProvider(create: (_) => VisitorManagementDashboardCubit()),
                 BlocProvider(create: (_) => GatePassCubit()),
+                BlocProvider(create: (_) => VisitorManagementDashboardCubit()),
               ],
               child: child,
             );

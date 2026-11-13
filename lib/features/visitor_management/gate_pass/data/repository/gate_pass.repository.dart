@@ -26,6 +26,10 @@ abstract interface class GatePassRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+
+  Future<Either<Failure, Map<String, dynamic>>> addApproval({
+    required Map<String, dynamic> body,
+  });
 }
 
 class GatePassRepositoryImpl extends GatePassRepository {
@@ -106,6 +110,20 @@ class GatePassRepositoryImpl extends GatePassRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addApproval({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      var result = await gatePassDatasource.apicallAddUpdateGatePassApproval(
+        body: body,
       );
       return right(result);
     } catch (error) {

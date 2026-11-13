@@ -349,4 +349,36 @@ class GatePassCubit extends Cubit<GatePassState> {
       },
     );
   }
+
+  Future addApproval({
+    required BuildContext context,
+    required int externalId,
+    required String uniquekey,
+    required String approvalRemark,
+    required String approvalStatus,
+    required int index,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    Map<String, dynamic> requestBody = {
+      "ExternalId": externalId,
+      "Uniquekey": uniquekey,
+      "ApprovalRemark": approvalRemark,
+      "ApprovalStatus": approvalStatus,
+    };
+    var addResult = await _gatePassRepository.addApproval(body: requestBody);
+    goRouter.pop();
+    addResult.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        final updatedList = List<GatePassModel>.from(state.gatePassList);
+        updatedList[index] = response['data'][0] as GatePassModel;
+        emit(state.copyWith(isLoading: false, gatePassList: updatedList));
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response["message"]);
+      },
+    );
+  }
 }
