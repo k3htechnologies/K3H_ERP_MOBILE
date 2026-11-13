@@ -42,7 +42,7 @@ class _VendorScreenState extends State<VendorScreen> {
   Timer? _debounce;
   late TextEditingController _searchC,
       _filterVendorCodeC,
-      _filterCompanyNameC,
+      _filterVendorNameC,
       _filterCompanyTypeC,
       _filterMobileNumberC,
       _filterCityC,
@@ -73,7 +73,7 @@ class _VendorScreenState extends State<VendorScreen> {
   void dispose() {
     super.dispose();
     _searchC.dispose();
-    _filterCompanyNameC.dispose();
+    _filterVendorNameC.dispose();
     _filterCompanyTypeC.dispose();
     _filterMobileNumberC.dispose();
     _filterCityC.dispose();
@@ -120,7 +120,7 @@ class _VendorScreenState extends State<VendorScreen> {
     _searchC = TextEditingController();
     _filterVendorCodeC = TextEditingController();
     _filterCompanyTypeC = TextEditingController();
-    _filterCompanyNameC = TextEditingController();
+    _filterVendorNameC = TextEditingController();
     _filterMobileNumberC = TextEditingController();
     _filterCityC = TextEditingController();
     _filterGstNumberC = TextEditingController();
@@ -153,7 +153,7 @@ class _VendorScreenState extends State<VendorScreen> {
     final state = _vendorCubit.state;
     _searchC.text = state.searchText;
     _filterVendorCodeC.text = state.filterByVendorCode;
-    _filterCompanyNameC.text = state.filterByCompanyName;
+    _filterVendorNameC.text = state.filterByVendorName;
     _filterCompanyTypeC.text = state.filterByCompanyType;
     _filterMobileNumberC.text = state.filterByMobileNumber;
     _filterCityC.text = state.filterByCity;
@@ -169,7 +169,7 @@ class _VendorScreenState extends State<VendorScreen> {
             : null;
     final String initialVendorName = _searchC.text;
     final String initialVendorCode = _filterVendorCodeC.text;
-    final String initialCompanyName = _filterCompanyNameC.text;
+    final String initialCompanyName = _filterVendorNameC.text;
     final String initialCompanyType = _filterCompanyTypeC.text;
     final String initialMobileNumber = _filterMobileNumberC.text;
     final String initialCity = _filterCityC.text;
@@ -188,7 +188,7 @@ class _VendorScreenState extends State<VendorScreen> {
         manualClose =
             (_searchC.text.trim() != initialVendorName) ||
             (_filterVendorCodeC.text.trim() != initialVendorCode) ||
-            (_filterCompanyNameC.text.trim() != initialCompanyName) ||
+            (_filterVendorNameC.text.trim() != initialCompanyName) ||
             (_filterCompanyTypeC.text.trim() != initialCompanyType) ||
             (_filterMobileNumberC.text.trim() != initialMobileNumber) ||
             (_filterCityC.text.trim() != initialCity) ||
@@ -275,13 +275,13 @@ class _VendorScreenState extends State<VendorScreen> {
                 CustomTextField(
                   title: "Vendor Name",
                   hint: "Enter Vendor Name",
-                  textController: _searchC,
+                  textController: _filterVendorNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
                   title: "Company Name",
                   hint: "Enter Company Name",
-                  textController: _filterCompanyNameC,
+                  textController: _searchC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
@@ -349,7 +349,7 @@ class _VendorScreenState extends State<VendorScreen> {
       onClear: () {
         _searchC.clear();
         _filterVendorCodeC.clear();
-        _filterCompanyNameC.clear();
+        _filterVendorNameC.clear();
         _filterCompanyTypeC.clear();
         _filterMobileNumberC.clear();
         _filterCityC.clear();
@@ -365,9 +365,9 @@ class _VendorScreenState extends State<VendorScreen> {
         applied = true;
         _vendorCubit.applyFilterAndSort(
           context: context,
-          vendorName: _searchC.text.trim(),
+          companyName: _searchC.text.trim(),
           vendorCode: _filterVendorCodeC.text.trim(),
-          companyName: _filterCompanyNameC.text.trim(),
+          vendorName: _filterVendorNameC.text.trim(),
           companyType: _filterCompanyTypeC.text.trim(),
           mobileNumber: _filterMobileNumberC.text.trim(),
           city: _filterCityC.text.trim(),
@@ -387,7 +387,7 @@ class _VendorScreenState extends State<VendorScreen> {
     if (!applied && manualClose) {
       _searchC.clear();
       _filterVendorCodeC.clear();
-      _filterCompanyNameC.clear();
+      _filterVendorNameC.clear();
       _filterCompanyTypeC.clear();
       _filterMobileNumberC.clear();
       _filterCityC.clear();
@@ -487,7 +487,7 @@ class _VendorScreenState extends State<VendorScreen> {
           onAddCallback: () async {
             await goRouter.pushNamed(AppRoutes.addVendor);
           },
-          searchHintText: "Search by Vendor Name",
+          searchHintText: "Search by Company Name",
           onSearchSubmit: (value) {
             _vendorCubit.searchVendor(context, value);
           },

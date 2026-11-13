@@ -48,7 +48,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
 
     var result = await _repository.getPaymentScheduleMasterList(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 20,
       projectId: scheme.projectId,
       queryParams: queryParams,
     );

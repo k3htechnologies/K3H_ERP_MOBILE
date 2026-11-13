@@ -35,10 +35,9 @@ class VendorCubit extends Cubit<VendorState> {
   Future getVendors(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
-      "VendorName": state.searchText,
+      "VendorName": state.filterByVendorName,
       "SystemGeneratedCode": state.filterByVendorCode,
-      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
-      "CompanyName": state.filterByCompanyName,
+      "CompanyName": state.searchText,
       "CompanyType": state.filterByCompanyType,
       "MobileNumber": state.filterByMobileNumber,
       "CityName": state.filterByCity,
@@ -48,6 +47,7 @@ class VendorCubit extends Cubit<VendorState> {
       "OwnershipType": state.filterByOwnershipType,
       "VendorBusinessType": state.filterByVendorBusinessType,
       "Specialist": state.filterBySpecialist,
+      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
     var result = await vendorRepository.getVendorsList(
       pageNumber: pageNumber,
@@ -411,7 +411,7 @@ class VendorCubit extends Cubit<VendorState> {
           searchText: "",
           filterByVendorCode: "",
           filterByCompanyType: "",
-          filterByCompanyName: "",
+          filterByVendorName: "",
           filterByMobileNumber: "",
           filterByCity: "",
           filterByGstNumber: "",
@@ -429,10 +429,10 @@ class VendorCubit extends Cubit<VendorState> {
     } else {
       emit(
         state.copyWith(
-          searchText: vendorName ?? state.searchText,
+          searchText: companyName ?? state.searchText,
           filterByVendorCode: vendorCode ?? state.filterByVendorCode,
           filterByCompanyType: companyType ?? state.filterByCompanyType,
-          filterByCompanyName: companyName ?? state.filterByCompanyName,
+          filterByVendorName: vendorName ?? state.filterByVendorName,
           filterByMobileNumber: mobileNumber ?? state.filterByMobileNumber,
           filterByCity: city ?? state.filterByCity,
           filterByGstNumber: gstNumber ?? state.filterByGstNumber,
@@ -460,7 +460,7 @@ class VendorCubit extends Cubit<VendorState> {
   }) async {
     emit(
       state.copyWith(
-        filterByCompanyName: companyName,
+        filterByVendorName: companyName,
         filterByCompanyType: companyType,
         vendorList: [],
       ),
@@ -478,7 +478,7 @@ class VendorCubit extends Cubit<VendorState> {
         "VendorName": state.searchText,
         "SystemGeneratedCode": state.filterByVendorCode,
         "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
-        "CompanyName": state.filterByCompanyName,
+        "CompanyName": state.filterByVendorName,
         "CompanyType": state.filterByCompanyType,
         "MobileNumber": state.filterByMobileNumber,
         "CityName": state.filterByCity,
@@ -518,7 +518,7 @@ class VendorCubit extends Cubit<VendorState> {
     return getActiveFilterCount([
       state.searchText.trim().isNotEmpty,
       state.filterByVendorCode.trim().isNotEmpty,
-      state.filterByCompanyName.trim().isNotEmpty,
+      state.filterByVendorName.trim().isNotEmpty,
       state.filterByCompanyType.trim().isNotEmpty,
       state.filterByMobileNumber.trim().isNotEmpty,
       state.filterByCity.trim().isNotEmpty,

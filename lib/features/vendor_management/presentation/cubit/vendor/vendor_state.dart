@@ -8,7 +8,7 @@ class VendorState extends BaseState {
   final String currentSortColumn;
   final String currentSortDirection;
   final String filterByVendorCode;
-  final String filterByCompanyName;
+  final String filterByVendorName;
   final String filterByCompanyType;
   final String filterByMobileNumber;
   final String filterByCity;
@@ -29,7 +29,7 @@ class VendorState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
     required this.filterByVendorCode,
-    required this.filterByCompanyName,
+    required this.filterByVendorName,
     required this.filterByCompanyType,
     required this.filterByMobileNumber,
     required this.filterByCity,
@@ -49,7 +49,7 @@ class VendorState extends BaseState {
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
     filterByVendorCode: "",
-    filterByCompanyName: "",
+    filterByVendorName: "",
     filterByCompanyType: "",
     filterByMobileNumber: "",
     filterByCity: "",
@@ -70,7 +70,7 @@ class VendorState extends BaseState {
     String? currentSortColumn,
     String? currentSortDirection,
     String? filterByVendorCode,
-    String? filterByCompanyName,
+    String? filterByVendorName,
     String? filterByCompanyType,
     String? filterByMobileNumber,
     String? filterByCity,
@@ -91,7 +91,7 @@ class VendorState extends BaseState {
       currentSortColumn: currentSortColumn ?? this.currentSortColumn,
       currentSortDirection: currentSortDirection ?? this.currentSortDirection,
       filterByVendorCode: filterByVendorCode ?? this.filterByVendorCode,
-      filterByCompanyName: filterByCompanyName ?? this.filterByCompanyName,
+      filterByVendorName: filterByVendorName ?? this.filterByVendorName,
       filterByCompanyType: filterByCompanyType ?? this.filterByCompanyType,
       filterByMobileNumber: filterByMobileNumber ?? this.filterByMobileNumber,
       filterByCity: filterByCity ?? this.filterByCity,
@@ -119,7 +119,7 @@ class VendorState extends BaseState {
     currentSortColumn,
     currentSortDirection,
     filterByVendorCode,
-    filterByCompanyName,
+    filterByVendorName,
     filterByCompanyType,
     filterByMobileNumber,
     filterByCity,

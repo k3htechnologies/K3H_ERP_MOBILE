@@ -286,132 +286,151 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                               message: "No Payment Schedule Data Found",
                             ),
                           )
-                          : ListView.builder(
-                            controller: scrollController,
-                            itemCount:
-                                state.paymentScheduleMasterList.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index ==
-                                  state.paymentScheduleMasterList.length) {
-                                return state.paymentScheduleMasterList.length <
-                                        state.totalNumberOfRecord
-                                    ? const Padding(
-                                      padding: EdgeInsets.all(16),
-                                      child: Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                    )
-                                    : const SizedBox.shrink();
-                              }
-
-                              var item = state.paymentScheduleMasterList[index];
-
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 10),
-                                padding: const EdgeInsets.all(12),
-                                decoration: commonCardDecoration(),
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            item.stage,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: AppTextStyle.ts16M(),
-                                          ),
+                          : RefreshIndicator(
+                            onRefresh: () async {
+                              _paymentScheduleCubit
+                                  .getPaymentScheduleMasterList(
+                                    context,
+                                    1,
+                                    scheme:
+                                        _paymentScheduleCubit
+                                            .state
+                                            .selectedScheme!,
+                                  );
+                            },
+                            child: ListView.builder(
+                              controller: scrollController,
+                              itemCount:
+                                  state.paymentScheduleMasterList.length + 1,
+                              itemBuilder: (context, index) {
+                                if (index ==
+                                    state.paymentScheduleMasterList.length) {
+                                  return state
+                                              .paymentScheduleMasterList
+                                              .length <
+                                          state.totalNumberOfRecord
+                                      ? const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: Center(
+                                          child: CircularProgressIndicator(),
                                         ),
+                                      )
+                                      : const SizedBox.shrink();
+                                }
 
-                                        Row(
-                                          children: [
-                                            CustomIconButton.edit(
-                                              isDisabled:
-                                                  !_routeAuthorizationModel
-                                                      .isAction,
-                                              onPressed: () async {
-                                                await goRouter.pushNamed(
-                                                  AppRoutes.addPaymentSchedule,
-                                                  queryParameters: {
-                                                    "paymentSchedule":
-                                                        Uri.encodeQueryComponent(
-                                                          EncryptionManager.encryptData(
-                                                            jsonEncode(
-                                                              item.toJson(),
+                                var item =
+                                    state.paymentScheduleMasterList[index];
+
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: commonCardDecoration(),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              item.stage,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: AppTextStyle.ts16M(),
+                                            ),
+                                          ),
+
+                                          Row(
+                                            children: [
+                                              CustomIconButton.edit(
+                                                isDisabled:
+                                                    !_routeAuthorizationModel
+                                                        .isAction,
+                                                onPressed: () async {
+                                                  await goRouter.pushNamed(
+                                                    AppRoutes
+                                                        .addPaymentSchedule,
+                                                    queryParameters: {
+                                                      "paymentSchedule":
+                                                          Uri.encodeQueryComponent(
+                                                            EncryptionManager.encryptData(
+                                                              jsonEncode(
+                                                                item.toJson(),
+                                                              ),
                                                             ),
                                                           ),
-                                                        ),
-                                                    "index": index.toString(),
-                                                  },
-                                                );
-                                              },
-                                            ),
-                                            const SizedBox(width: 8),
-                                            CustomIconButton.delete(
-                                              isDisabled:
-                                                  !_routeAuthorizationModel
-                                                      .isAction,
-                                              onPressed: () {
-                                                _showPopupToDeletePaymentScheduleMaster(
-                                                  context,
-                                                  item,
-                                                  index,
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    buildRowTitleValue(
-                                      title: "Percentage",
-                                      value:
-                                          item.paymentSchedulePercentage
-                                              .toString(),
-                                    ),
-                                    buildRowTitleValue(
-                                      title: "Cumulative Percentage",
-                                      value:
-                                          item.paymentCummulativePercentage
-                                              .toString(),
-                                    ),
-                                    buildRowTitleValue(
-                                      title: "Created By",
-                                      value: item.createdBy,
-                                      singleLine: false,
-                                    ),
-                                    buildRowTitleValue(
-                                      title: "Created Date",
-                                      value:
-                                          item.createdDate == null
-                                              ? "-"
-                                              : formatDate(item.createdDate!),
-                                      singleLine: false,
-                                    ),
-                                    buildRowTitleValue(
-                                      title: "Modified By",
-                                      value:
-                                          item.modifiedBy.isEmpty
-                                              ? "-"
-                                              : item.modifiedBy,
-                                      singleLine: false,
-                                    ),
-                                    buildRowTitleValue(
-                                      title: "Modified Date",
-                                      value:
-                                          item.modifiedDate == null
-                                              ? "-"
-                                              : formatDate(item.modifiedDate!),
-                                      singleLine: false,
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
+                                                      "index": index.toString(),
+                                                    },
+                                                  );
+                                                },
+                                              ),
+                                              const SizedBox(width: 8),
+                                              CustomIconButton.delete(
+                                                isDisabled:
+                                                    !_routeAuthorizationModel
+                                                        .isAction,
+                                                onPressed: () {
+                                                  _showPopupToDeletePaymentScheduleMaster(
+                                                    context,
+                                                    item,
+                                                    index,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Percentage",
+                                        value:
+                                            item.paymentSchedulePercentage
+                                                .toString(),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Cumulative Percentage",
+                                        value:
+                                            item.paymentCummulativePercentage
+                                                .toString(),
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Created By",
+                                        value: item.createdBy,
+                                        singleLine: false,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Created Date",
+                                        value:
+                                            item.createdDate == null
+                                                ? "-"
+                                                : formatDate(item.createdDate!),
+                                        singleLine: false,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Modified By",
+                                        value:
+                                            item.modifiedBy.isEmpty
+                                                ? "-"
+                                                : item.modifiedBy,
+                                        singleLine: false,
+                                      ),
+                                      buildRowTitleValue(
+                                        title: "Modified Date",
+                                        value:
+                                            item.modifiedDate == null
+                                                ? "-"
+                                                : formatDate(
+                                                  item.modifiedDate!,
+                                                ),
+                                        singleLine: false,
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            ),
                           ),
                 ),
               ],
