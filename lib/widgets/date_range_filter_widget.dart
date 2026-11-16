@@ -10,6 +10,7 @@ class DateRangeFilterWidget extends StatelessWidget {
     required this.selectedTab,
     required this.onTap,
     required this.onDateChanged,
+    required this.tabs,
     this.initialFromDate,
     this.initialToDate,
   });
@@ -22,16 +23,13 @@ class DateRangeFilterWidget extends StatelessWidget {
 
   final void Function(DateTime? fromDate, DateTime? toDate) onDateChanged;
 
-  static const List<String> tabs = [
-    "Today",
-    "Weekly",
-    "Monthly",
-    "Datewise",
-    "Overall",
-  ];
+  /// VALUE (USED FOR API/STATE) : TEXT SHOWN IN UI.
+  /// THE KEYS ALSO DECIDE WHICH TABS APPEAR AND IN WHAT ORDER.
+  final Map<String, String> tabs;
 
   @override
   Widget build(BuildContext context) {
+    final tabs = this.tabs.keys.toList();
     final selectedIndex = tabs.indexOf(selectedTab).clamp(0, tabs.length - 1);
 
     return Column(
@@ -89,7 +87,11 @@ class DateRangeFilterWidget extends StatelessWidget {
                                           : AppTextStyle.ts12R(
                                             color: AppColor.grey,
                                           ),
-                                  child: Text(tab),
+                                  child: Text(
+                                    this.tabs[tab]!,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                               ),
                             ),

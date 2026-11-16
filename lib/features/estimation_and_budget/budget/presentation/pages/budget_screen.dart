@@ -166,7 +166,7 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
         },
       ),
       onClear: () {
-        _filterFlatC.clear();
+        _searchC.clear();
         _filterFlatC.clear();
         _selectedLevelTypeNotifier.value = null;
         _budgetCubit.applyBudgetFilter(
@@ -478,8 +478,11 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             _sendForApproval.value = false;
             _selectedWingNotifier.value = [];
             _selectedProject = project;
+            _searchC.clear();
+            _filterFlatC.clear();
+            _selectedLevelTypeNotifier.value = null;
             await _budgetCubit.resetState();
-            _budgetCubit.getBudgetList(
+            await _budgetCubit.getBudgetList(
               context,
               1,
               projectId: _selectedProject.projectId,
@@ -504,86 +507,94 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             children: [
               BlocBuilder<BudgetCubit, BudgetState>(
                 builder: (context, state) {
-                  return showSiteSelectedWidget();
+                  return Column(
+                    spacing: 8,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      showSiteSelectedWidget(),
+                      if (_selectedProject.projectId > 0)
+                        Row(
+                          spacing: 10,
+                          children: [
+                            Expanded(
+                              child: ValueListenableBuilder(
+                                valueListenable: _selectedWingNotifier,
+                                builder: (context, selectedBuilding, child) {
+                                  return CustomMultipleSelectPopup(
+                                    isRequired: true,
+                                    isMultiSelect: false,
+                                    initialValue: selectedBuilding,
+                                    hintText: "Select Wing",
+                                    dataList: const [],
+                                    onClear: () {
+                                      _selectedWingNotifier.value = [];
+                                      _sendForApproval.value = false;
+                                    },
+                                    onSelected: (value) async {
+                                      _selectedWingNotifier.value = value;
+                                      _budgetCubit.getBudgetList(
+                                        context,
+                                        1,
+                                        projectId: _selectedProject.projectId,
+                                        inventoryFlatFloorBasementPodiumWingId:
+                                            _selectedWingNotifier.value.isEmpty
+                                                ? 0
+                                                : _selectedWingNotifier
+                                                    .value
+                                                    .first["zAttributesId"],
+                                      );
+                                      _sendForApproval.value = false;
+                                    },
+                                    dataFetchCallBack: (page, {value}) {
+                                      return _budgetCubit
+                                          .fetchInventoryProjectBasementPodiumWingBudget(
+                                            1,
+                                            projectId:
+                                                _selectedProject.projectId,
+                                            inventoryFlatFloorBasementPodiumWingId:
+                                                0,
+                                            value: value,
+                                          );
+                                    },
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return "Building is required.";
+                                      }
+                                      return null;
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12.0),
+                              child: CustomButton(
+                                leading: Icon(Icons.share_outlined, size: 16),
+                                text: "Summary",
+                                onPressed: () async {
+                                  await goRouter.pushNamed(
+                                    AppRoutes.viewBudgetSummary,
+                                    queryParameters: {
+                                      'InventoryFlatFloorBasementPodiumWingId':
+                                          (_selectedWingNotifier.value.isEmpty
+                                                  ? 0
+                                                  : _selectedWingNotifier
+                                                      .value
+                                                      .first["zAttributesId"])
+                                              .toString(),
+                                      'projectId':
+                                          _selectedProject.projectId.toString(),
+                                    },
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                    ],
+                  );
                 },
               ),
-              if (_selectedProject.projectId > 0)
-                Row(
-                  spacing: 10,
-                  children: [
-                    Expanded(
-                      child: ValueListenableBuilder(
-                        valueListenable: _selectedWingNotifier,
-                        builder: (context, selectedBuilding, child) {
-                          return CustomMultipleSelectPopup(
-                            isRequired: true,
-                            isMultiSelect: false,
-                            initialValue: selectedBuilding,
-                            hintText: "Select Wing",
-                            dataList: const [],
-                            onClear: () {
-                              _selectedWingNotifier.value = [];
-                              _sendForApproval.value = false;
-                            },
-                            onSelected: (value) async {
-                              _selectedWingNotifier.value = value;
-                              _budgetCubit.getBudgetList(
-                                context,
-                                1,
-                                projectId: _selectedProject.projectId,
-                                inventoryFlatFloorBasementPodiumWingId:
-                                    _selectedWingNotifier.value.isEmpty
-                                        ? 0
-                                        : _selectedWingNotifier
-                                            .value
-                                            .first["zAttributesId"],
-                              );
-                              _sendForApproval.value = false;
-                            },
-                            dataFetchCallBack: (page, {value}) {
-                              return _budgetCubit
-                                  .fetchInventoryProjectBasementPodiumWingBudget(
-                                    1,
-                                    projectId: _selectedProject.projectId,
-                                    inventoryFlatFloorBasementPodiumWingId: 0,
-                                    value: value,
-                                  );
-                            },
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return "Building is required.";
-                              }
-                              return null;
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12.0),
-                      child: CustomButton(
-                        leading: Icon(Icons.share_outlined, size: 16),
-                        text: "Summary",
-                        onPressed: () async {
-                          await goRouter.pushNamed(
-                            AppRoutes.viewBudgetSummary,
-                            queryParameters: {
-                              'InventoryFlatFloorBasementPodiumWingId':
-                                  (_selectedWingNotifier.value.isEmpty
-                                          ? 0
-                                          : _selectedWingNotifier
-                                              .value
-                                              .first["zAttributesId"])
-                                      .toString(),
-                              'projectId':
-                                  _selectedProject.projectId.toString(),
-                            },
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
 
               BlocBuilder<BudgetCubit, BudgetState>(
                 builder: (context, state) {
@@ -746,6 +757,8 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
                             return estimatedWorkCard(
                               budget,
                               state.originalBudgetList,
+                              hasActiveFilter:
+                                  _budgetCubit.updateFilterCount(state) > 0,
                             );
                           },
                         ),
@@ -865,7 +878,11 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
     );
   }
 
-  Widget estimatedWorkCard(BudgetModel budget, List<BudgetModel> budgetList) {
+  Widget estimatedWorkCard(
+    BudgetModel budget,
+    List<BudgetModel> budgetList, {
+    required bool hasActiveFilter,
+  }) {
     final groupItems =
         budgetList.where((e) => e.levelId1 == budget.levelId1).toList();
     final l2Count =
@@ -886,12 +903,10 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
             .map((e) => e.levelId4)
             .toSet()
             .length;
-    if (budget.levelType != "L1" &&
-        _searchC.text.isEmpty &&
-        _selectedLevelTypeNotifier.value == null &&
-        _filterFlatC.text.trim().isEmpty) {
-      return SizedBox.shrink();
+    if (budget.levelType != "L1" && !hasActiveFilter) {
+      return const SizedBox.shrink();
     }
+
     final config = budgetLevelConfig[budget.levelType];
     return Container(
       width: double.infinity,

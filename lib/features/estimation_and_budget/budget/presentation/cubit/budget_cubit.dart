@@ -45,8 +45,7 @@ class BudgetCubit extends Cubit<BudgetState> {
     Map<String, dynamic> queryParams = {
       "CategoryName": state.searchText,
       "ProjectId": projectId,
-      "LevelType":
-          state.filterByLevelType,
+      "LevelType": state.filterByLevelType,
       "Flat": state.filterByFlatType,
       "InventoryFlatFloorBasementPodiumWingId":
           inventoryFlatFloorBasementPodiumWingId,
@@ -69,6 +68,7 @@ class BudgetCubit extends Cubit<BudgetState> {
             pageNumber == 1 ? newData : [...state.budgetList, ...newData];
 
         final keepExistingOriginalBudgetList = updateFilterCount(state) > 0;
+
         emit(
           state.copyWith(
             isLoading: false,

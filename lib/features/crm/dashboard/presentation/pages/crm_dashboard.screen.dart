@@ -114,7 +114,13 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                         selectedTab: selectedTab,
                         initialFromDate: _fromDateNotifier.value,
                         initialToDate: _toDateNotifier.value,
-
+                        tabs: {
+                          "Today": "Today",
+                          "Weekly": "Weekly",
+                          "Monthly": "Monthly",
+                          "Datewise": "Datewise",
+                          "Overall": "Overall",
+                        },
                         onTap: (tab) async {
                           _selectedFilterType.value = tab;
 

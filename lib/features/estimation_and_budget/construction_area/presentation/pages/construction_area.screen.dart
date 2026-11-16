@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
-import 'package:k3h_erp_app/features/crm/crm_pay_track/request_management/presentation/pages/widgets/document_preview.screen.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/data/model/building_summary.model.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/presentation/cubit/construction_area_cubit.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/presentation/pages/widgets/wing_section.dart';
@@ -213,15 +212,16 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
             _searchConstructionAreaC.clear();
             _searchComparativeC.clear();
             if (selectedTab == "Construction Area") {
-              _constructionAreaCubit.getConstructionAreaList(
+              _constructionAreaCubit.searchConstructionArea(
                 context,
-                1,
-                projectId: _selectedProjectNotifier.value.projectId,
+                _selectedProjectNotifier.value.projectId,
+                "",
               );
             } else if (selectedTab == "Comparative") {
-              _constructionAreaCubit.getConstructionAreaComparativeList(
+              _constructionAreaCubit.searchConstructionAreaComparative(
                 context,
-                projectId: _selectedProjectNotifier.value.projectId,
+                _selectedProjectNotifier.value.projectId,
+                "",
               );
             }
           },
@@ -422,6 +422,7 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           CustomIconButton.edit(
+                            isDisabled: !_routeAuthorizationModel.isAction,
                             onPressed: () async {
                               await goRouter.pushNamed(
                                 AppRoutes.addConstructionAreaComparative,
@@ -433,11 +434,6 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                                         ),
                                       ),
                                   "index": index.toString(),
-                                  "isEdit": Uri.encodeQueryComponent(
-                                    EncryptionManager.encryptData(
-                                      true.toString(),
-                                    ),
-                                  ),
                                 },
                               );
                             },
@@ -453,11 +449,11 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                     children: [
                       buildColumnTitleValue(
                         title: "Area By PL Line (SqMt)",
-                        value: "${item.areaByPlLineSqMt} SqMt",
+                        value: item.areaByPlLineSqMt.addCommas(),
                       ),
                       buildColumnTitleValue(
                         title: "Variation (%)",
-                        value: item.variationInPercentage.toString(),
+                        value: item.variationInPercentage.addCommas(),
                       ),
                     ],
                   ),
@@ -468,11 +464,25 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                     children: [
                       buildColumnTitleValue(
                         title: "Annexure",
-                        value: "View",
-                        customValueWidget: DocumentPreviewText(
-                          title: "Term Sheet Document",
-                          text: item.annexureUrl.isEmpty ? "-" : "View",
-                          fileUrl: item.annexureUrl,
+                        value: item.annexureUrl,
+                        customValueWidget: CustomIconButton(
+                          onPressed: () {
+                            if (item.annexureUrl.isEmpty) return;
+                            showFilePreviewDialog(
+                              context,
+                              title: "Annexure Document",
+                              item.annexureUrl.split(","),
+                            );
+                          },
+                          backgroundColor: AppColor.white,
+                          icon: Icon(
+                            Icons.remove_red_eye_outlined,
+                            size: 18,
+                            color:
+                                item.annexureUrl.isEmpty
+                                    ? AppColor.grey2
+                                    : AppColor.primary,
+                          ),
                         ),
                       ),
                       buildColumnTitleValue(
@@ -723,23 +733,24 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                     ),
                   ),
                   horizontalSpacing(),
-                  CustomExportButton(
-                    onExport: (type) {
-                      if (isConstructionArea) {
-                        _constructionAreaCubit.exportConstructionAreaExcelPdf(
-                          context,
-                          type,
-                          projectId: _selectedProjectNotifier.value.projectId,
-                        );
-                      } else {
-                        _constructionAreaCubit
-                            .exportConstructionAreaComparativeExcelPdf(
-                              context,
-                              type,
-                            );
-                      }
-                    },
-                  ),
+                  if (_routeAuthorizationModel.isExport)
+                    CustomExportButton(
+                      onExport: (type) {
+                        if (isConstructionArea) {
+                          _constructionAreaCubit.exportConstructionAreaExcelPdf(
+                            context,
+                            type,
+                            projectId: _selectedProjectNotifier.value.projectId,
+                          );
+                        } else {
+                          _constructionAreaCubit
+                              .exportConstructionAreaComparativeExcelPdf(
+                                context,
+                                type,
+                              );
+                        }
+                      },
+                    ),
                 ],
               ),
             );

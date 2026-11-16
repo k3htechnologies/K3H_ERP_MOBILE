@@ -174,6 +174,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                           selectedTab: selectedTab,
                           initialFromDate: _fromDateNotifier.value,
                           initialToDate: _toDateNotifier.value,
+                          tabs: {
+                            "Today": "Today",
+                            "Weekly": "Weekly",
+                            "Monthly": "Monthly",
+                            "Datewise": "Datewise",
+                            "Overall": "Overall",
+                          },
                           onTap: (tab) async {
                             _selectedFilterType.value = tab;
                             await _salesDashboardCubit
@@ -194,10 +201,13 @@ class _SalesDashboardScreenState extends State<SalesDashboardScreen>
                               _toDateNotifier.value = null;
                             }
                           },
-                          onDateChanged: (from, to) {
+                          onDateChanged: (from, to) async {
                             _fromDateNotifier.value = from;
                             _toDateNotifier.value = to;
-
+                            if (from == null) {
+                              await _salesDashboardCubit
+                                  .clearSalesDashboardData();
+                            }
                             if (to != null) {
                               _salesDashboardCubit.getSalesDashboardList(
                                 context: context,

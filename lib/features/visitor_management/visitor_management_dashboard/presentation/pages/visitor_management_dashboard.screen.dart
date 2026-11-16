@@ -233,6 +233,12 @@ class _VisitorManagementDashboardScreenState
                       builder: (context, selectedTab, child) {
                         return DateRangeFilterWidget(
                           selectedTab: selectedTab,
+                          tabs: const {
+                            "Today": "Today",
+                            "Weekly": "This Week",
+                            "Monthly": "This Month",
+                            "Datewise": "Datewise",
+                          },
                           initialFromDate: _fromDateNotifier.value,
                           initialToDate: _toDateNotifier.value,
                           onTap: (tab) async {

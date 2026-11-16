@@ -278,7 +278,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
 
                 Expanded(
                   child:
-                      state.isLoading == true
+                      (state.isLoading == true &&
+                              state.paymentScheduleMasterList.isEmpty)
                           ? const Center(child: CircularProgressIndicator())
                           : state.paymentScheduleMasterList.isEmpty
                           ? Center(

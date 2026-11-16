@@ -680,7 +680,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
               children: [
                 SizedBox(
                   width: 120,
-                  child: Text("Modified By", style: _mutedStyle),
+                  child: Text("Last Modified By", style: _mutedStyle),
                 ),
                 SizedBox(
                   width: 10,
@@ -706,7 +706,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
               children: [
                 SizedBox(
                   width: 120,
-                  child: Text("Modified Date", style: _mutedStyle),
+                  child: Text("Last Modified Date", style: _mutedStyle),
                 ),
                 SizedBox(
                   width: 10,
@@ -795,7 +795,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Modified By: ', style: _mutedStyle),
+                Text('Last Modified By: ', style: _mutedStyle),
                 const SizedBox(height: 5),
                 Text(
                   budget.modifiedBy.trim().isEmpty
@@ -809,7 +809,7 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Modified Date: ', style: _mutedStyle),
+                Text('Last Modified Date: ', style: _mutedStyle),
                 const SizedBox(height: 5),
                 Text(
                   formatDate(budget.modifiedDate ?? budget.createdDate),

@@ -17,12 +17,10 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class AddConstructionAreaComparativeScreen extends StatefulWidget {
   final ConstructionAreaComparativeModel? constructionAreaComparativeModel;
   final int index;
-  final bool isEdit;
   const AddConstructionAreaComparativeScreen({
     super.key,
     this.constructionAreaComparativeModel,
     required this.index,
-    required this.isEdit,
   });
 
   @override
@@ -52,7 +50,10 @@ class _AddConstructionAreaComparativeScreenState
   );
 
   //EDIT MODE
-  bool get _isEditMode => widget.isEdit;
+  bool get _isEditMode => widget.constructionAreaComparativeModel != null;
+  bool get _readyOnlyAreaByPlLine =>
+      _isEditMode &&
+      widget.constructionAreaComparativeModel!.type == 'Project Area';
   @override
   void initState() {
     super.initState();
@@ -60,10 +61,7 @@ class _AddConstructionAreaComparativeScreenState
     _constructionAreaCubit = context.read<ConstructionAreaCubit>();
 
     _initializeTextEditingController();
-    _areaByPLLineC = TextEditingController(
-      text:
-          widget.constructionAreaComparativeModel!.areaByPlLineSqMt.toString(),
-    );
+    _areaByPLLineC = TextEditingController();
     if (_isEditMode) _prefillForm(widget.constructionAreaComparativeModel!);
   }
 
@@ -77,7 +75,8 @@ class _AddConstructionAreaComparativeScreenState
   void _prefillForm(ConstructionAreaComparativeModel document) {
     selectedDocumentFile.fileNameList =
         document.annexureUrl.isEmpty ? [] : document.annexureUrl.split(",");
-
+    _areaByPLLineC.text =
+        widget.constructionAreaComparativeModel!.areaByPlLineSqMt.toString();
     _remarkC.text = document.remark.isNotEmpty ? document.remark : "";
   }
 
@@ -96,8 +95,7 @@ class _AddConstructionAreaComparativeScreenState
                 .constructionAreaComparativeId,
         uniqueKey: widget.constructionAreaComparativeModel!.uniqueKey,
         projectId: widget.constructionAreaComparativeModel!.projectId,
-        areaByPLLineSqMt:
-            widget.constructionAreaComparativeModel!.areaByPlLineSqMt,
+        areaByPLLineSqMt: double.tryParse(_areaByPLLineC.text) ?? 0,
         remark: _remarkC.text,
         annexure: selectedDocumentFile,
       );
@@ -119,12 +117,12 @@ class _AddConstructionAreaComparativeScreenState
         authorization: _routeAuthorizationModel,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(20.0),
+        padding: EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Update Drawing Document",
+              "Update Construction Area Comparative",
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
             verticalSpacing(),
@@ -139,7 +137,7 @@ class _AddConstructionAreaComparativeScreenState
                     CustomTextField(
                       title: "Area By PL Line (SqMt)",
                       hint: "Area By PL Line",
-                      readOnly: true,
+                      readOnly: _readyOnlyAreaByPlLine,
                       textController: _areaByPLLineC,
                       keyboardType: const TextInputType.numberWithOptions(
                         decimal: true,
@@ -157,9 +155,8 @@ class _AddConstructionAreaComparativeScreenState
                     ),
                     CustomMultiFilePicker(
                       maxFiles: 5,
-                      title: "Files",
-                      filePickType: FilePickType.both,
-                      isRequired: true,
+                      title: "Annexure",
+                      filePickType: FilePickType.document,
                       initialFileList: selectedDocumentFile.fileNameList,
                       onFilePickedCallback: (bytesList, fileNameList) {
                         selectedDocumentFile.fileNameList = fileNameList;
@@ -173,12 +170,6 @@ class _AddConstructionAreaComparativeScreenState
                         selectedDocumentFile.fileNameList = fileNameList;
                         selectedDocumentFile.fileBytesList = fileBytesList;
                         selectedDocumentFile.deletedFileList = deletedFile;
-                      },
-                      validator: (value) {
-                        if ((value == null || value.isEmpty)) {
-                          return "File is required.";
-                        }
-                        return null;
                       },
                     ),
                   ],
