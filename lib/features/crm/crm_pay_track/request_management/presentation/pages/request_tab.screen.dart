@@ -288,9 +288,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
         isApplicantApproved;
 
     final isRegistrationEligible =
-        state.bookingData?.isFinalRegistrationCompleted != true &&
-        state.bookingData?.agreementValue != 0 &&
-        state.bookingData?.tenantId == 0;
+        state.bookingData?.isFinalRegistrationCompleted != true;
 
     final showAddButton =
         isAuthorized &&
@@ -1211,9 +1209,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
               status == "partial approved";
         });
     final isRegistrationEligible =
-        state.bookingData?.isFinalRegistrationCompleted != true &&
-        state.bookingData?.agreementValue != 0 &&
-        state.bookingData?.tenantId == 0;
+        state.bookingData?.isFinalRegistrationCompleted != true;
     final showAddButton =
         (_modifiedRequestsAuthorization.isAction &&
             widget.approvalStatus?.toUpperCase() == "APPROVED" &&

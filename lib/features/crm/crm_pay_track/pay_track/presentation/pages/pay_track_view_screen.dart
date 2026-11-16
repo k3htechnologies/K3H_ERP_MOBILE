@@ -166,7 +166,8 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
     //HIDE : BANK LOAN AND ACCOUNT TAB
     final noAgreementValue =
         state.bookingData?.agreementValue == 0 &&
-        state.bookingData?.tenantId != 0;
+        state.bookingData?.tenantId != 0 &&
+        state.bookingData?.otherChargesAmount != 0;
 
     return [
       if (_bookingPayTrackRouteAuthorizationModel.isView)

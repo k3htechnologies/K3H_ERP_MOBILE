@@ -30,6 +30,11 @@ class CrmDashboardCubit extends Cubit<CrmDashboardState> {
     String? fromDate,
     String? toDate,
   }) async {
+    if (projectId == 0) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showErrorMessage(context, "Error", "Please select a project");
+      });
+    }
     emit(state.copyWith(isLoading: true));
 
     var result = await _crmDashboardRepository.getDashboardList(

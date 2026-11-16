@@ -102,10 +102,15 @@ class _CrmDashboardScreenState extends State<CrmDashboardScreen> {
                     : null;
             return SingleChildScrollView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  showSiteSelectedWidget(
+                    projectName: _selectedProjectNotifier.value.projectName,
+                  ),
+                  verticalSpacing(height: 8.h),
+
                   /// DATE FILTER
                   ValueListenableBuilder<String>(
                     valueListenable: _selectedFilterType,
