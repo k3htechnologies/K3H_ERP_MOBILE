@@ -164,19 +164,17 @@ class _PayTrackViewScreenState extends State<PayTrackViewScreen> {
 
   List<PayTrackTab> _buildTabs(PayTrackState state) {
     //HIDE : BANK LOAN AND ACCOUNT TAB
-    final noAgreementValue =
-        state.bookingData?.agreementValue == 0 &&
-        state.bookingData?.tenantId != 0 &&
-        state.bookingData?.otherChargesAmount != 0;
-
+    final showtabs =
+        (state.bookingData?.agreementValue != 0 ||
+            (state.bookingData?.bookingOtherChargesData ?? []).isNotEmpty);
     return [
       if (_bookingPayTrackRouteAuthorizationModel.isView)
         PayTrackTab.bookingPayTrack,
-      if (_bankLoansRouteAuthorizationModel.isView && !noAgreementValue)
+      if (_bankLoansRouteAuthorizationModel.isView && showtabs)
         PayTrackTab.bankLoan,
       if ((_paymentLedgerAuthorization.isView ||
               _paymentScheduleAuthorization.isView) &&
-          !noAgreementValue)
+          showtabs)
         PayTrackTab.paymentLedger,
       if (_modifiedRequestsAuthorizationModel.isView)
         PayTrackTab.modificationRequest,

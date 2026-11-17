@@ -440,6 +440,15 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
 
     return BlocBuilder<RERADocumentCubit, RERADocumentState>(
       builder: (context, state) {
+        final disableAdd =
+            !_routeAuthorizationModel.isAction ||
+            state .documentCategoryModelList[_categoryTabController!.index]
+                    .projectRERADocumentCategoryName ==
+                'QTR Updatation' ||
+            state
+                    .documentCategoryModelList[_categoryTabController!.index]
+                    .projectRERADocumentCategoryName ==
+                'Yearly Updatation';
         return ListView.builder(
           controller: scrollController,
           itemCount: sortedDocuments.length + 1,
@@ -499,7 +508,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           CustomIconButton.add(
-                            isDisabled: !_routeAuthorizationModel.isAction,
+                            isDisabled: disableAdd,
                             onPressed: () async {
                               goRouter.pushNamed(
                                 AppRoutes.addReraDocument,

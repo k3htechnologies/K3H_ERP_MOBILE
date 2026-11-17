@@ -7,7 +7,6 @@ import 'package:k3h_erp_app/features/project_document/approval_category/data/rep
 import 'package:k3h_erp_app/features/project_document/approval_document/data/model/approval_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/data/repository/approval_document.repository.dart';
 import 'package:k3h_erp_app/features/project_document/approval_document/presentation/cubit/approval_document_state.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -20,6 +19,16 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       serviceLocator<ApprovalCategoryRepository>();
   final ApprovalDocumentRepository _documentRepository =
       serviceLocator<ApprovalDocumentRepository>();
+
+  Future clearSubDocumentList() async {
+    emit(
+      state.copyWith(
+        subApprovalDocumentList: [],
+        totalNumberOfRecordOfSubDoc: 0,
+        currentPageOfSubDoc: 1,
+      ),
+    );
+  }
 
   // GET CATEGORY LIST
   Future getCategoryList(
@@ -47,6 +56,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       pageNumber: pageNumber,
       pageSize: 500,
       projectId: projectId,
+      queryParams: {"IsCheckPermission": false},
     );
     result.fold(
       (failure) {
@@ -217,10 +227,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
           );
         }
 
-        showSuccessMessage(
-          context,
-          subTitle: "Approval Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -279,37 +286,34 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
-        final currentPath = goRouter.state.path;
-        if (currentPath == AppRoutes.viewApprovalDocument) {
-          goRouter.pop();
-        }
+
+        await getProjectApprovalDocumentList(
+          context: context,
+          pageNumber: 1,
+          approvalDocumentId: approvalDocumentId,
+        );
+
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
-          final updatedListModel = List<ApprovalDocumentModel>.from(
+          final updatedParentList = List<ApprovalDocumentModel>.from(
             state.documentList,
           );
-
-          // Only increment approvalPendingApprovalDocumentCount & uploadedApprovalDocumentCount counts in existing parent document instance
-          updatedListModel[index] = updatedListModel[index].copyWith(
-            approvalDocumentName: updatedListModel[index].approvalDocumentName,
+          // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+          updatedParentList[index] = updatedParentList[index].copyWith(
+            approvalDocumentName: updatedParentList[index].approvalDocumentName,
             approvalPendingApprovalDocumentCount:
-                updatedListModel[index].approvalPendingApprovalDocumentCount +
+                updatedParentList[index].approvalPendingApprovalDocumentCount +
                 1,
             uploadedApprovalDocumentCount:
-                updatedListModel[index].uploadedApprovalDocumentCount + 1,
+                updatedParentList[index].uploadedApprovalDocumentCount + 1,
           );
 
           emit(
-            state.copyWith(isLoading: false, documentList: updatedListModel),
+            state.copyWith(isLoading: false, documentList: updatedParentList),
           );
         }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Approval Document Added Successfully",
-        );
       },
     );
   }
@@ -360,11 +364,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
             state.copyWith(isLoading: false, documentList: updatedListModel),
           );
         }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Approval Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -402,10 +402,8 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       (response) {
         goRouter.pop();
 
-        showSuccessMessage(
-          context,
-          subTitle: "Approval Document Added Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
+
         searchApprovalDocument("", context);
       },
     );
@@ -445,6 +443,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     BuildContext context,
     int index, {
     bool isSubDoc = false,
+    int? parentIndex,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -479,8 +478,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
                       : 0,
             ),
           );
-        }
-        {
+        } else {
           final updatedList = List<ApprovalDocumentModel>.from(
             state.subApprovalDocumentList,
           );
@@ -494,11 +492,28 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
                       : 0,
             ),
           );
+          final updatedParentList = List<ApprovalDocumentModel>.from(
+            state.documentList,
+          ); // Only decrement approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+          updatedParentList[parentIndex!] = updatedParentList[parentIndex]
+              .copyWith(
+                approvalDocumentName:
+                    updatedParentList[parentIndex].approvalDocumentName,
+                approvalPendingApprovalDocumentCount:
+                    updatedParentList[parentIndex]
+                        .approvalPendingApprovalDocumentCount -
+                    1,
+                uploadedApprovalDocumentCount:
+                    updatedParentList[parentIndex]
+                        .uploadedApprovalDocumentCount -
+                    1,
+              );
+
+          emit(
+            state.copyWith(isLoading: false, documentList: updatedParentList),
+          );
         }
-        showSuccessMessage(
-          context,
-          subTitle: "Approval Document Deleted Successfully",
-        );
+        showSuccessMessage(context, subTitle: success['message']);
       },
     );
   }

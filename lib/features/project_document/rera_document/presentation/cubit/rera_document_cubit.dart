@@ -51,6 +51,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       pageNumber: pageNumber,
       pageSize: 500,
       projectId: projectId,
+      queryParams: {"IsCheckPermission": false},
     );
     result.fold(
       (failure) {
