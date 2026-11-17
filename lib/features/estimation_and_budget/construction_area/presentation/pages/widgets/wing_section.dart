@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/data/model/building_summary.model.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/data/model/construction_area.model.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/presentation/cubit/construction_area_cubit.dart';
@@ -9,6 +8,7 @@ import 'package:k3h_erp_app/features/estimation_and_budget/construction_area/pre
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
@@ -320,13 +320,40 @@ class UnitCardState extends State<UnitCard> {
             _info("Total Area (SqFt)", _fmt(f.totalAreaSqFt)),
           ),
           _divider(),
-          _row(_info("Remarks", f.remark.isEmpty ? "—" : f.remark), null),
+          _row(
+            buildColumnTitleValue(
+              title: "Remark",
+              value: f.remark,
+              removeExpanded: true,
+              customValueWidget:
+                  f.remark.isNotEmpty
+                      ? GestureDetector(
+                        onTap: () {
+                          DialogHelper.showNoteDialog(
+                            context,
+                            title: "Remark",
+                            note: f.remark,
+                          );
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.only(right: 10.w),
+                          child: Icon(
+                            Icons.info_outline,
+                            size: 18,
+                            color: AppColor.primary,
+                          ),
+                        ),
+                      )
+                      : null,
+            ),
+            null,
+          ),
           _divider(),
           _row(
-            _info("Last Modified By", modifiedBy.isEmpty ? "—" : modifiedBy),
+            _info("Last Modified By", modifiedBy),
             _info(
               "Last Modified Date",
-              DateFormat('dd MMM yy').format(modifiedDate),
+              formatDateTimeAsDDMMMYYYY(modifiedDate),
             ),
           ),
         ],
@@ -334,16 +361,18 @@ class UnitCardState extends State<UnitCard> {
     );
   }
 
-  Widget _row(Widget left, Widget? right) => Padding(
-    padding: EdgeInsets.all(12.sp),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: left),
-        Expanded(child: right ?? const SizedBox.shrink()),
-      ],
-    ),
-  );
+  Widget _row(Widget left, Widget? right) {
+    return Padding(
+      padding: EdgeInsets.all(12.sp),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(child: left),
+          Expanded(child: right ?? const SizedBox.shrink()),
+        ],
+      ),
+    );
+  }
 
   Widget _divider() =>
       Divider(height: 1, thickness: 1.sp, color: AppColor.dividerColor);
@@ -500,12 +529,13 @@ class _UpdateConstructionAreaFormState
 }
 
 Widget _info(String title, String value, {bool chip = false}) {
+  final display = value.trim().isEmpty ? _kEmpty : value;
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       Text(title, style: AppTextStyle.ts12R(color: AppColor.grey)),
       SizedBox(height: 4.sp),
-      chip && value.isNotEmpty
+      chip && value.trim().isNotEmpty
           ? Container(
             padding: EdgeInsets.symmetric(horizontal: 10.sp, vertical: 2.sp),
             decoration: BoxDecoration(
@@ -520,12 +550,14 @@ Widget _info(String title, String value, {bool chip = false}) {
               style: AppTextStyle.ts12M(color: AppColor.primary),
             ),
           )
-          : Text(value.isEmpty ? "—" : value, style: AppTextStyle.ts14M()),
+          : Text(display, style: AppTextStyle.ts14M()),
     ],
   );
 }
 
-String _fmt(double v, {String zero = "—"}) =>
-    v == 0
-        ? zero
-        : (v == v.truncateToDouble() ? v.toInt().toString() : v.toString());
+const String _kEmpty = "-";
+
+String _fmt(double? v, {String zero = _kEmpty}) {
+  if (v == null || v == 0) return zero;
+  return v == v.truncateToDouble() ? v.toInt().toString() : v.toString();
+}

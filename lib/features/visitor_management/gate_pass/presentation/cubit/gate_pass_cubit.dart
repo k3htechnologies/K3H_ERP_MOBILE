@@ -260,6 +260,7 @@ class GatePassCubit extends Cubit<GatePassState> {
     if (context.mounted) {
       goRouter.pop();
     }
+    if (!context.mounted) return;
     result.fold(
       (failure) {
         if (context.mounted) {
@@ -277,6 +278,7 @@ class GatePassCubit extends Cubit<GatePassState> {
           updatedList[index] = updatedGatePass;
 
           emit(state.copyWith(isLoading: false, gatePassList: updatedList));
+          getGatePass(context, 1);
         }
       },
     );

@@ -306,7 +306,11 @@ class _CustomAppBarMobileState extends State<CustomAppBar>
           ),
           horizontalSpacing(),
           Expanded(
-            child: Text(widget.screenTitle, style: AppTextStyle.ts16M()),
+            child: Text(
+              widget.screenTitle,
+              maxLines: 2,
+              style: AppTextStyle.ts16M(),
+            ),
           ),
           if (widget.onProjectChangeCallback != null)
             GestureDetector(

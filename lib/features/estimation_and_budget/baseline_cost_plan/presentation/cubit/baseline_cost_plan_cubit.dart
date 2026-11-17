@@ -29,9 +29,12 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
         searchText: "",
         currentPage: 1,
         categoryIndex: 0,
+        currentSortColumn: "",
+        currentSortDirection: "",
         baselineCostPlanDocumentCategoryId: 0,
         baselineCostPlanDocumentList: [],
         baselineCostPlanDocumentCategoryList: [],
+        totalNumberOfRecord: 0,
         isLoading: true,
       ),
     );

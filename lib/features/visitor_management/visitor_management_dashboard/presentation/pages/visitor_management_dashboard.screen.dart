@@ -233,14 +233,14 @@ class _VisitorManagementDashboardScreenState
                       builder: (context, selectedTab, child) {
                         return DateRangeFilterWidget(
                           selectedTab: selectedTab,
-                          tabs: const {
-                            "Today": "Today",
-                            "Weekly": "This Week",
-                            "Monthly": "This Month",
-                            "Datewise": "Datewise",
-                          },
                           initialFromDate: _fromDateNotifier.value,
                           initialToDate: _toDateNotifier.value,
+                          tabs: {
+                            "Today": "Today",
+                            "Weekly": "Weekly",
+                            "Monthly": "Monthly",
+                            "Datewise": "Datewise",
+                          },
                           onTap: (tab) async {
                             _selectedFilterType.value = tab;
                             await _visitorManagementDashboardCubit
@@ -258,74 +258,65 @@ class _VisitorManagementDashboardScreenState
                               }
                             }
                           },
-                          onDateChanged: (from, to) {
+                          onDateChanged: (from, to) async {
                             _fromDateNotifier.value = from;
                             _toDateNotifier.value = to;
-
+                            if (from == null) {
+                              await _visitorManagementDashboardCubit
+                                  .clearGatePassDashboarddData();
+                            }
                             if (to != null) {
-                              _visitorManagementDashboardCubit
-                                  .getGatePassDashboard(
-                                    context: context,
-                                    filterType: _selectedFilterType.value,
-                                    fromDate: from,
-                                    toDate: to,
-                                  );
+                              if (context.mounted) {
+                                _visitorManagementDashboardCubit
+                                    .getGatePassDashboard(
+                                      context: context,
+                                      filterType: _selectedFilterType.value,
+                                      fromDate: from,
+                                      toDate: to,
+                                    );
+                              }
                             }
                           },
                         );
                       },
                     ),
                     verticalSpacing(),
-                    if (dashboardCount == null) ...{
-                      Center(
-                        child: noDataWidget(
-                          message:
-                              _selectedFilterType.value.toLowerCase() ==
-                                      'datewise'
-                                  ? "Select a date range to view visitors"
-                                  : "No records Found",
-                          iconSize: 120.sp,
-                        ),
+
+                    if (_routhAuthorizationModel.isAction) ...{
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          CustomButton(
+                            text: "+ Add Visitor",
+                            onPressed: () {
+                              goRouter.pushNamed(AppRoutes.gatePass);
+                            },
+                          ),
+                        ],
                       ),
                     } else ...{
-                      if (_routhAuthorizationModel.isAction) ...{
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            CustomButton(
-                              text: "+ Add Visitor",
-                              onPressed: () {
-                                goRouter.pushNamed(AppRoutes.gatePass);
-                              },
-                            ),
-                          ],
-                        ),
-                      } else ...{
-                        SizedBox.shrink(),
-                      },
-                      verticalSpacing(),
-                      GatePassOverviewWidget(
-                        filterType: _selectedFilterType.value,
-                      ),
-                      verticalSpacing(height: 20.sp),
-                      _buildVisitors(
-                        context,
-                        dashboardCount,
-                        todayVisitors,
-                        timelineGroups,
-                      ),
-                      verticalSpacing(height: 20.sp),
-                      if (_selectedFilterType.value.toLowerCase() ==
-                          "today") ...{
-                        _buildVisitorTimeline(timelineGroups),
-                        verticalSpacing(height: 20.sp),
-                      },
-
-                      _buildPurposeWiseVisitors(purposeWiseVisitors),
-                      verticalSpacing(height: 20.sp),
-                      _buildAlerts(alertsVisitors),
+                      SizedBox.shrink(),
                     },
+                    verticalSpacing(),
+                    GatePassOverviewWidget(
+                      filterType: _selectedFilterType.value,
+                    ),
+                    verticalSpacing(height: 20.sp),
+                    _buildVisitors(
+                      context,
+                      dashboardCount,
+                      todayVisitors,
+                      timelineGroups,
+                    ),
+                    verticalSpacing(height: 20.sp),
+                    if (_selectedFilterType.value.toLowerCase() == "today") ...{
+                      _buildVisitorTimeline(timelineGroups),
+                      verticalSpacing(height: 20.sp),
+                    },
+                    _buildPurposeWiseVisitors(purposeWiseVisitors),
+                    verticalSpacing(height: 20.sp),
+                    _buildAlerts(alertsVisitors),
                   ],
                 ),
               ),
@@ -418,7 +409,9 @@ class _VisitorManagementDashboardScreenState
                             horizontalSpacing(width: 12.sp),
                             Expanded(
                               child: Text(
-                                visitor.visitorName,
+                                visitor.noOfParticipants > 0
+                                    ? "${visitor.visitorName} +${visitor.noOfParticipants}"
+                                    : visitor.visitorName,
                                 style: AppTextStyle.ts14M(),
                               ),
                             ),
@@ -456,14 +449,14 @@ class _VisitorManagementDashboardScreenState
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             buildColumnTitleValue(
-                              title: "Contact",
+                              title: "Mobile Number",
                               value:
                                   visitor.contact.isEmpty
                                       ? "-"
                                       : "+91 ${visitor.contact}",
                               removeExpanded: true,
                             ),
-                            horizontalSpacing(),
+                            horizontalSpacing(width: 20.sp),
                             buildColumnTitleValue(
                               title: "Appointment With",
                               value: visitor.appointmentWith,
@@ -476,20 +469,27 @@ class _VisitorManagementDashboardScreenState
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
+                            SizedBox(
+                              width: 120.sp,
+                              child: buildColumnTitleValue(
+                                title: "Purpose",
+                                value: "",
+                                customValueWidget: gatePassStatusWidget(
+                                  visitor.purpose,
+                                  textStyle: AppTextStyle.ts12M(),
+                                ),
+                                removeExpanded: true,
+                              ),
+                            ),
+                            horizontalSpacing(width: 20.sp),
                             buildColumnTitleValue(
                               title: "Check-In Time",
-                              value: formatTime(visitor.checkInTime),
-                              removeExpanded: true,
-                            ),
-                            horizontalSpacing(),
-                            buildColumnTitleValue(
-                              title: "Purpose",
-                              value: "",
-                              customValueWidget: gatePassStatusWidget(
-                                visitor.purpose,
-                                textStyle: AppTextStyle.ts12M(),
-                              ),
-                              removeExpanded: true,
+                              value:
+                                  _selectedFilterType.value.toLowerCase() ==
+                                          "today"
+                                      ? formatTime(visitor.checkInTime)
+                                      : formatDate(visitor.checkInTime),
+                              removeExpanded: false,
                             ),
                           ],
                         ),
@@ -550,7 +550,7 @@ class _VisitorManagementDashboardScreenState
                                   ),
                                   horizontalSpacing(),
                                   CustomIconButton(
-                                    isDisable: !visitor.isNoticationEnabled,
+                                    isDisable: !visitor.isNotificationEnabled,
                                     size: 18.sp,
                                     backgroundColor: AppColor.primary
                                         .withValues(alpha: 0.1),
@@ -559,7 +559,7 @@ class _VisitorManagementDashboardScreenState
                                       LucideIcons.bell,
                                       size: 16,
                                       color:
-                                          !visitor.isNoticationEnabled
+                                          !visitor.isNotificationEnabled
                                               ? AppColor.grey
                                               : AppColor.primary,
                                     ),
@@ -632,61 +632,64 @@ class _VisitorManagementDashboardScreenState
             style: AppTextStyle.ts14M(color: AppColor.grey),
           ),
           verticalSpacing(height: 16.sp),
-          ...List.generate(purposeList.length, (index) {
-            final item = purposeList[index];
-            final color = getPurposeWiseVisitorsColor(item.purpose);
-            final fraction = (item.percentage / 100).clamp(0.0, 1.0);
+          if (purposeList.isEmpty)
+            Center(child: noDataWidget(iconSize: 120.sp))
+          else
+            ...List.generate(purposeList.length, (index) {
+              final item = purposeList[index];
+              final color = getPurposeWiseVisitorsColor(item.purpose);
+              final fraction = (item.percentage / 100).clamp(0.0, 1.0);
 
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: index == purposeList.length - 1 ? 4.sp : 16.sp,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 10.sp,
-                        height: 10.sp,
-                        decoration: BoxDecoration(
-                          color: color.textColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      horizontalSpacing(width: 10.sp),
-                      Expanded(
-                        child: Text(
-                          item.purpose,
-                          style: AppTextStyle.ts14M(color: AppColor.black),
-                        ),
-                      ),
-                      Text(
-                        item.visitorCount.toString(),
-                        style: AppTextStyle.ts14SB(color: AppColor.black),
-                      ),
-                    ],
-                  ),
-                  verticalSpacing(height: 8.sp),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4.sp),
-                    child: Stack(
+              return Padding(
+                padding: EdgeInsets.only(
+                  bottom: index == purposeList.length - 1 ? 4.sp : 16.sp,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Container(height: 8.sp, color: AppColor.grey10),
-                        FractionallySizedBox(
-                          widthFactor: fraction,
-                          child: Container(
-                            height: 8.sp,
+                        Container(
+                          width: 10.sp,
+                          height: 10.sp,
+                          decoration: BoxDecoration(
                             color: color.textColor,
+                            shape: BoxShape.circle,
                           ),
+                        ),
+                        horizontalSpacing(width: 10.sp),
+                        Expanded(
+                          child: Text(
+                            item.purpose,
+                            style: AppTextStyle.ts14M(color: AppColor.black),
+                          ),
+                        ),
+                        Text(
+                          item.visitorCount.toString(),
+                          style: AppTextStyle.ts14SB(color: AppColor.black),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
-            );
-          }),
+                    verticalSpacing(height: 8.sp),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4.sp),
+                      child: Stack(
+                        children: [
+                          Container(height: 8.sp, color: AppColor.grey10),
+                          FractionallySizedBox(
+                            widthFactor: fraction,
+                            child: Container(
+                              height: 8.sp,
+                              color: color.textColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
         ],
       ),
     );

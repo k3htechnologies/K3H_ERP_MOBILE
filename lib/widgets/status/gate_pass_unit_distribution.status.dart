@@ -25,8 +25,8 @@ final Map<String, StatusConfig> gatePassDashboardStatusConfig = {
     textColor: Color(0xffEA580C),
   ),
   "pending approval": StatusConfig(
-    backgroundColor: AppColor.lightYellow,
-    textColor: AppColor.rustOrange,
+    backgroundColor: Color(0xffE0E7FF),
+    textColor: Color(0xff4338CA),
   ),
   "pending": StatusConfig(
     backgroundColor: AppColor.lightYellow,

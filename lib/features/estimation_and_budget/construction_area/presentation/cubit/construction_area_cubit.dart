@@ -83,7 +83,7 @@ class ConstructionAreaCubit extends Cubit<ConstructionAreaState> {
     };
     var result = await _constructionAreaRepository.getConstructionArea(
       pageNumber: pageNumber,
-      pageSize: 10,
+      pageSize: 50,
       queryParams: queryParams,
       projectId: projectId,
     );
@@ -382,6 +382,10 @@ class ConstructionAreaCubit extends Cubit<ConstructionAreaState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
+        showSuccessMessage(
+          context,
+          subTitle: 'Successfully Exported as $exportType',
+        );
         exportExcelOrPdfMobile(
           response["data"],
           exportType.toLowerCase() == "pdf"

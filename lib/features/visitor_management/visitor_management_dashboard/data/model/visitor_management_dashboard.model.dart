@@ -139,6 +139,7 @@ class Table1 {
   DateTime? modifiedDate;
   String message;
   int totalRecords;
+  bool isNotificationEnabled;
 
   Table1({
     required this.externalId,
@@ -168,6 +169,7 @@ class Table1 {
     required this.modifiedDate,
     required this.message,
     required this.totalRecords,
+    required this.isNotificationEnabled,
   });
 
   factory Table1.fromJson(Map<String, dynamic> json) => Table1(
@@ -205,6 +207,7 @@ class Table1 {
             : DateTime.tryParse(json["ModifiedDate"].toString()),
     message: parseValue<String>(json, "Message"),
     totalRecords: parseValue<int>(json, "TotalRecords"),
+    isNotificationEnabled: parseValue<bool>(json, "IsNotificationEnabled"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -235,6 +238,7 @@ class Table1 {
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "Message": message,
     "TotalRecords": totalRecords,
+    "IsNotificationEnabled": isNotificationEnabled,
   };
   Table1 copyWith({
     int? externalId,
@@ -264,6 +268,7 @@ class Table1 {
     DateTime? modifiedDate,
     String? message,
     int? totalRecords,
+    bool? isNotificationEnabled,
   }) {
     return Table1(
       externalId: externalId ?? this.externalId,
@@ -293,6 +298,8 @@ class Table1 {
       modifiedDate: modifiedDate ?? this.modifiedDate,
       message: message ?? this.message,
       totalRecords: totalRecords ?? this.totalRecords,
+      isNotificationEnabled:
+          isNotificationEnabled ?? this.isNotificationEnabled,
     );
   }
 }

@@ -429,6 +429,11 @@ class _BaselineCostPlanScreenState extends State<BaselineCostPlanScreen>
               context: context,
               projectId: value.projectId,
             );
+            if (!mounted) return;
+            if (_categoryTabController != null &&
+                _categoryTabController!.index != 0) {
+              _categoryTabController!.index = 0;
+            }
           },
           isFilterOn: true,
           onFilterTap: () {
