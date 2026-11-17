@@ -112,6 +112,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final disableAdd =
+        !_routeAuthorizationModel.isAction ||
+        widget.documentModel.projectRERADocumentCategory == 'QTR Updatation' ||
+        widget.documentModel.projectRERADocumentCategory == 'Yearly Updatation';
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "RERA Documents",
@@ -148,27 +152,27 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                     ),
                   ),
                 ),
-                if (_routeAuthorizationModel.isAction)
-                  CustomButton(
-                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                    text: "Add",
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addReraDocument,
-                        queryParameters: {
-                          "reraDocument": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(widget.documentModel.toJson()),
-                            ),
+                CustomButton(
+                  leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                  text: "Add",
+                  isDisable: disableAdd,
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addReraDocument,
+                      queryParameters: {
+                        "reraDocument": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(widget.documentModel.toJson()),
                           ),
-                          "index": widget.index.toString(),
-                          "isEdit": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(false.toString()),
-                          ),
-                        },
-                      );
-                    },
-                  ),
+                        ),
+                        "index": widget.index.toString(),
+                        "isEdit": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(false.toString()),
+                        ),
+                      },
+                    );
+                  },
+                ),
               ],
             ),
 

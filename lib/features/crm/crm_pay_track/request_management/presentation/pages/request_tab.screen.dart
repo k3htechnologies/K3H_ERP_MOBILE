@@ -219,9 +219,7 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
   Widget build(BuildContext context) {
     return BlocBuilder<RequestManagementCubit, RequestManagementState>(
       builder: (context, state) {
-        final noAgreementValue =
-            state.bookingData?.agreementValue == 0 &&
-            state.bookingData?.tenantId != 0;
+        final showParking = state.bookingData?.tenantId == 0;
         return SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12),
           child: Column(
@@ -229,9 +227,8 @@ class _RequestTabScreenState extends State<RequestTabScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildApplicantDetailsWidget(context, state),
-              // HIDE PARKING WHEN AGREEMENT VALUE IS 0.
-              if (state.bookingData!.parkingData.isNotEmpty &&
-                  !noAgreementValue)
+              // HIDE PARKING FOR ALLOTEMENTS.
+              if (state.bookingData!.parkingData.isNotEmpty && showParking)
                 _buildParkingDetailsWidget(context, state),
               _buildFlatSpecificationRemarkgDetailsWidget(context, state),
             ],
