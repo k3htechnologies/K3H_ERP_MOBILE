@@ -92,6 +92,7 @@ class ApprovalDocumentDatasourceImpl implements ApprovalDocumentDatasource {
         'data': List<ApprovalDocumentModel>.from(
           networkResponse["data"].map((e) => ApprovalDocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -129,6 +130,7 @@ class ApprovalDocumentDatasourceImpl implements ApprovalDocumentDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

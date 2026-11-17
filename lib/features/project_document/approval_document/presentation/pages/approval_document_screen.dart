@@ -591,6 +591,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
+                            await _documentCubit.clearSubDocumentList();
                             await goRouter.pushNamed(
                               AppRoutes.viewApprovalDocument,
                               queryParameters: {
@@ -602,12 +603,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                                 "index": index.toString(),
                               },
                             );
-                            if (context.mounted) {
-                              _documentCubit.getProjectApprovalDocumentList(
-                                context: context,
-                                pageNumber: 1,
-                              );
-                            }
                           },
                           child: Text(
                             document.approvalDocumentName,

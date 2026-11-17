@@ -237,8 +237,8 @@ class _VisitorManagementDashboardScreenState
                           initialToDate: _toDateNotifier.value,
                           tabs: {
                             "Today": "Today",
-                            "Weekly": "Weekly",
-                            "Monthly": "Monthly",
+                            "Weekly": "This Week",
+                            "Monthly": "This Month",
                             "Datewise": "Datewise",
                           },
                           onTap: (tab) async {

@@ -4166,11 +4166,7 @@ final GoRouter goRouter = GoRouter(
 
                     final index =
                         int.tryParse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(
-                              state.uri.queryParameters['index'] ?? '0',
-                            ),
-                          ),
+                          state.uri.queryParameters['index'] ?? '0',
                         ) ??
                         0;
 

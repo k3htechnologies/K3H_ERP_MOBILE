@@ -111,6 +111,7 @@ class _ViewApprovalDocumentScreenState
         context,
         index,
         isSubDoc: true,
+        parentIndex: widget.index,
       );
     }
   }

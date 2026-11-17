@@ -92,6 +92,7 @@ class DocumentDatasourceImpl implements DocumentDatasource {
         'data': List<DocumentModel>.from(
           networkResponse["data"].map((e) => DocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -129,6 +130,7 @@ class DocumentDatasourceImpl implements DocumentDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

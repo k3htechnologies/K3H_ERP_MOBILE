@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
@@ -7,7 +9,6 @@ import 'package:k3h_erp_app/features/project_document/rera_document/data/reposit
 import 'package:k3h_erp_app/features/project_document/rera_document/presentation/cubit/rera_document_state.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/model/rera_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/rera_document_category/data/repository/rera_document_category.repository.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
@@ -20,6 +21,16 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
       serviceLocator<RERADocumentCategoryRepository>();
   final RERADocumentRepository _reraDocumentRepository =
       serviceLocator<RERADocumentRepository>();
+
+  Future clearSubDocumentList() async {
+    emit(
+      state.copyWith(
+        reraSubDocumentList: [],
+        totalNumberOfRecordOfSubDoc: 0,
+        currentPageOfSubDoc: 1,
+      ),
+    );
+  }
 
   Future<void> resetSearch() async {
     emit(state.copyWith(searchText: ""));
@@ -299,35 +310,36 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
-        final currentPath = goRouter.state.path;
-        if (currentPath == AppRoutes.viewReraDocument) {
-          goRouter.pop();
-        }
 
+        await getRERADocumentList(
+          context: context,
+          pageNumber: 1,
+          projectRERADocumentId: projectRERADocumentId,
+        );
         if (state.reraDocumentList.isNotEmpty &&
             index < state.reraDocumentList.length) {
-          final updatedListModel = List<RERADocumentModel>.from(
+          final updatedParentList = List<RERADocumentModel>.from(
             state.reraDocumentList,
           );
 
           // Only increment approvalPendingProjectRERADocumentCount & uploadedProjectRERADocumentCount counts in existing parent document instance
-          updatedListModel[index] = updatedListModel[index].copyWith(
+          updatedParentList[index] = updatedParentList[index].copyWith(
             projectRERADocumentName:
-                updatedListModel[index].projectRERADocumentName,
+                updatedParentList[index].projectRERADocumentName,
             approvalPendingProjectRERADocumentCount:
-                updatedListModel[index]
+                updatedParentList[index]
                     .approvalPendingProjectRERADocumentCount +
                 1,
             uploadedProjectRERADocumentCount:
-                updatedListModel[index].uploadedProjectRERADocumentCount + 1,
+                updatedParentList[index].uploadedProjectRERADocumentCount + 1,
           );
 
           emit(
             state.copyWith(
               isLoading: false,
-              reraDocumentList: updatedListModel,
+              reraDocumentList: updatedParentList,
             ),
           );
         }
@@ -470,6 +482,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
     BuildContext context,
     int index, {
     bool isSubDoc = false,
+    int? parentIndex,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -522,6 +535,34 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
                       : 0,
             ),
           );
+          if (state.reraDocumentList.isNotEmpty &&
+              parentIndex! < state.reraDocumentList.length) {
+            final updatedParentList = List<RERADocumentModel>.from(
+              state.reraDocumentList,
+            );
+
+            // Only decrement approvalPendingProjectRERADocumentCount & uploadedProjectRERADocumentCount counts in existing parent document instance
+            updatedParentList[parentIndex] = updatedParentList[parentIndex]
+                .copyWith(
+                  projectRERADocumentName:
+                      updatedParentList[parentIndex].projectRERADocumentName,
+                  approvalPendingProjectRERADocumentCount:
+                      updatedParentList[parentIndex]
+                          .approvalPendingProjectRERADocumentCount -
+                      1,
+                  uploadedProjectRERADocumentCount:
+                      updatedParentList[parentIndex]
+                          .uploadedProjectRERADocumentCount -
+                      1,
+                );
+
+            emit(
+              state.copyWith(
+                isLoading: false,
+                reraDocumentList: updatedParentList,
+              ),
+            );
+          }
         }
         showSuccessMessage(context, subTitle: success["message"]);
       },

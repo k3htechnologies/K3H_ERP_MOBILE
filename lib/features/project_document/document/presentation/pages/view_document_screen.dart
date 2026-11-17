@@ -105,7 +105,13 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     );
 
     if (shouldDelete && context.mounted) {
-      _documentCubit.deleteDocument(obj, context, index, isSubDoc: true);
+      _documentCubit.deleteDocument(
+        obj,
+        context,
+        index,
+        isSubDoc: true,
+        parentIndex: widget.index,
+      );
     }
   }
 

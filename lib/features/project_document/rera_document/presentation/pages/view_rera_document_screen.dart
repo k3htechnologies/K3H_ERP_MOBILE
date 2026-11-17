@@ -106,12 +106,19 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
         context,
         index,
         isSubDoc: true,
+        parentIndex: widget.index,
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final disableAdd =
+        !_routeAuthorizationModel.isAction ||
+        (widget.documentModel.projectRERADocumentCategory == 'QTR Updatation' ||
+            widget.documentModel.projectRERADocumentCategory ==
+                'Yearly Updatation');
+
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "RERA Documents",
@@ -148,27 +155,27 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                     ),
                   ),
                 ),
-                if (_routeAuthorizationModel.isAction)
-                  CustomButton(
-                    leading: Icon(Icons.add, color: AppColor.white, size: 16),
-                    text: "Add",
-                    onPressed: () {
-                      goRouter.pushNamed(
-                        AppRoutes.addReraDocument,
-                        queryParameters: {
-                          "reraDocument": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(
-                              jsonEncode(widget.documentModel.toJson()),
-                            ),
+                CustomButton(
+                  leading: Icon(Icons.add, color: AppColor.white, size: 16),
+                  text: "Add",
+                  isDisable: disableAdd,
+                  onPressed: () {
+                    goRouter.pushNamed(
+                      AppRoutes.addReraDocument,
+                      queryParameters: {
+                        "reraDocument": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(
+                            jsonEncode(widget.documentModel.toJson()),
                           ),
-                          "index": widget.index.toString(),
-                          "isEdit": Uri.encodeQueryComponent(
-                            EncryptionManager.encryptData(false.toString()),
-                          ),
-                        },
-                      );
-                    },
-                  ),
+                        ),
+                        "index": widget.index.toString(),
+                        "isEdit": Uri.encodeQueryComponent(
+                          EncryptionManager.encryptData(false.toString()),
+                        ),
+                      },
+                    );
+                  },
+                ),
               ],
             ),
 
@@ -282,23 +289,29 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
               buildColumnTitleValue(
                 title: "Status",
                 value: document.projectRERADocumentStatus,
-                customValueWidget: Container(
-                  padding: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-                  decoration: BoxDecoration(
-                    color: getBgColorByStatus(
-                      document.projectRERADocumentStatus,
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    document.projectRERADocumentStatus,
-                    style: AppTextStyle.ts12M(
-                      color: getTxtColorByStatus(
-                        document.projectRERADocumentStatus,
-                      ),
-                    ),
-                  ),
-                ),
+                customValueWidget:
+                    document.projectRERADocumentStatus.isEmpty
+                        ? null
+                        : Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 5,
+                            horizontal: 25,
+                          ),
+                          decoration: BoxDecoration(
+                            color: getBgColorByStatus(
+                              document.projectRERADocumentStatus,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            document.projectRERADocumentStatus,
+                            style: AppTextStyle.ts12M(
+                              color: getTxtColorByStatus(
+                                document.projectRERADocumentStatus,
+                              ),
+                            ),
+                          ),
+                        ),
               ),
             ],
           ),

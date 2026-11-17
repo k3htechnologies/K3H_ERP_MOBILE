@@ -432,21 +432,26 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         child: noDataWidget(message: "No RERA Document Data Found"),
       );
     }
-    final sortedDocuments = List<RERADocumentModel>.from(documents)..sort(
-      (a, b) => a.projectRERADocumentName.toLowerCase().compareTo(
-        b.projectRERADocumentName.toLowerCase(),
-      ),
-    );
 
     return BlocBuilder<RERADocumentCubit, RERADocumentState>(
       builder: (context, state) {
+        final disableAdd =
+            !_routeAuthorizationModel.isAction ||
+            state
+                    .documentCategoryModelList[_categoryTabController!.index]
+                    .projectRERADocumentCategoryName ==
+                'QTR Updatation' ||
+            state
+                    .documentCategoryModelList[_categoryTabController!.index]
+                    .projectRERADocumentCategoryName ==
+                'Yearly Updatation';
         return ListView.builder(
           controller: scrollController,
-          itemCount: sortedDocuments.length + 1,
+          itemCount: state.reraDocumentList.length + 1,
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
 
           itemBuilder: (context, index) {
-            if (index == sortedDocuments.length) {
+            if (index == state.reraDocumentList.length) {
               return state.isLoading! &&
                       state.reraDocumentList.length < state.totalNumberOfRecord
                   ? const Padding(
@@ -455,7 +460,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                   )
                   : const SizedBox.shrink();
             }
-            final document = sortedDocuments[index];
+            final document = state.reraDocumentList[index];
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),
@@ -469,6 +474,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
+                            await _reraDocumentCubit.clearSubDocumentList();
                             await goRouter.pushNamed(
                               AppRoutes.viewReraDocument,
                               queryParameters: {
@@ -499,7 +505,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           CustomIconButton.add(
-                            isDisabled: !_routeAuthorizationModel.isAction,
+                            isDisabled: disableAdd,
                             onPressed: () async {
                               goRouter.pushNamed(
                                 AppRoutes.addReraDocument,
