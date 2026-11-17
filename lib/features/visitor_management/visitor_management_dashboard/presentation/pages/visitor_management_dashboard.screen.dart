@@ -903,10 +903,11 @@ AlertColor getAlertColor(String? purpose) {
         textColor: AppColor.redishBrown,
       );
     case "appointment starting soon":
-      return AlertColor(
+    case "expected":
+      return const AlertColor(
         backgroundColor: Color(0xffFFF7ED),
-        borderColor: Color(0xffFFEDD5),
-        textColor: Color(0xffEA580C),
+        borderColor: Color(0xffFB923C),
+        textColor: Color(0xffC2410C),
       );
     case "overstaying":
       return AlertColor(
@@ -915,6 +916,7 @@ AlertColor getAlertColor(String? purpose) {
         textColor: Color(0xff7E22CE),
       );
 
+    case "visitor checked out":
     case "checked out":
       return const AlertColor(
         backgroundColor: Color(0xffEFF6FF),
