@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/model/visitor_management_dashboard.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/model/visitor_timeline.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/cubit/visitor_management_dashboard_cubit.dart';
@@ -179,8 +180,36 @@ class _VisitorManagementDashboardScreenState
       _visitorManagementDashboardCubit.updateGatePassOut(
         context,
         externalId: visitor.externalId,
-        type: _selectedFilterType.value,
+        type: 'Out',
         uniquekey: visitor.uniquekey,
+        fromDate: _fromDateNotifier.value,
+        toDate: _toDateNotifier.value,
+      );
+    }
+  }
+
+  Future<void> _showPopupToGatePassNotify(
+    BuildContext context,
+    Table1 obj,
+    int index,
+  ) async {
+    var result = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Notify Appointment person',
+      message:
+          'The appointment contact will be notified that their visitor has arrived at reception',
+      confirmText: "Notify",
+      icon: LucideIcons.bell,
+      iconSize: 28,
+    );
+    if (result && context.mounted) {
+      _visitorManagementDashboardCubit.updateGatePassOut(
+        context,
+        externalId: obj.externalId,
+        uniquekey: obj.uniquekey,
+        type: "Bell",
+        fromDate: _fromDateNotifier.value,
+        toDate: _toDateNotifier.value,
       );
     }
   }
@@ -243,6 +272,9 @@ class _VisitorManagementDashboardScreenState
                           },
                           onTap: (tab) async {
                             _selectedFilterType.value = tab;
+                            await _visitorManagementDashboardCubit.updateFilter(
+                              tab,
+                            );
                             await _visitorManagementDashboardCubit
                                 .clearGatePassDashboarddData();
                             if (context.mounted) {
@@ -251,6 +283,8 @@ class _VisitorManagementDashboardScreenState
                                     .getGatePassDashboard(
                                       context: context,
                                       filterType: _selectedFilterType.value,
+                                      fromDate: _fromDateNotifier.value,
+                                      toDate: _toDateNotifier.value,
                                     );
                               } else {
                                 _fromDateNotifier.value = null;
@@ -549,12 +583,22 @@ class _VisitorManagementDashboardScreenState
                                     ),
                                   ),
                                   horizontalSpacing(),
+
                                   CustomIconButton(
                                     isDisable: !visitor.isNotificationEnabled,
                                     size: 18.sp,
                                     backgroundColor: AppColor.primary
                                         .withValues(alpha: 0.1),
-                                    onPressed: () {},
+                                    onPressed:
+                                        visitor.isNotificationEnabled
+                                            ? () {
+                                              _showPopupToGatePassNotify(
+                                                context,
+                                                visitor,
+                                                index,
+                                              );
+                                            }
+                                            : () {},
                                     icon: Icon(
                                       LucideIcons.bell,
                                       size: 16,

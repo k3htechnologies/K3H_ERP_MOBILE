@@ -29,6 +29,10 @@ class VisitorManagementDashboardCubit
     emit(state.copyWith(gatePassDashboardList: []));
   }
 
+  Future updateFilter(String filterType) async {
+    emit(state.copyWith(selectedFilter: filterType));
+  }
+
   Future<void> getGatePassDashboard({
     required BuildContext context,
     required String filterType,
@@ -173,11 +177,13 @@ class VisitorManagementDashboardCubit
     required int externalId,
     required String type,
     required String uniquekey,
+    DateTime? fromDate,
+    DateTime? toDate,
   }) async {
     DialogHelper.showProcessingOverlay(context);
     final Map<String, dynamic> body = {
       "ExternalId": externalId,
-      "Type": "Out",
+      "Type": type,
       "Uniquekey": uniquekey,
     };
 
@@ -193,7 +199,12 @@ class VisitorManagementDashboardCubit
       },
       (response) async {
         showSuccessMessage(context, subTitle: response["message"]);
-        await getGatePassDashboard(context: context, filterType: type);
+        await getGatePassDashboard(
+          context: context,
+          filterType: state.selectedFilter,
+          fromDate: fromDate,
+          toDate: toDate,
+        );
 
         if (context.mounted) {
           goRouter.pop();

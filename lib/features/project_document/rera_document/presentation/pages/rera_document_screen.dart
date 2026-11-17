@@ -442,7 +442,8 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
       builder: (context, state) {
         final disableAdd =
             !_routeAuthorizationModel.isAction ||
-            state .documentCategoryModelList[_categoryTabController!.index]
+            state
+                    .documentCategoryModelList[_categoryTabController!.index]
                     .projectRERADocumentCategoryName ==
                 'QTR Updatation' ||
             state
