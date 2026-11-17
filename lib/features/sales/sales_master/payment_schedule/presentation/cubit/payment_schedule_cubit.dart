@@ -59,19 +59,33 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        final List<PaymentScheduleMasterModel> newData =
-            List<PaymentScheduleMasterModel>.from(response['data'] ?? []);
+        final newData = List<PaymentScheduleMasterModel>.from(
+          response['data'] ?? [],
+        );
 
-        final updatedList =
-            pageNumber == 1
-                ? newData
-                : [...state.paymentScheduleMasterList, ...newData];
+        final updatedList = <PaymentScheduleMasterModel>[];
+
+        if (pageNumber == 1) {
+          updatedList.addAll(newData);
+        } else {
+          updatedList.addAll(state.paymentScheduleMasterList);
+
+          final existingIds =
+              updatedList.map((e) => e.paymentScheduleMasterId).toSet();
+
+          updatedList.addAll(
+            newData.where(
+              (item) => !existingIds.contains(item.paymentScheduleMasterId),
+            ),
+          );
+        }
 
         emit(
           state.copyWith(
             paymentScheduleMasterList: updatedList,
             isLoading: false,
-            totalCumulativePercentage: calculateTotalCumulative(updatedList),
+            totalCumulativePercentage:
+                updatedList.isEmpty ? 0 : updatedList.first.total,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
@@ -133,8 +147,22 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
           subTitle: "Payment Schedule added successfully",
         );
 
-        getPaymentScheduleMasterList(context, 1, scheme: scheme);
+        final updatedList = List<PaymentScheduleMasterModel>.from(
+          state.paymentScheduleMasterList,
+        );
 
+        updatedList.insert(
+          0,
+          response['data'][0] as PaymentScheduleMasterModel,
+        );
+        emit(
+          state.copyWith(
+            paymentScheduleMasterList: updatedList,
+            totalCumulativePercentage:
+                (response['data'][0] as PaymentScheduleMasterModel).total,
+            totalNumberOfRecord: state.totalNumberOfRecord + 1,
+          ),
+        );
         goRouter.pop();
       },
     );
@@ -191,10 +219,21 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
     result.fold(
       (failure) => showErrorMessage(context, 'Error', failure.message),
       (response) {
-        getPaymentScheduleMasterList(context, 1, scheme: state.selectedScheme!);
         showSuccessMessage(
           context,
           subTitle: "Payment Schedule updated successfully",
+        );
+        final updatedList = List<PaymentScheduleMasterModel>.from(
+          state.paymentScheduleMasterList,
+        );
+
+        updatedList[index] = response['data'][0] as PaymentScheduleMasterModel;
+        emit(
+          state.copyWith(
+            paymentScheduleMasterList: updatedList,
+            totalCumulativePercentage:
+                (response['data'][0] as PaymentScheduleMasterModel).total,
+          ),
         );
         goRouter.pop();
       },

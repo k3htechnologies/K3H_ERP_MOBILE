@@ -17,6 +17,7 @@ class PaymentScheduleMasterModel {
   DateTime? modifiedDate;
   String lastModifiedBy;
   DateTime? lastModifiedDate;
+  double? total;
 
   PaymentScheduleMasterModel({
     required this.paymentScheduleMasterId,
@@ -35,6 +36,7 @@ class PaymentScheduleMasterModel {
     this.modifiedDate,
     required this.lastModifiedBy,
     this.lastModifiedDate,
+    this.total,
   });
 
   factory PaymentScheduleMasterModel.fromJson(Map<String, dynamic> json) =>
@@ -73,6 +75,7 @@ class PaymentScheduleMasterModel {
             json["LastModifiedDate"] == null
                 ? null
                 : parseValue<DateTime>(json, "LastModifiedDate"),
+        total: parseValue<double>(json, "Total"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -92,5 +95,6 @@ class PaymentScheduleMasterModel {
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "LastModifiedBy": lastModifiedBy,
     "LastModifiedDate": lastModifiedDate?.toIso8601String(),
+    "Total": total,
   };
 }
