@@ -380,6 +380,7 @@ class GatePassCubit extends Cubit<GatePassState> {
         emit(state.copyWith(isLoading: false, gatePassList: updatedList));
         goRouter.pop();
         showSuccessMessage(context, subTitle: response["message"]);
+        getGatePass(context, 1);
       },
     );
   }

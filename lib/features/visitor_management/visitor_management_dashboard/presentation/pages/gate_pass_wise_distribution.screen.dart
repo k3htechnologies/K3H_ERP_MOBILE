@@ -137,23 +137,26 @@ class _GatePassWiseDistributionScreenState
                   buildRowTitleValue(
                     title: "Remark",
                     value: visitor.remark.isEmpty ? "-" : visitor.remark,
-                    customValueWidget: GestureDetector(
-                      onTap: () {
-                        DialogHelper.showNoteDialog(
-                          context,
-                          note: visitor.remark,
-                          title: "Remark",
-                        );
-                      },
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 5.sp),
-                        child: Icon(
-                          Icons.info_outline,
-                          size: 18,
-                          color: AppColor.primary,
-                        ),
-                      ),
-                    ),
+                    customValueWidget:
+                        visitor.remark.isNotEmpty
+                            ? GestureDetector(
+                              onTap: () {
+                                DialogHelper.showNoteDialog(
+                                  context,
+                                  note: visitor.remark,
+                                  title: "Remark",
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 5.sp),
+                                child: Icon(
+                                  Icons.info_outline,
+                                  size: 18,
+                                  color: AppColor.primary,
+                                ),
+                              ),
+                            )
+                            : null,
                   ),
                 ],
               ),

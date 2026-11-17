@@ -384,7 +384,9 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
           return Center(child: loader());
         }
         if (state.constructionAreaComparativeList.isEmpty) {
-          return Center(child: noDataWidget(message: "No Data Found"));
+          return Center(
+            child: noDataWidget(message: "No Comparative Data Found"),
+          );
         }
         return ListView.builder(
           padding: EdgeInsets.all(20.0),
@@ -453,7 +455,7 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
                       ),
                       buildColumnTitleValue(
                         title: "Variation (%)",
-                        value: item.variationInPercentage.addCommas(),
+                        value: _fmtPercent(item.variationInPercentage),
                       ),
                     ],
                   ),
@@ -539,6 +541,11 @@ class _ConstructionAreaScreenState extends State<ConstructionAreaScreen>
         );
       },
     );
+  }
+
+  String _fmtPercent(num? v) {
+    if (v == null) return "-";
+    return v == v.truncateToDouble() ? v.toInt().toString() : v.toString();
   }
 
   Future<void> _showBottomSheetToFilterConstructionArea(

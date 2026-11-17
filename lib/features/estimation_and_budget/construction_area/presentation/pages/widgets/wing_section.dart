@@ -312,12 +312,15 @@ class UnitCardState extends State<UnitCard> {
           _divider(),
           _row(
             _info("Area by PL Line (SqMt)", _fmt(f.areaByPlLineSqMt)),
-            _info("Multiplier (%)", _fmt(f.multiplierForAreaPercentage)),
+            _info(
+              "Multiplier For Area (%)",
+              _fmt(f.multiplierForAreaPercentage),
+            ),
           ),
           _divider(),
           _row(
             _info("Total Area (SqMt)", _fmt(f.totalAreaSqMt)),
-            _info("Total Area (SqFt)", _fmt(f.totalAreaSqFt)),
+            _info("Total Area (SqFt)", _fmt(_sqMtToSqFt(f.totalAreaSqMt))),
           ),
           _divider(),
           _row(
@@ -561,3 +564,8 @@ String _fmt(double? v, {String zero = _kEmpty}) {
   if (v == null || v == 0) return zero;
   return v == v.truncateToDouble() ? v.toInt().toString() : v.toString();
 }
+
+const double _kSqMtToSqFt = 10.76;
+
+double _sqMtToSqFt(double sqMt) =>
+    double.parse((sqMt * _kSqMtToSqFt).toStringAsFixed(2));

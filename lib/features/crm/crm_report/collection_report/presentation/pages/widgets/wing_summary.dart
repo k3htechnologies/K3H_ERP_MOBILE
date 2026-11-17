@@ -22,27 +22,26 @@ class WingSummary {
 
 WingSummary buildWingSummary(List<CollectionReportProjectWiseModel> wingRows) {
   double sumField(
-    List<CollectionReportProjectWiseModel> rows,
+    Iterable<CollectionReportProjectWiseModel> rows,
     num Function(CollectionReportProjectWiseModel) field,
   ) => rows.fold<double>(0, (sum, item) => sum + field(item).toDouble());
 
   final totalRows = wingRows.where((i) => i.type == 'Total').toList();
 
-  final residentialRows =
-      wingRows.where((i) => i.unitType == 'Residential').toList();
-  final commercialRows =
-      wingRows.where((i) => i.unitType == 'Commercial').toList();
-
-  final residentialTotal =
-      residentialRows.where((i) => i.type == 'Total').firstOrNull;
-  final commercialTotal =
-      commercialRows.where((i) => i.type == 'Total').firstOrNull;
+  final residentialUnits = sumField(
+    totalRows.where((i) => i.unitType == 'Residential'),
+    (i) => i.bookingCount,
+  );
+  final commercialUnits = sumField(
+    totalRows.where((i) => i.unitType == 'Commercial'),
+    (i) => i.bookingCount,
+  );
 
   return WingSummary(
     buildingNumber: wingRows.first.buildingNumber.toString(),
-    totalUnits: sumField(totalRows, (i) => i.totalUnit),
-    residentialUnits: residentialTotal?.totalUnit ?? 0,
-    commercialUnits: commercialTotal?.totalUnit ?? 0,
+    totalUnits: residentialUnits + commercialUnits,
+    residentialUnits: residentialUnits,
+    commercialUnits: commercialUnits,
     agreementAmount: sumField(totalRows, (i) => i.totalAgreementValue),
     receivedAmount: sumField(totalRows, (i) => i.receivedAmount),
     balanceAmount: sumField(totalRows, (i) => i.balanceAmount),
