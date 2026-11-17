@@ -884,6 +884,12 @@ VisitorPurposeColor getPurposeWiseVisitorsColor(String? purpose) {
 
 AlertColor getAlertColor(String? purpose) {
   switch (purpose?.trim().toLowerCase()) {
+    case "gate pass rejected":
+      return const AlertColor(
+        backgroundColor: Color(0xffFEF2F2),
+        borderColor: Color(0xffFEE2E2),
+        textColor: Color(0xffDC2626),
+      );
     case "visitor arrived":
       return const AlertColor(
         backgroundColor: AppColor.bgColor,
@@ -898,36 +904,62 @@ AlertColor getAlertColor(String? purpose) {
       );
     case "appointment starting soon":
       return AlertColor(
-        backgroundColor: AppColor.redishBrown.withValues(alpha: 0.1),
-        borderColor: AppColor.startingSoonColor,
-        textColor: AppColor.redishBrown,
+        backgroundColor: Color(0xffFFF7ED),
+        borderColor: Color(0xffFFEDD5),
+        textColor: Color(0xffEA580C),
       );
     case "overstaying":
       return AlertColor(
-        backgroundColor: AppColor.grassGreenColor.withValues(alpha: 0.1),
-        borderColor: AppColor.grassGreenColor,
-        textColor: AppColor.grassGreenColor,
+        backgroundColor: Color(0xffFAF5FF),
+        borderColor: Color(0xffE9D5FF),
+        textColor: Color(0xff7E22CE),
       );
 
     case "checked out":
       return const AlertColor(
-        backgroundColor: AppColor.lightPurple,
-        borderColor: AppColor.darkPurple,
-        textColor: AppColor.darkPurple,
+        backgroundColor: Color(0xffEFF6FF),
+        borderColor: Color(0xffBFDBFE),
+        textColor: Color(0xff2563EB),
       );
-    case "visitor not arrived":
+    case "not checked out":
       return const AlertColor(
-        backgroundColor: AppColor.bgColor,
-        borderColor: AppColor.darkBlue900,
-        textColor: AppColor.darkBlue900,
+        backgroundColor: Color(0xffF8FAFC),
+        borderColor: Color(0xffE2E8F0),
+        textColor: Color(0xff334155),
       );
+    case "not arrived":
+      return const AlertColor(
+        backgroundColor: Color(0xffF0F9FF),
+        borderColor: Color(0xffBAE6FD),
+        textColor: Color(0xff0284C7),
+      );
+
     case "arriving soon":
       return AlertColor(
         backgroundColor: AppColor.arrivingSoon.withValues(alpha: 0.1),
         borderColor: AppColor.arrivingSoon,
         textColor: AppColor.arrivingSoon,
       );
+    case "pending approval":
+      return AlertColor(
+        backgroundColor: Color(0xffEEF2FF),
+        borderColor: Color(0xffC7D2FE),
+        textColor: Color(0xff4338CA),
+      );
 
+    case "approved":
+      return AlertColor(
+        backgroundColor: Color(0xffF0FDF4),
+        borderColor: Color(0xffDCFCE7),
+        textColor: Color(0xff16A34A),
+      );
+
+    case "currently inside":
+      return AlertColor(
+        backgroundColor: Color(0xffF0FDF4),
+        borderColor: Color(0xffDCFCE7),
+        textColor: Color(0xff10B981),
+      );
     default:
       return const AlertColor(
         backgroundColor: Color(0x261D1D1D),

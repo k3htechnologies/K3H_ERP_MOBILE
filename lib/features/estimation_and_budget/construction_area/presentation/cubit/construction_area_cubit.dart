@@ -151,6 +151,13 @@ class ConstructionAreaCubit extends Cubit<ConstructionAreaState> {
     BuildContext context, {
     required int projectId,
   }) async {
+    if (projectId == 0) {
+      emit(
+        state.copyWith(isLoading: false, constructionAreaComparativeList: []),
+      );
+      showErrorMessage(context, "Error", "Please select a project");
+      return;
+    }
     emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "Type": state.searchConstructionAreaComparativeText,
