@@ -66,23 +66,13 @@ class VisitorManagementDashboardCubit
   }
 
   List<TimelineGroup> buildTimelineGroups(List<Table2> table2) {
-    final visitors =
-        table2
-            .map(
-              (e) => Table2(
-                externalId: e.externalId,
-                visitorName: e.visitorName,
-                noOfParticipants: e.noOfParticipants,
-                visitTime: e.visitTime,
-                outDateTime: e.outDateTime,
-                purpose: e.purpose,
-                status: e.status,
-              ),
-            )
-            .toList()
-          ..sort((a, b) => a.visitTime.compareTo(b.visitTime));
+    int minuteOfDay(DateTime t) => t.hour * 60 + t.minute;
 
-    final grouped = groupBy(visitors, (Table2 v) => formatDate(v.visitTime));
+    final sorted = [...table2]..sort(
+      (a, b) => minuteOfDay(a.visitTime).compareTo(minuteOfDay(b.visitTime)),
+    );
+
+    final grouped = groupBy(sorted, (Table2 v) => minuteOfDay(v.visitTime));
 
     return grouped.values
         .map((list) => TimelineGroup(list.first.visitTime, list))

@@ -479,7 +479,10 @@ class _GatePassScreenState extends State<GatePassScreen> {
             _gatePassAdministrativeRouteAuthorizationModel.isAction);
 
     final disableEdit =
-        visitor.passDateTime.isBefore(DateTime.now()) || !canAction;
+        visitor.passDateTime.isBefore(DateTime.now()) ||
+        !canAction ||
+        visitor.approvalStatus.toLowerCase() == "rejected" ||
+        visitor.approvalStatus.toLowerCase() == "approved";
     final canDelete = visitor.isDelete;
     final canGatePassIn = visitor.isApproval;
     final canGatePassOut = visitor.isCheckOutEnabled;

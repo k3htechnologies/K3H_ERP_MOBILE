@@ -150,9 +150,7 @@ class _AddBaselinePlanCostDocumentScreenState
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _isEditMode
-                  ? "Update Baseline Plan Document"
-                  : "Add Baseline Plan Document",
+              _isEditMode ? "Update Document" : "Add Document",
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
             verticalSpacing(),

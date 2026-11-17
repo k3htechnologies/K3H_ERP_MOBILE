@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
+import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/data/model/visitor_management_dashboard.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/visitor_management_dashboard/presentation/cubit/visitor_management_dashboard_cubit.dart';
 import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -45,9 +46,17 @@ class GatePassOverviewWidget extends StatelessWidget {
                 : null;
 
         final dashboardCount =
-            dashboard?.table0.isNotEmpty == true
+            (dashboard?.table0.isNotEmpty == true
                 ? dashboard!.table0.first
-                : null;
+                : null) ??
+            Table0(
+              totalVisitors: 0,
+              currentlyInside: 0,
+              expectedToday: 0,
+              checkedOut: 0,
+              overstaying: 0,
+              pendingApprovals: 0,
+            );
 
         return SingleChildScrollView(
           child: Column(
@@ -57,7 +66,7 @@ class GatePassOverviewWidget extends StatelessWidget {
                 context,
                 title: "Total Visitors".toUpperCase(),
                 subTitle: filterType,
-                value: dashboardCount!.totalVisitors.toString(),
+                value: dashboardCount.totalVisitors.toString(),
                 valueColor: AppColor.black,
                 icon: LucideIcons.users,
                 iconColor: AppColor.grey,
