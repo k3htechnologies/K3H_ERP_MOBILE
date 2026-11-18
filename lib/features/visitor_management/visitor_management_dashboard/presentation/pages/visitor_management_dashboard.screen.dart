@@ -179,8 +179,36 @@ class _VisitorManagementDashboardScreenState
       _visitorManagementDashboardCubit.updateGatePassOut(
         context,
         externalId: visitor.externalId,
-        type: _selectedFilterType.value,
+        type: 'Out',
         uniquekey: visitor.uniquekey,
+        fromDate: _fromDateNotifier.value,
+        toDate: _toDateNotifier.value,
+      );
+    }
+  }
+
+  Future<void> _showPopupToGatePassNotify(
+    BuildContext context,
+    Table1 obj,
+    int index,
+  ) async {
+    var result = await DialogHelper.showConfirmationDialog(
+      context: context,
+      title: 'Notify Appointment person',
+      message:
+          'The appointment contact will be notified that their visitor has arrived at reception',
+      confirmText: "Notify",
+      icon: LucideIcons.bell,
+      iconSize: 28,
+    );
+    if (result && context.mounted) {
+      _visitorManagementDashboardCubit.updateGatePassOut(
+        context,
+        externalId: obj.externalId,
+        uniquekey: obj.uniquekey,
+        type: "Bell",
+        fromDate: _fromDateNotifier.value,
+        toDate: _toDateNotifier.value,
       );
     }
   }
@@ -243,6 +271,9 @@ class _VisitorManagementDashboardScreenState
                           },
                           onTap: (tab) async {
                             _selectedFilterType.value = tab;
+                            await _visitorManagementDashboardCubit.updateFilter(
+                              tab,
+                            );
                             await _visitorManagementDashboardCubit
                                 .clearGatePassDashboarddData();
                             if (context.mounted) {
@@ -251,6 +282,8 @@ class _VisitorManagementDashboardScreenState
                                     .getGatePassDashboard(
                                       context: context,
                                       filterType: _selectedFilterType.value,
+                                      fromDate: _fromDateNotifier.value,
+                                      toDate: _toDateNotifier.value,
                                     );
                               } else {
                                 _fromDateNotifier.value = null;
@@ -549,12 +582,22 @@ class _VisitorManagementDashboardScreenState
                                     ),
                                   ),
                                   horizontalSpacing(),
+
                                   CustomIconButton(
                                     isDisable: !visitor.isNotificationEnabled,
                                     size: 18.sp,
                                     backgroundColor: AppColor.primary
                                         .withValues(alpha: 0.1),
-                                    onPressed: () {},
+                                    onPressed:
+                                        visitor.isNotificationEnabled
+                                            ? () {
+                                              _showPopupToGatePassNotify(
+                                                context,
+                                                visitor,
+                                                index,
+                                              );
+                                            }
+                                            : () {},
                                     icon: Icon(
                                       LucideIcons.bell,
                                       size: 16,

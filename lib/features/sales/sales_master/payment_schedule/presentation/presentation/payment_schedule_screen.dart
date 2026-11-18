@@ -49,7 +49,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
   final ValueNotifier<PaymentScheduleSchemeModel?> selectedSchemeNotifier =
       ValueNotifier(null);
   // PROJECT
-  late ProjectModel _project;
+  late ValueNotifier<ProjectModel> _project;
 
   @override
   void initState() {
@@ -58,8 +58,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
     _paymentScheduleCubit = context.read<PaymentScheduleCubit>();
     super.initState();
     _onScroll();
-    _project = getProject();
-    if (_project.projectId == 0) {
+    _project = ValueNotifier<ProjectModel>(getProject());
+    if (_project.value.projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
       });
@@ -157,6 +157,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
         onProjectChangeCallback: (value) {
           _paymentScheduleCubit.clearSelectedScheme();
           selectedSchemeNotifier.value = null;
+          _project.value = value;
         },
       ),
       body: Padding(
@@ -166,7 +167,14 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                showSiteSelectedWidget(),
+                ValueListenableBuilder(
+                  valueListenable: _project,
+                  builder: (context, value, child) {
+                    return showSiteSelectedWidget(
+                      projectName: _project.value.projectName,
+                    );
+                  },
+                ),
                 verticalSpacing(),
                 CustomMultipleSelectPopup(
                   key: ValueKey(
