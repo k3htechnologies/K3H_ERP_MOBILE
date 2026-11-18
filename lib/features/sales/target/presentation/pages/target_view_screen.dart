@@ -65,6 +65,7 @@ class _TargetViewScreenState extends State<TargetViewScreen>
         Expanded(
           child: TabBarView(
             controller: _sourcingTabC,
+            physics: const NeverScrollableScrollPhysics(),
             children: [
               _walkinsView(),
               _bookingsView(),
@@ -92,6 +93,7 @@ class _TargetViewScreenState extends State<TargetViewScreen>
         Expanded(
           child: TabBarView(
             controller: _closingTabC,
+            physics: const NeverScrollableScrollPhysics(),
             children: [_closingWalkinsView(), _closingBookingsView()],
           ),
         ),

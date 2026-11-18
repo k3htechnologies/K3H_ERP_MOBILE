@@ -558,6 +558,8 @@ class _InventoryScreenState extends State<InventoryScreen>
                                                 mounted
                                             ? TabBarView(
                                               controller: _wingTabController,
+                                              physics:
+                                                  const NeverScrollableScrollPhysics(),
                                               children:
                                                   wingList
                                                       .asMap()

@@ -148,7 +148,6 @@ class _InventoryOverallReportOverviewScreenState
                   child: TabBarView(
                     controller: _tabController,
                     physics: const NeverScrollableScrollPhysics(),
-
                     children:
                         buildings.map((building) {
                           /// BUILDING WISE DATA
@@ -193,7 +192,6 @@ class _InventoryOverallReportOverviewScreenState
                                 child: TabBarView(
                                   controller: wingTabController,
                                   physics: const NeverScrollableScrollPhysics(),
-
                                   children:
                                       wings.map((wing) {
                                         /// WING DATA

@@ -10,6 +10,7 @@ import 'package:k3h_erp_app/widgets/status/approval_status.dart';
 import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class ApproveRejectWidget extends StatelessWidget {
   final String actionTitle;
@@ -41,7 +42,7 @@ class ApproveRejectWidget extends StatelessWidget {
     this.isActionAlreadyPerformed = false,
     this.approveIcon = Icons.check,
     this.rejectIcon = Icons.close,
-    this.thirdIcon = Icons.watch_later_outlined,
+    this.thirdIcon = LucideIcons.history,
     this.isMaster = false,
     this.customWidget,
     required this.popupTitle,
@@ -90,7 +91,7 @@ class ApproveRejectWidget extends StatelessWidget {
                   children: [
                     CustomIconButton(
                       onPressed: onThirdTap!,
-                      icon: Icon(Icons.watch_later_outlined, size: 16),
+                      icon: Icon(LucideIcons.history, size: 16),
                     ),
                   ],
                 )

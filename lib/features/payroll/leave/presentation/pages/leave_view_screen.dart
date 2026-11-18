@@ -91,6 +91,7 @@ class _LeaveViewScreenState extends State<LeaveViewScreen>
           ),
           Expanded(
             child: TabBarView(
+              physics: const NeverScrollableScrollPhysics(),
               controller: _tabController,
               children: [_buildOverView(), _buildDocument()],
             ),

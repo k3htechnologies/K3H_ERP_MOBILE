@@ -132,7 +132,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_paymentScheduleCubit.state.isLoading! &&
-          _paymentScheduleCubit.state.paymentScheduleMasterList.length <
+          _paymentScheduleCubit.state.currentPage * 20 <
               _paymentScheduleCubit.state.totalNumberOfRecord) {
         if (_debounce?.isActive ?? false) _debounce?.cancel();
 
@@ -248,8 +248,8 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                             value: selectedSchemeNotifier.value!.wing,
                           ),
                           buildColumnTitleValue(
-                            title: "Total",
-                            value: "${state.totalCumulativePercentage}%",
+                            title: "Total (%)",
+                            value: state.totalCumulativePercentage.addCommas(),
                           ),
                         ],
                       ),
@@ -314,9 +314,7 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                               itemBuilder: (context, index) {
                                 if (index ==
                                     state.paymentScheduleMasterList.length) {
-                                  return state
-                                              .paymentScheduleMasterList
-                                              .length <
+                                  return state.currentPage * 20 <
                                           state.totalNumberOfRecord
                                       ? const Padding(
                                         padding: EdgeInsets.all(16),
@@ -393,16 +391,16 @@ class _PaymentScheduleScreenState extends State<PaymentScheduleScreen> {
                                         ],
                                       ),
                                       buildRowTitleValue(
-                                        title: "Percentage",
+                                        title: "Percentage (%)",
                                         value:
                                             item.paymentSchedulePercentage
-                                                .toString(),
+                                                .addCommas(),
                                       ),
                                       buildRowTitleValue(
-                                        title: "Cumulative Percentage",
+                                        title: "Cumulative Percentage (%)",
                                         value:
                                             item.paymentCummulativePercentage
-                                                .toString(),
+                                                .addCommas(),
                                       ),
                                       buildRowTitleValue(
                                         title: "Created By",

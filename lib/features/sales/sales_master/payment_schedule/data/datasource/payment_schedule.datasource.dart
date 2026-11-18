@@ -190,6 +190,7 @@ class PaymentScheduleDatasourceImpl extends PaymentScheduleDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse["message"],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

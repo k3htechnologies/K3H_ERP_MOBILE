@@ -4,13 +4,15 @@ import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/booking/data/repository/booking.repository.dart';
 import 'package:k3h_erp_app/features/sales/sales_master/payment_schedule/presentation/cubit/payment_schedule_cubit.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
+import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/input_validator.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
-import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
+import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 
 import '../../data/model/payment_schedule.model.dart';
@@ -39,40 +41,56 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
   final BookingRepository _bookingRepository =
       serviceLocator<BookingRepository>();
   // SELECTED STAGE
-  List<Map<String, dynamic>> _selectedStage = [];
+  final ValueNotifier<Map<String, dynamic>?> _selectedStage = ValueNotifier(
+    null,
+  );
   // CONTROLLERS
   late TextEditingController _percentageController;
-  // EDIT MODE CHECK
+  // EDIT MODE
   bool get _isEditMode => widget.paymentScheduleMaster != null;
+  late List<Map<String, dynamic>> stageList;
 
   @override
   void initState() {
     super.initState();
     _paymentScheduleCubit = context.read<PaymentScheduleCubit>();
     _percentageController = TextEditingController();
+    stageList = [];
     if (_isEditMode) {
       _populateData();
+    } else {
+      fetchStages();
     }
   }
 
-  void _populateData() {
+  void _populateData() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DialogHelper.showProcessingOverlay(context);
+    });
     final model = widget.paymentScheduleMaster!;
+    try {
+      await fetchStages();
+      _percentageController.text = model.paymentSchedulePercentage.toString();
 
-    _selectedStage = [
-      {"zAttributesId": 0, "DisplayName": model.stage},
-    ];
-
-    _percentageController.text = model.paymentSchedulePercentage.toString();
+      _selectedStage.value = stageList.firstWhere(
+        (item) =>
+            item['DisplayName'].toString().toLowerCase() ==
+            model.stage.toLowerCase(),
+      );
+    } catch (e) {
+      debugPrint(e.toString());
+    } finally {
+      if (mounted) {
+        goRouter.pop();
+      }
+    }
   }
 
   // FETCH STAGES FOR DROPDOWN
 
-  Future<Map<String, dynamic>> fetchStages(
-    int pageNumber, {
-    String? value,
-  }) async {
+  Future<void> fetchStages() async {
     final result = await _bookingRepository.getPaymentScheduleStagesList(
-      pageNumber: pageNumber,
+      pageNumber: 1,
       pageSize: 15,
       projectId: getProject().projectId,
       inventoryBuildingId:
@@ -82,28 +100,23 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
               .state
               .selectedScheme!
               .inventoryFlatFloorBasementPodiumWingId,
-      queryParams: value != null && value.isNotEmpty ? {"Stage": value} : {},
     );
 
     return result.fold(
-      (failure) => {
-        "itemList": <Map<String, dynamic>>[],
-        "totalNumberOfRecord": 0,
-      },
+      (failure) => {"itemList": [], "totalNumberOfRecord": 0},
       (response) {
         final stagesList = response['data'] as List<dynamic>? ?? [];
 
-        return {
-          "itemList": List.generate(stagesList.length, (index) {
-            final stage = stagesList[index] as Map<String, dynamic>;
+        List.generate(stagesList.length, (index) {
+          final stage = stagesList[index];
 
-            return {
+          if (!stageList.any((e) => e['zAttributesId'] == index + 1)) {
+            stageList.add({
               "zAttributesId": index + 1,
               "DisplayName": stage["Stages"] ?? "",
-            };
-          }),
-          "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
-        };
+            });
+          }
+        });
       },
     );
   }
@@ -114,12 +127,13 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
     }
 
     final percentage = double.tryParse(_percentageController.text) ?? 0;
+    final selectedStageName = _selectedStage.value?["DisplayName"] ?? "";
 
     if (_isEditMode) {
       _paymentScheduleCubit.updatePaymentScheduleMaster(
         context: context,
         index: widget.index!,
-        stage: _selectedStage.first["DisplayName"] ?? "",
+        stage: selectedStageName,
         paymentSchedulePercentage: percentage,
         uniqueKey: widget.paymentScheduleMaster!.uniquekey,
         paymentScheduleMasterId:
@@ -140,7 +154,7 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
     } else {
       _paymentScheduleCubit.addPaymentScheduleMaster(
         context: context,
-        stage: _selectedStage.first["DisplayName"] ?? "",
+        stage: selectedStageName,
         paymentSchedulePercentage: percentage,
         buildingId:
             _paymentScheduleCubit.state.selectedScheme!.inventoryBuildingId,
@@ -176,22 +190,26 @@ class _AddPaymentScheduleScreenState extends State<AddPaymentScheduleScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// STAGES DROPDOWN (API BASED)
-                    CustomMultipleSelectPopup(
-                      title: "Stages",
-                      isRequired: true,
-                      isMultiSelect: false,
-                      initialValue: _selectedStage,
-                      dataList: [],
-                      onSelected: (value) {
-                        _selectedStage = value;
-                      },
-                      dataFetchCallBack: fetchStages,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Stage is required.";
-                        }
-                        return null;
+                    /// STAGES DROPDOWN
+                    ValueListenableBuilder(
+                      valueListenable: _selectedStage,
+                      builder: (context, value, child) {
+                        return CustomDropDownWidget(
+                          title: "Stages",
+                          hintText: "Select Stage",
+                          isRequired: true,
+                          initialValue: value,
+                          dataList: stageList,
+                          onSelected: (value) {
+                            _selectedStage.value = value;
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Stage is required.";
+                            }
+                            return null;
+                          },
+                        );
                       },
                     ),
 

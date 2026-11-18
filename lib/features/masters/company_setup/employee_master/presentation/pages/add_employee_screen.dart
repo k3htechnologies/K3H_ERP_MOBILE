@@ -1565,7 +1565,7 @@ class _AddEmployeeScreenState extends State<AddEmployeeScreen> {
                 return 'IFSC Code is required.';
               }
               if (!InputValidator.isValidIFSC(value)) {
-                return 'Valid IFSC Code is required.';
+                return 'Enter a valid IFSC Code.';
               }
               return null;
             },
