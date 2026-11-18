@@ -105,7 +105,8 @@ class _GatePassWiseDistributionScreenState
                   ),
                   buildRowTitleValue(
                     title: "Check-Out Time",
-                    value: formatTime(visitor.checkOutTime),
+                    value: formatDate(visitor.checkOutTime),
+                    singleLine: false,
                   ),
                   buildRowTitleValue(
                     title: "Status",

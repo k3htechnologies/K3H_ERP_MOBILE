@@ -500,7 +500,7 @@ class _VisitorManagementDashboardScreenState
                           children: [
                             buildColumnTitleValue(
                               title: "Check-Out Time",
-                              value: formatTime(visitor.checkOutTime),
+                              value: formatDate(visitor.checkOutTime),
                             ),
                             horizontalSpacing(),
                             Expanded(
