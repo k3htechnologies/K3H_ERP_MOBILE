@@ -116,7 +116,7 @@ class GatePassOverviewWidget extends StatelessWidget {
                           dashboardCount.expectedToday == 0
                               ? () {}
                               : () => _openList(
-                                "EXPECTED $filterType (${dashboardCount.expectedToday.addCommas()})",
+                                "EXPECTED TODAY (${dashboardCount.expectedToday.addCommas()})",
                                 GatePassFilter.expected,
                               ),
                     ),
