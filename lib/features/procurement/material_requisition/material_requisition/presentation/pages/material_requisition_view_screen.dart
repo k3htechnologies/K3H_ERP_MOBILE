@@ -332,7 +332,6 @@ class _MaterialRequisitionViewScreenState
                   child: TabBarView(
                     controller: _tabController,
                     physics: NeverScrollableScrollPhysics(),
-
                     children: [
                       _buildOverviewTab(state),
                       _buildDetailsTab(state),

@@ -105,7 +105,7 @@ class GatePassOverviewWidget extends StatelessWidget {
                   Expanded(
                     child: _buildStatsCardWidget(
                       context,
-                      title: "Expected Today".toUpperCase(),
+                      title: "Expected $filterType".toUpperCase(),
                       subTitle: "Upcoming appointments $filterType",
                       value: dashboardCount.expectedToday.addCommas(),
                       valueColor: AppColor.yellow,

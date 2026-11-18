@@ -609,6 +609,9 @@ class _ModifiedRequestsMakePaymentScreenState
                                     if (value == null || value.trim().isEmpty) {
                                       return "IFSC Code is required.";
                                     }
+                                    if (!InputValidator.isValidIFSC(value)) {
+                                      return 'Enter a valid IFSC Code';
+                                    }
                                     return null;
                                   },
                                 ),

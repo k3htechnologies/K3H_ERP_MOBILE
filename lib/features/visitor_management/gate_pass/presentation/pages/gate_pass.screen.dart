@@ -483,7 +483,7 @@ class _GatePassScreenState extends State<GatePassScreen> {
         !canAction ||
         visitor.approvalStatus.toLowerCase() == "rejected" ||
         visitor.approvalStatus.toLowerCase() == "approved";
-    final canDelete = visitor.isDelete;
+    final canDelete = canAction && visitor.isDelete;
     final canGatePassIn = visitor.isApproval;
     final canGatePassOut = visitor.isCheckOutEnabled;
     final canNotify = visitor.isNotificationEnabled;

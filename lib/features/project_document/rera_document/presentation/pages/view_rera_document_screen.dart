@@ -115,10 +115,8 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   Widget build(BuildContext context) {
     final disableAdd =
         !_routeAuthorizationModel.isAction ||
-        (widget.documentModel.projectRERADocumentCategory == 'QTR Updatation' ||
-            widget.documentModel.projectRERADocumentCategory ==
-                'Yearly Updatation');
-
+        widget.documentModel.projectRERADocumentCategory == 'QTR Updatation' ||
+        widget.documentModel.projectRERADocumentCategory == 'Yearly Updatation';
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
         screenTitle: "RERA Documents",

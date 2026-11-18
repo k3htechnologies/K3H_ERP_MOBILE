@@ -487,6 +487,7 @@ class _TemporaryAccommodationAlternativeDetailsState
     List<TemporaryAlternativeAccommodationDetailsModel> allDetails,
   ) {
     return TabBarView(
+      physics: const NeverScrollableScrollPhysics(),
       controller: _tabController,
       children:
           tenures.map((tenure) {

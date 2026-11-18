@@ -340,7 +340,7 @@ class _AddBankDetailsScreenState extends State<AddBankDetailsScreen> {
                         return "IFSC Code is required.";
                       }
                       if (value.trim().length != 11) {
-                        return "IFSC Code must be 11 characters";
+                        return "Enter a valid IFSC Code.";
                       }
                       return null;
                     },

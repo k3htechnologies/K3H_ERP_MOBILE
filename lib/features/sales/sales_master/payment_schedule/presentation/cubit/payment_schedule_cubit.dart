@@ -67,6 +67,12 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
 
         if (pageNumber == 1) {
           updatedList.addAll(newData);
+          emit(
+            state.copyWith(
+              totalCumulativePercentage:
+                  updatedList.isEmpty ? 0 : updatedList.first.total,
+            ),
+          );
         } else {
           updatedList.addAll(state.paymentScheduleMasterList);
 
@@ -78,14 +84,18 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
               (item) => !existingIds.contains(item.paymentScheduleMasterId),
             ),
           );
+          emit(
+            state.copyWith(
+              totalCumulativePercentage:
+                  newData.isEmpty ? 0 : newData.first.total,
+            ),
+          );
         }
 
         emit(
           state.copyWith(
             paymentScheduleMasterList: updatedList,
             isLoading: false,
-            totalCumulativePercentage:
-                updatedList.isEmpty ? 0 : updatedList.first.total,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
           ),
@@ -264,10 +274,9 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
         );
         updatedList.removeAt(index);
 
-        final newTotal = updatedList.fold(
-          0.0,
-          (sum, item) => sum + item.paymentSchedulePercentage,
-        );
+        final newTotal =
+            state.totalCumulativePercentage -
+            paymentScheduleMasterModel.paymentSchedulePercentage;
 
         emit(
           state.copyWith(
@@ -279,10 +288,7 @@ class PaymentScheduleCubit extends Cubit<PaymentScheduleMasterState> {
                     : 0,
           ),
         );
-        showSuccessMessage(
-          context,
-          subTitle: "Payment Schedule Master Deleted Successfully",
-        );
+        showSuccessMessage(context, subTitle: success['message']);
       },
     );
   }

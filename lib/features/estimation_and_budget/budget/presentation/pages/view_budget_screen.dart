@@ -427,6 +427,22 @@ class _ViewBudgetMasterScreenState extends State<ViewBudgetMasterScreen> {
                             '· Received QTY: ${l4.receivedQuantity.addCommas()} ${l4.uom}',
                             style: _mutedStyle,
                           ),
+                          Text(
+                            '· Material Rate: ${l4.materialCost.toIndianCurrency()}',
+                            style: _mutedStyle,
+                          ),
+                          Text(
+                            '· Labour Rate: ${l4.labourCost.toIndianCurrency()}',
+                            style: _mutedStyle,
+                          ),
+                          Text(
+                            '· P&M Rate: ${l4.pMCost.toIndianCurrency()}',
+                            style: _mutedStyle,
+                          ),
+                          Text(
+                            '· Total Rate: ${l4.totalRate.toIndianCurrency()}',
+                            style: _mutedStyle,
+                          ),
                         ],
                       ),
                     ),

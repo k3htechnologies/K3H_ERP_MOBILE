@@ -62,6 +62,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       pageNumber: pageNumber,
       pageSize: 500,
       projectId: projectId,
+      queryParams: {"IsCheckPermission": false},
     );
     result.fold(
       (failure) {
@@ -299,33 +300,24 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
           goRouter.pop();
         }
 
-        if (state.testDocumentList.isNotEmpty &&
-            index < state.testDocumentList.length) {
-          final updatedListModel = List<TestDocumentModel>.from(
-            state.testDocumentList,
-          );
+        final list = List<TestDocumentModel>.from(state.testDocumentList);
 
-          // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
-          updatedListModel[index] = updatedListModel[index].copyWith(
-            testDocumentName: updatedListModel[index].testDocumentName,
+        var i = list.indexWhere((d) => d.testDocumentId == projectDocumentId);
+        if (i == -1 && index < list.length) i = index;
+
+        if (i != -1) {
+          list[i] = list[i].copyWith(
             approvalPendingApprovalDocumentCount:
-                updatedListModel[index].approvalPendingApprovalDocumentCount +
-                1,
+                list[i].approvalPendingApprovalDocumentCount + 1,
             uploadedApprovalDocumentCount:
-                updatedListModel[index].uploadedApprovalDocumentCount + 1,
+                list[i].uploadedApprovalDocumentCount + 1,
           );
-
-          emit(
-            state.copywith(
-              isLoading: false,
-              testDocumentList: updatedListModel,
-            ),
-          );
+          emit(state.copywith(isLoading: false, testDocumentList: list));
         }
 
         showSuccessMessage(
           context,
-          subTitle: "Project Document Added Successfully",
+          subTitle: "Test Document Added Successfully",
         );
       },
     );

@@ -206,7 +206,7 @@ class InputValidator {
   }
 
   static bool isValidIFSC(String input) {
-    final ifscRegex = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
+    final ifscRegex = RegExp(r'^[A-Z0-9]{11}$');
     return ifscRegex.hasMatch(input);
   }
 

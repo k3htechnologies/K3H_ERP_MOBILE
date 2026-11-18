@@ -959,7 +959,7 @@ class _BudgetMasterScreenState extends State<BudgetMasterScreen> {
           ),
           SizedBox(height: 10.h),
           buildRowTitleValue(
-            title: "Total Amount",
+            title: "Total Rate",
             value: budget.totalRate.toIndianCurrency(),
             singleLine: false,
           ),

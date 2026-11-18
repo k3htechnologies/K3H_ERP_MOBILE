@@ -11,7 +11,7 @@ class VisitorManagementDashboardState extends BaseState {
   factory VisitorManagementDashboardState.initial() =>
       VisitorManagementDashboardState(
         gatePassDashboardList: [],
-        selectedFilter: "ALL",
+        selectedFilter: "Today",
       );
 
   VisitorManagementDashboardState copyWith({
