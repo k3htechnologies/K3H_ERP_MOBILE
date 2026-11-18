@@ -105,7 +105,7 @@ class GatePassOverviewWidget extends StatelessWidget {
                   Expanded(
                     child: _buildStatsCardWidget(
                       context,
-                      title: "Expected Today".toUpperCase(),
+                      title: "Expected $filterType".toUpperCase(),
                       subTitle: "Upcoming appointments $filterType",
                       value: dashboardCount.expectedToday.addCommas(),
                       valueColor: AppColor.yellow,
@@ -116,7 +116,7 @@ class GatePassOverviewWidget extends StatelessWidget {
                           dashboardCount.expectedToday == 0
                               ? () {}
                               : () => _openList(
-                                "EXPECTED TODAY (${dashboardCount.expectedToday.addCommas()})",
+                                "EXPECTED ${filterType.toUpperCase()} (${dashboardCount.expectedToday.addCommas()})",
                                 GatePassFilter.expected,
                               ),
                     ),
