@@ -215,147 +215,155 @@ class _VisitorManagementDashboardScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBarWithBackButton(
-        screenTitle: "Visitor Management Dashboard",
-        authorization: _routhAuthorizationModel,
-        isMenuButton: true,
-        showNotification: true,
-      ),
-      body: BlocBuilder<
-        VisitorManagementDashboardCubit,
-        VisitorManagementDashboardState
-      >(
-        builder: (context, state) {
-          if (state.isLoading ?? true) {
-            return Center(child: loader());
-          }
+    return RefreshIndicator(
+      onRefresh: () async {
+        _visitorManagementDashboardCubit.getGatePassDashboard(
+          context: context,
+          filterType: _selectedFilterType.value,
+        );
+      },
+      child: Scaffold(
+        appBar: CustomAppBarWithBackButton(
+          screenTitle: "Visitor Management Dashboard",
+          authorization: _routhAuthorizationModel,
+          isMenuButton: true,
+          showNotification: true,
+        ),
+        body: BlocBuilder<
+          VisitorManagementDashboardCubit,
+          VisitorManagementDashboardState
+        >(
+          builder: (context, state) {
+            if (state.isLoading ?? true) {
+              return Center(child: loader());
+            }
 
-          final dashboard =
-              state.gatePassDashboardList.isNotEmpty
-                  ? state.gatePassDashboardList.first
-                  : null;
+            final dashboard =
+                state.gatePassDashboardList.isNotEmpty
+                    ? state.gatePassDashboardList.first
+                    : null;
 
-          final dashboardCount =
-              dashboard?.table0.isNotEmpty == true
-                  ? dashboard!.table0.first
-                  : null;
+            final dashboardCount =
+                dashboard?.table0.isNotEmpty == true
+                    ? dashboard!.table0.first
+                    : null;
 
-          final todayVisitors = dashboard?.table1 ?? [];
+            final todayVisitors = dashboard?.table1 ?? [];
 
-          final todayVisitorsTimeline = dashboard?.table2 ?? [];
-          final timelineGroups = context
-              .read<VisitorManagementDashboardCubit>()
-              .buildTimelineGroups(todayVisitorsTimeline);
-          final purposeWiseVisitors = dashboard?.table3 ?? [];
-          final alertsVisitors = dashboard?.table4 ?? [];
-          return SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ValueListenableBuilder<String>(
-                      valueListenable: _selectedFilterType,
-                      builder: (context, selectedTab, child) {
-                        return DateRangeFilterWidget(
-                          selectedTab: selectedTab,
-                          initialFromDate: _fromDateNotifier.value,
-                          initialToDate: _toDateNotifier.value,
-                          tabs: {
-                            "Today": "Today",
-                            "Weekly": "Weekly",
-                            "Monthly": "Monthly",
-                            "Datewise": "Datewise",
-                          },
-                          onTap: (tab) async {
-                            _selectedFilterType.value = tab;
-                            await _visitorManagementDashboardCubit.updateFilter(
-                              tab,
-                            );
-                            await _visitorManagementDashboardCubit
-                                .clearGatePassDashboarddData();
-                            if (context.mounted) {
-                              if (tab.toLowerCase() != 'datewise') {
-                                await _visitorManagementDashboardCubit
-                                    .getGatePassDashboard(
-                                      context: context,
-                                      filterType: _selectedFilterType.value,
-                                      fromDate: _fromDateNotifier.value,
-                                      toDate: _toDateNotifier.value,
-                                    );
-                              } else {
-                                _fromDateNotifier.value = null;
-                                _toDateNotifier.value = null;
-                              }
-                            }
-                          },
-                          onDateChanged: (from, to) async {
-                            _fromDateNotifier.value = from;
-                            _toDateNotifier.value = to;
-                            if (from == null) {
+            final todayVisitorsTimeline = dashboard?.table2 ?? [];
+            final timelineGroups = context
+                .read<VisitorManagementDashboardCubit>()
+                .buildTimelineGroups(todayVisitorsTimeline);
+            final purposeWiseVisitors = dashboard?.table3 ?? [];
+            final alertsVisitors = dashboard?.table4 ?? [];
+            return SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ValueListenableBuilder<String>(
+                        valueListenable: _selectedFilterType,
+                        builder: (context, selectedTab, child) {
+                          return DateRangeFilterWidget(
+                            selectedTab: selectedTab,
+                            initialFromDate: _fromDateNotifier.value,
+                            initialToDate: _toDateNotifier.value,
+                            tabs: {
+                              "Today": "Today",
+                              "Weekly": "Weekly",
+                              "Monthly": "Monthly",
+                              "Datewise": "Datewise",
+                            },
+                            onTap: (tab) async {
+                              _selectedFilterType.value = tab;
+                              await _visitorManagementDashboardCubit
+                                  .updateFilter(tab);
                               await _visitorManagementDashboardCubit
                                   .clearGatePassDashboarddData();
-                            }
-                            if (to != null) {
                               if (context.mounted) {
-                                _visitorManagementDashboardCubit
-                                    .getGatePassDashboard(
-                                      context: context,
-                                      filterType: _selectedFilterType.value,
-                                      fromDate: from,
-                                      toDate: to,
-                                    );
+                                if (tab.toLowerCase() != 'datewise') {
+                                  await _visitorManagementDashboardCubit
+                                      .getGatePassDashboard(
+                                        context: context,
+                                        filterType: _selectedFilterType.value,
+                                        fromDate: _fromDateNotifier.value,
+                                        toDate: _toDateNotifier.value,
+                                      );
+                                } else {
+                                  _fromDateNotifier.value = null;
+                                  _toDateNotifier.value = null;
+                                }
                               }
-                            }
-                          },
-                        );
-                      },
-                    ),
-                    verticalSpacing(),
-
-                    if (_routhAuthorizationModel.isAction) ...{
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          CustomButton(
-                            text: "+ Add Visitor",
-                            onPressed: () {
-                              goRouter.pushNamed(AppRoutes.gatePass);
                             },
-                          ),
-                        ],
+                            onDateChanged: (from, to) async {
+                              _fromDateNotifier.value = from;
+                              _toDateNotifier.value = to;
+                              if (from == null) {
+                                await _visitorManagementDashboardCubit
+                                    .clearGatePassDashboarddData();
+                              }
+                              if (to != null) {
+                                if (context.mounted) {
+                                  _visitorManagementDashboardCubit
+                                      .getGatePassDashboard(
+                                        context: context,
+                                        filterType: _selectedFilterType.value,
+                                        fromDate: from,
+                                        toDate: to,
+                                      );
+                                }
+                              }
+                            },
+                          );
+                        },
                       ),
-                    } else ...{
-                      SizedBox.shrink(),
-                    },
-                    verticalSpacing(),
-                    GatePassOverviewWidget(
-                      filterType: _selectedFilterType.value,
-                    ),
-                    verticalSpacing(height: 20.sp),
-                    _buildVisitors(
-                      context,
-                      dashboardCount,
-                      todayVisitors,
-                      timelineGroups,
-                    ),
-                    verticalSpacing(height: 20.sp),
-                    if (_selectedFilterType.value.toLowerCase() == "today") ...{
-                      _buildVisitorTimeline(timelineGroups),
+                      verticalSpacing(),
+
+                      if (_routhAuthorizationModel.isAction) ...{
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            CustomButton(
+                              text: "+ Add Visitor",
+                              onPressed: () {
+                                goRouter.pushNamed(AppRoutes.gatePass);
+                              },
+                            ),
+                          ],
+                        ),
+                      } else ...{
+                        SizedBox.shrink(),
+                      },
+                      verticalSpacing(),
+                      GatePassOverviewWidget(
+                        filterType: _selectedFilterType.value,
+                      ),
                       verticalSpacing(height: 20.sp),
-                    },
-                    _buildPurposeWiseVisitors(purposeWiseVisitors),
-                    verticalSpacing(height: 20.sp),
-                    _buildAlerts(alertsVisitors),
-                  ],
+                      _buildVisitors(
+                        context,
+                        dashboardCount,
+                        todayVisitors,
+                        timelineGroups,
+                      ),
+                      verticalSpacing(height: 20.sp),
+                      if (_selectedFilterType.value.toLowerCase() ==
+                          "today") ...{
+                        _buildVisitorTimeline(timelineGroups),
+                        verticalSpacing(height: 20.sp),
+                      },
+                      _buildPurposeWiseVisitors(purposeWiseVisitors),
+                      verticalSpacing(height: 20.sp),
+                      _buildAlerts(alertsVisitors),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
