@@ -297,7 +297,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
           final updatedParentList = List<TestDocumentModel>.from(
             state.testDocumentList,
           );
-          // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+          // UPDATE PARENT DOCUMENT COUNT
           updatedParentList[index] = updatedParentList[index].copyWith(
             approvalPendingApprovalDocumentCount:
                 updatedParentList[index].approvalPendingApprovalDocumentCount +
@@ -479,7 +479,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
             final updatedParentList = List<TestDocumentModel>.from(
               state.testDocumentList,
             );
-            // Only decrement approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+            // UPDATE PARENT DOCUMENT COUNT
             updatedParentList[parentIndex] = updatedParentList[parentIndex]
                 .copyWith(
                   approvalPendingApprovalDocumentCount:

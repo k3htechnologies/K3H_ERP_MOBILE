@@ -435,6 +435,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
                         child: GestureDetector(

@@ -577,6 +577,7 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
                         child: GestureDetector(

@@ -624,10 +624,12 @@ class _BaselineCostPlanScreenState extends State<BaselineCostPlanScreen>
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
+                            await _baselineCostPlanCubit.clearSubDocumentList();
                             await goRouter.pushNamed(
                               AppRoutes.viewBaselineCostPlan,
                               queryParameters: {
@@ -639,13 +641,6 @@ class _BaselineCostPlanScreenState extends State<BaselineCostPlanScreen>
                                 "index": index.toString(),
                               },
                             );
-                            if (context.mounted) {
-                              _baselineCostPlanCubit
-                                  .getBaselineCostPlanDocumentList(
-                                    context: context,
-                                    pageNumber: 1,
-                                  );
-                            }
                           },
                           child: Text(
                             document.baselineCostPlanDocumentName.toString(),

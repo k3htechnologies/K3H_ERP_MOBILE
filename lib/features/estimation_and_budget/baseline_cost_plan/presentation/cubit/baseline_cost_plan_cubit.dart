@@ -6,7 +6,6 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/data/model/baseline_cost_plan.model.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/data/model/baseline_cost_plan_category.model.dart';
 import 'package:k3h_erp_app/features/estimation_and_budget/baseline_cost_plan/data/repository/baseline_cost_plan.repository.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -19,6 +18,16 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
 
   final BaselineCostPlanRepository _baselineCostPlanRepository =
       serviceLocator<BaselineCostPlanRepository>();
+
+  Future clearSubDocumentList() async {
+    emit(
+      state.copyWith(
+        subBaselineCostPlanDocumentList: [],
+        totalNumberOfRecordOfSubDoc: 0,
+        currentPageOfSubDoc: 1,
+      ),
+    );
+  }
 
   Future<void> resetSearchAndFetchCategories({
     required BuildContext context,
@@ -180,7 +189,6 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
       (response) {
         final List<BaselineCostPlanDocumentModel> newData =
             List<BaselineCostPlanDocumentModel>.from(response['data'] ?? []);
-        debugPrint('API documents count: ${newData.length}');
         if (baselineCostPlanDocumentId == null) {
           final List<BaselineCostPlanDocumentModel> updatedList =
               pageNumber == 1
@@ -425,12 +433,31 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
       },
       (response) async {
         goRouter.pop();
-        final currentPath = goRouter.state.path;
-        if (currentPath == AppRoutes.viewBaselineCostPlan) {
-          goRouter.pop();
-        }
 
-        await getBaselineCostPlanDocumentList(context: context, pageNumber: 1);
+        await getBaselineCostPlanDocumentList(
+          context: context,
+          pageNumber: 1,
+          baselineCostPlanDocumentId: baselineCostPlanDocumentId,
+        );
+        if (state.baselineCostPlanDocumentList.isNotEmpty &&
+            index < state.baselineCostPlanDocumentList.length) {
+          final updatedParentList = List<BaselineCostPlanDocumentModel>.from(
+            state.baselineCostPlanDocumentList,
+          );
+          // UPDATE PARENT DOCUMENT COUNT
+          updatedParentList[index] = updatedParentList[index].copyWith(
+            baselineCostPlanDocumentName:
+                updatedParentList[index].baselineCostPlanDocumentName,
+            uploadedDocumentCount:
+                updatedParentList[index].uploadedDocumentCount + 1,
+          );
+          emit(
+            state.copyWith(
+              isLoading: false,
+              baselineCostPlanDocumentList: updatedParentList,
+            ),
+          );
+        }
         if (context.mounted) {
           showSuccessMessage(context, subTitle: response['message']);
         }
@@ -444,6 +471,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     BuildContext context,
     int index, {
     bool isSubDoc = false,
+    int? parentIndex,
   }) async {
     DialogHelper.showProcessingOverlay(context);
 
@@ -486,6 +514,27 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
             state.subBaselineCostPlanDocumentList,
           );
           updatedList.removeAt(index);
+          if (state.baselineCostPlanDocumentList.isNotEmpty &&
+              parentIndex! < state.baselineCostPlanDocumentList.length) {
+            final updatedParentList = List<BaselineCostPlanDocumentModel>.from(
+              state.baselineCostPlanDocumentList,
+            );
+            // UPDATE PARENT DOCUMENT COUNT
+            updatedParentList[parentIndex] = updatedParentList[parentIndex]
+                .copyWith(
+                  baselineCostPlanDocumentName:
+                      updatedParentList[parentIndex]
+                          .baselineCostPlanDocumentName,
+                  uploadedDocumentCount:
+                      updatedParentList[parentIndex].uploadedDocumentCount + 1,
+                );
+            emit(
+              state.copyWith(
+                isLoading: false,
+                baselineCostPlanDocumentList: updatedParentList,
+              ),
+            );
+          }
           emit(
             state.copyWith(
               subBaselineCostPlanDocumentList: updatedList,

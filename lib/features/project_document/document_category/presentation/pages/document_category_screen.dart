@@ -372,6 +372,8 @@ class _DocumentCategoryScreenState extends State<DocumentCategoryScreen> {
                                     spacing: 10,
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Flexible(
                                         child: GestureDetector(

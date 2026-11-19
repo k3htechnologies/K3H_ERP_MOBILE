@@ -396,7 +396,7 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
           final updatedListModel = List<DrawingDocumentModel>.from(
             state.drawingDocumentList,
           );
-          // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+          // UPDATE PARENT DOCUMENT COUNT
           updatedListModel[index] = updatedListModel[index].copyWith(
             drawingDocumentName: updatedListModel[index].drawingDocumentName,
             approvalPendingApprovalDocumentCount:
@@ -581,7 +581,7 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
             final updatedParentList = List<DrawingDocumentModel>.from(
               state.drawingDocumentList,
             );
-            // Only decrement approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+            // UPDATE PARENT DOCUMENT COUNT
             updatedParentList[parentIndex] = updatedParentList[parentIndex]
                 .copyWith(
                   drawingDocumentName:

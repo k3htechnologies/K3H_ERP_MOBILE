@@ -529,6 +529,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
                         child: GestureDetector(

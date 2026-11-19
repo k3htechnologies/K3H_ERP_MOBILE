@@ -308,7 +308,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
           final updatedParentList = List<RERADocumentModel>.from(
             state.reraDocumentList,
           );
-          // Only increment approvalPendingProjectRERADocumentCount & uploadedProjectRERADocumentCount counts in existing parent document instance
+          // UPDATE PARENT DOCUMENT COUNT
           updatedParentList[index] = updatedParentList[index].copyWith(
             projectRERADocumentName:
                 updatedParentList[index].projectRERADocumentName,
@@ -508,7 +508,7 @@ class RERADocumentCubit extends Cubit<RERADocumentState> {
             final updatedParentList = List<RERADocumentModel>.from(
               state.reraDocumentList,
             );
-            // Only decrement approvalPendingProjectRERADocumentCount & uploadedProjectRERADocumentCount counts in existing parent document instance
+            // UPDATE PARENT DOCUMENT COUNT
             updatedParentList[parentIndex] = updatedParentList[parentIndex]
                 .copyWith(
                   projectRERADocumentName:

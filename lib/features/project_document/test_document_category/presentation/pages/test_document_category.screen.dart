@@ -369,6 +369,7 @@ class _TestDocumentCategoryScreenState
                             Row(
                               spacing: 10,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Flexible(
                                   child: GestureDetector(
