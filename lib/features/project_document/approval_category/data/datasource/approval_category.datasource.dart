@@ -10,11 +10,9 @@ abstract interface class ApprovalCategoryDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apicallAddUpdateProjectApprovalDocumentCategory({
     required Map<String, dynamic> body,
   });
-
   Future<Map<String, dynamic>> apicallDeleteProjectApprovalDocumentCategory({
     required int projectApprovalDocumentCategoryId,
     required int projectId,
@@ -30,7 +28,6 @@ abstract interface class ApprovalCategoryDatasource {
 
 class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullProjectApprovalDocumentCategory({
     required int pageNumber,
@@ -86,7 +83,6 @@ class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
   }) async {
     String addUpdateProjectApprovalDocumentCategoryUrl =
         "ApprovalDocumentCategory/AddUpdateApprovalDocumentCategory";
-
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
         addUpdateProjectApprovalDocumentCategoryUrl,
@@ -98,6 +94,7 @@ class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
             (e) => ApprovalDocumentCategoryModel.fromJson(e),
           ),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -132,6 +129,7 @@ class ApprovalCategoryDatasourceImpl implements ApprovalCategoryDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

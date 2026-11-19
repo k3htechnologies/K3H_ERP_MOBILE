@@ -22,7 +22,6 @@ class ApprovalDocumentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   ApprovalDocumentModel({
     required this.approvalDocumentId,
     required this.uniquekey,
@@ -46,7 +45,6 @@ class ApprovalDocumentModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory ApprovalDocumentModel.fromJson(
     Map<String, dynamic> json,
   ) => ApprovalDocumentModel(
@@ -96,7 +94,6 @@ class ApprovalDocumentModel {
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
   );
-
   Map<String, dynamic> toJson() => {
     "ApprovalDocumentId": approvalDocumentId,
     "Uniquekey": uniquekey,

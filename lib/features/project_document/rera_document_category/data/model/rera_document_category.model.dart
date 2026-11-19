@@ -13,7 +13,6 @@ class RERADocumentCategoryModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   RERADocumentCategoryModel({
     required this.projectRERADocumentCategoryId,
     required this.projectId,
@@ -28,7 +27,6 @@ class RERADocumentCategoryModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory RERADocumentCategoryModel.fromJson(Map<String, dynamic> json) =>
       RERADocumentCategoryModel(
         projectRERADocumentCategoryId: parseValue(
@@ -53,7 +51,6 @@ class RERADocumentCategoryModel {
                 ? null
                 : DateTime.parse(json["ModifiedDate"]),
       );
-
   Map<String, dynamic> toJson() => {
     "ProjectRERADocumentCategoryId": projectRERADocumentCategoryId,
     "ProjectId": projectId,

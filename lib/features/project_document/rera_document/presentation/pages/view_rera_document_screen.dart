@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -25,13 +24,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ViewRERADocumentScreen extends StatefulWidget {
   final int index;
   final RERADocumentModel documentModel;
-
   const ViewRERADocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
   });
-
   @override
   State<ViewRERADocumentScreen> createState() => _ViewRERADocumentScreenState();
 }
@@ -40,14 +37,11 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   //CUBIT
   late RERADocumentCubit _documentCubit;
   late UtilsCubit _utilsCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   @override
   void initState() {
     super.initState();
@@ -56,7 +50,6 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     _utilsCubit = context.read<UtilsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.rera]!;
-
     _documentCubit.getRERADocumentList(
       context: context,
       pageNumber: 1,
@@ -90,7 +83,6 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
   Future<void> _showPopupToDeleteRERASubDocument(
     BuildContext context,
     RERADocumentModel obj,
-
     int index,
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
@@ -98,7 +90,6 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
       'You are about to RERA delete a document?',
       'Deleting this RERA document will permanently remove its contents.',
     );
-
     if (shouldDelete && context.mounted) {
       _documentCubit.deleteDocument(
         obj,
@@ -176,18 +167,15 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                 ),
               ],
             ),
-
             BlocBuilder<RERADocumentCubit, RERADocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
                     state.reraSubDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
-
                 if (state.reraSubDocumentList.isEmpty) {
                   return Expanded(child: Center(child: noDataWidget()));
                 }
-
                 return Expanded(
                   child: ListView.builder(
                     controller: scrollController,
@@ -227,7 +215,6 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
     // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
     // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
     final bool isActionAllowed = document.isApproval;
-
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -432,7 +419,6 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
                     id: document.projectRERADocumentId,
                     moduleName: "RERA DOCUMENT APPROVAL",
                   );
-
               if (context.mounted) {
                 goRouter.pushNamed(
                   AppRoutes.approvalLogHistory,
@@ -473,12 +459,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
         return AppColor.lightBlue2;
       case 'doc missing':
         return AppColor.warning20;
-
       case 'in process':
         return AppColor.lightYellow;
       case 'issued':
         return AppColor.darkBackground.withValues(alpha: 0.29);
-
       case 'not applied':
         return AppColor.grey2;
       case 'not applicable':
@@ -501,12 +485,10 @@ class _ViewRERADocumentScreenState extends State<ViewRERADocumentScreen> {
         return AppColor.primary;
       case 'doc missing':
         return AppColor.warning;
-
       case 'in process':
         return AppColor.brown;
       case 'issued':
         return AppColor.darkBackground;
-
       case 'not applied':
         return AppColor.black;
       case 'not applicable':

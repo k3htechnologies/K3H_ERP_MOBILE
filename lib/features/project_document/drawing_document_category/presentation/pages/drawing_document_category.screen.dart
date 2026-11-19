@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -23,7 +22,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DrawingDocumentCategoryScreen extends StatefulWidget {
   const DrawingDocumentCategoryScreen({super.key});
-
   @override
   State<DrawingDocumentCategoryScreen> createState() =>
       _DrawingDocumentCategoryScreenState();
@@ -33,21 +31,15 @@ class _DrawingDocumentCategoryScreenState
     extends State<DrawingDocumentCategoryScreen> {
   //CUBIT
   late DrawingDocumentCategoryCubit _drawingDocumentCategoryCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLER
   late TextEditingController _searchC;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -86,7 +78,7 @@ class _DrawingDocumentCategoryScreenState
           !_drawingDocumentCategoryCubit.state.isLoading! &&
           _drawingDocumentCategoryCubit
                   .state
-                  .drawingDocumentCategoryModelList
+                  .drawingDocumentCategoryList
                   .length <
               _drawingDocumentCategoryCubit.state.totalNumberOfRecord) {
         if (_selectedProjectNotifier.value.projectId != 0) {
@@ -95,7 +87,6 @@ class _DrawingDocumentCategoryScreenState
             _drawingDocumentCategoryCubit.getDrawingDocumentCategoryList(
               context,
               _drawingDocumentCategoryCubit.state.currentPage + 1,
-
               _selectedProjectNotifier.value.projectId,
             );
           });
@@ -116,12 +107,12 @@ class _DrawingDocumentCategoryScreenState
       'You are about to delete a drawing document category ?',
       'Deleting this drawing document category will permanently remove all associated data.',
     );
-
     if (shouldDelete && context.mounted) {
       _drawingDocumentCategoryCubit.deleteDrawingDocumentCategory(
-        _selectedProjectNotifier.value.projectId,
-        obj,
-        context,
+        projectId: _selectedProjectNotifier.value.projectId,
+        drawingDocumentCategoryModel: obj,
+        context: context,
+        index: index,
       );
     }
   }
@@ -131,28 +122,21 @@ class _DrawingDocumentCategoryScreenState
     BuildContext context,
   ) async {
     final state = _drawingDocumentCategoryCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Drawing Document Category"
             ? state.currentSortDirection
             : null;
-
     final String initialTestDocumentCategory = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialTestDocumentCategory ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -166,7 +150,6 @@ class _DrawingDocumentCategoryScreenState
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -220,9 +203,7 @@ class _DrawingDocumentCategoryScreenState
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Drawing Document Category",
@@ -233,12 +214,9 @@ class _DrawingDocumentCategoryScreenState
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _drawingDocumentCategoryCubit.applyFilterAndSortDrawingDocumentCategory(
           context: context,
           column: "",
@@ -246,10 +224,8 @@ class _DrawingDocumentCategoryScreenState
           testDocument: '',
         );
       },
-
       onApply: () {
         applied = true;
-
         _drawingDocumentCategoryCubit.applyFilterAndSortDrawingDocumentCategory(
           context: context,
           column: selectedDirection != null ? "Drawing Document Category" : "",
@@ -257,11 +233,9 @@ class _DrawingDocumentCategoryScreenState
           testDocument: _searchC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialTestDocumentCategory;
@@ -375,10 +349,10 @@ class _DrawingDocumentCategoryScreenState
                 >(
                   builder: (context, state) {
                     if ((state.isLoading ?? true) &&
-                        state.drawingDocumentCategoryModelList.isEmpty) {
+                        state.drawingDocumentCategoryList.isEmpty) {
                       return Center(child: loader());
                     }
-                    if (state.drawingDocumentCategoryModelList.isEmpty) {
+                    if (state.drawingDocumentCategoryList.isEmpty) {
                       return Center(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -394,12 +368,10 @@ class _DrawingDocumentCategoryScreenState
                         horizontal: 16,
                         vertical: 10,
                       ),
-                      itemCount:
-                          state.drawingDocumentCategoryModelList.length + 1,
+                      itemCount: state.drawingDocumentCategoryList.length + 1,
                       itemBuilder: (context, index) {
-                        if (index ==
-                            state.drawingDocumentCategoryModelList.length) {
-                          return state.drawingDocumentCategoryModelList.length <
+                        if (index == state.drawingDocumentCategoryList.length) {
+                          return state.drawingDocumentCategoryList.length <
                                   state.totalNumberOfRecord
                               ? const Padding(
                                 padding: EdgeInsets.all(16),
@@ -410,7 +382,7 @@ class _DrawingDocumentCategoryScreenState
                               : const SizedBox.shrink();
                         }
                         var testDocumentCategory =
-                            state.drawingDocumentCategoryModelList[index];
+                            state.drawingDocumentCategoryList[index];
                         return Container(
                           margin: const EdgeInsets.only(bottom: 10),
                           padding: const EdgeInsets.all(12),

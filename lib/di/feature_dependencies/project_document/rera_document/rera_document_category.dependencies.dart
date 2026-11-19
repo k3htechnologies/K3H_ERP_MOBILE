@@ -12,7 +12,6 @@ void registerRERADocumentDependencies(GetIt serviceLocator) {
       reraDocumentDatasource: serviceLocator<RERADocumentDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<RERADocumentCubit>(RERADocumentCubit());
 }

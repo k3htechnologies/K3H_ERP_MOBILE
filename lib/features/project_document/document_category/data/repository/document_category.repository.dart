@@ -10,17 +10,14 @@ abstract interface class DocumentCategoryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateDocumentCategory({
     required Map<String, dynamic> body,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteDocumentCategory({
     required int projectDocumentCategoryId,
     required int projectId,
     required String uniqueKey,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> exportDocumentCategory({
     required int pageNumber,
     required int pageSize,
@@ -31,9 +28,7 @@ abstract interface class DocumentCategoryRepository {
 
 class DocumentCategoryRepositoryImpl implements DocumentCategoryRepository {
   final DocumentCategoryDatasource documentCategoryDatasource;
-
   DocumentCategoryRepositoryImpl({required this.documentCategoryDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getDocumentCategory({
     required int pageNumber,
@@ -42,12 +37,13 @@ class DocumentCategoryRepositoryImpl implements DocumentCategoryRepository {
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await documentCategoryDatasource.apicallPullProjectDocumentCategory(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
+      var result = await documentCategoryDatasource
+          .apicallPullProjectDocumentCategory(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -76,10 +72,10 @@ class DocumentCategoryRepositoryImpl implements DocumentCategoryRepository {
     try {
       var result = await documentCategoryDatasource
           .apicallDeleteProjectDocumentCategory(
-        projectDocumentCategoryId: projectDocumentCategoryId,
-        projectId: projectId,
-        uniqueKey: uniqueKey,
-      );
+            projectDocumentCategoryId: projectDocumentCategoryId,
+            projectId: projectId,
+            uniqueKey: uniqueKey,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
@@ -96,11 +92,11 @@ class DocumentCategoryRepositoryImpl implements DocumentCategoryRepository {
     try {
       var result = await documentCategoryDatasource
           .apicallPullProjectDocumentCategoryForExport(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        projectId: projectId,
-        queryParams: queryParams,
-      );
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

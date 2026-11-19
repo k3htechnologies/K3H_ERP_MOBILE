@@ -29,7 +29,6 @@ abstract interface class DrawingDocumentCategoryDatasource {
 class DrawingDocumentCategoryDatasourceImpl
     extends DrawingDocumentCategoryDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullDrawingDocumentCategory({
     required int pageNumber,
@@ -85,7 +84,6 @@ class DrawingDocumentCategoryDatasourceImpl
   }) async {
     String addUpdateProjectDocumentCategoryUrl =
         "DrawingDocumentCategory/AddUpdateDrawingDocumentCategory";
-
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
         addUpdateProjectDocumentCategoryUrl,

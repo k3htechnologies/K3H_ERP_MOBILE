@@ -30,7 +30,6 @@ class AddDrawingDocumentScreen extends StatefulWidget {
     required this.index,
     required this.isEdit,
   });
-
   @override
   State<AddDrawingDocumentScreen> createState() =>
       _AddDrawingDocumentScreenState();
@@ -39,16 +38,12 @@ class AddDrawingDocumentScreen extends StatefulWidget {
 class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
   //CUBIT
   late DrawingDocumentCubit _drawingDocumentCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _documentNameC, _remarkC;
-
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   // FILE VARIABLES
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -62,12 +57,9 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
   );
   //EDIT MODE
   bool get _isEditMode => widget.isEdit;
-
   DateTime? revisionDate;
-
   final InventoryRepository _inventoryRepository =
       serviceLocator<InventoryRepository>();
-
   late final ValueNotifier<List<Map<String, dynamic>>> _selectedFloorNotifier;
   final ValueNotifier<Map<String, dynamic>?> _selectedStatus = ValueNotifier(
     null,
@@ -96,7 +88,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
         (status) => status['DisplayName'] == document.drawingDocumentStatus,
         orElse: () => drawingStatusTypeList.first,
       );
-
       _selectedStatus.value = matchedStatus;
     }
     final floorIds =
@@ -116,7 +107,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                     : floorIds[i].toString(),
           },
     ];
-
     selectedDocumentFile.fileNameList =
         document.drawingDocumentUrl.isEmpty
             ? []
@@ -126,7 +116,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
             ? []
             : document.drawingDocumentDwgurl.split(",");
     revisionDate = document.drawingDocumentRevisionDate;
-
     _remarkC.text =
         document.drawingDocumentRemark.isNotEmpty
             ? document.drawingDocumentRemark
@@ -138,7 +127,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-
     final floorList =
         _selectedFloorNotifier.value
             .map((floor) => floor["zAttributesId"].toString())
@@ -203,7 +191,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
         "ApprovalStatus": "APPROVED",
       },
     );
-
     return result.fold(
       (failure) => {
         "itemList": <Map<String, dynamic>>[],
@@ -211,7 +198,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
       },
       (response) {
         final flats = response['data'] as List<PaginatedFloorModel>;
-
         return {
           "itemList":
               flats.map((floor) {
@@ -222,7 +208,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                   "paginatedFloorModel": floor,
                 };
               }).toList(),
-
           "totalNumberOfRecord": response['totalNumberOfRecord'] ?? 0,
         };
       },
@@ -263,7 +248,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                         textController: _documentNameC,
                       ),
                     ],
-
                     ValueListenableBuilder(
                       valueListenable: _selectedFloorNotifier,
                       builder: (context, selectedFloor, child) {
@@ -282,7 +266,6 @@ class _AddDrawingDocumentScreenState extends State<AddDrawingDocumentScreen> {
                           },
                           isMultiSelect: true,
                           dataList: [],
-
                           onSelected: (value) {
                             _selectedFloorNotifier.value = value;
                           },

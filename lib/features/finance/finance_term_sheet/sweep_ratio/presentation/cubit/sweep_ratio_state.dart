@@ -8,11 +8,9 @@ class SweepRatioState extends BaseState {
     this.termSheetDetailsViewModel,
     required this.totalNumberOfRecord,
   });
-  factory SweepRatioState.inital() => SweepRatioState(
-    termSheetDetailsViewModel: null,
-    totalNumberOfRecord: 0,
-  );
-  SweepRatioState copywith({
+  factory SweepRatioState.inital() =>
+      SweepRatioState(termSheetDetailsViewModel: null, totalNumberOfRecord: 0);
+  SweepRatioState copyWith({
     bool? isLoading,
     List<TermSheetViewModel>? termSheetViewList,
     TermSheetDetailsView? termSheetDetailsViewModel,

@@ -25,7 +25,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     required int projectId,
   }) async {
     emit(
-      state.copywith(
+      state.copyWith(
         searchText: "",
         currentPage: 1,
         categoryIndex: 0,
@@ -54,7 +54,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
 
   Future<void> searchDocument(String value, BuildContext context) async {
     emit(
-      state.copywith(
+      state.copyWith(
         baselineCostPlanDocumentList: [],
         searchText: value.trim(),
         currentPage: 1,
@@ -68,7 +68,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
   //UPDATE CATEGORY INDEX AND MAKE GET API CALL AS PER CATEGORY
   void onTabChanged(int index, BuildContext context) {
     emit(
-      state.copywith(
+      state.copyWith(
         categoryIndex: index,
         baselineCostPlanDocumentCategoryId:
             state
@@ -84,7 +84,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
   }
 
   void setSelectedCategory(int categoryId) {
-    emit(state.copywith(baselineCostPlanDocumentCategoryId: categoryId));
+    emit(state.copyWith(baselineCostPlanDocumentCategoryId: categoryId));
   }
 
   // GET BASELINE COST PLAN CATEGORY LIST
@@ -93,13 +93,13 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     int pageNumber,
     int projectId,
   ) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
         BaselineCostPlanCubit();
         emit(
-          state.copywith(
+          state.copyWith(
             isLoading: false,
             baselineCostPlanDocumentCategoryList: [],
           ),
@@ -122,7 +122,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
 
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
@@ -138,7 +138,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
                   ),
                 ];
         emit(
-          state.copywith(
+          state.copyWith(
             baselineCostPlanDocumentCategoryList: updatedList,
             isLoading: false,
             totalNumberOfRecord: response["totalNumberOfRecord"],
@@ -156,7 +156,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     int? baselineCostPlanDocumentId,
     String? baselineCostPlanDocumentCategory,
   }) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "BaselineCostPlanDocumentName": state.searchText,
       "BaselineCostPlanDocumentCategoryId":
@@ -174,7 +174,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     );
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error Message', failure.message);
       },
       (response) {
@@ -187,7 +187,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
                   ? newData
                   : [...state.baselineCostPlanDocumentList, ...newData];
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               baselineCostPlanDocumentList: updatedList,
               totalNumberOfRecord: response["totalNumberOfRecord"],
@@ -200,7 +200,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
                   ? newData
                   : [...state.subBaselineCostPlanDocumentList, ...newData];
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               subBaselineCostPlanDocumentList: updatedSubDocList,
               totalNumberOfRecordOfSubDoc: response["totalNumberOfRecord"],
@@ -254,7 +254,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
           );
           updatedListModel[index] = updatedDocument;
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               baselineCostPlanDocumentList: updatedListModel,
             ),
@@ -364,7 +364,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
 
           updatedListModel[index] = updatedDocument;
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               subBaselineCostPlanDocumentList: updatedListModel,
             ),
@@ -472,7 +472,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
           );
           updatedList.removeAt(index);
           emit(
-            state.copywith(
+            state.copyWith(
               baselineCostPlanDocumentList: updatedList,
               totalNumberOfRecord:
                   state.totalNumberOfRecord > 0
@@ -487,7 +487,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
           );
           updatedList.removeAt(index);
           emit(
-            state.copywith(
+            state.copyWith(
               subBaselineCostPlanDocumentList: updatedList,
               totalNumberOfRecordOfSubDoc:
                   state.totalNumberOfRecordOfSubDoc > 0
@@ -509,7 +509,7 @@ class BaselineCostPlanCubit extends Cubit<BaselineCostPlanState> {
     required int projectId,
   }) async {
     emit(
-      state.copywith(
+      state.copyWith(
         searchText: categoryName,
         currentSortColumn: column,
         currentSortDirection: direction,

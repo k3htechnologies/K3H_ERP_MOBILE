@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,7 +26,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApprovalDocumentScreen extends StatefulWidget {
   const ApprovalDocumentScreen({super.key});
-
   @override
   State<ApprovalDocumentScreen> createState() => _ApprovalDocumentScreenState();
 }
@@ -36,24 +34,18 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     with TickerProviderStateMixin {
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   late ApprovalDocumentCubit _documentCubit;
   // TAB CONTROLLERS
   TabController? _categoryTabController;
-
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC, _documentC;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -103,13 +95,11 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
   void _initCategoryController(ApprovalDocumentState state) {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
-
     _categoryTabController = TabController(
       length: state.documentCategoryModelList.length,
       vsync: this,
       initialIndex: state.categoryIndex,
     );
-
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
@@ -167,7 +157,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
       'You are about to delete a document?',
       'Deleting this document will permanently remove its contents.',
     );
-
     if (shouldDelete && context.mounted) {
       _documentCubit.deleteApprovalDocument(obj, context, index);
     }
@@ -224,28 +213,21 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     BuildContext context,
   ) async {
     final state = _documentCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Approval Document Name"
             ? state.currentSortDirection
             : null;
-
     final String initialApprovalDocumentName = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialApprovalDocumentName ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -259,7 +241,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -313,9 +294,7 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Approval Document Name",
@@ -326,12 +305,9 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _documentCubit.applyFilterAndSortApprovalDocument(
           context: context,
           column: "",
@@ -339,10 +315,8 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           approvalDocumentName: '',
         );
       },
-
       onApply: () {
         applied = true;
-
         _documentCubit.applyFilterAndSortApprovalDocument(
           context: context,
           column: selectedDirection != null ? "Approval Document Name" : "",
@@ -350,11 +324,9 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
           approvalDocumentName: _searchC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialApprovalDocumentName;
@@ -400,7 +372,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
               (_) => BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
                 builder: (context, state) {
                   final list = state.documentCategoryModelList;
-
                   if (list.isNotEmpty) {
                     return CustomButton(
                       text: "Add",
@@ -411,7 +382,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                       leading: Icon(Icons.add, size: 16, color: AppColor.white),
                     );
                   }
-
                   return const SizedBox.shrink();
                 },
               ),
@@ -455,7 +425,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                           state.documentCategoryModelList.isEmpty) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       // 2. Loaded but no categories
                       if (state.documentCategoryModelList.isEmpty) {
                         return Center(
@@ -464,12 +433,10 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                           ),
                         );
                       }
-
                       // 3. Categories exist but controller not ready yet
                       if (_categoryTabController == null) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       return Column(
                         children: [
                           // CATEGORY TAB
@@ -492,7 +459,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                                                       .approvalDocumentCategoryId,
                                             )
                                             .toList();
-
                                     return (state.documentList.isEmpty &&
                                             state.isLoading!)
                                         ? const Center(
@@ -533,12 +499,10 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
     if (_categoryTabController == null) {
       return const SizedBox.shrink();
     }
-
     if (_categoryTabController!.length !=
         state.documentCategoryModelList.length) {
       return const SizedBox.shrink();
     }
-
     return ChipStyleTabBar(
       controller: _categoryTabController!,
       tabs:
@@ -556,7 +520,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
         child: noDataWidget(message: "No Approval Document Data Found"),
       );
     }
-
     return BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
       builder: (context, state) {
         return ListView.builder(
@@ -573,13 +536,10 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                   )
                   : const SizedBox.shrink();
             }
-
             final document = documents[index];
-
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),
-
               decoration: commonCardDecoration(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -625,7 +585,6 @@ class _ApprovalDocumentScreenState extends State<ApprovalDocumentScreen>
                                     ),
                                   ),
                                   "index": index.toString(),
-
                                   "isEdit": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       false.toString(),

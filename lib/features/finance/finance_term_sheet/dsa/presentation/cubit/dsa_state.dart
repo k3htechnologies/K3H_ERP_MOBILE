@@ -9,11 +9,9 @@ class DsaState extends BaseState {
     required this.totalNumberOfRecord,
   });
 
-  factory DsaState.inital() => DsaState(
-    termSheetDetailsViewModel: null,
-    totalNumberOfRecord: 0,
-  );
-  DsaState copywith({
+  factory DsaState.inital() =>
+      DsaState(termSheetDetailsViewModel: null, totalNumberOfRecord: 0);
+  DsaState copyWith({
     bool? isLoading,
     List<TermSheetViewModel>? termSheetViewList,
     TermSheetDetailsView? termSheetDetailsViewModel,

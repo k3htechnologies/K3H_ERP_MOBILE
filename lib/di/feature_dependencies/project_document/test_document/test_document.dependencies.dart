@@ -12,7 +12,6 @@ void registerTestDocumentDependencies(GetIt serviceLocator) {
       testDocumentDatasource: serviceLocator<TestDocumentDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<TestDocumentCubit>(TestDocumentCubit());
 }

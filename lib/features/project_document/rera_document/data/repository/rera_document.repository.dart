@@ -14,7 +14,6 @@ abstract interface class RERADocumentRepository {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteRERADocument({
     required int projectRERADocumentId,
     required int projectId,
@@ -25,9 +24,7 @@ abstract interface class RERADocumentRepository {
 
 class RERADocumentRepositoryImpl implements RERADocumentRepository {
   final RERADocumentDatasource reraDocumentDatasource;
-
   RERADocumentRepositoryImpl({required this.reraDocumentDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullProjectRERADocument({
     required int pageNumber,

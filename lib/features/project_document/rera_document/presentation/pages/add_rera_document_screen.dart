@@ -24,7 +24,6 @@ class AddRERADocumentScreen extends StatefulWidget {
     this.index = 0,
     this.isEdit = false,
   });
-
   @override
   State<AddRERADocumentScreen> createState() => _AddRERADocumentScreenState();
 }
@@ -32,16 +31,12 @@ class AddRERADocumentScreen extends StatefulWidget {
 class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
   //CUBIT
   late RERADocumentCubit _documentCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _documentNameC, _remarkC;
-
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   final ValueNotifier<Map<String, dynamic>?> _selectedStatus = ValueNotifier(
     null,
   );
@@ -57,7 +52,6 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
     {'zAttributesId': 8, 'DisplayName': 'Payment Due'},
     {'zAttributesId': 9, 'DisplayName': 'Rejected'},
   ];
-
   // FILE VARIABLES
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
@@ -69,10 +63,8 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
     fileNameList: [],
     deletedFileList: "",
   );
-
   //EDIT MODE
   bool get _isEditMode => widget.isEdit;
-
   @override
   void initState() {
     super.initState();
@@ -138,17 +130,14 @@ class _AddRERADocumentScreenState extends State<AddRERADocumentScreen> {
         (status) => status['DisplayName'] == document.projectRERADocumentStatus,
         orElse: () => statusList.first,
       );
-
       _selectedStatus.value = matchedStatus;
     }
-
     if (document.reraPortalScreenShotURL != null) {
       selectedScreenShotFile.fileNameList =
           document.reraPortalScreenShotURL!.isEmpty
               ? []
               : document.reraPortalScreenShotURL!.split(",");
     }
-
     _remarkC.text =
         document.projectRERADocumentRemark.isNotEmpty
             ? document.projectRERADocumentRemark

@@ -24,7 +24,6 @@ class AddTestDocumentScreen extends StatefulWidget {
     required this.index,
     required this.isEdit,
   });
-
   @override
   State<AddTestDocumentScreen> createState() => _AddTestDocumentScreenState();
 }
@@ -32,28 +31,21 @@ class AddTestDocumentScreen extends StatefulWidget {
 class _AddTestDocumentScreenState extends State<AddTestDocumentScreen> {
   //CUBIT
   late TestDocumentCubit _testDocumentCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _documentNameC, _remarkC;
-
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   // FILE VARIABLES
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
   //EDIT MODE
   bool get _isEditMode => widget.isEdit;
-
   DateTime? expiryDate;
-
   @override
   void initState() {
     super.initState();

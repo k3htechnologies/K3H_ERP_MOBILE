@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -23,7 +22,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TestDocumentCategoryScreen extends StatefulWidget {
   const TestDocumentCategoryScreen({super.key});
-
   @override
   State<TestDocumentCategoryScreen> createState() =>
       _TestDocumentCategoryScreenState();
@@ -33,21 +31,15 @@ class _TestDocumentCategoryScreenState
     extends State<TestDocumentCategoryScreen> {
   //CUBIT
   late TestDocumentCategoryCubit _testDocumentCategoryCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLER
   late TextEditingController _searchC;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -83,10 +75,7 @@ class _TestDocumentCategoryScreenState
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent &&
           !_testDocumentCategoryCubit.state.isLoading! &&
-          _testDocumentCategoryCubit
-                  .state
-                  .testDocumentCategoryModelList
-                  .length <
+          _testDocumentCategoryCubit.state.testDocumentCategoryList.length <
               _testDocumentCategoryCubit.state.totalNumberOfRecord) {
         if (_selectedProjectNotifier.value.projectId != 0) {
           if (_debounce?.isActive ?? false) _debounce?.cancel();
@@ -94,7 +83,6 @@ class _TestDocumentCategoryScreenState
             _testDocumentCategoryCubit.getTestDocumentCategoryList(
               context,
               _testDocumentCategoryCubit.state.currentPage + 1,
-
               _selectedProjectNotifier.value.projectId,
             );
           });
@@ -107,7 +95,6 @@ class _TestDocumentCategoryScreenState
   Future<void> _showPopupToDeleteTestDocumentCategory(
     BuildContext context,
     TestDocumentCategoryModel obj,
-    int page,
     int index,
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
@@ -115,12 +102,12 @@ class _TestDocumentCategoryScreenState
       'You are about to delete a test document category ?',
       'Deleting this test document category will permanently remove all associated data.',
     );
-
     if (shouldDelete && context.mounted) {
       _testDocumentCategoryCubit.deleteTestDocumentCategory(
-        _selectedProjectNotifier.value.projectId,
-        obj,
-        context,
+        projectId: _selectedProjectNotifier.value.projectId,
+        testDocumentCategoryModel: obj,
+        context: context,
+        index: index,
       );
     }
   }
@@ -130,28 +117,21 @@ class _TestDocumentCategoryScreenState
     BuildContext context,
   ) async {
     final state = _testDocumentCategoryCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Test Document Category"
             ? state.currentSortDirection
             : null;
-
     final String initialTestDocumentCategory = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialTestDocumentCategory ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -165,7 +145,6 @@ class _TestDocumentCategoryScreenState
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -219,9 +198,7 @@ class _TestDocumentCategoryScreenState
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Test Document Category",
@@ -232,12 +209,9 @@ class _TestDocumentCategoryScreenState
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _testDocumentCategoryCubit.applyFilterAndSortTestDocumentCategory(
           context: context,
           column: "",
@@ -245,10 +219,8 @@ class _TestDocumentCategoryScreenState
           testDocument: '',
         );
       },
-
       onApply: () {
         applied = true;
-
         _testDocumentCategoryCubit.applyFilterAndSortTestDocumentCategory(
           context: context,
           column: selectedDirection != null ? "Test Document Category" : "",
@@ -256,11 +228,9 @@ class _TestDocumentCategoryScreenState
           testDocument: _searchC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialTestDocumentCategory;
@@ -357,10 +327,10 @@ class _TestDocumentCategoryScreenState
               >(
                 builder: (context, state) {
                   if ((state.isLoading ?? true) &&
-                      state.testDocumentCategoryModelList.isEmpty) {
+                      state.testDocumentCategoryList.isEmpty) {
                     return Center(child: loader());
                   }
-                  if (state.testDocumentCategoryModelList.isEmpty) {
+                  if (state.testDocumentCategoryList.isEmpty) {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -376,10 +346,10 @@ class _TestDocumentCategoryScreenState
                       horizontal: 16,
                       vertical: 10,
                     ),
-                    itemCount: state.testDocumentCategoryModelList.length + 1,
+                    itemCount: state.testDocumentCategoryList.length + 1,
                     itemBuilder: (context, index) {
-                      if (index == state.testDocumentCategoryModelList.length) {
-                        return state.testDocumentCategoryModelList.length <
+                      if (index == state.testDocumentCategoryList.length) {
+                        return state.testDocumentCategoryList.length <
                                 state.totalNumberOfRecord
                             ? const Padding(
                               padding: EdgeInsets.all(16),
@@ -388,7 +358,7 @@ class _TestDocumentCategoryScreenState
                             : const SizedBox.shrink();
                       }
                       var testDocumentCategory =
-                          state.testDocumentCategoryModelList[index];
+                          state.testDocumentCategoryList[index];
                       return Container(
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(12),
@@ -472,7 +442,6 @@ class _TestDocumentCategoryScreenState
                                         _showPopupToDeleteTestDocumentCategory(
                                           context,
                                           testDocumentCategory,
-                                          state.currentPage,
                                           index,
                                         );
                                       },

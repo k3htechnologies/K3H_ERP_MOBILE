@@ -23,7 +23,6 @@ class TestDocumentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   TestDocumentModel({
     required this.testDocumentId,
     required this.uniquekey,
@@ -48,7 +47,6 @@ class TestDocumentModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory TestDocumentModel.fromJson(Map<String, dynamic> json) =>
       TestDocumentModel(
         testDocumentId: parseValue<int>(json, "TestDocumentId"),
@@ -92,7 +90,6 @@ class TestDocumentModel {
                 ? null
                 : DateTime.parse(json["ModifiedDate"]),
       );
-
   Map<String, dynamic> toJson() => {
     "TestDocumentId": testDocumentId,
     "Uniquekey": uniquekey,

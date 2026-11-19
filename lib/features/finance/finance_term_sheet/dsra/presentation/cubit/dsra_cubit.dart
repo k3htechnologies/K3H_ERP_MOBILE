@@ -25,7 +25,7 @@ class DsraCubit extends Cubit<DsraState> {
     int projectId,
     int termSheetId,
   ) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
 
     final Map<String, dynamic> queryParams = {};
 
@@ -37,7 +37,7 @@ class DsraCubit extends Cubit<DsraState> {
 
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
@@ -45,7 +45,7 @@ class DsraCubit extends Cubit<DsraState> {
             response['data'] as List<TermSheetViewModel>;
 
         emit(
-          state.copywith(
+          state.copyWith(
             termSheetDetailsViewModel:
                 newList.isNotEmpty &&
                         newList.first.termSheetDetailsData.isNotEmpty
@@ -174,7 +174,7 @@ class DsraCubit extends Cubit<DsraState> {
         final newData = (response['data'] as List<TermSheetViewModel>?) ?? [];
         showSuccessMessage(context, subTitle: response["message"]);
         emit(
-          state.copywith(
+          state.copyWith(
             termSheetDetailsViewModel:
                 newData.isNotEmpty &&
                         newData.first.termSheetDetailsData.isNotEmpty

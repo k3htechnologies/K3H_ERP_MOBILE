@@ -10,19 +10,16 @@ abstract interface class DrawingDocumentRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateDrawingDocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteDrawingDocument({
     required int drawingDocumentId,
     required int projectId,
     required int drawingDocumentCategoryId,
     required String uniqueKey,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> pullInventoryDrawingDocument({
     required int projectId,
     Map<String, dynamic>? queryParams,
@@ -31,9 +28,7 @@ abstract interface class DrawingDocumentRepository {
 
 class DrawingDocumentRepositoryImpl extends DrawingDocumentRepository {
   final DrawingDocumentDatasource drawingDocumentDatasource;
-
   DrawingDocumentRepositoryImpl({required this.drawingDocumentDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullDrawingDocument({
     required int pageNumber,

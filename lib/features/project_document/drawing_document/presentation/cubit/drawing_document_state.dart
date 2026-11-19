@@ -55,7 +55,6 @@ class DrawingDocumentState extends BaseState {
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
   );
-
   DrawingDocumentState copyWith({
     bool? isLoading,
     int? categoryIndex,

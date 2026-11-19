@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -25,7 +24,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class RERADocumentScreen extends StatefulWidget {
   const RERADocumentScreen({super.key});
-
   @override
   State<RERADocumentScreen> createState() => _RERADocumentScreenState();
 }
@@ -38,18 +36,13 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   late RERADocumentCubit _reraDocumentCubit;
   // TAB CONTROLLERS
   TabController? _categoryTabController;
-
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC;
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -114,13 +107,11 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
   void _initCategoryController(RERADocumentState state) {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
-
     _categoryTabController = TabController(
       length: state.documentCategoryModelList.length,
       vsync: this,
       initialIndex: state.categoryIndex,
     );
-
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
@@ -128,28 +119,21 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     BuildContext context,
   ) async {
     final state = _reraDocumentCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Project RERA Document Name"
             ? state.currentSortDirection
             : null;
-
     final String initialRERADocumentName = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialRERADocumentName ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -163,7 +147,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -214,9 +197,7 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Document Name",
@@ -227,12 +208,9 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _reraDocumentCubit.applyFilterAndSortRERADocument(
           context: context,
           column: "",
@@ -240,10 +218,8 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           documentName: '',
         );
       },
-
       onApply: () {
         applied = true;
-
         _reraDocumentCubit.applyFilterAndSortRERADocument(
           context: context,
           column: selectedDirection != null ? "Project RERA Document Name" : "",
@@ -251,11 +227,9 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           documentName: _searchC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialRERADocumentName;
@@ -329,7 +303,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           state.documentCategoryModelList.isEmpty) {
                         return Center(child: loader());
                       }
-
                       if (state.documentCategoryModelList.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -341,11 +314,9 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           ),
                         );
                       }
-
                       if (_categoryTabController == null) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       return Column(
                         children: [
                           // CATEGORY TAB
@@ -368,7 +339,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                                       .projectRERADocumentCategoryId,
                                             )
                                             .toList();
-
                                     return (state.reraDocumentList.isEmpty &&
                                             state.isLoading!)
                                         ? const Center(
@@ -410,12 +380,10 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
     if (_categoryTabController == null) {
       return const SizedBox.shrink();
     }
-
     if (_categoryTabController!.length !=
         state.documentCategoryModelList.length) {
       return const SizedBox.shrink();
     }
-
     return ChipStyleTabBar(
       controller: _categoryTabController!,
       tabs:
@@ -432,7 +400,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
         child: noDataWidget(message: "No RERA Document Data Found"),
       );
     }
-
     return BlocBuilder<RERADocumentCubit, RERADocumentState>(
       builder: (context, state) {
         final disableAdd =
@@ -449,7 +416,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
           controller: scrollController,
           itemCount: state.reraDocumentList.length + 1,
           padding: EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-
           itemBuilder: (context, index) {
             if (index == state.reraDocumentList.length) {
               return state.isLoading! &&
@@ -464,7 +430,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),
-
               decoration: commonCardDecoration(),
               child: Column(
                 children: [
@@ -486,13 +451,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                 "index": index.toString(),
                               },
                             );
-
-                            if (context.mounted) {
-                              _reraDocumentCubit.getRERADocumentList(
-                                context: context,
-                                pageNumber: 1,
-                              );
-                            }
                           },
                           child: Text(
                             document.projectRERADocumentName,
@@ -500,7 +458,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                           ),
                         ),
                       ),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -516,7 +473,6 @@ class _RERADocumentScreenState extends State<RERADocumentScreen>
                                     ),
                                   ),
                                   "index": index.toString(),
-
                                   "isEdit": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       false.toString(),

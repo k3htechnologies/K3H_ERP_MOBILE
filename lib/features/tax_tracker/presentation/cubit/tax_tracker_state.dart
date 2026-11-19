@@ -24,7 +24,7 @@ class TaxTrackerState extends BaseState {
     searchText: "",
   );
 
-  TaxTrackerState copywith({
+  TaxTrackerState copyWith({
     bool? isLoading,
     List<TaxTrackerModel>? taxTrackerList,
     TaxTrackerModel? taxTrackerOverview,

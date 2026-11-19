@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -13,7 +12,6 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-
 part 'document_state.dart';
 
 class DocumentCubit extends Cubit<DocumentState> {
@@ -22,7 +20,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       serviceLocator<DocumentCategoryRepository>();
   final DocumentRepository _documentRepository =
       serviceLocator<DocumentRepository>();
-
   Future clearSubDocumentList() async {
     emit(
       state.copyWith(
@@ -54,7 +51,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       });
       return;
     }
-
     var result = await _documentCategoryRepository.getDocumentCategory(
       pageNumber: pageNumber,
       pageSize: 500,
@@ -109,7 +105,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentCategoryId": state.projectDocumentCategoryId,
       if (projectDocumentId != null) "ProjectDocumentId": projectDocumentId,
     };
-
     var result = await _documentRepository.pullProjectDocument(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -125,7 +120,6 @@ class DocumentCubit extends Cubit<DocumentState> {
         final List<DocumentModel> newData = List<DocumentModel>.from(
           response['data'] ?? [],
         );
-
         if (projectDocumentId == null) {
           final List<DocumentModel> updatedList =
               pageNumber == 1 ? newData : [...state.documentList, ...newData];
@@ -195,7 +189,6 @@ class DocumentCubit extends Cubit<DocumentState> {
         });
       }
     }
-
     var result = await _documentRepository.addUpdateDocument(
       body: body,
       fileList: fileList,
@@ -208,21 +201,17 @@ class DocumentCubit extends Cubit<DocumentState> {
       },
       (response) {
         goRouter.pop();
-
         final updatedDocument = response['data'][0] as DocumentModel;
-
         if (state.subDocumentList.isNotEmpty &&
             index < state.subDocumentList.length) {
           final updatedListModel = List<DocumentModel>.from(
             state.subDocumentList,
           );
-
           updatedListModel[index] = updatedDocument;
           emit(
             state.copyWith(isLoading: false, subDocumentList: updatedListModel),
           );
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -251,7 +240,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentName": projectDocumentName,
       //isMaster is 0 means add subdoc in document group
       "IsMaster": 0.toString(),
-
       "ProjectDocumentExpiryDate":
           projectDocumentExpiryDate != null
               ? projectDocumentExpiryDate.toIso8601String()
@@ -259,7 +247,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       "ProjectDocumentStatus": projectDocumentStatus ?? '',
       "ProjectDocumentRemark": projectDocumentRemark ?? '',
     };
-
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {
         if (documents.fileNameList[i].contains("http")) {
@@ -272,7 +259,6 @@ class DocumentCubit extends Cubit<DocumentState> {
         });
       }
     }
-
     var result = await _documentRepository.addUpdateDocument(
       body: body,
       fileList: fileList,
@@ -308,7 +294,6 @@ class DocumentCubit extends Cubit<DocumentState> {
             state.copyWith(isLoading: false, documentList: updatedParentList),
           );
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -334,7 +319,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       //isMaster is 1 means update document group into category
       "IsMaster": 1.toString(),
     };
-
     var result = await _documentRepository.addUpdateDocument(
       body: body,
       fileList: fileList,
@@ -348,7 +332,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       (response) {
         goRouter.pop();
         final updatedDocument = response['data'][0] as DocumentModel;
-
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
           final updatedListModel = List<DocumentModel>.from(state.documentList);
@@ -357,7 +340,6 @@ class DocumentCubit extends Cubit<DocumentState> {
             state.copyWith(isLoading: false, documentList: updatedListModel),
           );
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -382,7 +364,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       "IsMaster": 1.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
-
     var result = await _documentRepository.addUpdateDocument(
       body: body,
       fileList: fileList,
@@ -395,7 +376,6 @@ class DocumentCubit extends Cubit<DocumentState> {
       },
       (response) {
         goRouter.pop();
-
         showSuccessMessage(context, subTitle: response['message']);
         searchDocument("", context);
       },
@@ -406,7 +386,6 @@ class DocumentCubit extends Cubit<DocumentState> {
   void onTabChanged(int index, BuildContext context) {
     final categoryId =
         state.documentCategoryModelList[index].projectDocumentCategoryId;
-
     emit(
       state.copyWith(
         categoryIndex: index,
@@ -420,7 +399,6 @@ class DocumentCubit extends Cubit<DocumentState> {
         isLoading: true,
       ),
     );
-
     getProjectDocumentList(context: context, pageNumber: 1);
   }
 
@@ -445,7 +423,6 @@ class DocumentCubit extends Cubit<DocumentState> {
     bool isSubDoc = false,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _documentRepository.deleteDocument(
       projectDocumentCategoryId:
           state
@@ -455,14 +432,12 @@ class DocumentCubit extends Cubit<DocumentState> {
       uniqueKey: document.uniquekey,
       projectId: getProject().projectId,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
+      (response) {
         // Parent document delete
         if (isSubDoc == false) {
           final updatedList = List<DocumentModel>.from(state.documentList);
@@ -513,7 +488,7 @@ class DocumentCubit extends Cubit<DocumentState> {
             );
           }
         }
-        showSuccessMessage(context, subTitle: success['message']);
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

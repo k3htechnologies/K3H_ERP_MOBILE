@@ -22,7 +22,7 @@ class TermSheetDocumentsState extends BaseState {
     totalNumberOfRecord: 0,
     currentPage: 1,
   );
-  TermSheetDocumentsState copywith({
+  TermSheetDocumentsState copyWith({
     bool? isLoading,
     List<TermSheetDocumentModel>? termSheetDocumentList,
     TermSheetDocumentModel? termSheetDocumentOverview,

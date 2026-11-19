@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -8,22 +9,27 @@ import 'package:k3h_erp_app/features/project_document/drawing_document/data/mode
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/repository/drawing_document.repository.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document_category/data/model/drawing_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document_category/data/repository/drawing_document_category.repository.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-
 part 'drawing_document_state.dart';
 
 class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
   DrawingDocumentCubit() : super(DrawingDocumentState.initial());
-
   final DrawingDocumentCategoryRepository __drawingDocumentCategoryRepositor =
       serviceLocator<DrawingDocumentCategoryRepository>();
-
   final DrawingDocumentRepository _drawingDocumentRepository =
       serviceLocator<DrawingDocumentRepository>();
+  Future clearSubDocumentList() async {
+    emit(
+      state.copyWith(
+        subDrawingDocumentList: [],
+        totalNumberOfRecordOfSubDoc: 0,
+        currentPageOfSubDoc: 1,
+      ),
+    );
+  }
 
   void searchDocument(String value, BuildContext context) {
     emit(
@@ -78,7 +84,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       });
       return;
     }
-
     var result = await __drawingDocumentCategoryRepositor
         .getDrawingDocumentCategory(
           pageNumber: pageNumber,
@@ -141,7 +146,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
         "DrawingDocumentCategory": drawingDocumentCategory,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
-
     var result = await _drawingDocumentRepository.pullDrawingDocument(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -156,7 +160,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       (response) {
         final List<DrawingDocumentModel> newData =
             List<DrawingDocumentModel>.from(response['data'] ?? []);
-
         if (drawingDocumentId == null) {
           final List<DrawingDocumentModel> updatedList =
               pageNumber == 1
@@ -196,18 +199,15 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
     String? floor,
   }) async {
     emit(state.copyWith(isLoading: true));
-
     final Map<String, dynamic> queryParams = {
       "InventoryFloorId": inventoryFloorId,
       "Floor": floor,
     };
-
     final result = await _drawingDocumentRepository
         .pullInventoryDrawingDocument(
           projectId: projectId!,
           queryParams: queryParams,
         );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -216,12 +216,10 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       (response) {
         final List<InventoryDrawingDocumentModel> newData =
             List<InventoryDrawingDocumentModel>.from(response['data'] ?? []);
-
         final List<InventoryDrawingDocumentModel> updatedList =
             pageNumber == 1
                 ? newData
                 : [...state.inventoryDrawingDocumentList, ...newData];
-
         emit(
           state.copyWith(
             isLoading: false,
@@ -289,7 +287,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
         });
       }
     }
-
     var result = await _drawingDocumentRepository.addUpdateDrawingDocument(
       body: body,
       fileList: fileList,
@@ -302,15 +299,12 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       },
       (response) {
         goRouter.pop();
-
         final updatedDocument = response['data'][0] as DrawingDocumentModel;
-
         if (state.subDrawingDocumentList.isNotEmpty &&
             index < state.subDrawingDocumentList.length) {
           final updatedListModel = List<DrawingDocumentModel>.from(
             state.subDrawingDocumentList,
           );
-
           updatedListModel[index] = updatedDocument;
           emit(
             state.copyWith(
@@ -319,7 +313,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
             ),
           );
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -357,7 +350,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       "DrawingDocumentStatus": drawingDocumentStatus ?? "",
       "DrawingDocumentRemark": drawingDocumentRemark ?? '',
     };
-
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {
         if (documents.fileNameList[i].contains("http")) {
@@ -382,7 +374,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
         });
       }
     }
-
     var result = await _drawingDocumentRepository.addUpdateDrawingDocument(
       body: body,
       fileList: fileList,
@@ -393,19 +384,18 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
-        final currentPath = goRouter.state.path;
-        if (currentPath == AppRoutes.viewDrawingDocument) {
-          goRouter.pop();
-        }
-
+        await getDrawingDocumentList(
+          context: context,
+          pageNumber: 1,
+          drawingDocumentId: drawingDocumentId,
+        );
         if (state.drawingDocumentList.isNotEmpty &&
             index < state.drawingDocumentList.length) {
           final updatedListModel = List<DrawingDocumentModel>.from(
             state.drawingDocumentList,
           );
-
           // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
           updatedListModel[index] = updatedListModel[index].copyWith(
             drawingDocumentName: updatedListModel[index].drawingDocumentName,
@@ -415,7 +405,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
             uploadedApprovalDocumentCount:
                 updatedListModel[index].uploadedApprovalDocumentCount + 1,
           );
-
           emit(
             state.copyWith(
               isLoading: false,
@@ -423,7 +412,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
             ),
           );
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -449,7 +437,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       //isMaster is 1 means update document group into category
       "IsMaster": 1.toString(),
     };
-
     var result = await _drawingDocumentRepository.addUpdateDrawingDocument(
       body: body,
       fileList: fileList,
@@ -463,7 +450,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       (response) {
         goRouter.pop();
         final updatedDocument = response['data'][0] as DrawingDocumentModel;
-
         if (state.drawingDocumentList.isNotEmpty &&
             index < state.drawingDocumentList.length) {
           final updatedListModel = List<DrawingDocumentModel>.from(
@@ -477,11 +463,7 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
             ),
           );
         }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Project Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -504,7 +486,6 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       "IsMaster": 1.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
-
     var result = await _drawingDocumentRepository.addUpdateDrawingDocument(
       body: body,
       fileList: fileList,
@@ -517,11 +498,7 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       },
       (response) {
         goRouter.pop();
-
-        showSuccessMessage(
-          context,
-          subTitle: "Project Document Added Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
         searchDocument("", context);
       },
     );
@@ -551,9 +528,9 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
     BuildContext context,
     int index, {
     bool isSubDoc = false,
+    int? parentIndex,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _drawingDocumentRepository.deleteDrawingDocument(
       drawingDocumentCategoryId:
           state
@@ -563,14 +540,12 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
       uniqueKey: document.uniquekey,
       projectId: getProject().projectId,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
+      (response) {
         // Parent document delete
         if (isSubDoc == false) {
           final updatedList = List<DrawingDocumentModel>.from(
@@ -601,8 +576,34 @@ class DrawingDocumentCubit extends Cubit<DrawingDocumentState> {
                       : 0,
             ),
           );
+          if (state.drawingDocumentList.isNotEmpty &&
+              parentIndex! < state.drawingDocumentList.length) {
+            final updatedParentList = List<DrawingDocumentModel>.from(
+              state.drawingDocumentList,
+            );
+            // Only decrement approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+            updatedParentList[parentIndex] = updatedParentList[parentIndex]
+                .copyWith(
+                  drawingDocumentName:
+                      updatedParentList[parentIndex].drawingDocumentName,
+                  approvalPendingApprovalDocumentCount:
+                      updatedParentList[parentIndex]
+                          .approvalPendingApprovalDocumentCount -
+                      1,
+                  uploadedApprovalDocumentCount:
+                      updatedParentList[parentIndex]
+                          .uploadedApprovalDocumentCount -
+                      1,
+                );
+            emit(
+              state.copyWith(
+                isLoading: false,
+                drawingDocumentList: updatedParentList,
+              ),
+            );
+          }
         }
-        showSuccessMessage(context, subTitle: success['message']);
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

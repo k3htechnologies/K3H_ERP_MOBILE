@@ -22,7 +22,6 @@ class AddTestDocumentCategoryScreen extends StatefulWidget {
     this.testDocumentCategoryModel,
     this.index = 0,
   });
-
   @override
   State<AddTestDocumentCategoryScreen> createState() =>
       _AddTestDocumentCategoryScreenState();
@@ -32,21 +31,16 @@ class _AddTestDocumentCategoryScreenState
     extends State<AddTestDocumentCategoryScreen> {
   //CUBIT
   late TestDocumentCategoryCubit _testDocumentCategoryCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _reraDocumentCategoryC, _orderByC;
-
   //EDIT MODE
   bool get _isEditMode => widget.testDocumentCategoryModel != null;
-
   //PROJECT ID
   late int projectId;
-
   @override
   void initState() {
     super.initState();

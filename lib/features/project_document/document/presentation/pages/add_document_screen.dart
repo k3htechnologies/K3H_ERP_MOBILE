@@ -25,7 +25,6 @@ class AddDocumentScreen extends StatefulWidget {
     this.index = 0,
     this.isEdit = false,
   });
-
   @override
   State<AddDocumentScreen> createState() => _AddDocumentScreenState();
 }
@@ -33,13 +32,10 @@ class AddDocumentScreen extends StatefulWidget {
 class _AddDocumentScreenState extends State<AddDocumentScreen> {
   //CUBIT
   late DocumentCubit _documentCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _documentNameC, _remarkC;
-
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
   DateTime? expiryDate;
@@ -58,17 +54,14 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
     {'zAttributesId': 8, 'DisplayName': 'Payment Due'},
     {'zAttributesId': 9, 'DisplayName': 'Rejected'},
   ];
-
   // FILE VARIABLES
   MultiFilePickerModel selectedDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
   //EDIT MODE
   bool get _isEditMode => widget.isEdit;
-
   @override
   void initState() {
     super.initState();
@@ -135,19 +128,15 @@ class _AddDocumentScreenState extends State<AddDocumentScreen> {
         (status) => status['DisplayName'] == document.projectDocumentStatus,
         orElse: () => statusList.first, // fallback to "Select Status"
       );
-
       _selectedStatus.value = matchedStatus;
     }
-
     // Prefill expiry date
     expiryDate = document.projectDocumentExpiryDate;
-
     // Prefill remark text
     _remarkC.text =
         document.projectDocumentRemark.isNotEmpty
             ? document.projectDocumentRemark
             : "";
-
     // Prefill files if any
     selectedDocumentFile.fileNameList =
         document.projectDocumentURL.isEmpty

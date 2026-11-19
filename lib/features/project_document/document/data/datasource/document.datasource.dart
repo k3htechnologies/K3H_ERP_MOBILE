@@ -14,7 +14,6 @@ abstract interface class DocumentDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> apicallDeleteDocument({
     required int projectDocumentId,
     required int projectId,
@@ -25,7 +24,6 @@ abstract interface class DocumentDatasource {
 
 class DocumentDatasourceImpl implements DocumentDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullProjectDocument({
     required int pageNumber,
@@ -80,7 +78,6 @@ class DocumentDatasourceImpl implements DocumentDatasource {
   }) async {
     String addUpdateProjectDocumentUrl =
         "ProjectDocument/AddUpdateProjectDocument";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(

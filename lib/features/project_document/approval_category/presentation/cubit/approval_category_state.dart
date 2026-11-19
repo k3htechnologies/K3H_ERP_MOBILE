@@ -8,7 +8,6 @@ class ApprovalCategoryState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const ApprovalCategoryState({
     super.isLoading,
     required this.approvalCategoryList,
@@ -18,7 +17,6 @@ class ApprovalCategoryState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
-
   factory ApprovalCategoryState.initial() => ApprovalCategoryState(
     approvalCategoryList: [],
     totalNumberOfRecord: 0,
@@ -28,7 +26,6 @@ class ApprovalCategoryState extends BaseState {
     currentSortColumn: "",
     currentSortDirection: "",
   );
-
   ApprovalCategoryState copyWith({
     bool? isLoading,
     List<ApprovalDocumentCategoryModel>? approvalCategoryList,

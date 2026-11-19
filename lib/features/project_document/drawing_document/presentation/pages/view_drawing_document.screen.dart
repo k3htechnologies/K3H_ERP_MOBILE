@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -32,7 +31,6 @@ class ViewDrawingDocumentScreen extends StatefulWidget {
     required this.index,
     required this.drawingDocumentModel,
   });
-
   @override
   State<ViewDrawingDocumentScreen> createState() =>
       _ViewDrawingDocumentScreenState();
@@ -42,14 +40,11 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
   //CUBIT
   late UtilsCubit _utilsCubit;
   late DrawingDocumentCubit _drawingDocumentCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   @override
   void initState() {
     super.initState();
@@ -58,7 +53,6 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
     _utilsCubit = context.read<UtilsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.drawingDocument]!;
-
     _drawingDocumentCubit.getDrawingDocumentList(
       context: context,
       pageNumber: 1,
@@ -107,13 +101,13 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
       'You are about to delete a document?',
       'Deleting this document will permanently remove all associated data.',
     );
-
     if (shouldDelete && context.mounted) {
       _drawingDocumentCubit.deleteDrawingDocument(
         obj,
         context,
         index,
         isSubDoc: true,
+        parentIndex: widget.index,
       );
     }
   }
@@ -182,7 +176,6 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
                                   ),
                                 ),
                                 "index": widget.index.toString(),
-
                                 "isEdit": Uri.encodeQueryComponent(
                                   EncryptionManager.encryptData(
                                     false.toString(),
@@ -197,14 +190,12 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
                 ),
               ],
             ),
-
             BlocBuilder<DrawingDocumentCubit, DrawingDocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
                     state.subDrawingDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
-
                 if (state.subDrawingDocumentList.isEmpty) {
                   return Expanded(
                     child: Center(
@@ -212,7 +203,6 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
                     ),
                   );
                 }
-
                 return Expanded(
                   child: ListView.builder(
                     controller: scrollController,
@@ -227,7 +217,6 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
                             )
                             : const SizedBox.shrink();
                       }
-
                       return _buildDocumentCard(
                         state.subDrawingDocumentList[index],
                         index,
@@ -253,7 +242,6 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
     // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
     // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
     final bool isActionAllowed = document.isApproval;
-
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -288,7 +276,6 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
                         ),
                       ),
                       "index": index.toString(),
-
                       "isEdit": Uri.encodeQueryComponent(
                         EncryptionManager.encryptData(true.toString()),
                       ),
@@ -457,7 +444,6 @@ class _ViewDrawingDocumentScreenState extends State<ViewDrawingDocumentScreen> {
                     id: document.drawingDocumentId,
                     moduleName: "DRAWING DOCUMENT APPROVAL",
                   );
-
               if (context.mounted) {
                 goRouter.pushNamed(
                   AppRoutes.approvalLogHistory,

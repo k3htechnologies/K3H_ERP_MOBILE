@@ -11,7 +11,7 @@ class RepaymentState extends BaseState {
   factory RepaymentState.inital() =>
       RepaymentState(termSheetDetailsViewModel: null, totalNumberOfRecord: 0);
 
-  RepaymentState copywith({
+  RepaymentState copyWith({
     bool? isLoading,
     TermSheetDetailsView? termSheetDetailsViewModel,
     int? totalNumberOfRecord,

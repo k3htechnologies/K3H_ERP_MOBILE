@@ -12,7 +12,6 @@ void registerDocumentCategoryDependencies(GetIt serviceLocator) {
       documentCategoryDatasource: serviceLocator<DocumentCategoryDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<DocumentCategoryCubit>(
     DocumentCategoryCubit(),

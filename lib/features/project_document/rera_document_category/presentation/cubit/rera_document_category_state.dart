@@ -8,7 +8,6 @@ class RERADocumentCategoryState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const RERADocumentCategoryState({
     super.isLoading,
     required this.reraDocumentCategoryList,
@@ -18,7 +17,6 @@ class RERADocumentCategoryState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
-
   factory RERADocumentCategoryState.initial() => RERADocumentCategoryState(
     reraDocumentCategoryList: [],
     totalNumberOfRecord: 0,
@@ -28,10 +26,8 @@ class RERADocumentCategoryState extends BaseState {
     currentSortColumn: "",
     currentSortDirection: "",
   );
-
   RERADocumentCategoryState copyWith({
     bool? isLoading,
-    List<RERADocumentCategoryModel>? documentCategoryList,
     List<RERADocumentCategoryModel>? reraDocumentCategoryList,
     int? totalNumberOfRecord,
     int? currentPage,
@@ -42,7 +38,7 @@ class RERADocumentCategoryState extends BaseState {
     return RERADocumentCategoryState(
       isLoading: isLoading ?? this.isLoading,
       reraDocumentCategoryList:
-          documentCategoryList ?? this.reraDocumentCategoryList,
+          reraDocumentCategoryList ?? this.reraDocumentCategoryList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,

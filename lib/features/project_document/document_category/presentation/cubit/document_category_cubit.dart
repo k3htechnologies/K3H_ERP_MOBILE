@@ -7,15 +7,12 @@ import 'package:k3h_erp_app/features/project_document/document_category/data/rep
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
-
 part 'document_category_state.dart';
 
 class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
   DocumentCategoryCubit() : super(DocumentCategoryState.initial());
-
   final DocumentCategoryRepository _documentCategoryRepository =
       serviceLocator<DocumentCategoryRepository>();
-
   Future<void> resetSearch() async {
     emit(state.copyWith(searchText: ""));
   }
@@ -78,7 +75,6 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
       projectId: projectId,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -87,7 +83,6 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
       (response) {
         final List<DocumentCategoryModel> newData =
             List<DocumentCategoryModel>.from(response['data'] ?? []);
-
         final List<DocumentCategoryModel> updatedList =
             pageNumber == 1
                 ? newData
@@ -105,33 +100,40 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
   }
 
   // DELETE DOCUMENT CATEGORY
-  Future deleteDocumentCategory(
-    int projectId,
-    DocumentCategoryModel documentCategoryModel,
-    BuildContext context,
-  ) async {
+  Future deleteDocumentCategory({
+    required int projectId,
+    required DocumentCategoryModel documentCategoryModel,
+    required BuildContext context,
+    required int index,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _documentCategoryRepository.deleteDocumentCategory(
       projectDocumentCategoryId:
           documentCategoryModel.projectDocumentCategoryId,
       uniqueKey: documentCategoryModel.uniquekey,
       projectId: projectId,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
-        showSuccessMessage(
-          context,
-          subTitle: "Project Document Category Deleted Successfully",
+      (response) {
+        final updatedCategoryList = List<DocumentCategoryModel>.from(
+          state.documentCategoryList,
         );
-
-        getDocumentCategoryList(context, state.currentPage, projectId);
+        updatedCategoryList.removeAt(index);
+        emit(
+          state.copyWith(
+            documentCategoryList: updatedCategoryList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -162,11 +164,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
       },
       (response) {
         goRouter.pop();
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Project Document Category Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
         searchCategory(context, projectId, "");
       },
     );
@@ -202,7 +200,6 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
       (response) {
         goRouter.pop();
         final updatedList = response['data'][0] as DocumentCategoryModel;
-
         if (state.documentCategoryList.isNotEmpty &&
             index < state.documentCategoryList.length) {
           final updatedListModel = List<DocumentCategoryModel>.from(
@@ -211,11 +208,7 @@ class DocumentCategoryCubit extends Cubit<DocumentCategoryState> {
           updatedListModel[index] = updatedList;
           emit(state.copyWith(documentCategoryList: updatedListModel));
         }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Project Document Category Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

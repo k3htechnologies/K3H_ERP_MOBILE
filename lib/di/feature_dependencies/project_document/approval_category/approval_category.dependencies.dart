@@ -12,7 +12,6 @@ void registerApprovalCategoryDependencies(GetIt serviceLocator) {
       documentCategoryDatasource: serviceLocator<ApprovalCategoryDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<ApprovalCategoryCubit>(
     ApprovalCategoryCubit(),

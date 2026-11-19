@@ -22,7 +22,6 @@ class RERADocumentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   RERADocumentModel({
     required this.projectRERADocumentId,
     required this.uniquekey,
@@ -46,7 +45,6 @@ class RERADocumentModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory RERADocumentModel.fromJson(Map<String, dynamic> json) =>
       RERADocumentModel(
         projectRERADocumentId: parseValue<int>(json, "ProjectRERADocumentId"),
@@ -107,7 +105,6 @@ class RERADocumentModel {
                 ? null
                 : parseValue<DateTime>(json, "ModifiedDate"),
       );
-
   Map<String, dynamic> toJson() => {
     "ProjectRERADocumentId": projectRERADocumentId,
     "Uniquekey": uniquekey,

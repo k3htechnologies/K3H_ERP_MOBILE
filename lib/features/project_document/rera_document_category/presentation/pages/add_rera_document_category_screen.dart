@@ -16,15 +16,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddRERADocumentCategoryScreen extends StatefulWidget {
   final RERADocumentCategoryModel? reraDocumentCategoryModel;
-
   final int index;
   const AddRERADocumentCategoryScreen({
     super.key,
     required this.reraDocumentCategoryModel,
-
     this.index = 0,
   });
-
   @override
   State<AddRERADocumentCategoryScreen> createState() =>
       _AddRERADocumentCategoryScreenState();
@@ -34,21 +31,16 @@ class _AddRERADocumentCategoryScreenState
     extends State<AddRERADocumentCategoryScreen> {
   //CUBIT
   late RERADocumentCategoryCubit _reraDocumentCategoryCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _reraDocumentCategoryC, _orderByC;
-
   //EDIT MODE
   bool get _isEditMode => widget.reraDocumentCategoryModel != null;
-
   //PROJECT ID
   late int projectId;
-
   @override
   void initState() {
     super.initState();

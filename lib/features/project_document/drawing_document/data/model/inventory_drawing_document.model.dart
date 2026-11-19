@@ -13,7 +13,6 @@ class InventoryDrawingDocumentModel {
   DateTime createdDate;
   String modifiedBy;
   DateTime? modifiedDate;
-
   InventoryDrawingDocumentModel({
     required this.drawingDocumentName,
     required this.drawingDocumentUrl,
@@ -28,7 +27,6 @@ class InventoryDrawingDocumentModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory InventoryDrawingDocumentModel.fromJson(
     Map<String, dynamic> json,
   ) => InventoryDrawingDocumentModel(
@@ -54,7 +52,6 @@ class InventoryDrawingDocumentModel {
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
   );
-
   Map<String, dynamic> toJson() => {
     "DrawingDocumentName": drawingDocumentName,
     "DrawingDocumentURL": drawingDocumentUrl,
