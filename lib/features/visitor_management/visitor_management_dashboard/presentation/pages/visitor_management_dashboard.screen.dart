@@ -217,6 +217,8 @@ class _VisitorManagementDashboardScreenState
   Widget build(BuildContext context) {
     return RefreshIndicator(
       onRefresh: () async {
+        _fromDateNotifier.value = null;
+        _toDateNotifier.value = null;
         _visitorManagementDashboardCubit.getGatePassDashboard(
           context: context,
           filterType: _selectedFilterType.value,
