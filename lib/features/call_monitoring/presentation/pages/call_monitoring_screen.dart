@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -46,8 +45,8 @@ class CallMonitoringScreen extends StatefulWidget {
 class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
   late final CallMonitoringCubit _cubit;
   late final ScrollController _scrollController;
-  late final TextEditingController _filterApplicantNameC;
-  late final TextEditingController _filterApplicantMobileC;
+  late final TextEditingController _filterNameC;
+  late final TextEditingController _filterMobileC;
   Timer? _debounce;
 
   final ValueNotifier<Map<String, dynamic>?> _selectedCallStatus =
@@ -65,8 +64,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
     super.initState();
     _cubit = context.read<CallMonitoringCubit>();
     updatePageInfo();
-    _filterApplicantNameC = TextEditingController();
-    _filterApplicantMobileC = TextEditingController();
+    _filterNameC = TextEditingController();
+    _filterMobileC = TextEditingController();
 
     _initScrollController();
 
@@ -81,8 +80,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
   @override
   void dispose() {
     _debounce?.cancel();
-    _filterApplicantNameC.dispose();
-    _filterApplicantMobileC.dispose();
+    _filterNameC.dispose();
+    _filterMobileC.dispose();
     _selectedCallStatus.dispose();
     _selectedCallPurpose.dispose();
     _fromDateNotifier.dispose();
@@ -118,7 +117,7 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
     });
   }
 
-  Future<void> _confirmDelete(
+  Future<void> _showDeleteCallLogDialog(
     BuildContext context,
     CallMonitoringModel obj,
     int index,
@@ -142,16 +141,16 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
   }
 
   // FILTER
-  Future<void> _showFilterBottomSheet(BuildContext context) async {
+  Future<void> _showBottomSheetToFilterCallLog(BuildContext context) async {
     final state = _cubit.state;
 
-    _filterApplicantNameC.text = state.filterByName;
-    _filterApplicantMobileC.text = state.filterByMobileNumber;
+    _filterNameC.text = state.filterByName;
+    _filterMobileC.text = state.filterByMobileNumber;
     _fromDateNotifier.value = state.filterByFromDate;
     _toDateNotifier.value = state.filterByToDate;
 
-    final initialName = _filterApplicantNameC.text;
-    final initialMobile = _filterApplicantMobileC.text;
+    final initialName = _filterNameC.text;
+    final initialMobile = _filterMobileC.text;
     final initialCallStatus = state.filterByCallStatus;
     final initialCallPurpose = state.filterByCallPurpose;
 
@@ -179,8 +178,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
 
       innerState(() {
         applyEnabled.value =
-            _filterApplicantNameC.text.trim() != initialName ||
-            _filterApplicantMobileC.text.trim() != initialMobile ||
+            _filterNameC.text.trim() != initialName ||
+            _filterMobileC.text.trim() != initialMobile ||
             currentStatus != initialCallStatus ||
             currentPurpose != initialCallPurpose ||
             _fromDateNotifier.value != state.filterByFromDate ||
@@ -190,7 +189,7 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
 
     await DialogHelper.showCustomFilterBottomSheet(
       context,
-      title: "Filter - Call Monitoring",
+      title: "Filter - Call Log",
       contentWidget: StatefulBuilder(
         builder: (context, innerState) {
           return SingleChildScrollView(
@@ -237,15 +236,16 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
                   },
                 ),
                 CustomTextField(
-                  title: "Applicant Name",
-                  hint: "Enter Applicant Name",
-                  textController: _filterApplicantNameC,
+                  title: "Name",
+                  hint: "Enter Name",
+                  textController: _filterNameC,
                   onChangeFunction: (_) => updateApplyState(innerState),
                 ),
                 CustomTextField(
-                  title: "Applicant Mobile Number",
-                  hint: "Enter Applicant Mobile Number",
-                  textController: _filterApplicantMobileC,
+                  title: "Mobile Number",
+                  hint: "Enter Mobile Number",
+                  prefixType: CustomTextFieldPrefix.mobile,
+                  textController: _filterMobileC,
                   keyboardType: TextInputType.phone,
                   inputFormatterList: InputValidator.digit(10),
                   onChangeFunction: (_) => updateApplyState(innerState),
@@ -257,6 +257,7 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
                   initialToDate: _toDateNotifier.value,
                   isRequired: false,
                   removeBottomMargin: false,
+                  alignVertical: true,
                   onToDateChanged: (DateTime? fromDate, DateTime? toDate) {
                     _fromDateNotifier.value = fromDate;
                     _toDateNotifier.value = toDate;
@@ -269,8 +270,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
         },
       ),
       onClear: () {
-        _filterApplicantNameC.clear();
-        _filterApplicantMobileC.clear();
+        _filterNameC.clear();
+        _filterMobileC.clear();
         _selectedCallStatus.value = null;
         _selectedCallPurpose.value = null;
         _fromDateNotifier.value = null;
@@ -287,8 +288,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
         _cubit.applyCallMonitoringFilter(
           context: context,
           id: widget.id,
-          callLogApplicantName: _filterApplicantNameC.text.trim(),
-          callLogApplicantMobileNumber: _filterApplicantMobileC.text.trim(),
+          callLogApplicantName: _filterNameC.text.trim(),
+          callLogApplicantMobileNumber: _filterMobileC.text.trim(),
           callLogStatus: _selectedCallStatus.value?['DisplayName'] ?? "",
           callLogPurpose: _selectedCallPurpose.value?['DisplayName'] ?? "",
           fromDate: _fromDateNotifier.value,
@@ -301,8 +302,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
 
     // Sheet closed without applying: restore the search box to applied state.
     if (!applied) {
-      _filterApplicantNameC.text = _cubit.state.filterByName;
-      _filterApplicantMobileC.text = _cubit.state.filterByMobileNumber;
+      _filterNameC.text = _cubit.state.filterByName;
+      _filterMobileC.text = _cubit.state.filterByMobileNumber;
     }
   }
 
@@ -327,7 +328,7 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
                 if (state.callMonitoringList.isEmpty) {
                   return Center(
                     child: noDataWidget(
-                      message: "No Call Monitoring Found",
+                      message: "No Call Logs Data Found.",
                       iconSize: 180,
                     ),
                   );
@@ -384,34 +385,40 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
                 ),
               ),
               horizontalSpacing(),
-              if (widget.routeAuthorizationModel.isAction)
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      CustomIconButton.edit(
-                        isDisabled: item.callStatus.isNotEmpty,
-                        onPressed: () {
-                          // Adjust route name to your actual edit route.
-                          goRouter.pushNamed(
-                            AppRoutes.updateCallMonitoring,
-                            extra: {"callMonitoring": item},
-                          );
-                        },
-                      ),
-                      horizontalSpacing(),
-                      CustomIconButton.delete(
-                        isDisabled: item.callStatus.isNotEmpty,
-                        onPressed: () => _confirmDelete(context, item, index),
-                      ),
-                    ],
-                  ),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    CustomIconButton.edit(
+                      isDisabled:
+                          item.callStatus.isNotEmpty ||
+                          !widget.routeAuthorizationModel.isAction,
+
+                      onPressed: () {
+                        // Adjust route name to your actual edit route.
+                        goRouter.pushNamed(
+                          AppRoutes.updateCallMonitoring,
+                          extra: {"callMonitoring": item, "index": index},
+                        );
+                      },
+                    ),
+                    horizontalSpacing(),
+                    CustomIconButton.delete(
+                      isDisabled:
+                          item.callStatus.isNotEmpty ||
+                          !widget.routeAuthorizationModel.isAction,
+                      onPressed: () => _showDeleteCallLogDialog(context, item, index),
+                    ),
+                  ],
                 ),
+              ),
             ],
           ),
-          if (status.isNotEmpty)
-            callLogStatusWidget(status, textStyle: AppTextStyle.ts10M()),
+          callLogStatusWidget(
+            status.isEmpty ? "-" : status,
+            textStyle: AppTextStyle.ts10M(),
+          ),
         ],
       ),
       body: Column(
@@ -495,10 +502,10 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
                       value,
                     );
                   },
-                  textController: _filterApplicantNameC,
+                  textController: _filterNameC,
                   isFilterOn: true,
                   filterCountNotifier: _filterCount,
-                  onFilterTap: () => _showFilterBottomSheet(context),
+                  onFilterTap: () => _showBottomSheetToFilterCallLog(context),
                 ),
               ),
               horizontalSpacing(),
@@ -509,8 +516,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
                     return;
                   }
                   _cubit.exportCallMonitoringExcelPdf(
-                    context,
-                    v,
+                    context: context,
+                    exportType: v,
                     projectId: _projectId,
                   );
                 },

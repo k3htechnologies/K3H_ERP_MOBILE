@@ -16,9 +16,14 @@ import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class UpdateCallMonitoringScreen extends StatefulWidget {
+  final int index;
   final CallMonitoringModel callMonitoring;
 
-  const UpdateCallMonitoringScreen({super.key, required this.callMonitoring});
+  const UpdateCallMonitoringScreen({
+    super.key,
+    required this.index,
+    required this.callMonitoring,
+  });
 
   @override
   State<UpdateCallMonitoringScreen> createState() =>
@@ -98,6 +103,7 @@ class _UpdateCallMonitoringScreenState
     final callLog = widget.callMonitoring;
     _callMonitoringCubit.updateCallMonitoring(
       context,
+      index: widget.index,
       projectId: callLog.projectId,
       callMonitoringId: callLog.callMonitoringId,
       uniqueKey: callLog.uniquekey,

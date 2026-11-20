@@ -1,4 +1,5 @@
 import 'package:flutter/rendering.dart';
+import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 
 final Map<String, StatusConfig> callLogStatusConfig = {
@@ -40,5 +41,9 @@ final Map<String, StatusConfig> callLogStatusConfig = {
   'rescheduled': StatusConfig(
     backgroundColor: Color(0x33121258),
     textColor: Color(0xFF243965),
+  ),
+  '-': StatusConfig(
+    backgroundColor: AppColor.greyBackground,
+    textColor: AppColor.grey,
   ),
 };

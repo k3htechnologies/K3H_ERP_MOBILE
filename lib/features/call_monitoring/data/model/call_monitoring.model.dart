@@ -13,7 +13,7 @@ class CallMonitoringModel {
   String callStatus;
   String callPurpose;
   String remark;
-  DateTime rescheduleDate;
+  DateTime? rescheduleDate;
   int createdById;
   String createdBy;
   DateTime createdDate;
@@ -57,7 +57,10 @@ class CallMonitoringModel {
         callStatus: parseValue<String>(json, "CallStatus"),
         callPurpose: parseValue<String>(json, "CallPurpose"),
         remark: parseValue<String>(json, "Remark"),
-        rescheduleDate: parseValue<DateTime>(json, "RescheduleDate"),
+        rescheduleDate:
+            json["RescheduleDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "RescheduleDate"),
         createdById: parseValue<int>(json, "CreatedById"),
         createdBy: parseValue<String>(json, "CreatedBy"),
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
@@ -82,7 +85,7 @@ class CallMonitoringModel {
     "CallStatus": callStatus,
     "CallPurpose": callPurpose,
     "Remark": remark,
-    "RescheduleDate": rescheduleDate,
+    "RescheduleDate": rescheduleDate?.toIso8601String(),
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),

@@ -6303,6 +6303,7 @@ final GoRouter goRouter = GoRouter(
                     final extra = state.extra as Map<String, dynamic>;
 
                     return UpdateCallMonitoringScreen(
+                      index: extra["index"] as int,
                       callMonitoring:
                           extra["callMonitoring"] as CallMonitoringModel,
                     );

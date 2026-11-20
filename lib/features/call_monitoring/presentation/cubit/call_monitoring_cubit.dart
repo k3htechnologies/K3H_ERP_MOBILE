@@ -147,6 +147,7 @@ class CallMonitoringCubit extends Cubit<CallMonitoringState> {
 
   Future<void> updateCallMonitoring(
     BuildContext context, {
+    required int index,
     required int projectId,
     required int callMonitoringId,
     required String uniqueKey,
@@ -177,16 +178,15 @@ class CallMonitoringCubit extends Cubit<CallMonitoringState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
-        emit(state.copyWith(isLoading: false));
+        final updatedList = List<CallMonitoringModel>.from(
+          state.callMonitoringList,
+        );
+
+        updatedList[index] = response['data'][0] as CallMonitoringModel;
 
         showSuccessMessage(context, subTitle: response["message"]);
+        emit(state.copyWith(isLoading: false, callMonitoringList: updatedList));
         goRouter.pop();
-
-        await getCallMonitoring(
-          context: context,
-          pageNumber: 1,
-          projectId: projectId,
-        );
       },
     );
   }
@@ -236,10 +236,10 @@ class CallMonitoringCubit extends Cubit<CallMonitoringState> {
     );
   }
 
-  Future<void> exportCallMonitoringExcelPdf(
-    BuildContext context,
-    String exportType, {
-    int? projectId,
+  Future<void> exportCallMonitoringExcelPdf({
+  required  BuildContext context,
+   required  String exportType,
+   required int projectId,
   }) async {
     if (state.totalNumberOfRecord == 0) {
       showErrorMessage(context, 'Error', 'No Data Found');

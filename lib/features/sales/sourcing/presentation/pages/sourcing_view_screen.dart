@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/services/call_monitoring_service.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/call_monitoring/presentation/pages/call_monitoring_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/presentation/cubit/sourcing_cubit.dart';
@@ -16,6 +19,7 @@ import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
@@ -56,16 +60,17 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   final ValueNotifier<Map<String, dynamic>?> selectedSupport = ValueNotifier(
     null,
   );
+  late CallMonitoringService _callMonitoringService;
 
   @override
   void initState() {
     super.initState();
     _sourcingCubit = context.read<SourcingCubit>();
-
+    _callMonitoringService = serviceLocator<CallMonitoringService>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.sourcing]!;
     _remarkC = TextEditingController();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabChange);
   }
 
@@ -392,7 +397,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: showSiteSelectedWidget(),
             ),
-            verticalSpacing(),
+            verticalSpacing(height: 5),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -400,49 +405,27 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                 style: AppTextStyle.ts16SB(color: AppColor.primary),
               ),
             ),
-            verticalSpacing(),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IntrinsicWidth(
-                child: Container(
-                  height: 35,
-                  margin: const EdgeInsets.symmetric(horizontal: 16),
-                  decoration: BoxDecoration(
-                    color: AppColor.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: AppColor.grey.withValues(alpha: 0.2),
-                    ),
-                  ),
-                  child: TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    labelColor: AppColor.primary,
-                    unselectedLabelColor: AppColor.grey,
-                    indicator: BoxDecoration(
-                      color: AppColor.lightBlue,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    indicatorSize: TabBarIndicatorSize.tab,
-                    dividerColor: Colors.transparent,
-                    labelStyle: AppTextStyle.ts14M(),
-                    unselectedLabelStyle: AppTextStyle.ts14M(),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    padding: EdgeInsets.zero,
-                    tabs: const [
-                      Tab(text: 'Overview'),
-                      Tab(text: 'Remark & Activity'),
-                    ],
-                  ),
-                ),
-              ),
+            verticalSpacing(height: 15),
+            ChipStyleTabBar(
+              controller: _tabController,
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              tabs: ['Overview', 'Remark & Activity', 'Call Log'],
+              style: ChipTabBarStyle.classic,
             ),
+            verticalSpacing(height: 15),
             Expanded(
               child: TabBarView(
                 physics: NeverScrollableScrollPhysics(),
                 controller: _tabController,
-                children: [_buildOverviewTab(), _buildRemarkAndActivityTab()],
+                children: [
+                  _buildOverviewTab(),
+                  _buildRemarkAndActivityTab(),
+                  CallMonitoringScreen(
+                    pageName: 'Channel Partner Sourcing',
+                    id: widget.channelPartner.channelPartnerId,
+                    routeAuthorizationModel: _routeAuthorizationModel,
+                  ),
+                ],
               ),
             ),
           ],
@@ -454,7 +437,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
   // BUILD OVERVIEW TAB
   Widget _buildOverviewTab() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -502,6 +485,22 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
                             widget.channelPartner.mobileNumberCountryCode,
                         value: widget.channelPartner.mobileNumber,
                         type: ContactType.phone,
+                        onCall: (phoneNumber) async {
+                          final granted =
+                              await _callMonitoringService
+                                  .ensurePhonePermission();
+
+                          if (!granted) return;
+
+                          _callMonitoringService.startCallTracking(
+                            phoneNumber: phoneNumber,
+                            config: CallMonitoringConfig(
+                              projectId: widget.projectId,
+                              id: widget.channelPartner.channelPartnerId,
+                              pageName: 'Channel Partner Sourcing',
+                            ),
+                          );
+                        },
                       ),
                     ),
                     buildColumnTitleValue(
@@ -779,9 +778,8 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
 
         return Column(
           children: [
-            verticalSpacing(height: 8),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
                 children: [
                   _buildFilterTab("ALL", state),
