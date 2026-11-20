@@ -1,7 +1,7 @@
 part of 'drawing_document_category_cubit.dart';
 
 class DrawingDocumentCategoryState extends BaseState {
-  final List<DrawingDocumentCategoryModel> drawingDocumentCategoryModelList;
+  final List<DrawingDocumentCategoryModel> drawingDocumentCategoryList;
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
@@ -9,18 +9,17 @@ class DrawingDocumentCategoryState extends BaseState {
   final String currentSortDirection;
   const DrawingDocumentCategoryState({
     super.isLoading,
-    required this.drawingDocumentCategoryModelList,
+    required this.drawingDocumentCategoryList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
-
   factory DrawingDocumentCategoryState.initial() =>
       DrawingDocumentCategoryState(
         isLoading: true,
-        drawingDocumentCategoryModelList: [],
+        drawingDocumentCategoryList: [],
         totalNumberOfRecord: 0,
         currentPage: 1,
         searchText: "",
@@ -29,7 +28,7 @@ class DrawingDocumentCategoryState extends BaseState {
       );
   DrawingDocumentCategoryState copyWith({
     bool? isLoading,
-    List<DrawingDocumentCategoryModel>? drawingDocumentCategoryModelList,
+    List<DrawingDocumentCategoryModel>? drawingDocumentCategoryList,
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
@@ -38,9 +37,8 @@ class DrawingDocumentCategoryState extends BaseState {
   }) {
     return DrawingDocumentCategoryState(
       isLoading: isLoading ?? this.isLoading,
-      drawingDocumentCategoryModelList:
-          drawingDocumentCategoryModelList ??
-          this.drawingDocumentCategoryModelList,
+      drawingDocumentCategoryList:
+          drawingDocumentCategoryList ?? this.drawingDocumentCategoryList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
@@ -52,7 +50,7 @@ class DrawingDocumentCategoryState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
-    drawingDocumentCategoryModelList,
+    drawingDocumentCategoryList,
     totalNumberOfRecord,
     currentPage,
     searchText,

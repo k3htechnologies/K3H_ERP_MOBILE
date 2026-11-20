@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -26,13 +25,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ViewApprovalDocumentScreen extends StatefulWidget {
   final int index;
   final ApprovalDocumentModel documentModel;
-
   const ViewApprovalDocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
   });
-
   @override
   State<ViewApprovalDocumentScreen> createState() =>
       _ViewApprovalDocumentScreenState();
@@ -45,11 +42,9 @@ class _ViewApprovalDocumentScreenState
   late UtilsCubit _utilsCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   @override
   void initState() {
     super.initState();
@@ -104,13 +99,13 @@ class _ViewApprovalDocumentScreenState
       'You are about to delete a document?',
       'Deleting this document will permanently remove its contents.',
     );
-
     if (shouldDelete && context.mounted) {
       _documentCubit.deleteApprovalDocument(
         obj,
         context,
         index,
         isSubDoc: true,
+        parentIndex: widget.index,
       );
     }
   }
@@ -176,18 +171,15 @@ class _ViewApprovalDocumentScreenState
                     : SizedBox.shrink(),
               ],
             ),
-
             BlocBuilder<ApprovalDocumentCubit, ApprovalDocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
                     state.subApprovalDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
-
                 if (state.subApprovalDocumentList.isEmpty) {
                   return Expanded(child: Center(child: noDataWidget()));
                 }
-
                 return Expanded(
                   child: ListView.builder(
                     controller: scrollController,
@@ -227,7 +219,6 @@ class _ViewApprovalDocumentScreenState
     // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
     // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
     final bool isActionAllowed = document.isApproval;
-
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -402,7 +393,6 @@ class _ViewApprovalDocumentScreenState
                     id: document.approvalDocumentId,
                     moduleName: "APPROVAL DOCUMENT APPROVAL",
                   );
-
               if (context.mounted) {
                 goRouter.pushNamed(
                   AppRoutes.approvalLogHistory,
@@ -439,37 +429,28 @@ class _ViewApprovalDocumentScreenState
   // Helper Widget
   Widget statusWidget(String status) {
     final s = status.toLowerCase();
-
     switch (s) {
       case 'applied':
         return statusChip(status, AppColor.lightBlue2, AppColor.primary);
-
       case 'doc missing':
         return statusChip(status, AppColor.warning20, AppColor.warning);
-
       case 'in process':
         return statusChip(status, AppColor.lightYellow, AppColor.brown);
-
       case 'issued':
         return statusChip(
           status,
           AppColor.darkBackground.withValues(alpha: 0.29),
           AppColor.darkBackground,
         );
-
       case 'not applied':
       case 'not applicable':
         return statusChip(status, AppColor.grey2, AppColor.black);
-
       case 'paid':
         return statusChip(status, AppColor.green20, AppColor.darkGreen10);
-
       case 'payment due':
         return statusChip(status, AppColor.purple20, AppColor.purple);
-
       case 'rejected':
         return statusChip(status, AppColor.lightRed, AppColor.red);
-
       default:
         return statusChip(status, Colors.white, Colors.black);
     }

@@ -14,7 +14,6 @@ abstract interface class ApprovalDocumentDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> apicallDeleteApprovalDocument({
     required int approvalDocumentId,
     required int projectId,
@@ -25,7 +24,6 @@ abstract interface class ApprovalDocumentDatasource {
 
 class ApprovalDocumentDatasourceImpl implements ApprovalDocumentDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullProjectApprovalDocument({
     required int pageNumber,
@@ -80,7 +78,6 @@ class ApprovalDocumentDatasourceImpl implements ApprovalDocumentDatasource {
   }) async {
     String addUpdateProjectApprovalDocumentUrl =
         "ApprovalDocument/AddUpdateApprovalDocument";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
@@ -92,6 +89,7 @@ class ApprovalDocumentDatasourceImpl implements ApprovalDocumentDatasource {
         'data': List<ApprovalDocumentModel>.from(
           networkResponse["data"].map((e) => ApprovalDocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -129,6 +127,7 @@ class ApprovalDocumentDatasourceImpl implements ApprovalDocumentDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

@@ -14,7 +14,6 @@ abstract interface class RERADocumentDatasource {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> apicallDeleteRERADocument({
     required int projectRERADocumentId,
     required int projectId,
@@ -25,7 +24,6 @@ abstract interface class RERADocumentDatasource {
 
 class RERADocumentDatasourceImpl implements RERADocumentDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullProjectRERADocument({
     required int pageNumber,
@@ -80,7 +78,6 @@ class RERADocumentDatasourceImpl implements RERADocumentDatasource {
   }) async {
     String addUpdateProjectRERADocumentUrl =
         "ProjectRERADocument/AddUpdateProjectRERADocument";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(

@@ -6,7 +6,6 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 abstract interface class RedevelopmentDashboradDatasource {
   Future<Map<String, dynamic>> apiCallPullRedevelopmentDashboard({
     required int projectId,
-    int? buildingId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -18,12 +17,11 @@ class RedevelopmentDashboradDatasourceImpl
   @override
   Future<Map<String, dynamic>> apiCallPullRedevelopmentDashboard({
     required int projectId,
-    int? buildingId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullRedevelopmentDashboardUrl({Map<String, dynamic>? queryParams}) {
       String url =
-          "RedevelopmentDashboard/PullRedevelopmentDashboard?ProjectId=$projectId&BuildingId=$buildingId";
+          "RedevelopmentDashboard/PullRedevelopmentDashboard?ProjectId=$projectId";
       url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }

@@ -1,3 +1,4 @@
+// ignore_for_file: use_build_context_synchronously
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -7,26 +8,31 @@ import 'package:k3h_erp_app/features/project_document/test_document/data/model/t
 import 'package:k3h_erp_app/features/project_document/test_document/data/repository/test_document.repository.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/data/model/test_document_category.model.dart';
 import 'package:k3h_erp_app/features/project_document/test_document_category/data/repository/test_document_category.repository.dart';
-import 'package:k3h_erp_app/routes/app_routes.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-
 part 'test_document_state.dart';
 
 class TestDocumentCubit extends Cubit<TestDocumentState> {
   TestDocumentCubit() : super(TestDocumentState.initial());
-
   final TestDocumentCategoryRepository _testDocumentCategoryRepositor =
       serviceLocator<TestDocumentCategoryRepository>();
-
   final TestDocumentRepository _testDocumentRepository =
       serviceLocator<TestDocumentRepository>();
+  Future clearSubDocumentList() async {
+    emit(
+      state.copyWith(
+        subTestDocumentList: [],
+        totalNumberOfRecordOfSubDoc: 0,
+        currentPageOfSubDoc: 1,
+      ),
+    );
+  }
 
   void searchDocument(String value, BuildContext context) {
     emit(
-      state.copywith(
+      state.copyWith(
         testDocumentList: [],
         isLoading: true,
         searchText: value,
@@ -42,13 +48,13 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
     int pageNumber,
     int projectId,
   ) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
         TestDocumentCubit();
         emit(
-          state.copywith(
+          state.copyWith(
             isLoading: false,
             tesDocumentCategoryModelList: [],
             testDocumentList: [],
@@ -57,7 +63,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       });
       return;
     }
-
     var result = await _testDocumentCategoryRepositor.getTestDocumentCategory(
       pageNumber: pageNumber,
       pageSize: 500,
@@ -66,12 +71,12 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
     );
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
         emit(
-          state.copywith(
+          state.copyWith(
             isLoading: false,
             tesDocumentCategoryModelList:
                 response['data'] as List<TestDocumentCategoryModel>,
@@ -106,7 +111,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
     int? testDocumentId,
     String? testDocumentCategory,
   }) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
     Map<String, dynamic> queryParams = {
       "TestDocumentName": state.searchText,
       "TestDocumentCategoryId": state.testDocumentCategoryId,
@@ -115,7 +120,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
         "TestDocumentCategory": testDocumentCategory,
       "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
     };
-
     var result = await _testDocumentRepository.pullTestDocument(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -124,21 +128,20 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
     );
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, 'Error Message', failure.message);
       },
       (response) {
         final List<TestDocumentModel> newData = List<TestDocumentModel>.from(
           response['data'] ?? [],
         );
-
         if (testDocumentId == null) {
           final List<TestDocumentModel> updatedList =
               pageNumber == 1
                   ? newData
                   : [...state.testDocumentList, ...newData];
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               testDocumentList: updatedList,
               totalNumberOfRecord: response["totalNumberOfRecord"],
@@ -151,7 +154,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
                   ? newData
                   : [...state.subTestDocumentList, ...newData];
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               subTestDocumentList: updatedSubDocList,
               totalNumberOfRecordOfSubDoc: response["totalNumberOfRecord"],
@@ -202,7 +205,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
         });
       }
     }
-
     var result = await _testDocumentRepository.addUpdateTestDocument(
       body: body,
       fileList: fileList,
@@ -215,28 +217,21 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       },
       (response) {
         goRouter.pop();
-
         final updatedDocument = response['data'][0] as TestDocumentModel;
-
         if (state.subTestDocumentList.isNotEmpty &&
             index < state.subTestDocumentList.length) {
           final updatedListModel = List<TestDocumentModel>.from(
             state.subTestDocumentList,
           );
-
           updatedListModel[index] = updatedDocument;
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               subTestDocumentList: updatedListModel,
             ),
           );
         }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Test Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -262,14 +257,12 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       "TestDocumentName": projectDocumentName,
       //isMaster is 0 means add subdoc in document group
       "IsMaster": 0.toString(),
-
       "TestDocumentExpiryDate":
           projectDocumentExpiryDate != null
               ? projectDocumentExpiryDate.toIso8601String()
               : '',
       "TestDocumentRemark": projectDocumentRemark ?? '',
     };
-
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {
         if (documents.fileNameList[i].contains("http")) {
@@ -282,7 +275,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
         });
       }
     }
-
     var result = await _testDocumentRepository.addUpdateTestDocument(
       body: body,
       fileList: fileList,
@@ -293,32 +285,34 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
         showErrorMessage(context, 'Error', failure.message);
         return;
       },
-      (response) {
+      (response) async {
         goRouter.pop();
-        final currentPath = goRouter.state.path;
-        if (currentPath == AppRoutes.viewTestDocument) {
-          goRouter.pop();
-        }
-
-        final list = List<TestDocumentModel>.from(state.testDocumentList);
-
-        var i = list.indexWhere((d) => d.testDocumentId == projectDocumentId);
-        if (i == -1 && index < list.length) i = index;
-
-        if (i != -1) {
-          list[i] = list[i].copyWith(
-            approvalPendingApprovalDocumentCount:
-                list[i].approvalPendingApprovalDocumentCount + 1,
-            uploadedApprovalDocumentCount:
-                list[i].uploadedApprovalDocumentCount + 1,
-          );
-          emit(state.copywith(isLoading: false, testDocumentList: list));
-        }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Test Document Added Successfully",
+        await getTestDocumentList(
+          context: context,
+          pageNumber: 1,
+          testDocumentId: projectDocumentId,
         );
+        if (state.testDocumentList.isNotEmpty &&
+            index < state.testDocumentList.length) {
+          final updatedParentList = List<TestDocumentModel>.from(
+            state.testDocumentList,
+          );
+          // UPDATE PARENT DOCUMENT COUNT
+          updatedParentList[index] = updatedParentList[index].copyWith(
+            approvalPendingApprovalDocumentCount:
+                updatedParentList[index].approvalPendingApprovalDocumentCount +
+                1,
+            uploadedApprovalDocumentCount:
+                updatedParentList[index].uploadedApprovalDocumentCount + 1,
+          );
+          emit(
+            state.copyWith(
+              isLoading: false,
+              testDocumentList: updatedParentList,
+            ),
+          );
+        }
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -343,7 +337,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       //isMaster is 1 means update document group into category
       "IsMaster": 1.toString(),
     };
-
     var result = await _testDocumentRepository.addUpdateTestDocument(
       body: body,
       fileList: fileList,
@@ -357,7 +350,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       (response) {
         goRouter.pop();
         final updatedDocument = response['data'][0] as TestDocumentModel;
-
         if (state.testDocumentList.isNotEmpty &&
             index < state.testDocumentList.length) {
           final updatedListModel = List<TestDocumentModel>.from(
@@ -365,17 +357,13 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
           );
           updatedListModel[index] = updatedDocument;
           emit(
-            state.copywith(
+            state.copyWith(
               isLoading: false,
               testDocumentList: updatedListModel,
             ),
           );
         }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Project Document Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -398,7 +386,6 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       "IsMaster": 1.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
-
     var result = await _testDocumentRepository.addUpdateTestDocument(
       body: body,
       fileList: fileList,
@@ -411,11 +398,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       },
       (response) {
         goRouter.pop();
-
-        showSuccessMessage(
-          context,
-          subTitle: "Project Document Added Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
         searchDocument("", context);
       },
     );
@@ -424,7 +407,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
   //UPDATE CATEGORY INDEX AND MAKE GET API CALL AS PER CATEGORY
   void onTabChanged(int index, BuildContext context) {
     emit(
-      state.copywith(
+      state.copyWith(
         categoryIndex: index,
         testDocumentCategoryId:
             state.tesDocumentCategoryModelList[index].testDocumentCategoryId,
@@ -442,10 +425,10 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
     TestDocumentModel document,
     BuildContext context,
     int index, {
+    int? parentIndex,
     bool isSubDoc = false,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _testDocumentRepository.deleteTestDocument(
       testDocumentCategoryId:
           state
@@ -455,14 +438,12 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
       uniqueKey: document.uniquekey,
       projectId: getProject().projectId,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
+      (response) {
         // Parent document delete
         if (isSubDoc == false) {
           final updatedList = List<TestDocumentModel>.from(
@@ -470,7 +451,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
           );
           updatedList.removeAt(index);
           emit(
-            state.copywith(
+            state.copyWith(
               testDocumentList: updatedList,
               totalNumberOfRecord:
                   state.totalNumberOfRecord > 0
@@ -485,7 +466,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
           );
           updatedList.removeAt(index);
           emit(
-            state.copywith(
+            state.copyWith(
               subTestDocumentList: updatedList,
               totalNumberOfRecordOfSubDoc:
                   state.totalNumberOfRecordOfSubDoc > 0
@@ -493,11 +474,32 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
                       : 0,
             ),
           );
+          if (state.testDocumentList.isNotEmpty &&
+              parentIndex! < state.testDocumentList.length) {
+            final updatedParentList = List<TestDocumentModel>.from(
+              state.testDocumentList,
+            );
+            // UPDATE PARENT DOCUMENT COUNT
+            updatedParentList[parentIndex] = updatedParentList[parentIndex]
+                .copyWith(
+                  approvalPendingApprovalDocumentCount:
+                      updatedParentList[parentIndex]
+                          .approvalPendingApprovalDocumentCount -
+                      1,
+                  uploadedApprovalDocumentCount:
+                      updatedParentList[parentIndex]
+                          .uploadedApprovalDocumentCount -
+                      1,
+                );
+            emit(
+              state.copyWith(
+                isLoading: false,
+                testDocumentList: updatedParentList,
+              ),
+            );
+          }
         }
-        showSuccessMessage(
-          context,
-          subTitle: "Test Document Deleted Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -510,7 +512,7 @@ class TestDocumentCubit extends Cubit<TestDocumentState> {
     required String testDocument,
   }) async {
     emit(
-      state.copywith(
+      state.copyWith(
         searchText: testDocument,
         currentSortColumn: column,
         currentSortDirection: direction,

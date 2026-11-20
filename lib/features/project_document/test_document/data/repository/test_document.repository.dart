@@ -10,12 +10,10 @@ abstract interface class TestDocumentRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateTestDocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteTestDocument({
     required int testDocumentId,
     required int projectId,
@@ -26,9 +24,7 @@ abstract interface class TestDocumentRepository {
 
 class TestDocumentRepositoryImpl extends TestDocumentRepository {
   final TestDocumentDatasource testDocumentDatasource;
-
   TestDocumentRepositoryImpl({required this.testDocumentDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullTestDocument({
     required int pageNumber,

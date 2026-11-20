@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +25,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DocumentScreen extends StatefulWidget {
   const DocumentScreen({super.key});
-
   @override
   State<DocumentScreen> createState() => _DocumentScreenState();
 }
@@ -35,22 +33,17 @@ class _DocumentScreenState extends State<DocumentScreen>
     with TickerProviderStateMixin {
   // CUBIT
   late DocumentCubit _documentCubit;
-
   // AUTHORIZATION MODEL
   late AuthorizationModel _routeAuthorizationModel;
-
   // TAB CONTROLLERS
   TabController? _categoryTabController;
-
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC, _documentC;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
   @override
@@ -118,13 +111,11 @@ class _DocumentScreenState extends State<DocumentScreen>
   void _initCategoryController(DocumentState state) {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
-
     _categoryTabController = TabController(
       length: state.documentCategoryModelList.length,
       vsync: this,
       initialIndex: state.categoryIndex,
     );
-
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
@@ -168,7 +159,6 @@ class _DocumentScreenState extends State<DocumentScreen>
       'You are about to delete a document?',
       'Deleting this document will permanently remove its contents.',
     );
-
     if (shouldDelete && context.mounted) {
       _documentCubit.deleteDocument(obj, context, index);
     }
@@ -230,28 +220,21 @@ class _DocumentScreenState extends State<DocumentScreen>
     BuildContext context,
   ) async {
     final state = _documentCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Project Document Name"
             ? state.currentSortDirection
             : null;
-
     final String initialDocumentCategoryName = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialDocumentCategoryName ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -265,7 +248,6 @@ class _DocumentScreenState extends State<DocumentScreen>
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -316,9 +298,7 @@ class _DocumentScreenState extends State<DocumentScreen>
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Document Name",
@@ -329,12 +309,9 @@ class _DocumentScreenState extends State<DocumentScreen>
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _documentCubit.applyFilterAndSortDocument(
           context: context,
           column: "",
@@ -342,10 +319,8 @@ class _DocumentScreenState extends State<DocumentScreen>
           documentName: '',
         );
       },
-
       onApply: () {
         applied = true;
-
         _documentCubit.applyFilterAndSortDocument(
           context: context,
           column: selectedDirection != null ? "Project Document Name" : "",
@@ -353,11 +328,9 @@ class _DocumentScreenState extends State<DocumentScreen>
           documentName: _searchC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialDocumentCategoryName;
@@ -403,7 +376,6 @@ class _DocumentScreenState extends State<DocumentScreen>
               (_) => BlocBuilder<DocumentCubit, DocumentState>(
                 builder: (context, state) {
                   final list = state.documentCategoryModelList;
-
                   if (list.isNotEmpty) {
                     return CustomButton(
                       text: "Add",
@@ -414,7 +386,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                       leading: Icon(Icons.add, size: 16, color: AppColor.white),
                     );
                   }
-
                   return const SizedBox.shrink();
                 },
               ),
@@ -451,7 +422,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                           state.documentCategoryModelList.isEmpty) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       if (state.documentCategoryModelList.isEmpty) {
                         return Center(
                           child: noDataWidget(
@@ -459,11 +429,9 @@ class _DocumentScreenState extends State<DocumentScreen>
                           ),
                         );
                       }
-
                       if (_categoryTabController == null) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       return Column(
                         children: [
                           // CATEGORY TAB
@@ -515,12 +483,10 @@ class _DocumentScreenState extends State<DocumentScreen>
     if (_categoryTabController == null) {
       return const SizedBox.shrink();
     }
-
     if (_categoryTabController!.length !=
         state.documentCategoryModelList.length) {
       return const SizedBox.shrink();
     }
-
     return ChipStyleTabBar(
       controller: _categoryTabController!,
       tabs:
@@ -540,7 +506,6 @@ class _DocumentScreenState extends State<DocumentScreen>
         child: noDataWidget(message: "No Project Document Data Found"),
       );
     }
-
     return BlocBuilder<DocumentCubit, DocumentState>(
       builder: (context, state) {
         return ListView.builder(
@@ -557,22 +522,21 @@ class _DocumentScreenState extends State<DocumentScreen>
                   )
                   : const SizedBox.shrink();
             }
-
             final document = state.documentList[index];
-
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),
-
               decoration: commonCardDecoration(),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
+                            await _documentCubit.clearSubDocumentList();
                             await goRouter.pushNamed(
                               AppRoutes.viewDocument,
                               queryParameters: {
@@ -584,12 +548,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                                 "index": index.toString(),
                               },
                             );
-                            if (context.mounted) {
-                              _documentCubit.getProjectDocumentList(
-                                context: context,
-                                pageNumber: 1,
-                              );
-                            }
                           },
                           child: Text(
                             document.projectDocumentName,
@@ -597,7 +555,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                           ),
                         ),
                       ),
-
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -613,7 +570,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                                     ),
                                   ),
                                   "index": index.toString(),
-
                                   "isEdit": Uri.encodeQueryComponent(
                                     EncryptionManager.encryptData(
                                       false.toString(),
@@ -638,7 +594,6 @@ class _DocumentScreenState extends State<DocumentScreen>
                             isDisabled:
                                 (!_routeAuthorizationModel.isAction ||
                                     document.uploadedProjectDocumentCount > 0),
-
                             onPressed: () {
                               _showPopupToDeleteDocument(
                                 context,

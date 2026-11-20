@@ -22,7 +22,6 @@ class AddDrawingDocumentCategoryScreen extends StatefulWidget {
     this.drawingDocumentCategoryModel,
     this.index = 0,
   });
-
   @override
   State<AddDrawingDocumentCategoryScreen> createState() =>
       _AddDrawingDocumentCategoryScreenState();
@@ -32,21 +31,16 @@ class _AddDrawingDocumentCategoryScreenState
     extends State<AddDrawingDocumentCategoryScreen> {
   //CUBIT
   late DrawingDocumentCategoryCubit _drawingDocumentCategoryCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _drawingDocumentCategoryC, _orderByC;
-
   //EDIT MODE
   bool get _isEditMode => widget.drawingDocumentCategoryModel != null;
-
   //PROJECT ID
   late int projectId;
-
   @override
   void initState() {
     super.initState();

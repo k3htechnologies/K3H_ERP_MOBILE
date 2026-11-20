@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +25,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class DrawingDocumentScreen extends StatefulWidget {
   const DrawingDocumentScreen({super.key});
-
   @override
   State<DrawingDocumentScreen> createState() => _DrawingDocumentScreenState();
 }
@@ -37,28 +35,21 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
   late DrawingDocumentCubit _drawingDocumentCubit;
   // AUTHORIZATION MODEL
   late AuthorizationModel _routeAuthorizationModel;
-
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC,
       _documentC,
       _buildingNumberC,
       _wingC,
       _floorC;
-
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TAB CONTROLLERS
   TabController? _categoryTabController;
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -133,13 +124,11 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
   void _initCategoryController(DrawingDocumentState state) {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
-
     _categoryTabController = TabController(
       length: state.drawingDocumentCategoryModelList.length,
       vsync: this,
       initialIndex: state.categoryIndex,
     );
-
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
@@ -182,7 +171,6 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
       'You are about to delete a document ?',
       'Deleting this document will permanently remove all associated data.',
     );
-
     if (shouldDelete && context.mounted) {
       _drawingDocumentCubit.deleteDrawingDocument(obj, context, index);
     }
@@ -245,24 +233,18 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
     BuildContext context,
   ) async {
     final state = _drawingDocumentCubit.state;
-
     _buildingNumberC.text = state.buildingNumberText;
-
     String? selectedDirection =
         state.currentSortColumn == "Drawing Document Name"
             ? state.currentSortDirection
             : null;
-
     final String initialBuildingNumber = _buildingNumberC.text;
     final String initialWing = _wingC.text;
     final String initialFloor = _floorC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
@@ -270,7 +252,6 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
             _wingC.text.trim() != initialWing ||
             _floorC.text.trim() != initialFloor ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -284,7 +265,6 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -338,9 +318,7 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _buildingNumberC,
                 hint: "Enter Building Number",
@@ -363,14 +341,11 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _buildingNumberC.clear();
         _wingC.clear();
         _floorC.clear();
-
         _drawingDocumentCubit.applyFilterAndSortDrawingDocument(
           context: context,
           column: "",
@@ -380,10 +355,8 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
           floor: "",
         );
       },
-
       onApply: () {
         applied = true;
-
         _drawingDocumentCubit.applyFilterAndSortDrawingDocument(
           context: context,
           column: selectedDirection != null ? "Drawing Document Name" : "",
@@ -393,11 +366,9 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
           floor: _floorC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _buildingNumberC.text = initialBuildingNumber;
@@ -427,11 +398,8 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
             _buildingNumberC.clear();
             _wingC.clear();
             _floorC.clear();
-
             _filterCount.value = 0;
-
             _drawingDocumentCubit.clearFiltersOnProjectChange();
-
             if (context.mounted) {
               _drawingDocumentCubit.getDrawingDocumentCategoryList(
                 context,
@@ -464,7 +432,6 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                       leading: Icon(Icons.add, size: 16, color: AppColor.white),
                     );
                   }
-
                   return const SizedBox.shrink();
                 },
               ),
@@ -504,7 +471,6 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                           state.drawingDocumentCategoryModelList.isEmpty) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       if (state.drawingDocumentCategoryModelList.isEmpty) {
                         return Center(
                           child: noDataWidget(
@@ -512,11 +478,9 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                           ),
                         );
                       }
-
                       if (_categoryTabController == null) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -567,12 +531,10 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
     if (_categoryTabController == null) {
       return const SizedBox.shrink();
     }
-
     if (_categoryTabController!.length !=
         state.drawingDocumentCategoryModelList.length) {
       return const SizedBox.shrink();
     }
-
     return ChipStyleTabBar(
       controller: _categoryTabController!,
       tabs:
@@ -589,7 +551,6 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
         child: noDataWidget(message: "No Drawing Document Data Found"),
       );
     }
-
     return BlocBuilder<DrawingDocumentCubit, DrawingDocumentState>(
       builder: (context, state) {
         return ListView.builder(
@@ -607,22 +568,21 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                   )
                   : const SizedBox.shrink();
             }
-
             final document = state.drawingDocumentList[index];
-
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),
-
               decoration: commonCardDecoration(),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
+                            _drawingDocumentCubit.clearSubDocumentList();
                             await goRouter.pushNamed(
                               AppRoutes.viewDrawingDocument,
                               queryParameters: {
@@ -634,12 +594,6 @@ class _DrawingDocumentScreenState extends State<DrawingDocumentScreen>
                                 "index": index.toString(),
                               },
                             );
-                            if (context.mounted) {
-                              _drawingDocumentCubit.getDrawingDocumentList(
-                                context: context,
-                                pageNumber: 1,
-                              );
-                            }
                           },
                           child: Text(
                             document.drawingDocumentName.toString(),

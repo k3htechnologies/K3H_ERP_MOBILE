@@ -5,20 +5,17 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 class ExpandableFloorRow extends StatefulWidget {
   final String title;
   final String floor;
-
   const ExpandableFloorRow({
     super.key,
     required this.title,
     required this.floor,
   });
-
   @override
   State<ExpandableFloorRow> createState() => _ExpandableFloorRowState();
 }
 
 class _ExpandableFloorRowState extends State<ExpandableFloorRow> {
   final ValueNotifier<bool> _isExpanded = ValueNotifier<bool>(false);
-
   @override
   void dispose() {
     _isExpanded.dispose();
@@ -33,9 +30,7 @@ class _ExpandableFloorRowState extends State<ExpandableFloorRow> {
             .map((e) => e.trim())
             .where((e) => e.isNotEmpty)
             .toList();
-
     final hasMoreFloors = floors.length > 2;
-
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: ValueListenableBuilder<bool>(
@@ -43,7 +38,6 @@ class _ExpandableFloorRowState extends State<ExpandableFloorRow> {
         builder: (context, isExpanded, child) {
           final visibleFloors =
               isExpanded || !hasMoreFloors ? floors : floors.take(2).toList();
-
           return buildRowTitleValue(
             title: widget.title,
             value: visibleFloors.join(', '),

@@ -10,11 +10,9 @@ abstract interface class RERADocumentCategoryDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apicallAddUpdateProjectRERADocumentCategory({
     required Map<String, dynamic> body,
   });
-
   Future<Map<String, dynamic>> apicallDeleteProjectRERADocumentCategory({
     required int projectDocumentCategoryId,
     required int projectId,
@@ -31,7 +29,6 @@ abstract interface class RERADocumentCategoryDatasource {
 class RERADocumentCategoryDatasourceImpl
     implements RERADocumentCategoryDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullProjectRERADocumentCategory({
     required int pageNumber,
@@ -87,7 +84,6 @@ class RERADocumentCategoryDatasourceImpl
   }) async {
     String addUpdateProjectDocumentCategoryUrl =
         "ProjectRERADocumentCategory/AddUpdateProjectRERADocumentCategory";
-
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
         addUpdateProjectDocumentCategoryUrl,

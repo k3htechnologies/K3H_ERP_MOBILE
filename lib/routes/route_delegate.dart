@@ -4220,11 +4220,7 @@ final GoRouter goRouter = GoRouter(
 
                     final index =
                         int.tryParse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(
-                              state.uri.queryParameters['index'] ?? '0',
-                            ),
-                          ),
+                          state.uri.queryParameters['index'] ?? '0',
                         ) ??
                         0;
 
@@ -4411,11 +4407,7 @@ final GoRouter goRouter = GoRouter(
 
                     final index =
                         int.tryParse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(
-                              state.uri.queryParameters['index'] ?? '0',
-                            ),
-                          ),
+                          state.uri.queryParameters['index'] ?? '0',
                         ) ??
                         0;
 
@@ -4499,11 +4491,7 @@ final GoRouter goRouter = GoRouter(
 
                     final index =
                         int.tryParse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(
-                              state.uri.queryParameters['index'] ?? '0',
-                            ),
-                          ),
+                          state.uri.queryParameters['index'] ?? '0',
                         ) ??
                         0;
 
@@ -8449,13 +8437,7 @@ final GoRouter goRouter = GoRouter(
                         : null;
 
                 final index =
-                    int.tryParse(
-                      EncryptionManager.decryptData(
-                        Uri.decodeComponent(
-                          state.uri.queryParameters['index'] ?? '0',
-                        ),
-                      ),
-                    ) ??
+                    int.tryParse(state.uri.queryParameters['index'] ?? '0') ??
                     0;
 
                 final isEdit = bool.parse(

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,12 +21,10 @@ import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
-
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class TestDocumentScreen extends StatefulWidget {
   const TestDocumentScreen({super.key});
-
   @override
   State<TestDocumentScreen> createState() => _TestDocumentScreenState();
 }
@@ -38,24 +35,17 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
   late TestDocumentCubit _testDocumentCubit;
   // AUTHORIZATION MODEL
   late AuthorizationModel _routeAuthorizationModel;
-
   // TEXT EDIT CONTROLLER
   late TextEditingController _searchC, _documentC;
-
   //PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   // TAB CONTROLLERS
   TabController? _categoryTabController;
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
@@ -121,13 +111,11 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
   void _initCategoryController(TestDocumentState state) {
     _categoryTabController?.removeListener(_onBuildingTabChanged);
     _categoryTabController?.dispose();
-
     _categoryTabController = TabController(
       length: state.tesDocumentCategoryModelList.length,
       vsync: this,
       initialIndex: state.categoryIndex,
     );
-
     _categoryTabController!.addListener(_onBuildingTabChanged);
   }
 
@@ -170,7 +158,6 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
       'You are about to delete a document?',
       'Deleting this document will permanently remove all associated data..',
     );
-
     if (shouldDelete && context.mounted) {
       _testDocumentCubit.deleteDocument(obj, context, index);
     }
@@ -233,28 +220,21 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
     BuildContext context,
   ) async {
     final state = _testDocumentCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Test Document"
             ? state.currentSortDirection
             : null;
-
     final String initialTestDocumentName = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialTestDocumentName ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -268,7 +248,6 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -319,9 +298,7 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Test Document",
@@ -332,12 +309,9 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _testDocumentCubit.applyFilterAndSortTestDocument(
           context: context,
           column: "",
@@ -345,10 +319,8 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
           testDocument: '',
         );
       },
-
       onApply: () {
         applied = true;
-
         _testDocumentCubit.applyFilterAndSortTestDocument(
           context: context,
           column: selectedDirection != null ? "Test Document" : "",
@@ -356,11 +328,9 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
           testDocument: _searchC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialTestDocumentName;
@@ -416,7 +386,6 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                       leading: Icon(Icons.add, size: 16, color: AppColor.white),
                     );
                   }
-
                   return const SizedBox.shrink();
                 },
               ),
@@ -453,7 +422,6 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                           state.tesDocumentCategoryModelList.isEmpty) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       if (state.tesDocumentCategoryModelList.isEmpty) {
                         return Center(
                           child: noDataWidget(
@@ -461,11 +429,9 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                           ),
                         );
                       }
-
                       if (_categoryTabController == null) {
                         return const Center(child: CircularProgressIndicator());
                       }
-
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -518,12 +484,10 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
     if (_categoryTabController == null) {
       return const SizedBox.shrink();
     }
-
     if (_categoryTabController!.length !=
         state.tesDocumentCategoryModelList.length) {
       return const SizedBox.shrink();
     }
-
     return ChipStyleTabBar(
       controller: _categoryTabController!,
       tabs:
@@ -540,7 +504,6 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
         child: noDataWidget(message: "No Test Document Data Found"),
       );
     }
-
     return BlocBuilder<TestDocumentCubit, TestDocumentState>(
       builder: (context, state) {
         return ListView.builder(
@@ -557,22 +520,21 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                   )
                   : const SizedBox.shrink();
             }
-
             final document = state.testDocumentList[index];
-
             return Container(
               padding: EdgeInsets.all(16),
               margin: const EdgeInsets.only(bottom: 10),
-
               decoration: commonCardDecoration(),
               child: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Flexible(
                         child: GestureDetector(
                           onTap: () async {
+                            await _testDocumentCubit.clearSubDocumentList();
                             await goRouter.pushNamed(
                               AppRoutes.viewTestDocument,
                               queryParameters: {
@@ -584,12 +546,6 @@ class _TestDocumentScreenState extends State<TestDocumentScreen>
                                 "index": index.toString(),
                               },
                             );
-                            if (context.mounted) {
-                              _testDocumentCubit.getTestDocumentList(
-                                context: context,
-                                pageNumber: 1,
-                              );
-                            }
                           },
                           child: Text(
                             document.testDocumentName.toString(),

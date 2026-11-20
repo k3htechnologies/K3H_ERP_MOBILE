@@ -111,6 +111,7 @@ class _ViewBaselineCostPlanScreenState
         context,
         index,
         isSubDoc: true,
+        parentIndex: widget.index,
       );
     }
   }

@@ -14,12 +14,10 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
   ApprovalDocumentCubit() : super(ApprovalDocumentState.initial());
-
   final ApprovalCategoryRepository _documentCategoryRepository =
       serviceLocator<ApprovalCategoryRepository>();
   final ApprovalDocumentRepository _documentRepository =
       serviceLocator<ApprovalDocumentRepository>();
-
   Future clearSubDocumentList() async {
     emit(
       state.copyWith(
@@ -51,7 +49,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       });
       return;
     }
-
     var result = await _documentCategoryRepository.getApprovalDocumentCategory(
       pageNumber: pageNumber,
       pageSize: 500,
@@ -109,7 +106,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       "ApprovalDocumentCategoryId": state.approvalDocumentCategoryId,
       if (approvalDocumentId != null) "ApprovalDocumentId": approvalDocumentId,
     };
-
     var result = await _documentRepository.pullProjectApprovalDocument(
       pageNumber: pageNumber,
       pageSize: 10,
@@ -124,7 +120,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       (response) {
         final List<ApprovalDocumentModel> newData =
             List<ApprovalDocumentModel>.from(response['data'] ?? []);
-
         if (approvalDocumentId == null) {
           final List<ApprovalDocumentModel> updatedList =
               pageNumber == 1 ? newData : [...state.documentList, ...newData];
@@ -195,7 +190,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         });
       }
     }
-
     var result = await _documentRepository.addUpdateApprovalDocument(
       body: body,
       fileList: fileList,
@@ -208,16 +202,13 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       },
       (response) {
         goRouter.pop();
-
         final updatedApprovalDocument =
             response['data'][0] as ApprovalDocumentModel;
-
         if (state.subApprovalDocumentList.isNotEmpty &&
             index < state.subApprovalDocumentList.length) {
           final updatedListModel = List<ApprovalDocumentModel>.from(
             state.subApprovalDocumentList,
           );
-
           updatedListModel[index] = updatedApprovalDocument;
           emit(
             state.copyWith(
@@ -226,7 +217,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
             ),
           );
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
@@ -262,7 +252,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       "ApprovalDocumentStatus": approvalDocumentStatus ?? '',
       "ApprovalDocumentRemark": approvalDocumentRemark ?? '',
     };
-
     if (documents != null) {
       for (int i = 0; i < documents.fileNameList.length; i++) {
         if (documents.fileNameList[i].contains("http")) {
@@ -275,7 +264,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         });
       }
     }
-
     var result = await _documentRepository.addUpdateApprovalDocument(
       body: body,
       fileList: fileList,
@@ -288,19 +276,17 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       },
       (response) async {
         goRouter.pop();
-
         await getProjectApprovalDocumentList(
           context: context,
           pageNumber: 1,
           approvalDocumentId: approvalDocumentId,
         );
-
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
           final updatedParentList = List<ApprovalDocumentModel>.from(
             state.documentList,
           );
-          // Only increment approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+          // UPDATE PARENT DOCUMENT COUNT
           updatedParentList[index] = updatedParentList[index].copyWith(
             approvalDocumentName: updatedParentList[index].approvalDocumentName,
             approvalPendingApprovalDocumentCount:
@@ -309,7 +295,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
             uploadedApprovalDocumentCount:
                 updatedParentList[index].uploadedApprovalDocumentCount + 1,
           );
-
           emit(
             state.copyWith(isLoading: false, documentList: updatedParentList),
           );
@@ -338,7 +323,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       //isMaster is 1 means update document group into category
       "IsMaster": 1.toString(),
     };
-
     var result = await _documentRepository.addUpdateApprovalDocument(
       body: body,
       fileList: fileList,
@@ -353,7 +337,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
         goRouter.pop();
         final updatedApprovalDocument =
             response['data'][0] as ApprovalDocumentModel;
-
         if (state.documentList.isNotEmpty &&
             index < state.documentList.length) {
           final updatedListModel = List<ApprovalDocumentModel>.from(
@@ -388,7 +371,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       "IsMaster": 1.toString(),
     };
     List<Map<String, dynamic>> fileList = [];
-
     var result = await _documentRepository.addUpdateApprovalDocument(
       body: body,
       fileList: fileList,
@@ -401,9 +383,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       },
       (response) {
         goRouter.pop();
-
         showSuccessMessage(context, subTitle: response['message']);
-
         searchApprovalDocument("", context);
       },
     );
@@ -446,7 +426,6 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
     int? parentIndex,
   }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _documentRepository.deleteApprovalDocument(
       approvalDocumentCategoryId:
           state
@@ -456,14 +435,12 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
       uniqueKey: document.uniquekey,
       projectId: getProject().projectId,
     );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
+      (response) {
         if (isSubDoc == false) {
           final updatedList = List<ApprovalDocumentModel>.from(
             state.documentList,
@@ -494,7 +471,7 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
           );
           final updatedParentList = List<ApprovalDocumentModel>.from(
             state.documentList,
-          ); // Only decrement approvalPendingProjectDocumentCount & uploadedProjectDocumentCount counts in existing parent document instance
+          ); // UPDATE PARENT DOCUMENT COUNT
           updatedParentList[parentIndex!] = updatedParentList[parentIndex]
               .copyWith(
                 approvalDocumentName:
@@ -508,12 +485,11 @@ class ApprovalDocumentCubit extends Cubit<ApprovalDocumentState> {
                         .uploadedApprovalDocumentCount -
                     1,
               );
-
           emit(
             state.copyWith(isLoading: false, documentList: updatedParentList),
           );
         }
-        showSuccessMessage(context, subTitle: success['message']);
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

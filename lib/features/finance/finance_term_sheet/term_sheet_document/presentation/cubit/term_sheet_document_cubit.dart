@@ -23,7 +23,7 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
     int termSheetDetailsId,
     String value,
   ) async {
-    emit(state.copywith(filterDocumentName: value, termSheetDocumentList: []));
+    emit(state.copyWith(filterDocumentName: value, termSheetDocumentList: []));
     await getTermSheetDocumentList(
       context,
       1,
@@ -40,7 +40,7 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
     required int termSheetId,
     required int termSheetDetailsId,
   }) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
 
     final Map<String, dynamic> queryParams = {
       "DocumentName": state.filterDocumentName,
@@ -58,7 +58,7 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
 
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
@@ -66,7 +66,7 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
         final List<TermSheetDocumentModel> updatedList =
             pageNumber == 1 ? logs : [...state.termSheetDocumentList, ...logs];
         emit(
-          state.copywith(
+          state.copyWith(
             termSheetDocumentList: updatedList,
             termSheetDocumentOverview: logs.isNotEmpty ? logs.first : null,
             totalNumberOfRecord:
@@ -80,7 +80,7 @@ class TermSheetDocumentCubit extends Cubit<TermSheetDocumentsState> {
       },
     );
 
-    emit(state.copywith(isLoading: false));
+    emit(state.copyWith(isLoading: false));
   }
 
   Future<void> addTermSheetDocument({

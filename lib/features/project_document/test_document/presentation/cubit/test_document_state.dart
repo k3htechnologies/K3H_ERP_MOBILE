@@ -13,7 +13,6 @@ class TestDocumentState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const TestDocumentState({
     super.isLoading,
     required this.categoryIndex,
@@ -29,7 +28,6 @@ class TestDocumentState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
-
   factory TestDocumentState.initial() => TestDocumentState(
     categoryIndex: 0,
     testDocumentCategoryId: 0,
@@ -45,8 +43,7 @@ class TestDocumentState extends BaseState {
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
   );
-
-  TestDocumentState copywith({
+  TestDocumentState copyWith({
     bool? isLoading,
     int? categoryIndex,
     int? testDocumentCategoryId,

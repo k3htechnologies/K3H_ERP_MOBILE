@@ -1,7 +1,7 @@
 part of 'test_document_category_cubit.dart';
 
 class TestDocumentCategoryState extends BaseState {
-  final List<TestDocumentCategoryModel> testDocumentCategoryModelList;
+  final List<TestDocumentCategoryModel> testDocumentCategoryList;
   final int totalNumberOfRecord;
   final int currentPage;
   final String searchText;
@@ -9,7 +9,7 @@ class TestDocumentCategoryState extends BaseState {
   final String currentSortDirection;
   const TestDocumentCategoryState({
     super.isLoading,
-    required this.testDocumentCategoryModelList,
+    required this.testDocumentCategoryList,
     required this.totalNumberOfRecord,
     required this.currentPage,
     required this.searchText,
@@ -17,7 +17,7 @@ class TestDocumentCategoryState extends BaseState {
     required this.currentSortDirection,
   });
   factory TestDocumentCategoryState.initial() => TestDocumentCategoryState(
-    testDocumentCategoryModelList: [],
+    testDocumentCategoryList: [],
     totalNumberOfRecord: 0,
     currentPage: 1,
     searchText: "",
@@ -27,7 +27,7 @@ class TestDocumentCategoryState extends BaseState {
   );
   TestDocumentCategoryState copyWith({
     bool? isLoading,
-    List<TestDocumentCategoryModel>? testDocumentCategoryModelList,
+    List<TestDocumentCategoryModel>? testDocumentCategoryList,
     int? totalNumberOfRecord,
     int? currentPage,
     String? searchText,
@@ -36,8 +36,8 @@ class TestDocumentCategoryState extends BaseState {
   }) {
     return TestDocumentCategoryState(
       isLoading: isLoading ?? this.isLoading,
-      testDocumentCategoryModelList:
-          testDocumentCategoryModelList ?? this.testDocumentCategoryModelList,
+      testDocumentCategoryList:
+          testDocumentCategoryList ?? this.testDocumentCategoryList,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
@@ -49,7 +49,7 @@ class TestDocumentCategoryState extends BaseState {
   @override
   List<Object?> get props => [
     isLoading,
-    testDocumentCategoryModelList,
+    testDocumentCategoryList,
     totalNumberOfRecord,
     currentPage,
     searchText,

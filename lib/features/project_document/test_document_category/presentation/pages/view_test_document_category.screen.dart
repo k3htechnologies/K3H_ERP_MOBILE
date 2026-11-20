@@ -13,7 +13,6 @@ class ViewTestDocumentCategoryScreen extends StatelessWidget {
     super.key,
     required this.testDocumentCategoryModel,
   });
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -78,7 +77,6 @@ class ViewTestDocumentCategoryScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: commonCardDecoration(),

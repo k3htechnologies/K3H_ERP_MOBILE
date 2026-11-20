@@ -12,7 +12,6 @@ void registerApprovalDocumentDependencies(GetIt serviceLocator) {
       documentDatasource: serviceLocator<ApprovalDocumentDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<ApprovalDocumentCubit>(
     ApprovalDocumentCubit(),

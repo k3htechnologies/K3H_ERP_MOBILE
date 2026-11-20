@@ -45,7 +45,7 @@ class BaselineCostPlanState extends BaseState {
     currentSortDirection: "",
   );
 
-  BaselineCostPlanState copywith({
+  BaselineCostPlanState copyWith({
     bool? isLoading,
     int? categoryIndex,
     int? baselineCostPlanDocumentCategoryId,

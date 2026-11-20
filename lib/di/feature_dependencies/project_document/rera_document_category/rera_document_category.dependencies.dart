@@ -13,7 +13,6 @@ void registerRERADocumentCategoryDependencies(GetIt serviceLocator) {
           serviceLocator<RERADocumentCategoryDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<RERADocumentCategoryCubit>(
     RERADocumentCategoryCubit(),

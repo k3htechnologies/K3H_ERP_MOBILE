@@ -10,10 +10,8 @@ import 'package:k3h_erp_app/utils/dialog_helper.dart';
 
 class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
   RERADocumentCategoryCubit() : super(RERADocumentCategoryState.initial());
-
   final RERADocumentCategoryRepository _reraDocumentCategoryRepository =
       serviceLocator<RERADocumentCategoryRepository>();
-
   Future<void> resetSearch() async {
     emit(state.copyWith(searchText: ""));
   }
@@ -43,7 +41,6 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
       projectId: projectId,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -52,14 +49,13 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
       (response) {
         final List<RERADocumentCategoryModel> newData =
             List<RERADocumentCategoryModel>.from(response['data'] ?? []);
-
         final List<RERADocumentCategoryModel> updatedList =
             pageNumber == 1
                 ? newData
                 : [...state.reraDocumentCategoryList, ...newData];
         emit(
           state.copyWith(
-            documentCategoryList: updatedList,
+            reraDocumentCategoryList: updatedList,
             isLoading: false,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
@@ -78,7 +74,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     emit(
       state.copyWith(
         searchText: value,
-        documentCategoryList: [],
+        reraDocumentCategoryList: [],
         currentPage: 1,
       ),
     );
@@ -90,7 +86,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
     try {
       emit(
         state.copyWith(
-          documentCategoryList: [],
+          reraDocumentCategoryList: [],
           currentPage: 1,
           totalNumberOfRecord: 0,
           isLoading: true,
@@ -103,13 +99,13 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
   }
 
   // DELETE RERA DOCUMENT CATEGORY
-  Future deleteRERADocumentCategory(
-    int projectId,
-    RERADocumentCategoryModel reraDocumentCategoryModel,
-    BuildContext context,
-  ) async {
+  Future deleteRERADocumentCategory({
+    required int projectId,
+    required RERADocumentCategoryModel reraDocumentCategoryModel,
+    required BuildContext context,
+    required int index,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _reraDocumentCategoryRepository
         .deleteReraDocumentCategory(
           projectRERADocumentCategoryId:
@@ -117,17 +113,27 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
           uniqueKey: reraDocumentCategoryModel.uniquekey,
           projectId: projectId,
         );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
-        showSuccessMessage(context, subTitle: success["message"]);
-
-        getRERADocumentCategoryList(context, state.currentPage, projectId);
+      (response) {
+        final updatedCategoryList = List<RERADocumentCategoryModel>.from(
+          state.reraDocumentCategoryList,
+        );
+        updatedCategoryList.removeAt(index);
+        emit(
+          state.copyWith(
+            reraDocumentCategoryList: updatedCategoryList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response["message"]);
       },
     );
   }
@@ -157,7 +163,6 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
       },
       (response) {
         goRouter.pop();
-
         showSuccessMessage(context, subTitle: response["message"]);
         searchCategory(context, projectId, "");
       },
@@ -193,16 +198,14 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
       (response) {
         goRouter.pop();
         final updatedList = response['data'][0] as RERADocumentCategoryModel;
-
         if (state.reraDocumentCategoryList.isNotEmpty &&
             index < state.reraDocumentCategoryList.length) {
           final updatedListModel = List<RERADocumentCategoryModel>.from(
             state.reraDocumentCategoryList,
           );
           updatedListModel[index] = updatedList;
-          emit(state.copyWith(documentCategoryList: updatedListModel));
+          emit(state.copyWith(reraDocumentCategoryList: updatedListModel));
         }
-
         showSuccessMessage(context, subTitle: response["message"]);
       },
     );
@@ -260,7 +263,7 @@ class RERADocumentCategoryCubit extends Cubit<RERADocumentCategoryState> {
         searchText: categoryName,
         currentSortColumn: column,
         currentSortDirection: direction,
-        documentCategoryList: [],
+        reraDocumentCategoryList: [],
       ),
     );
     await getRERADocumentCategoryList(context, 1, projectId);

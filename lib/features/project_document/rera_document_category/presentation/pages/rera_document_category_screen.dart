@@ -23,7 +23,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class RERADocumentCategoryScreen extends StatefulWidget {
   const RERADocumentCategoryScreen({super.key});
-
   @override
   State<RERADocumentCategoryScreen> createState() =>
       _RERADocumentCategoryScreenState();
@@ -33,28 +32,21 @@ class _RERADocumentCategoryScreenState
     extends State<RERADocumentCategoryScreen> {
   //CUBIT
   late RERADocumentCategoryCubit _reraDocumentCategoryCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLER
   late TextEditingController _searchC;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
     _reraDocumentCategoryCubit = context.read<RERADocumentCategoryCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.reraCategory]!;
-
     _initializeTextEditingController();
     _onScroll();
     _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
@@ -93,7 +85,6 @@ class _RERADocumentCategoryScreenState
             _reraDocumentCategoryCubit.getRERADocumentCategoryList(
               context,
               _reraDocumentCategoryCubit.state.currentPage + 1,
-
               _selectedProjectNotifier.value.projectId,
             );
           });
@@ -106,7 +97,6 @@ class _RERADocumentCategoryScreenState
   Future<void> _showPopupToDeleteDocumentCategory(
     BuildContext context,
     RERADocumentCategoryModel obj,
-    int page,
     int index,
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
@@ -114,12 +104,12 @@ class _RERADocumentCategoryScreenState
       'You are about to delete a RERA document category?',
       'Deleting this RERA document category will permanently remove its contents.',
     );
-
     if (shouldDelete && context.mounted) {
       _reraDocumentCategoryCubit.deleteRERADocumentCategory(
-        _selectedProjectNotifier.value.projectId,
-        obj,
-        context,
+        projectId: _selectedProjectNotifier.value.projectId,
+        reraDocumentCategoryModel: obj,
+        context: context,
+        index: index,
       );
     }
   }
@@ -128,28 +118,21 @@ class _RERADocumentCategoryScreenState
     BuildContext context,
   ) async {
     final state = _reraDocumentCategoryCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Project RERA Document Category"
             ? state.currentSortDirection
             : null;
-
     final String initialRERADocumentCategoryName = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialRERADocumentCategoryName ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -163,7 +146,6 @@ class _RERADocumentCategoryScreenState
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -217,9 +199,7 @@ class _RERADocumentCategoryScreenState
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Project RERA Document Category Name",
@@ -230,12 +210,9 @@ class _RERADocumentCategoryScreenState
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _reraDocumentCategoryCubit.applyFilterAndSortRERADocumentCategory(
           context: context,
           column: "",
@@ -244,10 +221,8 @@ class _RERADocumentCategoryScreenState
           projectId: _selectedProjectNotifier.value.projectId,
         );
       },
-
       onApply: () {
         applied = true;
-
         _reraDocumentCategoryCubit.applyFilterAndSortRERADocumentCategory(
           context: context,
           column:
@@ -257,11 +232,9 @@ class _RERADocumentCategoryScreenState
           projectId: _selectedProjectNotifier.value.projectId,
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialRERADocumentCategoryName;
@@ -415,6 +388,7 @@ class _RERADocumentCategoryScreenState
                                 spacing: 10,
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Flexible(
                                     child: GestureDetector(
@@ -485,7 +459,6 @@ class _RERADocumentCategoryScreenState
                                           _showPopupToDeleteDocumentCategory(
                                             context,
                                             reraCategory,
-                                            state.currentPage,
                                             index,
                                           );
                                         },

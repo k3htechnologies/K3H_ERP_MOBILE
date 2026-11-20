@@ -26,7 +26,6 @@ class DrawingDocumentModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   DrawingDocumentModel({
     required this.drawingDocumentId,
     required this.uniquekey,
@@ -54,7 +53,6 @@ class DrawingDocumentModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory DrawingDocumentModel.fromJson(
     Map<String, dynamic> json,
   ) => DrawingDocumentModel(
@@ -74,7 +72,6 @@ class DrawingDocumentModel {
         json["DrawingDocumentRevisionDate"] == null
             ? null
             : parseValue<DateTime>(json, "DrawingDocumentRevisionDate"),
-
     drawingDocumentRemark: parseValue<String>(json, "DrawingDocumentRemark"),
     drawingDocumentStatus: parseValue<String>(json, "DrawingDocumentStatus"),
     drawingDocumentUrl: parseValue<String>(json, "DrawingDocumentURL"),
@@ -106,7 +103,6 @@ class DrawingDocumentModel {
             ? null
             : parseValue<DateTime>(json, "ModifiedDate"),
   );
-
   Map<String, dynamic> toJson() => {
     "DrawingDocumentId": drawingDocumentId,
     "Uniquekey": uniquekey,

@@ -15,7 +15,6 @@ class ApprovalDocumentState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const ApprovalDocumentState({
     super.isLoading,
     required this.categoryIndex,
@@ -31,7 +30,6 @@ class ApprovalDocumentState extends BaseState {
     required this.currentSortDirection,
     required this.currentPageOfSubDoc,
   });
-
   factory ApprovalDocumentState.initial() => ApprovalDocumentState(
     categoryIndex: 0,
     approvalDocumentCategoryId: 0,
@@ -47,7 +45,6 @@ class ApprovalDocumentState extends BaseState {
     currentSortColumn: "Created Date",
     currentSortDirection: "DESC",
   );
-
   ApprovalDocumentState copyWith({
     bool? isLoading,
     int? categoryIndex,

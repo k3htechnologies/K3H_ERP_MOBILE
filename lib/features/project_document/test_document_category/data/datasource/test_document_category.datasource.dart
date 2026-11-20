@@ -29,7 +29,6 @@ abstract interface class TestDocumentCategoryDatasource {
 class TestDocumentCategoryDatasourceImpl
     extends TestDocumentCategoryDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullTestDocumentCategory({
     required int pageNumber,
@@ -85,7 +84,6 @@ class TestDocumentCategoryDatasourceImpl
   }) async {
     String addUpdateProjectDocumentCategoryUrl =
         "TestDocumentCategory/AddUpdateTestDocumentCategory";
-
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
         addUpdateProjectDocumentCategoryUrl,
@@ -97,6 +95,7 @@ class TestDocumentCategoryDatasourceImpl
             (e) => TestDocumentCategoryModel.fromJson(e),
           ),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -131,6 +130,7 @@ class TestDocumentCategoryDatasourceImpl
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

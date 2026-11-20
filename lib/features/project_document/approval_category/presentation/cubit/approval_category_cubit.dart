@@ -11,10 +11,8 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
   ApprovalCategoryCubit() : super(ApprovalCategoryState.initial());
-
   final ApprovalCategoryRepository _documentCategoryRepository =
       serviceLocator<ApprovalCategoryRepository>();
-
   Future<void> resetSearch() async {
     emit(state.copyWith(searchText: ""));
   }
@@ -44,7 +42,6 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
       projectId: projectId,
       queryParams: queryParams,
     );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -53,7 +50,6 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
       (response) {
         final List<ApprovalDocumentCategoryModel> newData =
             List<ApprovalDocumentCategoryModel>.from(response['data'] ?? []);
-
         final List<ApprovalDocumentCategoryModel> updatedList =
             pageNumber == 1
                 ? newData
@@ -104,13 +100,13 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
   }
 
   // DELETE APPROVE DOCUMENT CATEGORY
-  Future deleteApprovalDocumentCategory(
-    int projectId,
-    ApprovalDocumentCategoryModel approvalCategoryModel,
-    BuildContext context,
-  ) async {
+  Future deleteApprovalDocumentCategory({
+    required BuildContext context,
+    required int projectId,
+    required ApprovalDocumentCategoryModel approvalCategoryModel,
+    required int index,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _documentCategoryRepository
         .deleteApprovalDocumentCategory(
           projectApprovalDocumentCategoryId:
@@ -118,20 +114,28 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
           uniqueKey: approvalCategoryModel.uniquekey,
           projectId: projectId,
         );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
-        showSuccessMessage(
-          context,
-          subTitle: "Document Category Deleted Successfully",
+      (response) {
+        final updatedApprovalCategoryList =
+            List<ApprovalDocumentCategoryModel>.from(
+              state.approvalCategoryList,
+            );
+        updatedApprovalCategoryList.removeAt(index);
+        emit(
+          state.copyWith(
+            approvalCategoryList: updatedApprovalCategoryList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
         );
-
-        getApprovalapprovalCategoryList(context, state.currentPage, projectId);
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -161,11 +165,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
       },
       (response) {
         goRouter.pop();
-
-        showSuccessMessage(
-          context,
-          subTitle: 'Approval Category Added Successfully',
-        );
+        showSuccessMessage(context, subTitle: response['message']);
         searchCategory(context, projectId, "");
       },
     );
@@ -201,7 +201,6 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
         goRouter.pop();
         final updatedList =
             response['data'][0] as ApprovalDocumentCategoryModel;
-
         if (state.approvalCategoryList.isNotEmpty &&
             index < state.approvalCategoryList.length) {
           final updatedListModel = List<ApprovalDocumentCategoryModel>.from(
@@ -210,11 +209,7 @@ class ApprovalCategoryCubit extends Cubit<ApprovalCategoryState> {
           updatedListModel[index] = updatedList;
           emit(state.copyWith(approvalCategoryList: updatedListModel));
         }
-
-        showSuccessMessage(
-          context,
-          subTitle: "Approval Category Updated Successfully",
-        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

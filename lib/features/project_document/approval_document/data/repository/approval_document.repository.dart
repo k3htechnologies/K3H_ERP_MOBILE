@@ -14,7 +14,6 @@ abstract interface class ApprovalDocumentRepository {
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteApprovalDocument({
     required int approvalDocumentId,
     required int projectId,
@@ -25,9 +24,7 @@ abstract interface class ApprovalDocumentRepository {
 
 class ApprovalDocumentRepositoryImpl implements ApprovalDocumentRepository {
   final ApprovalDocumentDatasource documentDatasource;
-
   ApprovalDocumentRepositoryImpl({required this.documentDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> pullProjectApprovalDocument({
     required int pageNumber,

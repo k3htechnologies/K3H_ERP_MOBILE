@@ -13,7 +13,6 @@ void registerDrawingDocumentCategoryDependencies(GetIt serviceLocator) {
           serviceLocator<DrawingDocumentCategoryDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<DrawingDocumentCategoryCubit>(
     DrawingDocumentCategoryCubit(),

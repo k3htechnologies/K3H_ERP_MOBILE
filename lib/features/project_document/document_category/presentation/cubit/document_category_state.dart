@@ -7,7 +7,6 @@ class DocumentCategoryState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const DocumentCategoryState({
     super.isLoading,
     required this.documentCategoryList,
@@ -17,7 +16,6 @@ class DocumentCategoryState extends BaseState {
     required this.currentSortColumn,
     required this.currentSortDirection,
   });
-
   factory DocumentCategoryState.initial() => DocumentCategoryState(
     documentCategoryList: [],
     totalNumberOfRecord: 0,
@@ -27,7 +25,6 @@ class DocumentCategoryState extends BaseState {
     currentSortColumn: "",
     currentSortDirection: "",
   );
-
   DocumentCategoryState copyWith({
     bool? isLoading,
     List<DocumentCategoryModel>? documentCategoryList,

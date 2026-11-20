@@ -10,7 +10,6 @@ abstract interface class TestDocumentDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apiCallAddUpdateTestDocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
@@ -78,7 +77,6 @@ class TestDocumentDatasourceImpl extends TestDocumentDatasource {
     required List<Map<String, dynamic>> fileList,
   }) async {
     String addUpdateProjectDocumentUrl = "TestDocument/AddUpdateTestDocument";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(
@@ -90,6 +88,7 @@ class TestDocumentDatasourceImpl extends TestDocumentDatasource {
         'data': List<TestDocumentModel>.from(
           networkResponse["data"].map((e) => TestDocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -127,6 +126,7 @@ class TestDocumentDatasourceImpl extends TestDocumentDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

@@ -13,7 +13,6 @@ class ViewDrawingDocumentCategoryScreen extends StatelessWidget {
     super.key,
     required this.drawingDocumentCategoryModel,
   });
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,7 +53,6 @@ class ViewDrawingDocumentCategoryScreen extends StatelessWidget {
                                     .drawingDocumentCategoryName,
                             removeExpanded: true,
                           ),
-
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -75,7 +73,6 @@ class ViewDrawingDocumentCategoryScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: commonCardDecoration(),

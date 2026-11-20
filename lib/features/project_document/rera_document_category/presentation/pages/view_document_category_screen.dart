@@ -75,7 +75,6 @@ class ViewRERADocumentCategoryScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-
                     Container(
                       padding: EdgeInsets.all(16),
                       decoration: commonCardDecoration(),

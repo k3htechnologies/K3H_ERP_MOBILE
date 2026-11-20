@@ -16,15 +16,12 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class AddDocumentCategoryScreen extends StatefulWidget {
   final DocumentCategoryModel? documentCategoryModel;
-
   final int index;
   const AddDocumentCategoryScreen({
     super.key,
     required this.documentCategoryModel,
-
     this.index = 0,
   });
-
   @override
   State<AddDocumentCategoryScreen> createState() =>
       _AddDocumentCategoryScreenState();
@@ -37,16 +34,12 @@ class _AddDocumentCategoryScreenState extends State<AddDocumentCategoryScreen> {
   late AuthorizationModel _routeAuthorizationModel;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _documentCategoryC, _orderByC;
-
   //EDIT MODE
   bool get _isEditMode => widget.documentCategoryModel != null;
-
   //PROJECT ID
   late int projectId;
-
   @override
   void initState() {
     super.initState();

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
@@ -26,13 +25,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 class ViewDocumentScreen extends StatefulWidget {
   final int index;
   final DocumentModel documentModel;
-
   const ViewDocumentScreen({
     super.key,
     required this.documentModel,
     this.index = 0,
   });
-
   @override
   State<ViewDocumentScreen> createState() => _ViewDocumentScreenState();
 }
@@ -43,11 +40,9 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
   late DocumentCubit _documentCubit;
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   @override
   void initState() {
     super.initState();
@@ -56,7 +51,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     _utilsCubit = context.read<UtilsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.document]!;
-
     _documentCubit.getProjectDocumentList(
       context: context,
       pageNumber: 1,
@@ -103,9 +97,14 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
       'You are about to delete a document?',
       'Deleting this document will permanently remove its contents.',
     );
-
     if (shouldDelete && context.mounted) {
-      _documentCubit.deleteDocument(obj, context, index, isSubDoc: true);
+      _documentCubit.deleteDocument(
+        obj,
+        context,
+        index,
+        isSubDoc: true,
+        parentIndex: widget.index,
+      );
     }
   }
 
@@ -159,7 +158,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                               ),
                             ),
                             "index": widget.index.toString(),
-
                             "isEdit": Uri.encodeQueryComponent(
                               EncryptionManager.encryptData(false.toString()),
                             ),
@@ -170,14 +168,12 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                     : SizedBox.shrink(),
               ],
             ),
-
             BlocBuilder<DocumentCubit, DocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
                     state.subDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
-
                 if (state.subDocumentList.isEmpty) {
                   return Expanded(
                     child: Center(
@@ -185,7 +181,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                     ),
                   );
                 }
-
                 return Expanded(
                   child: ListView.builder(
                     controller: scrollController,
@@ -200,7 +195,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                             )
                             : const SizedBox.shrink();
                       }
-
                       return _buildDocumentCard(
                         state.subDocumentList[index],
                         index,
@@ -226,7 +220,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
     // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
     // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
     final bool isActionAllowed = document.isApproval;
-
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -261,7 +254,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                         ),
                       ),
                       "index": index.toString(),
-
                       "isEdit": Uri.encodeQueryComponent(
                         EncryptionManager.encryptData(true.toString()),
                       ),
@@ -359,7 +351,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
               ),
             ],
           ),
-
           ApproveRejectWidget(
             showApproval: document.isApproval,
             actionTitle:
@@ -411,7 +402,6 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
                     id: document.projectDocumentId,
                     moduleName: "DOCUMENT APPROVAL",
                   );
-
               if (context.mounted) {
                 goRouter.pushNamed(
                   AppRoutes.approvalLogHistory,
@@ -452,12 +442,10 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         return AppColor.lightBlue2;
       case 'doc missing':
         return AppColor.warning20;
-
       case 'in process':
         return AppColor.lightYellow;
       case 'issued':
         return AppColor.darkBackground.withValues(alpha: 0.29);
-
       case 'not applied':
         return AppColor.grey2;
       case 'not applicable':
@@ -480,12 +468,10 @@ class _ViewDocumentScreenState extends State<ViewDocumentScreen> {
         return AppColor.primary;
       case 'doc missing':
         return AppColor.warning;
-
       case 'in process':
         return AppColor.brown;
       case 'issued':
         return AppColor.darkBackground;
-
       case 'not applied':
         return AppColor.black;
       case 'not applicable':

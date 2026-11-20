@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
@@ -29,7 +28,6 @@ class ViewTestDocumentScreen extends StatefulWidget {
     required this.index,
     required this.testDocumentModel,
   });
-
   @override
   State<ViewTestDocumentScreen> createState() => _ViewTestDocumentScreenState();
 }
@@ -38,14 +36,11 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
   //CUBIT
   late UtilsCubit _utilsCubit;
   late TestDocumentCubit _testDocumentCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
-
   @override
   void initState() {
     super.initState();
@@ -54,7 +49,6 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
     _utilsCubit = context.read<UtilsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.testDocument]!;
-
     _testDocumentCubit.getTestDocumentList(
       context: context,
       pageNumber: 1,
@@ -102,9 +96,14 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
       'You are about to delete a document?',
       'Deleting this document will permanently remove all associated data.',
     );
-
     if (shouldDelete && context.mounted) {
-      _testDocumentCubit.deleteDocument(obj, context, index, isSubDoc: true);
+      _testDocumentCubit.deleteDocument(
+        obj,
+        context,
+        index,
+        isSubDoc: true,
+        parentIndex: widget.index,
+      );
     }
   }
 
@@ -159,7 +158,6 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                               ),
                             ),
                             "index": widget.index.toString(),
-
                             "isEdit": Uri.encodeQueryComponent(
                               EncryptionManager.encryptData(false.toString()),
                             ),
@@ -170,14 +168,12 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                     : SizedBox.shrink(),
               ],
             ),
-
             BlocBuilder<TestDocumentCubit, TestDocumentState>(
               builder: (context, state) {
                 if ((state.isLoading ?? true) &&
                     state.subTestDocumentList.isEmpty) {
                   return Expanded(child: Center(child: loader()));
                 }
-
                 if (state.subTestDocumentList.isEmpty) {
                   return Expanded(
                     child: Center(
@@ -185,7 +181,6 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                     ),
                   );
                 }
-
                 return Expanded(
                   child: ListView.builder(
                     controller: scrollController,
@@ -200,7 +195,6 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                             )
                             : const SizedBox.shrink();
                       }
-
                       return _buildDocumentCard(
                         state.subTestDocumentList[index],
                         index,
@@ -226,7 +220,6 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
     // IF DOCUMENT IS NOT APPROVED OR USER HAS NO ACTION PERMISSION,
     // THEN ACTIONS ARE CONSIDERED ALREADY PERFORMED -> SHOW HISTORY AND DISABLE ACTIONS
     final bool isActionAllowed = document.isApproval;
-
     return Container(
       padding: EdgeInsets.all(16),
       margin: EdgeInsets.only(bottom: 10),
@@ -261,7 +254,6 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                         ),
                       ),
                       "index": index.toString(),
-
                       "isEdit": Uri.encodeQueryComponent(
                         EncryptionManager.encryptData(true.toString()),
                       ),
@@ -389,7 +381,6 @@ class _ViewTestDocumentScreenState extends State<ViewTestDocumentScreen> {
                     id: document.testDocumentId,
                     moduleName: "TEST DOCUMENT APPROVAL",
                   );
-
               if (context.mounted) {
                 goRouter.pushNamed(
                   AppRoutes.approvalLogHistory,

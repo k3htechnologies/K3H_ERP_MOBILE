@@ -26,7 +26,7 @@ class DisbursementCubit extends Cubit<DisbursementState> {
     int projectId,
     int termSheetId,
   ) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
 
     final Map<String, dynamic> queryParams = {};
 
@@ -38,7 +38,7 @@ class DisbursementCubit extends Cubit<DisbursementState> {
 
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
@@ -46,7 +46,7 @@ class DisbursementCubit extends Cubit<DisbursementState> {
             response['data'] as List<TermSheetViewModel>;
 
         emit(
-          state.copywith(
+          state.copyWith(
             termSheetDetailsViewModel:
                 newList.isNotEmpty &&
                         newList.first.termSheetDetailsData.isNotEmpty
@@ -166,7 +166,7 @@ class DisbursementCubit extends Cubit<DisbursementState> {
         final newData = (response['data'] as List<TermSheetViewModel>?) ?? [];
         showSuccessMessage(context, subTitle: response["message"]);
         emit(
-          state.copywith(
+          state.copyWith(
             termSheetDetailsViewModel:
                 newData.isNotEmpty &&
                         newData.first.termSheetDetailsData.isNotEmpty

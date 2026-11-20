@@ -15,7 +15,7 @@ class TaxTrackerCubit extends Cubit<TaxTrackerState> {
       serviceLocator<TaxTrackerRepository>();
 
   Future getTrackTrackerList(BuildContext context, int pageNumber) async {
-    emit(state.copywith(isLoading: true));
+    emit(state.copyWith(isLoading: true));
 
     Map<String, dynamic> queryParams = {
       "GovernmentCompliance": "${state.searchText} ${state.searchText}",
@@ -29,7 +29,7 @@ class TaxTrackerCubit extends Cubit<TaxTrackerState> {
 
     result.fold(
       (failure) {
-        emit(state.copywith(isLoading: false));
+        emit(state.copyWith(isLoading: false));
         showErrorMessage(context, "Error", failure.message);
       },
       (response) {
@@ -40,7 +40,7 @@ class TaxTrackerCubit extends Cubit<TaxTrackerState> {
             pageNumber == 1 ? newList : [...state.taxTrackerList, ...newList];
 
         emit(
-          state.copywith(
+          state.copyWith(
             taxTrackerList: updatedList,
             taxTrackerOverview: newList.isNotEmpty ? newList.first : null,
             currentPage: pageNumber,

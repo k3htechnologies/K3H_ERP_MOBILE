@@ -10,10 +10,8 @@ abstract interface class ApprovalCategoryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>>
   addUpdateApprovalDocumentCategory({required Map<String, dynamic> body});
-
   Future<Either<Failure, Map<String, dynamic>>> deleteApprovalDocumentCategory({
     required int projectApprovalDocumentCategoryId,
     required int projectId,
@@ -29,9 +27,7 @@ abstract interface class ApprovalCategoryRepository {
 
 class ApprovalCategoryRepositoryImpl implements ApprovalCategoryRepository {
   final ApprovalCategoryDatasource documentCategoryDatasource;
-
   ApprovalCategoryRepositoryImpl({required this.documentCategoryDatasource});
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getApprovalDocumentCategory({
     required int pageNumber,

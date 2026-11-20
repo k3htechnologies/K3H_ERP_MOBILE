@@ -25,7 +25,6 @@ class AddApprovalDocumentScreen extends StatefulWidget {
     this.index = 0,
     this.isEdit = false,
   });
-
   @override
   State<AddApprovalDocumentScreen> createState() =>
       _AddApprovalDocumentScreenState();
@@ -34,16 +33,12 @@ class AddApprovalDocumentScreen extends StatefulWidget {
 class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
   //CUBIT
   late ApprovalDocumentCubit _documentCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _remarkC;
-
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   DateTime? expiryDate;
   final ValueNotifier<Map<String, dynamic>?> _selectedStatus = ValueNotifier(
     null,
@@ -60,17 +55,14 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
     {'zAttributesId': 8, 'DisplayName': 'Payment Due'},
     {'zAttributesId': 9, 'DisplayName': 'Rejected'},
   ];
-
   // FILE VARIABLES
   MultiFilePickerModel selectedApprovalDocumentFile = MultiFilePickerModel(
     fileBytesList: [],
     fileNameList: [],
     deletedFileList: "",
   );
-
   //EDIT MODE
   bool get _isEditMode => widget.isEdit;
-
   @override
   void initState() {
     super.initState();
@@ -133,16 +125,13 @@ class _AddApprovalDocumentScreenState extends State<AddApprovalDocumentScreen> {
         (status) => status['DisplayName'] == document.approvalDocumentStatus,
         orElse: () => statusList.first,
       );
-
       _selectedStatus.value = matchedStatus;
     }
     expiryDate = document.approvalDocumentExpiryDate;
-
     _remarkC.text =
         document.approvalDocumentRemark.isNotEmpty
             ? document.approvalDocumentRemark
             : "";
-
     selectedApprovalDocumentFile.fileNameList =
         document.approvalDocumentURL.isEmpty
             ? []

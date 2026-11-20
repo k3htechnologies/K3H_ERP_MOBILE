@@ -29,11 +29,9 @@ abstract interface class TestDocumentCategoryRepository {
 class TestDocumentCategoryRepositoryImpl
     extends TestDocumentCategoryRepository {
   final TestDocumentCategoryDatasource testDocumentCategoryDatasource;
-
   TestDocumentCategoryRepositoryImpl({
     required this.testDocumentCategoryDatasource,
   });
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getTestDocumentCategory({
     required int pageNumber,

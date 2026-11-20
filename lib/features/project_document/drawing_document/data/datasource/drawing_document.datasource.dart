@@ -11,19 +11,16 @@ abstract interface class DrawingDocumentDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apiCallAddUpdateDrawingDocument({
     required Map<String, String> body,
     required List<Map<String, dynamic>> fileList,
   });
-
   Future<Map<String, dynamic>> apicallDeleteDrawingDocument({
     required int drawingDocumentId,
     required int projectId,
     required int drawingDocumentCategoryId,
     required String uniqueKey,
   });
-
   Future<Map<String, dynamic>> apicallPullInventoryDrawingDocument({
     required int projectId,
     Map<String, dynamic>? queryParams,
@@ -32,7 +29,6 @@ abstract interface class DrawingDocumentDatasource {
 
 class DrawingDocumentDatasourceImpl extends DrawingDocumentDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullDrawingDocument({
     required int pageNumber,
@@ -87,7 +83,6 @@ class DrawingDocumentDatasourceImpl extends DrawingDocumentDatasource {
   }) async {
     String addUpdateProjectDocumentUrl =
         "DrawingDocument/AddUpdateDrawingDocument";
-
     try {
       var networkResponse = await baseClient
           .multipartRequestWithAuthenticationBytes(

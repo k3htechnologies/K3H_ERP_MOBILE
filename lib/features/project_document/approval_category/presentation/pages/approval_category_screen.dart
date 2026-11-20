@@ -23,7 +23,6 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ApprovalCategoryScreen extends StatefulWidget {
   const ApprovalCategoryScreen({super.key});
-
   @override
   State<ApprovalCategoryScreen> createState() => _ApprovalCategoryScreenState();
 }
@@ -31,28 +30,21 @@ class ApprovalCategoryScreen extends StatefulWidget {
 class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
   //CUBIT
   late ApprovalCategoryCubit _documentCategoryCubit;
-
   // AuthorizationModel
   late AuthorizationModel _routeAuthorizationModel;
-
   // SCROLL CONTROLLER
   final ScrollController scrollController = ScrollController();
   Timer? _debounce;
-
   // TEXT EDITING CONTROLLER
   late TextEditingController _searchC;
-
   late ValueNotifier<ProjectModel> _selectedProjectNotifier;
-
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
   @override
   void initState() {
     super.initState();
     _documentCategoryCubit = context.read<ApprovalCategoryCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.approvalCategory]!;
-
     _initializeTextEditingController();
     _onScroll();
     _selectedProjectNotifier = ValueNotifier<ProjectModel>(getProject());
@@ -90,7 +82,6 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           _documentCategoryCubit.getApprovalapprovalCategoryList(
             context,
             _documentCategoryCubit.state.currentPage + 1,
-
             _selectedProjectNotifier.value.projectId,
           );
         });
@@ -110,12 +101,12 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
       'You are about to delete a approval document category ?',
       'Deleting this approval document category will permanently remove all associated data.',
     );
-
     if (shouldDelete && context.mounted) {
       _documentCategoryCubit.deleteApprovalDocumentCategory(
-        _selectedProjectNotifier.value.projectId,
-        obj,
-        context,
+        projectId: _selectedProjectNotifier.value.projectId,
+        approvalCategoryModel: obj,
+        context: context,
+        index: index,
       );
     }
   }
@@ -125,28 +116,21 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
     BuildContext context,
   ) async {
     final state = _documentCategoryCubit.state;
-
     _searchC.text = state.searchText;
-
     String? selectedDirection =
         state.currentSortColumn == "Approval Document Category"
             ? state.currentSortDirection
             : null;
-
     final String initialApprovalDocumentCategory = _searchC.text;
     final String? initialDirection = selectedDirection;
-
     bool manualClose = false;
     bool applied = false;
-
     final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
-
     void updateApplyState(StateSetter innerState) {
       innerState(() {
         manualClose =
             _searchC.text.trim() != initialApprovalDocumentCategory ||
             selectedDirection != initialDirection;
-
         applyEnabled.value = manualClose;
       });
     }
@@ -160,7 +144,6 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
             innerState(() {
               selectedDirection = direction;
             });
-
             updateApplyState(innerState);
           }
 
@@ -214,9 +197,7 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
                   ),
                 ],
               ),
-
               verticalSpacing(height: 20),
-
               CustomTextField(
                 textController: _searchC,
                 hint: "Enter Approval Document Category",
@@ -227,12 +208,9 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           );
         },
       ),
-
       onClear: () {
         applied = true;
-
         _searchC.clear();
-
         _documentCategoryCubit.applyFilterAndSortApprovalDocumentCategory(
           context: context,
           column: "",
@@ -240,10 +218,8 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           approvalDocumentCategory: '',
         );
       },
-
       onApply: () {
         applied = true;
-
         _documentCategoryCubit.applyFilterAndSortApprovalDocumentCategory(
           context: context,
           column: selectedDirection != null ? "Approval Document Category" : "",
@@ -251,11 +227,9 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           approvalDocumentCategory: _searchC.text.trim(),
         );
       },
-
       isApplyEnabled: applyEnabled.value,
       applyEnabledNotifier: applyEnabled,
     );
-
     // User closed bottom sheet without clicking Apply/Clear
     if (!applied && manualClose) {
       _searchC.text = initialApprovalDocumentCategory;
@@ -292,7 +266,6 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
           },
           searchHintText: "Search By Approval Document Category",
           textController: _searchC,
-
           onProjectChangeCallback: (value) {
             _selectedProjectNotifier.value = value;
             _searchC.clear();
@@ -308,7 +281,6 @@ class _ApprovalCategoryScreenState extends State<ApprovalCategoryScreen> {
               showErrorMessage(context, 'Error', 'Please select a project');
               return;
             }
-
             await goRouter.pushNamed(AppRoutes.addApprovalCategory);
             if (context.mounted) {
               _documentCategoryCubit.searchCategory(

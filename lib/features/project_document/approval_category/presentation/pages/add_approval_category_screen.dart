@@ -12,20 +12,16 @@ import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
-
 import '../../../../../style/text_style.dart';
 
 class AddApprovalCategoryScreen extends StatefulWidget {
   final ApprovalDocumentCategoryModel? approvalCategoryModel;
-
   final int index;
   const AddApprovalCategoryScreen({
     super.key,
     required this.approvalCategoryModel,
-
     this.index = 0,
   });
-
   @override
   State<AddApprovalCategoryScreen> createState() =>
       _AddApprovalCategoryScreenState();
@@ -38,16 +34,12 @@ class _AddApprovalCategoryScreenState extends State<AddApprovalCategoryScreen> {
   late AuthorizationModel _routeAuthorizationModel;
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
-
   //TEXT EDITING CONTROLLER
   late TextEditingController _documentCategoryC, _orderByC;
-
   //EDIT MODE
   bool get _isEditMode => widget.approvalCategoryModel != null;
-
   //PROJECT ID
   late int projectId;
-
   @override
   void initState() {
     super.initState();

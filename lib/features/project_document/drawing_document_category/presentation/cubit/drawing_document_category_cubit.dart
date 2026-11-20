@@ -1,6 +1,5 @@
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-
 import 'package:k3h_erp_app/core/base_state.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document_category/data/model/drawing_document_category.model.dart';
@@ -9,16 +8,13 @@ import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-
 part 'drawing_document_category_state.dart';
 
 class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
   DrawingDocumentCategoryCubit()
     : super(DrawingDocumentCategoryState.initial());
-
   final DrawingDocumentCategoryRepository _drawingDocumentCategoryRepository =
       serviceLocator<DrawingDocumentCategoryRepository>();
-
   Future<void> resetSearch() async {
     emit(state.copyWith(searchText: ""));
   }
@@ -32,7 +28,7 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
     emit(
       state.copyWith(
         searchText: value,
-        drawingDocumentCategoryModelList: [],
+        drawingDocumentCategoryList: [],
         currentPage: 1,
       ),
     );
@@ -50,13 +46,7 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
         DrawingDocumentCategoryCubit();
-
-        emit(
-          state.copyWith(
-            isLoading: false,
-            drawingDocumentCategoryModelList: [],
-          ),
-        );
+        emit(state.copyWith(isLoading: false, drawingDocumentCategoryList: []));
       });
       return;
     }
@@ -74,7 +64,6 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
           projectId: projectId,
           queryParams: queryParams,
         );
-
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false));
@@ -83,26 +72,13 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
       (response) {
         final List<DrawingDocumentCategoryModel> newData =
             List<DrawingDocumentCategoryModel>.from(response['data'] ?? []);
-
         final List<DrawingDocumentCategoryModel> updatedList =
             pageNumber == 1
                 ? newData
-                : [...state.drawingDocumentCategoryModelList, ...newData];
-        // final bool isDescending =
-        //     state.currentSortDirection.toUpperCase() == "DESC";
-
-        // updatedList.sort((a, b) {
-        //   final comparison = a.drawingDocumentCategoryName
-        //       .trim()
-        //       .toLowerCase()
-        //       .compareTo(b.drawingDocumentCategoryName.trim().toLowerCase());
-
-        //   return isDescending ? -comparison : comparison;
-        // });
-
+                : [...state.drawingDocumentCategoryList, ...newData];
         emit(
           state.copyWith(
-            drawingDocumentCategoryModelList: updatedList,
+            drawingDocumentCategoryList: updatedList,
             isLoading: false,
             totalNumberOfRecord: response["totalNumberOfRecord"],
             currentPage: pageNumber,
@@ -135,7 +111,6 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
       },
       (response) {
         goRouter.pop();
-
         showSuccessMessage(context, subTitle: response['message']);
         searchCategory(context, projectId, "");
       },
@@ -170,30 +145,26 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
       (response) {
         goRouter.pop();
         final updatedList = response['data'][0] as DrawingDocumentCategoryModel;
-
-        if (state.drawingDocumentCategoryModelList.isNotEmpty &&
-            index < state.drawingDocumentCategoryModelList.length) {
+        if (state.drawingDocumentCategoryList.isNotEmpty &&
+            index < state.drawingDocumentCategoryList.length) {
           final updatedListModel = List<DrawingDocumentCategoryModel>.from(
-            state.drawingDocumentCategoryModelList,
+            state.drawingDocumentCategoryList,
           );
           updatedListModel[index] = updatedList;
-          emit(
-            state.copyWith(drawingDocumentCategoryModelList: updatedListModel),
-          );
+          emit(state.copyWith(drawingDocumentCategoryList: updatedListModel));
         }
-
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
 
-  Future deleteDrawingDocumentCategory(
-    int projectId,
-    DrawingDocumentCategoryModel drawingDocumentCategoryModel,
-    BuildContext context,
-  ) async {
+  Future deleteDrawingDocumentCategory({
+    required int projectId,
+    required DrawingDocumentCategoryModel drawingDocumentCategoryModel,
+    required BuildContext context,
+    required int index,
+  }) async {
     DialogHelper.showProcessingOverlay(context);
-
     final result = await _drawingDocumentCategoryRepository
         .deleteDrawingDocumentCategory(
           drawingDocumentCategoryId:
@@ -201,17 +172,27 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
           uniqueKey: drawingDocumentCategoryModel.uniquekey,
           projectId: projectId,
         );
-
     goRouter.pop();
-
     result.fold(
       (failure) {
         showErrorMessage(context, "Error", failure.message);
       },
-      (success) {
-        showSuccessMessage(context, subTitle: success['message']);
-
-        getDrawingDocumentCategoryList(context, state.currentPage, projectId);
+      (response) {
+        final updatedCategoryList = List<DrawingDocumentCategoryModel>.from(
+          state.drawingDocumentCategoryList,
+        );
+        updatedCategoryList.removeAt(index);
+        emit(
+          state.copyWith(
+            drawingDocumentCategoryList: updatedCategoryList,
+            isLoading: false,
+            totalNumberOfRecord:
+                state.totalNumberOfRecord > 0
+                    ? state.totalNumberOfRecord - 1
+                    : 0,
+          ),
+        );
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -268,7 +249,7 @@ class DrawingDocumentCategoryCubit extends Cubit<DrawingDocumentCategoryState> {
         searchText: testDocument,
         currentSortColumn: column,
         currentSortDirection: direction,
-        drawingDocumentCategoryModelList: [],
+        drawingDocumentCategoryList: [],
       ),
     );
     await getDrawingDocumentCategoryList(context, 1, getProject().projectId);

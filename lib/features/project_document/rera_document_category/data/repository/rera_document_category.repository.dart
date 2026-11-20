@@ -10,11 +10,9 @@ abstract interface class RERADocumentCategoryRepository {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> addUpdateReraDocumentCategory({
     required Map<String, dynamic> body,
   });
-
   Future<Either<Failure, Map<String, dynamic>>> deleteReraDocumentCategory({
     required int projectRERADocumentCategoryId,
     required int projectId,
@@ -31,11 +29,9 @@ abstract interface class RERADocumentCategoryRepository {
 class RERADocumentCategoryRepositoryImpl
     implements RERADocumentCategoryRepository {
   final RERADocumentCategoryDatasource reraDocumentCategoryDatasource;
-
   RERADocumentCategoryRepositoryImpl({
     required this.reraDocumentCategoryDatasource,
   });
-
   @override
   Future<Either<Failure, Map<String, dynamic>>> getReraDocumentCategory({
     required int pageNumber,

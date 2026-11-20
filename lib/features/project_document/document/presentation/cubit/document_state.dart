@@ -13,7 +13,6 @@ class DocumentState extends BaseState {
   final String searchText;
   final String currentSortColumn;
   final String currentSortDirection;
-
   const DocumentState({
     super.isLoading,
     required this.categoryIndex,
@@ -29,7 +28,6 @@ class DocumentState extends BaseState {
     required this.currentSortDirection,
     required this.currentPageOfSubDoc,
   });
-
   factory DocumentState.initial() => DocumentState(
     categoryIndex: 0,
     projectDocumentCategoryId: 0,
@@ -45,7 +43,6 @@ class DocumentState extends BaseState {
     currentSortColumn: "",
     currentSortDirection: "",
   );
-
   DocumentState copyWith({
     bool? isLoading,
     int? categoryIndex,

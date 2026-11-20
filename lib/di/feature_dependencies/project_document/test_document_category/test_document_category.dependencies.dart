@@ -13,7 +13,6 @@ void registerTestDocumentCategoryDependencies(GetIt serviceLocator) {
           serviceLocator<TestDocumentCategoryDatasource>(),
     ),
   );
-
   //- CUBITS -
   serviceLocator.registerSingleton<TestDocumentCategoryCubit>(
     TestDocumentCategoryCubit(),

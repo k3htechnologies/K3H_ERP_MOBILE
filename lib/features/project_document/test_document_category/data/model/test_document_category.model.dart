@@ -13,7 +13,6 @@ class TestDocumentCategoryModel {
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
-
   TestDocumentCategoryModel({
     required this.testDocumentCategoryId,
     required this.projectId,
@@ -28,7 +27,6 @@ class TestDocumentCategoryModel {
     required this.modifiedBy,
     required this.modifiedDate,
   });
-
   factory TestDocumentCategoryModel.fromJson(Map<String, dynamic> json) =>
       TestDocumentCategoryModel(
         testDocumentCategoryId: parseValue<int>(json, "TestDocumentCategoryId"),
@@ -50,7 +48,6 @@ class TestDocumentCategoryModel {
                 ? null
                 : DateTime.parse(json["ModifiedDate"]),
       );
-
   Map<String, dynamic> toJson() => {
     "TestDocumentCategoryId": testDocumentCategoryId,
     "ProjectId": projectId,

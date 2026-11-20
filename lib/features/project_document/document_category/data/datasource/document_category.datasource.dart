@@ -10,17 +10,14 @@ abstract interface class DocumentCategoryDatasource {
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
-
   Future<Map<String, dynamic>> apicallAddUpdateProjectDocumentCategory({
     required Map<String, dynamic> body,
   });
-
   Future<Map<String, dynamic>> apicallDeleteProjectDocumentCategory({
     required int projectDocumentCategoryId,
     required int projectId,
     required String uniqueKey,
   });
-
   Future<Map<String, dynamic>> apicallPullProjectDocumentCategoryForExport({
     required int pageNumber,
     required int pageSize,
@@ -31,7 +28,6 @@ abstract interface class DocumentCategoryDatasource {
 
 class DocumentCategoryDatasourceImpl implements DocumentCategoryDatasource {
   final BaseClient baseClient = BaseClient();
-
   @override
   Future<Map<String, dynamic>> apicallPullProjectDocumentCategory({
     required int pageNumber,
@@ -85,7 +81,6 @@ class DocumentCategoryDatasourceImpl implements DocumentCategoryDatasource {
   }) async {
     String addUpdateProjectDocumentCategoryUrl =
         "ProjectDocumentCategory/AddUpdateProjectDocumentCategory";
-
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
         addUpdateProjectDocumentCategoryUrl,
@@ -95,6 +90,7 @@ class DocumentCategoryDatasourceImpl implements DocumentCategoryDatasource {
         'data': List<DocumentCategoryModel>.from(
           networkResponse["data"].map((e) => DocumentCategoryModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -129,6 +125,7 @@ class DocumentCategoryDatasourceImpl implements DocumentCategoryDatasource {
       );
       return {
         'data': networkResponse["data"],
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

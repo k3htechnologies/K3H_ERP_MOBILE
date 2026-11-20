@@ -12,7 +12,7 @@ class DsraState extends BaseState {
   factory DsraState.inital() =>
       DsraState(termSheetDetailsViewModel: null, totalNumberOfRecord: 0);
 
-  DsraState copywith({
+  DsraState copyWith({
     bool? isLoading,
     TermSheetDetailsView? termSheetDetailsViewModel,
     int? totalNumberOfRecord,
