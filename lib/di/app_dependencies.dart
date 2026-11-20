@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/call_monitoring/call_monitoring.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/dashboard/crm_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track_call_log.dependencies.dart';
@@ -111,6 +112,8 @@ final GetIt serviceLocator = GetIt.instance;
 void initDependencies() {
   // UTILS
   registerUtilsDependencies(serviceLocator);
+  // CALL MONITORING
+  registerCallMonitoringDependencies(serviceLocator);
   // NOTIFICATION DEPENDENCIES
   registerNotificationDependencies(serviceLocator);
   // COMPANY MASTER DEPENDENCIES (must be before EMPLOYEE MASTER as EmployeeMasterCubit depends on it)

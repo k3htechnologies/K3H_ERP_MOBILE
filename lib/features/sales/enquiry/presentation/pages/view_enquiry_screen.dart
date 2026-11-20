@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/services/call_monitoring_service.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/call_monitoring/presentation/cubit/call_monitoring_cubit.dart';
+import 'package:k3h_erp_app/features/call_monitoring/presentation/pages/call_monitoring_screen.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
@@ -15,6 +19,7 @@ import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/chip_style_tab_bar.dart';
 import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_date_picker.dart';
@@ -63,16 +68,18 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
   // STATIC DROPDOWNS
   final closedStatuses = ['booking done', 'cancelled', 'lost'];
+  late CallMonitoringService _callMonitoringService;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _enquiryCubit = context.read<EnquiryCubit>();
+    context.read<CallMonitoringCubit>().resetState();
     _project = getProject();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
-
+    _callMonitoringService = serviceLocator<CallMonitoringService>();
     _enquiryCubit.clearEnquiryFollowUp();
     // FOR OVERVIEW
     _enquiryCubit.getEnquiryById(
@@ -119,13 +126,18 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
       ),
       body: SafeArea(
         child: Column(
+          spacing: 12,
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: showSiteSelectedWidget(),
             ),
-            _buildEnquiryTabBar(),
-            verticalSpacing(),
+            ChipStyleTabBar(
+              controller: _tabController,
+              margin: EdgeInsets.symmetric(horizontal: 16),
+              tabs: ['Overview', 'Remark & Activity', 'Call Log'],
+              style: ChipTabBarStyle.classic,
+            ),
             BlocBuilder<EnquiryCubit, EnquiryState>(
               builder: (context, state) {
                 final enquiry = state.currentEnquiryDetails;
@@ -154,12 +166,19 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                 );
               },
             ),
-            verticalSpacing(),
             Expanded(
               child: TabBarView(
                 physics: const NeverScrollableScrollPhysics(),
                 controller: _tabController,
-                children: [buildOverviewTab(), buildRemarkActivityTimeline()],
+                children: [
+                  buildOverviewTab(),
+                  buildRemarkActivityTimeline(),
+                  CallMonitoringScreen(
+                    pageName: 'Enquiry',
+                    id: widget.enquiryId,
+                    routeAuthorizationModel: _routeAuthorizationModel,
+                  ),
+                ],
               ),
             ),
           ],
@@ -211,41 +230,6 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
     );
   }
 
-  // ===================== TAB BAR =====================
-  Widget _buildEnquiryTabBar() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: IntrinsicWidth(
-        child: Container(
-          height: 35,
-          margin: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: AppColor.white,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
-          ),
-          child: TabBar(
-            controller: _tabController,
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            labelColor: AppColor.primary,
-            unselectedLabelColor: AppColor.grey,
-            indicator: BoxDecoration(
-              color: AppColor.lightBlue,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            indicatorSize: TabBarIndicatorSize.tab,
-            dividerColor: Colors.transparent,
-            labelStyle: AppTextStyle.ts14M(),
-            unselectedLabelStyle: AppTextStyle.ts14M(),
-            labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-            tabs: const [Tab(text: "Overview"), Tab(text: "Remark & Activity")],
-          ),
-        ),
-      ),
-    );
-  }
-
   // ===================== OVERVIEW TAB =====================
   Widget buildOverviewTab() {
     return BlocBuilder<EnquiryCubit, EnquiryState>(
@@ -269,7 +253,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
         final bool isReference = enquiry.subSource == "Reference";
 
         return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
@@ -323,6 +307,22 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
                             countryCode: enquiry.mobileNumberCountryCode,
                             value: enquiry.mobileNumber,
                             type: ContactType.phone,
+                            onCall: (phoneNumber) async {
+                              final granted =
+                                  await _callMonitoringService
+                                      .ensurePhonePermission();
+
+                              if (!granted) return;
+
+                              _callMonitoringService.startCallTracking(
+                                phoneNumber: phoneNumber,
+                                config: CallMonitoringConfig(
+                                  projectId: _project.projectId,
+                                  id: enquiry.enquiryId,
+                                  pageName: 'Enquiry',
+                                ),
+                              );
+                            },
                           ),
                         ),
                       ],
@@ -1015,7 +1015,7 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
 
         final items = state.enquiryFollowUpList;
         return SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

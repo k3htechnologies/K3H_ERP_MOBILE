@@ -11,16 +11,12 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/storage_key.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-/// =======================================================
 /// 1. COMMON CALL LOG MODEL
-/// =======================================================
-
 class CallLogEntry {
   final String phoneNumber;
   final DateTime startedAt;
   final DateTime endedAt;
   final int durationSeconds;
-
   final int projectId;
   final int id;
   final String pageName;
@@ -34,6 +30,10 @@ class CallLogEntry {
     required this.id,
     required this.pageName,
   });
+
+  /// Stable identity, survives JSON round-trips.
+  String get key =>
+      '$phoneNumber|${startedAt.microsecondsSinceEpoch}|$projectId|$id|$pageName';
 
   Map<String, dynamic> toJson() {
     return {
@@ -60,10 +60,7 @@ class CallLogEntry {
   }
 }
 
-/// =======================================================
-/// 2. COMMON MODULE CONFIGURATION
-/// =======================================================
-
+/// 2. MODULE CONFIGURATION
 class CallMonitoringConfig {
   final int projectId;
   final int id;
@@ -76,10 +73,7 @@ class CallMonitoringConfig {
   });
 }
 
-/// =======================================================
 /// 3. CENTRALIZED CALL MONITORING SERVICE
-/// =======================================================
-
 class CallMonitoringService {
   CallMonitoringService._internal();
 
@@ -92,8 +86,7 @@ class CallMonitoringService {
 
   StreamSubscription<String>? _subscription;
 
-  late CallMonitoringsRepository repository;
-
+  late CallMonitoringRepository repository;
   bool _repositoryInitialized = false;
 
   CallMonitoringConfig? _pendingConfig;
@@ -104,31 +97,26 @@ class CallMonitoringService {
 
   DateTime? _callStartTime;
 
+  bool _initializing = false;
   bool _syncInProgress = false;
+  bool _resyncRequested = false;
 
-  /// =====================================================
   /// 4. INITIALIZE REPOSITORY
-  /// =====================================================
-
-  void initializeRepository({required CallMonitoringsRepository repository}) {
+  void initializeRepository({required CallMonitoringRepository repository}) {
     this.repository = repository;
     _repositoryInitialized = true;
   }
 
-  /// =====================================================
-  /// 5. INITIALIZE LISTENER
-  /// =====================================================
-
+  /// 5. INITIALIZE LISTENER (guarded against double subscription)
   Future<void> initialize() async {
     if (!Platform.isAndroid) return;
+    if (_subscription != null || _initializing) return;
 
-    if (_subscription != null) return;
-
-    final permission = await Permission.phone.status;
-
-    if (!permission.isGranted) return;
-
+    _initializing = true;
     try {
+      final permission = await Permission.phone.status;
+      if (!permission.isGranted) return;
+
       _subscription = CallStateListener.callStateStream
           .handleError((error) {
             debugPrint('Call monitoring error: $error');
@@ -138,13 +126,12 @@ class CallMonitoringService {
       debugPrint('Call monitoring initialized');
     } catch (e) {
       debugPrint('Call monitoring initialization failed: $e');
+    } finally {
+      _initializing = false;
     }
   }
 
-  /// =====================================================
   /// 6. REQUEST PHONE PERMISSION
-  /// =====================================================
-
   Future<bool> ensurePhonePermission() async {
     if (!Platform.isAndroid) return false;
 
@@ -161,10 +148,7 @@ class CallMonitoringService {
     return status.isGranted;
   }
 
-  /// =====================================================
   /// 7. START CALL TRACKING
-  /// =====================================================
-
   void startCallTracking({
     required String phoneNumber,
     required CallMonitoringConfig config,
@@ -174,15 +158,10 @@ class CallMonitoringService {
     _pendingPhoneNumber = phoneNumber;
     _pendingConfig = config;
 
-    debugPrint('Call tracking pending');
-    debugPrint('Phone: $phoneNumber');
-    debugPrint('Page: ${config.pageName}');
+    debugPrint('Call tracking pending: $phoneNumber (${config.pageName})');
   }
 
-  /// =====================================================
   /// 8. HANDLE ANDROID CALL STATES
-  /// =====================================================
-
   void _handleCallState(String state) {
     debugPrint('Call state: $state');
 
@@ -190,27 +169,19 @@ class CallMonitoringService {
       case 'OFFHOOK':
         _handleOffhook();
         break;
-
       case 'IDLE':
         _handleIdle();
         break;
     }
   }
 
-  /// =====================================================
   /// 9. CALL STARTED
-  /// =====================================================
-
   void _handleOffhook() {
     if (_currentPhoneNumber != null) return;
-
-    if (_pendingPhoneNumber == null || _pendingConfig == null) {
-      return;
-    }
+    if (_pendingPhoneNumber == null || _pendingConfig == null) return;
 
     _currentPhoneNumber = _pendingPhoneNumber;
     _currentConfig = _pendingConfig;
-
     _callStartTime = DateTime.now();
 
     _pendingPhoneNumber = null;
@@ -219,10 +190,7 @@ class CallMonitoringService {
     debugPrint('Call started');
   }
 
-  /// =====================================================
   /// 10. CALL ENDED
-  /// =====================================================
-
   Future<void> _handleIdle() async {
     if (_callStartTime == null ||
         _currentPhoneNumber == null ||
@@ -231,7 +199,6 @@ class CallMonitoringService {
     }
 
     final endedAt = DateTime.now();
-
     final duration = endedAt.difference(_callStartTime!).inSeconds;
 
     final entry = CallLogEntry(
@@ -245,24 +212,19 @@ class CallMonitoringService {
     );
 
     _saveLog(entry);
-
     _clearCurrentCall();
 
     await syncCallLogs();
   }
 
-  /// =====================================================
   /// 11. LOCAL STORAGE
-  /// =====================================================
-
   List<CallLogEntry> getCallLogs() {
-    final raw = LocalStorageManager().getString(StorageKey.payTrackCallLogs);
+    final raw = LocalStorageManager().getString(StorageKey.callMonitoringLogs);
 
     if (raw == null || raw.isEmpty) return [];
 
     try {
       final List<dynamic> data = jsonDecode(raw);
-
       return data.map((e) => CallLogEntry.fromJson(e)).toList();
     } catch (e) {
       debugPrint('Read call logs error: $e');
@@ -272,9 +234,7 @@ class CallMonitoringService {
 
   void _saveLog(CallLogEntry entry) {
     final logs = getCallLogs();
-
     logs.insert(0, entry);
-
     _storeLogs(logs.take(_maxStoredLogs).toList());
   }
 
@@ -282,19 +242,20 @@ class CallMonitoringService {
     final data = logs.map((e) => e.toJson()).toList();
 
     LocalStorageManager().setString(
-      StorageKey.payTrackCallLogs,
+      StorageKey.callMonitoringLogs,
       jsonEncode(data),
     );
 
     logsUpdated.value++;
   }
 
-  /// =====================================================
-  /// 12. API SYNCHRONIZATION THROUGH REPOSITORY
-  /// =====================================================
-
+  /// 12. API SYNCHRONIZATION
   Future<bool> syncCallLogs() async {
-    if (_syncInProgress) return false;
+    if (_syncInProgress) {
+      // A call may have ended mid-sync; run once more when this one finishes.
+      _resyncRequested = true;
+      return false;
+    }
 
     if (!_repositoryInitialized) {
       debugPrint('Call monitoring repository not initialized');
@@ -305,24 +266,17 @@ class CallMonitoringService {
 
     try {
       final logs = getCallLogs();
-
       if (logs.isEmpty) return true;
 
+      final sentKeys = logs.map((e) => e.key).toSet();
+      final failedKeys = <String>{};
+
       // Group logs by module information.
-
       final Map<String, List<CallLogEntry>> groups = {};
-
       for (final log in logs) {
-        final key = '${log.projectId}_${log.id}_${log.pageName}';
-
-        groups.putIfAbsent(key, () => []);
-
-        groups[key]!.add(log);
+        final groupKey = '${log.projectId}_${log.id}_${log.pageName}';
+        groups.putIfAbsent(groupKey, () => []).add(log);
       }
-
-      // Keep track of logs that failed synchronization.
-
-      final remainingLogs = <CallLogEntry>[];
 
       bool allSuccess = true;
 
@@ -356,9 +310,7 @@ class CallMonitoringService {
           result.fold(
             (failure) {
               allSuccess = false;
-
-              remainingLogs.addAll(group);
-
+              failedKeys.addAll(group.map((e) => e.key));
               debugPrint('Call log sync failed: ${failure.message}');
             },
             (response) {
@@ -367,21 +319,17 @@ class CallMonitoringService {
           );
         } catch (e) {
           allSuccess = false;
-
-          remainingLogs.addAll(group);
-
+          failedKeys.addAll(group.map((e) => e.key));
           debugPrint('Call log sync failed: $e');
         }
       }
 
-      // Merge failed logs with any logs added during synchronization.
-      final latestLogs = getCallLogs();
-
-      final remainingSet = remainingLogs.toSet();
-
+      // Re-read storage: drop logs sent successfully, keep failed ones
+      // and any logs added while the sync was running.
       final latestLogsToKeep =
-          latestLogs.where((log) {
-            return !logs.contains(log) || remainingSet.contains(log);
+          getCallLogs().where((log) {
+            final k = log.key;
+            return !sentKeys.contains(k) || failedKeys.contains(k);
           }).toList();
 
       _storeLogs(latestLogsToKeep);
@@ -389,47 +337,37 @@ class CallMonitoringService {
       return allSuccess;
     } finally {
       _syncInProgress = false;
+
+      if (_resyncRequested) {
+        _resyncRequested = false;
+        unawaited(syncCallLogs());
+      }
     }
   }
 
-  /// =====================================================
   /// 13. FORMAT DURATION
-  /// =====================================================
-
   String _formatDuration(int seconds) {
     final hours = seconds ~/ 3600;
     final minutes = (seconds % 3600) ~/ 60;
     final remainingSeconds = seconds % 60;
 
-    String twoDigits(int value) {
-      return value.toString().padLeft(2, '0');
-    }
+    String twoDigits(int value) => value.toString().padLeft(2, '0');
 
-    return '${twoDigits(hours)}:'
-        '${twoDigits(minutes)}:'
-        '${twoDigits(remainingSeconds)}';
+    return '${twoDigits(hours)}:${twoDigits(minutes)}:${twoDigits(remainingSeconds)}';
   }
 
-  /// =====================================================
   /// 14. CLEAR CURRENT CALL
-  /// =====================================================
-
   void _clearCurrentCall() {
     _currentPhoneNumber = null;
     _currentConfig = null;
     _callStartTime = null;
-
     _pendingPhoneNumber = null;
     _pendingConfig = null;
   }
 
-  /// =====================================================
   /// 15. DISPOSE
-  /// =====================================================
-
   Future<void> dispose() async {
     await _subscription?.cancel();
-
     _subscription = null;
   }
 }

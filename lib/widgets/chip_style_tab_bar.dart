@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 
-enum ChipTabBarStyle { outlined, underline, segmented }
+enum ChipTabBarStyle { outlined, underline, segmented, classic }
 
 class ChipStyleTabBar extends StatelessWidget {
   final TabController controller;
@@ -30,11 +30,16 @@ class ChipStyleTabBar extends StatelessWidget {
       alignment: Alignment.centerLeft,
       child: Container(
         margin: margin,
-        height: style == ChipTabBarStyle.underline ? 36.h : 44.h,
+        height:
+            style == ChipTabBarStyle.underline ||
+                    style == ChipTabBarStyle.classic
+                ? 35.h
+                : 44.h,
         child: switch (style) {
           ChipTabBarStyle.outlined => _buildOutlinedTabBar(),
           ChipTabBarStyle.underline => _buildUnderlineTabBar(),
           ChipTabBarStyle.segmented => _buildSegmentedTabBar(),
+          ChipTabBarStyle.classic => _buildClassicTabBar(),
         },
       ),
     );
@@ -152,6 +157,45 @@ class ChipStyleTabBar extends StatelessWidget {
                 child: Center(child: Text(title.isEmpty ? "Unknown" : title)),
               );
             }).toList(),
+      ),
+    );
+  }
+
+  ///------------------------------------------
+  /// Enquiry Style
+  ///------------------------------------------
+  Widget _buildClassicTabBar() {
+    return IntrinsicWidth(
+      child: Container(
+        height: 35.h,
+        decoration: BoxDecoration(
+          color: AppColor.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: AppColor.grey.withValues(alpha: 0.2)),
+        ),
+        child: TabBar(
+          controller: controller,
+          isScrollable: true,
+          tabAlignment: TabAlignment.start,
+          labelColor: AppColor.primary,
+          unselectedLabelColor: AppColor.grey,
+          indicator: BoxDecoration(
+            color: AppColor.lightBlue,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerColor: Colors.transparent,
+          splashFactory: NoSplash.splashFactory,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          labelStyle: AppTextStyle.ts14M(),
+          unselectedLabelStyle: AppTextStyle.ts14M(),
+          labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+          onTap: onTabChanged,
+          tabs:
+              tabs.map((title) {
+                return Tab(text: title.isEmpty ? 'Unknown' : title);
+              }).toList(),
+        ),
       ),
     );
   }

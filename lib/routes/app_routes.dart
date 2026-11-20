@@ -6,6 +6,7 @@ class AppRoutes {
   static String login = "/login";
   // static String projectList = "/projectList";
   static String approvalLogHistory = "/approvalLogHistory";
+  static String updateCallMonitoring = "/updateCallMonitoring";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// MAIN DASHBOARD

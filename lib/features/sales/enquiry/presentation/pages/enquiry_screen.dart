@@ -8,6 +8,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/core/services/call_monitoring_service.dart';
+import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_state.dart';
@@ -79,7 +81,7 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   final ValueNotifier<Map<String, dynamic>?> _selectedSubSourceNotifier =
       ValueNotifier(null);
   final ValueNotifier<int> _filterCount = ValueNotifier(0);
-
+  late CallMonitoringService _callMonitoringService;
   @override
   void initState() {
     super.initState();
@@ -90,9 +92,20 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
         Authorization.routeAuthorizationMap[AppRoutes.enquiry]!;
     _initializeTextEditingController();
     _onScroll();
+    _callMonitoringService = serviceLocator<CallMonitoringService>();
+
+    _initializeCallMonitoring();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadEnquiry();
     });
+  }
+
+  Future<void> _initializeCallMonitoring() async {
+    final granted = await _callMonitoringService.ensurePhonePermission();
+
+    if (granted) {
+      debugPrint('Call monitoring initialized successfully');
+    }
   }
 
   void _loadEnquiry() {
@@ -984,13 +997,31 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                         buildRowTitleValue(
                                           title: "Mobile Number",
                                           value: enquiry.mobileNumber,
-                                          customValueWidget:
-                                              CustomClickToContactText(
-                                                countryCode:
-                                                    enquiry
-                                                        .mobileNumberCountryCode,
-                                                value: enquiry.mobileNumber,
-                                              ),
+                                          customValueWidget: CustomClickToContactText(
+                                            countryCode:
+                                                enquiry.mobileNumberCountryCode,
+                                            value: enquiry.mobileNumber,
+                                            onCall: (phoneNumber) async {
+                                              final granted =
+                                                  await _callMonitoringService
+                                                      .ensurePhonePermission();
+
+                                              if (!granted) return;
+
+                                              _callMonitoringService
+                                                  .startCallTracking(
+                                                    phoneNumber: phoneNumber,
+                                                    config:
+                                                        CallMonitoringConfig(
+                                                          projectId:
+                                                              _project
+                                                                  .projectId,
+                                                          id: enquiry.enquiryId,
+                                                          pageName: 'Enquiry',
+                                                        ),
+                                                  );
+                                            },
+                                          ),
                                         ),
                                         buildRowTitleValue(
                                           title: "Source",

@@ -1,17 +1,30 @@
 import 'package:get_it/get_it.dart';
-import 'package:k3h_erp_app/features/channel_partner/data/datasource/channel_partner.datasource.dart';
-import 'package:k3h_erp_app/features/channel_partner/data/repository/channel_partner.repository.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
+import 'package:k3h_erp_app/core/services/call_monitoring_service.dart';
+import 'package:k3h_erp_app/features/call_monitoring/data/datasource/call_monitoring.datasource.dart';
+import 'package:k3h_erp_app/features/call_monitoring/data/repository/call_monitoring.repository.dart';
+import 'package:k3h_erp_app/features/call_monitoring/presentation/cubit/call_monitoring_cubit.dart';
 
-void registerChannelPartnerDependencies(GetIt serviceLocator) {
-  serviceLocator.registerSingleton<ChannelPartnerDatasource>(
-    ChannelPartnerDatasourceImpl(),
+void registerCallMonitoringDependencies(GetIt serviceLocator) {
+  serviceLocator.registerSingleton<CallMonitoringDatasource>(
+    CallMonitoringDatasourceImpl(),
   );
-  serviceLocator.registerSingleton<ChannelPartnerRepository>(
-    ChannelPartnerRepositoryImpl(
-      channelPartnerDatasource: serviceLocator<ChannelPartnerDatasource>(),
+
+  serviceLocator.registerSingleton<CallMonitoringRepository>(
+    CallMonitoringRepositoryImpl(
+      callMonitoringDatasource: serviceLocator<CallMonitoringDatasource>(),
     ),
   );
-  //- CUBITS -
-  serviceLocator.registerSingleton<ChannelPartnerCubit>(ChannelPartnerCubit());
+
+  serviceLocator.registerSingleton<CallMonitoringCubit>(CallMonitoringCubit());
+
+  final callMonitoringService = CallMonitoringService.instance;
+
+  // IMPORTANT: Initialize repository
+  callMonitoringService.initializeRepository(
+    repository: serviceLocator<CallMonitoringRepository>(),
+  );
+
+  serviceLocator.registerSingleton<CallMonitoringService>(
+    callMonitoringService,
+  );
 }

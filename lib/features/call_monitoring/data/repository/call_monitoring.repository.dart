@@ -3,7 +3,7 @@ import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
 import 'package:k3h_erp_app/features/call_monitoring/data/datasource/call_monitoring.datasource.dart';
 
-abstract interface class CallMonitoringsRepository {
+abstract interface class CallMonitoringRepository {
   Future<Either<Failure, Map<String, dynamic>>> getCallMonitoring({
     required int pageNumber,
     required int pageSize,
@@ -22,16 +22,16 @@ abstract interface class CallMonitoringsRepository {
   Future<Either<Failure, Map<String, dynamic>>> updateCallMonitoring({
     required Map<String, dynamic> body,
   });
-  Future<Either<Failure, Map<String, dynamic>>> getCallMonitoringsForExport({
+  Future<Either<Failure, Map<String, dynamic>>> getCallMonitoringForExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
 }
 
-class CallMonitoringsRepositoryImpl extends CallMonitoringsRepository {
-  final CallMonitoringDatasource callLogsDatasource;
-  CallMonitoringsRepositoryImpl({required this.callLogsDatasource});
+class CallMonitoringRepositoryImpl extends CallMonitoringRepository {
+  final CallMonitoringDatasource callMonitoringDatasource;
+  CallMonitoringRepositoryImpl({required this.callMonitoringDatasource});
 
   @override
   Future<Either<Failure, Map<String, dynamic>>> getCallMonitoring({
@@ -42,7 +42,7 @@ class CallMonitoringsRepositoryImpl extends CallMonitoringsRepository {
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await callLogsDatasource.apiCallPullCallMonitoring(
+      var result = await callMonitoringDatasource.apiCallPullCallMonitoring(
         pageNumber: pageNumber,
         pageSize: pageSize,
         projectId: projectId,
@@ -62,7 +62,7 @@ class CallMonitoringsRepositoryImpl extends CallMonitoringsRepository {
     required int projectId,
   }) async {
     try {
-      var result = await callLogsDatasource.apicallDeleteCallMonitoring(
+      var result = await callMonitoringDatasource.apicallDeleteCallMonitoring(
         callMonitoringId: callMonitoringId,
         uniqueKey: uniqueKey,
         projectId: projectId,
@@ -78,7 +78,7 @@ class CallMonitoringsRepositoryImpl extends CallMonitoringsRepository {
     required Map<String, dynamic> body,
   }) async {
     try {
-      final result = await callLogsDatasource.apiCallToAddCallMonitoring(
+      final result = await callMonitoringDatasource.apiCallToAddCallMonitoring(
         body: body,
       );
 
@@ -93,7 +93,7 @@ class CallMonitoringsRepositoryImpl extends CallMonitoringsRepository {
     required Map<String, dynamic> body,
   }) async {
     try {
-      var result = await callLogsDatasource.apiCallToUpdateCallMonitoring(
+      var result = await callMonitoringDatasource.apiCallToUpdateCallMonitoring(
         body: body,
       );
       return right(result);
@@ -103,17 +103,18 @@ class CallMonitoringsRepositoryImpl extends CallMonitoringsRepository {
   }
 
   @override
-  Future<Either<Failure, Map<String, dynamic>>> getCallMonitoringsForExport({
+  Future<Either<Failure, Map<String, dynamic>>> getCallMonitoringForExport({
     required int pageNumber,
     required int pageSize,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
-      var result = await callLogsDatasource.apiCallPullCallMonitoringForExport(
-        pageNumber: pageNumber,
-        pageSize: pageSize,
-        queryParams: queryParams,
-      );
+      var result = await callMonitoringDatasource
+          .apiCallPullCallMonitoringForExport(
+            pageNumber: pageNumber,
+            pageSize: pageSize,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

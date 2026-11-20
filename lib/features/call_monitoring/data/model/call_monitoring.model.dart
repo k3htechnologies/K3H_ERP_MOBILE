@@ -7,7 +7,7 @@ class CallMonitoringModel {
   int id;
   String pageName;
   String name;
-  DateTime mobileNumber;
+  String mobileNumber;
   DateTime callDate;
   String duration;
   String callStatus;
@@ -19,7 +19,7 @@ class CallMonitoringModel {
   DateTime createdDate;
   int modifiedById;
   String modifiedBy;
-  DateTime modifiedDate;
+  DateTime? modifiedDate;
 
   CallMonitoringModel({
     required this.callMonitoringId,
@@ -51,7 +51,7 @@ class CallMonitoringModel {
         id: parseValue<int>(json, "Id"),
         pageName: parseValue<String>(json, "PageName"),
         name: parseValue<String>(json, "Name"),
-        mobileNumber: parseValue<DateTime>(json, "MobileNumber"),
+        mobileNumber: parseValue<String>(json, "MobileNumber"),
         callDate: parseValue<DateTime>(json, "CallDate"),
         duration: parseValue<String>(json, "Duration"),
         callStatus: parseValue<String>(json, "CallStatus"),
@@ -63,7 +63,10 @@ class CallMonitoringModel {
         createdDate: parseValue<DateTime>(json, "CreatedDate"),
         modifiedById: parseValue<int>(json, "ModifiedById"),
         modifiedBy: parseValue<String>(json, "ModifiedBy"),
-        modifiedDate: parseValue<DateTime>(json, "ModifiedDate"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
       );
 
   Map<String, dynamic> toJson() => {
@@ -82,9 +85,9 @@ class CallMonitoringModel {
     "RescheduleDate": rescheduleDate,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
-    "CreatedDate": createdDate,
+    "CreatedDate": createdDate.toIso8601String(),
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
-    "ModifiedDate": modifiedDate,
+    "ModifiedDate": modifiedDate?.toIso8601String(),
   };
 }

@@ -15,6 +15,7 @@ class StorageKey {
   static String appInitiatedCallLogs = "APP_INITIATED_CALL_LOGS";
 
   static const String payTrackCallLogs = "PAYTRACK_CALL_LOGS";
+  static const String callMonitoringLogs = "CALL_MONITORING_LOGS";
 
   /// Last date when app-initiated call logs were synced to backend (for nightly sync).
   static String appInitiatedCallLogsLastSyncDate =

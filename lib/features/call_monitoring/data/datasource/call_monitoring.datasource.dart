@@ -40,7 +40,7 @@ class CallMonitoringDatasourceImpl extends CallMonitoringDatasource {
     required int id,
     Map<String, dynamic>? queryParams,
   }) async {
-    String pullPayTrackUrl({
+    String pullCallMonitoringUrl({
       Map<String, dynamic>? queryParams,
       required int pageSize,
       required int pageNumber,
@@ -48,14 +48,14 @@ class CallMonitoringDatasourceImpl extends CallMonitoringDatasource {
       required int id,
     }) {
       String url =
-          "PayTrackCallLog/PullPayTrackCallLog?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&Id=$id";
+          "CallMonitoring/PullCallMonitoring?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId&Id=$id";
       url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
 
     try {
       var networkResponse = await baseClient.getRequestWithAuthentication(
-        pullPayTrackUrl(
+        pullCallMonitoringUrl(
           pageSize: pageSize,
           projectId: projectId,
           pageNumber: pageNumber,
@@ -113,11 +113,11 @@ class CallMonitoringDatasourceImpl extends CallMonitoringDatasource {
   Future<Map<String, dynamic>> apiCallToUpdateCallMonitoring({
     required Map<String, dynamic> body,
   }) async {
-    String updateCallLogUrl = "PayTrackCallLog/UpdatePayTrackCallLog";
+    String updateCallMonitoringUrl = "CallMonitoring/UpdateCallMonitoring";
 
     try {
       var networkResponse = await baseClient.postRequestWithAuthentication(
-        updateCallLogUrl,
+        updateCallMonitoringUrl,
         body,
       );
       return {
@@ -141,18 +141,18 @@ class CallMonitoringDatasourceImpl extends CallMonitoringDatasource {
     required String uniqueKey,
     required int projectId,
   }) async {
-    String deletePayTrackCallMonitoringUrl({
+    String deleteCallMonitoringCallMonitoringUrl({
       required int callMonitoringId,
       required int projectId,
       required String uniqueKey,
     }) {
-      return "PayTrackCallLog/DeletePayTrackCallLog?CallMonitoringId=$callMonitoringId"
-          "&Uniquekey=$uniqueKey";
+      return "CallMonitoring/DeleteCallMonitoring?CallMonitoringId=$callMonitoringId"
+          "&ProjectId=$projectId&Uniquekey=$uniqueKey";
     }
 
     try {
       var networkResponse = await baseClient.deleteRequestWithAuthentication(
-        deletePayTrackCallMonitoringUrl(
+        deleteCallMonitoringCallMonitoringUrl(
           callMonitoringId: callMonitoringId,
           projectId: projectId,
           uniqueKey: uniqueKey,
@@ -183,7 +183,7 @@ class CallMonitoringDatasourceImpl extends CallMonitoringDatasource {
   }) async {
     String pullAopAchievementReportUrl({Map<String, dynamic>? queryParams}) {
       String url =
-          "PayTrackCallLog/PullPayTrackCallLog?pageNumber=$pageNumber&pageSize=$pageSize";
+          "CallMonitoring/PullCallMonitoring?pageNumber=$pageNumber&pageSize=$pageSize";
       url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }

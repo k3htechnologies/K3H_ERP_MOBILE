@@ -12,6 +12,9 @@ import 'package:k3h_erp_app/features/business_development/tenant_booking/present
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/add_tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/tenant_booking_screen.dart';
 import 'package:k3h_erp_app/features/business_development/tenant_booking/presentation/screen/view_tenant_booking_screen.dart';
+import 'package:k3h_erp_app/features/call_monitoring/data/model/call_monitoring.model.dart';
+import 'package:k3h_erp_app/features/call_monitoring/presentation/cubit/call_monitoring_cubit.dart';
+import 'package:k3h_erp_app/features/call_monitoring/presentation/pages/update_call_monitoring_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/data/model/collection_report_project_wise.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/module_approval.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/module_approval_overall.screen.dart';
@@ -639,6 +642,9 @@ final GoRouter goRouter = GoRouter(
               create: (context) => MainScreenCubit(),
             ),
             BlocProvider<UtilsCubit>(create: (context) => UtilsCubit()),
+            BlocProvider<CallMonitoringCubit>(
+              create: (context) => CallMonitoringCubit(),
+            ),
           ],
           child: MainScreen(child: child),
         );
@@ -6288,6 +6294,18 @@ final GoRouter goRouter = GoRouter(
                             : null;
 
                     return ViewEnquiryScreen(enquiryId: enquiryId ?? 0);
+                  },
+                ),
+                GoRoute(
+                  path: AppRoutes.updateCallMonitoring,
+                  name: AppRoutes.updateCallMonitoring,
+                  builder: (context, state) {
+                    final extra = state.extra as Map<String, dynamic>;
+
+                    return UpdateCallMonitoringScreen(
+                      callMonitoring:
+                          extra["callMonitoring"] as CallMonitoringModel,
+                    );
                   },
                 ),
               ],
