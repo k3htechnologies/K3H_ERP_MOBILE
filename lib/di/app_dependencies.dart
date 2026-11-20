@@ -3,6 +3,7 @@ import 'package:k3h_erp_app/di/feature_dependencies/channel_partner/dar_allocati
 import 'package:k3h_erp_app/di/feature_dependencies/crm/dashboard/crm_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track_call_log.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/client_loan_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/collection_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/reports.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
@@ -298,7 +299,8 @@ void initDependencies() {
   registerTaxTrackerDependencies(serviceLocator);
   registerCrmReportsDependencies(serviceLocator);
   registerCrmReportsCollectionReportDependencies(serviceLocator);
-
+  // CLIENT LOAN REPORT
+  registerClientLoanReportsDependencies(serviceLocator);
   registerOtpLogsDependencies(serviceLocator);
 
   registerPaytrackCallTrackerDependencies(serviceLocator);

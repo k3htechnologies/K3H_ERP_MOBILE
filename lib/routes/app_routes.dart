@@ -295,6 +295,8 @@ class AppRoutes {
   static String dailyCollectionReport = "/dailyCollectionReport";
   static String collectionReport = "/collectionReport";
   static String collectionReportOverview = "/collectionReportOverview";
+  // CLIENT LOAN REPORT
+  static String clientLoanReport = "/clientLoanReport";
 
   /// << -----------------------------------------  $$$  ------------------------------------------- >>
   /// PAYROLL MASTER

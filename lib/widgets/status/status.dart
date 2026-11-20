@@ -6,6 +6,7 @@ import 'package:k3h_erp_app/widgets/status/aop_status.dart';
 import 'package:k3h_erp_app/widgets/status/approval_status.dart';
 import 'package:k3h_erp_app/widgets/status/call_log_status.dart';
 import 'package:k3h_erp_app/widgets/status/channel_partner_category_status.dart';
+import 'package:k3h_erp_app/widgets/status/client_loan_report_status.dart';
 import 'package:k3h_erp_app/widgets/status/drawing_document_status.dart';
 import 'package:k3h_erp_app/widgets/status/enquiry_status.dart';
 import 'package:k3h_erp_app/widgets/status/flat_handover_checklist.dart';
@@ -266,5 +267,14 @@ Widget visitorManagementDashboardStatusWidget(
         shape: BoxShape.circle,
       ),
     ),
+  );
+}
+
+Widget clientLoanReportStatusWidget(String status, {TextStyle? textStyle}) {
+  final formatted = formattedStatus(status.trim());
+  return commonStatusWidget(
+    status: formatted,
+    config: clientLoanReportStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }
