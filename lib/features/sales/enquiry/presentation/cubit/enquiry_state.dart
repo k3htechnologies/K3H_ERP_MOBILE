@@ -1,5 +1,5 @@
 import 'package:k3h_erp_app/core/base_state.dart';
-import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry.model.dart';
 import 'package:k3h_erp_app/features/sales/enquiry/data/model/enquiry_followup.model.dart';
 

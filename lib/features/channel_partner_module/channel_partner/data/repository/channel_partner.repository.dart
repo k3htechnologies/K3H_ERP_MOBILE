@@ -1,7 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:k3h_erp_app/core/error_handler.dart';
 import 'package:k3h_erp_app/core/failure.dart';
-import 'package:k3h_erp_app/features/channel_partner/data/datasource/channel_partner.datasource.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/data/datasource/channel_partner.datasource.dart';
 
 abstract interface class ChannelPartnerRepository {
   Future<Either<Failure, Map<String, dynamic>>> getChannelPartnerList({

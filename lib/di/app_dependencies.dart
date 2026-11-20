@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/channel_partner/dar_allocation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/dashboard/crm_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track_call_log.dependencies.dart';
@@ -200,6 +201,8 @@ void initDependencies() {
   registerParkingDependencies(serviceLocator);
   // CHANNEL PARTNER DEPENDENCIES
   registerChannelPartnerDependencies(serviceLocator);
+  // DAR ALLOCATION DEPENDENCIES
+  registerDarAllocationDependencies(serviceLocator);
   // DOCUMENT CATEGORY DEPENDENCIES
   registerDocumentCategoryDependencies(serviceLocator);
   // TEST DOCUMENT CATEGORY DEPENDENCIES

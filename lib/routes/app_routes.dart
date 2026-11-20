@@ -168,6 +168,10 @@ class AppRoutes {
   static String channelPartnerSalesMatrics = "/channelPartnerSalesMatrics";
   static String cpUniverse = "/cpUniverse";
 
+  // DAR ALLOCATON
+  static String darAllocation = "/darAllocation";
+  static String addDarAllocation = "/addDarAllocation";
+
   // SALES OTHER CHARGES
   static String otherCharges = "/otherCharges";
   static String saleOtherCharges = "/saleOtherCharges";
