@@ -11,6 +11,9 @@ abstract interface class CallMonitoringDatasource {
     required int id,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apiCallToAddCallMonitoring({
+    required Map<String, dynamic> body,
+  });
   Future<Map<String, dynamic>> apiCallToUpdateCallMonitoring({
     required Map<String, dynamic> body,
   });
@@ -77,6 +80,31 @@ class CallMonitoringDatasourceImpl extends CallMonitoringDatasource {
           id: id,
         );
       }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apiCallToAddCallMonitoring({
+    required Map<String, dynamic> body,
+  }) async {
+    const String url = "CallMonitoring/AddCallMonitoring";
+
+    try {
+      final networkResponse = await baseClient.postRequestWithAuthentication(
+        url,
+        body,
+      );
+
+      return {
+        'data': networkResponse['data'],
+        'message': networkResponse['message'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apiCallToAddCallMonitoring(body: body);
+      }
+
       rethrow;
     }
   }

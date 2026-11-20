@@ -16,6 +16,9 @@ abstract interface class CallMonitoringsRepository {
     required String uniqueKey,
     required int projectId,
   });
+  Future<Either<Failure, Map<String, dynamic>>> addCallMonitoring({
+    required Map<String, dynamic> body,
+  });
   Future<Either<Failure, Map<String, dynamic>>> updateCallMonitoring({
     required Map<String, dynamic> body,
   });
@@ -64,6 +67,21 @@ class CallMonitoringsRepositoryImpl extends CallMonitoringsRepository {
         uniqueKey: uniqueKey,
         projectId: projectId,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addCallMonitoring({
+    required Map<String, dynamic> body,
+  }) async {
+    try {
+      final result = await callLogsDatasource.apiCallToAddCallMonitoring(
+        body: body,
+      );
+
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));
