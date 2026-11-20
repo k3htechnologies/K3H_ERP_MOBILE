@@ -83,77 +83,66 @@ class Table1 {
 }
 
 class Table2 {
-  final int totalNumberOfFloors;
-  final int totalUnits;
-  final String planDocumentUrl;
-  final int totalParking;
-  final String amenities;
+  int salesParking;
+  int memberParking;
+  int visitorsParking;
 
   Table2({
-    required this.totalNumberOfFloors,
-    required this.totalUnits,
-    required this.planDocumentUrl,
-    required this.totalParking,
-    required this.amenities,
+    required this.salesParking,
+    required this.memberParking,
+    required this.visitorsParking,
   });
 
   factory Table2.fromJson(Map<String, dynamic> json) => Table2(
-    totalNumberOfFloors: parseValue<int>(json, "TotalNumberOfFloors"),
-    totalUnits: parseValue<int>(json, "TotalUnits"),
-    planDocumentUrl: parseValue<String>(json, "PlanDocumentURL"),
-    totalParking: parseValue<int>(json, "TotalParking"),
-    amenities: parseValue<String>(json, "Amenities"),
+    salesParking: parseValue<int>(json, "SalesParking"),
+    memberParking: parseValue<int>(json, "MemberParking"),
+    visitorsParking: parseValue<int>(json, "VisitorsParking"),
   );
 
   Map<String, dynamic> toJson() => {
-    "TotalNumberOfFloors": totalNumberOfFloors,
-    "TotalUnits": totalUnits,
-    "PlanDocumentURL": planDocumentUrl,
-    "TotalParking": totalParking,
-    "Amenities": amenities,
+    "SalesParking": salesParking,
+    "MemberParking": memberParking,
+    "VisitorsParking": visitorsParking,
   };
 }
 
 class Table3 {
-  final String flatConfiguration;
-  final String flatType;
   final double flatCarpetAreaSqFt;
   final double freeAreaOfferedPercent;
   final double extraAreaPurchasedSqFt;
-  final int totalAreaSqFt;
   final int totalRecords;
+  final int buildingId;
+  final String unitConfiguration;
+  final String unitType;
 
   Table3({
-    required this.flatConfiguration,
-    required this.flatType,
     required this.flatCarpetAreaSqFt,
     required this.freeAreaOfferedPercent,
     required this.extraAreaPurchasedSqFt,
-    required this.totalAreaSqFt,
     required this.totalRecords,
+    required this.buildingId,
+    required this.unitConfiguration,
+    required this.unitType,
   });
 
   factory Table3.fromJson(Map<String, dynamic> json) => Table3(
-    flatConfiguration: parseValue<String>(json, "FlatConfiguration"),
-    flatType: parseValue<String>(json, "FlatType"),
-    flatCarpetAreaSqFt:
-        parseValue<double>(json, "FlatCarpetAreaSqFt").toDouble(),
-    freeAreaOfferedPercent:
-        parseValue<double>(json, "FreeAreaOfferedPercent").toDouble(),
-    extraAreaPurchasedSqFt:
-        parseValue<double>(json, "ExtraAreaPurchasedSqFt").toDouble(),
-    totalAreaSqFt: parseValue<int>(json, "TotalAreaSqFt"),
+    flatCarpetAreaSqFt: parseValue<double>(json, "FlatCarpetAreaSqFt"),
+    freeAreaOfferedPercent: parseValue<double>(json, "FreeAreaOfferedPercent"),
+    extraAreaPurchasedSqFt: parseValue<double>(json, "ExtraAreaPurchasedSqFt"),
     totalRecords: parseValue<int>(json, "TotalRecords"),
+    buildingId: parseValue<int>(json, "BuildingId"),
+    unitConfiguration: parseValue<String>(json, "UnitConfiguration"),
+    unitType: parseValue<String>(json, "UnitType"),
   );
 
   Map<String, dynamic> toJson() => {
-    "FlatConfiguration": flatConfiguration,
-    "FlatType": flatType,
     "FlatCarpetAreaSqFt": flatCarpetAreaSqFt,
     "FreeAreaOfferedPercent": freeAreaOfferedPercent,
     "ExtraAreaPurchasedSqFt": extraAreaPurchasedSqFt,
-    "TotalAreaSqFt": totalAreaSqFt,
     "TotalRecords": totalRecords,
+    "BuildingId": buildingId,
+    "UnitConfiguration": unitConfiguration,
+    "UnitType": unitType,
   };
 }
 

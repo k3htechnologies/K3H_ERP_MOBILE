@@ -6,7 +6,6 @@ import 'package:k3h_erp_app/features/business_development/dashboard/data/datasou
 abstract interface class RedevelopmentDashboardRepository {
   Future<Either<Failure, Map<String, dynamic>>> getRedevelopmentDashboardList({
     required int projectId,
-    int? buildingId,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -28,7 +27,6 @@ class RedevelopmentDashboardRepositoryImpl
       var result = await redevelopmentDashboradDatasource
           .apiCallPullRedevelopmentDashboard(
             projectId: projectId,
-            buildingId: buildingId,
             queryParams: queryParams,
           );
       return right(result);

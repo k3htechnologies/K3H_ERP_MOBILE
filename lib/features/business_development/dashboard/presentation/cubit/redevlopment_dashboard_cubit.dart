@@ -26,7 +26,7 @@ class RedevlopmentDashboardCubit extends Cubit<RedevlopmentDashboardState> {
     var result = await _redevelopmentDashboardRepository
         .getRedevelopmentDashboardList(
           projectId: projectId,
-          buildingId: buildingId,
+          queryParams: {"BuildingId": buildingId},
         );
 
     result.fold(
