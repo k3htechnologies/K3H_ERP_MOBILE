@@ -15,6 +15,12 @@ import 'package:k3h_erp_app/features/business_development/tenant_booking/present
 import 'package:k3h_erp_app/features/call_monitoring/data/model/call_monitoring.model.dart';
 import 'package:k3h_erp_app/features/call_monitoring/presentation/cubit/call_monitoring_cubit.dart';
 import 'package:k3h_erp_app/features/call_monitoring/presentation/pages/update_call_monitoring_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/dar_allocation/data/model/dar_allocation.model.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/dar_allocation/presentation/cubit/dar_allocation_cubit.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/dar_allocation/presentation/pages/add_dar_allocation.screen.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/dar_allocation/presentation/pages/dar_allocation.screen.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/client_loan_report/presentation/cubit/client_loan_report_cubit.dart';
+import 'package:k3h_erp_app/features/crm/crm_report/client_loan_report/presentation/pages/client_loan_report.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_report/collection_report/data/model/collection_report_project_wise.model.dart';
 import 'package:k3h_erp_app/features/dashboard/data/model/module_approval.model.dart';
 import 'package:k3h_erp_app/features/dashboard/presentation/pages/module_approval_overall.screen.dart';
@@ -104,13 +110,13 @@ import 'package:k3h_erp_app/features/business_development/proposed_offer/present
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/add_wing_details_screen.dart';
 import 'package:k3h_erp_app/features/business_development/proposed_plans/presentation/pages/duplicate_building_proposed_plan_screen.dart';
 import 'package:k3h_erp_app/features/business_development/temporary_alternate_accommodation/presentation/pages/view_temporary_alternate_accommodation_screen.dart';
-import 'package:k3h_erp_app/features/channel_partner/data/model/channel_partner.model.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/cubit/channel_partner_cubit.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/pages/add_channel_partner_screen.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_sales_matrics_screen.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_screen.dart';
-import 'package:k3h_erp_app/features/channel_partner/presentation/pages/channel_partner_view_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/data/model/channel_partner.model.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/presentation/cubit/channel_partner_cubit.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/presentation/pages/add_channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/presentation/pages/channel_partner_dashboard.screen.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/presentation/pages/channel_partner_sales_matrics_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/presentation/pages/channel_partner_screen.dart';
+import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/presentation/pages/channel_partner_view_screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/cubit/call_logs_cubit.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/call_logs/presentation/pages/update_call_status.screen.dart';
 import 'package:k3h_erp_app/features/crm/crm_pay_track/flat_handover/presentation/cubit/flat_handover_cubit.dart';
@@ -4097,6 +4103,56 @@ final GoRouter goRouter = GoRouter(
             ),
           ],
         ),
+        // DAR ALLOCATION
+        ShellRoute(
+          builder: (context, state, child) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider(create: (_) => DarAllocationCubit()),
+                BlocProvider(create: (_) => EnquiryCubit()),
+              ],
+
+              child: child,
+            );
+          },
+          routes: [
+            GoRoute(
+              name: AppRoutes.darAllocation,
+              path: AppRoutes.darAllocation,
+              builder: (context, state) {
+                return const DARAllocationScreen();
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addDarAllocation,
+              path: AppRoutes.addDarAllocation,
+              builder: (context, state) {
+                final queryParameterDarAllocation =
+                    state.uri.queryParameters['darAllocation'];
+
+                final DarAllocationModel? darAllocationModel =
+                    queryParameterDarAllocation != null
+                        ? DarAllocationModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterDarAllocation),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddDarAllocationScreen(
+                  darAllocationModel: darAllocationModel,
+                  index: index,
+                );
+              },
+            ),
+          ],
+        ),
+
         // DOCUMENT
         ShellRoute(
           builder: (context, state, child) {
@@ -7988,6 +8044,10 @@ final GoRouter goRouter = GoRouter(
                   create: (_) => CollectionReportCubit(),
                   child: child,
                 ),
+                BlocProvider(
+                  create: (_) => ClientLoanReportCubit(),
+                  child: child,
+                ),
               ],
               child: child,
             );
@@ -8060,6 +8120,13 @@ final GoRouter goRouter = GoRouter(
                   residentialUnits: residentialUnits,
                   commercialUnits: commercialUnits,
                 );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.clientLoanReport,
+              path: AppRoutes.clientLoanReport,
+              builder: (context, state) {
+                return ClientLoanReportScreen();
               },
             ),
           ],

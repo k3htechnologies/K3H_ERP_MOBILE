@@ -1,14 +1,14 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/model/building.model.dart';
 import 'package:k3h_erp_app/features/business_development/building/data/repository/building.repository.dart';
-import 'package:k3h_erp_app/features/business_development/dashboard/data/model/redevelopment_dashboard.model.dart';
 import 'package:k3h_erp_app/features/business_development/dashboard/presentation/cubit/redevlopment_dashboard_cubit.dart';
+import 'package:k3h_erp_app/routes/app_routes.dart';
+import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/app_assets.dart';
@@ -176,6 +176,7 @@ class _RedevelopmentDashboardScreenState
                     isMultiSelect: false,
                     initialValue: selectedBuilding,
                     dataList: [],
+                    hintText: "Select Building",
                     dataFetchCallBack: _fetchBuildingList,
                     onSelected: (selectedValue) {
                       setState(() {
@@ -195,60 +196,29 @@ class _RedevelopmentDashboardScreenState
                     },
                   ),
                   // GENERATE REPORT AND VIEW PROJECT BUTTONS
-                  Row(
-                    children: [
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 12.0,
+                  GestureDetector(
+                    onTap: () {
+                      goRouter.pushNamed(AppRoutes.proposedPlan);
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 5.0,
+                            horizontal: 12.0,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(6.0),
+                            color: AppColor.lightBlue,
+                          ),
+                          child: Text(
+                            "Project Plan",
+                            style: AppTextStyle.ts14M(color: AppColor.primary),
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: AppColor.lightBlue,
-                        ),
-                        child: Row(
-                          children: [
-                            SvgPicture.asset(
-                              AppAssets.generateReportIcon,
-                              width: 16,
-                              height: 16,
-                            ),
-                            horizontalSpacing(),
-                            Text(
-                              "Generate Report",
-                              style: AppTextStyle.ts14M(
-                                color: AppColor.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      horizontalSpacing(width: 20.0),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 5.0,
-                          horizontal: 12.0,
-                        ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(6.0),
-                          color: AppColor.green.withValues(alpha: 0.3),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.remove_red_eye_outlined,
-                              color: AppColor.green,
-                              size: 16,
-                            ),
-                            horizontalSpacing(),
-                            Text(
-                              "Project Plan",
-                              style: AppTextStyle.ts14M(color: AppColor.green),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   verticalSpacing(),
                   // BUILDING COUNT WIDGET
@@ -404,17 +374,14 @@ class _RedevelopmentDashboardScreenState
                   // TENANT OVERVIEW WIDGET (RESIDENTIAL AND COMMERCIAL COUNT)
                   _buildTenantOverviewWidget(context),
                   verticalSpacing(),
+                  // PARKING WIDGET
+                  _buildParkingWidget(context),
+                  verticalSpacing(),
                   // BUILDING DETAILS WIDGET
-                  _buildBuildingDetailsWidget(context),
+                  _buildBuildingOverviewWidget(context),
                   verticalSpacing(),
                   // ALERT WIDGET
                   _buildAlertsWidget(context),
-                  verticalSpacing(),
-                  // PROPOSED PLAN WIDGET (NO. OF FLOORS, UNITS AND TOTAL PARKING, BUILDING TYPE PLANS)
-                  _buildProposedPlanWidget(context),
-                  verticalSpacing(),
-                  // AMENITIES WIDGET
-                  _buildProposedOfferWidget(context),
                 ],
               ),
             ),
@@ -626,28 +593,45 @@ class _RedevelopmentDashboardScreenState
           return loader();
         }
         final staticList = [
-          "Corpus",
+          "Additional TAA",
           "Brokerage",
-          "Additional Rent",
-          "Rent",
+          "Hardship",
           "Shifting",
+          "TAA",
         ];
         final data = state.redevelopmentDashboardModel;
+        final table1 = data?.table1 ?? [];
 
-        if (data == null) {
-          return const Center(child: Text("No data available"));
-        }
-        final table1 = data.table1;
         final totalAmount = table1.fold<double>(
           0,
-          (sum, item) => sum + (item.amount.toDouble()),
+          (sum, item) => sum + item.amount.toDouble(),
         );
+
         final totalPaid = table1.fold<double>(
           0,
-          (sum, item) => sum + (item.paid.toDouble()),
+          (sum, item) => sum + item.paid.toDouble(),
         );
+
         final pendingAmount = totalAmount - totalPaid;
         final pendingAmountInCr = pendingAmount / 10000000;
+        final chartData =
+            table1.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+
+              return _AreaChartModel(
+                item.amount.toDouble() / 10000000,
+                staticList[index],
+              );
+            }).toList();
+
+        final maxValue =
+            chartData.isEmpty
+                ? 0.0
+                : chartData.map((e) => e.value).reduce((a, b) => a > b ? a : b);
+
+        final safeMax = maxValue <= 0 ? 10.0 : maxValue * 1.2;
+        final safeInterval = safeMax / 4;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -665,118 +649,161 @@ class _RedevelopmentDashboardScreenState
                 ],
               ),
               verticalSpacing(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8.0),
-                  color: AppColor.lightBlue.withValues(alpha: 0.5),
+              if (table1.isNotEmpty) ...[
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 12.0,
+                    vertical: 12.0,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8.0),
+                    color: AppColor.lightBlue.withValues(alpha: 0.5),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Total Financial Exposure",
+                          style: AppTextStyle.ts14M(color: AppColor.black),
+                        ),
+                      ),
+                      Text(
+                        " ₹ $pendingAmountInCr Cr",
+                        style: AppTextStyle.ts16M(color: AppColor.black),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Financial Exposure",
-                      style: AppTextStyle.ts14M(color: AppColor.black),
-                    ),
-                    Spacer(),
-                    Text(
-                      " ₹ $pendingAmountInCr Cr",
-                      style: AppTextStyle.ts16M(color: AppColor.black),
-                    ),
-                  ],
-                ),
-              ),
-              verticalSpacing(),
-              _leaveRow(title: "Paid", value: "₹ 0.0"),
-              _leaveRow(title: "Pending", value: "₹ $pendingAmountInCr Cr"),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 1.6,
-                ),
-                itemCount: table1.length,
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12.0,
-                      vertical: 12.0,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8.0),
-                      color: AppColor.lightGreyBackground,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          staticList[index],
-                          style: AppTextStyle.ts14M(
-                            color: AppColor.black.withValues(alpha: 0.5),
+                verticalSpacing(),
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 1.6,
+                  ),
+                  itemCount: table1.length,
+                  itemBuilder: (context, index) {
+                    final item = table1[index];
+                    final percentage =
+                        totalAmount > 0
+                            ? ((item.amount.toDouble() / totalAmount) * 100)
+                                .round()
+                            : 0;
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 12.0,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: AppColor.lightGreyBackground,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            staticList[index],
+                            style: AppTextStyle.ts14M(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
                           ),
-                        ),
-                        verticalSpacing(height: 6),
-                        Text(
-                          (table1[index].amount).toIndianCurrency(),
-                          style: AppTextStyle.ts14M(),
-                        ),
-                        verticalSpacing(height: 6),
-                        Text(
-                          "0 % Of Total",
-                          style: AppTextStyle.ts10M(
-                            color: AppColor.black.withValues(alpha: 0.5),
+                          verticalSpacing(height: 6),
+                          Text(
+                            (item.amount).toIndianCurrency(),
+                            style: AppTextStyle.ts14M(),
                           ),
-                        ),
-                      ],
+                          verticalSpacing(height: 6),
+                          Text(
+                            "$percentage% Of Total",
+                            style: AppTextStyle.ts10M(
+                              color: AppColor.black.withValues(alpha: 0.5),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                SizedBox(
+                  height: 280,
+                  child: SfCartesianChart(
+                    tooltipBehavior: TooltipBehavior(
+                      enable: true,
+                      format: 'point.x : point.y CR',
                     ),
-                  );
-                },
-              ),
+                    plotAreaBorderWidth: 0,
+
+                    primaryXAxis: CategoryAxis(
+                      majorGridLines: const MajorGridLines(width: 0),
+                      labelAlignment: LabelAlignment.center,
+                      labelIntersectAction: AxisLabelIntersectAction.wrap,
+                      labelStyle: AppTextStyle.ts10M(
+                        color: AppColor.black.withValues(alpha: 0.5),
+                      ),
+                    ),
+
+                    primaryYAxis: NumericAxis(
+                      minimum: 0,
+                      maximum: safeMax,
+                      interval: safeInterval,
+                      axisLabelFormatter: (AxisLabelRenderDetails details) {
+                        return ChartAxisLabel(
+                          "${details.text} CR",
+                          details.textStyle,
+                        );
+                      },
+                      majorGridLines: const MajorGridLines(width: 0),
+                      axisLine: const AxisLine(width: 1),
+                      majorTickLines: const MajorTickLines(size: 6),
+                      labelStyle: AppTextStyle.ts12M(
+                        color: AppColor.black.withValues(alpha: 0.5),
+                      ),
+                    ),
+
+                    series: <CartesianSeries<_AreaChartModel, String>>[
+                      ColumnSeries<_AreaChartModel, String>(
+                        dataSource: chartData,
+                        xValueMapper: (item, _) => item.label,
+                        yValueMapper: (item, _) => item.value,
+                        width: 0.35,
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(6),
+                        ),
+                        pointColorMapper: (item, _) {
+                          switch (item.label) {
+                            case "Additional TAA":
+                              return const Color(0xFF4F46E5);
+                            case "Brokerage":
+                              return Color(0xFF10B981);
+                            case "Hardship":
+                              return Color(0xffF97316);
+                            case "Shifting":
+                              return Color(0xffF43F5E);
+                            case "TAA":
+                              return AppColor.blueBgColor;
+                            default:
+                              return AppColor.black;
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ] else ...[
+                Center(
+                  child: noDataWidget(message: "No Data Found", iconSize: 180),
+                ),
+              ],
             ],
           ),
         );
       },
-    );
-  }
-
-  // LEAVE ROW WIDGET
-  Widget _leaveRow({required String title, required String value}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12.0),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 6,
-            child: Text(
-              title,
-              style: AppTextStyle.ts14M(
-                color: AppColor.black.withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 24,
-            child: Center(
-              child: Text(
-                ":",
-                style: AppTextStyle.ts14M(
-                  color: AppColor.black.withValues(alpha: 0.5),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 2,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(value, style: AppTextStyle.ts14M()),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -790,48 +817,27 @@ class _RedevelopmentDashboardScreenState
 
         final data = state.redevelopmentDashboardModel;
 
-        if (data == null) {
-          return const Center(child: Text("No data available"));
-        }
-        final table3 = data.table3;
+        final table3 = data?.table3 ?? [];
 
         final existingCarpetArea = table3.fold<double>(
-          0.0,
-          (sum, item) => sum + (item.flatCarpetAreaSqFt.toDouble()),
+          0,
+          (sum, item) => sum + item.flatCarpetAreaSqFt,
         );
 
         final freeAreaOffered = table3.fold<double>(
-          0.0,
-          (sum, item) => sum + (item.freeAreaOfferedPercent.toDouble()),
+          0,
+          (sum, item) =>
+              sum +
+              (item.flatCarpetAreaSqFt.toDouble() *
+                  item.freeAreaOfferedPercent.toDouble() /
+                  100),
         );
+
         final extraAreaPurchased = table3.fold<double>(
-          0.0,
-          (sum, item) => sum + (item.extraAreaPurchasedSqFt.toDouble()),
+          0,
+          (sum, item) => sum + item.extraAreaPurchasedSqFt.toDouble(),
         );
-        final totalArea =
-            existingCarpetArea + freeAreaOffered + extraAreaPurchased;
 
-        final existingPercent =
-            totalArea == 0 ? 0 : (existingCarpetArea / totalArea) * 100;
-
-        final freePercent =
-            totalArea == 0 ? 0 : (freeAreaOffered / totalArea) * 100;
-
-        final extraPercent =
-            totalArea == 0 ? 0 : (extraAreaPurchased / totalArea) * 100;
-        final chartData = <_AreaChartModel>[
-          _AreaChartModel(existingPercent.toDouble(), "Existing Carpet Area"),
-          _AreaChartModel(freePercent.toDouble(), "Free Area Offered"),
-          _AreaChartModel(extraPercent.toDouble(), "Extra Area Purchased"),
-        ];
-
-        final maxValue =
-            chartData.isEmpty
-                ? 0.0
-                : chartData.map((e) => e.value).reduce((a, b) => a > b ? a : b);
-
-        final safeMax = maxValue <= 0 ? 10 : maxValue * 1.2;
-        final safeInterval = maxValue <= 0 ? 2 : (safeMax / 4);
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -849,106 +855,31 @@ class _RedevelopmentDashboardScreenState
                 ],
               ),
               verticalSpacing(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Column(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            _legendItem(
-                              AppColor.primary,
-                              "Existing Carpet Area",
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            _legendItem(Colors.green, "Free Area Offered"),
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            _legendItem(Colors.orange, "Extra Area Purchased"),
-                          ],
-                        ),
-                      ],
-                    ),
+                  _buildAreaProgressItem(
+                    title: "Existing Offered Area",
+                    amount: existingCarpetArea,
+                    progress: existingCarpetArea,
+                    color: AppColor.primary,
+                  ),
+                  verticalSpacing(height: 20),
+
+                  _buildAreaProgressItem(
+                    title: "Free Area Offered",
+                    amount: freeAreaOffered,
+                    progress: freeAreaOffered,
+                    color: Colors.green,
+                  ),
+                  verticalSpacing(height: 20),
+
+                  _buildAreaProgressItem(
+                    title: "Extra Area Purchased",
+                    amount: extraAreaPurchased,
+                    progress: extraAreaPurchased,
+                    color: Colors.orange,
                   ),
                 ],
-              ),
-              verticalSpacing(),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: SfCartesianChart(
-                  tooltipBehavior: TooltipBehavior(
-                    enable: true,
-                    format: 'point.x : point.y Sq.Ft',
-                  ),
-                  plotAreaBorderWidth: 0,
-                  primaryXAxis: CategoryAxis(
-                    majorGridLines: const MajorGridLines(width: 0),
-                    labelAlignment: LabelAlignment.center,
-                    labelIntersectAction: AxisLabelIntersectAction.wrap,
-                    axisLabelFormatter: (AxisLabelRenderDetails details) {
-                      Color dotColor = AppColor.primary;
-
-                      if (details.text.contains("Existing")) {
-                        dotColor = AppColor.primary;
-                      } else if (details.text.contains("Free")) {
-                        dotColor = Colors.green;
-                      } else if (details.text.contains("Extra")) {
-                        dotColor = Colors.orange;
-                      }
-
-                      return ChartAxisLabel(
-                        "●",
-                        TextStyle(
-                          color: dotColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      );
-                    },
-                  ),
-                  primaryYAxis: NumericAxis(
-                    minimum: 0,
-                    maximum: safeMax.toDouble(),
-                    interval: safeInterval.toDouble(),
-                    labelAlignment: LabelAlignment.center,
-                    opposedPosition: false,
-                    majorGridLines: const MajorGridLines(width: 0),
-                    axisLine: const AxisLine(width: 1),
-                    majorTickLines: const MajorTickLines(size: 6),
-                    labelStyle: AppTextStyle.ts12M(
-                      color: AppColor.black.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  series: <CartesianSeries>[
-                    ColumnSeries<_AreaChartModel, String>(
-                      dataSource: chartData,
-                      xValueMapper: (data, _) => data.label,
-                      yValueMapper: (data, _) => data.value,
-                      width: 0.35,
-                      borderRadius: const BorderRadius.all(Radius.circular(6)),
-                      pointColorMapper: (data, _) {
-                        switch (data.label) {
-                          case "Existing Carpet Area":
-                            return AppColor.primary;
-                          case "Free Area Offered":
-                            return Colors.green;
-                          case "Extra Area Purchased":
-                            return Colors.orange;
-                          default:
-                            return AppColor.black.withValues(alpha: 0.50);
-                        }
-                      },
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
@@ -957,20 +888,47 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
-  // LEGEND ITEM WIDGET
-  Widget _legendItem(Color color, String text) {
-    return Row(
+  Widget _buildAreaProgressItem({
+    required String title,
+    required double amount,
+    required double progress,
+    required Color color,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 3,
+              child: Text(
+                title,
+                style: AppTextStyle.ts14M(
+                  color: AppColor.black.withValues(alpha: 0.7),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Text(
+                "${amount.toStringAsFixed(2)} (Sq.Ft)",
+                textAlign: TextAlign.end,
+                style: AppTextStyle.ts14SB(
+                  color: AppColor.black.withValues(alpha: 0.85),
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 6),
-        Text(
-          text,
-          style: AppTextStyle.ts10M(
-            color: AppColor.black.withValues(alpha: 0.6),
+        verticalSpacing(height: 12),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: LinearProgressIndicator(
+            value: progress.clamp(0.0, 1.0),
+            minHeight: 10,
+            backgroundColor: AppColor.grey10,
+            valueColor: AlwaysStoppedAnimation<Color>(color),
           ),
         ),
       ],
@@ -994,12 +952,12 @@ class _RedevelopmentDashboardScreenState
         final residentialCount =
             table3
                 .where(
-                  (e) => (e.flatType).toLowerCase().contains("residential"),
+                  (e) => (e.unitType).toLowerCase().contains("residential"),
                 )
                 .length;
         final commercialCount =
             table3
-                .where((e) => (e.flatType).toLowerCase().contains("commercial"))
+                .where((e) => (e.unitType).toLowerCase().contains("commercial"))
                 .length;
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -1021,14 +979,14 @@ class _RedevelopmentDashboardScreenState
               CommonRadialChart(
                 items: [
                   RadialChartItem(
-                    title: "Present",
+                    title: "Residential",
                     value: residentialCount,
-                    color: AppColor.primary,
+                    color: AppColor.blueBgColor,
                   ),
                   RadialChartItem(
-                    title: "Present",
+                    title: "Commercial",
                     value: commercialCount,
-                    color: AppColor.blueBgColor,
+                    color: Color(0xff1D703C),
                   ),
                 ],
               ),
@@ -1043,19 +1001,23 @@ class _RedevelopmentDashboardScreenState
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.0),
-                        color: AppColor.primary,
+                        color: AppColor.lightBluebg,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Residential",
-                            style: AppTextStyle.ts16M(color: AppColor.white),
+                            style: AppTextStyle.ts16M(
+                              color: AppColor.blueBgColor,
+                            ),
                           ),
                           verticalSpacing(height: 4.0),
                           Text(
                             residentialCount.toString(),
-                            style: AppTextStyle.ts16B(color: AppColor.white),
+                            style: AppTextStyle.ts16B(
+                              color: AppColor.blueBgColor,
+                            ),
                           ),
                         ],
                       ),
@@ -1070,19 +1032,19 @@ class _RedevelopmentDashboardScreenState
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8.0),
-                        color: AppColor.blueBgColor,
+                        color: Color(0xffECFDF5),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             "Commercial",
-                            style: AppTextStyle.ts16M(color: AppColor.white),
+                            style: AppTextStyle.ts16M(color: Color(0xff1D703C)),
                           ),
                           verticalSpacing(height: 4.0),
                           Text(
                             commercialCount.toString(),
-                            style: AppTextStyle.ts16B(color: AppColor.white),
+                            style: AppTextStyle.ts16B(color: Color(0xff1D703C)),
                           ),
                         ],
                       ),
@@ -1097,18 +1059,21 @@ class _RedevelopmentDashboardScreenState
     );
   }
 
-  // BUILD BUILDING DETAILS WIDGET
-  Widget _buildBuildingDetailsWidget(BuildContext context) {
+  // BUILD PARKING WIDGET
+  Widget _buildParkingWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {
         if (state.isLoading == true) {
           return loader();
         }
+
         final data = state.redevelopmentDashboardModel;
+
         if (data == null) {
           return const Center(child: Text("No data available"));
         }
-        final buildings = data.table0;
+        final table2 = data.table2;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1118,7 +1083,7 @@ class _RedevelopmentDashboardScreenState
               Row(
                 children: [
                   Text(
-                    "Building Details",
+                    "Parking",
                     style: AppTextStyle.ts14M(
                       color: AppColor.black.withValues(alpha: 0.5),
                     ),
@@ -1126,84 +1091,204 @@ class _RedevelopmentDashboardScreenState
                 ],
               ),
               verticalSpacing(),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
+              Container(
+                margin: EdgeInsets.only(bottom: 16.sp),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 7.sp,
+                  vertical: 15.5.sp,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.sp),
+                  border: Border.all(width: 1.sp, color: Color(0xffF1F5F9)),
+                ),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      flex: 3,
                       child: Text(
-                        "Name",
-                        style: AppTextStyle.ts12M(
-                          color: AppColor.black.withValues(alpha: 0.6),
-                        ),
+                        "Sales Parking",
+                        style: AppTextStyle.ts14SB(color: AppColor.primary),
                       ),
                     ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        "Plot Area (Sq.Ft)",
-                        textAlign: TextAlign.center,
-                        style: AppTextStyle.ts12M(
-                          color: AppColor.black.withValues(alpha: 0.6),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Text(
-                        "CTS Number",
-                        textAlign: TextAlign.end,
-                        style: AppTextStyle.ts12M(
-                          color: AppColor.black.withValues(alpha: 0.6),
-                        ),
-                      ),
+                    Text(
+                      table2.first.salesParking.toString(),
+                      style: AppTextStyle.ts20B(color: AppColor.darkBlue900),
                     ),
                   ],
                 ),
               ),
-              ListView.separated(
-                itemCount: buildings.length,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                separatorBuilder:
-                    (_, __) => Divider(
-                      height: 16,
-                      color: AppColor.black.withValues(alpha: 0.08),
+              Container(
+                margin: EdgeInsets.only(bottom: 16.sp),
+                padding: EdgeInsets.symmetric(
+                  horizontal: 7.sp,
+                  vertical: 15.5.sp,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.sp),
+                  border: Border.all(width: 1.sp, color: Color(0xffF1F5F9)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Member Parking",
+                        style: AppTextStyle.ts14SB(color: AppColor.green),
+                      ),
                     ),
-                itemBuilder: (context, index) {
-                  final building = buildings[index];
-                  return Row(
+                    Text(
+                      table2.first.salesParking.toString(),
+                      style: AppTextStyle.ts20B(color: AppColor.darkBlue900),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 7.sp,
+                  vertical: 15.5.sp,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.sp),
+                  border: Border.all(width: 1.sp, color: Color(0xffF1F5F9)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        "Visitors Parking",
+                        style: AppTextStyle.ts14SB(color: Colors.orange),
+                      ),
+                    ),
+                    Text(
+                      table2.first.salesParking.toString(),
+                      style: AppTextStyle.ts20B(color: AppColor.darkBlue900),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // BUILD BUILDING DETAILS WIDGET
+  Widget _buildBuildingOverviewWidget(BuildContext context) {
+    return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
+      builder: (context, state) {
+        if (state.isLoading == true) {
+          return loader();
+        }
+        final data = state.redevelopmentDashboardModel;
+
+        final buildings = data?.table0;
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          decoration: commonCardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "Building Overview",
+                    style: AppTextStyle.ts14M(
+                      color: AppColor.black.withValues(alpha: 0.5),
+                    ),
+                  ),
+                ],
+              ),
+              verticalSpacing(),
+              if (buildings != null && buildings.isNotEmpty) ...[
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 6.0),
+                  child: Row(
                     children: [
                       Expanded(
                         flex: 3,
                         child: Text(
-                          building.buildingName,
-                          style: AppTextStyle.ts14M(color: AppColor.black),
-                          overflow: TextOverflow.ellipsis,
+                          "Name",
+                          style: AppTextStyle.ts12M(
+                            color: AppColor.black.withValues(alpha: 0.6),
+                          ),
                         ),
                       ),
                       Expanded(
                         flex: 2,
                         child: Text(
-                          (building.totalPlotAreaSqFt).toStringAsFixed(0),
+                          "Plot Area (Sq.Ft)",
                           textAlign: TextAlign.center,
-                          style: AppTextStyle.ts14M(color: AppColor.black),
+                          style: AppTextStyle.ts12M(
+                            color: AppColor.black.withValues(alpha: 0.6),
+                          ),
                         ),
                       ),
                       Expanded(
                         flex: 2,
                         child: Text(
-                          building.ctsNumber,
+                          "CTS Number",
                           textAlign: TextAlign.end,
-                          style: AppTextStyle.ts14M(color: AppColor.black),
-                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyle.ts12M(
+                            color: AppColor.black.withValues(alpha: 0.6),
+                          ),
                         ),
                       ),
                     ],
-                  );
-                },
-              ),
+                  ),
+                ),
+                ListView.separated(
+                  itemCount: buildings.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  separatorBuilder:
+                      (_, __) => Divider(
+                        height: 16,
+                        color: AppColor.black.withValues(alpha: 0.08),
+                      ),
+                  itemBuilder: (context, index) {
+                    final building = buildings[index];
+                    return Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            building.buildingName,
+                            style: AppTextStyle.ts14M(color: AppColor.black),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            (building.totalPlotAreaSqFt).toStringAsFixed(0),
+                            textAlign: TextAlign.center,
+                            style: AppTextStyle.ts14M(color: AppColor.black),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            building.ctsNumber,
+                            textAlign: TextAlign.end,
+                            style: AppTextStyle.ts14M(color: AppColor.black),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ] else ...[
+                Center(
+                  child: noDataWidget(message: "No Data Found", iconSize: 180),
+                ),
+              ],
             ],
           ),
         );
@@ -1213,92 +1298,15 @@ class _RedevelopmentDashboardScreenState
 
   // BUILD ALERT WIDGET
   Widget _buildAlertsWidget(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-      decoration: commonCardDecoration(),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Text(
-                  "Alerts",
-                  style: AppTextStyle.ts14M(
-                    color: AppColor.black.withValues(alpha: 0.50),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          verticalSpacing(),
-          SizedBox(
-            height: 250.0,
-            child: ListView.builder(
-              itemCount: 4,
-              shrinkWrap: true,
-              physics: AlwaysScrollableScrollPhysics(),
-              itemBuilder: (context, int index) {
-                return Container(
-                  margin: EdgeInsets.only(bottom: 6.0),
-                  padding: EdgeInsets.symmetric(
-                    vertical: 12.0,
-                    horizontal: 16.0,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(6.0),
-                    color: AppColor.red.withValues(alpha: 0.1),
-                    border: Border(
-                      left: BorderSide(width: 4, color: AppColor.red),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text("Invalid GST", style: AppTextStyle.ts14M()),
-                      verticalSpacing(),
-                      Text(
-                        "4 Commercial Tenant",
-                        style: AppTextStyle.ts14R(
-                          color: AppColor.black.withValues(alpha: 0.50),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD PROPOSED PLAN WIDGET
-  Widget _buildProposedPlanWidget(BuildContext context) {
     return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
       builder: (context, state) {
         if (state.isLoading == true) {
           return loader();
         }
-        final data = state.redevelopmentDashboardModel;
-        if (data == null) {
-          return const Center(child: Text("No data available"));
-        }
-        final table2 = data.table2;
-        if (table2.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Proposed Plan Data")),
-          );
-        }
 
-        final plan = table2.first;
+        final data = state.redevelopmentDashboardModel;
+        final alerts = data?.table4;
+
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
           decoration: commonCardDecoration(),
@@ -1306,11 +1314,10 @@ class _RedevelopmentDashboardScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Expanded(
                     child: Text(
-                      "Proposed Plan",
+                      "Alerts",
                       style: AppTextStyle.ts14M(
                         color: AppColor.black.withValues(alpha: 0.50),
                       ),
@@ -1319,78 +1326,53 @@ class _RedevelopmentDashboardScreenState
                 ],
               ),
               verticalSpacing(),
-              Container(
-                margin: EdgeInsets.only(bottom: 10.0),
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.0),
-                  color: AppColor.lightGreyBackground,
+              if (alerts != null && alerts.isNotEmpty) ...[
+                SizedBox(
+                  height: 250.0,
+                  child: ListView.builder(
+                    itemCount: alerts.length,
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
+                      final alert = alerts[index];
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 6.0),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6.0),
+                          color: AppColor.red.withValues(alpha: 0.1),
+                          border: const Border(
+                            left: BorderSide(width: 4, color: AppColor.red),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              alert.buildingName,
+                              style: AppTextStyle.ts14M(),
+                            ),
+                            verticalSpacing(),
+                            Text(
+                              alert.issue,
+                              style: AppTextStyle.ts14R(
+                                color: AppColor.black.withValues(alpha: 0.50),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Floors",
-                      style: AppTextStyle.ts16M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                    Text(
-                      plan.totalNumberOfFloors.toString(),
-                      style: AppTextStyle.ts16SB(color: AppColor.black),
-                    ),
-                  ],
+              ] else ...[
+                Center(
+                  child: noDataWidget(message: "No Data Found", iconSize: 180),
                 ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 10.0),
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.0),
-                  color: AppColor.lightGreyBackground,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Units",
-                      style: AppTextStyle.ts16M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                    Text(
-                      plan.totalUnits.toString(),
-                      style: AppTextStyle.ts16SB(color: AppColor.black),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.only(bottom: 10.0),
-                padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.0),
-                  color: AppColor.lightGreyBackground,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Total Parkings",
-                      style: AppTextStyle.ts16M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                    Text(
-                      plan.totalParking.toString(),
-                      style: AppTextStyle.ts16SB(color: AppColor.black),
-                    ),
-                  ],
-                ),
-              ),
-              areaToggle(),
-              verticalSpacing(),
-              _buildAreaWiseList(table3: data.table3),
+              ],
             ],
           ),
         );
@@ -1445,162 +1427,6 @@ class _RedevelopmentDashboardScreenState
       ),
     );
   }
-
-  // BUILD AREA WISE LIST WIDGET
-  Widget _buildAreaWiseList({required List<Table3> table3}) {
-    final filteredList =
-        selectedAreaIndex == 0
-            ? table3
-                .where((e) => e.flatType.toLowerCase() == "commercial")
-                .toList()
-            : table3
-                .where((e) => e.flatType.toLowerCase() == "residential")
-                .toList();
-
-    if (filteredList.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 20),
-        child: Center(
-          child: Text(
-            "No ${selectedAreaIndex == 0 ? "Commercial" : "Residential"} Units",
-            style: AppTextStyle.ts12M(
-              color: AppColor.black.withValues(alpha: 0.5),
-            ),
-          ),
-        ),
-      );
-    }
-
-    final Map<String, int> configCountMap = {};
-
-    for (final item in filteredList) {
-      final config = item.flatConfiguration.trim();
-
-      if (configCountMap.containsKey(config)) {
-        configCountMap[config] = configCountMap[config]! + 1;
-      } else {
-        configCountMap[config] = 1;
-      }
-    }
-
-    final groupedList = configCountMap.entries.toList();
-
-    return SizedBox(
-      height: 250,
-      child: ListView.separated(
-        itemCount: groupedList.length,
-        physics: const AlwaysScrollableScrollPhysics(),
-        separatorBuilder:
-            (_, __) => Divider(
-              height: 16,
-              color: AppColor.black.withValues(alpha: 0.08),
-            ),
-        itemBuilder: (context, index) {
-          final entry = groupedList[index];
-
-          return _areaTile(title: entry.key, count: entry.value);
-        },
-      ),
-    );
-  }
-
-  // AREA TILE WIDGET
-  Widget _areaTile({required String title, required int count}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: AppTextStyle.ts14M(color: AppColor.black)),
-          Text(
-            count.toString().padLeft(2, '0'),
-            style: AppTextStyle.ts14M(color: AppColor.black),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // BUILD PROPOSED OFFER WIDGET
-  Widget _buildProposedOfferWidget(BuildContext context) {
-    return BlocBuilder<RedevlopmentDashboardCubit, RedevlopmentDashboardState>(
-      builder: (context, state) {
-        if (state.isLoading == true) {
-          return loader();
-        }
-        final data = state.redevelopmentDashboardModel;
-        if (data == null) {
-          return const Center(child: Text("No data available"));
-        }
-        final table2 = data.table2;
-        if (table2.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-              vertical: 20.0,
-            ),
-            decoration: commonCardDecoration(),
-            child: const Center(child: Text("No Proposed Offer Data")),
-          );
-        }
-
-        final amenitiesRaw = table2.first.amenities;
-        final List<String> amenitiesList =
-            amenitiesRaw
-                .split(',')
-                .map((e) => e.trim())
-                .where((e) => e.isNotEmpty)
-                .toList();
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-          decoration: commonCardDecoration(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      "Proposed Offer",
-                      style: AppTextStyle.ts14M(
-                        color: AppColor.black.withValues(alpha: 0.50),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              verticalSpacing(),
-              SizedBox(
-                height: 200.0,
-                child: ListView.builder(
-                  itemCount: amenitiesList.length,
-                  itemBuilder: (context, int index) {
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10.0),
-                      padding: EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 12.0,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: AppColor.lightBlue,
-                      ),
-                      child: Text(
-                        amenitiesList[index],
-                        style: AppTextStyle.ts14M(color: AppColor.primary),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 class ProjectProgressStep {
@@ -1620,87 +1446,4 @@ class _AreaChartModel {
   final String label;
 
   _AreaChartModel(this.value, this.label);
-}
-
-class TenantRadialChart extends StatelessWidget {
-  final int residential;
-  final int commercial;
-
-  const TenantRadialChart({
-    super.key,
-    required this.residential,
-    required this.commercial,
-  });
-
-  int get total => residential + commercial;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Center(
-          child: SizedBox(
-            height: 140,
-            width: 140,
-            child: CustomPaint(
-              painter: RadialPainter(
-                residential: residential,
-                commercial: commercial,
-              ),
-              child: Center(
-                child: Text("Total :$total", style: AppTextStyle.ts14SB()),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class RadialPainter extends CustomPainter {
-  final int residential;
-  final int commercial;
-
-  RadialPainter({required this.residential, required this.commercial});
-
-  final double stroke = 20;
-  final double gapDegrees = 25;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final total = residential + commercial;
-
-    final center = size.center(Offset.zero);
-    final radius = size.width / 2.2;
-    final rect = Rect.fromCircle(center: center, radius: radius);
-
-    final paint =
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = stroke
-          ..strokeCap = StrokeCap.round;
-
-    final usable = 360 - (gapDegrees * 3);
-
-    final residentialSweep = (residential / total) * usable;
-    final commercialSweep = (commercial / total) * usable;
-
-    double start = -90 - (residentialSweep / 2);
-
-    void draw(Color color, double sweep) {
-      paint.color = color;
-      canvas.drawArc(rect, _deg(start), _deg(sweep), false, paint);
-      start += sweep + gapDegrees;
-    }
-
-    draw(AppColor.primary, residentialSweep); // RESIDENTIAL
-    draw(AppColor.blueBgColor, commercialSweep); // COMMMERCIAL
-  }
-
-  double _deg(double d) => d * pi / 180;
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

@@ -1,8 +1,10 @@
 import 'package:get_it/get_it.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/channel_partner/dar_allocation.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/call_monitoring/call_monitoring.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/dashboard/crm_dashboard.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/pay_track/pay_track_call_log.dependencies.dart';
+import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/client_loan_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/collection_report.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/crm/reports/reports.dependencies.dart';
 import 'package:k3h_erp_app/di/feature_dependencies/dashboard/dashboard.dependencies.dart';
@@ -203,6 +205,8 @@ void initDependencies() {
   registerParkingDependencies(serviceLocator);
   // CHANNEL PARTNER DEPENDENCIES
   registerChannelPartnerDependencies(serviceLocator);
+  // DAR ALLOCATION DEPENDENCIES
+  registerDarAllocationDependencies(serviceLocator);
   // DOCUMENT CATEGORY DEPENDENCIES
   registerDocumentCategoryDependencies(serviceLocator);
   // TEST DOCUMENT CATEGORY DEPENDENCIES
@@ -298,7 +302,8 @@ void initDependencies() {
   registerTaxTrackerDependencies(serviceLocator);
   registerCrmReportsDependencies(serviceLocator);
   registerCrmReportsCollectionReportDependencies(serviceLocator);
-
+  // CLIENT LOAN REPORT
+  registerClientLoanReportsDependencies(serviceLocator);
   registerOtpLogsDependencies(serviceLocator);
 
   registerPaytrackCallTrackerDependencies(serviceLocator);

@@ -228,7 +228,7 @@ class _MenuDrawerContentState extends State<MenuDrawerContent> {
     }
 
     final isRedevelopment =
-        menu.moduleName.trim().toLowerCase() == 'redevelopment';
+        menu.moduleName.trim().toLowerCase() == 'business development';
 
     final isSalesDashboard = menu.moduleName.trim().toLowerCase() == 'sale';
     final isPayrollDashboard =
