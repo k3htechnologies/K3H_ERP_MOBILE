@@ -128,7 +128,7 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
           ),
         );
         goRouter.pop();
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response['message']);
 
         // Return true to indicate document was added successfully
         // This will be used by the folder screen to refresh the list
@@ -191,7 +191,7 @@ class ContentDocumentCubit extends Cubit<ContentDocumentState> {
         );
         list[index] = (response['data'][0] as ContentDocumentModel);
         emit(state.copyWith(marketingContentDocumentList: list));
-        showSuccessMessage(context);
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }

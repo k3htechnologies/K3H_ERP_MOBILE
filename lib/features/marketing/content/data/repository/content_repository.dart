@@ -40,6 +40,13 @@ abstract interface class ContentRepository {
     required int projectId,
     required String uniqueKey,
   });
+  Future<Either<Failure, Map<String, dynamic>>>
+  getMarketingContentFolderForExport({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ContentRepositoryImpl implements ContentRepository {
@@ -150,6 +157,28 @@ class ContentRepositoryImpl implements ContentRepository {
         projectId: projectId,
         uniqueKey: uniqueKey,
       );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>>
+  getMarketingContentFolderForExport({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await contentDatasource
+          .apicallPullMarketingContentFolderForExport(
+            pageSize: pageSize,
+            pageNumber: pageNumber,
+            projectId: projectId,
+            queryParams: queryParams,
+          );
       return right(result);
     } catch (error) {
       return left(Failure(message: ErrorHandler.getErrorMessage(error)));

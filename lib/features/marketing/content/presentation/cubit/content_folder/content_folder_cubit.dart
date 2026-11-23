@@ -7,6 +7,7 @@ import 'package:k3h_erp_app/features/marketing/content/data/repository/content_r
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
+import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 
 part 'content_folder_state.dart';
 
@@ -135,6 +136,86 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
 
         emit(state.copyWith(marketingContentFolderList: list));
         showSuccessMessage(context);
+      },
+    );
+  }
+
+  // UPDATE CONTENT FOLDER
+  Future updateDrawingDocumentNameInCategory({
+    required int index,
+    required BuildContext context,
+    required int marketingContentFolderId,
+    required String uniqueKey,
+    required String marketingContentFolderName,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var body = {
+      "MarketingContentFolderId": marketingContentFolderId.toString(),
+      "Uniquekey": uniqueKey,
+      "ProjectId": getProject().projectId.toString(),
+      "MarketingContentFolderName": marketingContentFolderName,
+    };
+
+    var result = await _contentRepository.addUpdateContentFolder(body: body);
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, 'Error', failure.message);
+        return;
+      },
+      (response) {
+        goRouter.pop();
+        final updatedDocument = response['data'][0] as ContentFolderModel;
+
+        if (state.marketingContentFolderList.isNotEmpty &&
+            index < state.marketingContentFolderList.length) {
+          final updatedListModel = List<ContentFolderModel>.from(
+            state.marketingContentFolderList,
+          );
+          updatedListModel[index] = updatedDocument;
+          emit(
+            state.copyWith(
+              isLoading: false,
+              marketingContentFolderList: updatedListModel,
+            ),
+          );
+        }
+
+        showSuccessMessage(context, subTitle: response["message"]);
+      },
+    );
+  }
+
+  Future exportZip(
+    BuildContext context,
+    int projectId,
+    int approvedBankFolderId,
+    String contentName,
+    int pageSize,
+  ) async {
+    DialogHelper.showProcessingOverlay(context);
+    final result = await _contentRepository.getMarketingContentFolderForExport(
+      pageNumber: 1,
+      pageSize: pageSize,
+      projectId: projectId,
+      queryParams: {
+        "MarketingContentFolderId": approvedBankFolderId,
+        "ExportType": "ZIP",
+      },
+    );
+    goRouter.pop();
+    result.fold(
+      (failure) {
+        showErrorMessage(context, "Error", failure.message);
+      },
+      (success) async {
+        final successResult = await exportExcelOrPdfMobile(
+          success["data"],
+          "$contentName ${DateTime.now()}.zip",
+        );
+        if (context.mounted && successResult) {
+          showSuccessMessage(context, subTitle: 'Successfully Exported as ZIP');
+        }
       },
     );
   }

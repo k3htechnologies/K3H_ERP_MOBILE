@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
@@ -12,8 +13,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
-import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
-import 'package:k3h_erp_app/widgets/app_bar/search_widget.dart';
+import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
@@ -23,9 +23,11 @@ import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class ContentDocumentScreen extends StatefulWidget {
   final int marketingContentFolderId;
+  final String marketingContentFolderName;
   const ContentDocumentScreen({
     super.key,
     required this.marketingContentFolderId,
+    required this.marketingContentFolderName,
   });
 
   @override
@@ -266,210 +268,214 @@ class _ContentDocumentScreenState extends State<ContentDocumentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWithBackButton(
+      appBar: CustomAppBar(
         screenTitle: 'Content Document',
+        searchHintText: "Search by Title",
+        onSearchSubmit: (value) {
+          _contentDocumentCubit.searchContentDocument(
+            context,
+            value,
+            _project.projectId,
+            widget.marketingContentFolderId,
+          );
+        },
+        textController: _searchC,
+        showMenuIcon: false,
         authorization: AuthorizationModel(isAction: true),
         onAddCallback: () async {
           await _showPopUpToAddUpdateContentDocument();
         },
       ),
-      body: Column(
-        children: [
-          verticalSpacing(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: SearchWidget(
-              isFilterOn: false,
-              hintText: "Search by Title",
-              onSubmit: (value) {
-                _contentDocumentCubit.searchContentDocument(
-                  context,
-                  value,
-                  _project.projectId,
-                  widget.marketingContentFolderId,
-                );
-              },
-              textController: _searchC,
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: 10,
+          children: [
+            Text(
+              widget.marketingContentFolderName,
+              style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
-          ),
-          Expanded(
-            child: BlocBuilder<ContentDocumentCubit, ContentDocumentState>(
-              builder: (context, state) {
-                final loading = state.isLoading ?? true;
-                final list = state.marketingContentDocumentList;
-                final empty = list.isEmpty;
-                // Always use one ListView to avoid parentDataDirty when swapping Center vs ListView inside Expanded
-                final itemCount =
-                    (loading && empty) || empty ? 1 : list.length + 1;
-                final hasListData = itemCount > 1;
-                return ListView.builder(
-                  controller: hasListData ? scrollController : null,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 20,
-                  ),
-                  itemCount: itemCount,
-                  itemBuilder: (context, index) {
-                    final viewportHeight = MediaQuery.sizeOf(context).height;
-                    final boundedHeight =
-                        viewportHeight > 200 ? viewportHeight - 200 : 300.0;
-                    if (loading && empty) {
-                      return SizedBox(
-                        height: boundedHeight,
-                        child: Center(child: loader()),
-                      );
-                    }
-                    if (empty) {
-                      return SizedBox(
-                        height: boundedHeight,
-                        child: Center(
-                          child: noDataWidget(message: "No Content Data Found"),
+            Expanded(
+              child: BlocBuilder<ContentDocumentCubit, ContentDocumentState>(
+                builder: (context, state) {
+                  if ((state.isLoading ?? true) &&
+                      state.marketingContentDocumentList.isEmpty) {
+                    return Center(child: loader());
+                  }
+                  if (state.marketingContentDocumentList.isEmpty) {
+                    return Center(
+                      child: noDataWidget(message: "No Content Data Found"),
+                    );
+                  }
+                  return ListView.separated(
+                    controller: scrollController,
+                    separatorBuilder:
+                        (context, index) => verticalSpacing(height: 16),
+                    itemCount: state.marketingContentDocumentList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == state.marketingContentDocumentList.length) {
+                        return state.marketingContentDocumentList.length <
+                                state.totalNumberOfRecord
+                            ? Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(child: CircularProgressIndicator()),
+                            )
+                            : const SizedBox.shrink();
+                      }
+
+                      var files = state.marketingContentDocumentList[index];
+                      return Container(
+                        decoration: commonCardDecoration(),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.only(
+                                right: 16,
+                                left: 16,
+                                top: 16,
+                                bottom: 10,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColor.lightBluebg.withValues(
+                                  alpha: 0.5,
+                                ),
+                                border: Border.all(color: AppColor.lightBlue),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(8),
+                                  topRight: Radius.circular(8),
+                                ),
+                              ),
+                              child: Row(
+                                spacing: 10,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      files.title,
+                                      style: AppTextStyle.ts14M(),
+                                    ),
+                                  ),
+                                  Row(
+                                    spacing: 10,
+                                    children: [
+                                      CustomIconButton(
+                                        isDisable:
+                                            files.marketingContentURL.isEmpty,
+                                        onPressed: () {
+                                          showFilePreviewDialog(
+                                            title:
+                                                files
+                                                    .marketingContentFolderName,
+                                            context,
+                                            files.marketingContentURL.split(
+                                              ",",
+                                            ),
+                                          );
+                                        },
+                                        backgroundColor: Colors.transparent,
+                                        icon: Icon(
+                                          Icons.remove_red_eye_outlined,
+                                          color:
+                                              files.marketingContentURL.isEmpty
+                                                  ? AppColor.grey2
+                                                  : AppColor.primary,
+                                          size: 18,
+                                        ),
+                                      ),
+                                      CustomIconButton.edit(
+                                        onPressed: () {
+                                          _showPopUpToAddUpdateContentDocument(
+                                            contentDocumentModel: files,
+                                            index: index,
+                                          );
+                                        },
+                                      ),
+                                      CustomIconButton.delete(
+                                        onPressed: () {
+                                          _showPopupToDeleteDocument(
+                                            context,
+                                            files,
+                                            state.currentPage,
+                                            index,
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                right: 16,
+                                left: 16,
+                                bottom: 16,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildRowTitleValue(
+                                    title: "Remark",
+                                    value:
+                                        files.remark.trim().isEmpty
+                                            ? "-"
+                                            : files.remark.trim(),
+                                    customValueWidget:
+                                        files.remark.isNotEmpty
+                                            ? GestureDetector(
+                                              onTap: () {
+                                                DialogHelper.showNoteDialog(
+                                                  context,
+                                                  title: "Remark",
+                                                  note: files.remark,
+                                                );
+                                              },
+                                              child: Padding(
+                                                padding: EdgeInsets.only(
+                                                  right: 10.w,
+                                                ),
+                                                child: Icon(
+                                                  Icons.info_outline,
+                                                  size: 18,
+                                                  color: AppColor.primary,
+                                                ),
+                                              ),
+                                            )
+                                            : null,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Last Modified By",
+                                    singleLine: false,
+                                    value:
+                                        files.modifiedBy.isEmpty
+                                            ? files.createdBy
+                                            : files.modifiedBy,
+                                  ),
+                                  buildRowTitleValue(
+                                    title: "Last Modified Date",
+                                    singleLine: false,
+                                    value:
+                                        files.modifiedDate == null
+                                            ? formatDate(files.createdDate)
+                                            : formatDate(files.modifiedDate),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       );
-                    }
-                    if (index == list.length) {
-                      return list.length < state.totalNumberOfRecord
-                          ? Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                          : const SizedBox.shrink();
-                    }
-                    var files = list[index];
-                    return Container(
-                      margin: EdgeInsets.only(bottom: 10),
-                      decoration: commonCardDecoration(),
-                      child: Column(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: 16,
-                              left: 16,
-                              right: 16,
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        files.title,
-                                        style: AppTextStyle.ts14R(
-                                          color: AppColor.primary,
-                                        ),
-                                      ),
-                                    ),
-                                    horizontalSpacing(),
-                                    CustomIconButton(
-                                      onPressed: () {
-                                        if (files.marketingContentURL.isEmpty) {
-                                          showErrorMessage(
-                                            context,
-                                            "Image Error",
-                                            "No Image Found",
-                                          );
-                                        }
-                                        showFilePreviewDialog(
-                                          context,
-                                          title: files.title,
-                                          files.marketingContentURL.split(","),
-                                        );
-                                      },
-                                      icon: Icon(
-                                        Icons.remove_red_eye_outlined,
-                                        size: 16,
-                                        color: AppColor.primary,
-                                      ),
-                                      backgroundColor: AppColor.lightBlue,
-                                    ),
-                                  ],
-                                ),
-                                verticalSpacing(),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: buildRowTitleValue(
-                                        title: "Remark",
-                                        value:
-                                            files.remark.isEmpty
-                                                ? ""
-                                                : files.remark,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                verticalSpacing(),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          buildRowTitleValue(
-                                            title: "Modified By",
-                                            value:
-                                                files.modifiedBy.isEmpty
-                                                    ? files.createdBy
-                                                    : files.modifiedBy,
-                                          ),
-                                          buildRowTitleValue(
-                                            title: "Modified Date",
-                                            value:
-                                                files.modifiedDate == null
-                                                    ? formatDate(
-                                                      files.createdDate,
-                                                    )
-                                                    : formatDate(
-                                                      files.modifiedDate!,
-                                                    ),
-                                            singleLine: false,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      spacing: 10,
-                                      children: [
-                                        CustomIconButton.edit(
-                                          onPressed: () {
-                                            _showPopUpToAddUpdateContentDocument(
-                                              contentDocumentModel: files,
-                                              index: index,
-                                            );
-                                          },
-                                        ),
-                                        CustomIconButton.delete(
-                                          onPressed: () {
-                                            _showPopupToDeleteDocument(
-                                              context,
-                                              files,
-                                              state.currentPage,
-                                              index,
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                );
-              },
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

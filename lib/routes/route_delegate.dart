@@ -415,7 +415,7 @@ import 'package:k3h_erp_app/features/login/presentation/pages/splash_screen.dart
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_document/content_document_cubit.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/cubit/content_folder/content_folder_cubit.dart';
 import 'package:k3h_erp_app/features/marketing/content/presentation/pages/content_document_screen.dart';
-import 'package:k3h_erp_app/features/marketing/content/presentation/pages/content_folder_screen.dart';
+import 'package:k3h_erp_app/features/marketing/content/presentation/pages/content.screen.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/cubit/company_master/company_master_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/cubit/company_master_add/company_master_add_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/presentation/pages/add_company_master_screen.dart';
@@ -3524,7 +3524,9 @@ final GoRouter goRouter = GoRouter(
             GoRoute(
               path: AppRoutes.content,
               name: AppRoutes.content,
-              builder: (context, state) => ContentFolderScreen(),
+              builder: (context, state) {
+                return ContentScreen();
+              },
             ),
             GoRoute(
               name: AppRoutes.contentDocument,
@@ -3532,6 +3534,10 @@ final GoRouter goRouter = GoRouter(
               builder: (context, state) {
                 final queryParameterMarketingContentFolderId =
                     state.uri.queryParameters['marketingContentFolderId'];
+
+                final marketingContentFolderName =
+                    state.uri.queryParameters['marketingContentFolderName'] ??
+                    '';
 
                 if (queryParameterMarketingContentFolderId != null) {
                   final decodedJson = jsonDecode(
@@ -3546,6 +3552,7 @@ final GoRouter goRouter = GoRouter(
                     create: (_) => ContentDocumentCubit(),
                     child: ContentDocumentScreen(
                       marketingContentFolderId: decodedJson,
+                      marketingContentFolderName: marketingContentFolderName,
                     ),
                   );
                 }

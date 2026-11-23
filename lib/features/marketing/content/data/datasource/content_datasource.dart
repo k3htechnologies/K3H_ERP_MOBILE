@@ -41,6 +41,12 @@ abstract interface class ContentDataSource {
     required int projectId,
     required String uniqueKey,
   });
+  Future<Map<String, dynamic>> apicallPullMarketingContentFolderForExport({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  });
 }
 
 class ContentDataSourceImpl implements ContentDataSource {
@@ -189,6 +195,7 @@ class ContentDataSourceImpl implements ContentDataSource {
         'data': List<ContentDocumentModel>.from(
           networkResponse["data"].map((e) => ContentDocumentModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
@@ -273,6 +280,52 @@ class ContentDataSourceImpl implements ContentDataSource {
           marketingContentFolderId: marketingContentFolderId,
           projectId: projectId,
           uniqueKey: uniqueKey,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullMarketingContentFolderForExport({
+    required int pageSize,
+    required int pageNumber,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    String pullMarketingContentFolderUrl({
+      required int pageSize,
+      required int pageNumber,
+      required int projectId,
+      Map<String, dynamic>? queryParams,
+    }) {
+      String url =
+          "MarketingContent/PullMarketingContent?pageSize=$pageSize&pageNumber=$pageNumber&ProjectId=$projectId";
+      url += queryParamsFormatter(queryParams: queryParams);
+      return url;
+    }
+
+    try {
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullMarketingContentFolderUrl(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
+        ),
+      );
+      return {
+        'data': networkResponse["data"],
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallPullMarketingContentFolderForExport(
+          pageSize: pageSize,
+          pageNumber: pageNumber,
+          projectId: projectId,
+          queryParams: queryParams,
         );
       }
       rethrow;
