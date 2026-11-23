@@ -133,6 +133,7 @@ class CallMonitoringCubit extends Cubit<CallMonitoringState> {
               callMonitoringList: updatedList,
               totalNumberOfRecord: response['totalNumberOfRecord'] ?? 0,
               isLoading: false,
+              currentPage: pageNumber,
             ),
           );
         },
@@ -237,9 +238,9 @@ class CallMonitoringCubit extends Cubit<CallMonitoringState> {
   }
 
   Future<void> exportCallMonitoringExcelPdf({
-  required  BuildContext context,
-   required  String exportType,
-   required int projectId,
+    required BuildContext context,
+    required String exportType,
+    required int projectId,
   }) async {
     if (state.totalNumberOfRecord == 0) {
       showErrorMessage(context, 'Error', 'No Data Found');

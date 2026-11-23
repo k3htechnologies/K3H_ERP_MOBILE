@@ -30,14 +30,9 @@ class OutdoorCubit extends Cubit<OutdoorState> {
   Future getOutdoorList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
     var queryParams = {
-      "StartDate":
-          state.filterStartDate != null
-              ? state.filterStartDate?.toIso8601String().split("T")[0]
-              : null,
-      "EndDate":
-          state.filterEndDate != null
-              ? state.filterEndDate?.toIso8601String().split("T")[0]
-              : null,
+      "StartDate": state.filterStartDate.apiDate,
+      "EndDate": state.filterEndDate.apiDate,
+      "SystemGeneratedCode": state.searchText,
     };
     var result = await _outdoorRepository.getOutdoorList(
       pageNumber: pageNumber,
@@ -91,31 +86,15 @@ class OutdoorCubit extends Cubit<OutdoorState> {
         return;
       },
       (response) {
-        final apiMessage = response["message"]?.toString() ?? "";
-        if (apiMessage.isNotEmpty &&
-            apiMessage.toLowerCase().contains("error")) {
-          showErrorMessage(context, "Error", apiMessage);
-          return;
+        final updatedDepartment = response["data"][0] as OutdoorModel;
+
+        if (state.outdoorList.isNotEmpty && index < state.outdoorList.length) {
+          final updatedList = List<OutdoorModel>.from(state.outdoorList);
+          updatedList[index] = updatedDepartment;
+          emit(state.copyWith(outdoorList: updatedList, isLoading: false));
         }
 
-        // Check if data exists and is not null/empty
-        if (response["data"] != null &&
-            response["data"] is List &&
-            (response["data"] as List).isNotEmpty) {
-          final updatedDepartment = response["data"][0] as OutdoorModel;
-
-          if (state.outdoorList.isNotEmpty &&
-              index < state.outdoorList.length) {
-            final updatedList = List<OutdoorModel>.from(state.outdoorList);
-            updatedList[index] = updatedDepartment;
-            emit(state.copyWith(outdoorList: updatedList, isLoading: false));
-          }
-
-          showSuccessMessage(
-            context,
-            subTitle: 'Conclusion Added/Updated Successfully!!!',
-          );
-        }
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
@@ -126,10 +105,10 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     var result = await _outdoorRepository.exportOutdoor(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
-      queryParams:
-          state.searchText != ""
-              ? {"CompanyName": state.searchText, "ExportType": exportType}
-              : {"ExportType": exportType},
+      queryParams: {
+        "SystemGeneratedCode": state.searchText,
+        "ExportType": exportType,
+      },
     );
     goRouter.pop();
     result.fold(
@@ -165,6 +144,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     required String companyName,
     required String companyAddress,
     required String purpose,
+    required String conclusion,
     required String accompaniedById,
     required MultiFilePickerModel visitingCardFile,
   }) async {
@@ -178,7 +158,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
       "CompanyName": companyName,
       "CompanyAddress": companyAddress,
       "Purpose": purpose,
-      "Conclusion": "",
+      "Conclusion": conclusion,
       "AccompaniedById": accompaniedById,
     };
 
@@ -206,8 +186,9 @@ class OutdoorCubit extends Cubit<OutdoorState> {
       },
       (response) {
         emit(state.copyWith(isLoading: false));
-        goRouter.pop(); // Close the add screen
-        showSuccessMessage(context, subTitle: "Outdoor added successfully");
+        goRouter.pop();
+        showSuccessMessage(context, subTitle: response['message']);
+        getOutdoorList(context, 1);
       },
     );
   }
@@ -224,6 +205,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     required String companyName,
     required String companyAddress,
     required String purpose,
+    required String conclusion,
     required String accompaniedById,
     required MultiFilePickerModel visitingCardFile,
   }) async {
@@ -238,7 +220,7 @@ class OutdoorCubit extends Cubit<OutdoorState> {
       "CompanyName": companyName,
       "CompanyAddress": companyAddress,
       "Purpose": purpose,
-      "Conclusion": "",
+      "Conclusion": conclusion,
       "AccompaniedById": accompaniedById,
     };
 
@@ -273,13 +255,9 @@ class OutdoorCubit extends Cubit<OutdoorState> {
           updatedList[index] = updatedOutdoor;
           emit(state.copyWith(outdoorList: updatedList, isLoading: false));
         }
-        showSuccessMessage(context, subTitle: "Outdoor updated successfully");
+        showSuccessMessage(context, subTitle: response['message']);
       },
     );
-  }
-
-  void onTabChanged(int index, BuildContext context) {
-    emit(state.copyWith(currentTabIndex: index));
   }
 
   Future<void> applyFilterAndSort({
@@ -287,7 +265,6 @@ class OutdoorCubit extends Cubit<OutdoorState> {
     DateTime? filterFromHolidayDate,
     DateTime? filterToHolidayDate,
   }) async {
-    // Update state with new filters and reset pagination
     emit(
       state.copyWith(
         isLoading: true,
