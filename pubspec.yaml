@@ -130,6 +130,7 @@ dependencies:
   flutter_quill_delta_from_html: ^1.5.1
   html: ^0.15.4
   vsc_quill_delta_to_html: ^1.0.5
+  dynamic_app_icon_flutter_plus: ^1.0.1
 
 # DEV DEPENDENCIES
 dev_dependencies:

@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/env/env.dart';
+import 'package:k3h_erp_app/features/login/presentation/pages/app_icon_helper.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
@@ -21,23 +23,28 @@ class AppUpdateHelper {
     required Map<String, dynamic> data,
     required VoidCallback onNoUpdate,
   }) async {
-    // if (kDebugMode) {
-    //   onNoUpdate();
-    //   return;
-    // }
+    void proceed() {
+      onNoUpdate();
+      AppIconHelper.applyFromServer(data);
+    }
+
+    if (kDebugMode) {
+      proceed();
+      return;
+    }
 
     final currentVersion = Platform.isAndroid ? androidVersion : iosVersion;
 
     final latestVersion =
         Platform.isAndroid ? data["AndroidVersion"] : data["IosVersion"];
-
+    // data also have "NameOfFestival"
     final updateType = _getUpdateType(
       currentVersion: currentVersion,
       latestVersion: latestVersion,
     );
 
     if (updateType == UpdateType.none) {
-      onNoUpdate();
+      proceed();
       return;
     }
 
