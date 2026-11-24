@@ -17,27 +17,82 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
   final ContentRepository _contentRepository =
       serviceLocator<ContentRepository>();
 
+  // SEARCH CONTENT FOLDER
+  Future searchContentFolder(
+    BuildContext context,
+    String value,
+    int projectId,
+  ) async {
+    emit(state.copyWith(searchText: value, marketingContentFolderList: []));
+    await getMarketingFolderList(context, 1, projectId);
+  }
+
+  Future applyMarketingFolderFilterAndSort({
+    required BuildContext context,
+    String? employeeName,
+    String? sortColumn,
+    String? sortDirection,
+    bool? isClear,
+  }) async {
+    if (isClear ?? false) {
+      emit(
+        state.copyWith(
+          searchText: "",
+          filterByContentName: "",
+          currentSortColumn: "Created Date",
+          currentSortDirection: "DESC",
+          marketingContentFolderList: [],
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          searchText: employeeName ?? state.searchText,
+
+          currentSortColumn: sortColumn ?? state.currentSortColumn,
+          currentSortDirection: sortDirection ?? state.currentSortDirection,
+          marketingContentFolderList: [],
+        ),
+      );
+    }
+    await getMarketingFolderList(context, 1, getProject().projectId);
+  }
+
+  int updateMarketingFolderFilterCount(ContentFolderState state) {
+    final hasSort =
+        state.currentSortColumn == "Content Name" &&
+        (state.currentSortDirection == "ASC" ||
+            state.currentSortDirection == "DESC");
+    return getActiveFilterCount([
+      state.searchText.trim().isNotEmpty,
+      state.filterByContentName.trim().isNotEmpty,
+      hasSort,
+    ]);
+  }
+
   // GET MARKETING FOLDER LIST
   Future getMarketingFolderList(
     BuildContext context,
     int pageNumber,
-    int pageSize,
     int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
     if (projectId == 0) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         showErrorMessage(context, "Error", "Please select a project");
+        ContentFolderCubit();
+        emit(state.copyWith(isLoading: false, marketingContentFolderList: []));
       });
-      emit(state.copyWith(isLoading: false));
       return;
     }
-
     var result = await _contentRepository.getMarketingContentFolderList(
       pageNumber: pageNumber,
-      pageSize: pageSize,
+      pageSize: 10,
       projectId: projectId,
-      queryParams: {"MarketingContentFolderName": state.searchText},
+      queryParams: {
+        "MarketingContentFolderName": state.searchText,
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      },
     );
     result.fold(
       (failure) {
@@ -45,14 +100,20 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        List<ContentFolderModel> updatedList = List.from(
-          state.marketingContentFolderList,
+        final List<ContentFolderModel> newData = List<ContentFolderModel>.from(
+          response['data'] ?? [],
         );
-        updatedList = response['data'] as List<ContentFolderModel>;
+
+        final List<ContentFolderModel> updatedList =
+            pageNumber == 1
+                ? newData
+                : [...state.marketingContentFolderList, ...newData];
         emit(
           state.copyWith(
-            isLoading: false,
             marketingContentFolderList: updatedList,
+            currentPage: pageNumber,
+            totalNumberOfRecord: response['totalNumberOfRecord'],
+            isLoading: false,
           ),
         );
       },
@@ -89,20 +150,10 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
           );
           updatedList.removeAt(index);
         } else {
-          getMarketingFolderList(context, pageNumber, pageSize, projectId);
+          getMarketingFolderList(context, pageNumber, projectId);
         }
       },
     );
-  }
-
-  // SEARCH CONTENT FOLDER
-  Future searchContentFolder(
-    BuildContext context,
-    String value,
-    int projectId,
-  ) async {
-    emit(state.copyWith(searchText: value, marketingContentFolderList: []));
-    await getMarketingFolderList(context, 1, 1000, projectId);
   }
 
   // ADD CONTENT FOLDER
@@ -141,7 +192,7 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
   }
 
   // UPDATE CONTENT FOLDER
-  Future updateDrawingDocumentNameInCategory({
+  Future updateContentFolder({
     required int index,
     required BuildContext context,
     required int marketingContentFolderId,
@@ -165,18 +216,19 @@ class ContentFolderCubit extends Cubit<ContentFolderState> {
       },
       (response) {
         goRouter.pop();
-        final updatedDocument = response['data'][0] as ContentFolderModel;
+
+        final updatedDepartment = response['data'][0] as ContentFolderModel;
 
         if (state.marketingContentFolderList.isNotEmpty &&
             index < state.marketingContentFolderList.length) {
-          final updatedListModel = List<ContentFolderModel>.from(
+          final updatedList = List<ContentFolderModel>.from(
             state.marketingContentFolderList,
           );
-          updatedListModel[index] = updatedDocument;
+          updatedList[index] = updatedDepartment;
           emit(
             state.copyWith(
+              marketingContentFolderList: updatedList,
               isLoading: false,
-              marketingContentFolderList: updatedListModel,
             ),
           );
         }

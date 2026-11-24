@@ -7,7 +7,6 @@ class OutdoorState extends BaseState {
   final int employeeTotalCount;
   final int currentPage;
   final String searchText;
-  final int currentTabIndex;
   final DateTime? filterStartDate;
   final DateTime? filterEndDate;
 
@@ -19,7 +18,6 @@ class OutdoorState extends BaseState {
     required this.employeeTotalCount,
     required this.currentPage,
     required this.searchText,
-    required this.currentTabIndex,
     this.filterStartDate,
     this.filterEndDate,
   });
@@ -32,7 +30,6 @@ class OutdoorState extends BaseState {
     employeeTotalCount: 0,
     currentPage: 1,
     searchText: "",
-    currentTabIndex: 0,
     filterStartDate: null,
     filterEndDate: null,
   );
@@ -47,7 +44,6 @@ class OutdoorState extends BaseState {
     int? employeeTotalCount,
     int? currentPage,
     String? searchText,
-    int? currentTabIndex,
 
     Object? filterStartDate = _noChange,
     Object? filterEndDate = _noChange,
@@ -60,7 +56,6 @@ class OutdoorState extends BaseState {
       employeeTotalCount: employeeTotalCount ?? this.employeeTotalCount,
       currentPage: currentPage ?? this.currentPage,
       searchText: searchText ?? this.searchText,
-      currentTabIndex: currentTabIndex ?? this.currentTabIndex,
       filterStartDate:
           filterStartDate == _noChange
               ? this.filterStartDate
@@ -83,7 +78,6 @@ class OutdoorState extends BaseState {
     employeeTotalCount,
     currentPage,
     searchText,
-    currentTabIndex,
     filterStartDate,
     filterEndDate,
   ];

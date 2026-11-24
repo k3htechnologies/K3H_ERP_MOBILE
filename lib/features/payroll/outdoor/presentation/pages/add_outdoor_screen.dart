@@ -50,7 +50,10 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
   DateTime? outdoorDate;
 
   // TEXT EDITING CONTROLLER
-  late TextEditingController _purposeC, _companyNameC, _companyAddressC;
+  late TextEditingController _purposeC,
+      _companyNameC,
+      _companyAddressC,
+      _conclusionC;
 
   // DEPARTMENT VARIABLE
   final ValueNotifier<List<Map<String, dynamic>>> _selectedDepartmentNotifier =
@@ -98,6 +101,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
     _purposeC = TextEditingController();
     _companyNameC = TextEditingController();
     _companyAddressC = TextEditingController();
+    _conclusionC = TextEditingController();
   }
 
   // PREFILL DATA IF IN EDIT MODE
@@ -250,169 +254,198 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _isEditMode ? "Update Outdoor" : "Add Outdoor",
-              style: AppTextStyle.ts14M(),
-            ),
-            verticalSpacing(),
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: commonCardDecoration(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    CustomDatePicker(
-                      title: 'Outdoor Date',
-                      isRequired: true,
-                      initialDate: outdoorDate,
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Outdoor Date is required.';
-                        }
-                        return null;
-                      },
-                      setValue: (value) => outdoorDate = value,
-                    ),
-                    CustomTimePicker(
-                      setValue: (value) {
-                        meetingTime = formatTimeOfDayHHmm(value);
-                        initialMeetingTime = value;
-                      },
-                      title: "Meeting Time",
-                      isRequired: true,
-                      initialTime: initialMeetingTime,
-                      validator: (value) {
-                        if (value == null) {
-                          return "Meeting Time is required.";
-                        }
-                        return null;
-                      },
-                    ),
-
-                    CustomTextField(
-                      title: 'Company Address',
-                      isRequired: true,
-                      hint: "Enter Company Address",
-                      textController: _companyAddressC,
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Company Address is required.';
-                        }
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder<List<Map<String, dynamic>>>(
-                      valueListenable: _selectedDepartmentNotifier,
-                      builder: (context, selectedDept, child) {
-                        return ValueListenableBuilder<
-                          List<Map<String, dynamic>>
-                        >(
-                          valueListenable: _selectedEmployeeNotifier,
-                          builder: (context, selectedEmp, child) {
-                            return CustomMultipleSelectPopup(
-                              title: "Accompanied By",
-                              hintText: "Select Accompanied By",
-                              isRequired: true,
-                              isReadOnly:
-                                  _selectedDepartmentNotifier.value.isEmpty,
-                              isMultiSelect: true,
-                              initialValue: selectedEmp,
-
-                              dataFetchCallBack: _fetchEmployee,
-                              onSelected: (value) {
-                                _selectedEmployeeNotifier.value = value;
-                              },
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Employee is required.';
-                                }
-                                return null;
-                              },
-                            );
+        child: Form(
+          key: _formKey,
+          child: Column(
+            spacing: 16,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _isEditMode ? "Update Outdoor" : "Add Outdoor",
+                style: AppTextStyle.ts14M(),
+              ),
+              _card(
+                title: "Schedule Visit",
+                children: [
+                  CustomDatePicker(
+                    title: 'Outdoor Date',
+                    isRequired: true,
+                    initialDate: outdoorDate,
+                    validator: (value) {
+                      if (value == null) {
+                        return 'Outdoor Date is required.';
+                      }
+                      return null;
+                    },
+                    setValue: (value) => outdoorDate = value,
+                  ),
+                  Row(
+                    spacing: 10,
+                    children: [
+                      Expanded(
+                        child: CustomTimePicker(
+                          setValue: (value) {
+                            meetingTime = formatTimeOfDayHHmm(value);
+                            initialMeetingTime = value;
                           },
-                        );
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Company Name',
-                      isRequired: true,
-                      hint: "Enter Company Name",
-                      textController: _companyNameC,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Company Name is required.';
-                        }
-                        return null;
-                      },
-                    ),
-                    ValueListenableBuilder<List<Map<String, dynamic>>>(
-                      valueListenable: _selectedDepartmentNotifier,
-                      builder: (context, selectedDept, child) {
-                        return CustomMultipleSelectPopup(
-                          title: "Department",
+                          title: "Meeting Start Time",
                           isRequired: true,
-                          isMultiSelect: false,
-                          hintText: "Select Department",
-                          initialValue: selectedDept,
-                          dataFetchCallBack: _fetchDepartment,
-                          onSelected: (value) {
-                            // Clear employee list and selection first, before updating department
-                            _outdoorCubit.clearEmployeeList();
-                            _selectedEmployeeNotifier.value = [];
-                            // Then update department
-                            _selectedDepartmentNotifier.value = value;
-                          },
+                          initialTime: initialMeetingTime,
                           validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Department is required.';
+                            if (value == null) {
+                              return "Meeting Start Time is required.";
                             }
                             return null;
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      Expanded(
+                        child: CustomTimePicker(
+                          setValue: (value) {
+                            meetingTime = formatTimeOfDayHHmm(value);
+                            initialMeetingTime = value;
+                          },
+                          title: "Estimated End Time",
+                          initialTime: initialMeetingTime,
+                        ),
+                      ),
+                    ],
+                  ),
+                  ValueListenableBuilder<List<Map<String, dynamic>>>(
+                    valueListenable: _selectedDepartmentNotifier,
+                    builder: (context, selectedDept, child) {
+                      return CustomMultipleSelectPopup(
+                        title: "Department",
+                        isRequired: true,
+                        isMultiSelect: false,
+                        hintText: "Select Department",
+                        initialValue: selectedDept,
+                        dataFetchCallBack: _fetchDepartment,
+                        onSelected: (value) {
+                          // Clear employee list and selection first, before updating department
+                          _outdoorCubit.clearEmployeeList();
+                          _selectedEmployeeNotifier.value = [];
+                          // Then update department
+                          _selectedDepartmentNotifier.value = value;
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Department is required.';
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  ),
+                  ValueListenableBuilder<List<Map<String, dynamic>>>(
+                    valueListenable: _selectedDepartmentNotifier,
+                    builder: (context, selectedDept, child) {
+                      return ValueListenableBuilder<List<Map<String, dynamic>>>(
+                        valueListenable: _selectedEmployeeNotifier,
+                        builder: (context, selectedEmp, child) {
+                          return CustomMultipleSelectPopup(
+                            title: "Accompanied By",
+                            hintText: "Select Accompanied By",
+                            isRequired: true,
+                            isReadOnly:
+                                _selectedDepartmentNotifier.value.isEmpty,
+                            isMultiSelect: true,
+                            initialValue: selectedEmp,
 
-                    CustomMultiFilePicker(
-                      title: "Visiting Card",
-                      filePickType: FilePickType.kycDocument,
-                      initialFileList: visitingCardFile.fileNameList,
-                      onFilePickedCallback: (bytesList, fileNameList) {
-                        visitingCardFile.fileNameList = fileNameList;
-                        visitingCardFile.fileBytesList = bytesList;
-                      },
-                      onFileDeleteCallback: (
-                        fileBytesList,
-                        fileNameList,
-                        deleted,
-                      ) {
-                        visitingCardFile.fileBytesList = fileBytesList;
-                        visitingCardFile.fileNameList = fileNameList;
-                        visitingCardFile.deletedFileList = deleted;
-                      },
-                    ),
-                    CustomTextField(
-                      title: 'Purpose',
-                      isRequired: true,
-                      hint: "Enter Purpose",
-                      textController: _purposeC,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Purpose is required.';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
+                            dataFetchCallBack: _fetchEmployee,
+                            onSelected: (value) {
+                              _selectedEmployeeNotifier.value = value;
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Employee is required.';
+                              }
+                              return null;
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ],
               ),
-            ),
-          ],
+              _card(
+                title: "Company Details",
+                children: [
+                  CustomTextField(
+                    title: 'Company Name',
+                    isRequired: true,
+                    hint: "Enter Company Name",
+                    textController: _companyNameC,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Company Name is required.';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    title: 'Company Address',
+                    isRequired: true,
+                    hint: "Enter Company Address",
+                    textController: _companyAddressC,
+                    maxLines: 3,
+                    minLines: 3,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Company Address is required.';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomMultiFilePicker(
+                    title: "Visiting Card",
+                    filePickType: FilePickType.kycDocument,
+                    initialFileList: visitingCardFile.fileNameList,
+                    onFilePickedCallback: (bytesList, fileNameList) {
+                      visitingCardFile.fileNameList = fileNameList;
+                      visitingCardFile.fileBytesList = bytesList;
+                    },
+                    onFileDeleteCallback: (
+                      fileBytesList,
+                      fileNameList,
+                      deleted,
+                    ) {
+                      visitingCardFile.fileBytesList = fileBytesList;
+                      visitingCardFile.fileNameList = fileNameList;
+                      visitingCardFile.deletedFileList = deleted;
+                    },
+                  ),
+                ],
+              ),
+              _card(
+                title: "Visit Purpose & conclusion",
+                children: [
+                  CustomTextField(
+                    title: 'Purpose',
+                    isRequired: true,
+                    hint: "Enter Purpose",
+                    textController: _purposeC,
+                    maxLines: 3,
+                    minLines: 3,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Purpose is required.';
+                      }
+                      return null;
+                    },
+                  ),
+                  CustomTextField(
+                    title: 'Conclusion',
+                    hint: "Enter Conclusion",
+                    textController: _conclusionC,
+                    maxLines: 3,
+                    minLines: 3,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -425,10 +458,25 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
               size: 16,
               color: AppColor.white,
             ),
-            text: _isEditMode ? "Update Outdoor" : "Add Outdoor",
+            text: _isEditMode ? "Update" : "Add",
             onPressed: _handleSubmit,
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _card({required String title, required List<Widget> children}) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: commonCardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTextStyle.ts14M(color: AppColor.grey)),
+          verticalSpacing(),
+          ...children,
+        ],
       ),
     );
   }
@@ -475,6 +523,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
         companyName: _companyNameC.text.trim(),
         companyAddress: _companyAddressC.text.trim(),
         purpose: _purposeC.text.trim(),
+        conclusion: _conclusionC.text.trim(),
         accompaniedById: selectEmployees,
         visitingCardFile: visitingCardFile,
       );
@@ -488,6 +537,7 @@ class _AddOutdoorScreenState extends State<AddOutdoorScreen> {
         companyName: _companyNameC.text.trim(),
         companyAddress: _companyAddressC.text.trim(),
         purpose: _purposeC.text.trim(),
+        conclusion: _conclusionC.text.trim(),
         accompaniedById: selectEmployees,
         visitingCardFile: visitingCardFile,
       );

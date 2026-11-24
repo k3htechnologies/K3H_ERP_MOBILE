@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:k3h_erp_app/core/base_state.dart';
@@ -73,15 +75,15 @@ class DarAllocationCubit extends Cubit<DarAllocationState> {
   // GET DAR ALLOCATION LIST
   Future getDarAllocationList(BuildContext context, int pageNumber) async {
     emit(state.copyWith(isLoading: true));
-    Map<String, dynamic> queryParams = {
-      "EmployeeName": state.searchText,
-      "IsCheckPermission": true,
-      "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
-    };
+
     var result = await _darAllocationRepository.getDarAllocationList(
       pageNumber: pageNumber,
       pageSize: 10,
-      queryParams: queryParams,
+      queryParams: {
+        "EmployeeName": state.searchText,
+        "IsCheckPermission": true,
+        "SortBy": "${state.currentSortColumn} ${state.currentSortDirection}",
+      },
     );
 
     result.fold(
@@ -151,7 +153,7 @@ class DarAllocationCubit extends Cubit<DarAllocationState> {
   }) async {
     final result = await _utilsRepository.getVillageList(
       pageNumber: pageNumber,
-      pageSize: 15,
+      pageSize: 250,
       queryParams:
           value != null && value.isNotEmpty ? {"VillageName": value} : {},
     );
@@ -163,12 +165,16 @@ class DarAllocationCubit extends Cubit<DarAllocationState> {
       },
       (response) {
         final villages = response['data'] as List<VillageModel>;
-
+        log(
+          "the list of village is: ${villages.map((village) {
+            return {"zAttributesId": village.villageMasterId.toString(), "DisplayName": village.villageName};
+          }).toList()}",
+        );
         return {
           "itemList":
               villages.map((village) {
                 return {
-                  "zAttributesId": village.villageMasterId,
+                  "zAttributesId": village.villageMasterId.toString(),
                   "DisplayName": village.villageName,
                 };
               }).toList(),
@@ -184,6 +190,7 @@ class DarAllocationCubit extends Cubit<DarAllocationState> {
     required String uniquekey,
     required int employeeId,
     required String villageMasterId,
+    required int index,
   }) async {
     emit(state.copyWith(isLoading: true));
 
@@ -205,11 +212,21 @@ class DarAllocationCubit extends Cubit<DarAllocationState> {
         showErrorMessage(context, "Error", failure.message);
       },
       (response) async {
-        emit(state.copyWith(isLoading: false));
+        goRouter.pop();
+        final updatedDepartment = response['data'][0] as DarAllocationModel;
+
+        if (state.darAllocationList.isNotEmpty &&
+            index < state.darAllocationList.length) {
+          final updatedList = List<DarAllocationModel>.from(
+            state.darAllocationList,
+          );
+          updatedList[index] = updatedDepartment;
+          emit(
+            state.copyWith(darAllocationList: updatedList, isLoading: false),
+          );
+        }
 
         showSuccessMessage(context, subTitle: response["message"]);
-        goRouter.pop();
-        await getDarAllocationList(context, 1);
       },
     );
   }

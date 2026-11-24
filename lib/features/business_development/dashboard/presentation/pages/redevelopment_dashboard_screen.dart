@@ -16,6 +16,7 @@ import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/charts/custom_radial_chart.dart';
+import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -99,7 +100,7 @@ class _RedevelopmentDashboardScreenState
     return Scaffold(
       backgroundColor: AppColor.lightGreyBackground,
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Redevelopment",
+        screenTitle: "Business Development Dashboard",
         isMenuButton: true,
         authorization: AuthorizationModel(),
         onProjectChangeCallback: (value) {
@@ -171,6 +172,7 @@ class _RedevelopmentDashboardScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  showSiteSelectedWidget(),
                   // ACCORDING TO PROJECT BUILDING WILL BE DISPLAYED
                   CustomMultipleSelectPopup(
                     isMultiSelect: false,
@@ -213,7 +215,7 @@ class _RedevelopmentDashboardScreenState
                             color: AppColor.lightBlue,
                           ),
                           child: Text(
-                            "Project Plan",
+                            "Proposed Plan",
                             style: AppTextStyle.ts14M(color: AppColor.primary),
                           ),
                         ),
@@ -730,6 +732,7 @@ class _RedevelopmentDashboardScreenState
                     );
                   },
                 ),
+                verticalSpacing(),
                 SizedBox(
                   height: 280,
                   child: SfCartesianChart(

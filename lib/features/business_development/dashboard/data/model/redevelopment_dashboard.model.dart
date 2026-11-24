@@ -39,19 +39,31 @@ class Table0 {
   final String ctsNumber;
   final double totalPlotAreaSqFt;
   final int totalRecords;
+  final int buildingId;
+  final String cityName;
+  final String villageName;
+  final String wardName;
 
   Table0({
     required this.buildingName,
     required this.ctsNumber,
     required this.totalPlotAreaSqFt,
     required this.totalRecords,
+    required this.buildingId,
+    required this.cityName,
+    required this.villageName,
+    required this.wardName,
   });
 
   factory Table0.fromJson(Map<String, dynamic> json) => Table0(
     buildingName: parseValue<String>(json, "BuildingName"),
     ctsNumber: parseValue<String>(json, "CTSNumber"),
-    totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt").toDouble(),
+    totalPlotAreaSqFt: parseValue<double>(json, "TotalPlotAreaSqFt"),
     totalRecords: parseValue<int>(json, "TotalRecords"),
+    buildingId: parseValue<int>(json, "BuildingId"),
+    cityName: parseValue<String>(json, "CityName"),
+    villageName: parseValue<String>(json, "VillageName"),
+    wardName: parseValue<String>(json, "WardName"),
   );
 
   Map<String, dynamic> toJson() => {
@@ -59,6 +71,10 @@ class Table0 {
     "CTSNumber": ctsNumber,
     "TotalPlotAreaSqFt": totalPlotAreaSqFt,
     "TotalRecords": totalRecords,
+    "BuildingId": buildingId,
+    "CityName": cityName,
+    "VillageName": villageName,
+    "WardName": wardName,
   };
 }
 

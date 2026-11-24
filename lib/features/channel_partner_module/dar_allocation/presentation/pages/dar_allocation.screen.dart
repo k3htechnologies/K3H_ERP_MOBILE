@@ -281,7 +281,7 @@ class _DARAllocationScreenState extends State<DARAllocationScreen> {
           },
           child: BlocBuilder<DarAllocationCubit, DarAllocationState>(
             builder: (context, state) {
-              if (state.isLoading == true && state.darAllocationList.isEmpty) {
+              if (state.isLoading == true) {
                 return Center(child: loader());
               }
               if (state.darAllocationList.isEmpty) {
@@ -324,6 +324,8 @@ class _DARAllocationScreenState extends State<DARAllocationScreen> {
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
                                 CustomIconButton.edit(
+                                  isDisabled:
+                                      !_routeAuthorizationModel.isAction,
                                   onPressed: () {
                                     goRouter.pushNamed(
                                       AppRoutes.addDarAllocation,
@@ -341,6 +343,8 @@ class _DARAllocationScreenState extends State<DARAllocationScreen> {
                                 ),
                                 horizontalSpacing(),
                                 CustomIconButton.delete(
+                                  isDisabled:
+                                      !_routeAuthorizationModel.isAction,
                                   onPressed: () {
                                     _showPopupToDeleteDarAllocation(
                                       context,

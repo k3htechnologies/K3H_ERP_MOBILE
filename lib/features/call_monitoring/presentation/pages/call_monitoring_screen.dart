@@ -67,7 +67,7 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
     _filterNameC = TextEditingController();
     _filterMobileC = TextEditingController();
 
-    _initScrollController();
+    _onScroll();
 
     // Clears filters and fetches page 1.
     _cubit.applyCallMonitoringFilter(
@@ -96,7 +96,7 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
   }
 
   // PAGINATION
-  void _initScrollController() {
+  void _onScroll() {
     _scrollController = ScrollController();
     _scrollController.addListener(() {
       final state = _cubit.state;
@@ -408,7 +408,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
                       isDisabled:
                           item.callStatus.isNotEmpty ||
                           !widget.routeAuthorizationModel.isAction,
-                      onPressed: () => _showDeleteCallLogDialog(context, item, index),
+                      onPressed:
+                          () => _showDeleteCallLogDialog(context, item, index),
                     ),
                   ],
                 ),

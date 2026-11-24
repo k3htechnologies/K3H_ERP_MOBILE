@@ -166,6 +166,7 @@ class ContentDataSourceImpl implements ContentDataSource {
         'data': List<ContentFolderModel>.from(
           networkResponse["data"].map((e) => ContentFolderModel.fromJson(e)),
         ),
+        'message': networkResponse['message'],
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

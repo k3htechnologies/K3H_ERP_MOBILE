@@ -12,6 +12,7 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar_with_back_button.dart';
 import 'package:k3h_erp_app/widgets/buttons/custom_button.dart';
+import 'package:k3h_erp_app/widgets/custom_click_to_contact_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_multi_select_pop_up.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
@@ -58,7 +59,6 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
     _darAllocationCubit = context.read<DarAllocationCubit>();
     _enquiryCubit = context.read<EnquiryCubit>();
     _enquiryCubit.clearChannelPartner();
-    _initializeTextEditingController();
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     if (_isEditMode) {
       _prefillDarAllocation(widget.darAllocationModel!);
@@ -70,8 +70,6 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
     _selectedEmployeeNotifier.dispose();
     super.dispose();
   }
-
-  void _initializeTextEditingController() {}
 
   Future<void> _prefillDarAllocation(DarAllocationModel model) async {
     final villageIds =
@@ -88,13 +86,17 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
             .where((e) => e.isNotEmpty)
             .toList();
 
-    _selectedLocations = List.generate(villageIds.length, (index) {
-      final villageName =
-          index < villageNames.length ? villageNames[index] : villageIds[index];
+    final locationCount =
+        villageIds.length < villageNames.length
+            ? villageIds.length
+            : villageNames.length;
 
-      return {'zAttributesId': villageIds[index], 'DisplayName': villageName};
+    _selectedLocations = List.generate(locationCount, (index) {
+      return {
+        'zAttributesId': villageIds[index],
+        'DisplayName': villageNames[index],
+      };
     });
-
     _selectedEmployeeNotifier.value = [
       {
         'zAttributesId': model.employeeId,
@@ -148,11 +150,12 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
   }) async {
     final result = await _employeeMasterRepository.getEmployeeMasterList(
       pageNumber: pageNumber,
-      pageSize: 15,
-      queryParams:
-          value != null && value.isNotEmpty
-              ? {"EmployeeName": value, "IsCheckPermission": false}
-              : {"IsCheckPermission": false},
+      pageSize: 20,
+      queryParams: {
+        "IsCheckPermission": false,
+        "DepartmentName": "Sales",
+        if (value != null && value.isNotEmpty) "EmployeeName": value,
+      },
     );
 
     return result.fold(
@@ -203,6 +206,7 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
         uniquekey: darAllocation.uniquekey,
         employeeId: employeeId,
         villageMasterId: selectedVillages,
+        index: widget.index!,
       );
     } else {
       _darAllocationCubit.addDarAllocation(
@@ -217,7 +221,7 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBarWithBackButton(
-        screenTitle: "Dar Allocation",
+        screenTitle: "DAR Allocation",
         authorization: AuthorizationModel(),
       ),
       body: SingleChildScrollView(
@@ -226,7 +230,7 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _isEditMode ? "Update Dar Allocation" : "Add Dar Allocation",
+              _isEditMode ? "Update DAR Allocation" : "Add DAR Allocation",
               style: AppTextStyle.ts14M(color: AppColor.grey),
             ),
             verticalSpacing(),
@@ -245,8 +249,8 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             CustomMultipleSelectPopup(
-                              title: 'Employee',
-                              hintText: "Select Employee",
+                              title: 'Employee Name',
+                              hintText: "Select Employee Name",
 
                               isRequired: true,
                               isMultiSelect: false,
@@ -286,11 +290,21 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
                                 {
                                   "title": "E-Mail ID",
                                   "value": selectedEmployee.first["email"],
+                                  "widget": CustomClickToContactText(
+                                    value: selectedEmployee.first["email"],
+                                    type: ContactType.email,
+                                  ),
                                 },
                                 {
-                                  "title": "Personal Mobile Number",
+                                  "title": "Mobile Number",
                                   "value":
                                       selectedEmployee.first["personalNumber"],
+                                  "widget": CustomClickToContactText(
+                                    value:
+                                        selectedEmployee
+                                            .first["personalNumber"],
+                                    type: ContactType.phone,
+                                  ),
                                 },
                               ]),
                             ],
@@ -299,12 +313,20 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
                       },
                     ),
                     CustomMultipleSelectPopup(
-                      title: 'Location',
+                      title: "Location",
+                      hintText: "Select Location",
+                      isRequired: true,
                       isMultiSelect: true,
                       initialValue: _selectedLocations,
                       dataList: const [],
-                      dataFetchCallBack: _enquiryCubit.fetchVillages,
+                      dataFetchCallBack: _darAllocationCubit.fetchVillages,
                       onSelected: (value) => _selectedLocations = value,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Location is required.";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),

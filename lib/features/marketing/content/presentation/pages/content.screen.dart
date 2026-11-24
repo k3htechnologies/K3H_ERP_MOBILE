@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -36,35 +37,65 @@ class _ContentScreenState extends State<ContentScreen> {
   late ProjectModel _project;
 
   // TEXT EDITING CONTROLLERS
-  late TextEditingController _searchC, _folderNameC;
+  late TextEditingController _searchC, _folderNameC, _filterByContentNameC;
 
   // FORM KEY
   final _formKey = GlobalKey<FormState>();
 
+  // PAGINATION
+  late ScrollController scrollController;
+  Timer? _debounce;
+
+  // FILTER COUNT
+  final ValueNotifier<int> _filterCount = ValueNotifier(0);
+
   @override
   void initState() {
     super.initState();
+    _marketingCubit = BlocProvider.of<ContentFolderCubit>(context);
     _initialiseTextController();
     _project = getProject();
-    _marketingCubit = BlocProvider.of<ContentFolderCubit>(context);
-    _marketingCubit.getMarketingFolderList(
-      context,
-      1,
-      1000,
-      _project.projectId,
-    );
+    _onScroll();
+    _marketingCubit.getMarketingFolderList(context, 1, _project.projectId);
   }
 
   @override
   void dispose() {
     super.dispose();
     _searchC.dispose();
+    _filterByContentNameC.dispose();
     _folderNameC.dispose();
+    scrollController.dispose();
+    _debounce?.cancel();
+    _filterCount.dispose();
+  }
+
+  // PAGINATION
+  void _onScroll() {
+    scrollController = ScrollController();
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 100 &&
+          !(_marketingCubit.state.isLoading ?? false) &&
+          _marketingCubit.state.marketingContentFolderList.length <
+              _marketingCubit.state.totalNumberOfRecord) {
+        // TO HANDLE MULTIPLE TIME API CALLS
+        if (_debounce?.isActive ?? false) _debounce?.cancel();
+        _debounce = Timer(const Duration(milliseconds: 300), () {
+          _marketingCubit.getMarketingFolderList(
+            context,
+            _marketingCubit.state.currentPage + 1,
+            _project.projectId,
+          );
+        });
+      }
+    });
   }
 
   void _initialiseTextController() {
     _searchC = TextEditingController();
     _folderNameC = TextEditingController();
+    _filterByContentNameC = TextEditingController();
   }
 
   void _clearDialogueToAddUpdateContentFolder() {
@@ -132,7 +163,7 @@ class _ContentScreenState extends State<ContentScreen> {
     }
     if (contentFolderModel != null) {
       //Edit Name
-      _marketingCubit.updateDrawingDocumentNameInCategory(
+      _marketingCubit.updateContentFolder(
         context: context,
         index: index!,
         uniqueKey: contentFolderModel.uniquekey,
@@ -155,8 +186,8 @@ class _ContentScreenState extends State<ContentScreen> {
   ) async {
     var result = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a content folder?',
-      'Deleting this content folder will permanently remove its contents.',
+      'You are about to delete a Content Document ?',
+      'Deleting this Content Document will permanently remove all associated data.',
     );
     if (result && context.mounted) {
       _marketingCubit.deleteContentFolder(
@@ -170,59 +201,220 @@ class _ContentScreenState extends State<ContentScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(
-        screenTitle: 'Content',
-        authorization: AuthorizationModel(isAction: true),
-        searchHintText: "Search by Content Name",
-        onSearchSubmit: (value) {
-          _marketingCubit.searchContentFolder(
-            context,
-            value,
-            _project.projectId,
+  Future<void> _showBottomSheetToFilterContentAllocation(
+    BuildContext context,
+  ) async {
+    final state = _marketingCubit.state;
+    String? selectedDirection =
+        state.currentSortColumn == "Content Name"
+            ? state.currentSortDirection
+            : null;
+    _searchC.text = state.searchText;
+    _filterByContentNameC.text = state.searchText;
+
+    final String initialName = _searchC.text;
+    final String initialEmployeeName = _filterByContentNameC.text;
+
+    final String? initialDirection = selectedDirection;
+
+    bool manualClose = false;
+    final ValueNotifier<bool> applyEnabled = ValueNotifier<bool>(false);
+    bool applied = false;
+
+    void updateApplyState(StateSetter innerState) {
+      innerState(() {
+        manualClose =
+            (_searchC.text.trim() != initialEmployeeName) ||
+            (_filterByContentNameC.text.trim() != initialName) ||
+            (selectedDirection != initialDirection);
+        applyEnabled.value = manualClose;
+      });
+    }
+
+    DialogHelper.showCustomFilterBottomSheet(
+      context,
+      title: "Filter - Content",
+      contentWidget: StatefulBuilder(
+        builder: (context, innerState) {
+          void selectDirection(String direction) {
+            innerState(() {
+              selectedDirection = direction;
+            });
+            updateApplyState(innerState);
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Sort By Content Name", style: AppTextStyle.ts14M()),
+                verticalSpacing(),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => selectDirection("ASC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "ASC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("A-Z", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                    horizontalSpacing(),
+                    GestureDetector(
+                      onTap: () => selectDirection("DESC"),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 6,
+                          horizontal: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4),
+                          color:
+                              selectedDirection == "DESC"
+                                  ? AppColor.lightBlue
+                                  : Colors.transparent,
+                          border: Border.all(color: AppColor.grey, width: .5),
+                        ),
+                        child: Text("Z-A", style: AppTextStyle.ts12R()),
+                      ),
+                    ),
+                  ],
+                ),
+                verticalSpacing(height: 20),
+
+                CustomTextField(
+                  title: "Content Name",
+                  hint: "Enter Content Name",
+                  textController: _searchC,
+                  onChangeFunction: (_) => updateApplyState(innerState),
+                ),
+              ],
+            ),
           );
         },
-        textController: _searchC,
-        extraHeight: 20,
-        secondaryBuilder:
-            (_) => BlocBuilder<ContentFolderCubit, ContentFolderState>(
-              builder: (context, state) {
-                final list = state.marketingContentFolderList;
-                if (list.isNotEmpty) {
-                  return CustomButton(
-                    text: "Add",
-                    onPressed: () {
-                      _showDialogToAddUpdateContentFolder(
-                        context: context,
-                        state: state,
-                      );
-                    },
-                    backgroundColor: AppColor.primary,
-                    leading: Icon(Icons.add, size: 16, color: AppColor.white),
-                  );
-                }
-
-                return const SizedBox.shrink();
-              },
-            ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          _searchC.clear();
-          _marketingCubit.searchContentFolder(context, "", _project.projectId);
-        },
-        child: SafeArea(
+
+      onClear: () {
+        _searchC.clear();
+        _filterByContentNameC.clear();
+
+        _marketingCubit.applyMarketingFolderFilterAndSort(
+          context: context,
+          isClear: true,
+        );
+      },
+
+      onApply: () {
+        applied = true;
+
+        _marketingCubit.applyMarketingFolderFilterAndSort(
+          context: context,
+          employeeName: _searchC.text.trim(),
+
+          sortColumn: selectedDirection != null ? "Content Name" : null,
+          sortDirection: selectedDirection,
+        );
+      },
+
+      isApplyEnabled: applyEnabled.value,
+      applyEnabledNotifier: applyEnabled,
+    );
+
+    // IF BOTTOM SHEET CLOSE WITHOUT APPLYING
+    if (!applied && manualClose) {
+      _filterByContentNameC.clear();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<ContentFolderCubit, ContentFolderState>(
+      listener: (context, state) {
+        _filterCount.value = _marketingCubit.updateMarketingFolderFilterCount(
+          state,
+        );
+      },
+      child: Scaffold(
+        appBar: CustomAppBar(
+          screenTitle: 'Content',
+          authorization: AuthorizationModel(isAction: true),
+          textController: _searchC,
+          searchHintText: "Search by Content Name",
+          onSearchSubmit: (value) {
+            _marketingCubit.searchContentFolder(
+              context,
+              value,
+              _project.projectId,
+            );
+          },
+          onProjectChangeCallback: (value) {
+            _project = value;
+            _searchC.clear();
+            _filterByContentNameC.clear();
+            _marketingCubit.searchContentFolder(
+              context,
+              "",
+              _project.projectId,
+            );
+            _marketingCubit.getMarketingFolderList(
+              context,
+              1,
+              _project.projectId,
+            );
+          },
+          isFilterOn: true,
+          onFilterTap: () {
+            _showBottomSheetToFilterContentAllocation(context);
+          },
+          filterCountNotifier: _filterCount,
+          extraHeight: 20,
+          secondaryBuilder:
+              (_) => BlocBuilder<ContentFolderCubit, ContentFolderState>(
+                builder: (context, state) {
+                  final list = state.marketingContentFolderList;
+                  if (list.isNotEmpty) {
+                    return CustomButton(
+                      text: "Add",
+                      onPressed: () {
+                        _showDialogToAddUpdateContentFolder(
+                          context: context,
+                          state: state,
+                        );
+                      },
+                      backgroundColor: AppColor.primary,
+                      leading: Icon(Icons.add, size: 16, color: AppColor.white),
+                    );
+                  }
+
+                  return const SizedBox.shrink();
+                },
+              ),
+        ),
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _searchC.clear();
+            _marketingCubit.searchContentFolder(
+              context,
+              "",
+              _project.projectId,
+            );
+          },
           child: BlocBuilder<ContentFolderCubit, ContentFolderState>(
-            buildWhen:
-                (previous, current) =>
-                    previous.marketingContentFolderList !=
-                        current.marketingContentFolderList ||
-                    previous.isLoading != current.isLoading,
             builder: (context, state) {
-              if (state.isLoading == true) {
-                return loader();
+              if ((state.isLoading ?? false) &&
+                  state.marketingContentFolderList.isEmpty) {
+                return Center(child: loader());
               }
               if (state.marketingContentFolderList.isEmpty) {
                 return Center(
@@ -230,11 +422,21 @@ class _ContentScreenState extends State<ContentScreen> {
                 );
               }
               return ListView.builder(
+                controller: scrollController,
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 shrinkWrap: true,
                 itemCount:
-                    _marketingCubit.state.marketingContentFolderList.length,
-                itemBuilder: (_, index) {
+                    _marketingCubit.state.marketingContentFolderList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == state.marketingContentFolderList.length) {
+                    return state.marketingContentFolderList.length <
+                            state.totalNumberOfRecord
+                        ? Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                        : const SizedBox.shrink();
+                  }
                   var folder =
                       _marketingCubit.state.marketingContentFolderList[index];
                   return Container(
@@ -273,7 +475,6 @@ class _ContentScreenState extends State<ContentScreen> {
                                     _marketingCubit.getMarketingFolderList(
                                       context,
                                       1,
-                                      1000,
                                       _project.projectId,
                                     );
                                   }
