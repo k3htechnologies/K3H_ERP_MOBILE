@@ -114,6 +114,10 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _tabIndexNotifier.dispose();
+    _remarkC.dispose();
+    _selectedStatus.dispose();
+    _selectedLostReason.dispose();
     super.dispose();
   }
 
@@ -184,46 +188,51 @@ class _ViewEnquiryScreenState extends State<ViewEnquiryScreen>
           ],
         ),
       ),
-      bottomNavigationBar: BlocBuilder<EnquiryCubit, EnquiryState>(
-        builder: (context, state) {
-          // 1️. SHOW ONLY ON TIMELINE TAB
-          if (_tabController.index != 1) {
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: _tabIndexNotifier,
+        builder: (context, tabIndex, _) {
+          // SHOW ONLY ON REMARK & ACTIVITY TAB (index 1)
+          if (tabIndex != 1) {
             return const SizedBox.shrink();
           }
 
-          // 2️. IF LOADING → HIDE
-          if (state.isFetchingEnquiryDetails == true) {
-            return const SizedBox.shrink();
-          }
+          return BlocBuilder<EnquiryCubit, EnquiryState>(
+            builder: (context, state) {
+              // IF LOADING → HIDE
+              if (state.isFetchingEnquiryDetails == true) {
+                return const SizedBox.shrink();
+              }
 
-          // 3️. IF NO CURRENT ENQUIRY → HIDE
-          final enquiry = state.currentEnquiryDetails;
-          if (enquiry == null) {
-            return const SizedBox.shrink();
-          }
+              // IF NO CURRENT ENQUIRY → HIDE
+              final enquiry = state.currentEnquiryDetails;
+              if (enquiry == null) {
+                return const SizedBox.shrink();
+              }
 
-          // 4️. CLOSED STATUS CHECK
-          final hideFollowUp =
-              closedStatuses.contains(enquiry.finalStage.toLowerCase()) ||
-              (state.enquiryFollowUpList.isNotEmpty &&
-                  closedStatuses.contains(
-                    state.enquiryFollowUpList.first.status.toLowerCase(),
-                  )) ||
-              !_routeAuthorizationModel.isAction;
-          if (hideFollowUp) {
-            return const SizedBox.shrink();
-          }
+              // CLOSED STATUS CHECK
+              final hideFollowUp =
+                  closedStatuses.contains(enquiry.finalStage.toLowerCase()) ||
+                  (state.enquiryFollowUpList.isNotEmpty &&
+                      closedStatuses.contains(
+                        state.enquiryFollowUpList.first.status.toLowerCase(),
+                      )) ||
+                  !_routeAuthorizationModel.isAction;
+              if (hideFollowUp) {
+                return const SizedBox.shrink();
+              }
 
-          return SafeArea(
-            child: Container(
-              height: 70,
-              padding: const EdgeInsets.all(16),
-              child: CustomButton(
-                text: "Follow Up",
-                onPressed:
-                    () => _showAddUpdateEnquiryFollowUpBottomSheet(context),
-              ),
-            ),
+              return SafeArea(
+                child: Container(
+                  height: 70,
+                  padding: const EdgeInsets.all(16),
+                  child: CustomButton(
+                    text: "Follow Up",
+                    onPressed:
+                        () => _showAddUpdateEnquiryFollowUpBottomSheet(context),
+                  ),
+                ),
+              );
+            },
           );
         },
       ),

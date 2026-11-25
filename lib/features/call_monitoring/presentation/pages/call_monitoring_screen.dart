@@ -124,8 +124,8 @@ class _CallMonitoringScreenState extends State<CallMonitoringScreen> {
   ) async {
     final shouldDelete = await DialogHelper.deleteDialog(
       context,
-      'You are about to delete a Call Monitoring ?',
-      'Deleting this Call Monitoring will permanently remove all associated data.',
+      'You are about to delete a Call Log ?',
+      'Deleting this Call Log will permanently remove all associated data.',
     );
 
     if (shouldDelete && context.mounted) {

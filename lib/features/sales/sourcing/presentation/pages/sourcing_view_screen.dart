@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/core/services/call_monitoring_service.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
+import 'package:k3h_erp_app/features/call_monitoring/presentation/cubit/call_monitoring_cubit.dart';
 import 'package:k3h_erp_app/features/call_monitoring/presentation/pages/call_monitoring_screen.dart';
 import 'package:k3h_erp_app/features/channel_partner_module/channel_partner/data/model/channel_partner.model.dart';
 import 'package:k3h_erp_app/features/sales/sourcing/data/model/sourcing.model.dart';
@@ -67,6 +68,7 @@ class _SourcingViewScreenState extends State<SourcingViewScreen>
     super.initState();
     _sourcingCubit = context.read<SourcingCubit>();
     _callMonitoringService = serviceLocator<CallMonitoringService>();
+    context.read<CallMonitoringCubit>().resetState();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.sourcing]!;
     _remarkC = TextEditingController();
