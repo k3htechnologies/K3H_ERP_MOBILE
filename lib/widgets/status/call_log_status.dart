@@ -4,8 +4,8 @@ import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 
 final Map<String, StatusConfig> callLogStatusConfig = {
   'connected': StatusConfig(
-    backgroundColor: Color(0x4A51E551),
-    textColor: Color(0xFF48C848),
+    backgroundColor: AppColor.darkGreen10.withValues(alpha: 0.1),
+    textColor: AppColor.darkGreen10,
   ),
 
   'not connected': StatusConfig(

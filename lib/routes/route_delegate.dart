@@ -38,6 +38,7 @@ import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_draw
 import 'package:k3h_erp_app/features/inventory/presentation/pages/inventory_drawing_document_overall.screen.dart';
 import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/presentation/cubit/notice_section_cubit.dart';
 import 'package:k3h_erp_app/features/masters/compliance_master/notice_section_master/presentation/screen/notice_section_master_screen.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/drawing_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/data/model/inventory_drawing_document.model.dart';
 import 'package:k3h_erp_app/features/project_document/drawing_document/presentation/cubit/drawing_document_cubit.dart';
@@ -6822,8 +6823,8 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.materialRequisition,
               builder:
                   (context, state) =>
-                      ComingSoonScreen(title: "Material Requisition"),
-              // MaterialRequisitonScreen(),
+                      // ComingSoonScreen(title: "Material Requisition"),
+                      MaterialRequisitonScreen(),
             ),
             GoRoute(
               name: AppRoutes.addMaterialRequisition,

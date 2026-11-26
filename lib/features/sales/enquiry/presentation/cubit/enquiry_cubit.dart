@@ -32,6 +32,7 @@ class EnquiryCubit extends Cubit<EnquiryState> {
     emit(EnquiryState.initial());
   }
 
+  void resetLoading() => emit(state.copyWith(isLoading: false));
   // SEARCH
   void searchEnquiry(BuildContext context, String searchText, int projectId) {
     emit(

@@ -232,6 +232,13 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
   void _onScroll() {
     scrollController = ScrollController();
     scrollController.addListener(() {
+      final s = _enquiryCubit.state;
+      debugPrint(
+        'pixels=${scrollController.position.pixels} '
+        'max=${scrollController.position.maxScrollExtent} '
+        'isLoading=${s.isLoading} '
+        'list=${s.enquiryList.length} total=${s.totalNumberOfRecord} page=${s.currentPage}',
+      );
       if (scrollController.position.pixels >=
               scrollController.position.maxScrollExtent - 100 &&
           !_enquiryCubit.state.isLoading! &&
@@ -900,6 +907,10 @@ class _EnquiryScreenState extends State<EnquiryScreen> {
                                                           ),
                                                     },
                                                   );
+                                                  if (mounted) {
+                                                    _enquiryCubit
+                                                        .resetLoading();
+                                                  }
                                                 },
                                                 child: Text(
                                                   enquiry.name,
