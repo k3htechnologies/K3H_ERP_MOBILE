@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:k3h_erp_app/core/cubit/utils_cubit.dart';
 import 'package:k3h_erp_app/core/encryption_manager.dart';
-import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -16,15 +16,16 @@ import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 import 'package:k3h_erp_app/utils/dialog_helper.dart';
 import 'package:k3h_erp_app/utils/static/static_dropdown_data.dart';
-import 'package:k3h_erp_app/utils/functions/utility_function.dart';
 import 'package:k3h_erp_app/widgets/app_bar/custom_app_bar.dart';
-import 'package:k3h_erp_app/widgets/buttons/custom_icon_button.dart';
+import 'package:k3h_erp_app/widgets/approve_reject_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_chip_for_status_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 import 'package:k3h_erp_app/widgets/custom_from_to_date_picker.dart';
 import 'package:k3h_erp_app/widgets/dropdown/custom_dropdown.dart';
+import 'package:k3h_erp_app/widgets/status/status.dart';
 import 'package:k3h_erp_app/widgets/text_field/custom_text_field.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 class MaterialRequisitonScreen extends StatefulWidget {
   const MaterialRequisitonScreen({super.key});
@@ -37,8 +38,7 @@ class MaterialRequisitonScreen extends StatefulWidget {
 class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
   // CUBIT
   late MaterialRequisitionCubit _materialRequisitionCubit;
-  // SELECTION OF PROJECT
-  late ProjectModel _project;
+  late UtilsCubit _utilsCubit;
   // PAGINATION
   late ScrollController scrollController;
   Timer? _debounce;
@@ -62,14 +62,10 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
   void initState() {
     super.initState();
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
-    _project = getProject();
+    _utilsCubit = context.read<UtilsCubit>();
     _routeAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.materialRequisition]!;
-    _materialRequisitionCubit.getMaterialRequisitionList(
-      context,
-      1,
-      _project.projectId,
-    );
+    _materialRequisitionCubit.getMaterialRequisitionList(context, 1);
     _onScroll();
     _initializeTextEditingController();
   }
@@ -93,7 +89,6 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
           _materialRequisitionCubit.getMaterialRequisitionList(
             context,
             _materialRequisitionCubit.state.currentPage + 1,
-            _project.projectId,
           );
         });
       }
@@ -109,25 +104,25 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
     super.dispose();
   }
 
-  void _showPopupToDeleteMaterialRequisition({
-    required int index,
-    required MaterialRequisitionModel materialRequisitionModel,
-    required BuildContext context,
-  }) async {
-    var result = await DialogHelper.deleteDialog(
-      context,
-      'You are about to delete this Material Requisition',
-      'Deleting this Material Requisition will permanently remove its contents.',
-    );
+  // void _showPopupToDeleteMaterialRequisition({
+  //   required int index,
+  //   required MaterialRequisitionModel materialRequisitionModel,
+  //   required BuildContext context,
+  // }) async {
+  //   var result = await DialogHelper.deleteDialog(
+  //     context,
+  //     'You are about to delete this Material Requisition',
+  //     'Deleting this Material Requisition will permanently remove its contents.',
+  //   );
 
-    if (result && context.mounted) {
-      _materialRequisitionCubit.deleteMaterialRequisition(
-        index: index,
-        materialRequisitionModel: materialRequisitionModel,
-        context: context,
-      );
-    }
-  }
+  //   if (result && context.mounted) {
+  //     _materialRequisitionCubit.deleteMaterialRequisition(
+  //       index: index,
+  //       materialRequisitionModel: materialRequisitionModel,
+  //       context: context,
+  //     );
+  //   }
+  // }
 
   Future<void> _showBottomSheetToFilterMaterialRequisition(
     BuildContext context,
@@ -333,7 +328,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
           filterByToDate: null,
           sortColumn: "Created Date",
           sortDirection: "DESC",
-          projectId: _project.projectId,
+          projectId: 0,
         );
       },
 
@@ -374,7 +369,7 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
           filterByToDate: endDate,
           sortColumn: selectedDirection != null ? "SystemGeneratedCode" : null,
           sortDirection: selectedDirection,
-          projectId: _project.projectId,
+          projectId: 0,
         );
       },
 
@@ -403,37 +398,13 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
           },
           searchHintText: "Search By Unique ID",
           onSearchSubmit: (value) {
-            _materialRequisitionCubit.searchMaterialRequisition(
-              context,
-              value,
-              _project.projectId,
-            );
+            _materialRequisitionCubit.searchMaterialRequisition(context, value);
           },
           onAddCallback: () async {
             await _materialRequisitionCubit.clearMaterialList();
             await goRouter.pushNamed(AppRoutes.addMaterialRequisition);
           },
-          onProjectChangeCallback: (value) {
-            _project = value;
-            _materialRequisitionCubit.applyFilterAndSort(
-              context: context,
-              filterByMaterialRequisitionStage: "",
-              filterByMaterialRequisitionStatus: "",
-              filterByFromDate: null,
-              filterByToDate: null,
-              projectId: _project.projectId,
-            );
-            _materialRequisitionCubit.getMaterialRequisitionList(
-              context,
-              1,
-              _project.projectId,
-            );
-          },
           onExportCallback: (value) {
-            if (_project.projectId == 0) {
-              showErrorMessage(context, "Error", "Please Select a project");
-              return;
-            }
             if (_materialRequisitionCubit
                 .state
                 .materialRequisitionList
@@ -441,22 +412,14 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
               showErrorMessage(context, "", "No Data Found");
               return;
             }
-            _materialRequisitionCubit.exportExcelPdf(
-              context,
-              value,
-              _project.projectId,
-            );
+            _materialRequisitionCubit.exportExcelPdf(context, value);
           },
           filterCountNotifier: _filterCount,
         ),
         body: RefreshIndicator(
           onRefresh: () async {
             _searchC.clear();
-            _materialRequisitionCubit.searchMaterialRequisition(
-              context,
-              "",
-              _project.projectId,
-            );
+            _materialRequisitionCubit.searchMaterialRequisition(context, "");
           },
           child: BlocBuilder<
             MaterialRequisitionCubit,
@@ -495,191 +458,266 @@ class _MaterialRequisitonScreenState extends State<MaterialRequisitonScreen> {
                       state.materialRequisitionList[index];
                   return Container(
                     margin: EdgeInsets.only(bottom: 10),
-                    padding: EdgeInsets.all(12),
+                    padding: EdgeInsets.all(16),
                     decoration: commonCardDecoration(),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 10,
                       children: [
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
                           children: [
-                            GestureDetector(
-                              onTap: () async {
-                                await _materialRequisitionCubit.resetOverview();
-                                await goRouter.pushNamed(
-                                  AppRoutes.viewMaterialRequisition,
-                                  queryParameters: {
-                                    "materialRequisitionId":
-                                        Uri.encodeQueryComponent(
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () async {
+                                    await _materialRequisitionCubit
+                                        .resetOverview();
+                                    await goRouter.pushNamed(
+                                      AppRoutes.viewMaterialRequisition,
+                                      queryParameters: {
+                                        "materialRequisitionId":
+                                            Uri.encodeQueryComponent(
+                                              EncryptionManager.encryptData(
+                                                materialRequisition
+                                                    .materialRequisitionId
+                                                    .toString(),
+                                              ),
+                                            ),
+                                        "projectId": Uri.encodeQueryComponent(
                                           EncryptionManager.encryptData(
-                                            materialRequisition
-                                                .materialRequisitionId
+                                            materialRequisition.projectId
                                                 .toString(),
                                           ),
                                         ),
-                                    "projectId": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        materialRequisition.projectId
-                                            .toString(),
-                                      ),
-                                    ),
-                                    "uniquekey": Uri.encodeQueryComponent(
-                                      EncryptionManager.encryptData(
-                                        materialRequisition.uniquekey,
-                                      ),
-                                    ),
-                                  },
-                                );
-                              },
-                              child: Text(
-                                materialRequisition.systemGeneratedCode,
-                                style: AppTextStyle.ts14M(
-                                  color: AppColor.primary,
-                                ),
-                              ),
-                            ),
-                            horizontalSpacing(width: 2),
-                            Row(
-                              spacing: 10,
-                              children: [
-                                CustomIconButton.edit(
-                                  isDisabled:
-                                      (materialRequisition
-                                              .materialRequisitionStage
-                                              .toLowerCase() !=
-                                          'get quotation'),
-                                  onPressed: () async {
-                                    await _materialRequisitionCubit
-                                        .clearMaterialList();
-                                    await goRouter.pushNamed(
-                                      AppRoutes.addMaterialRequisition,
-                                      queryParameters: {
-                                        "materialRequisition":
-                                            Uri.encodeQueryComponent(
-                                              EncryptionManager.encryptData(
-                                                jsonEncode(
-                                                  materialRequisition.toJson(),
-                                                ),
-                                              ),
-                                            ),
-                                        'index': index.toString(),
+                                        "uniquekey": Uri.encodeQueryComponent(
+                                          EncryptionManager.encryptData(
+                                            materialRequisition.uniquekey,
+                                          ),
+                                        ),
                                       },
                                     );
                                   },
+                                  child: Text(
+                                    materialRequisition.systemGeneratedCode,
+                                    style: AppTextStyle.ts14M(
+                                      color: AppColor.primary,
+                                    ),
+                                  ),
                                 ),
-                                CustomIconButton.delete(
-                                  isDisabled:
-                                      (materialRequisition
-                                              .materialRequisitionStage
-                                              .toLowerCase() !=
-                                          'get quotation'),
-                                  onPressed: () {
-                                    _showPopupToDeleteMaterialRequisition(
+                                InkWell(
+                                  onTap: () {
+                                    copy(
                                       context: context,
-                                      index: index,
-                                      materialRequisitionModel:
-                                          materialRequisition,
+                                      text:
+                                          materialRequisition
+                                              .systemGeneratedCode,
                                     );
                                   },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5),
+                                    child: Icon(
+                                      Icons.copy,
+                                      size: 16,
+                                      color: AppColor.grey,
+                                    ),
+                                  ),
                                 ),
-                                CustomIconButton(
-                                  onPressed: () async {
-                                    if (materialRequisition.isCopy) {
-                                      goRouter.pushNamed(
-                                        AppRoutes.copyMaterialRequisition,
-                                        queryParameters: {
-                                          "materialRequisition":
-                                              Uri.encodeQueryComponent(
-                                                EncryptionManager.encryptData(
-                                                  jsonEncode(
-                                                    materialRequisition
-                                                        .toJson(),
-                                                  ),
-                                                ),
-                                              ),
-                                        },
-                                      );
-                                    }
-                                  },
-                                  backgroundColor: AppColor.white,
-
-                                  icon: Icon(
-                                    Icons.copy,
-
-                                    size: 16,
-                                    color:
-                                        materialRequisition.isCopy
-                                            ? AppColor.primary
-                                            : AppColor.grey,
+                              ],
+                            ),
+                            materialRequisitionStatusWidget(
+                              materialRequisition.materialRequisitionStatus,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              materialRequisition.projectName,
+                              style: AppTextStyle.ts14SB(),
+                            ),
+                            Row(
+                              spacing: 5,
+                              children: [
+                                Icon(
+                                  LucideIcons.building,
+                                  size: 12,
+                                  color: AppColor.grey,
+                                ),
+                                Text(
+                                  materialRequisition.companyName,
+                                  style: AppTextStyle.ts12M(
+                                    color: AppColor.grey,
                                   ),
                                 ),
                               ],
                             ),
                           ],
                         ),
-                        buildRowTitleValue(
-                          title: "Vendor's Name",
-                          fixesWidth: 150,
-                          value: materialRequisition.finalVendor,
+                        infoCard(
+                          bgColor: AppColor.lightGreyBackground,
+                          borderColor: AppColor.grey2,
+
+                          [
+                            {
+                              'title': 'Department',
+                              'value': materialRequisition.department,
+                            },
+                            {
+                              'title': 'Type',
+                              'value':
+                                  materialRequisition.materialRequisitionType,
+                            },
+                          ],
                         ),
-                        buildRowTitleValue(
-                          title: "Stage",
-                          fixesWidth: 150,
-                          value: materialRequisition.materialRequisitionStage,
-                        ),
-                        buildRowTitleValue(
-                          title: "Total PO Amount",
-                          fixesWidth: 150,
-                          value:
-                              materialRequisition.totalPoAmount
-                                  .toIndianCurrency(),
-                        ),
-                        buildRowTitleValue(
-                          title: "Invoice Amount",
-                          fixesWidth: 150,
-                          value: materialRequisition.totalInvoice.addCommas(),
+                        infoCard(
+                          bgColor: AppColor.lightGreyBackground,
+                          borderColor: AppColor.grey2,
+                          [
+                            {
+                              'title': 'Total PO Amount',
+                              'value':
+                                  materialRequisition.totalPoAmount
+                                      .toIndianCurrency(),
+                              'widget': Text(
+                                materialRequisition.totalPoAmount
+                                    .toIndianCurrency(),
+                                style: AppTextStyle.ts14SB(
+                                  color: AppColor.darkGreen50,
+                                ),
+                              ),
+                            },
+                            {
+                              'title': 'Total Invoice Amount',
+                              'value':
+                                  materialRequisition.totalInvoiceAmount
+                                      .toIndianCurrency(),
+                            },
+                            {
+                              'title': 'Paid Amount',
+                              'value':
+                                  materialRequisition.paidAmount
+                                      .toIndianCurrency(),
+                            },
+                            {
+                              'title': 'TDS Paid Amount',
+                              'value':
+                                  materialRequisition.tdsPaidAmount
+                                      .toIndianCurrency(),
+                            },
+                          ],
                         ),
 
+                        Divider(height: 1, color: AppColor.lightGrey),
                         buildRowTitleValue(
-                          title: "Status",
-                          fixesWidth: 150,
-                          value: materialRequisition.materialRequisitionStatus,
-                          customValueWidget: statusWidget(
-                            materialRequisition.materialRequisitionStatus,
+                          title: "Total Invoices",
+                          value: materialRequisition.totalInvoice.addCommas(),
+                          fixesWidth: 110,
+                          customValueWidget: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IntrinsicWidth(
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColor.lightOrangeBg.withValues(
+                                      alpha: 0.5,
+                                    ),
+                                    // shape: BoxShape.circle,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: AppColor.rustOrange,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    materialRequisition.totalInvoice
+                                        .addCommas(),
+                                    style: AppTextStyle.ts12SB(
+                                      color: AppColor.rustOrange,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        buildRowTitleValue(
-                          title: "Purchase Order",
-                          fixesWidth: 150,
-                          value: materialRequisition.materialRequisitionStatus,
-                          customValueWidget: CustomIconButton(
-                            onPressed: () {
-                              if (materialRequisition
-                                  .purchaseOrderURL
-                                  .isNotEmpty) {
-                                showFilePreviewDialog(
-                                  context,
-                                  title: "Purchase Order",
-                                  materialRequisition.purchaseOrderURL.split(
-                                    ",",
-                                  ),
+                        ApproveRejectWidget(
+                          actionTitle: materialRequisition.approvalStatus,
+                          showApproval: materialRequisition.isApproval,
+                          popupTitle:
+                              "${materialRequisition.systemGeneratedCode} > ${materialRequisition.projectName} > ${materialRequisition.createdBy}",
+                          onApprove: (val) async {
+                            final isSuccess = await _utilsCubit
+                                .updateModulesWorkflowApproval(
+                                  context: context,
+                                  moduleName: 'MATERIAL REQUISITION APPROVAL',
+                                  id: materialRequisition.materialRequisitionId,
+                                  projectId: materialRequisition.projectId,
+                                  isApproved: true,
+                                  remark: val.trim(),
                                 );
-                              }
-                            },
-                            backgroundColor: AppColor.white,
-                            icon: Icon(
-                              Icons.remove_red_eye_outlined,
-                              size: 20,
-                              color:
-                                  materialRequisition
-                                          .purchaseOrderURL
-                                          .isNotEmpty
-                                      ? AppColor.primary
-                                      : AppColor.grey,
-                            ),
-                          ),
+                            if (context.mounted && isSuccess) {
+                              _materialRequisitionCubit
+                                  .getMaterialRequisitionList(context, 1);
+                            }
+                          },
+                          onReject: (val) async {
+                            final isSuccess = await _utilsCubit
+                                .updateModulesWorkflowApproval(
+                                  context: context,
+                                  moduleName: 'MATERIAL REQUISITION APPROVAL',
+                                  id: materialRequisition.materialRequisitionId,
+                                  projectId: materialRequisition.projectId,
+                                  isApproved: false,
+                                  remark: val.trim(),
+                                );
+                            if (context.mounted && isSuccess) {
+                              _materialRequisitionCubit
+                                  .getMaterialRequisitionList(context, 1);
+                            }
+                          },
+                          onThirdTap: () async {
+                            final approvalLogHistoryList = await _utilsCubit
+                                .getApprovalLogHistory(
+                                  context: context,
+                                  moduleName: 'MATERIAL REQUISITION APPROVAL',
+                                  id: materialRequisition.materialRequisitionId,
+                                  projectId: materialRequisition.projectId,
+                                );
+
+                            if (context.mounted) {
+                              goRouter.pushNamed(
+                                AppRoutes.approvalLogHistory,
+                                queryParameters: {
+                                  "subTitle": Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      "${materialRequisition.systemGeneratedCode} > ${materialRequisition.projectName} > ${materialRequisition.createdBy}",
+                                    ),
+                                  ),
+                                  "title": Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      "Material Requisition Log History",
+                                    ),
+                                  ),
+                                  "approvalList": Uri.encodeComponent(
+                                    EncryptionManager.encryptData(
+                                      jsonEncode(
+                                        approvalLogHistoryList
+                                            .map((e) => e.toJson())
+                                            .toList(),
+                                      ),
+                                    ),
+                                  ),
+                                },
+                              );
+                            }
+                          },
                         ),
                       ],
                     ),

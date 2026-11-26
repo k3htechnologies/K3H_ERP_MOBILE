@@ -7,7 +7,6 @@ abstract interface class MaterialRequisitionRepository {
   Future<Either<Failure, Map<String, dynamic>>> getMaterialRequisitionList({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -29,6 +28,10 @@ abstract interface class MaterialRequisitionRepository {
   Future<Either<Failure, Map<String, dynamic>>> exportRequisition({
     required int pageNumber,
     required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> getCheckProjectSetupStatus({
+    required String pageName,
     required int projectId,
     Map<String, dynamic>? queryParams,
   });
@@ -46,7 +49,6 @@ class MaterialRequisitionRepositoryImpl
   Future<Either<Failure, Map<String, dynamic>>> getMaterialRequisitionList({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
@@ -54,7 +56,6 @@ class MaterialRequisitionRepositoryImpl
           .apicallPullMaterialRequisition(
             pageNumber: pageNumber,
             pageSize: pageSize,
-            projectId: projectId,
             queryParams: queryParams,
           );
       return right(result);
@@ -119,7 +120,6 @@ class MaterialRequisitionRepositoryImpl
   Future<Either<Failure, Map<String, dynamic>>> exportRequisition({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
@@ -127,7 +127,25 @@ class MaterialRequisitionRepositoryImpl
           .apicallPullMaterialRequisitionForExport(
             pageNumber: pageNumber,
             pageSize: pageSize,
+            queryParams: queryParams,
+          );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> getCheckProjectSetupStatus({
+    required String pageName,
+    required int projectId,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      var result = await materialRequisitionDatasource
+          .apicallPullCheckProjectSetupStatus(
             projectId: projectId,
+            pageName: pageName,
             queryParams: queryParams,
           );
       return right(result);

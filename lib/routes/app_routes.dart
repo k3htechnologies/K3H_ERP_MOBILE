@@ -95,7 +95,6 @@ class AppRoutes {
   static String addMaterial = "/addMaterial";
   static String addMaterialRequisition = "/addMaterialRequisition";
   static String viewMaterialRequisition = "/viewMaterialRequisition";
-  static String copyMaterialRequisition = "/copyMaterialRequisition";
   static String addGrn = "/addGrn";
   static String viewGrn = "/viewGrn";
   static String addGrnMaterial = "/addGrnMaterial";

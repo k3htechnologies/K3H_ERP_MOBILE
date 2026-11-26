@@ -250,7 +250,6 @@ import 'package:k3h_erp_app/features/more/ticket/presentation/pages/add_ticket.s
 import 'package:k3h_erp_app/features/more/ticket/presentation/pages/assign_ticket.screen.dart';
 import 'package:k3h_erp_app/features/more/ticket/presentation/pages/ticket.screen.dart';
 import 'package:k3h_erp_app/features/more/ticket/presentation/pages/ticket_view.screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_material_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/add_grn_screen.dart';
@@ -260,7 +259,6 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/pr
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/add_make_payment.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/make_payment.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/view_payment.screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/pages/copy_material_requisition_screen.dart';
 import 'package:k3h_erp_app/features/register/presentation/pages/register_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/designation_master/presentation/pages/module_access_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/designation_master/data/model/designation.model.dart';
@@ -356,13 +354,10 @@ import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_
 import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/presentation/pages/add_terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/presentation/pages/terms_and_conditions_screen.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/terms_and_conditions_master/presentation/pages/terms_and_conditions_view_screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_edit.screen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_get_quotation.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
 import 'package:k3h_erp_app/features/menu/presentation/pages/menu_screen.dart';
 import 'package:k3h_erp_app/features/more/events/calendar/data/models/calendar_event.dart';
@@ -6876,38 +6871,18 @@ final GoRouter goRouter = GoRouter(
 
                 final index =
                     int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+                final projectId =
+                    int.tryParse(
+                      state.uri.queryParameters['projectId'] ?? '',
+                    ) ??
+                    0;
                 return AddMaterialScreen(
                   materialDetails: materialDetails,
                   index: index,
+                  projectId: projectId,
                 );
               },
             ),
-            GoRoute(
-              path: AppRoutes.copyMaterialRequisition,
-              name: AppRoutes.copyMaterialRequisition,
-
-              builder: (context, state) {
-                final queryParameterMaterialRequisition =
-                    state.uri.queryParameters['materialRequisition'];
-
-                final MaterialRequisitionModel? materialRequisition =
-                    queryParameterMaterialRequisition != null
-                        ? MaterialRequisitionModel.fromJson(
-                          jsonDecode(
-                            EncryptionManager.decryptData(
-                              Uri.decodeComponent(
-                                queryParameterMaterialRequisition,
-                              ),
-                            ),
-                          ),
-                        )
-                        : null;
-                return CopyMaterialRequisitionScreen(
-                  materialRequisitionModel: materialRequisition!,
-                );
-              },
-            ),
-
             GoRoute(
               name: AppRoutes.viewMaterialRequisition,
               path: AppRoutes.viewMaterialRequisition,
@@ -6957,139 +6932,21 @@ final GoRouter goRouter = GoRouter(
               path: AppRoutes.finalizeVendor,
               name: AppRoutes.finalizeVendor,
               builder: (context, state) {
-                final queryParameterMaterialRequisitionId =
-                    state.uri.queryParameters['materialRequisitionId'];
-                final queryParameterProjectId =
-                    state.uri.queryParameters['projectId'];
-                final queryParameterUniquekey =
-                    state.uri.queryParameters['uniquekey'];
-
-                final materialRequisitionId =
-                    queryParameterMaterialRequisitionId != null &&
-                            queryParameterMaterialRequisitionId.isNotEmpty
-                        ? int.parse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(
-                              queryParameterMaterialRequisitionId,
-                            ),
-                          ),
-                        )
-                        : 0;
-                final projectId =
-                    queryParameterProjectId != null &&
-                            queryParameterProjectId.isNotEmpty
-                        ? int.parse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterProjectId),
-                          ),
-                        )
-                        : 0;
-                final uniquekey =
-                    queryParameterUniquekey != null &&
-                            queryParameterUniquekey.isNotEmpty
-                        ? EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterUniquekey),
-                        )
-                        : "";
-                final queryParameterSystemGeneratedCode =
-                    state.uri.queryParameters['systemGeneratedCode'];
-                final materialRequisitionSystemGeneratedCode =
-                    queryParameterSystemGeneratedCode != null &&
-                            queryParameterSystemGeneratedCode.isNotEmpty
-                        ? EncryptionManager.decryptData(
-                          Uri.decodeComponent(
-                            queryParameterSystemGeneratedCode,
-                          ),
-                        )
-                        : "";
-                return FinalizeVendorScreen(
-                  materialRequisitionId: materialRequisitionId,
-                  projectId: projectId,
-                  uniquekey: uniquekey,
-                  systemGeneratedCode: materialRequisitionSystemGeneratedCode,
-                );
+                return MaterialRequisitonScreen();
               },
             ),
             GoRoute(
               path: AppRoutes.finalizeVendorGetQuotation,
               name: AppRoutes.finalizeVendorGetQuotation,
               builder: (context, state) {
-                final queryParameterSystemGeneratedCode =
-                    state.uri.queryParameters['systemGeneratedCode'];
-                final materialRequisitionSystemGeneratedCode =
-                    queryParameterSystemGeneratedCode != null &&
-                            queryParameterSystemGeneratedCode.isNotEmpty
-                        ? EncryptionManager.decryptData(
-                          Uri.decodeComponent(
-                            queryParameterSystemGeneratedCode,
-                          ),
-                        )
-                        : "";
-                final queryParameterMaterialRequisitionId =
-                    state.uri.queryParameters['materialRequisitionId'];
-                final queryParameterProjectId =
-                    state.uri.queryParameters['projectId'];
-                final queryParameterUniquekey =
-                    state.uri.queryParameters['uniquekey'];
-
-                final materialRequisitionId =
-                    queryParameterMaterialRequisitionId != null &&
-                            queryParameterMaterialRequisitionId.isNotEmpty
-                        ? int.parse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(
-                              queryParameterMaterialRequisitionId,
-                            ),
-                          ),
-                        )
-                        : 0;
-                final projectId =
-                    queryParameterProjectId != null &&
-                            queryParameterProjectId.isNotEmpty
-                        ? int.parse(
-                          EncryptionManager.decryptData(
-                            Uri.decodeComponent(queryParameterProjectId),
-                          ),
-                        )
-                        : 0;
-                final uniquekey =
-                    queryParameterUniquekey != null &&
-                            queryParameterUniquekey.isNotEmpty
-                        ? EncryptionManager.decryptData(
-                          Uri.decodeComponent(queryParameterUniquekey),
-                        )
-                        : "";
-                return FinalizeVendorGetQuotationScreen(
-                  systemgeneratedCode: materialRequisitionSystemGeneratedCode,
-                  materialRequisitionId: materialRequisitionId,
-                  projectId: projectId,
-                  uniquekey: uniquekey,
-                );
+                return MaterialRequisitonScreen();
               },
             ),
             GoRoute(
               path: AppRoutes.finalizeEditVendor,
               name: AppRoutes.finalizeEditVendor,
               builder: (context, state) {
-                final extra = state.extra as Map<String, dynamic>?;
-                final vendor =
-                    extra?['vendor'] as FinalizeVendorForComparisonModel?;
-                final materials =
-                    extra?['materials']
-                        as List<MaterialRequisitionDetailModel>?;
-                final systemGeneratedCode = extra?['systemGeneratedCode'] ?? "";
-                final projectId = extra?['projectId'] ?? 0;
-                final materialRequisitionId =
-                    extra?['materialRequisitionId'] ?? 0;
-                final uniquekey = extra?['uniquekey'] ?? "";
-                return FinalizeVendorEditScreen(
-                  systemgeneratedCode: systemGeneratedCode,
-                  vendor: vendor,
-                  materials: materials,
-                  projectId: projectId,
-                  uniquekey: uniquekey,
-                  materialRequisitionId: materialRequisitionId,
-                );
+                return MaterialRequisitonScreen();
               },
             ),
             GoRoute(

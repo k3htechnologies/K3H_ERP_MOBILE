@@ -9,6 +9,7 @@ import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_v
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/repository/finalize_vendor.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/repository/invoice.repository.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/project_setup_status.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/repository/material_requisition.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -31,13 +32,9 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
     emit(state.copyWith(materialRequisitionOverview: null));
   }
 
-  void searchMaterialRequisition(
-    BuildContext context,
-    String searchText,
-    int projectId,
-  ) {
+  void searchMaterialRequisition(BuildContext context, String searchText) {
     emit(state.copyWith(searchText: searchText.trim()));
-    getMaterialRequisitionList(context, 1, projectId);
+    getMaterialRequisitionList(context, 1);
   }
 
   void applyFilterAndSort({
@@ -65,22 +62,14 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       ),
     );
 
-    getMaterialRequisitionList(context, 1, projectId);
+    getMaterialRequisitionList(context, 1);
   }
 
   Future getMaterialRequisitionList(
     BuildContext context,
     int pageNumber,
-    int projectId,
   ) async {
     emit(state.copyWith(isLoading: true));
-    if (projectId == 0) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showErrorMessage(context, "Error", "Please select a project");
-      });
-      emit(state.copyWith(isLoading: false));
-      return;
-    }
 
     Map<String, dynamic> queryParams = {
       "SystemGeneratedCode": state.searchText,
@@ -94,7 +83,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         .getMaterialRequisitionList(
           pageNumber: pageNumber,
           pageSize: 10,
-          projectId: projectId,
           queryParams: queryParams,
         );
 
@@ -136,7 +124,6 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         .getMaterialRequisitionList(
           pageNumber: pageNumber,
           pageSize: 10,
-          projectId: projectId,
           queryParams: {"MaterialRequisitionId": materialRequisitionId},
         );
 
@@ -244,7 +231,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         showErrorMessage(context, 'Error', failure.message);
       },
       (response) {
-        getMaterialRequisitionList(context, 1, projectId);
+        getMaterialRequisitionList(context, 1);
         goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
       },
@@ -374,26 +361,17 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       },
       (response) {
         goRouter.pop();
-        getMaterialRequisitionList(
-          context,
-          1,
-          materialRequisitionModel.projectId,
-        );
+        getMaterialRequisitionList(context, 1);
         showSuccessMessage(context, subTitle: response['message']);
       },
     );
   }
 
-  Future exportExcelPdf(
-    BuildContext context,
-    String exportType,
-    int projectId,
-  ) async {
+  Future exportExcelPdf(BuildContext context, String exportType) async {
     DialogHelper.showProcessingOverlay(context);
     var result = await _materialRequisitionRepository.exportRequisition(
       pageNumber: 1,
       pageSize: state.totalNumberOfRecord,
-      projectId: projectId,
       queryParams:
           state.searchText != ""
               ? {
@@ -500,7 +478,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       (response) {
         goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
-        getMaterialRequisitionList(context, 1, projectId);
+        getMaterialRequisitionList(context, 1);
       },
     );
   }
@@ -565,7 +543,7 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
         goRouter.pop();
         goRouter.pop();
         showSuccessMessage(context, subTitle: response['message']);
-        getMaterialRequisitionList(context, 1, projectId);
+        getMaterialRequisitionList(context, 1);
       },
     );
   }
@@ -584,5 +562,32 @@ class MaterialRequisitionCubit extends Cubit<MaterialRequisitionState> {
       state.filterByToDate != null,
       hasSort,
     ]);
+  }
+
+  Future<ProjectSetupStatusModel?> fetchProjectSetupStatus({
+    required BuildContext context,
+    required int projectId,
+  }) async {
+    DialogHelper.showProcessingOverlay(context);
+    var result = await _materialRequisitionRepository
+        .getCheckProjectSetupStatus(
+          projectId: projectId,
+          pageName: 'MATERIAL REQUISITION APPROVAL',
+        );
+
+    return result.fold(
+      (failure) {
+        goRouter.pop();
+        return null;
+      },
+      (response) {
+        final List<ProjectSetupStatusModel> projectSetupStatus =
+            response['data'] as List<ProjectSetupStatusModel>;
+        final projectSetup =
+            projectSetupStatus.isNotEmpty ? projectSetupStatus.first : null;
+        goRouter.pop();
+        return projectSetup;
+      },
+    );
   }
 }

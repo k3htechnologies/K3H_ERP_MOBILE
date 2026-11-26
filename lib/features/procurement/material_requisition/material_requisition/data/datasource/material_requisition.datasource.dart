@@ -1,4 +1,5 @@
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
+import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/project_setup_status.model.dart';
 import 'package:k3h_erp_app/service/base_client.dart';
 import 'package:k3h_erp_app/service/exceptions.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -7,7 +8,6 @@ abstract interface class MaterialRequisitionDatasource {
   Future<Map<String, dynamic>> apicallPullMaterialRequisition({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   });
 
@@ -30,7 +30,12 @@ abstract interface class MaterialRequisitionDatasource {
   Future<Map<String, dynamic>> apicallPullMaterialRequisitionForExport({
     required int pageNumber,
     required int pageSize,
+    Map<String, dynamic>? queryParams,
+  });
+
+  Future<Map<String, dynamic>> apicallPullCheckProjectSetupStatus({
     required int projectId,
+    required String pageName,
     Map<String, dynamic>? queryParams,
   });
 }
@@ -43,18 +48,16 @@ class MaterialRequisitionDataSourceImpl
   Future<Map<String, dynamic>> apicallPullMaterialRequisition({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     try {
       String pullmaterialRequisitionUrl({
         required int pageSize,
         required int pageNumber,
-        required int projectId,
         Map<String, dynamic>? queryParams,
       }) {
         String url =
-            "MaterialRequisition/PullMaterialRequisition?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+            "MaterialRequisition/PullMaterialRequisition?PageSize=$pageSize&PageNumber=$pageNumber";
         url += queryParamsFormatter(queryParams: queryParams);
         return url;
       }
@@ -63,7 +66,6 @@ class MaterialRequisitionDataSourceImpl
         pullmaterialRequisitionUrl(
           pageNumber: pageNumber,
           pageSize: pageSize,
-          projectId: projectId,
           queryParams: queryParams,
         ),
       );
@@ -77,6 +79,13 @@ class MaterialRequisitionDataSourceImpl
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullMaterialRequisition(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
       rethrow;
     }
   }
@@ -131,6 +140,13 @@ class MaterialRequisitionDataSourceImpl
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallDeleteMaterialRequisition(
+          projectId: projectId,
+          materialRequisitionId: materialRequisitionId,
+          uniqueKey: uniqueKey,
+        );
+      }
       rethrow;
     }
   }
@@ -158,6 +174,13 @@ class MaterialRequisitionDataSourceImpl
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallCloseMaterialRequisition(
+          materialRequisitionId: materialRequisitionId,
+          uniqueKey: uniqueKey,
+          projectId: projectId,
+        );
+      }
       rethrow;
     }
   }
@@ -166,17 +189,15 @@ class MaterialRequisitionDataSourceImpl
   Future<Map<String, dynamic>> apicallPullMaterialRequisitionForExport({
     required int pageNumber,
     required int pageSize,
-    required int projectId,
     Map<String, dynamic>? queryParams,
   }) async {
     String pullmaterialRequisitionUrl({
       required int pageSize,
       required int pageNumber,
-      required int projectId,
       Map<String, dynamic>? queryParams,
     }) {
       String url =
-          "MaterialRequisition/PullMaterialRequisition?PageSize=$pageSize&PageNumber=$pageNumber&ProjectId=$projectId";
+          "MaterialRequisition/PullMaterialRequisition?PageSize=$pageSize&PageNumber=$pageNumber";
       url += queryParamsFormatter(queryParams: queryParams);
       return url;
     }
@@ -186,13 +207,58 @@ class MaterialRequisitionDataSourceImpl
         pullmaterialRequisitionUrl(
           pageSize: pageSize,
           pageNumber: pageNumber,
-          projectId: projectId,
           queryParams: queryParams,
         ),
       );
 
       return {
         'data': networkResponse["data"],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        apicallPullMaterialRequisitionForExport(
+          pageNumber: pageNumber,
+          pageSize: pageSize,
+          queryParams: queryParams,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallPullCheckProjectSetupStatus({
+    required int projectId,
+    required String pageName,
+    Map<String, dynamic>? queryParams,
+  }) async {
+    try {
+      String pullCheckProjectSetupStatusUrl({
+        required int projectId,
+        required String pageName,
+        Map<String, dynamic>? queryParams,
+      }) {
+        String url =
+            "Project/CheckProjectSetupStatus?PageName=$pageName&ProjectId=$projectId";
+        url += queryParamsFormatter(queryParams: queryParams);
+        return url;
+      }
+
+      var networkResponse = await baseClient.getRequestWithAuthentication(
+        pullCheckProjectSetupStatusUrl(
+          projectId: projectId,
+          pageName: pageName,
+          queryParams: queryParams,
+        ),
+      );
+
+      return {
+        'data': List<ProjectSetupStatusModel>.from(
+          networkResponse["data"].map(
+            (e) => ProjectSetupStatusModel.fromJson(e),
+          ),
+        ),
         'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
       };
     } catch (error) {

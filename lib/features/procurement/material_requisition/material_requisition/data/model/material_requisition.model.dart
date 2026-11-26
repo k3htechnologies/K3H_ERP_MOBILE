@@ -4,151 +4,167 @@ class MaterialRequisitionModel {
   int materialRequisitionId;
   String uniquekey;
   String systemGeneratedCode;
+  String materialRequisitionType;
   int projectId;
   String projectName;
+  String projectLocation;
+  String companyName;
+  String companyGSTNumber;
+  String companyPANNumber;
+  String closeCompletionRemark;
   String attachmentsURL;
   String remarks;
   int clientRegistrationId;
-  String materialRequisitionStage;
   String materialRequisitionStatus;
-  String finalVendor;
   bool isSplit;
   bool isCopy;
   bool isRequisitionAction;
+  bool isApproval;
+  String approvalStatus;
   int createdById;
   String createdBy;
   DateTime createdDate;
+  String department;
+  int departmentMasterId;
   int modifiedById;
   String modifiedBy;
   DateTime? modifiedDate;
   double paidAmount;
+  double tdsPaidAmount;
   double totalPoAmount;
-  double totalInoviceAmount;
-  double totalInvoice;
+  double totalInvoiceAmount;
+  int totalInvoice;
   String purchaseOrderURL;
-  bool isApprovalVendorFinalization;
-  bool isApprovalInvoice;
-  String vendorFinalizationApprovalStatus;
-  String invoiceApprovalStatus;
+
   List<MaterialRequisitionDetailModel> materialRequisitionDetailData;
 
   MaterialRequisitionModel({
     required this.materialRequisitionId,
     required this.uniquekey,
     required this.systemGeneratedCode,
+    required this.materialRequisitionType,
     required this.projectId,
     required this.projectName,
+    required this.projectLocation,
+    required this.companyName,
+    required this.companyGSTNumber,
+    required this.companyPANNumber,
+    required this.closeCompletionRemark,
     required this.attachmentsURL,
     required this.remarks,
     required this.clientRegistrationId,
-    required this.materialRequisitionStage,
     required this.materialRequisitionStatus,
-    required this.finalVendor,
     required this.isSplit,
     required this.isCopy,
     required this.isRequisitionAction,
+    required this.isApproval,
+    required this.approvalStatus,
     required this.createdById,
     required this.createdBy,
     required this.createdDate,
+    required this.department,
+    required this.departmentMasterId,
     required this.modifiedById,
     required this.modifiedBy,
     required this.modifiedDate,
     required this.paidAmount,
+    required this.tdsPaidAmount,
     required this.totalPoAmount,
-    required this.totalInoviceAmount,
+    required this.totalInvoiceAmount,
     required this.totalInvoice,
     required this.purchaseOrderURL,
-    required this.isApprovalVendorFinalization,
-    required this.isApprovalInvoice,
-    required this.vendorFinalizationApprovalStatus,
-    required this.invoiceApprovalStatus,
     required this.materialRequisitionDetailData,
   });
 
-  factory MaterialRequisitionModel.fromJson(
-    Map<String, dynamic> json,
-  ) => MaterialRequisitionModel(
-    materialRequisitionId: parseValue<int>(json, "MaterialRequisitionId"),
-    uniquekey: parseValue<String>(json, "Uniquekey"),
-    systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
-    projectId: parseValue<int>(json, "ProjectId"),
-    projectName: parseValue<String>(json, "ProjectName"),
-    attachmentsURL: json["AttachmentsURL"],
-    remarks: parseValue<String>(json, "Remarks"),
-    clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
-    materialRequisitionStage: parseValue<String>(
-      json,
-      "MaterialRequisitionStage",
-    ),
-    materialRequisitionStatus: parseValue<String>(
-      json,
-      "MaterialRequisitionStatus",
-    ),
-    finalVendor: parseValue<String>(json, "FinalVendor"),
-    isSplit: parseValue<bool>(json, "IsSplit"),
-    isCopy: parseValue<bool>(json, "IsCopy"),
-    isRequisitionAction: parseValue<bool>(json, "IsRequisitionAction"),
-    createdById: parseValue<int>(json, "CreatedById"),
-    createdBy: parseValue<String>(json, "CreatedBy"),
-    createdDate: parseValue<DateTime>(json, "CreatedDate"),
-    modifiedById: parseValue<int>(json, "ModifiedById"),
-    modifiedBy: parseValue<String>(json, "ModifiedBy"),
-    modifiedDate:
-        json["ModifiedDate"] == null
-            ? null
-            : parseValue<DateTime>(json, "ModifiedDate"),
-    paidAmount: parseValue<double>(json, "PaidAmount"),
-    totalPoAmount: parseValue<double>(json, "TotalPoAmount"),
-    totalInoviceAmount: parseValue<double>(json, "TotalInvoiceAmount"),
-    totalInvoice: parseValue<double>(json, "TotalInvoice"),
-    purchaseOrderURL: parseValue<String>(json, "PurchaseOrderURL"),
-    isApprovalVendorFinalization: parseValue<bool>(
-      json,
-      "IsApprovalVendorFinalization",
-    ),
-    isApprovalInvoice: parseValue<bool>(json, "IsApprovalInvoice"),
-    vendorFinalizationApprovalStatus: parseValue<String>(
-      json,
-      "VendorFinalizationApprovalStatus",
-    ),
-    invoiceApprovalStatus: parseValue<String>(json, "InvoiceApprovalStatus"),
-    materialRequisitionDetailData: List<MaterialRequisitionDetailModel>.from(
-      json["MaterialRequisitionDetailData"].map(
-        (e) => MaterialRequisitionDetailModel.fromJson(e),
-      ),
-    ),
-  );
+  factory MaterialRequisitionModel.fromJson(Map<String, dynamic> json) =>
+      MaterialRequisitionModel(
+        materialRequisitionId: parseValue<int>(json, "MaterialRequisitionId"),
+        uniquekey: parseValue<String>(json, "Uniquekey"),
+        systemGeneratedCode: parseValue<String>(json, "SystemGeneratedCode"),
+        materialRequisitionType: parseValue<String>(
+          json,
+          "MaterialRequisitionType",
+        ),
+        projectId: parseValue<int>(json, "ProjectId"),
+        projectName: parseValue<String>(json, "ProjectName"),
+        projectLocation: parseValue<String>(json, "ProjectLocation"),
+        companyName: parseValue<String>(json, "CompanyName"),
+        companyGSTNumber: parseValue<String>(json, "CompanyGSTNumber"),
+        companyPANNumber: parseValue<String>(json, "CompanyPANNumber"),
+        closeCompletionRemark: parseValue<String>(
+          json,
+          "CloseCompletionRemark",
+        ),
+        attachmentsURL: parseValue<String>(json, "AttachmentsURL"),
+        remarks: parseValue<String>(json, "Remarks"),
+        clientRegistrationId: parseValue<int>(json, "ClientRegistrationId"),
+        materialRequisitionStatus: parseValue<String>(
+          json,
+          "MaterialRequisitionStatus",
+        ),
+        isSplit: parseValue<bool>(json, "IsSplit"),
+        isCopy: parseValue<bool>(json, "IsCopy"),
+        isRequisitionAction: parseValue<bool>(json, "IsRequisitionAction"),
+        isApproval: parseValue<bool>(json, "IsApproval"),
+        approvalStatus: parseValue<String>(json, "ApprovalStatus"),
+        createdById: parseValue<int>(json, "CreatedById"),
+        createdBy: parseValue<String>(json, "CreatedBy"),
+        createdDate: parseValue<DateTime>(json, "CreatedDate"),
+        department: parseValue<String>(json, "Department"),
+        departmentMasterId: parseValue<int>(json, "DepartmentMasterId"),
+        modifiedById: parseValue<int>(json, "ModifiedById"),
+        modifiedBy: parseValue<String>(json, "ModifiedBy"),
+        modifiedDate:
+            json["ModifiedDate"] == null
+                ? null
+                : parseValue<DateTime>(json, "ModifiedDate"),
+        paidAmount: parseValue<double>(json, "PaidAmount"),
+        tdsPaidAmount: parseValue<double>(json, "TDSPaidAmount"),
+        totalPoAmount: parseValue<double>(json, "TotalPoAmount"),
+        totalInvoiceAmount: parseValue<double>(json, "TotalInvoiceAmount"),
+        totalInvoice: parseValue<int>(json, "TotalInvoice"),
+        purchaseOrderURL: parseValue<String>(json, "PurchaseOrderURL"),
+        materialRequisitionDetailData:
+            (json["MaterialRequisitionDetailData"] as List? ?? [])
+                .map((e) => MaterialRequisitionDetailModel.fromJson(e))
+                .toList(),
+      );
 
   Map<String, dynamic> toJson() => {
     "MaterialRequisitionId": materialRequisitionId,
     "Uniquekey": uniquekey,
     "SystemGeneratedCode": systemGeneratedCode,
+    "MaterialRequisitionType": materialRequisitionType,
     "ProjectId": projectId,
     "ProjectName": projectName,
+    "ProjectLocation": projectLocation,
+    "CompanyName": companyName,
+    "CompanyGSTNumber": companyGSTNumber,
+    "CompanyPANNumber": companyPANNumber,
+    "CloseCompletionRemark": closeCompletionRemark,
     "AttachmentsURL": attachmentsURL,
     "Remarks": remarks,
     "ClientRegistrationId": clientRegistrationId,
-    "MaterialRequisitionStage": materialRequisitionStage,
     "MaterialRequisitionStatus": materialRequisitionStatus,
-    "FinalVendor": finalVendor,
     "IsSplit": isSplit,
     "IsCopy": isCopy,
     "IsRequisitionAction": isRequisitionAction,
+    "IsApproval": isApproval,
+    "ApprovalStatus": approvalStatus,
     "CreatedById": createdById,
     "CreatedBy": createdBy,
     "CreatedDate": createdDate.toIso8601String(),
+    "Department": department,
+    "DepartmentMasterId": departmentMasterId,
     "ModifiedById": modifiedById,
     "ModifiedBy": modifiedBy,
     "ModifiedDate": modifiedDate?.toIso8601String(),
     "PaidAmount": paidAmount,
+    "TDSPaidAmount": tdsPaidAmount,
     "TotalPoAmount": totalPoAmount,
-    "TotalInvoiceAmount": totalInoviceAmount,
+    "TotalInvoiceAmount": totalInvoiceAmount,
     "TotalInvoice": totalInvoice,
     "PurchaseOrderURL": purchaseOrderURL,
-    "IsApprovalVendorFinalization": isApprovalVendorFinalization,
-    "IsApprovalInvoice": isApprovalInvoice,
-    "VendorFinalizationApprovalStatus": vendorFinalizationApprovalStatus,
-    "InvoiceApprovalStatus": invoiceApprovalStatus,
     "MaterialRequisitionDetailData":
         materialRequisitionDetailData.map((e) => e.toJson()).toList(),
   };

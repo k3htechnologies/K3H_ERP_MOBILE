@@ -316,6 +316,7 @@ Widget infoCard(
               }
               return buildColumnTitleValue(
                 title: item["title"] ?? "",
+                titleTextStyle: AppTextStyle.ts12M(color: AppColor.grey),
                 value: item["widget"] != null ? "" : item["value"] ?? "",
                 customValueWidget: item["widget"],
               );

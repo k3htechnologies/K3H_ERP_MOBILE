@@ -3,12 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/data/model/finalize_vendor_for_compare.model.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/cubit/finalize_vendor_cubit.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/finalize_vendors/presentation/pages/finalize_vendor_mainscreen.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/pages/grn_screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/data/model/invoice.model.dart';
-import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/cubit/invoice_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/invoice/presentation/pages/invoice.screen.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/data/model/material_requisition.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -51,10 +47,9 @@ class _MaterialRequisitionViewScreenState
   // TAB CONTROLLER
   late TabController _tabController;
   late MaterialRequisitionCubit _materialRequisitionCubit;
-  late FinalizeVendorCubit _finalizeVendorCubit;
-  late GrnCubit _grnCubit;
-  late InvoiceCubit _invoiceCubit;
-  late PurchaseOrderCubit _purchaseOrderCubit;
+  // late FinalizeVendorCubit _finalizeVendorCubit;
+  // late InvoiceCubit _invoiceCubit;
+  // late PurchaseOrderCubit _purchaseOrderCubit;
 
   final Set<int> selectedVendorIndex = {};
   FinalizeVendorForComparisonModel? selectedVendor;
@@ -84,13 +79,10 @@ class _MaterialRequisitionViewScreenState
         MaterialRequisitionTab.invoice,
     ];
     _tabController = TabController(length: _tabs.length, vsync: this);
-    _tabController.addListener(_handleTabChange);
     _materialRequisitionCubit = context.read<MaterialRequisitionCubit>();
-    _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
-    _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
-    _grnCubit = context.read<GrnCubit>();
-    _invoiceCubit = context.read<InvoiceCubit>();
-    initOverview();
+    // _finalizeVendorCubit = context.read<FinalizeVendorCubit>();
+    // _purchaseOrderCubit = context.read<PurchaseOrderCubit>();
+    // _invoiceCubit = context.read<InvoiceCubit>();
   }
 
   void _initAuth() {
@@ -107,86 +99,6 @@ class _MaterialRequisitionViewScreenState
     _makePaymentAuthorizationModel =
         Authorization.routeAuthorizationMap[AppRoutes.makePayments] ??
         AuthorizationModel();
-  }
-
-  void initOverview() async {
-    _purchaseOrderCubit.resetState();
-    _grnCubit.resetState();
-    await _materialRequisitionCubit.getMaterialRequisitionDetailsById(
-      context,
-      1,
-      widget.projectId,
-      widget.materialRequisitionId,
-    );
-    if (mounted) {
-      await _materialRequisitionCubit.getFinalizedVendor(
-        context,
-        widget.projectId,
-        widget.materialRequisitionId,
-        widget.uniquekey,
-      );
-      if (!mounted) return;
-    }
-
-    if (mounted) {
-      invoiceList.value = await _invoiceCubit.getInvoice(
-        projectId: widget.projectId,
-        materialRequisitionId: widget.materialRequisitionId,
-        uniqueKey: widget.uniquekey,
-        context: context,
-      );
-    }
-  }
-
-  // HANDLE TAB CHANGE
-  void _handleTabChange() async {
-    if (!_tabController.indexIsChanging) {
-      final currentTab = _tabs[_tabController.index];
-      switch (currentTab) {
-        case MaterialRequisitionTab.overview:
-          initOverview();
-          break;
-
-        case MaterialRequisitionTab.details:
-          break;
-
-        case MaterialRequisitionTab.finalizeVendor:
-          _finalizeVendorCubit.getVendorForEnquiryList(
-            context,
-            widget.projectId,
-            widget.materialRequisitionId,
-            widget.uniquekey,
-          );
-          break;
-
-        case MaterialRequisitionTab.purchaseOrder:
-          _purchaseOrderCubit.getPurchaseOrder(
-            context: context,
-            projectId: widget.projectId,
-            materialRequisitionId: widget.materialRequisitionId,
-            uniqueKey: widget.uniquekey,
-          );
-          break;
-
-        case MaterialRequisitionTab.grn:
-          _grnCubit.getAllGRNList(
-            context: context,
-            projectId: widget.projectId,
-            materialRequisitionId: widget.materialRequisitionId,
-            uniqueKey: widget.uniquekey,
-          );
-          break;
-
-        case MaterialRequisitionTab.invoice:
-          _invoiceCubit.getInvoice(
-            context: context,
-            projectId: widget.projectId,
-            materialRequisitionId: widget.materialRequisitionId,
-            uniqueKey: widget.uniquekey,
-          );
-          break;
-      }
-    }
   }
 
   @override
@@ -335,17 +247,6 @@ class _MaterialRequisitionViewScreenState
                     children: [
                       _buildOverviewTab(state),
                       _buildDetailsTab(state),
-                      if (_finalizedVendorAuthorizationModel.isView)
-                        FinalizeVendorMainscreen(
-                          systemgeneratedCode:
-                              state
-                                  .materialRequisitionOverview
-                                  ?.systemGeneratedCode ??
-                              "",
-                          projectId: widget.projectId,
-                          materialRequisitionId: widget.materialRequisitionId,
-                          uniquekey: widget.uniquekey,
-                        ),
                       if (_purchaseOrderAuthorizationModel.isView)
                         PurchaseOrderScreen(
                           projectId: widget.projectId,
@@ -409,10 +310,6 @@ class _MaterialRequisitionViewScreenState
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "Stage",
-                      value: materialRequisition.materialRequisitionStage,
-                    ),
                     buildColumnTitleValue(
                       title: "Status",
                       value: materialRequisition.materialRequisitionStatus,
@@ -725,10 +622,6 @@ class _MaterialRequisitionViewScreenState
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    buildColumnTitleValue(
-                      title: "Stage",
-                      value: materialRequisition.materialRequisitionStage,
-                    ),
                     buildColumnTitleValue(
                       title: "Status",
                       value: materialRequisition.materialRequisitionStatus,

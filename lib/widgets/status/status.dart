@@ -14,6 +14,7 @@ import 'package:k3h_erp_app/widgets/status/gate_pass_purpose_status.dart';
 import 'package:k3h_erp_app/widgets/status/gate_pass_unit_distribution.status.dart';
 import 'package:k3h_erp_app/widgets/status/inward_outward_status.dart';
 import 'package:k3h_erp_app/widgets/status/litigation_priority_status.dart';
+import 'package:k3h_erp_app/widgets/status/material_requisition_status.dart';
 import 'package:k3h_erp_app/widgets/status/payment_mode_status.dart';
 import 'package:k3h_erp_app/widgets/status/project_status.dart';
 import 'package:k3h_erp_app/widgets/status/term_sheet_report_status.dart';
@@ -275,6 +276,15 @@ Widget clientLoanReportStatusWidget(String status, {TextStyle? textStyle}) {
   return commonStatusWidget(
     status: formatted,
     config: clientLoanReportStatusConfig,
+    textStyle: textStyle ?? AppTextStyle.ts10M(),
+  );
+}
+
+Widget materialRequisitionStatusWidget(String status, {TextStyle? textStyle}) {
+  final formatted = formattedStatus(status.trim());
+  return commonStatusWidget(
+    status: formatted,
+    config: materialRequisitionStatusConfig,
     textStyle: textStyle ?? AppTextStyle.ts10M(),
   );
 }
