@@ -35,32 +35,34 @@ extension FinalizeVendorExtension on FinalizeVendorForComparisonModel {
 
 extension IndianCurrencyExtension on num {
   String toIndianCurrency() {
-    return '₹ ${_format()}';
+    final formatted = abs()._format();
+    return isNegative && formatted != '0.00' && formatted != '0'
+        ? '-₹ $formatted'
+        : '₹ $formatted';
   }
 
   String addCommas() {
-    return _format();
+    final formatted = abs()._format();
+    return isNegative && formatted != '0.00' && formatted != '0'
+        ? '-$formatted'
+        : formatted;
   }
 
   String _format() {
-    bool hasDecimal = this % 1 != 0;
+    final bool hasDecimal = this % 1 != 0;
+    final String numberStr =
+        hasDecimal ? toStringAsFixed(2) : toInt().toString();
 
-    String numberStr = hasDecimal ? toStringAsFixed(2) : toInt().toString();
+    final parts = numberStr.split('.');
+    final String integerPart = parts[0];
+    final String decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
 
-    List<String> parts = numberStr.split('.');
+    if (integerPart.length <= 3) return '$integerPart$decimalPart';
 
-    String integerPart = parts[0];
-    String decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
+    final String lastThree = integerPart.substring(integerPart.length - 3);
+    final String remaining = integerPart.substring(0, integerPart.length - 3);
 
-    if (integerPart.length <= 3) {
-      return '$integerPart$decimalPart';
-    }
-
-    String lastThree = integerPart.substring(integerPart.length - 3);
-
-    String remaining = integerPart.substring(0, integerPart.length - 3);
-
-    String grouped = remaining.replaceAllMapped(
+    final String grouped = remaining.replaceAllMapped(
       RegExp(r'(\d)(?=(\d{2})+(?!\d))'),
       (match) => '${match[1]},',
     );

@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/core/models/user.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
-import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/data/model/grn.model.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/grn/presentation/cubit/grn_cubit.dart';
 import 'package:k3h_erp_app/features/procurement/material_requisition/material_requisition/presentation/cubit/material_requisition_cubit.dart';
@@ -44,9 +44,8 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
   // CUBIT
   late GrnCubit _grnCubit;
 
-  final ValueNotifier<List<SubMaterialModel>> rawMaterialList = ValueNotifier(
-    [],
-  );
+  final ValueNotifier<List<SubMaterialMasterModel>> rawMaterialList =
+      ValueNotifier([]);
   final ValueNotifier<Map<String, dynamic>?> _selectedMaterial = ValueNotifier(
     null,
   );
@@ -180,7 +179,7 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
             "zAttributesId": e.subMaterialMasterId,
             "DisplayName": e.subMaterialName,
             "IsTolerant": e.isTolerant,
-            "MaterialTolerant": e.materialTolerant,
+            // "MaterialTolerant": e.to,
           },
         )
         .toList();
@@ -275,12 +274,12 @@ class _AddGrnMaterialScreenState extends State<AddGrnMaterialScreen> {
           final parsedList = await compute(
             (m) =>
                 (m as List<dynamic>)
-                    .map((e) => SubMaterialModel.fromJson(e))
+                    .map((e) => SubMaterialMasterModel.fromJson(e))
                     .toList(),
             data,
           );
 
-          rawMaterialList.value = List<SubMaterialModel>.from(parsedList);
+          rawMaterialList.value = List<SubMaterialMasterModel>.from(parsedList);
           if (_isEditMode) {
             _prefill();
           }

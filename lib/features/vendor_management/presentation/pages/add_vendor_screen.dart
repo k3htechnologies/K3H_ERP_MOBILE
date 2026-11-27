@@ -6,8 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:k3h_erp_app/core/country_code.dart';
 import 'package:k3h_erp_app/core/models/file_picker.model.dart';
 import 'package:k3h_erp_app/core/route_authorization.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
-import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/presentation/cubit/vendor/vendor_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
@@ -81,17 +81,16 @@ class _AddVendorScreenState extends State<AddVendorScreen>
   late final TabController _tabController;
 
   // Source + filtered lists
-  List<SubMaterialModel> allSubMaterialList = [];
-  final ValueNotifier<List<SubMaterialModel>> filteredMaterialList =
+  List<SubMaterialMasterModel> allSubMaterialList = [];
+  final ValueNotifier<List<SubMaterialMasterModel>> filteredMaterialList =
       ValueNotifier([]);
   final ValueNotifier<List<SpecificationMasterModel>> contractList =
       ValueNotifier([]);
   final ValueNotifier<List<SpecificationMasterModel>> filteredContractList =
       ValueNotifier([]);
 
-  final ValueNotifier<List<SubMaterialModel>> selectedMaterials = ValueNotifier(
-    [],
-  );
+  final ValueNotifier<List<SubMaterialMasterModel>> selectedMaterials =
+      ValueNotifier([]);
   final ValueNotifier<List<SpecificationMasterModel>> selectedContracts =
       ValueNotifier([]);
 
@@ -258,7 +257,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
             : source.where((item) => match(item, query)).toList();
   }
 
-  void _searchMaterialList() => _search<SubMaterialModel>(
+  void _searchMaterialList() => _search<SubMaterialMasterModel>(
     searchC,
     allSubMaterialList,
     filteredMaterialList,
@@ -286,7 +285,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
     selected.value = list;
   }
 
-  void _toggleMaterialSelection(SubMaterialModel item) =>
+  void _toggleMaterialSelection(SubMaterialMasterModel item) =>
       _toggle(selectedMaterials, item, (e) => e.subMaterialMasterId);
 
   void _toggleContractSelection(SpecificationMasterModel item) =>
@@ -871,7 +870,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
           Expanded(
             child: BlocBuilder<VendorCubit, VendorState>(
               builder: (context, state) {
-                return ValueListenableBuilder<List<SubMaterialModel>>(
+                return ValueListenableBuilder<List<SubMaterialMasterModel>>(
                   valueListenable: filteredMaterialList,
                   builder: (context, list, child) {
                     if (state.isLoading ?? false) {
@@ -885,7 +884,7 @@ class _AddVendorScreenState extends State<AddVendorScreen>
                         ),
                       );
                     }
-                    return ValueListenableBuilder<List<SubMaterialModel>>(
+                    return ValueListenableBuilder<List<SubMaterialMasterModel>>(
                       valueListenable: selectedMaterials,
                       builder: (context, selectedList, _) {
                         final selectedIds =

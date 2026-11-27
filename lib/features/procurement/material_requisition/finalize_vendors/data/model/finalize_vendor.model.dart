@@ -1,5 +1,5 @@
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
-import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
@@ -86,9 +86,9 @@ class RequisitionVendorModel extends VendorModel {
         cityMasterId: parseValue(json, "CityMasterId"),
         cityName: parseValue<String>(json, "CityName"),
         submaterialList: [],
-        // List<SubMaterialModel>.from(
+        // List<SubMaterialMasterModel>.from(
         //   json["SubMaterialMasterData"].map((x) {
-        //     var subMaterial = SubMaterialModel.fromJson(x);
+        //     var subMaterial = SubMaterialMasterModel.fromJson(x);
         //     subMaterial.isSelected = true;
         //     return subMaterial;
         //   }),
@@ -146,7 +146,7 @@ class RequisitionVendorModel extends VendorModel {
     "DistrictName": districtName,
     "CityMasterId": cityMasterId,
     "CityName": cityName,
-    "SubMaterialMasterData": List<SubMaterialModel>.from(
+    "SubMaterialMasterData": List<SubMaterialMasterModel>.from(
       submaterialList.map((x) => x),
     ),
     "SpecificationMasterData": List<SpecificationMasterModel>.from(

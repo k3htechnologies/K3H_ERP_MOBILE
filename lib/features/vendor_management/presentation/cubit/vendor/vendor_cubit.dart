@@ -8,9 +8,9 @@ import 'package:k3h_erp_app/core/models/project.model.dart';
 import 'package:k3h_erp_app/core/repository/utils.repository.dart';
 import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/company_master/data/repository/company_master_repository.dart';
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/repository/specification_master.repository.dart';
-import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/model/vendor.model.dart';
 import 'package:k3h_erp_app/features/vendor_management/data/repository/vendor.repository.dart';
 import 'package:k3h_erp_app/routes/route_delegate.dart';
@@ -131,7 +131,7 @@ class VendorCubit extends Cubit<VendorState> {
     emit(state.copyWith(isLoading: false));
   }
 
-  Future<List<SubMaterialModel>> getMaterialSubMaterialUOMMaster(
+  Future<List<SubMaterialMasterModel>> getMaterialSubMaterialUOMMaster(
     BuildContext context,
   ) async {
     emit(state.copyWith(isLoading: true));
@@ -160,8 +160,8 @@ class VendorCubit extends Cubit<VendorState> {
       },
       (response) async {
         final data = response["MaterialMasterSubMaterialMasterData"];
-        return data.map<SubMaterialModel>((item) {
-          return SubMaterialModel.fromJson(item);
+        return data.map<SubMaterialMasterModel>((item) {
+          return SubMaterialMasterModel.fromJson(item);
         }).toList();
       },
     );

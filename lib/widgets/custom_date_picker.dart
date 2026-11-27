@@ -145,7 +145,10 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                 Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6.r),
-                    color: AppColor.white,
+                    color:
+                        widget.readOnly
+                            ? AppColor.lightGrey.withValues(alpha: 0.3)
+                            : AppColor.white,
                   ),
                   child: InkWell(
                     onTap:
@@ -169,6 +172,8 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                             color:
                                 formFieldState.hasError
                                     ? AppColor.error
+                                    : widget.readOnly
+                                    ? AppColor.lightGrey.withValues(alpha: 0.3)
                                     : AppColor.grey30,
                             width: 1.w,
                           ),
@@ -179,6 +184,8 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                             color:
                                 formFieldState.hasError
                                     ? AppColor.error
+                                    : widget.readOnly
+                                    ? AppColor.lightGrey.withValues(alpha: 0.4)
                                     : AppColor.grey30,
                             width: 1.w,
                           ),
@@ -194,7 +201,9 @@ class _CustomDatePickerState extends State<CustomDatePicker> {
                               style: AppTextStyle.ts14R().copyWith(
                                 color:
                                     finalDate != null
-                                        ? AppColor.black
+                                        ? (widget.readOnly
+                                            ? AppColor.grey
+                                            : AppColor.black)
                                         : AppColor.grey,
                               ),
                             ),

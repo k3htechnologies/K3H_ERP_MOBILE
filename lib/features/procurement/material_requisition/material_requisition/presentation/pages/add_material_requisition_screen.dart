@@ -60,7 +60,10 @@ class _AddMaterialRequisitionScreenState
     deletedFileList: "",
   );
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  int get _projectId =>
+      _selectedProject.value?['zAttributesId'] ??
+      widget.materialRequisitionModel?.projectId ??
+      0;
   @override
   void initState() {
     super.initState();
@@ -71,14 +74,25 @@ class _AddMaterialRequisitionScreenState
 
   void _prefill() {
     if (!_isEditMode) return;
-    selectedDocuments.fileNameList =
-        widget.materialRequisitionModel!.attachmentsURL.isNotEmpty
-            ? widget.materialRequisitionModel!.attachmentsURL.split(',')
-            : [];
-    _materialRequisitionCubit.initializeMaterialList(
-      widget.materialRequisitionModel!.materialRequisitionDetailData,
+    final model = widget.materialRequisitionModel!;
+
+    _selectedProject.value = projectList.firstWhere(
+      (e) => e['zAttributesId'] == model.projectId,
+      orElse: () => {'zAttributesId': model.projectId, 'DisplayName': ''},
     );
-    _remarkC.text = widget.materialRequisitionModel!.remarks;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _projectSetupStatus.value = await _materialRequisitionCubit
+          .fetchProjectSetupStatus(
+            context: context,
+            projectId: model.projectId,
+          );
+    });
+    selectedDocuments.fileNameList =
+        model.attachmentsURL.isNotEmpty ? model.attachmentsURL.split(',') : [];
+    _materialRequisitionCubit.initializeMaterialList(
+      model.materialRequisitionDetailData,
+    );
+    _remarkC.text = model.remarks;
   }
 
   void _saveForm() {
@@ -113,7 +127,7 @@ class _AddMaterialRequisitionScreenState
         context: context,
         materialRequisitionDetailJSON:
             _materialRequisitionCubit.state.materialList,
-        projectId: _selectedProject.value?['zAttributesId'] ?? 0,
+        projectId: _projectId,
         remarks: _remarkC.text.trim(),
       );
     }
@@ -231,11 +245,7 @@ class _AddMaterialRequisitionScreenState
                                             AppRoutes.addMaterial,
                                             queryParameters: {
                                               'projectId':
-                                                  (
-                                                    _selectedProject
-                                                            .value?['zAttributesId'] ??
-                                                        0,
-                                                  ).toString(),
+                                                  _projectId.toString(),
                                             },
                                           );
                                         },
@@ -265,6 +275,10 @@ class _AddMaterialRequisitionScreenState
                                                 buildColumnTitleValue(
                                                   title: "Material Name",
                                                   value: material.materialName,
+                                                  titleTextStyle:
+                                                      AppTextStyle.ts12M(
+                                                        color: AppColor.grey,
+                                                      ),
                                                 ),
                                                 Row(
                                                   spacing: 10.w,
@@ -284,6 +298,9 @@ class _AddMaterialRequisitionScreenState
                                                             ),
                                                             'index':
                                                                 index
+                                                                    .toString(),
+                                                            'projectId':
+                                                                _projectId
                                                                     .toString(),
                                                           },
                                                         );

@@ -1,5 +1,5 @@
+import 'package:k3h_erp_app/features/masters/procurement_master/sub_material_master/data/model/sub_material_master.model.dart';
 import 'package:k3h_erp_app/features/masters/specification_and_budget/specification_master/data/model/specification_master.model.dart';
-import 'package:k3h_erp_app/features/procurement/data/model/sub_material.model.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
 
 class VendorModel {
@@ -33,7 +33,7 @@ class VendorModel {
   String cityName;
   int villageMasterId;
   String villageName;
-  List<SubMaterialModel> submaterialList;
+  List<SubMaterialMasterModel> submaterialList;
   List<SpecificationMasterModel> specificationMasterData;
   String verifiedNonVerified;
   int createdById;
@@ -117,8 +117,10 @@ class VendorModel {
     cityName: parseValue<String>(json, "CityName"),
     villageMasterId: parseValue(json, "VillageMasterId"),
     villageName: parseValue<String>(json, "VillageName"),
-    submaterialList: List<SubMaterialModel>.from(
-      json["SubMaterialMasterData"].map((x) => SubMaterialModel.fromJson(x)),
+    submaterialList: List<SubMaterialMasterModel>.from(
+      json["SubMaterialMasterData"].map(
+        (x) => SubMaterialMasterModel.fromJson(x),
+      ),
     ),
     specificationMasterData: List<SpecificationMasterModel>.from(
       json["SpecificationMasterData"].map(
@@ -167,7 +169,7 @@ class VendorModel {
     "CityName": cityName,
     "VillageMasterId": villageMasterId,
     "VillageName": villageName,
-    "SubMaterialMasterData": List<SubMaterialModel>.from(
+    "SubMaterialMasterData": List<SubMaterialMasterModel>.from(
       submaterialList.map((x) => x),
     ),
     "SpecificationMasterData": List<SpecificationMasterModel>.from(
