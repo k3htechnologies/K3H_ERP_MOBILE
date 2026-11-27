@@ -7,7 +7,7 @@ import 'package:k3h_erp_app/widgets/card_header_tile.dart';
 import 'package:k3h_erp_app/widgets/utils_widgets.dart';
 
 class SectionCard extends StatelessWidget {
-  final String title;
+  final Object? title;
   final IconData? icon;
 
   final TextStyle? titleTextStyle;
@@ -51,6 +51,17 @@ class SectionCard extends StatelessWidget {
     return icon == null ? _buildViewCard() : _buildNormalCard();
   }
 
+  Widget _buildTitle() {
+    if (title is Widget) {
+      return title as Widget;
+    }
+
+    return Text(
+      title?.toString() ?? '',
+      style: AppTextStyle.ts14SB(color: titleTextColor ?? AppColor.primary),
+    );
+  }
+
   Widget _buildViewCard() {
     return Container(
       width: double.infinity,
@@ -71,17 +82,7 @@ class SectionCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       color: headerBackgroundColor ?? AppColor.lightBlue,
       child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              title,
-              style: AppTextStyle.ts14SB(
-                color: titleTextColor ?? AppColor.primary,
-              ),
-            ),
-          ),
-          if (suffix != null) suffix!,
-        ],
+        children: [Expanded(child: _buildTitle()), if (suffix != null) suffix!],
       ),
     );
   }
@@ -123,7 +124,7 @@ class SectionCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CardHeaderTile(
-            title: title,
+            title: title ?? _buildTitle(),
             textStyle:
                 titleTextStyle ?? AppTextStyle.ts14SB(color: titleTextColor),
             icon: icon,

@@ -77,6 +77,10 @@ import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/lan
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/project_lead.screen.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/add_redevelopment.screen.dart';
 import 'package:k3h_erp_app/features/rebuild/project_lead/presentation/pages/redevelopment/view_redevelopment.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/data/model/tax_tracker.model.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/add_request_tax_tracker.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/tax_tracker.screen.dart';
+import 'package:k3h_erp_app/features/tax_tracker/presentation/pages/view_tax_tracker_main.screen.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/data/model/gate_pass.model.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/cubit/gate_pass_cubit.dart';
 import 'package:k3h_erp_app/features/visitor_management/gate_pass/presentation/pages/add_gate_pass.screen.dart';
@@ -4114,10 +4118,7 @@ final GoRouter goRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             return MultiBlocProvider(
-              providers: [
-                BlocProvider(create: (_) => DarAllocationCubit()),
-                BlocProvider(create: (_) => EnquiryCubit()),
-              ],
+              providers: [BlocProvider(create: (_) => DarAllocationCubit())],
 
               child: child,
             );
@@ -8155,14 +8156,64 @@ final GoRouter goRouter = GoRouter(
               name: AppRoutes.taxTracker,
               path: AppRoutes.taxTracker,
               builder: (context, state) {
-                return ComingSoonScreen(title: "Tax Tracker");
+                return TaxTrackerScreen();
               },
             ),
             GoRoute(
               name: AppRoutes.addTaxTracker,
               path: AppRoutes.addTaxTracker,
               builder: (context, state) {
-                return const AddTaxTrackerScreen();
+                final queryParameterTaxTracker =
+                    state.uri.queryParameters['taxTrackerModel'];
+
+                final TaxTrackerModel? taxTracker =
+                    queryParameterTaxTracker != null
+                        ? TaxTrackerModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterTaxTracker),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                final index =
+                    int.tryParse(state.uri.queryParameters['index'] ?? '') ?? 0;
+
+                return AddTaxTrackerScreen(
+                  taxTrackerModel: taxTracker,
+                  index: index,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.addRequestsTaxTracker,
+              path: AppRoutes.addRequestsTaxTracker,
+              builder: (context, state) {
+                final queryParameterTaxTracker =
+                    state.uri.queryParameters['taxTracker'];
+
+                final TaxTrackerModel? taxTrackerModel =
+                    queryParameterTaxTracker != null
+                        ? TaxTrackerModel.fromJson(
+                          jsonDecode(
+                            EncryptionManager.decryptData(
+                              Uri.decodeComponent(queryParameterTaxTracker),
+                            ),
+                          ),
+                        )
+                        : null;
+
+                return AddRequestTaxTrackerScreen(
+                  taxTrackerModel: taxTrackerModel,
+                );
+              },
+            ),
+            GoRoute(
+              name: AppRoutes.viewTaxTrackerMain,
+              path: AppRoutes.viewTaxTrackerMain,
+              builder: (context, state) {
+                return const ViewTaxTrackerMainScreen();
               },
             ),
             GoRoute(

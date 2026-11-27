@@ -6,7 +6,6 @@ import 'package:k3h_erp_app/di/app_dependencies.dart';
 import 'package:k3h_erp_app/features/channel_partner_module/dar_allocation/data/model/dar_allocation.model.dart';
 import 'package:k3h_erp_app/features/channel_partner_module/dar_allocation/presentation/cubit/dar_allocation_cubit.dart';
 import 'package:k3h_erp_app/features/masters/company_setup/employee_master/data/repository/employee_master.repository.dart';
-import 'package:k3h_erp_app/features/sales/enquiry/presentation/cubit/enquiry_cubit.dart';
 import 'package:k3h_erp_app/style/app_color.dart';
 import 'package:k3h_erp_app/style/text_style.dart';
 import 'package:k3h_erp_app/utils/functions/common_function.dart';
@@ -33,7 +32,6 @@ class AddDarAllocationScreen extends StatefulWidget {
 class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
   // CUBIT
   late DarAllocationCubit _darAllocationCubit;
-  late EnquiryCubit _enquiryCubit;
   // EDIT MODE
   bool get _isEditMode => widget.darAllocationModel != null;
 
@@ -57,8 +55,6 @@ class _AddDarAllocationScreenState extends State<AddDarAllocationScreen> {
   void initState() {
     super.initState();
     _darAllocationCubit = context.read<DarAllocationCubit>();
-    _enquiryCubit = context.read<EnquiryCubit>();
-    _enquiryCubit.clearChannelPartner();
     _selectedEmployeeNotifier = ValueNotifier<List<Map<String, dynamic>>>([]);
     if (_isEditMode) {
       _prefillDarAllocation(widget.darAllocationModel!);

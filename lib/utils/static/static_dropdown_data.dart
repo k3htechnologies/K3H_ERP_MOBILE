@@ -351,3 +351,21 @@ final List<Map<String, dynamic>> noticeSectionTypeList = createAttributeList(
 final List<Map<String, dynamic>> companyDocumentList = createAttributeList(
   companyDocumentValues,
 );
+final List<Map<String, dynamic>> taxTrackerNoticeStatus = createAttributeList(
+  taxTrackerNoticeStatusValues,
+);
+
+final List<Map<String, dynamic>> taxTrackerRequestType = createAttributeList(
+  taxTrackerRequestTypeValues,
+);
+
+final List<Map<String, dynamic>> taxTrackerOrderStatus = createAttributeList(
+  taxTrackerOrderStatusValues,
+);
+
+final List<Map<String, dynamic>> taxTrackerAuthorityType = createAttributeList(
+  taxTrackerAuthorityTypeValues,
+);
+
+final List<Map<String, dynamic>> taxTrackerGovernmentComplianceList =
+    createAttributeList(taxTrackerGovernmentComplianceValues);

@@ -9,6 +9,14 @@ abstract interface class TaxTrackerDatasource {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Map<String, dynamic>> apicallAddUpdateTaxTrackerDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+  Future<Map<String, dynamic>> apicallAddUpdateTaxTracker({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 }
 
 class TaxTrackerDatasourceImpl implements TaxTrackerDatasource {
@@ -54,6 +62,72 @@ class TaxTrackerDatasourceImpl implements TaxTrackerDatasource {
           pageSize: pageSize,
           queryParams: queryParams,
         );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateTaxTrackerDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateProjectRedevelopmentUrl =
+        "TaxTracker/AddUpdateTaxTrackerDocument";
+
+    try {
+      final networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateProjectRedevelopmentUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': List<TaxTrackerDocumentDetails>.from(
+          (networkResponse['data'] as List<dynamic>).map(
+            (e) => TaxTrackerDocumentDetails.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateTaxTrackerDocument(
+          body: body,
+          fileList: fileList,
+        );
+      }
+      rethrow;
+    }
+  }
+
+  @override
+  Future<Map<String, dynamic>> apicallAddUpdateTaxTracker({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    String addUpdateProjectRedevelopmentUrl = "TaxTracker/AddUpdateTaxTracker";
+
+    try {
+      final networkResponse = await baseClient
+          .multipartRequestWithAuthenticationBytes(
+            addUpdateProjectRedevelopmentUrl,
+            fileList,
+            body,
+          );
+      return {
+        'data': List<TaxTrackerModel>.from(
+          (networkResponse['data'] as List<dynamic>).map(
+            (e) => TaxTrackerModel.fromJson(e),
+          ),
+        ),
+        'message': networkResponse['message'],
+        'totalNumberOfRecord': networkResponse['totalNumberOfRecord'],
+      };
+    } catch (error) {
+      if (error is TokenExpiredException) {
+        return apicallAddUpdateTaxTracker(body: body, fileList: fileList);
       }
       rethrow;
     }

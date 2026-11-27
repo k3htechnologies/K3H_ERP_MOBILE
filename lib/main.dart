@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 // ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_quill/flutter_quill.dart'
@@ -90,6 +91,18 @@ Future initialSetup() async {
   ]);
   final info = await PackageInfo.fromPlatform();
   currentVersion = info.version;
+  var locationChannel = AndroidNotificationChannel(
+    'location_tracking_channel',
+    'Location Tracking',
+    description: 'Shows when field visit tracking is active',
+    importance: Importance.min,
+  );
+  final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.createNotificationChannel(locationChannel);
   await FlutterBackgroundService().configure(
     androidConfiguration: AndroidConfiguration(
       onStart: onStart,
@@ -97,7 +110,8 @@ Future initialSetup() async {
       autoStart: false,
       foregroundServiceNotificationId: 888,
       initialNotificationTitle: 'K3H ERP',
-      initialNotificationContent: 'Tracking your location...',
+      initialNotificationContent: 'K3H ERP is running in background',
+      notificationChannelId: 'location_tracking_channel',
     ),
     iosConfiguration: IosConfiguration(
       autoStart: false,
@@ -137,7 +151,7 @@ void onStart(ServiceInstance service) async {
       if (await service.isForegroundService()) {
         service.setForegroundNotificationInfo(
           title: "K3H ERP",
-          content: "Location tracking active...",
+          content: "K3H ERP is running in background",
         );
       }
     }

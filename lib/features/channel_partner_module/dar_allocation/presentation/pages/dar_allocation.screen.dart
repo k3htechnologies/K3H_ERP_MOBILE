@@ -281,7 +281,7 @@ class _DARAllocationScreenState extends State<DARAllocationScreen> {
           },
           child: BlocBuilder<DarAllocationCubit, DarAllocationState>(
             builder: (context, state) {
-              if (state.isLoading == true) {
+              if (state.isLoading == true && state.darAllocationList.isEmpty) {
                 return Center(child: loader());
               }
               if (state.darAllocationList.isEmpty) {

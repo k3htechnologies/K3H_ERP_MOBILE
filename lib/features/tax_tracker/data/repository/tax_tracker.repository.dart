@@ -9,11 +9,20 @@ abstract interface class TaxTrackerRepository {
     required int pageSize,
     Map<String, dynamic>? queryParams,
   });
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateTaxTrackerDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateTaxTracker({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  });
 }
 
 class TaxTrackerRepositoryImpl implements TaxTrackerRepository {
   final TaxTrackerDatasource taxTrackerDatasource;
   TaxTrackerRepositoryImpl({required this.taxTrackerDatasource});
+
   @override
   Future<Either<Failure, Map<String, dynamic>>> getTaxTrackerList({
     required int pageNumber,
@@ -25,6 +34,36 @@ class TaxTrackerRepositoryImpl implements TaxTrackerRepository {
         pageNumber: pageNumber,
         pageSize: pageSize,
         queryParams: queryParams,
+      );
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateTaxTrackerDocument({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      final result = await taxTrackerDatasource
+          .apicallAddUpdateTaxTrackerDocument(body: body, fileList: fileList);
+      return right(result);
+    } catch (error) {
+      return left(Failure(message: ErrorHandler.getErrorMessage(error)));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Map<String, dynamic>>> addUpdateTaxTracker({
+    required Map<String, String> body,
+    required List<Map<String, dynamic>> fileList,
+  }) async {
+    try {
+      final result = await taxTrackerDatasource.apicallAddUpdateTaxTracker(
+        body: body,
+        fileList: fileList,
       );
       return right(result);
     } catch (error) {

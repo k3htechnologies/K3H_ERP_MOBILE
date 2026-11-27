@@ -564,8 +564,10 @@ class AppRoutes {
 
   // TAX TRACKER
   static String taxTracker = "/taxTracker";
+  static String addRequestsTaxTracker = "/addRequestsTaxTracker";
   static String addTaxTracker = "/addTaxTracker";
   static String viewTaxTracker = "/viewTaxTracker";
+  static String viewTaxTrackerMain = "/viewTaxTrackerMain";
 
   // FINANCE
   static String termSheet = "/termSheet";

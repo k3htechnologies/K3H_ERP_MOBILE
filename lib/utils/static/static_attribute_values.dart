@@ -632,7 +632,7 @@ const drawingStatusTypeValues = ['Advance', 'Good For Construction (GFC)'];
 
 const budgetLevelTypeValues = ['L1', 'L2', 'L3', 'L4'];
 
-  const otherChargesApplicableForValues = ['Sale', 'Tenant'];
+const otherChargesApplicableForValues = ['Sale', 'Tenant'];
 
 const noticeSectionTypeValues = [
   'GST (Government Service Tax)',
@@ -653,4 +653,37 @@ const companyDocumentValues = [
   'Provisional Balance Sheet',
   'Solvency Certificate',
   'Tax Audit Report',
+];
+const taxTrackerNoticeStatusValues = [
+  'Reply Submitted',
+  'Favourable',
+  'Non-Favourable',
+  'Closed',
+  'Reopened',
+  'Reply Pending',
+  'Pending',
+];
+
+const taxTrackerRequestTypeValues = [
+  'Reply',
+  'Order',
+  'Appeal',
+  'Notice',
+  'Close-Notice',
+  'Other',
+];
+const taxTrackerOrderStatusValues = ['Favourable', 'Non-Favourable'];
+const taxTrackerAuthorityTypeValues = [
+  'District Court',
+  'High Court',
+  'Supreme Court',
+  'Other',
+];
+const taxTrackerGovernmentComplianceValues = [
+  'GST (Government Service Tax)',
+  'Income Tax',
+  'PF (Provident Fund)',
+  'ESIC (Employee State Insurance)',
+  'PT (Profession Tax)',
+  'Other',
 ];

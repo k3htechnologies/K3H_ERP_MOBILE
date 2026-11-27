@@ -6,6 +6,16 @@ class TaxTrackerState extends BaseState {
   final int currentPage;
   final int totalNumberOfRecord;
   final String searchText;
+  final String currentSortColumn;
+  final String currentSortDirection;
+  final String filterByNoticeTitle;
+  final String filterByAuthority;
+  final String filterByFinancialYear;
+  final int filterByCompany;
+  final String filterByGovernmentCompliance;
+  final DateTime? filterByFromDate;
+  final DateTime? filterByToDate;
+  final String filterCallStatus;
   const TaxTrackerState({
     super.isLoading,
     required this.taxTrackerList,
@@ -13,6 +23,16 @@ class TaxTrackerState extends BaseState {
     required this.currentPage,
     required this.totalNumberOfRecord,
     required this.searchText,
+    required this.currentSortColumn,
+    required this.currentSortDirection,
+    required this.filterByNoticeTitle,
+    required this.filterByAuthority,
+    required this.filterByFinancialYear,
+    required this.filterByCompany,
+    required this.filterByGovernmentCompliance,
+    required this.filterByFromDate,
+    required this.filterByToDate,
+    required this.filterCallStatus,
   });
 
   factory TaxTrackerState.initial() => TaxTrackerState(
@@ -22,8 +42,18 @@ class TaxTrackerState extends BaseState {
     currentPage: 1,
     totalNumberOfRecord: 0,
     searchText: "",
+    currentSortColumn: '',
+    currentSortDirection: '',
+    filterByNoticeTitle: '',
+    filterByAuthority: '',
+    filterByFinancialYear: '',
+    filterByCompany: 0,
+    filterByGovernmentCompliance: '',
+    filterByFromDate: null,
+    filterByToDate: null,
+    filterCallStatus: '',
   );
-
+  static const _noChange = Object();
   TaxTrackerState copyWith({
     bool? isLoading,
     List<TaxTrackerModel>? taxTrackerList,
@@ -31,6 +61,16 @@ class TaxTrackerState extends BaseState {
     int? currentPage,
     int? totalNumberOfRecord,
     String? searchText,
+    String? currentSortColumn,
+    String? currentSortDirection,
+    String? filterByNoticeTitle,
+    String? filterByAuthority,
+    String? filterByFinancialYear,
+    int? filterByCompany,
+    String? filterByGovernmentCompliance,
+    Object? filterByFromDate = _noChange,
+    Object? filterByToDate = _noChange,
+    String? filterCallStatus,
   }) {
     return TaxTrackerState(
       isLoading: isLoading ?? this.isLoading,
@@ -39,6 +79,25 @@ class TaxTrackerState extends BaseState {
       currentPage: currentPage ?? this.currentPage,
       totalNumberOfRecord: totalNumberOfRecord ?? this.totalNumberOfRecord,
       searchText: searchText ?? this.searchText,
+      currentSortColumn: currentSortColumn ?? this.currentSortColumn,
+      currentSortDirection: currentSortDirection ?? this.currentSortDirection,
+      filterByNoticeTitle: filterByNoticeTitle ?? this.filterByNoticeTitle,
+      filterByAuthority: filterByAuthority ?? this.filterByAuthority,
+      filterByFinancialYear:
+          filterByFinancialYear ?? this.filterByFinancialYear,
+      filterByCompany: filterByCompany ?? this.filterByCompany,
+      filterByGovernmentCompliance:
+          filterByGovernmentCompliance ?? this.filterByGovernmentCompliance,
+      filterByFromDate:
+          filterByFromDate == _noChange
+              ? this.filterByFromDate
+              : filterByFromDate as DateTime?,
+
+      filterByToDate:
+          filterByToDate == _noChange
+              ? this.filterByToDate
+              : filterByToDate as DateTime?,
+      filterCallStatus: filterCallStatus ?? this.filterCallStatus,
     );
   }
 
@@ -50,5 +109,15 @@ class TaxTrackerState extends BaseState {
     currentPage,
     totalNumberOfRecord,
     searchText,
+    currentSortColumn,
+    currentSortDirection,
+    filterByNoticeTitle,
+    filterByAuthority,
+    filterByFinancialYear,
+    filterByCompany,
+    filterByGovernmentCompliance,
+    filterByFromDate,
+    filterByToDate,
+    filterCallStatus,
   ];
 }

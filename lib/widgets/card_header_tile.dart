@@ -6,7 +6,7 @@ import 'package:k3h_erp_app/widgets/custom_common_widget.dart';
 class CardHeaderTile extends StatelessWidget {
   final String? svgIcon;
   final IconData? icon;
-  final String title;
+  final Object? title;
   final Color backgroundColor;
   final double iconSize;
   final double containerSize;
@@ -30,6 +30,17 @@ class CardHeaderTile extends StatelessWidget {
          'Either svgIcon or icon must be provided.',
        );
 
+  Widget _buildTitle() {
+    if (title is Widget) {
+      return title as Widget;
+    }
+
+    return Text(
+      title?.toString() ?? '',
+      style: AppTextStyle.ts14SB(color: AppColor.primary),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -43,12 +54,7 @@ class CardHeaderTile extends StatelessWidget {
           svgIcon: svgIcon,
         ),
         const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            title,
-            style: textStyle ?? AppTextStyle.ts14M(color: AppColor.black),
-          ),
-        ),
+        Expanded(child: _buildTitle()),
         if (suffix != null) ...[const SizedBox(width: 12), suffix!],
       ],
     );
